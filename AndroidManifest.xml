@@ -8,7 +8,7 @@
 		android:icon="@drawable/icon" 
 		android:theme="@android:style/Theme.NoTitleBar"
 		>
-        <activity android:name="ThreadDisplayActivity"
+        <activity android:name="ForumDisplayActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name="AwfulLoginActivity" />
+        <activity android:name="ThreadDisplayActivity" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

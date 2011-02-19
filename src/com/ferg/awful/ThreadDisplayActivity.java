@@ -28,7 +28,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 
 public class ThreadDisplayActivity extends Activity {
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "ThreadDisplayActivity";
 
 	private final ImageDownloader mImageDownloader = new ImageDownloader();
 
@@ -46,17 +46,12 @@ public class ThreadDisplayActivity extends Activity {
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
 
-		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
-		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);
+        String threadId = getIntent().getStringExtra(Constants.THREAD_ID);
 
-		if (username == null || password == null) {
-			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
-		}
-
-        new LoginTask().execute(username, password);
+        new FetchThreadTask().execute(threadId);
     }
 
-    private class LoginTask extends AsyncTask<String, Void, AwfulThread> {
+    private class FetchThreadTask extends AsyncTask<String, Void, AwfulThread> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
                 "Hold on...", true);
@@ -64,16 +59,9 @@ public class ThreadDisplayActivity extends Activity {
 
         public AwfulThread doInBackground(String... aParams) {
             AwfulThread result = null;
-
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constants.PARAM_USERNAME, aParams[0]);
-            params.put(Constants.PARAM_PASSWORD, aParams[1]);
-            params.put(Constants.PARAM_ACTION, "login");
             
             try {
-                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
-
-                result = AwfulThread.getThread("3362097", 82);
+                result = AwfulThread.getThread(aParams[0], 1);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());

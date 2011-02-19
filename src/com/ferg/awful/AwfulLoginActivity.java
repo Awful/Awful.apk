@@ -45,7 +45,7 @@ public class AwfulLoginActivity extends Activity {
             editor.putString(Constants.PREF_PASSWORD, password);
             editor.commit();
 
-            startActivity(new Intent().setClass(AwfulLoginActivity.this, ThreadDisplayActivity.class));
+            startActivity(new Intent().setClass(AwfulLoginActivity.this, ForumDisplayActivity.class));
         }
     };
 }

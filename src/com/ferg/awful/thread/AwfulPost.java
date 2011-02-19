@@ -102,14 +102,16 @@ public class AwfulPost {
                 AwfulPost post = new AwfulPost();
                 TagNode node = (TagNode) current;
 
-                Object[] postId = node.evaluateXPath(POST_ID);
-                if (postId.length > 0) {
-                    post.setId(((TagNode) postId[0]).getText().toString());
+                // We'll just reuse the array of objects rather than create 
+                // a ton of them
+                Object[] nodeList = node.evaluateXPath(POST_ID);
+                if (nodeList.length > 0) {
+                    post.setId(((TagNode) nodeList[0]).getText().toString());
                 }
 
-                Object[] postDate = node.evaluateXPath(POST_DATE);
-                if (postDate.length > 0) {
-                    TagNode dateNode = (TagNode) postDate[0];
+                nodeList = node.evaluateXPath(POST_DATE);
+                if (nodeList.length > 0) {
+                    TagNode dateNode = (TagNode) nodeList[0];
 
                     // There's got to be a better way to do this
                     dateNode.removeChild(dateNode.findElementHavingAttribute("href", false));
@@ -119,27 +121,27 @@ public class AwfulPost {
                     post.setDate(dateNode.getText().toString().trim());
                 }
 
-                Object[] postUsername = node.evaluateXPath(USERNAME);
-                if (postUsername.length > 0) {
-                    post.setUsername(((TagNode) postUsername[0]).getText().toString());
+                nodeList = node.evaluateXPath(USERNAME);
+                if (nodeList.length > 0) {
+                    post.setUsername(((TagNode) nodeList[0]).getText().toString());
                 }
 
-                Object[] postAvatar = node.evaluateXPath(AVATAR);
-                if (postAvatar.length > 0) {
-                    post.setAvatar(((TagNode) postAvatar[0]).getAttributeByName("src"));
+                nodeList = node.evaluateXPath(AVATAR);
+                if (nodeList.length > 0) {
+                    post.setAvatar(((TagNode) nodeList[0]).getAttributeByName("src"));
                 }
 
-                Object[] postEdited = node.evaluateXPath(EDITED);
-                if (postEdited.length > 0) {
-                    post.setEdited(((TagNode) postEdited[0]).getText().toString());
+                nodeList = node.evaluateXPath(EDITED);
+                if (nodeList.length > 0) {
+                    post.setEdited(((TagNode) nodeList[0]).getText().toString());
                 }
 
-                Object[] postBody = node.evaluateXPath(POSTBODY);
-                if (postBody.length > 0) {
+                nodeList = node.evaluateXPath(POSTBODY);
+                if (nodeList.length > 0) {
                     SimpleHtmlSerializer serializer = 
                         new SimpleHtmlSerializer(cleaner.getProperties());
 
-                    post.setContent(serializer.getAsString((TagNode) postBody[0]));
+                    post.setContent(serializer.getAsString((TagNode) nodeList[0]));
                 }
 
                 result.add(post);
