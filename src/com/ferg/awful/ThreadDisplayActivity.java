@@ -36,6 +36,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -140,6 +141,7 @@ public class ThreadDisplayActivity extends Activity {
                 inflatedView = mInflater.inflate(mViewResource, null);
                 viewHolder = new ViewHolder(inflatedView);
                 inflatedView.setTag(viewHolder);
+                viewHolder.postBody.setMovementMethod(LinkMovementMethod.getInstance());
             } else {
             	viewHolder = (ViewHolder) inflatedView.getTag();
             }
@@ -151,6 +153,7 @@ public class ThreadDisplayActivity extends Activity {
             viewHolder.postBody.setText(Html.fromHtml(current.getContent()));
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
+            // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
             mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
 
             return inflatedView;
