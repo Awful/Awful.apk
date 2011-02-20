@@ -51,6 +51,8 @@ public class AwfulThread implements Parcelable {
     private static final String THREAD_AUTHOR   = "//td[@class='author']/a";
     private static final String UNREAD_POSTS    = "//a[@class='count']//b";
     private static final String UNREAD_UNDO     = "//a[@class='x']";
+	private static final String CURRENT_PAGE    = "//span[@class='curpage']";
+	private static final String LAST_PAGE       = "//a[@class='pagenumber']";
 
     private String mThreadId;
     private String mTitle;
@@ -100,15 +102,25 @@ public class AwfulThread implements Parcelable {
         aDestination.writeInt(mUnreadCount);
     }
     
-    public static ArrayList<AwfulThread> getForumThreads(String aForumId) throws Exception {
-        ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
-
+    public static TagNode getForumThreads(String aForumId) throws Exception {
+		return getForumThreads(aForumId, 0);
+	}
+	
+    public static TagNode getForumThreads(String aForumId, int aPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_FORUM_ID, aForumId);
 
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_FORUM, params);
+		if (aPage != 0) {
+			params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+		}
 
-        Object[] threadObjects = response.evaluateXPath(THREAD_ROW);
+        return NetworkUtils.get(Constants.FUNCTION_FORUM, params);
+	}
+
+	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
+        ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
+
+        Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
 
         for (Object current : threadObjects) {
             AwfulThread thread = new AwfulThread();
@@ -123,8 +135,6 @@ public class AwfulThread implements Parcelable {
                 continue;
             }
 
-                Log.i(TAG, thread.getThreadId());
-
                 Object[] nodeList = node.evaluateXPath(THREAD_TITLE);
                 if (nodeList.length > 0) {
                     thread.setTitle(((TagNode) nodeList[0]).getText().toString().trim());
@@ -132,7 +142,6 @@ public class AwfulThread implements Parcelable {
 
                 nodeList = node.evaluateXPath(THREAD_STICKY);
                 if (nodeList.length > 0) {
-                    Log.i(TAG, "Sticky thread!");
                     thread.setSticky(true);
                 } else {
                     thread.setSticky(false);
@@ -173,8 +182,6 @@ public class AwfulThread implements Parcelable {
 
     public static AwfulThread getThread(String aThreadId, int aPage) throws Exception {
         AwfulThread result = new AwfulThread(aThreadId);
-
-        Log.i(TAG, aThreadId);
 
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, aThreadId);
