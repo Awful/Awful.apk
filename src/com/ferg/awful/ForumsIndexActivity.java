@@ -50,15 +50,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.ferg.awful.async.ImageDownloader;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
-
-	private final ImageDownloader mImageDownloader = new ImageDownloader();
 
     private ListView mForumList;
 	private ProgressDialog mDialog;
