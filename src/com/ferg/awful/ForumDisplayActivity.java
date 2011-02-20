@@ -91,13 +91,23 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
-			case R.id.usercp:
 			case R.id.go_back:
-			case R.id.go_to:
+				if (mForum.getCurrentPage() != 1) {
+					new FetchThreadsTask(mForum.getCurrentPage() - 1).execute(mForum.getForumId());
+				}
+				break;
 			case R.id.go_forward:
+				if (mForum.getCurrentPage() != mForum.getLastPage()) {
+					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+				}
+				break;
+			case R.id.usercp:
+			case R.id.go_to:
 			default:
 				return super.onOptionsItemSelected(item);
     	}
+
+		return true;
     }
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
