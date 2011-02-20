@@ -50,6 +50,7 @@ import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.google.android.htmlwidget.HtmlView;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
@@ -122,12 +123,12 @@ public class ThreadDisplayActivity extends Activity {
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
-        	public TextView postBody;
+        	public HtmlView postBody;
         	public ImageView avatar;
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
         		postDate = (TextView) v.findViewById(R.id.post_date);
-        		postBody = (TextView) v.findViewById(R.id.postbody);
+        		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
         	}
         }
@@ -150,7 +151,7 @@ public class ThreadDisplayActivity extends Activity {
 
             viewHolder.username.setText(current.getUsername());
             viewHolder.postDate.setText("Posted on " + current.getDate());
-            viewHolder.postBody.setText(Html.fromHtml(current.getContent()));
+            viewHolder.postBody.setHtml(current.getContent());
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
