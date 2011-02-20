@@ -41,13 +41,14 @@ import com.ferg.awful.network.NetworkUtils;
 public class AwfulThread {
     private static final String TAG = "AwfulThread";
 
-    private static final String THREAD_ROW    = "//tr[@class='thread']";
-    private static final String THREAD_TITLE  = "//a[@class='thread_title']";
-    private static final String THREAD_STICKY = "//td[@class='title title_sticky']";
-    private static final String THREAD_ICON   = "//td[@class='icon']/img";
-    private static final String THREAD_AUTHOR = "//td[@class='author']/a";
-    private static final String UNREAD_POSTS  = "//a[@class='count']//b";
-    private static final String UNREAD_UNDO   = "//a[@class='x']";
+    private static final String THREAD_ROW      = "//table[@id='forum']//tr";
+    private static final String THREAD_SEEN_ROW = "//tr[@class='thread']";
+    private static final String THREAD_TITLE    = "//a[@class='thread_title']";
+    private static final String THREAD_STICKY   = "//td[@class='title title_sticky']";
+    private static final String THREAD_ICON     = "//td[@class='icon']/img";
+    private static final String THREAD_AUTHOR   = "//td[@class='author']/a";
+    private static final String UNREAD_POSTS    = "//a[@class='count']//b";
+    private static final String UNREAD_UNDO     = "//a[@class='x']";
 
     private String mThreadId;
     private String mTitle;
@@ -133,48 +134,54 @@ public class AwfulThread {
             AwfulThread thread = new AwfulThread();
             TagNode node = (TagNode) current;
 
-            String threadId = node.getAttributeByName("id");
-            thread.setThreadId(threadId.replaceAll("thread", ""));
-
-            Log.i(TAG, thread.getThreadId());
-
-            Object[] nodeList = node.evaluateXPath(THREAD_TITLE);
-            if (nodeList.length > 0) {
-                thread.setTitle(((TagNode) nodeList[0]).getText().toString().trim());
+            try {
+                String threadId = node.getAttributeByName("id");
+                thread.setThreadId(threadId.replaceAll("thread", ""));
+            } catch (NullPointerException e) {
+                // If we can't parse a row, just skip it
+                e.printStackTrace();
+                continue;
             }
 
-            nodeList = node.evaluateXPath(THREAD_STICKY);
-            if (nodeList.length > 0) {
-                Log.i(TAG, "Sticky thread!");
-                thread.setSticky(true);
-            } else {
-                thread.setSticky(false);
-            }
+                Log.i(TAG, thread.getThreadId());
 
-            nodeList = node.evaluateXPath(THREAD_ICON);
-            if (nodeList.length > 0) {
-                thread.setIcon(((TagNode) nodeList[0]).getAttributeByName("src"));
-            }
+                Object[] nodeList = node.evaluateXPath(THREAD_TITLE);
+                if (nodeList.length > 0) {
+                    thread.setTitle(((TagNode) nodeList[0]).getText().toString().trim());
+                }
 
-            nodeList = node.evaluateXPath(THREAD_AUTHOR);
-            if (nodeList.length > 0) {
-                TagNode authorNode = (TagNode) nodeList[0];
+                nodeList = node.evaluateXPath(THREAD_STICKY);
+                if (nodeList.length > 0) {
+                    Log.i(TAG, "Sticky thread!");
+                    thread.setSticky(true);
+                } else {
+                    thread.setSticky(false);
+                }
 
-                // There's got to be a better way to do this
-                authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
+                nodeList = node.evaluateXPath(THREAD_ICON);
+                if (nodeList.length > 0) {
+                    thread.setIcon(((TagNode) nodeList[0]).getAttributeByName("src"));
+                }
 
-                thread.setAuthor(authorNode.getText().toString().trim());
-            }
+                nodeList = node.evaluateXPath(THREAD_AUTHOR);
+                if (nodeList.length > 0) {
+                    TagNode authorNode = (TagNode) nodeList[0];
 
-            nodeList = node.evaluateXPath(UNREAD_POSTS);
-            if (nodeList.length > 0) {
-                thread.setUnreadCount(Integer.parseInt(
-                            ((TagNode) nodeList[0]).getText().toString().trim()));
-            } else {
-                thread.setUnreadCount(0);
-            }
+                    // There's got to be a better way to do this
+                    authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
 
-            result.add(thread);
+                    thread.setAuthor(authorNode.getText().toString().trim());
+                }
+
+                nodeList = node.evaluateXPath(UNREAD_POSTS);
+                if (nodeList.length > 0) {
+                    thread.setUnreadCount(Integer.parseInt(
+                                ((TagNode) nodeList[0]).getText().toString().trim()));
+                } else {
+                    thread.setUnreadCount(0);
+                }
+
+                result.add(thread);
         }
 
         return result;
