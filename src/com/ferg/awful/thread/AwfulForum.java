@@ -25,54 +25,78 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-package com.ferg.awful;
+package com.ferg.awful.thread;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 
-public class AwfulLoginActivity extends Activity {
-    private static final String TAG = "LoginActivity";
+public class AwfulForum {
+    private static final String TAG = "AwfulForum";
 
-    private Button mLogin;
-    private EditText mUsername;
-    private EditText mPassword;
-    private SharedPreferences mPrefs;
+	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']//a[@class='forum']";
+	private static final String FORUM_TITLE = "//a[@class='forum']";
+	// TODO: Parse subforums
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
+	private String mTitle;
+	private String mForumId;
+	private String mSubtext;
 
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+	public static ArrayList<AwfulForum> getForums() throws Exception {
+		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
-        mLogin = (Button) findViewById(R.id.login);
-        mUsername = (EditText) findViewById(R.id.username);
-        mPassword = (EditText) findViewById(R.id.password);
+        TagNode response = NetworkUtils.get(Constants.BASE_URL);
 
-        mLogin.setOnClickListener(onLoginClick);
-    }
+		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
 
-    private View.OnClickListener onLoginClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            String username = mUsername.getText().toString();
-            String password = mPassword.getText().toString();
+		for (Object current : forumObjects) {
+			AwfulForum forum = new AwfulForum();
+			TagNode node = (TagNode) current;
 
-            SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putString(Constants.PREF_USERNAME, username);
-            editor.putString(Constants.PREF_PASSWORD, password);
-            editor.commit();
+			forum.setTitle(node.getText().toString());
 
-            startActivity(new Intent().setClass(AwfulLoginActivity.this, ForumsIndexActivity.class));
-        }
-    };
+			// Just nix the part we don't need to get the forum ID
+			String id = node.getAttributeByName("href");
+			String[] idSplit = id.split("=");
+				
+			forum.setForumId(idSplit[1]);	
+
+			forum.setSubtext(node.getAttributeByName("title"));
+
+			result.add(forum);
+		}
+
+		return result;
+	}
+
+	public String getTitle() {
+		return mTitle;
+	}
+
+	public void setTitle(String aTitle) {
+		mTitle = aTitle;
+	}
+
+	public String getForumId() {
+		return mForumId;
+	}
+
+	public void setForumId(String aForumId) {
+		mForumId = aForumId;
+	}
+
+	public String getSubtext() {
+		return mSubtext;
+	}
+
+	public void setSubtext(String aSubtext) {
+		mSubtext = aSubtext;
+	}
 }
