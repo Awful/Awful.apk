@@ -156,12 +156,12 @@ public class ForumDisplayActivity extends Activity {
             AwfulThread current = getItem(aPosition);
 
             TextView title       = (TextView) inflatedView.findViewById(R.id.title);
-            TextView pages       = (TextView) inflatedView.findViewById(R.id.pages);
+            TextView author      = (TextView) inflatedView.findViewById(R.id.author);
             TextView unreadCount = (TextView) inflatedView.findViewById(R.id.unread_count);
             ImageView sticky     = (ImageView) inflatedView.findViewById(R.id.sticky_icon);
 
             title.setText(Html.fromHtml(current.getTitle()));
-            pages.setText("Pages: 4");
+            author.setText("Author: " + current.getAuthor());
             unreadCount.setText(Integer.toString(current.getUnreadCount()));
 
             if (current.isSticky()) {
