@@ -126,7 +126,7 @@ public class ForumDisplayActivity extends Activity {
             AwfulThread thread = adapter.getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(ForumDisplayActivity.this, ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD_ID, thread.getThreadId());
+            viewThread.putExtra(Constants.THREAD, thread);
 
             startActivity(viewThread);
 		}

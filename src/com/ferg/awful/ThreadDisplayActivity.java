@@ -73,22 +73,26 @@ public class ThreadDisplayActivity extends Activity {
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
 
-        String threadId = getIntent().getStringExtra(Constants.THREAD_ID);
+        AwfulThread thread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
 
-        new FetchThreadTask().execute(threadId);
+        new FetchThreadTask().execute(thread);
     }
 
-    private class FetchThreadTask extends AsyncTask<String, Void, AwfulThread> {
+    private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
-        public AwfulThread doInBackground(String... aParams) {
+        public AwfulThread doInBackground(AwfulThread... aParams) {
             AwfulThread result = null;
             
             try {
-                result = AwfulThread.getThread(aParams[0]);
+				if (aParams[0].getUnreadCount() > 0) {
+					result = AwfulThread.getThread(aParams[0].getThreadId());
+				} else {
+					result = AwfulThread.getThread(aParams[0].getThreadId(), 1);
+				}
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());

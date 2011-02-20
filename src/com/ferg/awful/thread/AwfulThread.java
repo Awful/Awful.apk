@@ -27,6 +27,8 @@
 
 package com.ferg.awful.thread;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ import org.htmlcleaner.XPatherException;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 
-public class AwfulThread {
+public class AwfulThread implements Parcelable {
     private static final String TAG = "AwfulThread";
 
     private static final String THREAD_ROW      = "//table[@id='forum']//tr";
@@ -64,60 +66,38 @@ public class AwfulThread {
         mThreadId = aThreadId;
     }
 
-    public String getThreadId() {
-        return mThreadId;
+    public AwfulThread(Parcel aAwfulThread) {
+        mThreadId    = aAwfulThread.readString();
+        mTitle       = aAwfulThread.readString();
+        mAuthor      = aAwfulThread.readString();
+        mSticky      = aAwfulThread.readInt() == 1 ? true : false;
+        mIcon        = aAwfulThread.readString();
+        mUnreadCount = aAwfulThread.readInt();
     }
 
-    public void setThreadId(String aThreadId) {
-        mThreadId = aThreadId;
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public AwfulThread createFromParcel(Parcel aAwfulThread) {
+            return new AwfulThread(aAwfulThread);
+        }
+
+        public AwfulThread[] newArray(int aSize) {
+            return new AwfulThread[aSize];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String aTitle) {
-        mTitle = aTitle;
-    }
-
-    public String getAuthor() {
-        return mAuthor;
-    }
-
-    public void setAuthor(String aAuthor) {
-        mAuthor = aAuthor;
-    }
-
-    public String getIcon() {
-        return mIcon;
-    }
-
-    public void setIcon(String aIcon) {
-        mIcon = aIcon;
-    }
-
-    public boolean isSticky() {
-        return mSticky;
-    }
-
-    public void setSticky(boolean aSticky) {
-        mSticky = aSticky;
-    }
-
-    public int getUnreadCount() {
-        return mUnreadCount;
-    }
-
-    public void setUnreadCount(int aUnreadCount) {
-        mUnreadCount = aUnreadCount;
-    }
-
-    public ArrayList<AwfulPost> getPosts() {
-        return mPosts;
-    }
-
-    public void setPosts(ArrayList<AwfulPost> aPosts) {
-        mPosts = aPosts;
+    @Override
+    public void writeToParcel(Parcel aDestination, int aFlags) {
+        aDestination.writeString(mThreadId);
+        aDestination.writeString(mTitle);
+        aDestination.writeString(mAuthor);
+        aDestination.writeInt(mSticky ? 1 : 0);
+        aDestination.writeString(mIcon);
+        aDestination.writeInt(mUnreadCount);
     }
     
     public static ArrayList<AwfulThread> getForumThreads(String aForumId) throws Exception {
@@ -209,5 +189,61 @@ public class AwfulThread {
                     NetworkUtils.get(Constants.FUNCTION_THREAD, params)));
 
         return result;
+    }
+
+    public String getThreadId() {
+        return mThreadId;
+    }
+
+    public void setThreadId(String aThreadId) {
+        mThreadId = aThreadId;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String aTitle) {
+        mTitle = aTitle;
+    }
+
+    public String getAuthor() {
+        return mAuthor;
+    }
+
+    public void setAuthor(String aAuthor) {
+        mAuthor = aAuthor;
+    }
+
+    public String getIcon() {
+        return mIcon;
+    }
+
+    public void setIcon(String aIcon) {
+        mIcon = aIcon;
+    }
+
+    public boolean isSticky() {
+        return mSticky;
+    }
+
+    public void setSticky(boolean aSticky) {
+        mSticky = aSticky;
+    }
+
+    public int getUnreadCount() {
+        return mUnreadCount;
+    }
+
+    public void setUnreadCount(int aUnreadCount) {
+        mUnreadCount = aUnreadCount;
+    }
+
+    public ArrayList<AwfulPost> getPosts() {
+        return mPosts;
+    }
+
+    public void setPosts(ArrayList<AwfulPost> aPosts) {
+        mPosts = aPosts;
     }
 }
