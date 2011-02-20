@@ -41,6 +41,7 @@ public class Constants {
     public static final String PARAM_THREAD_ID = "threadid";
     public static final String PARAM_PAGE      = "pagenumber";
     public static final String PARAM_FORUM_ID  = "forumid";
+    public static final String PARAM_GOTO      = "goto";
 
     // Intent parameters
     public static final String THREAD_ID = "thread_id";

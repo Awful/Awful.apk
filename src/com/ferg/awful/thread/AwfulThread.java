@@ -180,6 +180,10 @@ public class AwfulThread {
         return result;
     }
 
+    public static AwfulThread getThread(String aThreadId) throws Exception {
+        return getThread(aThreadId, -1);
+    }
+
     public static AwfulThread getThread(String aThreadId, int aPage) throws Exception {
         AwfulThread result = new AwfulThread(aThreadId);
 
@@ -187,7 +191,12 @@ public class AwfulThread {
 
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, aThreadId);
-        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+
+        if (aPage == -1) {
+            params.put(Constants.PARAM_GOTO, "newpost");
+        } else {
+            params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+        } 
 
         result.setPosts(AwfulPost.parsePosts(
                     NetworkUtils.get(Constants.FUNCTION_THREAD, params)));

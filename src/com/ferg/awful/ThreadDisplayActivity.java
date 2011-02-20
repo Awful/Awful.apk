@@ -88,7 +88,7 @@ public class ThreadDisplayActivity extends Activity {
             AwfulThread result = null;
             
             try {
-                result = AwfulThread.getThread(aParams[0], 1);
+                result = AwfulThread.getThread(aParams[0]);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
