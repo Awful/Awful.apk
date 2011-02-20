@@ -176,15 +176,13 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         return result;
     }
 
-    public static AwfulThread getThread(String aThreadId) throws Exception {
-        return getThread(aThreadId, -1);
+    public void getThreadPosts() throws Exception {
+        getThreadPosts(-1);
     }
 
-    public static AwfulThread getThread(String aThreadId, int aPage) throws Exception {
-        AwfulThread result = new AwfulThread(aThreadId);
-
+    public void getThreadPosts(int aPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_THREAD_ID, aThreadId);
+        params.put(Constants.PARAM_THREAD_ID, mThreadId);
 
         if (aPage == -1) {
             params.put(Constants.PARAM_GOTO, "newpost");
@@ -194,10 +192,8 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
 		TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
 
-        result.setPosts(AwfulPost.parsePosts(response));
-		result.parsePageNumbers(response);
-
-        return result;
+        setPosts(AwfulPost.parsePosts(response));
+		parsePageNumbers(response);
     }
 
     public String getThreadId() {
