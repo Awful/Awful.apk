@@ -281,7 +281,7 @@ public class ImageDownloader {
         private final WeakReference<BitmapDownloaderTask> bitmapDownloaderTaskReference;
 
         public DownloadedDrawable(BitmapDownloaderTask bitmapDownloaderTask) {
-            super(Color.BLACK);
+            super(com.ferg.awful.R.color.forums_blue);
             bitmapDownloaderTaskReference =
                 new WeakReference<BitmapDownloaderTask>(bitmapDownloaderTask);
         }
