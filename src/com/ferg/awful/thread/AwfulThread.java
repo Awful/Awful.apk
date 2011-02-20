@@ -40,7 +40,7 @@ import org.htmlcleaner.XPatherException;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 
-public class AwfulThread implements Parcelable {
+public class AwfulThread extends AwfulPagedItem implements Parcelable {
     private static final String TAG = "AwfulThread";
 
     private static final String THREAD_ROW      = "//table[@id='forum']//tr";
@@ -192,8 +192,10 @@ public class AwfulThread implements Parcelable {
             params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
         } 
 
-        result.setPosts(AwfulPost.parsePosts(
-                    NetworkUtils.get(Constants.FUNCTION_THREAD, params)));
+		TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
+
+        result.setPosts(AwfulPost.parsePosts(response));
+		result.parsePageNumbers(response);
 
         return result;
     }

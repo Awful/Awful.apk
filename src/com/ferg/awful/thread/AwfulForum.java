@@ -45,8 +45,6 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
 
 	private static final String FORUM_ROW    = "//table[@id='forums']//tr//td[@class='title']//a[@class='forum']";
 	private static final String FORUM_TITLE  = "//a[@class='forum']";
-	private static final String CURRENT_PAGE = "//span[@class='curpage']";
-	private static final String LAST_PAGE    = "//a[@class='pagenumber']";
 	// TODO: Parse subforums
 
 	private String mTitle;
@@ -59,8 +57,9 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
         mTitle       = aAwfulForum.readString();
         mForumId     = aAwfulForum.readString();
         mSubtext     = aAwfulForum.readString();
-        mCurrentPage = aAwfulForum.readInt();
-        mLastPage    = aAwfulForum.readInt();
+
+        setCurrentPage(aAwfulForum.readInt());
+        setLastPage(aAwfulForum.readInt());
 	}
 
 	public static ArrayList<AwfulForum> getForums() throws Exception {
@@ -110,8 +109,8 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
         aDestination.writeString(mTitle);
         aDestination.writeString(mForumId);
         aDestination.writeString(mSubtext);
-        aDestination.writeInt(mCurrentPage);
-        aDestination.writeInt(mLastPage);
+        aDestination.writeInt(getCurrentPage());
+        aDestination.writeInt(getLastPage());
     }
 
 	public String getTitle() {
