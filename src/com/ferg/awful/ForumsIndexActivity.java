@@ -27,6 +27,9 @@
 
 package com.ferg.awful;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -35,26 +38,22 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.ferg.awful.async.ImageDownloader;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulPost;
-import com.ferg.awful.thread.AwfulThread;
 
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
@@ -167,5 +166,22 @@ public class ForumsIndexActivity extends Activity {
 
             return inflatedView;
         }
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.forum_index_options, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+    	case R.id.logout:
+    		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+    	default:
+    		return super.onOptionsItemSelected(item);
+    	}
     }
 }
