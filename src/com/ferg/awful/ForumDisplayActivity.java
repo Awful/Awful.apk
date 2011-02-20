@@ -27,6 +27,8 @@
 
 package com.ferg.awful;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -35,7 +37,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,19 +47,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.ferg.awful.async.ImageDownloader;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 
 public class ForumDisplayActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
-
-	private final ImageDownloader mImageDownloader = new ImageDownloader();
 
     private ListView mThreadList;
 	private ProgressDialog mDialog;

@@ -27,15 +27,15 @@
 
 package com.ferg.awful;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,19 +45,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.ferg.awful.async.ImageDownloader;
+import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
 
-	private final ImageDownloader mImageDownloader = new ImageDownloader();
+	private final DrawableManager mImageDownloader = new DrawableManager();
 
     private ListView mPostList;
 	private ProgressDialog mDialog;
@@ -122,27 +118,40 @@ public class ThreadDisplayActivity extends Activity {
             mViewResource = aViewResource;
         }
 
+        private class ViewHolder {
+        	public TextView username;
+        	public TextView postDate;
+        	public TextView postBody;
+        	public ImageView avatar;
+        	public ViewHolder(View v) {
+        		username = (TextView) v.findViewById(R.id.username);
+        		postDate = (TextView) v.findViewById(R.id.post_date);
+        		postBody = (TextView) v.findViewById(R.id.postbody);
+        		avatar = (ImageView) v.findViewById(R.id.avatar);
+        	}
+        }
+        
         @Override
         public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
             View inflatedView = aConvertView;
-
+            ViewHolder viewHolder = null;
+            
             if (inflatedView == null) {
                 inflatedView = mInflater.inflate(mViewResource, null);
+                viewHolder = new ViewHolder(inflatedView);
+                inflatedView.setTag(viewHolder);
+            } else {
+            	viewHolder = (ViewHolder) inflatedView.getTag();
             }
 
             AwfulPost current = getItem(aPosition);
 
-            TextView username = (TextView) inflatedView.findViewById(R.id.username);
-            TextView postDate = (TextView) inflatedView.findViewById(R.id.post_date);
-            TextView postBody = (TextView) inflatedView.findViewById(R.id.postbody);
-            ImageView avatar  = (ImageView) inflatedView.findViewById(R.id.avatar);
-
-            username.setText(current.getUsername());
-            postDate.setText("Posted on " + current.getDate());
-            postBody.setText(Html.fromHtml(current.getContent()));
+            viewHolder.username.setText(current.getUsername());
+            viewHolder.postDate.setText("Posted on " + current.getDate());
+            viewHolder.postBody.setText(Html.fromHtml(current.getContent()));
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
-            mImageDownloader.download(current.getAvatar(), avatar);
+            mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
 
             return inflatedView;
         }
