@@ -86,7 +86,7 @@ public class ThumbnailAdapter extends AdapterWrapper {
 		mLoadingAnimation.setDuration(700);
 	}
 	private void setLoadingImage(ImageView image) {
-		image.setImageResource(R.drawable.missing_image);
+		image.setImageResource(android.R.drawable.ic_menu_rotate);
 		image.startAnimation(mLoadingAnimation);
 	}
 	private void unsetLoadingImage(ImageView image) {
