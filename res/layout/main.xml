@@ -12,5 +12,6 @@
 		android:cacheColorHint="#f4f4f4"
 		android:scrollingCache="true"
 		android:smoothScrollbar="true"
+		android:fastScrollEnabled="true"
 		/>
 </LinearLayout>

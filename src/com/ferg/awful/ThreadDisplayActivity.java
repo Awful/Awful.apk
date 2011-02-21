@@ -47,8 +47,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulPost;
@@ -154,21 +156,61 @@ public class ThreadDisplayActivity extends Activity {
         }
     }
 
+    /**
+     * Factory method for a post adapter. Deals with a few decorator classes.
+     */
     private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
-    	ListAdapter base = new AwfulPostAdapter(this, R.layout.post_item, posts);
-    	return new ThumbnailAdapter(
-    			this,
-    			base,
-    			((AwfulApplication)getApplication()).getImageCache(),
-    			new int[] {R.id.avatar});
+    	AwfulPostAdapterBase base = new AwfulPostAdapterBase(this, R.layout.post_item, posts);
+    	return new AwfulPostAdapter(base);
+    }
+    /**
+     * Decorates the base adapter that does the actual work with a
+     * ThumbnailAdapter to render avatars, then adds SectionIndexer
+     * capabilities for the fast scroll bar.
+     *
+     * Right now the SectionIndexer just does the post number relative
+     * to the start of the page. In the future this might change to use
+     * the page number in an endless list. 
+     */
+    public class AwfulPostAdapter extends AdapterWrapper implements SectionIndexer {
+    	private AwfulPostAdapterBase mBaseAdapter;
+    	
+    	public AwfulPostAdapter(AwfulPostAdapterBase base) {
+    		super(new ThumbnailAdapter(    		
+    				ThreadDisplayActivity.this,
+    				base,
+    				((AwfulApplication)getApplication()).getImageCache(),
+        			new int[] {R.id.avatar}));
+    		mBaseAdapter = base;
+    	}
+
+		@Override
+		public int getPositionForSection(int section) {
+			return section;
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			return position;
+		}
+
+		@Override
+		public Object[] getSections() {
+			int count = mBaseAdapter.getCount();
+			String[] sections = new String[count];
+			for(int i=0;i<count;i++) {
+				sections[i] = Integer.toString(i+1);
+			}
+			return sections;
+		}
     }
     
-    public class AwfulPostAdapter extends ArrayAdapter<AwfulPost> {
+    public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
         private ArrayList<AwfulPost> mPosts;
         private int mViewResource;
         private LayoutInflater mInflater;
 
-        public AwfulPostAdapter(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
+        public AwfulPostAdapterBase(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
             super(aContext, aViewResource, aPosts);
 
             mInflater     = LayoutInflater.from(aContext);
