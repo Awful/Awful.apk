@@ -39,6 +39,9 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -57,6 +60,8 @@ public class ThreadDisplayActivity extends Activity {
 
 	private final DrawableManager mImageDownloader = new DrawableManager();
 
+	private AwfulThread mThread;
+
     private ListView mPostList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
@@ -71,35 +76,77 @@ public class ThreadDisplayActivity extends Activity {
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
 
-        AwfulThread thread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
 
-        new FetchThreadTask().execute(thread);
+        new FetchThreadTask().execute(mThread);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.post_menu, menu);
+
+		return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+			case R.id.go_back:
+				if (mThread.getCurrentPage() != 1) {
+					new FetchThreadTask(mThread.getCurrentPage() - 1).execute(mThread);
+				}
+				break;
+			case R.id.go_forward:
+				if (mThread.getCurrentPage() != mThread.getLastPage()) {
+					new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
+				}
+				break;
+			case R.id.usercp:
+			case R.id.go_to:
+			default:
+				return super.onOptionsItemSelected(item);
+    	}
+
+		return true;
     }
 
     private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
+		private int mPage;
+
+		public FetchThreadTask() {}
+
+		public FetchThreadTask(int aPage) {
+			mPage = aPage;
+		}
+
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
-            AwfulThread result = null;
-            
             try {
-				if (aParams[0].getUnreadCount() > 0) {
-					result = AwfulThread.getThread(aParams[0].getThreadId());
+				if (mPage == 0) {
+					if (aParams[0].getUnreadCount() > 0) {
+						aParams[0].getThreadPosts();
+					} else {
+						aParams[0].getThreadPosts(1);
+					}
 				} else {
-					result = AwfulThread.getThread(aParams[0].getThreadId(), 1);
+					aParams[0].getThreadPosts(mPage);
 				}
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
             }
 
-            return result;
+            return aParams[0];
         }
 
         public void onPostExecute(AwfulThread aResult) {
+			mThread = aResult;
+
             mPostList.setAdapter(new AwfulPostAdapter(ThreadDisplayActivity.this, 
                         R.layout.post_item, aResult.getPosts()));
 

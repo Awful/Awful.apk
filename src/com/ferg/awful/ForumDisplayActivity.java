@@ -39,6 +39,9 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -47,11 +50,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.htmlcleaner.TagNode;
+
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
 public class ForumDisplayActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
+
+	private AwfulForum mForum;
 
     private ListView mThreadList;
 	private ProgressDialog mDialog;
@@ -67,12 +75,50 @@ public class ForumDisplayActivity extends Activity {
 
         mThreadList = (ListView) findViewById(R.id.forum_list);
 
-		String forumId = getIntent().getStringExtra(Constants.FORUM_ID);
+		mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
 
-        new FetchThreadsTask().execute(forumId);
+        new FetchThreadsTask().execute(mForum.getForumId());
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.post_menu, menu);
+
+		return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+			case R.id.go_back:
+				if (mForum.getCurrentPage() != 1) {
+					new FetchThreadsTask(mForum.getCurrentPage() - 1).execute(mForum.getForumId());
+				}
+				break;
+			case R.id.go_forward:
+				if (mForum.getCurrentPage() != mForum.getLastPage()) {
+					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+				}
+				break;
+			case R.id.usercp:
+			case R.id.go_to:
+			default:
+				return super.onOptionsItemSelected(item);
+    	}
+
+		return true;
     }
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
+		private int mPage;
+
+		public FetchThreadsTask() {}
+
+		public FetchThreadsTask(int aPage) {
+			mPage = aPage;
+		}
+
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ForumDisplayActivity.this, "Loading", 
                 "Hold on...", true);
@@ -82,7 +128,24 @@ public class ForumDisplayActivity extends Activity {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
             try {
-                result = AwfulThread.getForumThreads(aParams[0]);
+				TagNode threads = null;
+
+				if (mPage == 0) {
+					threads = AwfulThread.getForumThreads(aParams[0]);
+				} else {
+					threads = AwfulThread.getForumThreads(aParams[0], mPage);
+				}
+
+				result = AwfulThread.parseForumThreads(threads);
+
+				// Now that we have the page number list for the current forum we can
+				// populate it
+				if (mForum.getCurrentPage() == 0) {
+					mForum.parsePageNumbers(threads);
+
+					Log.i(TAG, Integer.toString(mForum.getCurrentPage()));
+					Log.i(TAG, Integer.toString(mForum.getLastPage()));
+				}
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
