@@ -35,7 +35,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +45,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -53,6 +53,7 @@ import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thumbnail.ThumbnailAdapter;
 import com.google.android.htmlwidget.HtmlView;
 
 public class ThreadDisplayActivity extends Activity {
@@ -147,13 +148,21 @@ public class ThreadDisplayActivity extends Activity {
         public void onPostExecute(AwfulThread aResult) {
 			mThread = aResult;
 
-            mPostList.setAdapter(new AwfulPostAdapter(ThreadDisplayActivity.this, 
-                        R.layout.post_item, aResult.getPosts()));
+            mPostList.setAdapter(generateAdapter(aResult.getPosts()));
 
             mDialog.dismiss();
         }
     }
 
+    private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
+    	ListAdapter base = new AwfulPostAdapter(this, R.layout.post_item, posts);
+    	return new ThumbnailAdapter(
+    			this,
+    			base,
+    			((AwfulApplication)getApplication()).getImageCache(),
+    			new int[] {R.id.avatar});
+    }
+    
     public class AwfulPostAdapter extends ArrayAdapter<AwfulPost> {
         private ArrayList<AwfulPost> mPosts;
         private int mViewResource;
@@ -202,7 +211,8 @@ public class ThreadDisplayActivity extends Activity {
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
-            mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            // mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            viewHolder.avatar.setTag(current.getAvatar());
 
             return inflatedView;
         }
