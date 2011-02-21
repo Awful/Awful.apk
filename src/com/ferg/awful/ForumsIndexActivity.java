@@ -125,8 +125,7 @@ public class ForumsIndexActivity extends Activity {
             AwfulForum forum = adapter.getItem(aPosition);
 
             Intent viewForum = new Intent().setClass(ForumsIndexActivity.this, ForumDisplayActivity.class);
-			Log.i(TAG, forum.getForumId());
-            viewForum.putExtra(Constants.FORUM_ID, forum.getForumId());
+            viewForum.putExtra(Constants.FORUM, forum);
 
             startActivity(viewForum);
 		}
