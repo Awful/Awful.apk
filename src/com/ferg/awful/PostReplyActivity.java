@@ -59,7 +59,15 @@ public class PostReplyActivity extends Activity {
         mSubmit  = (Button) findViewById(R.id.submit_button);
         mMessage = (EditText) findViewById(R.id.post_message);
 
-		mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        Intent caller = getIntent();
+
+		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
+
+        // If we're quoting a post, add it to the message box
+        if (caller.hasExtra(Constants.QUOTE)) {
+            String quoteText = caller.getStringExtra(Constants.QUOTE);
+            mMessage.setText(quoteText.replaceAll("&quot;", "\""));
+        }
 
 		// We'll enable it once we have a formkey
 		mSubmit.setEnabled(false);
@@ -90,6 +98,8 @@ public class PostReplyActivity extends Activity {
 
 		public void onPostExecute(Void aResult) {
 			Log.i(TAG, "Done!");
+
+            PostReplyActivity.this.finish();
 		}
 	}
 

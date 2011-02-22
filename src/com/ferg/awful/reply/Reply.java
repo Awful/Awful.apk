@@ -27,6 +27,8 @@
 
 package com.ferg.awful.reply;
 
+import android.util.Log;
+
 import java.util.HashMap;
 
 import org.htmlcleaner.TagNode;
@@ -39,6 +41,7 @@ public class Reply {
     private static final String TAG = "Reply";
 
     private static final String FORMKEY = "//input[@name='formkey']";
+    private static final String QUOTE   = "//textarea[@name='message']";
 
     private static final String PARAM_ACTION      = "action";
     private static final String PARAM_THREADID    = "threadid";
@@ -78,6 +81,23 @@ public class Reply {
         Object[] formkey = response.evaluateXPath(FORMKEY);
         if (formkey.length > 0) {
             result = ((TagNode) formkey[0]).getAttributeByName("value");
+        }
+
+        return result;
+    }
+
+    public static final String getQuote(String aPostId) throws Exception {
+        String result = null;
+
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_ACTION, "newreply");
+        params.put(PARAM_POSTID, aPostId);
+
+        TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
+
+        Object[] formkey = response.evaluateXPath(QUOTE);
+        if (formkey.length > 0) {
+            result = ((TagNode) formkey[0]).getText().toString();
         }
 
         return result;
