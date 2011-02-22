@@ -18,6 +18,7 @@
         <activity android:name="AwfulLoginActivity" />
         <activity android:name="ThreadDisplayActivity" />
         <activity android:name="ForumDisplayActivity" />
+        <activity android:name="PostReplyActivity" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

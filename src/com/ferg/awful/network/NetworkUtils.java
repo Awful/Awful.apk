@@ -71,6 +71,8 @@ public class NetworkUtils {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
 
+		Log.i(TAG, aUrl + parameters);
+
         HttpGet httpGet = new HttpGet(aUrl + parameters);
 
         HttpResponse httpResponse = sHttpClient.execute(httpGet);
@@ -84,8 +86,10 @@ public class NetworkUtils {
 		return response;
 	}
 
-	public static String post(String aUrl, HashMap<String, String> aParams) throws Exception {
-        String response = null;
+	public static TagNode post(String aUrl, HashMap<String, String> aParams) throws Exception {
+        TagNode response = null;
+
+		Log.i(TAG, aUrl);
 
         HttpPost httpPost = new HttpPost(aUrl);
         httpPost.setEntity(
@@ -96,7 +100,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = EntityUtils.toString(entity);
+            response = sCleaner.clean(new InputStreamReader(entity.getContent()));
         }
 
 		return response;

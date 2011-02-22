@@ -91,8 +91,6 @@ public class ForumsIndexActivity extends Activity {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
             HashMap<String, String> params = new HashMap<String, String>();
-			Log.i(TAG, aParams[0]);
-			Log.i(TAG, aParams[1]);
             params.put(Constants.PARAM_USERNAME, aParams[0]);
             params.put(Constants.PARAM_PASSWORD, aParams[1]);
             params.put(Constants.PARAM_ACTION, "login");

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -102,6 +103,11 @@ public class ThreadDisplayActivity extends Activity {
 				}
 				break;
 			case R.id.usercp:
+				Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
+						PostReplyActivity.class);
+				postReply.putExtra(Constants.THREAD, mThread);
+				startActivity(postReply);
+				break;
 			case R.id.go_to:
 			default:
 				return super.onOptionsItemSelected(item);
