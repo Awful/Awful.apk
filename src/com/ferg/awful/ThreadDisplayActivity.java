@@ -45,6 +45,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
@@ -53,9 +54,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.quickaction.ActionItem;
+import com.ferg.awful.quickaction.QuickAction;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -288,21 +292,54 @@ public class ThreadDisplayActivity extends Activity {
             mViewResource = aViewResource;
         }
 
+        private void showAvatarQuickAction(View anchor, final String username, final long listId) {
+        	ActionItem profileAction = new ActionItem();
+        	profileAction.setTitle("Profile"); // TODO externalize
+        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
+        	profileAction.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// TODO implement
+					Toast.makeText(ThreadDisplayActivity.this, "View "+username+"'s profile", Toast.LENGTH_SHORT).show();
+				}
+        	});
+        	
+        	ActionItem quoteAction = new ActionItem();
+        	quoteAction.setTitle("Quote"); // TODO externalize
+        	quoteAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_forward));
+        	quoteAction.setOnClickListener(new OnClickListener() {
+        		@Override
+        		public void onClick(View v) {
+        			new ParsePostQuoteTask().execute(listId);
+        		}
+        	});
+        	
+        	QuickAction result = new QuickAction(anchor);
+        	result.addActionItem(profileAction);
+        	result.addActionItem(quoteAction);
+        	
+        	result.setAnimStyle(QuickAction.ANIM_AUTO);
+        	result.show();
+        }
+        
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
         	public HtmlView postBody;
         	public ImageView avatar;
+        	public View postHead;
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
         		postDate = (TextView) v.findViewById(R.id.post_date);
         		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
+        		postHead = v.findViewById(R.id.posthead);
         	}
         }
         
+        
         @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
+        public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
             View inflatedView = aConvertView;
             ViewHolder viewHolder = null;
             
@@ -317,14 +354,24 @@ public class ThreadDisplayActivity extends Activity {
 
             AwfulPost current = getItem(aPosition);
 
-            viewHolder.username.setText(current.getUsername());
-            viewHolder.postDate.setText("Posted on " + current.getDate());
-            viewHolder.postBody.setHtml(current.getContent());
+            final ViewHolder vh = viewHolder; // need a final version to use in onClick
+            final String username = current.getUsername();
+            
+            vh.username.setText(username);
+            vh.postDate.setText("Posted on " + current.getDate());
+            vh.postBody.setHtml(current.getContent());
 
             // The ThumbnailAdapter decorator knows to populate the ImageView
             // with the provided URL asynchronously.
-            viewHolder.avatar.setTag(current.getAvatar());
+            vh.avatar.setTag(current.getAvatar());
 
+            vh.postHead.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showAvatarQuickAction(vh.avatar, username, aPosition);
+				}
+            });
+            
             return inflatedView;
         }
     }
