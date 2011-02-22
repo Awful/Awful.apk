@@ -55,7 +55,6 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
@@ -65,8 +64,6 @@ import com.google.android.htmlwidget.HtmlView;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
-
-	private final DrawableManager mImageDownloader = new DrawableManager();
 
 	private AwfulThread mThread;
 
@@ -271,6 +268,13 @@ public class ThreadDisplayActivity extends Activity {
 		}
     }
     
+    /**
+     * This is responsible for most of the adapter work - filling the list with
+     * post text and usernames and such. It is not responsible for SectionIndexer
+     * behavior or for populating avatar ImageViews asynchronously.
+     * 
+     * @see AwfulPostAdapter
+     */
     public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
         private ArrayList<AwfulPost> mPosts;
         private int mViewResource;
@@ -317,9 +321,8 @@ public class ThreadDisplayActivity extends Activity {
             viewHolder.postDate.setText("Posted on " + current.getDate());
             viewHolder.postBody.setHtml(current.getContent());
 
-            // TODO: Why is this crashing when using the cache? Seems to be gif related.
-            // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
-            // mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            // The ThumbnailAdapter decorator knows to populate the ImageView
+            // with the provided URL asynchronously.
             viewHolder.avatar.setTag(current.getAvatar());
 
             return inflatedView;
