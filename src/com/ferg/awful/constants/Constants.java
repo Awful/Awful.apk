@@ -49,6 +49,7 @@ public class Constants {
     public static final String FORUM_ID  = "forum_id";
     public static final String THREAD    = "thread";
     public static final String THREAD_ID = "thread_id";
+    public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
 
 	public static final String PREFERENCES   = "prefs";

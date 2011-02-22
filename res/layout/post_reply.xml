@@ -10,7 +10,7 @@
 		android:layout_height="fill_parent"
 		android:layout_above="@+id/submit_button"
 		android:singleLine="false"
-		android:lines="5"
+        android:gravity="top"
 		/>
 	<Button
 		android:id="@id/submit_button"
