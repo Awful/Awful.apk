@@ -248,7 +248,9 @@ public class ForumDisplayActivity extends Activity {
     		if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
     			//load new items in background and add them
     			loading = true;
-    			new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+				if (mForum.getCurrentPage() != mForum.getLastPage()) {
+					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+				}
     		}
     	}
 
