@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +62,6 @@ import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailAdapter;
-import com.google.android.htmlwidget.HtmlView;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
@@ -158,7 +158,7 @@ public class ThreadDisplayActivity extends Activity {
             
             try {
                 AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
-                AwfulPost selected = adapter.getItem(aParams[0].intValue());
+                AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
 
                 result = Reply.getQuote(selected.getId());
             } catch (Exception e) {
