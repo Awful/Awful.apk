@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,8 +42,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -53,10 +57,10 @@ import android.widget.TextView;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailAdapter;
-import com.google.android.htmlwidget.HtmlView;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
@@ -81,6 +85,8 @@ public class ThreadDisplayActivity extends Activity {
 
         mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
 
+        registerForContextMenu(mPostList);
+    
         new FetchThreadTask().execute(mThread);
     }
     
@@ -106,12 +112,71 @@ public class ThreadDisplayActivity extends Activity {
 				}
 				break;
 			case R.id.usercp:
+				Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
+						PostReplyActivity.class);
+				postReply.putExtra(Constants.THREAD, mThread);
+				startActivity(postReply);
+				break;
 			case R.id.go_to:
 			default:
 				return super.onOptionsItemSelected(item);
     	}
 
 		return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
+        super.onCreateContextMenu(aMenu, aView, aMenuInfo);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.post_longpress, aMenu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+
+        switch (aItem.getItemId()) {
+            case R.id.quote:
+                new ParsePostQuoteTask().execute(info.id);
+                return true;
+        }
+
+        return false;
+    }
+
+    private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public String doInBackground(Long... aParams) {
+            String result = null;
+            
+            try {
+                AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                result = Reply.getQuote(selected.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, e.toString());
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(String aResult) {
+            mDialog.dismiss();
+
+            Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+            postReply.putExtra(Constants.THREAD, mThread);
+            postReply.putExtra(Constants.QUOTE, aResult);
+
+            startActivity(postReply);
+        }
     }
 
     private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {

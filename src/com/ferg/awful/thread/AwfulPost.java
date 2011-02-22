@@ -131,12 +131,10 @@ public class AwfulPost {
 
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
-                Object[] nodeList = node.evaluateXPath(POST_ID);
-                if (nodeList.length > 0) {
-                    post.setId(((TagNode) nodeList[0]).getText().toString());
-                }
+                String id = node.getAttributeByName("id");
+                post.setId(id.replaceAll("post", ""));
 
-                nodeList = node.evaluateXPath(POST_DATE);
+                Object[] nodeList = node.evaluateXPath(POST_DATE);
                 if (nodeList.length > 0) {
                     TagNode dateNode = (TagNode) nodeList[0];
 
