@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,7 +68,7 @@ public class ForumsIndexActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_index);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mForumList = (ListView) findViewById(R.id.forum_list);
 

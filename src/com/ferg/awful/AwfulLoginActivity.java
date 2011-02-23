@@ -28,11 +28,10 @@
 package com.ferg.awful;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,7 +52,7 @@ public class AwfulLoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);

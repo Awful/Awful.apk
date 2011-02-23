@@ -29,6 +29,8 @@ package com.ferg.awful;
 
 import java.util.ArrayList;
 
+import org.htmlcleaner.TagNode;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -36,6 +38,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,8 +52,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulForum;
@@ -71,7 +72,7 @@ public class ForumDisplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_display);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mThreadList = (ListView) findViewById(R.id.forum_list);
 

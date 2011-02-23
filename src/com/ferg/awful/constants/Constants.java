@@ -52,7 +52,6 @@ public class Constants {
     public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
 
-	public static final String PREFERENCES   = "prefs";
 	public static final String PREF_USERNAME = "username";
 	public static final String PREF_PASSWORD = "password";
 }

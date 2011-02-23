@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -81,7 +82,7 @@ public class ThreadDisplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
 
