@@ -79,13 +79,12 @@ public class ForumsIndexActivity extends Activity {
         mTitle.setText(getString(R.string.forums_title));
         mUserCp.setOnClickListener(onButtonClick);
 
-		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
-		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);
+		boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 
-		if (username == null || password == null) {
-			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+		if (loggedIn) {
+			new LoadForumsTask().execute();
 		} else {
-			new LoginTask().execute(username, password);
+			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
 		}
     }
 
@@ -99,29 +98,20 @@ public class ForumsIndexActivity extends Activity {
         }
     };
 
-    private class LoginTask extends AsyncTask<String, Void, ArrayList<AwfulForum>> {
+    private class LoadForumsTask extends AsyncTask<Void, Void, ArrayList<AwfulForum>> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ForumsIndexActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
-        public ArrayList<AwfulForum> doInBackground(String... aParams) {
+        public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
-
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constants.PARAM_USERNAME, aParams[0]);
-            params.put(Constants.PARAM_PASSWORD, aParams[1]);
-            params.put(Constants.PARAM_ACTION, "login");
-            
             try {
-                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
-
-                result = AwfulForum.getForums();
+            	result = AwfulForum.getForums();
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
             }
-
             return result;
         }
 
