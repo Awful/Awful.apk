@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -70,6 +71,8 @@ public class ThreadDisplayActivity extends Activity {
 
 	private AwfulThread mThread;
 
+	private ImageButton mNext;
+	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
@@ -84,11 +87,15 @@ public class ThreadDisplayActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
-        mTitle = (TextView) findViewById(R.id.title);
+        mTitle    = (TextView) findViewById(R.id.title);
+        mNext     = (ImageButton) findViewById(R.id.next_page);
+        mReply    = (ImageButton) findViewById(R.id.reply);
 
         mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
 
         mTitle.setText(mThread.getTitle());
+		mNext.setOnClickListener(onButtonClick);
+		mReply.setOnClickListener(onButtonClick);
 
         registerForContextMenu(mPostList);
     
@@ -111,16 +118,7 @@ public class ThreadDisplayActivity extends Activity {
 					new FetchThreadTask(mThread.getCurrentPage() - 1).execute(mThread);
 				}
 				break;
-			case R.id.go_forward:
-				if (mThread.getCurrentPage() != mThread.getLastPage()) {
-					new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
-				}
-				break;
 			case R.id.usercp:
-				Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
-						PostReplyActivity.class);
-				postReply.putExtra(Constants.THREAD, mThread);
-				startActivity(postReply);
 				break;
 			case R.id.go_to:
 			default:
@@ -150,6 +148,24 @@ public class ThreadDisplayActivity extends Activity {
 
         return false;
     }
+
+	private View.OnClickListener onButtonClick = new View.OnClickListener() {
+		public void onClick(View aView) {
+			switch (aView.getId()) {
+				case R.id.next_page:
+					if (mThread.getCurrentPage() != mThread.getLastPage()) {
+						new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
+					}
+					break;
+				case R.id.reply:
+					Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
+							PostReplyActivity.class);
+					postReply.putExtra(Constants.THREAD, mThread);
+					startActivity(postReply);
+					break;
+			}
+		}
+	};
 
     private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
         public void onPreExecute() {
