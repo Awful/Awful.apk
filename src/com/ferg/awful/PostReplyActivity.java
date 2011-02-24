@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,6 +48,7 @@ public class PostReplyActivity extends Activity {
 
     private Button mSubmit;
     private EditText mMessage;
+	private ProgressDialog mDialog;
 	private TextView mTitle;
 
 	private AwfulThread mThread;
@@ -90,6 +92,11 @@ public class PostReplyActivity extends Activity {
     };
 
 	private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
+		public void onPreExecute() {
+            mDialog = ProgressDialog.show(PostReplyActivity.this, "Posting", 
+                "Hopefully it didn't suck...", true);
+		}
+
 		public Void doInBackground(String... aParams) {
 			try {
 				Reply.postReply(aParams[0], aParams[1], aParams[2]);
@@ -102,7 +109,7 @@ public class PostReplyActivity extends Activity {
 		}
 
 		public void onPostExecute(Void aResult) {
-			Log.i(TAG, "Done!");
+			mDialog.dismiss();
 
             PostReplyActivity.this.finish();
 		}
