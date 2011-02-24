@@ -20,26 +20,31 @@
 			android:layout_height="65dip"
 			android:scaleType="fitCenter"
 			/>
-		<TextView
-			android:id="@+id/username"
-			android:layout_width="wrap_content"
+		<RelativeLayout
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
+			android:layout_centerVertical="true"
 			android:layout_toRightOf="@id/avatar"
-			android:layout_marginLeft="8dip"
-			android:textSize="20dip"
-			android:textStyle="bold"
-			android:textColor="#ffffff"
-			/>
-		<TextView
-			android:id="@+id/post_date"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/username"
-			android:layout_marginLeft="8dip"
-			android:layout_toRightOf="@id/avatar"
-			android:textSize="16dip"
-			android:textColor="#ffffff"
-			/>
+			android:layout_marginLeft="16dip"
+			>
+			<TextView
+				android:id="@+id/username"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="20dip"
+				android:textStyle="bold"
+				android:textColor="#ffffff"
+				/>
+			<TextView
+				android:id="@+id/post_date"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/username"
+				android:layout_toRightOf="@id/avatar"
+				android:textSize="16dip"
+				android:textColor="#ffffff"
+				/>
+		</RelativeLayout>
 	</RelativeLayout>
 	<view
         class="com.google.android.htmlwidget.HorizontalScroller"

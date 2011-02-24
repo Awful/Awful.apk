@@ -47,6 +47,9 @@ public class AwfulPost {
     private static final String ADMIN_SEARCH    = "//dt[@class='author role-admin']|//dt[@class='author role-admin op']";
 
     private static final String USERNAME  = "//dt[@class='author']";
+    private static final String OP        = "//dt[@class='author op']";
+	private static final String MOD       = "//dt[@class='author role-mod']";
+	private static final String ADMIN     = "//dt[@class='author role-admin']";
     private static final String POST      = "//table[@class='post']";
     private static final String POST_ID   = "//table[@class='post']";
     private static final String POST_DATE = "//td[@class='postdate']";
@@ -146,10 +149,35 @@ public class AwfulPost {
                     post.setDate(dateNode.getText().toString().trim());
                 }
 
+				// Assume it's a post by a normal user first
                 nodeList = node.evaluateXPath(USERNAME);
                 if (nodeList.length > 0) {
                     post.setUsername(((TagNode) nodeList[0]).getText().toString());
                 }
+
+				// If we didn't get a username, try for an OP
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(OP);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// Not an OP? Maybe it's a mod
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(MOD);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// If it's not a mod, it's probably an admin
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(ADMIN);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
 
                 nodeList = node.evaluateXPath(AVATAR);
                 if (nodeList.length > 0) {

@@ -28,7 +28,6 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -48,18 +47,21 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.htmlcleaner.TagNode;
+
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulThread;
 
-public class ForumsIndexActivity extends Activity {
-    private static final String TAG = "LoginActivity";
+public class UserCPActivity extends Activity {
+    private static final String TAG = "ThreadsActivity";
 
-    private ImageButton mUserCp;
-    private ListView mForumList;
+    private ImageButton mHome;
+    private ListView mThreadList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
@@ -68,55 +70,76 @@ public class ForumsIndexActivity extends Activity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.forum_index);
+        setContentView(R.layout.user_cp);
 		
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
-        mForumList = (ListView) findViewById(R.id.forum_list);
-        mTitle     = (TextView) findViewById(R.id.title);
-        mUserCp    = (ImageButton) findViewById(R.id.user_cp);
+        mThreadList = (ListView) findViewById(R.id.forum_list);
+        mTitle      = (TextView) findViewById(R.id.title);
+        mHome       = (ImageButton) findViewById(R.id.home);
 
-        mTitle.setText(getString(R.string.forums_title));
-        mUserCp.setOnClickListener(onButtonClick);
+        mTitle.setText(getString(R.string.user_cp));
 
-		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
-		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);
+        new FetchThreadsTask().execute();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.post_menu, menu);
 
-		if (username == null || password == null) {
-			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
-		} else {
-			new LoginTask().execute(username, password);
-		}
+		return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+			case R.id.go_back:
+				break;
+			case R.id.go_forward:
+				break;
+			case R.id.usercp:
+			case R.id.go_to:
+			default:
+				return super.onOptionsItemSelected(item);
+    	}
+
+		return true;
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.user_cp:
-                    startActivity(new Intent().setClass(ForumsIndexActivity.this, UserCPActivity.class));
+                case R.id.home:
+                    startActivity(new Intent().setClass(UserCPActivity.this, ForumsIndexActivity.class));
                     break;
             }
         }
     };
 
-    private class LoginTask extends AsyncTask<String, Void, ArrayList<AwfulForum>> {
+    private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
+		private int mPage;
+
+		public FetchThreadsTask() {}
+
+		public FetchThreadsTask(int aPage) {
+			mPage = aPage;
+		}
+
         public void onPreExecute() {
-            mDialog = ProgressDialog.show(ForumsIndexActivity.this, "Loading", 
+            mDialog = ProgressDialog.show(UserCPActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
-        public ArrayList<AwfulForum> doInBackground(String... aParams) {
-            ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+        public ArrayList<AwfulThread> doInBackground(String... aParams) {
+            ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constants.PARAM_USERNAME, aParams[0]);
-            params.put(Constants.PARAM_PASSWORD, aParams[1]);
-            params.put(Constants.PARAM_ACTION, "login");
-            
             try {
-                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
+				TagNode threads = null;
 
-                result = AwfulForum.getForums();
+                threads = AwfulThread.getUserCPThreads();
+
+				result = AwfulThread.parseForumThreads(threads);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
@@ -125,38 +148,38 @@ public class ForumsIndexActivity extends Activity {
             return result;
         }
 
-        public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, 
-                        R.layout.forum_item, aResult));
+        public void onPostExecute(ArrayList<AwfulThread> aResult) {
+            mThreadList.setAdapter(new AwfulThreadAdapter(UserCPActivity.this, 
+                        R.layout.thread_item, aResult));
 
-            mForumList.setOnItemClickListener(onForumSelected);
+            mThreadList.setOnItemClickListener(onThreadSelected);
 
             mDialog.dismiss();
         }
     }
 
-	private AdapterView.OnItemClickListener onForumSelected = new AdapterView.OnItemClickListener() {
+	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulForumAdapter adapter = (AwfulForumAdapter) mForumList.getAdapter();
-            AwfulForum forum = adapter.getItem(aPosition);
+            AwfulThreadAdapter adapter = (AwfulThreadAdapter) mThreadList.getAdapter();
+            AwfulThread thread = adapter.getItem(aPosition);
 
-            Intent viewForum = new Intent().setClass(ForumsIndexActivity.this, ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, forum);
+            Intent viewThread = new Intent().setClass(UserCPActivity.this, ThreadDisplayActivity.class);
+            viewThread.putExtra(Constants.THREAD, thread);
 
-            startActivity(viewForum);
+            startActivity(viewThread);
 		}
 	};
 
-    public class AwfulForumAdapter extends ArrayAdapter<AwfulForum> {
-        private ArrayList<AwfulForum> mForums;
+    public class AwfulThreadAdapter extends ArrayAdapter<AwfulThread> {
+        private ArrayList<AwfulThread> mThreads;
         private int mViewResource;
         private LayoutInflater mInflater;
 
-        public AwfulForumAdapter(Context aContext, int aViewResource, ArrayList<AwfulForum> aForums) {
-            super(aContext, aViewResource, aForums);
+        public AwfulThreadAdapter(Context aContext, int aViewResource, ArrayList<AwfulThread> aThreads) {
+            super(aContext, aViewResource, aThreads);
 
             mInflater     = LayoutInflater.from(aContext);
-            mForums       = aForums;
+            mThreads        = aThreads;
             mViewResource = aViewResource;
         }
 
@@ -168,32 +191,24 @@ public class ForumsIndexActivity extends Activity {
                 inflatedView = mInflater.inflate(mViewResource, null);
             }
 
-			AwfulForum current = getItem(aPosition);
+            AwfulThread current = getItem(aPosition);
 
-			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
-			TextView subtext = (TextView) inflatedView.findViewById(R.id.subtext);
+            TextView title       = (TextView) inflatedView.findViewById(R.id.title);
+            TextView author      = (TextView) inflatedView.findViewById(R.id.author);
+            TextView unreadCount = (TextView) inflatedView.findViewById(R.id.unread_count);
+            ImageView sticky     = (ImageView) inflatedView.findViewById(R.id.sticky_icon);
 
-			title.setText(Html.fromHtml(current.getTitle()));
-			subtext.setText(current.getSubtext());
+            title.setText(Html.fromHtml(current.getTitle()));
+            author.setText("Author: " + current.getAuthor());
+            unreadCount.setText(Integer.toString(current.getUnreadCount()));
+
+            if (current.isSticky()) {
+                sticky.setImageResource(R.drawable.sticky);
+            } else {
+                sticky.setImageDrawable(null);
+            }
 
             return inflatedView;
         }
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.forum_index_options, menu);
-        return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) {
-    	case R.id.logout:
-    		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
-    	default:
-    		return super.onOptionsItemSelected(item);
-    	}
     }
 }
