@@ -210,7 +210,12 @@ public class ForumDisplayActivity extends Activity {
 
             title.setText(Html.fromHtml(current.getTitle()));
             author.setText("Author: " + current.getAuthor());
-            unreadCount.setText(Integer.toString(current.getUnreadCount()));
+
+			if (current.getUnreadCount() == -1) {
+				unreadCount.setVisibility(View.INVISIBLE);
+			} else {
+				unreadCount.setText(Integer.toString(current.getUnreadCount()));
+			}
 
             if (current.isSticky()) {
                 sticky.setImageResource(R.drawable.sticky);
