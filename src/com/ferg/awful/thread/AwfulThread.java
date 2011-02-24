@@ -193,7 +193,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
         // TODO: This seems to always return 0 results
-        // params.put(Constants.PARAM_PER_PAGE, "20");
+        params.put(Constants.PARAM_PER_PAGE, "10");
 
         if (aPage == -1) {
             params.put(Constants.PARAM_GOTO, "newpost");
