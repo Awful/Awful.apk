@@ -27,17 +27,26 @@
 
 package com.ferg.awful;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.ferg.awful.ForumsIndexActivity.AwfulForumAdapter;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.thread.AwfulForum;
 
 public class AwfulLoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
@@ -45,15 +54,14 @@ public class AwfulLoginActivity extends Activity {
     private Button mLogin;
     private EditText mUsername;
     private EditText mPassword;
-    private SharedPreferences mPrefs;
 
+    private ProgressDialog mDialog;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);
@@ -66,13 +74,43 @@ public class AwfulLoginActivity extends Activity {
         public void onClick(View aView) {
             String username = mUsername.getText().toString();
             String password = mPassword.getText().toString();
-
-            SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putString(Constants.PREF_USERNAME, username);
-            editor.putString(Constants.PREF_PASSWORD, password);
-            editor.commit();
-
-            startActivity(new Intent().setClass(AwfulLoginActivity.this, ForumsIndexActivity.class));
+            
+            new LoginTask().execute(new String[] {username, password});
         }
     };
+    
+    private class LoginTask extends AsyncTask<String, Void, Boolean> {
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(AwfulLoginActivity.this, "Logging In", 
+                "Hold on...", true);
+        }
+
+        public Boolean doInBackground(String... aParams) {
+        	boolean result = false;
+        	
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(Constants.PARAM_USERNAME, aParams[0]);
+            params.put(Constants.PARAM_PASSWORD, aParams[1]);
+            params.put(Constants.PARAM_ACTION, "login");
+            
+            try {
+                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
+                result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, e.toString());
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(Boolean aResult) {
+        	mDialog.dismiss();
+        	
+        	int loginStatusResource = aResult.booleanValue() ? R.string.login_succeeded : R.string.login_failed;
+        	Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
+        	
+        	startActivity(new Intent().setClass(AwfulLoginActivity.this, ForumsIndexActivity.class));
+        }
+    }
 }
