@@ -187,7 +187,8 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
     public void getThreadPosts(int aPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
-        params.put(Constants.PARAM_PER_PAGE, "20");
+        // TODO: This seems to always return 0 results
+        // params.put(Constants.PARAM_PER_PAGE, "20");
 
         if (aPage == -1) {
             params.put(Constants.PARAM_GOTO, "newpost");
