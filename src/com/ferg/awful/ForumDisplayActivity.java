@@ -214,6 +214,7 @@ public class ForumDisplayActivity extends Activity {
 			if (current.getUnreadCount() == -1) {
 				unreadCount.setVisibility(View.INVISIBLE);
 			} else {
+				unreadCount.setVisibility(View.VISIBLE);
 				unreadCount.setText(Integer.toString(current.getUnreadCount()));
 			}
 
