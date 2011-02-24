@@ -217,7 +217,9 @@ public class ThreadDisplayActivity extends Activity {
         public AwfulThread doInBackground(AwfulThread... aParams) {
             try {
 				if (mPage == 0) {
-					if (aParams[0].getUnreadCount() > 0) {
+					// We set the unread count to -1 if the user has never
+					// visited that thread before
+					if (aParams[0].getUnreadCount() == 0) {
 						aParams[0].getThreadPosts();
 					} else {
 						aParams[0].getThreadPosts(1);
