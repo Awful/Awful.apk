@@ -153,7 +153,7 @@ public class ThreadDisplayActivity extends Activity {
 		public void onClick(View aView) {
 			switch (aView.getId()) {
 				case R.id.next_page:
-					if (mThread.getCurrentPage() != mThread.getLastPage()) {
+					if (mThread.getCurrentPage() < mThread.getLastPage()) {
 						new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
 					}
 					break;
