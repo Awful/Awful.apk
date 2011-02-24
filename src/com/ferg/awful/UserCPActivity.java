@@ -68,7 +68,7 @@ public class UserCPActivity extends Activity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.forum_display);
+        setContentView(R.layout.user_cp);
 		
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 

@@ -4,10 +4,15 @@
     android:layout_height="fill_parent"
 	android:background="#f4f4f4"
     >
+    <include
+        layout="@layout/actionbar_post"
+        android:id="@+id/action_bar" 
+        />
 	<EditText
 		android:id="@+id/post_message"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
+		android:layout_marginTop="55dip"
 		android:layout_above="@+id/submit_button"
 		android:singleLine="false"
         android:gravity="top"
