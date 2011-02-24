@@ -116,6 +116,10 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
         return NetworkUtils.get(Constants.FUNCTION_FORUM, params);
 	}
+	
+    public static TagNode getUserCPThreads() throws Exception {
+        return NetworkUtils.get(Constants.FUNCTION_USERCP, null);
+	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();

@@ -20,6 +20,7 @@
         <activity android:name="ThreadDisplayActivity" />
         <activity android:name="ForumDisplayActivity" />
         <activity android:name="PostReplyActivity" />
+        <activity android:name="UserCPActivity" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

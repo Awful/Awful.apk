@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -57,6 +58,7 @@ import com.ferg.awful.thread.AwfulForum;
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
+    private ImageButton mUserCp;
     private ListView mForumList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
@@ -71,9 +73,11 @@ public class ForumsIndexActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mForumList = (ListView) findViewById(R.id.forum_list);
-        mTitle = (TextView) findViewById(R.id.title);
+        mTitle     = (TextView) findViewById(R.id.title);
+        mUserCp    = (ImageButton) findViewById(R.id.user_cp);
 
         mTitle.setText(getString(R.string.forums_title));
+        mUserCp.setOnClickListener(onButtonClick);
 
 		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
 		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);
@@ -84,6 +88,16 @@ public class ForumsIndexActivity extends Activity {
 			new LoginTask().execute(username, password);
 		}
     }
+
+    private View.OnClickListener onButtonClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.user_cp:
+                    startActivity(new Intent().setClass(ForumsIndexActivity.this, UserCPActivity.class));
+                    break;
+            }
+        }
+    };
 
     private class LoginTask extends AsyncTask<String, Void, ArrayList<AwfulForum>> {
         public void onPreExecute() {
