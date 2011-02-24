@@ -64,6 +64,7 @@ public class ForumDisplayActivity extends Activity {
     private ListView mThreadList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -74,8 +75,11 @@ public class ForumDisplayActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mThreadList = (ListView) findViewById(R.id.forum_list);
+        mTitle = (TextView) findViewById(R.id.title);
 
 		mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
+
+        mTitle.setText(mForum.getTitle());
 
         new FetchThreadsTask().execute(mForum.getForumId());
     }

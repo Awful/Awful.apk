@@ -48,7 +48,7 @@
             android:textStyle="bold"
             android:textSize="14dip"
             android:textColor="#ffffff"
-            android:background="@drawable/number_bg"
+            android:background="@drawable/unread_background"
             />
 	</RelativeLayout>
 </RelativeLayout>

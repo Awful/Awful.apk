@@ -43,6 +43,7 @@ public class Constants {
     public static final String PARAM_PAGE      = "pagenumber";
     public static final String PARAM_FORUM_ID  = "forumid";
     public static final String PARAM_GOTO      = "goto";
+    public static final String PARAM_PER_PAGE  = "perpage";
 
     // Intent parameters
     public static final String FORUM     = "forum";

@@ -60,6 +60,7 @@ public class ForumsIndexActivity extends Activity {
     private ListView mForumList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -70,6 +71,9 @@ public class ForumsIndexActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mForumList = (ListView) findViewById(R.id.forum_list);
+        mTitle = (TextView) findViewById(R.id.title);
+
+        mTitle.setText(getString(R.string.forums_title));
 
 		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
 		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);

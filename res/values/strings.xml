@@ -7,4 +7,6 @@
     <string name="forward">Next Page</string>
     <string name="go_to">Go to Page</string>
     <string name="quote">Quote</string>
+
+    <string name="forums_title">Forums</string>
 </resources>

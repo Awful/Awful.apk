@@ -73,6 +73,7 @@ public class ThreadDisplayActivity extends Activity {
     private ListView mPostList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -83,8 +84,11 @@ public class ThreadDisplayActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
+        mTitle = (TextView) findViewById(R.id.title);
 
         mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+
+        mTitle.setText(mThread.getTitle());
 
         registerForContextMenu(mPostList);
     
