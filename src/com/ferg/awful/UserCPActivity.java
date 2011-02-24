@@ -46,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ import com.ferg.awful.thread.AwfulThread;
 public class UserCPActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
+    private ImageButton mHome;
     private ListView mThreadList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
@@ -73,7 +75,8 @@ public class UserCPActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mThreadList = (ListView) findViewById(R.id.forum_list);
-        mTitle = (TextView) findViewById(R.id.title);
+        mTitle      = (TextView) findViewById(R.id.title);
+        mHome       = (ImageButton) findViewById(R.id.home);
 
         mTitle.setText(getString(R.string.user_cp));
 
@@ -103,6 +106,16 @@ public class UserCPActivity extends Activity {
 
 		return true;
     }
+
+    private View.OnClickListener onButtonClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.home:
+                    startActivity(new Intent().setClass(UserCPActivity.this, ForumsIndexActivity.class));
+                    break;
+            }
+        }
+    };
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
 		private int mPage;

@@ -36,6 +36,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
@@ -46,6 +47,7 @@ public class PostReplyActivity extends Activity {
 
     private Button mSubmit;
     private EditText mMessage;
+	private TextView mTitle;
 
 	private AwfulThread mThread;
 	private String mFormKey;
@@ -58,10 +60,13 @@ public class PostReplyActivity extends Activity {
 
         mSubmit  = (Button) findViewById(R.id.submit_button);
         mMessage = (EditText) findViewById(R.id.post_message);
+		mTitle   = (TextView) findViewById(R.id.title);
 
         Intent caller = getIntent();
 
 		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
+		
+		mTitle.setText(getString(R.string.post_reply));
 
         // If we're quoting a post, add it to the message box
         if (caller.hasExtra(Constants.QUOTE)) {
