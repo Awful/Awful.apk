@@ -119,7 +119,11 @@ public class AwfulLoginActivity extends Activity {
         	Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
         	
         	if(succeeded) {
-        		AwfulLoginActivity.this.finish();
+        		setResult(Activity.RESULT_OK);
+        		finish();
+        	} else {
+        		setResult(Activity.RESULT_CANCELED);
+        		// Not finishing - give the user another chance to log in
         	}
         }
     }

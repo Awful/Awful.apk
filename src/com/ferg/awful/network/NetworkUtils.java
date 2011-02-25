@@ -104,6 +104,21 @@ public class NetworkUtils {
     }
     
     /**
+     * Clears cookies from both the current client's store and
+     * the persistent SharedPreferences. Effectively, logs out.
+     */
+    public static void clearLoginCookies(Context ctx) {
+    	// First clear out the persistent preferences...
+    	SharedPreferences prefs = ctx.getSharedPreferences(
+    			Constants.COOKIE_PREFERENCE, 
+    			Context.MODE_PRIVATE);
+    	prefs.edit().clear().commit();
+    	
+    	// Then the memory store
+    	sHttpClient.getCookieStore().clear();
+    }
+    
+    /**
      * Saves SomethingAwful login cookies that the client has received
      * during this session to the given Context's SharedPreferences. They
      * can be later restored with {@link #restoreLoginCookies(Context)}.

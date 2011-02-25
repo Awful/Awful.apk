@@ -84,8 +84,17 @@ public class ForumsIndexActivity extends Activity {
 		if (loggedIn) {
 			new LoadForumsTask().execute();
 		} else {
-			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+			startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
 		}
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	// the only activity we call for result is login, so we'll just refresh
+    	// if it was successful
+    	if(resultCode == Activity.RESULT_OK) {
+    		new LoadForumsTask().execute();
+    	}
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -181,6 +190,7 @@ public class ForumsIndexActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
     	case R.id.logout:
+    		NetworkUtils.clearLoginCookies(this);
     		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
     	case R.id.refresh:
     		new LoadForumsTask().execute();
