@@ -111,12 +111,16 @@ public class AwfulLoginActivity extends Activity {
         }
 
         public void onPostExecute(Boolean aResult) {
+        	boolean succeeded = aResult;
+        	
         	mDialog.dismiss();
         	
-        	int loginStatusResource = aResult.booleanValue() ? R.string.login_succeeded : R.string.login_failed;
+        	int loginStatusResource = succeeded ? R.string.login_succeeded : R.string.login_failed;
         	Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
         	
-        	startActivity(new Intent().setClass(AwfulLoginActivity.this, ForumsIndexActivity.class));
+        	if(succeeded) {
+        		AwfulLoginActivity.this.finish();
+        	}
         }
     }
 }
