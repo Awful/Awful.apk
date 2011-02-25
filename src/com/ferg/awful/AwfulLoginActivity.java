@@ -28,14 +28,15 @@
 package com.ferg.awful;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.ferg.awful.constants.Constants;
 
@@ -60,6 +61,14 @@ public class AwfulLoginActivity extends Activity {
         mPassword = (EditText) findViewById(R.id.password);
 
         mLogin.setOnClickListener(onLoginClick);
+        
+        final ImageView image = (ImageView) findViewById(R.id.dealwithit); 
+        image.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				((AnimationDrawable) image.getDrawable()).start();
+			}
+		});
     }
 
     private View.OnClickListener onLoginClick = new View.OnClickListener() {

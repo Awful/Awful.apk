@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/dealwithit_01" android:duration="450" />
+    <item android:drawable="@drawable/dealwithit_02" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_03" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_04" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_05" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_06" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_07" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_08" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_09" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_10" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_11" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_12" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_13" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_14" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_15" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_16" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_17" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_18" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_19" android:duration="150" />
+    <item android:drawable="@drawable/dealwithit_20" android:duration="150" />
+</animation-list>
