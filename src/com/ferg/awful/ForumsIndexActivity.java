@@ -182,6 +182,8 @@ public class ForumsIndexActivity extends Activity {
     	switch(item.getItemId()) {
     	case R.id.logout:
     		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+    	case R.id.refresh:
+    		new LoadForumsTask().execute();
     	default:
     		return super.onOptionsItemSelected(item);
     	}
