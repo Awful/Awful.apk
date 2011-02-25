@@ -90,9 +90,11 @@ public class ForumsIndexActivity extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	// the only activity we call for result is login, so we'll just refresh
-    	// if it was successful
-    	if(resultCode == Activity.RESULT_OK) {
+    	// The only activity we call for result is login
+    	// Odds are we want to refresh whether or not it was successful
+    	
+    	// But we do need to make sure we aren't already in the middle of a refresh
+    	if(mDialog == null || !mDialog.isShowing()) {
     		new LoadForumsTask().execute();
     	}
     }
@@ -191,7 +193,7 @@ public class ForumsIndexActivity extends Activity {
     	switch(item.getItemId()) {
     	case R.id.logout:
     		NetworkUtils.clearLoginCookies(this);
-    		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+    		startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
     	case R.id.refresh:
     		new LoadForumsTask().execute();
     	default:
