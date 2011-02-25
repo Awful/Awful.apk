@@ -11,6 +11,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
 		android:hint="Username"
+		android:inputType="textEmailAddress"
 		/>
 	<EditText
 		android:id="@+id/password"
@@ -18,7 +19,7 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@id/username"
 		android:hint="Password"
-		android:password="true"
+		android:inputType="textPassword"
 		/>
 	<Button
 		android:id="@+id/login"
