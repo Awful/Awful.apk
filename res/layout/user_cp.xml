@@ -6,7 +6,7 @@
 	android:background="#f4f4f4"
     >
     <include
-        layout="@layout/actionbar_index"
+        layout="@layout/actionbar_cp"
         android:id="@+id/action_bar" 
         />
 	<ListView

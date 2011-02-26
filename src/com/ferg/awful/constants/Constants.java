@@ -43,6 +43,7 @@ public class Constants {
     public static final String PARAM_PAGE      = "pagenumber";
     public static final String PARAM_FORUM_ID  = "forumid";
     public static final String PARAM_GOTO      = "goto";
+    public static final String PARAM_PER_PAGE  = "perpage";
 
     // Intent parameters
     public static final String FORUM     = "forum";
@@ -52,7 +53,15 @@ public class Constants {
     public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
 
-	public static final String PREFERENCES   = "prefs";
-	public static final String PREF_USERNAME = "username";
-	public static final String PREF_PASSWORD = "password";
+    public static final String PREFERENCES = "prefs";
+    
+	public static final String COOKIE_DOMAIN        = "forums.somethingawful.com";
+	public static final String COOKIE_PATH          = "/";
+	public static final String COOKIE_NAME_USERID   = "bbuserid";
+	public static final String COOKIE_NAME_PASSWORD = "bbpassword";
+	
+	public static final String COOKIE_PREFERENCE       = "awful_cookie_pref";
+	public static final String COOKIE_PREF_USERID      = "bbuserid";
+	public static final String COOKIE_PREF_PASSWORD    = "bbpassword";
+	public static final String COOKIE_PREF_EXPIRY_DATE = "expiration";
 }

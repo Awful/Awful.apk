@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -70,9 +71,12 @@ public class ThreadDisplayActivity extends Activity {
 
 	private AwfulThread mThread;
 
+	private ImageButton mNext;
+	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -83,12 +87,25 @@ public class ThreadDisplayActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
-
-        mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        mTitle    = (TextView) findViewById(R.id.title);
+        mNext     = (ImageButton) findViewById(R.id.next_page);
+        mReply    = (ImageButton) findViewById(R.id.reply);
 
         registerForContextMenu(mPostList);
-    
-        new FetchThreadTask().execute(mThread);
+
+        final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
+
+        if (retainedThread == null) {
+            mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+            new FetchThreadTask().execute(mThread);
+        } else {
+            mThread = retainedThread;
+            setListAdapter();
+        }
+
+        mTitle.setText(mThread.getTitle());
+		mNext.setOnClickListener(onButtonClick);
+		mReply.setOnClickListener(onButtonClick);
     }
     
     @Override
@@ -107,16 +124,7 @@ public class ThreadDisplayActivity extends Activity {
 					new FetchThreadTask(mThread.getCurrentPage() - 1).execute(mThread);
 				}
 				break;
-			case R.id.go_forward:
-				if (mThread.getCurrentPage() != mThread.getLastPage()) {
-					new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
-				}
-				break;
 			case R.id.usercp:
-				Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
-						PostReplyActivity.class);
-				postReply.putExtra(Constants.THREAD, mThread);
-				startActivity(postReply);
 				break;
 			case R.id.go_to:
 			default:
@@ -146,6 +154,52 @@ public class ThreadDisplayActivity extends Activity {
 
         return false;
     }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final AwfulThread currentThread = mThread;
+
+        return currentThread;
+    }
+
+    private void setListAdapter() {
+        ArrayList<AwfulPost> posts = mThread.getPosts();
+
+        mPostList.setAdapter(generateAdapter(posts));
+
+        AwfulPost lastRead = null;
+
+        // Maybe there's a better way to do this? It's 8am and I'm hung over
+        for (AwfulPost post : posts) {
+            if (post.isLastRead()) {
+                lastRead = post;
+                break;
+            }
+        }
+
+        if (lastRead != null) {
+            int index = posts.indexOf(lastRead);
+            mPostList.setSelection(index);
+        }
+    }
+
+	private View.OnClickListener onButtonClick = new View.OnClickListener() {
+		public void onClick(View aView) {
+			switch (aView.getId()) {
+				case R.id.next_page:
+					if (mThread.getCurrentPage() < mThread.getLastPage()) {
+						new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
+					}
+					break;
+				case R.id.reply:
+					Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
+							PostReplyActivity.class);
+					postReply.putExtra(Constants.THREAD, mThread);
+					startActivity(postReply);
+					break;
+			}
+		}
+	};
 
     private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
         public void onPreExecute() {
@@ -196,8 +250,12 @@ public class ThreadDisplayActivity extends Activity {
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
             try {
+                Log.i(TAG, "Selected page: " + Integer.toString(mPage));
+                Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
 				if (mPage == 0) {
-					if (aParams[0].getUnreadCount() > 0) {
+					// We set the unread count to -1 if the user has never
+					// visited that thread before
+					if (aParams[0].getUnreadCount() > -1) {
 						aParams[0].getThreadPosts();
 					} else {
 						aParams[0].getThreadPosts(1);
@@ -215,8 +273,7 @@ public class ThreadDisplayActivity extends Activity {
 
         public void onPostExecute(AwfulThread aResult) {
 			mThread = aResult;
-
-            mPostList.setAdapter(generateAdapter(aResult.getPosts()));
+            setListAdapter();
 
             mDialog.dismiss();
         }

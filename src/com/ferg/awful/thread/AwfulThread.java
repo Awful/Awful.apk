@@ -116,6 +116,10 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
         return NetworkUtils.get(Constants.FUNCTION_FORUM, params);
 	}
+	
+    public static TagNode getUserCPThreads() throws Exception {
+        return NetworkUtils.get(Constants.FUNCTION_USERCP, null);
+	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
@@ -167,7 +171,12 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                     thread.setUnreadCount(Integer.parseInt(
                                 ((TagNode) nodeList[0]).getText().toString().trim()));
                 } else {
-                    thread.setUnreadCount(0);
+					nodeList = node.evaluateXPath(UNREAD_UNDO);
+					if (nodeList.length > 0) {
+						thread.setUnreadCount(0);
+					} else {
+						thread.setUnreadCount(-1);
+					} 
                 }
 
                 result.add(thread);

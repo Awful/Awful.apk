@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -9,19 +9,31 @@
 		android:id="@+id/username"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
 		android:hint="Username"
+		android:inputType="textEmailAddress"
 		/>
 	<EditText
 		android:id="@+id/password"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:layout_below="@id/username"
 		android:hint="Password"
-		android:password="true"
+		android:inputType="textPassword"
 		/>
 	<Button
 		android:id="@+id/login"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_below="@id/password"
 		android:text="Login"
 		/>
-</LinearLayout>
+	<ImageView
+		android:id="@+id/dealwithit"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:scaleType="fitCenter"
+		android:adjustViewBounds="true"
+		android:src="@drawable/dealwithit" />
+</RelativeLayout>

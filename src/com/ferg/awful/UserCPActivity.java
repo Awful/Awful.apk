@@ -44,15 +44,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AbsListView.OnScrollListener;
 
 import org.htmlcleaner.TagNode;
 
@@ -60,56 +57,39 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
-public class ForumDisplayActivity extends Activity {
+public class UserCPActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
-	private AwfulForum mForum;
+    private ArrayList<AwfulThread> mThreads;
 
-    private ImageButton mUserCp;
-	private ImageButton mNext;
+    private ImageButton mHome;
     private ListView mThreadList;
-    private ArrayList<AwfulThread> mThreads = new ArrayList<AwfulThread>();
-    private AwfulThreadAdapter mThreadAdapter;
-    private ProgressDialog mDialog;
+	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-
     private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.forum_display);
+        setContentView(R.layout.user_cp);
 		
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
-        mThreadAdapter = new AwfulThreadAdapter(ForumDisplayActivity.this, 
-                R.layout.thread_item, mThreads);
-        
+
         mThreadList = (ListView) findViewById(R.id.forum_list);
-
         mTitle      = (TextView) findViewById(R.id.title);
-        mUserCp     = (ImageButton) findViewById(R.id.user_cp);
-        mNext       = (ImageButton) findViewById(R.id.next_page);
+        mHome       = (ImageButton) findViewById(R.id.home);
 
-        mThreadList.setOnScrollListener(new EndlessScrollListener());
-        mThreadList.setAdapter(mThreadAdapter);
+        mTitle.setText(getString(R.string.user_cp));
 
-        mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
-        
-        final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
+        final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
-        if (retainedThreadList == null || retainedThreadList.size() == 0) {
-            new FetchThreadsTask().execute(mForum.getForumId());
+        if (retainedThreadsList == null) {
+            new FetchThreadsTask().execute();
         } else {
-            mThreads.addAll(retainedThreadList);
-
-            mThreadAdapter.notifyDataSetChanged();
-            mThreadList.setOnItemClickListener(onThreadSelected);
+            mThreads = retainedThreadsList;
+            setThreadListAdapter();
         }
-
-        mTitle.setText(mForum.getTitle());
-        mUserCp.setOnClickListener(onButtonClick);
-		mNext.setOnClickListener(onButtonClick);
     }
     
     @Override
@@ -124,13 +104,10 @@ public class ForumDisplayActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
 			case R.id.go_back:
-				if (mForum.getCurrentPage() != 1) {
-					new FetchThreadsTask(mForum.getCurrentPage() - 1).execute(mForum.getForumId());
-				}
+				break;
+			case R.id.go_forward:
 				break;
 			case R.id.usercp:
-                startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
-                break;
 			case R.id.go_to:
 			default:
 				return super.onOptionsItemSelected(item);
@@ -146,17 +123,19 @@ public class ForumDisplayActivity extends Activity {
         return currentThreadList;
     }
 
+    private void setThreadListAdapter() {
+        mThreadList.setAdapter(new AwfulThreadAdapter(UserCPActivity.this, 
+                    R.layout.thread_item, mThreads));
+
+        mThreadList.setOnItemClickListener(onThreadSelected);
+    }
+
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.user_cp:
-                    startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
+                case R.id.home:
+                    startActivity(new Intent().setClass(UserCPActivity.this, ForumsIndexActivity.class));
                     break;
-				case R.id.next_page:
-                    if (mForum.getCurrentPage() != mForum.getLastPage()) {
-                        new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
-                    }
-					break;
             }
         }
     };
@@ -171,7 +150,7 @@ public class ForumDisplayActivity extends Activity {
 		}
 
         public void onPreExecute() {
-            mDialog = ProgressDialog.show(ForumDisplayActivity.this, "Loading", 
+            mDialog = ProgressDialog.show(UserCPActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
@@ -181,22 +160,9 @@ public class ForumDisplayActivity extends Activity {
             try {
 				TagNode threads = null;
 
-				if (mPage == 0) {
-					threads = AwfulThread.getForumThreads(aParams[0]);
-				} else {
-					threads = AwfulThread.getForumThreads(aParams[0], mPage);
-				}
+                threads = AwfulThread.getUserCPThreads();
 
 				result = AwfulThread.parseForumThreads(threads);
-
-				// Now that we have the page number list for the current forum we can
-				// populate it
-				if (mForum.getCurrentPage() == 0) {
-					mForum.parsePageNumbers(threads);
-
-					Log.i(TAG, Integer.toString(mForum.getCurrentPage()));
-					Log.i(TAG, Integer.toString(mForum.getLastPage()));
-				}
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
@@ -206,10 +172,10 @@ public class ForumDisplayActivity extends Activity {
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-        	mThreads.addAll(aResult);
-        	mThreadAdapter.notifyDataSetChanged();
-            mThreadList.setOnItemClickListener(onThreadSelected);
-            
+            mThreads = aResult;
+
+            setThreadListAdapter();
+
             mDialog.dismiss();
         }
     }
@@ -219,7 +185,7 @@ public class ForumDisplayActivity extends Activity {
             AwfulThreadAdapter adapter = (AwfulThreadAdapter) mThreadList.getAdapter();
             AwfulThread thread = adapter.getItem(aPosition);
 
-            Intent viewThread = new Intent().setClass(ForumDisplayActivity.this, ThreadDisplayActivity.class);
+            Intent viewThread = new Intent().setClass(UserCPActivity.this, ThreadDisplayActivity.class);
             viewThread.putExtra(Constants.THREAD, thread);
 
             startActivity(viewThread);
@@ -256,13 +222,7 @@ public class ForumDisplayActivity extends Activity {
 
             title.setText(Html.fromHtml(current.getTitle()));
             author.setText("Author: " + current.getAuthor());
-
-			if (current.getUnreadCount() == -1) {
-				unreadCount.setVisibility(View.INVISIBLE);
-			} else {
-				unreadCount.setVisibility(View.VISIBLE);
-				unreadCount.setText(Integer.toString(current.getUnreadCount()));
-			}
+            unreadCount.setText(Integer.toString(current.getUnreadCount()));
 
             if (current.isSticky()) {
                 sticky.setImageResource(R.drawable.sticky);
@@ -272,38 +232,5 @@ public class ForumDisplayActivity extends Activity {
 
             return inflatedView;
         }
-    }
-    
-    private class EndlessScrollListener implements OnScrollListener {
-    	private int visibleThreshold = 5;
-    	private int currentPage = 0;
-    	private int previousTotal = 0;
-    	private boolean loading = true;
-    	
-    	public EndlessScrollListener() {
-    	}
-    	
-    	public void onScroll(AbsListView view, int firstVisibleItem,
-    			int visibleItemCount, int totalItemCount) {
-    		if (loading) {
-    			if (totalItemCount > previousTotal) {
-    				loading = false;
-    				previousTotal = totalItemCount;
-    				currentPage++;
-    			}
-    		}
-    		
-    		if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-    			//load new items in background and add them
-    			loading = true;
-				if (mForum.getCurrentPage() != mForum.getLastPage()) {
-					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
-				}
-    		}
-    	}
-
-    	public void onScrollStateChanged(AbsListView view, int scrollState) {
-    		
-    	}
     }
 }

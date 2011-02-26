@@ -47,6 +47,9 @@ public class AwfulPost {
     private static final String ADMIN_SEARCH    = "//dt[@class='author role-admin']|//dt[@class='author role-admin op']";
 
     private static final String USERNAME  = "//dt[@class='author']";
+    private static final String OP        = "//dt[@class='author op']";
+	private static final String MOD       = "//dt[@class='author role-mod']";
+	private static final String ADMIN     = "//dt[@class='author role-admin']";
     private static final String POST      = "//table[@class='post']";
     private static final String POST_ID   = "//table[@class='post']";
     private static final String POST_DATE = "//td[@class='postdate']";
@@ -55,6 +58,8 @@ public class AwfulPost {
     private static final String AVATAR    = "//dd[@class='title']//img";
     private static final String EDITED    = "//p[@class='editedby']/span";
     private static final String POSTBODY  = "//td[@class='postbody']";
+	private static final String SEEN1     = "//tr[@class='seen1']";
+	private static final String SEEN2     = "//tr[@class='seen2']";
 
     private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
     private static final String ELEMENT_END_TD       = "</td>";
@@ -67,6 +72,7 @@ public class AwfulPost {
     private String mAvatar;
     private String mContent;
     private String mEdited;
+	private boolean mLastRead = false;;
 
     public String getId() {
         return mId;
@@ -116,16 +122,28 @@ public class AwfulPost {
         mEdited = aEdited;
     }
 
+	public boolean isLastRead() {
+		return mLastRead;
+	}
+
+	public void setLastRead(boolean aLastRead) {
+		mLastRead = aLastRead;
+	}
+
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties properties = cleaner.getProperties();
         properties.setOmitComments(true);
 
+		boolean lastReadFound = false;
+
         try {
             Object[] postNodes = aThread.evaluateXPath(POST);
 
             for (Object current : postNodes) {
+				boolean previouslyRead = false;
+
                 AwfulPost post = new AwfulPost();
                 TagNode node = (TagNode) current;
 
@@ -146,10 +164,55 @@ public class AwfulPost {
                     post.setDate(dateNode.getText().toString().trim());
                 }
 
+				// Assume it's a post by a normal user first
                 nodeList = node.evaluateXPath(USERNAME);
                 if (nodeList.length > 0) {
                     post.setUsername(((TagNode) nodeList[0]).getText().toString());
                 }
+
+				// If we didn't get a username, try for an OP
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(OP);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// Not an OP? Maybe it's a mod
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(MOD);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// If it's not a mod, it's probably an admin
+				if (post.getUsername() == null) {
+					nodeList = node.evaluateXPath(ADMIN);
+					if (nodeList.length > 0) {
+						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// If we haven't yet found the last read post then check if
+				// this post has "last read" color highlighting. If it doesn't,
+				// it's the first unread post for the page.
+				if (!lastReadFound) {
+					nodeList = node.evaluateXPath(SEEN1);
+					if (nodeList.length > 0) {
+						previouslyRead = true;
+					} else {
+						nodeList = node.evaluateXPath(SEEN2);
+						if (nodeList.length > 0) {
+							previouslyRead = true;
+						}
+					}
+
+					if (!previouslyRead) {
+						post.setLastRead(true);
+						lastReadFound = true;
+					}
+				}
 
                 nodeList = node.evaluateXPath(AVATAR);
                 if (nodeList.length > 0) {

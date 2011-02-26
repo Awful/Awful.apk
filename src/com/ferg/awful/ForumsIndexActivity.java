@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -57,9 +58,11 @@ import com.ferg.awful.thread.AwfulForum;
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
+    private ImageButton mUserCp;
     private ListView mForumList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -70,40 +73,56 @@ public class ForumsIndexActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mForumList = (ListView) findViewById(R.id.forum_list);
+        mTitle     = (TextView) findViewById(R.id.title);
+        mUserCp    = (ImageButton) findViewById(R.id.user_cp);
 
-		String username = mPrefs.getString(Constants.PREF_USERNAME, null);
-		String password = mPrefs.getString(Constants.PREF_PASSWORD, null);
+        mTitle.setText(getString(R.string.forums_title));
+        mUserCp.setOnClickListener(onButtonClick);
 
-		if (username == null || password == null) {
-			startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+		boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
+
+		if (loggedIn) {
+			new LoadForumsTask().execute();
 		} else {
-			new LoginTask().execute(username, password);
+			startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
 		}
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	// The only activity we call for result is login
+    	// Odds are we want to refresh whether or not it was successful
+    	
+    	// But we do need to make sure we aren't already in the middle of a refresh
+    	if(mDialog == null || !mDialog.isShowing()) {
+    		new LoadForumsTask().execute();
+    	}
+    }
 
-    private class LoginTask extends AsyncTask<String, Void, ArrayList<AwfulForum>> {
+    private View.OnClickListener onButtonClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.user_cp:
+                    startActivity(new Intent().setClass(ForumsIndexActivity.this, UserCPActivity.class));
+                    break;
+            }
+        }
+    };
+
+    private class LoadForumsTask extends AsyncTask<Void, Void, ArrayList<AwfulForum>> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(ForumsIndexActivity.this, "Loading", 
                 "Hold on...", true);
         }
 
-        public ArrayList<AwfulForum> doInBackground(String... aParams) {
+        public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
-
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constants.PARAM_USERNAME, aParams[0]);
-            params.put(Constants.PARAM_PASSWORD, aParams[1]);
-            params.put(Constants.PARAM_ACTION, "login");
-            
             try {
-                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
-
-                result = AwfulForum.getForums();
+            	result = AwfulForum.getForums();
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
             }
-
             return result;
         }
 
@@ -173,7 +192,10 @@ public class ForumsIndexActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
     	case R.id.logout:
-    		startActivity(new Intent().setClass(this, AwfulLoginActivity.class));
+    		NetworkUtils.clearLoginCookies(this);
+    		startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+    	case R.id.refresh:
+    		new LoadForumsTask().execute();
     	default:
     		return super.onOptionsItemSelected(item);
     	}

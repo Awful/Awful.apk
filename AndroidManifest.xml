@@ -19,7 +19,11 @@
         <activity android:name="AwfulLoginActivity" />
         <activity android:name="ThreadDisplayActivity" />
         <activity android:name="ForumDisplayActivity" />
-        <activity android:name="PostReplyActivity" />
+        <activity 
+            android:name="PostReplyActivity"
+            android:windowSoftInputMode="adjustResize" 
+            />
+        <activity android:name="UserCPActivity" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
