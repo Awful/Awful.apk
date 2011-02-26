@@ -46,20 +46,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulSubforum;
 
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
     private ImageButton mUserCp;
-    private ListView mForumList;
+    private ExpandableListView mForumList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
@@ -72,7 +74,7 @@ public class ForumsIndexActivity extends Activity {
 		
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
-        mForumList = (ListView) findViewById(R.id.forum_list);
+        mForumList = (ExpandableListView) findViewById(R.id.forum_list);
         mTitle     = (TextView) findViewById(R.id.title);
         mUserCp    = (ImageButton) findViewById(R.id.user_cp);
 
@@ -127,57 +129,117 @@ public class ForumsIndexActivity extends Activity {
         }
 
         public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, 
-                        R.layout.forum_item, aResult));
+            mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
 
-            mForumList.setOnItemClickListener(onForumSelected);
+            mForumList.setOnChildClickListener(onForumSelected);
 
             mDialog.dismiss();
         }
     }
 
-	private AdapterView.OnItemClickListener onForumSelected = new AdapterView.OnItemClickListener() {
-		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulForumAdapter adapter = (AwfulForumAdapter) mForumList.getAdapter();
-            AwfulForum forum = adapter.getItem(aPosition);
+	private ExpandableListView.OnChildClickListener onForumSelected = new ExpandableListView.OnChildClickListener() {
+		public boolean onChildClick(ExpandableListView aParent, View aView, int aGroupPosition, 
+                int aChildPosition, long aId) 
+        {
+            AwfulForumAdapter adapter = (AwfulForumAdapter) mForumList.getExpandableListAdapter();
+            AwfulSubforum forum = (AwfulSubforum) adapter.getChild(aGroupPosition, aChildPosition);
 
             Intent viewForum = new Intent().setClass(ForumsIndexActivity.this, ForumDisplayActivity.class);
             viewForum.putExtra(Constants.FORUM, forum);
 
             startActivity(viewForum);
+
+            return true;
 		}
 	};
 
-    public class AwfulForumAdapter extends ArrayAdapter<AwfulForum> {
+    public class AwfulForumAdapter extends BaseExpandableListAdapter {
         private ArrayList<AwfulForum> mForums;
-        private int mViewResource;
         private LayoutInflater mInflater;
 
-        public AwfulForumAdapter(Context aContext, int aViewResource, ArrayList<AwfulForum> aForums) {
-            super(aContext, aViewResource, aForums);
-
+        public AwfulForumAdapter(Context aContext, ArrayList<AwfulForum> aForums) {
             mInflater     = LayoutInflater.from(aContext);
             mForums       = aForums;
-            mViewResource = aViewResource;
         }
 
         @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
+        public View getChildView(int aGroupPosition, int aChildPosition, boolean isLastChild, 
+                View aConvertView, ViewGroup aParent) 
+        {
             View inflatedView = aConvertView;
 
             if (inflatedView == null) {
-                inflatedView = mInflater.inflate(mViewResource, null);
+                inflatedView = mInflater.inflate(R.layout.subforum_item, null);
             }
 
-			AwfulForum current = getItem(aPosition);
+			AwfulSubforum current = (AwfulSubforum) getChild(aGroupPosition, aChildPosition);
 
 			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
-			TextView subtext = (TextView) inflatedView.findViewById(R.id.subtext);
+			title.setText(Html.fromHtml(current.getTitle()));
+
+            return inflatedView;
+        }
+
+        @Override
+        public View getGroupView(int aGroupPosition, boolean isExpanded, View aConvertView, ViewGroup aParent) {
+            View inflatedView = aConvertView;
+
+            if (inflatedView == null) {
+                inflatedView = mInflater.inflate(R.layout.forum_item, null);
+            }
+
+			final AwfulForum current = (AwfulForum) getGroup(aGroupPosition);
+
+			TextView title       = (TextView) inflatedView.findViewById(R.id.title);
+			TextView subtext     = (TextView) inflatedView.findViewById(R.id.subtext);
+			ImageView viewButton = (ImageView) inflatedView.findViewById(R.id.parent_button);
 
 			title.setText(Html.fromHtml(current.getTitle()));
 			subtext.setText(current.getSubtext());
 
+            viewButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View aView) {
+                    Intent viewForum = new Intent().setClass(ForumsIndexActivity.this, 
+                        ForumDisplayActivity.class);
+                    viewForum.putExtra(Constants.FORUM, current);
+
+                    startActivity(viewForum);
+                }
+            });
+
             return inflatedView;
+        }
+
+        public Object getChild(int aGroupPosition, int aChildPosition) {
+            return mForums.get(aGroupPosition).getSubforums().get(aChildPosition);
+        }
+
+        public long getChildId(int aGroupPosition, int aChildPosition) {
+            return aChildPosition;
+        }
+
+        public int getChildrenCount(int aGroupPosition) {
+            return mForums.get(aGroupPosition).getSubforums().size();
+        }
+
+        public Object getGroup(int aGroupPosition) {
+            return mForums.get(aGroupPosition);
+        }
+
+        public long getGroupId(int aGroupPosition) {
+            return aGroupPosition;
+        }
+
+        public int getGroupCount() {
+            return mForums.size();
+        }
+
+        public boolean isChildSelectable(int aGroupPosition, int aChildPosition) {
+            return true;
+        }
+
+        public boolean hasStableIds() {
+            return true;
         }
     }
     
