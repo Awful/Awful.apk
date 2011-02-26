@@ -108,8 +108,7 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
                     forum.addSubforum(subforum);
                 }
             }
-
-            Log.i(TAG, "Number of subforums: " + Integer.toString(forum.getSubforums().size()));
+            
             result.add(forum);
         }
 
