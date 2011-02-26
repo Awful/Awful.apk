@@ -58,6 +58,8 @@ public class AwfulPost {
     private static final String AVATAR    = "//dd[@class='title']//img";
     private static final String EDITED    = "//p[@class='editedby']/span";
     private static final String POSTBODY  = "//td[@class='postbody']";
+	private static final String SEEN1     = "//tr[@class='seen1']";
+	private static final String SEEN2     = "//tr[@class='seen2']";
 
     private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
     private static final String ELEMENT_END_TD       = "</td>";
@@ -70,6 +72,7 @@ public class AwfulPost {
     private String mAvatar;
     private String mContent;
     private String mEdited;
+	private boolean mLastRead = false;;
 
     public String getId() {
         return mId;
@@ -119,16 +122,28 @@ public class AwfulPost {
         mEdited = aEdited;
     }
 
+	public boolean isLastRead() {
+		return mLastRead;
+	}
+
+	public void setLastRead(boolean aLastRead) {
+		mLastRead = aLastRead;
+	}
+
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties properties = cleaner.getProperties();
         properties.setOmitComments(true);
 
+		boolean lastReadFound = false;
+
         try {
             Object[] postNodes = aThread.evaluateXPath(POST);
 
             for (Object current : postNodes) {
+				boolean previouslyRead = false;
+
                 AwfulPost post = new AwfulPost();
                 TagNode node = (TagNode) current;
 
@@ -176,6 +191,26 @@ public class AwfulPost {
 					nodeList = node.evaluateXPath(ADMIN);
 					if (nodeList.length > 0) {
 						post.setUsername(((TagNode) nodeList[0]).getText().toString());
+					}
+				}
+
+				// If we haven't yet found the last read post then check if
+				// this post has "last read" color highlighting. If it doesn't,
+				// it's the first unread post for the page.
+				if (!lastReadFound) {
+					nodeList = node.evaluateXPath(SEEN1);
+					if (nodeList.length > 0) {
+						previouslyRead = true;
+					} else {
+						nodeList = node.evaluateXPath(SEEN2);
+						if (nodeList.length > 0) {
+							previouslyRead = true;
+						}
+					}
+
+					if (!previouslyRead) {
+						post.setLastRead(true);
+						lastReadFound = true;
 					}
 				}
 

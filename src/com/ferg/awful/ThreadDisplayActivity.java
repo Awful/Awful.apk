@@ -100,7 +100,7 @@ public class ThreadDisplayActivity extends Activity {
             new FetchThreadTask().execute(mThread);
         } else {
             mThread = retainedThread;
-            mPostList.setAdapter(generateAdapter(mThread.getPosts()));
+            setListAdapter();
         }
 
         mTitle.setText(mThread.getTitle());
@@ -160,6 +160,27 @@ public class ThreadDisplayActivity extends Activity {
         final AwfulThread currentThread = mThread;
 
         return currentThread;
+    }
+
+    private void setListAdapter() {
+        ArrayList<AwfulPost> posts = mThread.getPosts();
+
+        mPostList.setAdapter(generateAdapter(posts));
+
+        AwfulPost lastRead = null;
+
+        // Maybe there's a better way to do this? It's 8am and I'm hung over
+        for (AwfulPost post : posts) {
+            if (post.isLastRead()) {
+                lastRead = post;
+                break;
+            }
+        }
+
+        if (lastRead != null) {
+            int index = posts.indexOf(lastRead);
+            mPostList.setSelection(index);
+        }
     }
 
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -229,10 +250,12 @@ public class ThreadDisplayActivity extends Activity {
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
             try {
+                Log.i(TAG, "Selected page: " + Integer.toString(mPage));
+                Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
 				if (mPage == 0) {
 					// We set the unread count to -1 if the user has never
 					// visited that thread before
-					if (aParams[0].getUnreadCount() == 0) {
+					if (aParams[0].getUnreadCount() > -1) {
 						aParams[0].getThreadPosts();
 					} else {
 						aParams[0].getThreadPosts(1);
@@ -250,8 +273,7 @@ public class ThreadDisplayActivity extends Activity {
 
         public void onPostExecute(AwfulThread aResult) {
 			mThread = aResult;
-
-            mPostList.setAdapter(generateAdapter(mThread.getPosts()));
+            setListAdapter();
 
             mDialog.dismiss();
         }
