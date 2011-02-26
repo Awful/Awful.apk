@@ -60,6 +60,8 @@ import com.ferg.awful.thread.AwfulThread;
 public class UserCPActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
+    private ArrayList<AwfulThread> mThreads;
+
     private ImageButton mHome;
     private ListView mThreadList;
 	private ProgressDialog mDialog;
@@ -80,7 +82,14 @@ public class UserCPActivity extends Activity {
 
         mTitle.setText(getString(R.string.user_cp));
 
-        new FetchThreadsTask().execute();
+        final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
+
+        if (retainedThreadsList == null) {
+            new FetchThreadsTask().execute();
+        } else {
+            mThreads = retainedThreadsList;
+            setThreadListAdapter();
+        }
     }
     
     @Override
@@ -105,6 +114,20 @@ public class UserCPActivity extends Activity {
     	}
 
 		return true;
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final ArrayList<AwfulThread> currentThreadList = mThreads;
+
+        return currentThreadList;
+    }
+
+    private void setThreadListAdapter() {
+        mThreadList.setAdapter(new AwfulThreadAdapter(UserCPActivity.this, 
+                    R.layout.thread_item, mThreads));
+
+        mThreadList.setOnItemClickListener(onThreadSelected);
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -149,10 +172,9 @@ public class UserCPActivity extends Activity {
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            mThreadList.setAdapter(new AwfulThreadAdapter(UserCPActivity.this, 
-                        R.layout.thread_item, aResult));
+            mThreads = aResult;
 
-            mThreadList.setOnItemClickListener(onThreadSelected);
+            setThreadListAdapter();
 
             mDialog.dismiss();
         }

@@ -86,12 +86,21 @@ public class ForumDisplayActivity extends Activity {
 
         mThreadList.setOnScrollListener(new EndlessScrollListener());
         mThreadList.setAdapter(mThreadAdapter);
+
+        mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
         
-		mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
+        final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
+
+        if (retainedThreadList == null || retainedThreadList.size() == 0) {
+            new FetchThreadsTask().execute(mForum.getForumId());
+        } else {
+            mThreads.addAll(retainedThreadList);
+
+            mThreadAdapter.notifyDataSetChanged();
+            mThreadList.setOnItemClickListener(onThreadSelected);
+        }
 
         mTitle.setText(mForum.getTitle());
-
-        new FetchThreadsTask().execute(mForum.getForumId());
     }
     
     @Override
@@ -122,6 +131,13 @@ public class ForumDisplayActivity extends Activity {
     	}
 
 		return true;
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final ArrayList<AwfulThread> currentThreadList = mThreads;
+
+        return currentThreadList;
     }
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {

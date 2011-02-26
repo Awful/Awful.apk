@@ -91,15 +91,21 @@ public class ThreadDisplayActivity extends Activity {
         mNext     = (ImageButton) findViewById(R.id.next_page);
         mReply    = (ImageButton) findViewById(R.id.reply);
 
-        mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        registerForContextMenu(mPostList);
+
+        final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
+
+        if (retainedThread == null) {
+            mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+            new FetchThreadTask().execute(mThread);
+        } else {
+            mThread = retainedThread;
+            mPostList.setAdapter(generateAdapter(mThread.getPosts()));
+        }
 
         mTitle.setText(mThread.getTitle());
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
-
-        registerForContextMenu(mPostList);
-    
-        new FetchThreadTask().execute(mThread);
     }
     
     @Override
@@ -147,6 +153,13 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         return false;
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final AwfulThread currentThread = mThread;
+
+        return currentThread;
     }
 
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -238,7 +251,7 @@ public class ThreadDisplayActivity extends Activity {
         public void onPostExecute(AwfulThread aResult) {
 			mThread = aResult;
 
-            mPostList.setAdapter(generateAdapter(aResult.getPosts()));
+            mPostList.setAdapter(generateAdapter(mThread.getPosts()));
 
             mDialog.dismiss();
         }
