@@ -47,6 +47,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -64,6 +65,8 @@ public class ForumDisplayActivity extends Activity {
 
 	private AwfulForum mForum;
 
+    private ImageButton mUserCp;
+	private ImageButton mNext;
     private ListView mThreadList;
     private ArrayList<AwfulThread> mThreads = new ArrayList<AwfulThread>();
     private AwfulThreadAdapter mThreadAdapter;
@@ -82,7 +85,9 @@ public class ForumDisplayActivity extends Activity {
                 R.layout.thread_item, mThreads);
         
         mThreadList = (ListView) findViewById(R.id.forum_list);
-        mTitle = (TextView) findViewById(R.id.title);
+        mTitle      = (TextView) findViewById(R.id.title);
+        mUserCp     = (ImageButton) findViewById(R.id.user_cp);
+        mNext       = (ImageButton) findViewById(R.id.next_page);
 
         mThreadList.setOnScrollListener(new EndlessScrollListener());
         mThreadList.setAdapter(mThreadAdapter);
@@ -101,6 +106,8 @@ public class ForumDisplayActivity extends Activity {
         }
 
         mTitle.setText(mForum.getTitle());
+        mUserCp.setOnClickListener(onButtonClick);
+		mNext.setOnClickListener(onButtonClick);
     }
     
     @Override
@@ -119,12 +126,9 @@ public class ForumDisplayActivity extends Activity {
 					new FetchThreadsTask(mForum.getCurrentPage() - 1).execute(mForum.getForumId());
 				}
 				break;
-			case R.id.go_forward:
-				if (mForum.getCurrentPage() != mForum.getLastPage()) {
-					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
-				}
-				break;
 			case R.id.usercp:
+                startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
+                break;
 			case R.id.go_to:
 			default:
 				return super.onOptionsItemSelected(item);
@@ -139,6 +143,21 @@ public class ForumDisplayActivity extends Activity {
 
         return currentThreadList;
     }
+
+    private View.OnClickListener onButtonClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.user_cp:
+                    startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
+                    break;
+				case R.id.next_page:
+                    if (mForum.getCurrentPage() != mForum.getLastPage()) {
+                        new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+                    }
+					break;
+            }
+        }
+    };
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
 		private int mPage;
