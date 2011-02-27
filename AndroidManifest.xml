@@ -6,6 +6,12 @@
     <uses-sdk 
 		android:minSdkVersion="7" 
 		/>
+    <supports-screens 
+        android:smallScreens="true"
+        android:normalScreens="true" 
+        android:largeScreens="true" 
+        android:anyDensity="true" 
+        />
     <application 
 		android:label="@string/app_name" 
 		android:icon="@drawable/icon" 
