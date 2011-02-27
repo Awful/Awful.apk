@@ -30,8 +30,10 @@ package com.ferg.awful;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -49,6 +51,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -127,6 +130,28 @@ public class ThreadDisplayActivity extends Activity {
 			case R.id.usercp:
 				break;
 			case R.id.go_to:
+                final EditText jumpToText = new EditText(ThreadDisplayActivity.this);
+                new AlertDialog.Builder(ThreadDisplayActivity.this)
+                    .setTitle("Jump to Page")
+                    .setView(jumpToText)
+                    .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface aDialog, int aWhich) {
+                                String page = jumpToText.getText().toString();
+                                try {
+                                    int pageInt = Integer.parseInt(page);
+                                    if (pageInt > 0) {
+                                        new FetchThreadTask(pageInt).execute(mThread);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.d(TAG, "Not a valid number: " + e.toString());
+                                } catch (Exception e) {
+                                    Log.d(TAG, e.toString());
+                                }
+                            }
+                        })
+                    .setNegativeButton("Cancel", null)
+                    .show();
 			default:
 				return super.onOptionsItemSelected(item);
     	}
