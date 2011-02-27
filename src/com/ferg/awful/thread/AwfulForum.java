@@ -27,6 +27,10 @@
 
 package com.ferg.awful.thread;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -42,6 +46,13 @@ import com.ferg.awful.network.NetworkUtils;
 
 public class AwfulForum extends AwfulSubforum implements Parcelable {
     private static final String TAG = "AwfulForum";
+
+	public static final String ID      = "forum_id";
+	public static final String TITLE   = "title";
+	public static final String SUBTEXT = "subtext";
+
+	public static final String PATH = "/forum";
+	public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
 	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
 	private static final String FORUM_TITLE = "//a[@class='forum']";
@@ -68,7 +79,51 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
         setLastPage(aAwfulForum.readInt());
 	}
 
-	public static ArrayList<AwfulForum> getForums() throws Exception {
+	public void save(Context aContext) {
+		ContentValues params = new ContentValues();
+		params.put(ID, Integer.parseInt(mForumId));
+		params.put(TITLE, mTitle);
+		params.put(SUBTEXT, mSubtext);
+
+		aContext.getContentResolver().insert(CONTENT_URI, params);
+	}
+
+	public static ArrayList<AwfulForum> getForums(Context aContext) throws Exception {
+        ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+
+        Cursor query = aContext.getContentResolver().query(CONTENT_URI, null, null, null, null);
+
+        // If we have nothing in the cache, resort to the remote
+        if (query.getCount() == 0) {
+            return getForumsFromRemote(aContext);
+        }
+        
+        if (query.moveToFirst()) {
+            int idIndex      = query.getColumnIndex(ID);
+            int titleIndex   = query.getColumnIndex(TITLE);
+            int subtextIndex = query.getColumnIndex(SUBTEXT);
+
+            AwfulForum current;
+
+            do {
+                int id = query.getInt(idIndex);
+
+                current = new AwfulForum();
+                current.setForumId(Integer.toString(id));
+                current.setTitle(query.getString(titleIndex));
+                current.setSubtext(query.getString(subtextIndex));
+                current.setSubforum(AwfulSubforum.fromParentId(aContext, id));
+
+                result.add(current);
+            } while (query.moveToNext());
+        }
+
+        query.close();
+
+        return result;
+    }
+
+	private static ArrayList<AwfulForum> getForumsFromRemote(Context aContext) throws Exception {
 		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
         TagNode response = NetworkUtils.get(Constants.BASE_URL);
@@ -105,9 +160,14 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
                     subforum.setTitle(subNode.getText().toString());
                     subforum.setForumId(getForumId(id));
 
+					// Cache the subforum in the database
+					subforum.save(aContext, Integer.parseInt(forum.getForumId()));
+
                     forum.addSubforum(subforum);
                 }
             }
+
+			forum.save(aContext);
             
             result.add(forum);
         }

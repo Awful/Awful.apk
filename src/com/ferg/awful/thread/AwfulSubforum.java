@@ -27,11 +27,26 @@
 
 package com.ferg.awful.thread;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.ArrayList;
+
+import com.ferg.awful.constants.Constants;
+
 public class AwfulSubforum extends AwfulPagedItem implements Parcelable {
+	public static final String ID        = "forum_id";
+	public static final String TITLE     = "title";
+	public static final String PARENT_ID = "parent_id";
+
+	public static final String PATH = "/subforum";
+	public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+
 	private String mTitle;
 	private String mForumId;
 	
@@ -51,6 +66,41 @@ public class AwfulSubforum extends AwfulPagedItem implements Parcelable {
             return new AwfulSubforum[aSize];
         }
     };
+
+	public void save(Context aContext, int aParentId) {
+		ContentValues params = new ContentValues();
+		params.put(ID, Integer.parseInt(mForumId));
+		params.put(TITLE, mTitle);
+		params.put(PARENT_ID, aParentId);
+
+		aContext.getContentResolver().insert(CONTENT_URI, params);
+	}
+    
+    public static ArrayList<AwfulSubforum> fromParentId(Context aContext, int aParentId) {
+        ArrayList<AwfulSubforum> result = new ArrayList<AwfulSubforum>();
+
+        Cursor query = aContext.getContentResolver().query(CONTENT_URI, null, PARENT_ID + "=" +
+                Integer.toString(aParentId), null, null);
+
+        if (query.moveToFirst()) {
+            int idIndex       = query.getColumnIndex(ID);
+            int titleIndex    = query.getColumnIndex(TITLE);
+
+            AwfulSubforum current;
+
+            do {
+                current = new AwfulSubforum();
+                current.setForumId(Integer.toString(query.getInt(idIndex)));
+                current.setTitle(query.getString(titleIndex));
+
+                result.add(current);
+            } while (query.moveToNext());
+        }
+
+        query.close();
+
+        return result;
+    }
 
     @Override
     public int describeContents() {

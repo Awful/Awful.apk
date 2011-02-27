@@ -27,6 +27,8 @@
             android:windowSoftInputMode="adjustResize" 
             />
         <activity android:name="UserCPActivity" />
+		<provider android:name="com.ferg.awful.provider.AwfulProvider"
+				  android:authorities="com.ferg.awful.provider" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

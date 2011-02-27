@@ -120,7 +120,7 @@ public class ForumsIndexActivity extends Activity {
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
             try {
-            	result = AwfulForum.getForums();
+            	result = AwfulForum.getForums(ForumsIndexActivity.this);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.i(TAG, e.toString());
