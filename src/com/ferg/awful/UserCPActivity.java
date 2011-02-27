@@ -198,7 +198,7 @@ public class UserCPActivity extends Activity {
         public ArrayList<AwfulThread> doInBackground(String... aParams) {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-            if (isCancelled()) {
+            if (!isCancelled()) {
                 try {
                     TagNode threads = null;
 
@@ -215,7 +215,7 @@ public class UserCPActivity extends Activity {
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            if (isCancelled()) {
+            if (!isCancelled()) {
                 mThreads = aResult;
 
                 setThreadListAdapter();

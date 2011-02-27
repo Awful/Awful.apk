@@ -296,7 +296,7 @@ public class ThreadDisplayActivity extends Activity {
         public String doInBackground(Long... aParams) {
             String result = null;
 
-            if (isCancelled()) {
+            if (!isCancelled()) {
                 try {
                     AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
                     AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
@@ -311,7 +311,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         public void onPostExecute(String aResult) {
-            if (isCancelled()) {
+            if (!isCancelled()) {
                 mDialog.dismiss();
 
                 Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
@@ -363,7 +363,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         public void onPostExecute(AwfulThread aResult) {
-            if (!(isCancelled())) {
+            if (!isCancelled()) {
                 mThread = aResult;
                 setListAdapter();
 
