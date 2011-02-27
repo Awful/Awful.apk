@@ -61,6 +61,7 @@ public class UserCPActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
     private ArrayList<AwfulThread> mThreads;
+    private FetchThreadsTask mFetchTask;
 
     private ImageButton mHome;
     private ListView mThreadList;
@@ -85,10 +86,50 @@ public class UserCPActivity extends Activity {
         final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
         if (retainedThreadsList == null) {
-            new FetchThreadsTask().execute();
+            mFetchTask = new FetchThreadsTask();
+            mFetchTask.execute();
         } else {
             mThreads = retainedThreadsList;
             setThreadListAdapter();
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
         }
     }
     
@@ -141,42 +182,46 @@ public class UserCPActivity extends Activity {
     };
 
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
-		private int mPage;
+        private int mPage;
 
-		public FetchThreadsTask() {}
+        public FetchThreadsTask() {}
 
-		public FetchThreadsTask(int aPage) {
-			mPage = aPage;
-		}
+        public FetchThreadsTask(int aPage) {
+            mPage = aPage;
+        }
 
         public void onPreExecute() {
             mDialog = ProgressDialog.show(UserCPActivity.this, "Loading", 
-                "Hold on...", true);
+                    "Hold on...", true);
         }
 
         public ArrayList<AwfulThread> doInBackground(String... aParams) {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-            try {
-				TagNode threads = null;
+            if (isCancelled()) {
+                try {
+                    TagNode threads = null;
 
-                threads = AwfulThread.getUserCPThreads();
+                    threads = AwfulThread.getUserCPThreads();
 
-				result = AwfulThread.parseForumThreads(threads);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+                    result = AwfulThread.parseForumThreads(threads);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
 
             return result;
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            mThreads = aResult;
+            if (isCancelled()) {
+                mThreads = aResult;
 
-            setThreadListAdapter();
+                setThreadListAdapter();
 
-            mDialog.dismiss();
+                mDialog.dismiss();
+            }
         }
     }
 
