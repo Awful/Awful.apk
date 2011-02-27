@@ -75,6 +75,7 @@ public class ThreadDisplayActivity extends Activity {
 
 	private AwfulThread mThread;
     private FetchThreadTask mFetchTask;
+    private ParsePostQuoteTask mPostQuoteTask;
 
 	private ImageButton mNext;
 	private ImageButton mReply;
@@ -125,6 +126,10 @@ public class ThreadDisplayActivity extends Activity {
         if (mFetchTask != null) {
             mFetchTask.cancel(true);
         }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
+        }
     }
         
     @Override
@@ -138,6 +143,10 @@ public class ThreadDisplayActivity extends Activity {
         if (mFetchTask != null) {
             mFetchTask.cancel(true);
         }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
+        }
     }
     
     @Override
@@ -150,6 +159,10 @@ public class ThreadDisplayActivity extends Activity {
 
         if (mFetchTask != null) {
             mFetchTask.cancel(true);
+        }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
         }
     }
     
@@ -219,7 +232,8 @@ public class ThreadDisplayActivity extends Activity {
 
         switch (aItem.getItemId()) {
             case R.id.quote:
-                new ParsePostQuoteTask().execute(info.id);
+                mPostQuoteTask = new ParsePostQuoteTask();
+                mPostQuoteTask.execute(info.id);
                 return true;
         }
 
@@ -281,28 +295,31 @@ public class ThreadDisplayActivity extends Activity {
 
         public String doInBackground(Long... aParams) {
             String result = null;
-            
-            try {
-                AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
-                AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
 
-                result = Reply.getQuote(selected.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+            if (isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    result = Reply.getQuote(selected.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
-
             return result;
         }
 
         public void onPostExecute(String aResult) {
-            mDialog.dismiss();
+            if (isCancelled()) {
+                mDialog.dismiss();
 
-            Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
-            postReply.putExtra(Constants.THREAD, mThread);
-            postReply.putExtra(Constants.QUOTE, aResult);
+                Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.QUOTE, aResult);
 
-            startActivity(postReply);
+                startActivity(postReply);
+            }
         }
     }
 
@@ -321,7 +338,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
-            if (!ThreadDisplayActivity.this.mFetchTask.isCancelled()) {
+            if (!isCancelled()) {
                 try {
                     Log.i(TAG, "Selected page: " + Integer.toString(mPage));
                     Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
@@ -346,7 +363,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         public void onPostExecute(AwfulThread aResult) {
-            if (!(ThreadDisplayActivity.this.mFetchTask.isCancelled())) {
+            if (!(isCancelled())) {
                 mThread = aResult;
                 setListAdapter();
 
