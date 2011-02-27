@@ -30,8 +30,10 @@ package com.ferg.awful;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -49,12 +51,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
@@ -70,6 +74,8 @@ public class ThreadDisplayActivity extends Activity {
 	private final DrawableManager mImageDownloader = new DrawableManager();
 
 	private AwfulThread mThread;
+    private FetchThreadTask mFetchTask;
+    private ParsePostQuoteTask mPostQuoteTask;
 
 	private ImageButton mNext;
 	private ImageButton mReply;
@@ -95,9 +101,10 @@ public class ThreadDisplayActivity extends Activity {
 
         final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
 
-        if (retainedThread == null) {
+        if (retainedThread == null || retainedThread.getPosts() == null) {
             mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
-            new FetchThreadTask().execute(mThread);
+            mFetchTask = new FetchThreadTask();
+            mFetchTask.execute(mThread);
         } else {
             mThread = retainedThread;
             setListAdapter();
@@ -106,6 +113,57 @@ public class ThreadDisplayActivity extends Activity {
         mTitle.setText(mThread.getTitle());
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mPostQuoteTask != null) {
+            mPostQuoteTask.cancel(true);
+        }
     }
     
     @Override
@@ -121,12 +179,38 @@ public class ThreadDisplayActivity extends Activity {
     	switch(item.getItemId()) {
 			case R.id.go_back:
 				if (mThread.getCurrentPage() != 1) {
-					new FetchThreadTask(mThread.getCurrentPage() - 1).execute(mThread);
+					mFetchTask = new FetchThreadTask(mThread.getCurrentPage() - 1);
+                    mFetchTask.execute(mThread);
 				}
 				break;
 			case R.id.usercp:
 				break;
 			case R.id.go_to:
+                final EditText jumpToText = new EditText(ThreadDisplayActivity.this);
+                new AlertDialog.Builder(ThreadDisplayActivity.this)
+                    .setTitle("Jump to Page")
+                    .setView(jumpToText)
+                    .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface aDialog, int aWhich) {
+                                String page = jumpToText.getText().toString();
+                                try {
+                                    int pageInt = Integer.parseInt(page);
+                                    if (pageInt > 0 && pageInt <= mThread.getLastPage()) {
+                                        mFetchTask = new FetchThreadTask(pageInt);
+                                        mFetchTask.execute(mThread);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.d(TAG, "Not a valid number: " + e.toString());
+        	                        Toast.makeText(ThreadDisplayActivity.this,
+                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    Log.d(TAG, e.toString());
+                                }
+                            }
+                        })
+                    .setNegativeButton("Cancel", null)
+                    .show();
 			default:
 				return super.onOptionsItemSelected(item);
     	}
@@ -148,7 +232,8 @@ public class ThreadDisplayActivity extends Activity {
 
         switch (aItem.getItemId()) {
             case R.id.quote:
-                new ParsePostQuoteTask().execute(info.id);
+                mPostQuoteTask = new ParsePostQuoteTask();
+                mPostQuoteTask.execute(info.id);
                 return true;
         }
 
@@ -188,7 +273,8 @@ public class ThreadDisplayActivity extends Activity {
 			switch (aView.getId()) {
 				case R.id.next_page:
 					if (mThread.getCurrentPage() < mThread.getLastPage()) {
-						new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
+						mFetchTask = new FetchThreadTask(mThread.getCurrentPage() + 1);
+                        mFetchTask.execute(mThread);
 					}
 					break;
 				case R.id.reply:
@@ -209,28 +295,31 @@ public class ThreadDisplayActivity extends Activity {
 
         public String doInBackground(Long... aParams) {
             String result = null;
-            
-            try {
-                AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
-                AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
 
-                result = Reply.getQuote(selected.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+            if (!isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    result = Reply.getQuote(selected.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
-
             return result;
         }
 
         public void onPostExecute(String aResult) {
-            mDialog.dismiss();
+            if (!isCancelled()) {
+                mDialog.dismiss();
 
-            Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
-            postReply.putExtra(Constants.THREAD, mThread);
-            postReply.putExtra(Constants.QUOTE, aResult);
+                Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.QUOTE, aResult);
 
-            startActivity(postReply);
+                startActivity(postReply);
+            }
         }
     }
 
@@ -249,33 +338,39 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
-            try {
-                Log.i(TAG, "Selected page: " + Integer.toString(mPage));
-                Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
-				if (mPage == 0) {
-					// We set the unread count to -1 if the user has never
-					// visited that thread before
-					if (aParams[0].getUnreadCount() > -1) {
-						aParams[0].getThreadPosts();
-					} else {
-						aParams[0].getThreadPosts(1);
-					}
-				} else {
-					aParams[0].getThreadPosts(mPage);
-				}
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+            if (!isCancelled()) {
+                try {
+                    Log.i(TAG, "Selected page: " + Integer.toString(mPage));
+                    Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
+                    if (mPage == 0) {
+                        // We set the unread count to -1 if the user has never
+                        // visited that thread before
+                        if (aParams[0].getUnreadCount() > -1) {
+                            aParams[0].getThreadPosts();
+                        } else {
+                            aParams[0].getThreadPosts(1);
+                        }
+                    } else {
+                        aParams[0].getThreadPosts(mPage);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
 
             return aParams[0];
         }
 
         public void onPostExecute(AwfulThread aResult) {
-			mThread = aResult;
-            setListAdapter();
+            if (!isCancelled()) {
+                mThread = aResult;
+                setListAdapter();
 
-            mDialog.dismiss();
+                if (mDialog != null) {
+                    mDialog.dismiss();
+                }
+            }
         }
     }
 

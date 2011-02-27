@@ -46,6 +46,9 @@ import com.ferg.awful.thread.AwfulThread;
 public class PostReplyActivity extends Activity {
     private static final String TAG = "PostReplyActivity";
 
+    private FetchFormKeyTask mFetchTask;
+    private SubmitReplyTask mSubmitTask;
+
     private Button mSubmit;
     private EditText mMessage;
 	private ProgressDialog mDialog;
@@ -81,12 +84,65 @@ public class PostReplyActivity extends Activity {
 
         mSubmit.setOnClickListener(onSubmitClick);
 
-		new FetchFormKeyTask().execute(mThread.getThreadId());
+		mFetchTask = new FetchFormKeyTask();
+        mFetchTask.execute(mThread.getThreadId());
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mSubmitTask != null) {
+            mSubmitTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mSubmitTask != null) {
+            mSubmitTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+        
+        if (mSubmitTask != null) {
+            mSubmitTask.cancel(true);
+        }
     }
 
     private View.OnClickListener onSubmitClick = new View.OnClickListener() {
         public void onClick(View aView) {
-			new SubmitReplyTask().execute(mMessage.getText().toString(), 
+			mSubmitTask = new SubmitReplyTask();
+            mSubmitTask.execute(mMessage.getText().toString(), 
 					mFormKey, mThread.getThreadId());
         }
     };
@@ -95,47 +151,54 @@ public class PostReplyActivity extends Activity {
 		public void onPreExecute() {
             mDialog = ProgressDialog.show(PostReplyActivity.this, "Posting", 
                 "Hopefully it didn't suck...", true);
-		}
+        }
 
-		public Void doInBackground(String... aParams) {
-			try {
-				Reply.postReply(aParams[0], aParams[1], aParams[2]);
-			} catch (Exception e) {
-				e.printStackTrace();
-				Log.i(TAG, e.toString());
-			}
+        public Void doInBackground(String... aParams) {
+            if (!isCancelled()) {
+                try {
+                    Reply.postReply(aParams[0], aParams[1], aParams[2]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return null;
+        }
 
-			return null;
-		}
+        public void onPostExecute(Void aResult) {
+            if (!isCancelled()) {
+                mDialog.dismiss();
 
-		public void onPostExecute(Void aResult) {
-			mDialog.dismiss();
+                PostReplyActivity.this.finish();
+            }
+        }
+    }
 
-            PostReplyActivity.this.finish();
-		}
-	}
+    private class FetchFormKeyTask extends AsyncTask<String, Void, String> {
+        public String doInBackground(String... aParams) {
+            String result = null;
 
-	private class FetchFormKeyTask extends AsyncTask<String, Void, String> {
-		public String doInBackground(String... aParams) {
-			String result = null;
+            if (!isCancelled()) {
+                try {
+                    result = Reply.getFormKey(aParams[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
 
-			try {
-				result = Reply.getFormKey(aParams[0]);
-			} catch (Exception e) {
-				e.printStackTrace();
-				Log.i(TAG, e.toString());
-			}
+            return result;
+        }
 
-			return result;
-		}
+        public void onPostExecute(String aResult) {
+            if (!isCancelled()) {
+                if (aResult.length() > 0) {
+                    Log.i(TAG, aResult);
 
-		public void onPostExecute(String aResult) {
-			if (aResult.length() > 0) {
-				Log.i(TAG, aResult);
-
-				mFormKey = aResult;
-				mSubmit.setEnabled(true);
-			}
-		}
+                    mFormKey = aResult;
+                    mSubmit.setEnabled(true);
+                }
+            }
+        }
 	}
 }

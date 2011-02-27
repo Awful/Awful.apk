@@ -64,4 +64,7 @@ public class Constants {
 	public static final String COOKIE_PREF_USERID      = "bbuserid";
 	public static final String COOKIE_PREF_PASSWORD    = "bbpassword";
 	public static final String COOKIE_PREF_EXPIRY_DATE = "expiration";
+
+	// Content provider
+    public static final String AUTHORITY = "com.ferg.awful.provider";
 }

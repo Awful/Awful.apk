@@ -27,6 +27,10 @@
 
 package com.ferg.awful.thread;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -40,29 +44,86 @@ import org.htmlcleaner.XPatherException;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 
-public class AwfulForum extends AwfulPagedItem implements Parcelable {
+public class AwfulForum extends AwfulSubforum implements Parcelable {
     private static final String TAG = "AwfulForum";
 
-	private static final String FORUM_ROW    = "//table[@id='forums']//tr//td[@class='title']//a[@class='forum']";
-	private static final String FORUM_TITLE  = "//a[@class='forum']";
-	// TODO: Parse subforums
+	public static final String ID      = "forum_id";
+	public static final String TITLE   = "title";
+	public static final String SUBTEXT = "subtext";
+
+	public static final String PATH = "/forum";
+	public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+
+	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
+	private static final String FORUM_TITLE = "//a[@class='forum']";
+    private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
 	private String mTitle;
 	private String mForumId;
 	private String mSubtext;
+    private ArrayList<AwfulSubforum> mSubforums;
 	
-	public AwfulForum() {}
+	public AwfulForum() {
+        mSubforums = new ArrayList<AwfulSubforum>();
+    }
 
 	public AwfulForum(Parcel aAwfulForum) {
+        mSubforums = new ArrayList<AwfulSubforum>();
+
         mTitle       = aAwfulForum.readString();
         mForumId     = aAwfulForum.readString();
         mSubtext     = aAwfulForum.readString();
+        aAwfulForum.readTypedList(mSubforums, AwfulSubforum.CREATOR);
 
         setCurrentPage(aAwfulForum.readInt());
         setLastPage(aAwfulForum.readInt());
 	}
 
-	public static ArrayList<AwfulForum> getForums() throws Exception {
+	public void save(Context aContext) {
+		ContentValues params = new ContentValues();
+		params.put(ID, Integer.parseInt(mForumId));
+		params.put(TITLE, mTitle);
+		params.put(SUBTEXT, mSubtext);
+
+		aContext.getContentResolver().insert(CONTENT_URI, params);
+	}
+
+	public static ArrayList<AwfulForum> getForums(Context aContext) throws Exception {
+        ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+
+        Cursor query = aContext.getContentResolver().query(CONTENT_URI, null, null, null, null);
+
+        // If we have nothing in the cache, resort to the remote
+        if (query.getCount() == 0) {
+            return getForumsFromRemote(aContext);
+        }
+        
+        if (query.moveToFirst()) {
+            int idIndex      = query.getColumnIndex(ID);
+            int titleIndex   = query.getColumnIndex(TITLE);
+            int subtextIndex = query.getColumnIndex(SUBTEXT);
+
+            AwfulForum current;
+
+            do {
+                int id = query.getInt(idIndex);
+
+                current = new AwfulForum();
+                current.setForumId(Integer.toString(id));
+                current.setTitle(query.getString(titleIndex));
+                current.setSubtext(query.getString(subtextIndex));
+                current.setSubforum(AwfulSubforum.fromParentId(aContext, id));
+
+                result.add(current);
+            } while (query.moveToNext());
+        }
+
+        query.close();
+
+        return result;
+    }
+
+	private static ArrayList<AwfulForum> getForumsFromRemote(Context aContext) throws Exception {
 		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
         TagNode response = NetworkUtils.get(Constants.BASE_URL);
@@ -73,21 +134,52 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
 			AwfulForum forum = new AwfulForum();
 			TagNode node = (TagNode) current;
 
-			forum.setTitle(node.getText().toString());
+            // First, grab the parent forum
+            Object[] nodeList = node.evaluateXPath(FORUM_TITLE);
+            if (nodeList.length > 0) {
+                TagNode parentForum = (TagNode) nodeList[0];
+                forum.setTitle(parentForum.getText().toString());
 
-			// Just nix the part we don't need to get the forum ID
-			String id = node.getAttributeByName("href");
-			String[] idSplit = id.split("=");
-				
-			forum.setForumId(idSplit[1]);	
+                // Just nix the part we don't need to get the forum ID
+                String id = parentForum.getAttributeByName("href");
 
-			forum.setSubtext(node.getAttributeByName("title"));
+                forum.setForumId(getForumId(id));
+                forum.setSubtext(parentForum.getAttributeByName("title"));
+            }
 
-			result.add(forum);
-		}
+            // Now grab the subforums
+            nodeList = node.evaluateXPath(SUBFORUM);
+            if (nodeList.length > 0) {
+                for (Object obj : nodeList) {
+                    AwfulSubforum subforum = new AwfulSubforum();
+
+                    TagNode subNode = (TagNode) obj;
+
+                    String id = subNode.getAttributeByName("href");
+
+                    subforum.setTitle(subNode.getText().toString());
+                    subforum.setForumId(getForumId(id));
+
+					// Cache the subforum in the database
+					subforum.save(aContext, Integer.parseInt(forum.getForumId()));
+
+                    forum.addSubforum(subforum);
+                }
+            }
+
+			forum.save(aContext);
+            
+            result.add(forum);
+        }
 
 		return result;
 	}
+
+    private static String getForumId(String aHref) {
+        String[] idSplit = aHref.split("=");
+
+        return idSplit[1];
+    }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public AwfulForum createFromParcel(Parcel aAwfulForum) {
@@ -109,6 +201,7 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
         aDestination.writeString(mTitle);
         aDestination.writeString(mForumId);
         aDestination.writeString(mSubtext);
+        aDestination.writeTypedList(mSubforums);
         aDestination.writeInt(getCurrentPage());
         aDestination.writeInt(getLastPage());
     }
@@ -135,5 +228,17 @@ public class AwfulForum extends AwfulPagedItem implements Parcelable {
 
 	public void setSubtext(String aSubtext) {
 		mSubtext = aSubtext;
+	}
+
+	public ArrayList<AwfulSubforum> getSubforums() {
+		return mSubforums;
+	}
+
+    public void addSubforum(AwfulSubforum aSubforum) {
+        mSubforums.add(aSubforum);
+    }
+
+	public void setSubforum(ArrayList<AwfulSubforum> aSubforums) {
+		mSubforums = aSubforums;
 	}
 }

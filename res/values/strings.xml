@@ -13,4 +13,5 @@
     <string name="post_reply">Post Reply</string>
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
+    <string name="invalid_page">Enter a real number</string>
 </resources>
