@@ -64,6 +64,7 @@ public class ForumDisplayActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
 	private AwfulForum mForum;
+    private FetchThreadsTask mFetchTask;
 
     private ImageButton mUserCp;
 	private ImageButton mNext;
@@ -97,7 +98,8 @@ public class ForumDisplayActivity extends Activity {
         final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
         if (retainedThreadList == null || retainedThreadList.size() == 0) {
-            new FetchThreadsTask().execute(mForum.getForumId());
+            mFetchTask = new FetchThreadsTask();
+            mFetchTask.execute(mForum.getForumId());
         } else {
             mThreads.addAll(retainedThreadList);
 
@@ -108,6 +110,45 @@ public class ForumDisplayActivity extends Activity {
         mTitle.setText(mForum.getTitle());
         mUserCp.setOnClickListener(onButtonClick);
 		mNext.setOnClickListener(onButtonClick);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mFetchTask != null) {
+            mFetchTask.cancel(true);
+        }
     }
     
     @Override
@@ -123,7 +164,8 @@ public class ForumDisplayActivity extends Activity {
     	switch(item.getItemId()) {
 			case R.id.go_back:
 				if (mForum.getCurrentPage() != 1) {
-					new FetchThreadsTask(mForum.getCurrentPage() - 1).execute(mForum.getForumId());
+					mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() - 1);
+                    mFetchTask.execute(mForum.getForumId());
 				}
 				break;
 			case R.id.usercp:
@@ -152,7 +194,8 @@ public class ForumDisplayActivity extends Activity {
                     break;
 				case R.id.next_page:
                     if (mForum.getCurrentPage() != mForum.getLastPage()) {
-                        new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() + 1);
+                        mFetchTask.execute(mForum.getForumId());
                     }
 					break;
             }
@@ -176,39 +219,43 @@ public class ForumDisplayActivity extends Activity {
         public ArrayList<AwfulThread> doInBackground(String... aParams) {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-            try {
-				TagNode threads = null;
+            if (isCancelled()) {
+                try {
+                    TagNode threads = null;
 
-				if (mPage == 0) {
-					threads = AwfulThread.getForumThreads(aParams[0]);
-				} else {
-					threads = AwfulThread.getForumThreads(aParams[0], mPage);
-				}
+                    if (mPage == 0) {
+                        threads = AwfulThread.getForumThreads(aParams[0]);
+                    } else {
+                        threads = AwfulThread.getForumThreads(aParams[0], mPage);
+                    }
 
-				result = AwfulThread.parseForumThreads(threads);
+                    result = AwfulThread.parseForumThreads(threads);
 
-				// Now that we have the page number list for the current forum we can
-				// populate it
-				if (mForum.getCurrentPage() == 0) {
-					mForum.parsePageNumbers(threads);
+                    // Now that we have the page number list for the current forum we can
+                    // populate it
+                    if (mForum.getCurrentPage() == 0) {
+                        mForum.parsePageNumbers(threads);
 
-					Log.i(TAG, Integer.toString(mForum.getCurrentPage()));
-					Log.i(TAG, Integer.toString(mForum.getLastPage()));
-				}
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+                        Log.i(TAG, Integer.toString(mForum.getCurrentPage()));
+                        Log.i(TAG, Integer.toString(mForum.getLastPage()));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
-
+            
             return result;
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-        	mThreads.addAll(aResult);
-        	mThreadAdapter.notifyDataSetChanged();
-            mThreadList.setOnItemClickListener(onThreadSelected);
-            
-            mDialog.dismiss();
+            if (isCancelled()) {
+                mThreads.addAll(aResult);
+                mThreadAdapter.notifyDataSetChanged();
+                mThreadList.setOnItemClickListener(onThreadSelected);
+
+                mDialog.dismiss();
+            }
         }
     }
 
