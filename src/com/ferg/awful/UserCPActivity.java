@@ -81,6 +81,7 @@ public class UserCPActivity extends Activity {
         mHome       = (ImageButton) findViewById(R.id.home);
 
         mTitle.setText(getString(R.string.user_cp));
+		mHome.setOnClickListener(onButtonClick);
 
         final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
