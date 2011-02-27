@@ -57,13 +57,13 @@ import android.widget.AbsListView.OnScrollListener;
 import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
 
 public class ForumDisplayActivity extends Activity {
     private static final String TAG = "ThreadsActivity";
 
-	private AwfulForum mForum;
+	private AwfulSubforum mForum;
 
     private ImageButton mUserCp;
 	private ImageButton mNext;
@@ -92,7 +92,7 @@ public class ForumDisplayActivity extends Activity {
         mThreadList.setOnScrollListener(new EndlessScrollListener());
         mThreadList.setAdapter(mThreadAdapter);
 
-        mForum = (AwfulForum) getIntent().getParcelableExtra(Constants.FORUM);
+        mForum = (AwfulSubforum) getIntent().getParcelableExtra(Constants.FORUM);
         
         final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
@@ -116,6 +116,7 @@ public class ForumDisplayActivity extends Activity {
 		inflater.inflate(R.menu.post_menu, menu);
 
 		return true;
+
     }
     
     @Override
