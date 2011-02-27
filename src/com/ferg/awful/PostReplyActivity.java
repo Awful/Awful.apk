@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -36,6 +37,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
@@ -46,6 +48,8 @@ public class PostReplyActivity extends Activity {
 
     private Button mSubmit;
     private EditText mMessage;
+	private ProgressDialog mDialog;
+	private TextView mTitle;
 
 	private AwfulThread mThread;
 	private String mFormKey;
@@ -58,8 +62,19 @@ public class PostReplyActivity extends Activity {
 
         mSubmit  = (Button) findViewById(R.id.submit_button);
         mMessage = (EditText) findViewById(R.id.post_message);
+		mTitle   = (TextView) findViewById(R.id.title);
 
-		mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        Intent caller = getIntent();
+
+		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
+		
+		mTitle.setText(getString(R.string.post_reply));
+
+        // If we're quoting a post, add it to the message box
+        if (caller.hasExtra(Constants.QUOTE)) {
+            String quoteText = caller.getStringExtra(Constants.QUOTE);
+            mMessage.setText(quoteText.replaceAll("&quot;", "\""));
+        }
 
 		// We'll enable it once we have a formkey
 		mSubmit.setEnabled(false);
@@ -77,6 +92,11 @@ public class PostReplyActivity extends Activity {
     };
 
 	private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
+		public void onPreExecute() {
+            mDialog = ProgressDialog.show(PostReplyActivity.this, "Posting", 
+                "Hopefully it didn't suck...", true);
+		}
+
 		public Void doInBackground(String... aParams) {
 			try {
 				Reply.postReply(aParams[0], aParams[1], aParams[2]);
@@ -89,7 +109,9 @@ public class PostReplyActivity extends Activity {
 		}
 
 		public void onPostExecute(Void aResult) {
-			Log.i(TAG, "Done!");
+			mDialog.dismiss();
+
+            PostReplyActivity.this.finish();
 		}
 	}
 

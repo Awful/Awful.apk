@@ -27,33 +27,36 @@
 
 package com.ferg.awful.network;
 
-import android.util.Log;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
-
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.message.BasicNameValuePair;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
 
@@ -63,6 +66,100 @@ public class NetworkUtils {
     private static DefaultHttpClient sHttpClient;
     private static HtmlCleaner sCleaner;
 
+    /**
+     * Attempts to initialize the HttpClient with cookie values
+     * stored in the given Context's SharedPreferences through the
+     * {@link #saveLoginCookies(Context)} method.
+     * 
+     * @return Whether stored cookie values were found & initialized
+     */
+    public static boolean restoreLoginCookies(Context ctx) {
+    	SharedPreferences prefs = ctx.getSharedPreferences(
+    			Constants.COOKIE_PREFERENCE, 
+    			Context.MODE_PRIVATE);
+    	String useridCookieValue   = prefs.getString(Constants.COOKIE_PREF_USERID,   null);
+    	String passwordCookieValue = prefs.getString(Constants.COOKIE_PREF_PASSWORD, null);
+    	long expiry                = prefs.getLong  (Constants.COOKIE_PREF_EXPIRY_DATE, -1);
+    	
+    	if(useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
+    		Date expiryDate = new Date(expiry);
+    		
+    		BasicClientCookie useridCookie = new BasicClientCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
+    		useridCookie.setDomain(Constants.COOKIE_DOMAIN);
+    		useridCookie.setExpiryDate(expiryDate);
+    		useridCookie.setPath(Constants.COOKIE_PATH);
+    		
+    		BasicClientCookie passwordCookie = new BasicClientCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
+    		passwordCookie.setDomain(Constants.COOKIE_DOMAIN);
+    		passwordCookie.setExpiryDate(expiryDate);
+    		passwordCookie.setPath(Constants.COOKIE_PATH);
+    		
+    		CookieStore jar = new BasicCookieStore();
+    		jar.addCookie(useridCookie);
+    		jar.addCookie(passwordCookie);
+    		sHttpClient.setCookieStore(jar);
+    		
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    /**
+     * Clears cookies from both the current client's store and
+     * the persistent SharedPreferences. Effectively, logs out.
+     */
+    public static void clearLoginCookies(Context ctx) {
+    	// First clear out the persistent preferences...
+    	SharedPreferences prefs = ctx.getSharedPreferences(
+    			Constants.COOKIE_PREFERENCE, 
+    			Context.MODE_PRIVATE);
+    	prefs.edit().clear().commit();
+    	
+    	// Then the memory store
+    	sHttpClient.getCookieStore().clear();
+    }
+    
+    /**
+     * Saves SomethingAwful login cookies that the client has received
+     * during this session to the given Context's SharedPreferences. They
+     * can be later restored with {@link #restoreLoginCookies(Context)}.
+     * 
+     * @return Whether any login cookies were successfully saved
+     */
+    public static boolean saveLoginCookies(Context ctx) {
+    	SharedPreferences prefs = ctx.getSharedPreferences(
+    			Constants.COOKIE_PREFERENCE,
+    			Context.MODE_PRIVATE);
+    	
+    	String useridValue = null;
+    	String passwordValue = null;
+    	Date expires = null;
+    	
+    	List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
+    	for(Cookie cookie : cookies) {
+    		if(cookie.getDomain().equals(Constants.COOKIE_DOMAIN)) {
+    			if(cookie.getName().equals(Constants.COOKIE_NAME_USERID)) {
+    				useridValue = cookie.getValue();
+    				expires = cookie.getExpiryDate();
+    			} else if(cookie.getName().equals(Constants.COOKIE_NAME_PASSWORD)) {
+    				passwordValue = cookie.getValue();
+    				expires = cookie.getExpiryDate();
+    			}
+    		}
+    	}
+    	
+    	if(useridValue != null && passwordValue != null) {
+    		Editor edit = prefs.edit();
+    		edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
+    		edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
+    		edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
+    		return edit.commit();
+    	}
+    	
+    	return false;
+    }
+    
     public static TagNode get(String aUrl) throws Exception {
         return get(aUrl, null);
     }
@@ -71,7 +168,7 @@ public class NetworkUtils {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
 
-		Log.i(TAG, aUrl + parameters);
+		Log.i(TAG, "Fetching "+ aUrl + parameters);
 
         HttpGet httpGet = new HttpGet(aUrl + parameters);
 
@@ -82,8 +179,10 @@ public class NetworkUtils {
         if (entity != null) {
             response = sCleaner.clean(new InputStreamReader(entity.getContent()));
         }
-
-		return response;
+        
+        Log.i(TAG, "Fetched "+ aUrl + parameters);
+		
+        return response;
 	}
 
 	public static TagNode post(String aUrl, HashMap<String, String> aParams) throws Exception {
@@ -160,4 +259,13 @@ public class NetworkUtils {
         CleanerProperties properties = sCleaner.getProperties();
         properties.setOmitComments(true);
     }
+
+	public static void logCookies() {
+		Log.i(TAG, "---BEGIN COOKIE DUMP---");
+		List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
+		for(Cookie c : cookies) {
+			Log.i(TAG, c.toString());
+		}
+		Log.i(TAG, "---END COOKIE DUMP---");
+	}
 }

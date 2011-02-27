@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Something Awful</string>
+    <string name="app_name">Awful</string>
     <string name="logout">All your dreams</string>
     <string name="usercp">User Control Panel</string>
     <string name="back">Previous Page</string>
     <string name="forward">Next Page</string>
+    <string name="refresh">Refresh</string>
     <string name="go_to">Go to Page</string>
+    <string name="quote">Quote</string>
+    <string name="forums_title">Forums</string>
+    <string name="user_cp">User Control Panel</string>
+    <string name="post_reply">Post Reply</string>
+    <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
+    <string name="login_failed">Login failed!</string>
 </resources>

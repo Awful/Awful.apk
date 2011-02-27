@@ -43,17 +43,26 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thumbnail.ThumbnailAdapter;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
@@ -62,9 +71,12 @@ public class ThreadDisplayActivity extends Activity {
 
 	private AwfulThread mThread;
 
+	private ImageButton mNext;
+	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private TextView mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -75,10 +87,25 @@ public class ThreadDisplayActivity extends Activity {
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
+        mTitle    = (TextView) findViewById(R.id.title);
+        mNext     = (ImageButton) findViewById(R.id.next_page);
+        mReply    = (ImageButton) findViewById(R.id.reply);
 
-        mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+        registerForContextMenu(mPostList);
 
-        new FetchThreadTask().execute(mThread);
+        final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
+
+        if (retainedThread == null) {
+            mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+            new FetchThreadTask().execute(mThread);
+        } else {
+            mThread = retainedThread;
+            setListAdapter();
+        }
+
+        mTitle.setText(mThread.getTitle());
+		mNext.setOnClickListener(onButtonClick);
+		mReply.setOnClickListener(onButtonClick);
     }
     
     @Override
@@ -97,16 +124,7 @@ public class ThreadDisplayActivity extends Activity {
 					new FetchThreadTask(mThread.getCurrentPage() - 1).execute(mThread);
 				}
 				break;
-			case R.id.go_forward:
-				if (mThread.getCurrentPage() != mThread.getLastPage()) {
-					new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
-				}
-				break;
 			case R.id.usercp:
-				Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
-						PostReplyActivity.class);
-				postReply.putExtra(Constants.THREAD, mThread);
-				startActivity(postReply);
 				break;
 			case R.id.go_to:
 			default:
@@ -114,6 +132,106 @@ public class ThreadDisplayActivity extends Activity {
     	}
 
 		return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
+        super.onCreateContextMenu(aMenu, aView, aMenuInfo);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.post_longpress, aMenu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+
+        switch (aItem.getItemId()) {
+            case R.id.quote:
+                new ParsePostQuoteTask().execute(info.id);
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        final AwfulThread currentThread = mThread;
+
+        return currentThread;
+    }
+
+    private void setListAdapter() {
+        ArrayList<AwfulPost> posts = mThread.getPosts();
+
+        mPostList.setAdapter(generateAdapter(posts));
+
+        AwfulPost lastRead = null;
+
+        // Maybe there's a better way to do this? It's 8am and I'm hung over
+        for (AwfulPost post : posts) {
+            if (post.isLastRead()) {
+                lastRead = post;
+                break;
+            }
+        }
+
+        if (lastRead != null) {
+            int index = posts.indexOf(lastRead);
+            mPostList.setSelection(index);
+        }
+    }
+
+	private View.OnClickListener onButtonClick = new View.OnClickListener() {
+		public void onClick(View aView) {
+			switch (aView.getId()) {
+				case R.id.next_page:
+					if (mThread.getCurrentPage() < mThread.getLastPage()) {
+						new FetchThreadTask(mThread.getCurrentPage() + 1).execute(mThread);
+					}
+					break;
+				case R.id.reply:
+					Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
+							PostReplyActivity.class);
+					postReply.putExtra(Constants.THREAD, mThread);
+					startActivity(postReply);
+					break;
+			}
+		}
+	};
+
+    private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public String doInBackground(Long... aParams) {
+            String result = null;
+            
+            try {
+                AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                result = Reply.getQuote(selected.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, e.toString());
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(String aResult) {
+            mDialog.dismiss();
+
+            Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+            postReply.putExtra(Constants.THREAD, mThread);
+            postReply.putExtra(Constants.QUOTE, aResult);
+
+            startActivity(postReply);
+        }
     }
 
     private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
@@ -132,8 +250,12 @@ public class ThreadDisplayActivity extends Activity {
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
             try {
+                Log.i(TAG, "Selected page: " + Integer.toString(mPage));
+                Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
 				if (mPage == 0) {
-					if (aParams[0].getUnreadCount() > 0) {
+					// We set the unread count to -1 if the user has never
+					// visited that thread before
+					if (aParams[0].getUnreadCount() > -1) {
 						aParams[0].getThreadPosts();
 					} else {
 						aParams[0].getThreadPosts(1);
@@ -151,20 +273,67 @@ public class ThreadDisplayActivity extends Activity {
 
         public void onPostExecute(AwfulThread aResult) {
 			mThread = aResult;
-
-            mPostList.setAdapter(new AwfulPostAdapter(ThreadDisplayActivity.this, 
-                        R.layout.post_item, aResult.getPosts()));
+            setListAdapter();
 
             mDialog.dismiss();
         }
     }
 
-    public class AwfulPostAdapter extends ArrayAdapter<AwfulPost> {
+    /**
+     * Factory method for a post adapter. Deals with a few decorator classes.
+     */
+    private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
+    	AwfulPostAdapterBase base = new AwfulPostAdapterBase(this, R.layout.post_item, posts);
+    	return new AwfulPostAdapter(base);
+    }
+    /**
+     * Decorates the base adapter that does the actual work with a
+     * ThumbnailAdapter to render avatars, then adds SectionIndexer
+     * capabilities for the fast scroll bar.
+     *
+     * Right now the SectionIndexer just does the post number relative
+     * to the start of the page. In the future this might change to use
+     * the page number in an endless list. 
+     */
+    public class AwfulPostAdapter extends AdapterWrapper implements SectionIndexer {
+    	private AwfulPostAdapterBase mBaseAdapter;
+    	
+    	public AwfulPostAdapter(AwfulPostAdapterBase base) {
+    		super(new ThumbnailAdapter(    		
+    				ThreadDisplayActivity.this,
+    				base,
+    				((AwfulApplication)getApplication()).getImageCache(),
+        			new int[] {R.id.avatar}));
+    		mBaseAdapter = base;
+    	}
+
+		@Override
+		public int getPositionForSection(int section) {
+			return section;
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			return position;
+		}
+
+		@Override
+		public Object[] getSections() {
+			int count = mBaseAdapter.getCount();
+			String[] sections = new String[count];
+			for(int i=0;i<count;i++) {
+				sections[i] = Integer.toString(i+1);
+			}
+			return sections;
+		}
+    }
+    
+    public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
         private ArrayList<AwfulPost> mPosts;
         private int mViewResource;
         private LayoutInflater mInflater;
 
-        public AwfulPostAdapter(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
+        public AwfulPostAdapterBase(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
             super(aContext, aViewResource, aPosts);
 
             mInflater     = LayoutInflater.from(aContext);
@@ -207,7 +376,8 @@ public class ThreadDisplayActivity extends Activity {
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
-            mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            // mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            viewHolder.avatar.setTag(current.getAvatar());
 
             return inflatedView;
         }
