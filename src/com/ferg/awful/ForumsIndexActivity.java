@@ -60,6 +60,8 @@ import com.ferg.awful.thread.AwfulSubforum;
 public class ForumsIndexActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
+    private LoadForumsTask mLoadTask;
+
     private ImageButton mUserCp;
     private ExpandableListView mForumList;
 	private ProgressDialog mDialog;
@@ -84,10 +86,50 @@ public class ForumsIndexActivity extends Activity {
 		boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 
 		if (loggedIn) {
-			new LoadForumsTask().execute();
+			mLoadTask = new LoadForumsTask();
+            mLoadTask.execute();
 		} else {
 			startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
 		}
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoadTask != null) {
+            mLoadTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoadTask != null) {
+            mLoadTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoadTask != null) {
+            mLoadTask.cancel(true);
+        }
     }
     
     @Override
@@ -97,7 +139,8 @@ public class ForumsIndexActivity extends Activity {
     	
     	// But we do need to make sure we aren't already in the middle of a refresh
     	if(mDialog == null || !mDialog.isShowing()) {
-    		new LoadForumsTask().execute();
+    		mLoadTask = new LoadForumsTask();
+            mLoadTask.execute();
     	}
     }
 
@@ -119,21 +162,25 @@ public class ForumsIndexActivity extends Activity {
 
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
-            try {
-            	result = AwfulForum.getForums(ForumsIndexActivity.this);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+            if (!isCancelled()) {
+                try {
+                    result = AwfulForum.getForums(ForumsIndexActivity.this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
             return result;
         }
 
         public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
+            if (!isCancelled()) {
+mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
 
             mForumList.setOnChildClickListener(onForumSelected);
 
-            mDialog.dismiss();
+                mDialog.dismiss();
+            }
         }
     }
 
@@ -257,7 +304,8 @@ public class ForumsIndexActivity extends Activity {
     		NetworkUtils.clearLoginCookies(this);
     		startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
     	case R.id.refresh:
-    		new LoadForumsTask().execute();
+    		mLoadTask = new LoadForumsTask();
+            mLoadTask.execute();
     	default:
     		return super.onOptionsItemSelected(item);
     	}

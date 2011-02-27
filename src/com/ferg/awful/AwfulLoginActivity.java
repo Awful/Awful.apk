@@ -54,6 +54,8 @@ import com.ferg.awful.thread.AwfulForum;
 public class AwfulLoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
+    private LoginTask mLoginTask;
+
     private Button mLogin;
     private EditText mUsername;
     private EditText mPassword;
@@ -80,13 +82,54 @@ public class AwfulLoginActivity extends Activity {
 			}
 		});
     }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoginTask != null) {
+            mLoginTask.cancel(true);
+        }
+    }
+        
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoginTask != null) {
+            mLoginTask.cancel(true);
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        if (mLoginTask != null) {
+            mLoginTask.cancel(true);
+        }
+    }
+    
 
     private View.OnClickListener onLoginClick = new View.OnClickListener() {
         public void onClick(View aView) {
             String username = mUsername.getText().toString();
             String password = mPassword.getText().toString();
             
-            new LoginTask().execute(new String[] {username, password});
+            mLoginTask = new LoginTask();
+            mLoginTask.execute(new String[] {username, password});
         }
     };
     
@@ -99,37 +142,41 @@ public class AwfulLoginActivity extends Activity {
         public Boolean doInBackground(String... aParams) {
         	boolean result = false;
         	
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constants.PARAM_USERNAME, aParams[0]);
-            params.put(Constants.PARAM_PASSWORD, aParams[1]);
-            params.put(Constants.PARAM_ACTION, "login");
-            
-            try {
-                NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
-                result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, e.toString());
+            if (!isCancelled()) {
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put(Constants.PARAM_USERNAME, aParams[0]);
+                params.put(Constants.PARAM_PASSWORD, aParams[1]);
+                params.put(Constants.PARAM_ACTION, "login");
+
+                try {
+                    NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
+                    result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
             }
 
             return result;
         }
 
         public void onPostExecute(Boolean aResult) {
-        	boolean succeeded = aResult;
-        	
-        	mDialog.dismiss();
-        	
-        	int loginStatusResource = succeeded ? R.string.login_succeeded : R.string.login_failed;
-        	Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
-        	
-        	if(succeeded) {
-        		setResult(Activity.RESULT_OK);
-        		finish();
-        	} else {
-        		setResult(Activity.RESULT_CANCELED);
-        		// Not finishing - give the user another chance to log in
-        	}
+            if (!isCancelled()) {
+                boolean succeeded = aResult;
+
+                mDialog.dismiss();
+
+                int loginStatusResource = succeeded ? R.string.login_succeeded : R.string.login_failed;
+                Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
+
+                if(succeeded) {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                } else {
+                    setResult(Activity.RESULT_CANCELED);
+                    // Not finishing - give the user another chance to log in
+                }
+            }
         }
     }
 }
