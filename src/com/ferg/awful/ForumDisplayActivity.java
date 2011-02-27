@@ -30,8 +30,10 @@ package com.ferg.awful;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -47,6 +49,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -173,6 +176,31 @@ public class ForumDisplayActivity extends Activity {
                 startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
                 break;
 			case R.id.go_to:
+                final EditText jumpToText = new EditText(ForumDisplayActivity.this);
+                new AlertDialog.Builder(ForumDisplayActivity.this)
+                    .setTitle("Jump to Page")
+                    .setView(jumpToText)
+                    .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface aDialog, int aWhich) {
+                                String page = jumpToText.getText().toString();
+                                try {
+                                    int pageInt = Integer.parseInt(page);
+                                    if (pageInt >= 0 && pageInt <= mForum.getLastPage()) {
+                                        mFetchTask = new FetchThreadsTask(pageInt);
+                                        mFetchTask.execute(mForum.getForumId());
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.d(TAG, "Not a valid number: " + e.toString());
+        	                        Toast.makeText(ForumDisplayActivity.this,
+                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    Log.d(TAG, e.toString());
+                                }
+                            }
+                        })
+                    .setNegativeButton("Cancel", null)
+                    .show();
 			default:
 				return super.onOptionsItemSelected(item);
     	}
