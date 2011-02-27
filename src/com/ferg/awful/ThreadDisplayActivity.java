@@ -58,6 +58,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
@@ -145,6 +146,8 @@ public class ThreadDisplayActivity extends Activity {
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Not a valid number: " + e.toString());
+        	                        Toast.makeText(ThreadDisplayActivity.this,
+                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
                                 } catch (Exception e) {
                                     Log.d(TAG, e.toString());
                                 }
