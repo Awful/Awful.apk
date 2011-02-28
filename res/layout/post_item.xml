@@ -47,11 +47,11 @@
 		</RelativeLayout>
 	</RelativeLayout>
 	<view
-        class="com.google.android.htmlwidget.HorizontalScroller"
+        class="com.ferg.awful.htmlwidget.HorizontalScroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 		<view
-			class="com.google.android.htmlwidget.HtmlView"
+			class="com.ferg.awful.htmlwidget.HtmlView"
 			android:id="@+id/postbody"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
