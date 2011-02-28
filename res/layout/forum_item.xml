@@ -33,17 +33,23 @@
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@id/parent_button"
 			/>
-        <ImageView
+        <RelativeLayout
             android:id="@id/parent_button"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
+            android:layout_width="45dip"
+            android:layout_height="45dip"
             android:paddingLeft="10dip"
             android:paddingRight="4dip"
             android:focusable="false"
             android:clickable="true"
-            android:src="@drawable/r_blue_arrow"
-            />
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_centerVertical="true"
+                android:src="@drawable/r_blue_arrow"
+                />
+        </RelativeLayout>
 	</RelativeLayout>
 </RelativeLayout>

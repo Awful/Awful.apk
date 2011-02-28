@@ -47,9 +47,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ExpandableListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
@@ -175,9 +176,9 @@ public class ForumsIndexActivity extends Activity {
 
         public void onPostExecute(ArrayList<AwfulForum> aResult) {
             if (!isCancelled()) {
-mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
+                mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
 
-            mForumList.setOnChildClickListener(onForumSelected);
+                mForumList.setOnChildClickListener(onForumSelected);
 
                 mDialog.dismiss();
             }
@@ -237,9 +238,9 @@ mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
 
 			final AwfulForum current = (AwfulForum) getGroup(aGroupPosition);
 
-			TextView title       = (TextView) inflatedView.findViewById(R.id.title);
-			TextView subtext     = (TextView) inflatedView.findViewById(R.id.subtext);
-			ImageView viewButton = (ImageView) inflatedView.findViewById(R.id.parent_button);
+			TextView title            = (TextView) inflatedView.findViewById(R.id.title);
+			TextView subtext          = (TextView) inflatedView.findViewById(R.id.subtext);
+			RelativeLayout viewButton = (RelativeLayout) inflatedView.findViewById(R.id.parent_button);
 
 			title.setText(Html.fromHtml(current.getTitle()));
 			subtext.setText(current.getSubtext());
@@ -303,11 +304,15 @@ mForumList.setAdapter(new AwfulForumAdapter(ForumsIndexActivity.this, aResult));
     	case R.id.logout:
     		NetworkUtils.clearLoginCookies(this);
     		startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+            break;
     	case R.id.refresh:
     		mLoadTask = new LoadForumsTask();
             mLoadTask.execute();
+            break;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
+
+        return true;
     }
 }
