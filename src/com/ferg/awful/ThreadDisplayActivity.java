@@ -185,6 +185,7 @@ public class ThreadDisplayActivity extends Activity {
 				}
 				break;
 			case R.id.usercp:
+                startActivity(new Intent().setClass(this, UserCPActivity.class));
 				break;
 			case R.id.go_to:
                 final EditText jumpToText = new EditText(ThreadDisplayActivity.this);

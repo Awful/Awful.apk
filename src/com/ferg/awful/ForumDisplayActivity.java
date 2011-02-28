@@ -57,6 +57,7 @@ import android.widget.AbsListView.OnScrollListener;
 import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -154,7 +155,7 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.post_menu, menu);
+		inflater.inflate(R.menu.forum_index_options, menu);
 
 		return true;
 
@@ -163,16 +164,14 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
-			case R.id.go_back:
-				if (mForum.getCurrentPage() != 1) {
-					mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() - 1);
-                    mFetchTask.execute(mForum.getForumId());
-				}
-				break;
-			case R.id.usercp:
-                startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
+            case R.id.logout:
+                NetworkUtils.clearLoginCookies(this);
+                startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
                 break;
-			case R.id.go_to:
+            case R.id.refresh:
+                mFetchTask = new FetchThreadsTask();
+                mFetchTask.execute(mForum.getForumId());
+                break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}

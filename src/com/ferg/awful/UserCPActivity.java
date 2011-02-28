@@ -54,6 +54,7 @@ import android.widget.TextView;
 import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -137,7 +138,7 @@ public class UserCPActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.post_menu, menu);
+		inflater.inflate(R.menu.forum_index_options, menu);
 
 		return true;
     }
@@ -145,17 +146,19 @@ public class UserCPActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
-			case R.id.go_back:
-				break;
-			case R.id.go_forward:
-				break;
-			case R.id.usercp:
-			case R.id.go_to:
+            case R.id.logout:
+                NetworkUtils.clearLoginCookies(this);
+                startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+                break;
+            case R.id.refresh:
+                mFetchTask = new FetchThreadsTask();
+                mFetchTask.execute();
+                break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
 
-		return true;
+        return true;
     }
 
     @Override
