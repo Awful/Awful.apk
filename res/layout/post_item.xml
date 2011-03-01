@@ -46,11 +46,17 @@
 				/>
 		</RelativeLayout>
 	</RelativeLayout>
-	<TextView
-		android:id="@+id/postbody"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:padding="6dip"
-		android:textColor="#777777"
-		/>
+	<view
+        class="com.ferg.awful.htmlwidget.HorizontalScroller"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+		<view
+			class="com.ferg.awful.htmlwidget.HtmlView"
+			android:id="@+id/postbody"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="6dip"
+			android:textColor="#777777"
+			/>
+	</view>
 </LinearLayout>

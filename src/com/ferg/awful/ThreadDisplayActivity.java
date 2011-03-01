@@ -63,6 +63,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -184,6 +185,7 @@ public class ThreadDisplayActivity extends Activity {
 				}
 				break;
 			case R.id.usercp:
+                startActivity(new Intent().setClass(this, UserCPActivity.class));
 				break;
 			case R.id.go_to:
                 final EditText jumpToText = new EditText(ThreadDisplayActivity.this);
@@ -246,6 +248,17 @@ public class ThreadDisplayActivity extends Activity {
 
         return currentThread;
     }
+    
+    @Override
+    protected void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
+		// If we're here because of a post result, refresh the thread
+		switch (aResultCode) {
+			case PostReplyActivity.RESULT_POSTED:
+				mFetchTask = new FetchThreadTask(true);
+				mFetchTask.execute(mThread);
+				break;
+		}
+    }
 
     private void setListAdapter() {
         ArrayList<AwfulPost> posts = mThread.getPosts();
@@ -281,7 +294,7 @@ public class ThreadDisplayActivity extends Activity {
 					Intent postReply = new Intent().setClass(ThreadDisplayActivity.this,
 							PostReplyActivity.class);
 					postReply.putExtra(Constants.THREAD, mThread);
-					startActivity(postReply);
+					startActivityForResult(postReply, 0);
 					break;
 			}
 		}
@@ -318,15 +331,20 @@ public class ThreadDisplayActivity extends Activity {
                 postReply.putExtra(Constants.THREAD, mThread);
                 postReply.putExtra(Constants.QUOTE, aResult);
 
-                startActivity(postReply);
+				startActivityForResult(postReply, 0);
             }
         }
     }
 
     private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
+		private boolean mForceLastPage = false;
 		private int mPage;
 
 		public FetchThreadTask() {}
+
+		public FetchThreadTask(boolean aForceLastPage) {
+			mForceLastPage = aForceLastPage;
+		}
 
 		public FetchThreadTask(int aPage) {
 			mPage = aPage;
@@ -340,12 +358,10 @@ public class ThreadDisplayActivity extends Activity {
         public AwfulThread doInBackground(AwfulThread... aParams) {
             if (!isCancelled()) {
                 try {
-                    Log.i(TAG, "Selected page: " + Integer.toString(mPage));
-                    Log.i(TAG, "Unread count: " + Integer.toString(aParams[0].getUnreadCount()));
                     if (mPage == 0) {
                         // We set the unread count to -1 if the user has never
                         // visited that thread before
-                        if (aParams[0].getUnreadCount() > -1) {
+                        if (aParams[0].getUnreadCount() > -1 || mForceLastPage) {
                             aParams[0].getThreadPosts();
                         } else {
                             aParams[0].getThreadPosts(1);
@@ -439,12 +455,12 @@ public class ThreadDisplayActivity extends Activity {
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
-        	public TextView postBody;
+        	public HtmlView postBody;
         	public ImageView avatar;
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
         		postDate = (TextView) v.findViewById(R.id.post_date);
-        		postBody = (TextView) v.findViewById(R.id.postbody);
+        		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
         	}
         }
@@ -467,7 +483,7 @@ public class ThreadDisplayActivity extends Activity {
 
             viewHolder.username.setText(current.getUsername());
             viewHolder.postDate.setText("Posted on " + current.getDate());
-            viewHolder.postBody.setText(Html.fromHtml(current.getContent()));
+            viewHolder.postBody.setHtml(current.getContent());
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue

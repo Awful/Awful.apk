@@ -60,6 +60,7 @@ import android.widget.AbsListView.OnScrollListener;
 import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -157,7 +158,7 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.post_menu, menu);
+		inflater.inflate(R.menu.forum_index_options, menu);
 
 		return true;
 
@@ -166,41 +167,14 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
-			case R.id.go_back:
-				if (mForum.getCurrentPage() != 1) {
-					mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() - 1);
-                    mFetchTask.execute(mForum.getForumId());
-				}
-				break;
-			case R.id.usercp:
-                startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
+            case R.id.logout:
+                NetworkUtils.clearLoginCookies(this);
+                startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
                 break;
-			case R.id.go_to:
-                final EditText jumpToText = new EditText(ForumDisplayActivity.this);
-                new AlertDialog.Builder(ForumDisplayActivity.this)
-                    .setTitle("Jump to Page")
-                    .setView(jumpToText)
-                    .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface aDialog, int aWhich) {
-                                String page = jumpToText.getText().toString();
-                                try {
-                                    int pageInt = Integer.parseInt(page);
-                                    if (pageInt >= 0 && pageInt <= mForum.getLastPage()) {
-                                        mFetchTask = new FetchThreadsTask(pageInt);
-                                        mFetchTask.execute(mForum.getForumId());
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.d(TAG, "Not a valid number: " + e.toString());
-        	                        Toast.makeText(ForumDisplayActivity.this,
-                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
-                                } catch (Exception e) {
-                                    Log.d(TAG, e.toString());
-                                }
-                            }
-                        })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            case R.id.refresh:
+                mFetchTask = new FetchThreadsTask();
+                mFetchTask.execute(mForum.getForumId());
+                break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
