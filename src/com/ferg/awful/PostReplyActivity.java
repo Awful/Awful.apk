@@ -46,6 +46,8 @@ import com.ferg.awful.thread.AwfulThread;
 public class PostReplyActivity extends Activity {
     private static final String TAG = "PostReplyActivity";
 
+	public static final int RESULT_POSTED = 1;
+
     private FetchFormKeyTask mFetchTask;
     private SubmitReplyTask mSubmitTask;
 
@@ -169,7 +171,8 @@ public class PostReplyActivity extends Activity {
             if (!isCancelled()) {
                 mDialog.dismiss();
 
-                PostReplyActivity.this.finish();
+				PostReplyActivity.this.setResult(RESULT_POSTED);
+				PostReplyActivity.this.finish();
             }
         }
     }
