@@ -74,6 +74,9 @@ public abstract class AwfulPagedItem {
 
 				if (keyValue[0].equals("amp;" + Constants.PARAM_PAGE)) {
 					mLastPage = Integer.parseInt(keyValue[1]);
+                    if (mCurrentPage > mLastPage) {
+                        mLastPage = mCurrentPage;
+                    }
 				}
 			}
 		}
