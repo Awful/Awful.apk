@@ -108,7 +108,7 @@ public class ForumDisplayActivity extends Activity {
             mThreadList.setOnItemClickListener(onThreadSelected);
         }
 
-        mTitle.setText(mForum.getTitle());
+        mTitle.setText(Html.fromHtml(mForum.getTitle()));
         mUserCp.setOnClickListener(onButtonClick);
 		mNext.setOnClickListener(onButtonClick);
     }

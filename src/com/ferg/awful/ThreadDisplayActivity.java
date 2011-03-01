@@ -111,7 +111,7 @@ public class ThreadDisplayActivity extends Activity {
             setListAdapter();
         }
 
-        mTitle.setText(mThread.getTitle());
+        mTitle.setText(Html.fromHtml(mThread.getTitle()));
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
     }
