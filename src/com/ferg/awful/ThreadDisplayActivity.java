@@ -188,16 +188,17 @@ public class ThreadDisplayActivity extends Activity {
                 startActivity(new Intent().setClass(this, UserCPActivity.class));
 				break;
 			case R.id.go_to:
-                final EditText jumpToText = new EditText(ThreadDisplayActivity.this);
+                final NumberPicker jumpToText = new NumberPicker(ThreadDisplayActivity.this);
+                jumpToText.setRange(1, mThread.getLastPage());
+                jumpToText.setCurrent(mThread.getCurrentPage());
                 new AlertDialog.Builder(ThreadDisplayActivity.this)
                     .setTitle("Jump to Page")
                     .setView(jumpToText)
                     .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface aDialog, int aWhich) {
-                                String page = jumpToText.getText().toString();
                                 try {
-                                    int pageInt = Integer.parseInt(page);
+                                    int pageInt = jumpToText.getCurrent();
                                     if (pageInt > 0 && pageInt <= mThread.getLastPage()) {
                                         mFetchTask = new FetchThreadTask(pageInt);
                                         mFetchTask.execute(mThread);
