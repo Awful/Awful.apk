@@ -252,6 +252,7 @@ public class ForumDisplayActivity extends Activity {
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
             if (!isCancelled()) {
+            	mForum.setCurrentPage(mForum.getCurrentPage() + 1);
                 mThreads.addAll(aResult);
                 mThreadAdapter.notifyDataSetChanged();
                 mThreadList.setOnItemClickListener(onThreadSelected);
