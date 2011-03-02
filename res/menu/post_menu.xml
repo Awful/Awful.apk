@@ -17,4 +17,8 @@
 		android:icon="@drawable/ic_menu_usercp"
 		android:title="@string/usercp"
 		/>
+	<item
+		android:id="@+id/refresh"
+		android:icon="@drawable/ic_menu_refresh"
+		android:title="@string/refresh" />
 </menu>

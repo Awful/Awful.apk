@@ -214,6 +214,10 @@ public class ThreadDisplayActivity extends Activity {
                         })
                     .setNegativeButton("Cancel", null)
                     .show();
+			case R.id.refresh:
+				mFetchTask = new FetchThreadTask(true);
+				mFetchTask.execute(mThread);
+				break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
