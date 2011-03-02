@@ -194,7 +194,8 @@ public class ForumDisplayActivity extends Activity {
                     break;
 				case R.id.next_page:
                     if (mForum.getCurrentPage() != mForum.getLastPage()) {
-                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() + 1);
+                    	mForum.setCurrentPage(mForum.getCurrentPage() + 1);
+                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage());
                         mFetchTask.execute(mForum.getForumId());
                     }
 					break;
@@ -342,7 +343,8 @@ public class ForumDisplayActivity extends Activity {
     			//load new items in background and add them
     			loading = true;
 				if (mForum.getCurrentPage() != mForum.getLastPage()) {
-					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+					mForum.setCurrentPage(mForum.getCurrentPage() + 1);
+					new FetchThreadsTask(mForum.getCurrentPage()).execute(mForum.getForumId());
 				}
     		}
     	}
