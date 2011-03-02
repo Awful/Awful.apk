@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothClass.Device;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,6 +66,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.htmlwidget.HtmlView;
+import com.ferg.awful.misc.VolumeKeyHandler;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -493,4 +496,17 @@ public class ThreadDisplayActivity extends Activity {
             return inflatedView;
         }
     }
+
+
+	/**
+	 * Use the Volume keys to scroll the view
+	 */
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (VolumeKeyHandler.handle(event, mPostList)) {
+			return true;
+		}
+		return super.dispatchKeyEvent(event);
+	}
+
 }
