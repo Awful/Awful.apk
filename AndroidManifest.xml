@@ -26,13 +26,33 @@
             </intent-filter>
         </activity>
         <activity android:name="AwfulLoginActivity" />
-        <activity android:name="ThreadDisplayActivity" />
+        <activity android:name="ThreadDisplayActivity">
+            <intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/"/>
+			</intent-filter>
+        </activity>
         <activity android:name="ForumDisplayActivity" />
+        <activity 
+            android:name="UserCPActivity" 
+            android:exported="true"
+            />
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
             />
-        <activity android:name="UserCPActivity" />
+        <activity 
+            android:name="UserCPShortcutActivity"
+            android:icon="@drawable/icon" 
+            android:label="@string/usercp"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 		<provider android:name="com.ferg.awful.provider.AwfulProvider"
 				  android:authorities="com.ferg.awful.provider" />
     </application>

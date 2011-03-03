@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -106,15 +107,36 @@ public class ThreadDisplayActivity extends Activity {
         final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
 
         if (retainedThread == null || retainedThread.getPosts() == null) {
-            mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
-            mFetchTask = new FetchThreadTask();
+            // We may be getting thread info from ChromeToPhone so handle that here
+            if (getIntent().getData() != null) {
+                if (getIntent().getData().getScheme().equals("http")) {
+                    Log.i(TAG, getIntent().getData().getQueryParameter("pagenumber"));
+
+                    mThread = new AwfulThread(getIntent().getData().getQueryParameter("threadid"));
+
+                    String page = getIntent().getData().getQueryParameter("pagenumber");
+
+                    if (page != null) {
+                        mFetchTask = new FetchThreadTask(Integer.parseInt(page));
+                    } else {
+                        mFetchTask = new FetchThreadTask();
+                    }
+                }
+            } else {
+                mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+                mFetchTask = new FetchThreadTask();
+            }
             mFetchTask.execute(mThread);
         } else {
             mThread = retainedThread;
             setListAdapter();
         }
 
-        mTitle.setText(mThread.getTitle());
+        // If this is coming from ChromeToPhone we have to set the title later
+        if (mThread.getTitle() != null) {
+            mTitle.setText(Html.fromHtml(mThread.getTitle()));
+        }
+
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
     }
@@ -191,16 +213,17 @@ public class ThreadDisplayActivity extends Activity {
                 startActivity(new Intent().setClass(this, UserCPActivity.class));
 				break;
 			case R.id.go_to:
-                final EditText jumpToText = new EditText(ThreadDisplayActivity.this);
+                final NumberPicker jumpToText = new NumberPicker(ThreadDisplayActivity.this);
+                jumpToText.setRange(1, mThread.getLastPage());
+                jumpToText.setCurrent(mThread.getCurrentPage());
                 new AlertDialog.Builder(ThreadDisplayActivity.this)
                     .setTitle("Jump to Page")
                     .setView(jumpToText)
                     .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface aDialog, int aWhich) {
-                                String page = jumpToText.getText().toString();
                                 try {
-                                    int pageInt = Integer.parseInt(page);
+                                    int pageInt = jumpToText.getCurrent();
                                     if (pageInt > 0 && pageInt <= mThread.getLastPage()) {
                                         mFetchTask = new FetchThreadTask(pageInt);
                                         mFetchTask.execute(mThread);
@@ -216,6 +239,10 @@ public class ThreadDisplayActivity extends Activity {
                         })
                     .setNegativeButton("Cancel", null)
                     .show();
+			case R.id.refresh:
+				mFetchTask = new FetchThreadTask(true);
+				mFetchTask.execute(mThread);
+				break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
@@ -385,6 +412,12 @@ public class ThreadDisplayActivity extends Activity {
             if (!isCancelled()) {
                 mThread = aResult;
                 setListAdapter();
+
+                // If we're loading a thread from ChromeToPhone we have to set the 
+                // title now
+                if (mTitle.getText() == null || mTitle.getText().length() == 0) {
+                    mTitle.setText(Html.fromHtml(mThread.getTitle()));
+                }
 
                 if (mDialog != null) {
                     mDialog.dismiss();

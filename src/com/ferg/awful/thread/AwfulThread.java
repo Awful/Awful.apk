@@ -53,6 +53,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
     private static final String UNREAD_UNDO     = "//a[@class='x']";
 	private static final String CURRENT_PAGE    = "//span[@class='curpage']";
 	private static final String LAST_PAGE       = "//a[@class='pagenumber']";
+    private static final String ALT_TITLE       = "//a[@class='bclast']";
 
     private String mThreadId;
     private String mTitle;
@@ -200,6 +201,17 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         } 
 
 		TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
+
+        // If we got here from ChromeToPhone the title hasn't been parsed yet,
+        // so grab that now
+        if (mTitle == null) {
+            Object[] titleObject = response.evaluateXPath(ALT_TITLE);
+
+            if (titleObject.length > 0) {
+                mTitle = ((TagNode) titleObject[0]).getText().toString().trim();
+                Log.i(TAG, mTitle);
+            }
+        }
 
         setPosts(AwfulPost.parsePosts(response));
 		parsePageNumbers(response);
