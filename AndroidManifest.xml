@@ -26,7 +26,14 @@
             </intent-filter>
         </activity>
         <activity android:name="AwfulLoginActivity" />
-        <activity android:name="ThreadDisplayActivity" />
+        <activity android:name="ThreadDisplayActivity">
+            <intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/"/>
+			</intent-filter>
+        </activity>
         <activity android:name="ForumDisplayActivity" />
         <activity 
             android:name="UserCPActivity" 
