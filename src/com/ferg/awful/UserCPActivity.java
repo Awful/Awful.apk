@@ -85,15 +85,22 @@ public class UserCPActivity extends Activity {
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
 
-        final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
+        // When coming from the desktop shortcut we won't have login cookies
+		boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 
-        if (retainedThreadsList == null) {
-            mFetchTask = new FetchThreadsTask();
-            mFetchTask.execute();
-        } else {
-            mThreads = retainedThreadsList;
-            setThreadListAdapter();
-        }
+		if (loggedIn) {
+            final ArrayList<AwfulThread> retainedThreadsList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
+
+            if (retainedThreadsList == null) {
+                mFetchTask = new FetchThreadsTask();
+                mFetchTask.execute();
+            } else {
+                mThreads = retainedThreadsList;
+                setThreadListAdapter();
+            }
+		} else {
+			startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+		}
     }
     
     @Override
