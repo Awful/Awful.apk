@@ -27,6 +27,8 @@
 
 package com.ferg.awful.constants;
 
+import android.graphics.Color;
+
 public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com/";
 
@@ -67,4 +69,8 @@ public class Constants {
 
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awful.provider";
+    public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);
+    public static int READ_BACKGROUND_UNEVEN = Color.rgb(221, 238, 255);
+    
+    
 }

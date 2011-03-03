@@ -28,12 +28,10 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothClass.Device;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,18 +41,17 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -520,6 +517,18 @@ public class ThreadDisplayActivity extends Activity {
             viewHolder.username.setText(current.getUsername());
             viewHolder.postDate.setText("Posted on " + current.getDate());
             viewHolder.postBody.setHtml(current.getContent());
+            
+			// change background color of previously read posts
+			if (current.isPreviouslyRead()) {
+				if (current.isEven()) {
+					viewHolder.postBody
+							.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
+				} else {
+					viewHolder.postBody
+							.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
+				}
+
+			}
 
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
