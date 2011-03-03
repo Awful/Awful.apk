@@ -65,6 +65,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.htmlwidget.HtmlView;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -107,7 +108,12 @@ public class ThreadDisplayActivity extends Activity {
             // We may be getting thread info from ChromeToPhone so handle that here
             if (getIntent().getData() != null) {
                 if (getIntent().getData().getScheme().equals("http")) {
-                    Log.i(TAG, getIntent().getData().getQueryParameter("pagenumber"));
+                    boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
+
+                    // Make sure we're logged in
+                    if (!loggedIn) {
+                        startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+                    }
 
                     mThread = new AwfulThread(getIntent().getData().getQueryParameter("threadid"));
 
