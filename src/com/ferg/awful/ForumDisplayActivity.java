@@ -68,6 +68,7 @@ public class ForumDisplayActivity extends Activity {
     private FetchThreadsTask mFetchTask;
 
     private ImageButton mUserCp;
+	private ImageButton mNext;
     private ListView mThreadList;
     private ArrayList<AwfulThread> mThreads = new ArrayList<AwfulThread>();
     private AwfulThreadAdapter mThreadAdapter;
@@ -88,6 +89,7 @@ public class ForumDisplayActivity extends Activity {
         mThreadList = (ListView) findViewById(R.id.forum_list);
         mTitle      = (TextView) findViewById(R.id.title);
         mUserCp     = (ImageButton) findViewById(R.id.user_cp);
+        mNext       = (ImageButton) findViewById(R.id.next_page);
 
         mThreadList.setOnScrollListener(new EndlessScrollListener());
         mThreadList.setAdapter(mThreadAdapter);
@@ -108,6 +110,7 @@ public class ForumDisplayActivity extends Activity {
 
         mTitle.setText(Html.fromHtml(mForum.getTitle()));
         mUserCp.setOnClickListener(onButtonClick);
+		mNext.setOnClickListener(onButtonClick);
     }
     
     @Override
@@ -189,6 +192,13 @@ public class ForumDisplayActivity extends Activity {
                 case R.id.user_cp:
                     startActivity(new Intent().setClass(ForumDisplayActivity.this, UserCPActivity.class));
                     break;
+				case R.id.next_page:
+                    if (mForum.getCurrentPage() != mForum.getLastPage()) {
+                    	mForum.setCurrentPage(mForum.getCurrentPage() + 1);
+                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage());
+                        mFetchTask.execute(mForum.getForumId());
+                    }
+					break;
             }
         }
     };
