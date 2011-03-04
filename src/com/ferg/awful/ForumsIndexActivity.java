@@ -28,7 +28,6 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -39,21 +38,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.misc.VolumeKeyHandler;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulSubforum;
@@ -315,4 +314,16 @@ public class ForumsIndexActivity extends Activity {
 
         return true;
     }
+    
+	/**
+	 * Use the Volume keys to scroll the view
+	 */
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (VolumeKeyHandler.handle(event, mForumList)) {
+			return true;
+		}
+		return super.dispatchKeyEvent(event);
+	}
+    
 }

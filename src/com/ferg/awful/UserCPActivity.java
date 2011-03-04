@@ -29,6 +29,8 @@ package com.ferg.awful;
 
 import java.util.ArrayList;
 
+import org.htmlcleaner.TagNode;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -38,6 +40,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,11 +54,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.htmlcleaner.TagNode;
-
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.misc.VolumeKeyHandler;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
 public class UserCPActivity extends Activity {
@@ -282,4 +283,17 @@ public class UserCPActivity extends Activity {
             return inflatedView;
         }
     }
+    
+	/**
+	 * Use the Volume keys to scroll the view
+	 */
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (VolumeKeyHandler.handle(event, mThreadList)) {
+			return true;
+		}
+		return super.dispatchKeyEvent(event);
+	}
+    
+    
 }
