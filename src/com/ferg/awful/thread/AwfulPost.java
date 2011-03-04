@@ -27,17 +27,13 @@
 
 package com.ferg.awful.thread;
 
-import android.util.Log;
-
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
+import android.util.Log;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -72,7 +68,9 @@ public class AwfulPost {
     private String mAvatar;
     private String mContent;
     private String mEdited;
-	private boolean mLastRead = false;;
+	private boolean mLastRead = false;
+	private boolean mPreviouslyRead = false;
+	private boolean mEven=false; 
 
     public String getId() {
         return mId;
@@ -129,6 +127,22 @@ public class AwfulPost {
 	public void setLastRead(boolean aLastRead) {
 		mLastRead = aLastRead;
 	}
+	
+	public boolean isPreviouslyRead() {
+		return mPreviouslyRead;
+	}
+
+	public void setPreviouslyRead(boolean aPreviouslyRead) {
+		mPreviouslyRead = aPreviouslyRead;
+	}
+	
+	public void setEven(boolean mEven) {
+		this.mEven = mEven;
+	}
+
+	public boolean isEven() {
+		return mEven;
+	}
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
@@ -137,13 +151,12 @@ public class AwfulPost {
         properties.setOmitComments(true);
 
 		boolean lastReadFound = false;
-
+		boolean even = false;
         try {
             Object[] postNodes = aThread.evaluateXPath(POST);
 
             for (Object current : postNodes) {
-				boolean previouslyRead = false;
-
+				
                 AwfulPost post = new AwfulPost();
                 TagNode node = (TagNode) current;
 
@@ -200,20 +213,23 @@ public class AwfulPost {
 				if (!lastReadFound) {
 					nodeList = node.evaluateXPath(SEEN1);
 					if (nodeList.length > 0) {
-						previouslyRead = true;
+						post.setPreviouslyRead(true);
 					} else {
 						nodeList = node.evaluateXPath(SEEN2);
 						if (nodeList.length > 0) {
-							previouslyRead = true;
+							post.setPreviouslyRead(true);
 						}
 					}
 
-					if (!previouslyRead) {
+					if (!post.isPreviouslyRead()) {
 						post.setLastRead(true);
 						lastReadFound = true;
 					}
 				}
-
+				post.setEven(even); // even/uneven post for alternating colors
+				even = !even;
+				
+				
                 nodeList = node.evaluateXPath(AVATAR);
                 if (nodeList.length > 0) {
                     post.setAvatar(((TagNode) nodeList[0]).getAttributeByName("src"));
@@ -251,4 +267,5 @@ public class AwfulPost {
 
         return aHtml;
     }
+
 }
