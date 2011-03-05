@@ -523,7 +523,7 @@ public class ThreadDisplayActivity extends Activity {
         	if(post.hasMessageLink()) {
 	        	ActionItem messageAction = new ActionItem();
 	        	messageAction.setTitle("Message"); // TODO externalize
-	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_send));
 	        	messageAction.setOnClickListener(new OnClickListener() {
 	        		@Override
 	        		public void onClick(View v) {
@@ -539,7 +539,7 @@ public class ThreadDisplayActivity extends Activity {
         	if(post.hasPostHistoryLink()) {
 	        	ActionItem postHistoryAction = new ActionItem();
 	        	postHistoryAction.setTitle("Post History"); // TODO externalize
-	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_archive));
 	        	postHistoryAction.setOnClickListener(new OnClickListener() {
 	        		@Override
 	        		public void onClick(View v) {
@@ -555,7 +555,7 @@ public class ThreadDisplayActivity extends Activity {
         	if(post.hasRapSheetLink()) {
 	        	ActionItem rapSheetAction = new ActionItem();
 	        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
-	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
 	        	rapSheetAction.setOnClickListener(new OnClickListener() {
 	        		@Override
 	        		public void onClick(View v) {
