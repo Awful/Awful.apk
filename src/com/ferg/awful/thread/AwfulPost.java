@@ -57,6 +57,7 @@ public class AwfulPost {
 	private static final String SEEN2     = "//tr[@class='seen2']";
 	private static final String SEEN      = SEEN1+"|"+SEEN2;
 	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
+	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
 	
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
@@ -64,6 +65,11 @@ public class AwfulPost {
     private static final String ELEMENT_END_TD       = "</td>";
     private static final String REPLACEMENT_POSTBODY = "<div class=\"postbody\">";
     private static final String REPLACEMENT_END_TD   = "</div>";
+    
+    private static final String LINK_PROFILE      = "Profile";
+    private static final String LINK_MESSAGE      = "Message";
+    private static final String LINK_POST_HISTORY = "Post History";
+    private static final String LINK_RAP_SHEET    = "Rap Sheet";
 
     private String mId;
     private String mDate;
@@ -74,7 +80,11 @@ public class AwfulPost {
     private String mEdited;
 	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;
-	private boolean mEven=false; 
+	private boolean mEven = false;
+	private boolean mHasProfileLink = false;
+	private boolean mHasMessageLink = false;
+	private boolean mHasPostHistoryLink = false;
+	private boolean mHasRapSheetLink = false;
 
     public String getId() {
         return mId;
@@ -154,6 +164,38 @@ public class AwfulPost {
 
 	public boolean isEven() {
 		return mEven;
+	}
+	
+	public void setHasProfileLink(boolean aHasProfileLink) {
+		mHasProfileLink = aHasProfileLink;
+	}
+	
+	public boolean hasProfileLink() {
+		return mHasProfileLink;
+	}
+	
+	public void setHasMessageLink(boolean aHasMessageLink) {
+		mHasMessageLink = aHasMessageLink;
+	}
+	
+	public boolean hasMessageLink() {
+		return mHasMessageLink;
+	}
+	
+	public void setHasPostHistoryLink(boolean aHasPostHistoryLink) {
+		mHasPostHistoryLink = aHasPostHistoryLink;
+	}
+	
+	public boolean hasPostHistoryLink() {
+		return mHasPostHistoryLink;
+	}
+	
+	public void setHasRapSheetLink(boolean aHasRapSheetLink) {
+		mHasRapSheetLink = aHasRapSheetLink;
+	}
+	
+	public boolean hasRapSheetLink() {
+		return mHasRapSheetLink;
 	}
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
@@ -268,6 +310,18 @@ public class AwfulPost {
 
                     post.setContent(serializer.getAsString((TagNode) nodeList[0]));
                 }
+                
+                // We know how to make the links, but we need to note what links are active for the poster
+                nodeList = node.evaluateXPath(PROFILE_LINKS);
+                for (Object linkNode : nodeList) {
+                	String link = ((TagNode) linkNode).getText().toString();
+                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
+                	else if(link.equals(LINK_MESSAGE))      post.setHasMessageLink(true);
+                	else if(link.equals(LINK_POST_HISTORY)) post.setHasPostHistoryLink(true);
+                	// Rap sheet is actually filled in by javascript for some stupid reason
+                }
+                //it's always there though, so we can set it true without an explicit check
+                post.setHasRapSheetLink(true);
 
                 result.add(post);
             }

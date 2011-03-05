@@ -494,67 +494,95 @@ public class ThreadDisplayActivity extends Activity {
 			startActivity(linkIntent);
         }
         
-        private void showAvatarQuickAction(View anchor, final String userid, final long listId) {
-        	ActionItem profileAction = new ActionItem();
-        	profileAction.setTitle("Profile"); // TODO externalize
-        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
-        	profileAction.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					HashMap<String, String> params = new HashMap<String, String>();
-					params.put(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);
-					params.put(Constants.PARAM_USER_ID, userid);
-					startActivityForLink(Constants.FUNCTION_MEMBER, params);
-				}
-        	});
-        	
-        	ActionItem messageAction = new ActionItem();
-        	messageAction.setTitle("Message"); // TODO externalize
-        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
-        	messageAction.setOnClickListener(new OnClickListener() {
-        		@Override
-        		public void onClick(View v) {
-        			HashMap<String, String> params = new HashMap<String, String>();
-					params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
-					params.put(Constants.PARAM_USER_ID, userid);
-					startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
-        		}
-        	});
-        	
-        	ActionItem postHistoryAction = new ActionItem();
-        	postHistoryAction.setTitle("Post History"); // TODO externalize
-        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
-        	postHistoryAction.setOnClickListener(new OnClickListener() {
-        		@Override
-        		public void onClick(View v) {
-        			HashMap<String, String> params = new HashMap<String, String>();
-					params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
-					params.put(Constants.PARAM_USER_ID, userid);
-					startActivityForLink(Constants.FUNCTION_SEARCH, params);
-        		}
-        	});
-        	
-        	ActionItem rapSheetAction = new ActionItem();
-        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
-        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
-        	rapSheetAction.setOnClickListener(new OnClickListener() {
-        		@Override
-        		public void onClick(View v) {
-        			HashMap<String, String> params = new HashMap<String, String>();
-					params.put(Constants.PARAM_USER_ID, userid);
-					startActivityForLink(Constants.FUNCTION_BANLIST, params);
-        		}
-        	});
-        	
+        private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
         	QuickAction result = new QuickAction(anchor);
-        	result.addActionItem(profileAction);
-        	result.addActionItem(messageAction);
-        	result.addActionItem(postHistoryAction);
-        	result.addActionItem(rapSheetAction);
+        	final String userid = post.getUserId();
+        	
+        	if(post.hasProfileLink()) {
+	        	ActionItem profileAction = new ActionItem();
+	        	profileAction.setTitle("Profile"); // TODO externalize
+	        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
+	        	profileAction.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_MEMBER, params);
+					}
+	        	});
+	        	result.addActionItem(profileAction);
+        	}	        	
+        	
+        	if(post.hasMessageLink()) {
+	        	ActionItem messageAction = new ActionItem();
+	        	messageAction.setTitle("Message"); // TODO externalize
+	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	messageAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
+	        		}
+	        	});
+	        	result.addActionItem(messageAction);
+        	}
+        	
+        	if(post.hasPostHistoryLink()) {
+	        	ActionItem postHistoryAction = new ActionItem();
+	        	postHistoryAction.setTitle("Post History"); // TODO externalize
+	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	postHistoryAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_SEARCH, params);
+	        		}
+	        	});
+	        	result.addActionItem(postHistoryAction);
+        	}
+        	
+        	if(post.hasRapSheetLink()) {
+	        	ActionItem rapSheetAction = new ActionItem();
+	        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
+	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+	        	rapSheetAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_BANLIST, params);
+	        		}
+	        	});
+	        	result.addActionItem(rapSheetAction);
+        	}
         	
         	result.setAnimStyle(QuickAction.ANIM_AUTO);
         	result.show();
         }
+        
+        private void showPostQuickAction(View anchor, AwfulPost post, final long listId) {
+        	QuickAction result = new QuickAction(anchor);
+        	
+        	ActionItem quoteAction = new ActionItem();
+        	quoteAction.setTitle("Quote"); // TODO externalize
+        	quoteAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+        	quoteAction.setOnClickListener(new OnClickListener() {
+        		@Override
+        		public void onClick(View v) {
+        			new ParsePostQuoteTask().execute(listId);
+        		}
+        	});
+        	result.addActionItem(quoteAction);
+        	
+        	result.setAnimStyle(QuickAction.ANIM_AUTO);
+        	result.show();        	
+        }
+        
         
         private class ViewHolder {
         	public TextView username;
@@ -604,12 +632,19 @@ public class ThreadDisplayActivity extends Activity {
             
             // Set up header quickactions
             final ViewHolder vh = viewHolder;
-            viewHolder.postHead.setOnClickListener(new OnClickListener() {
+            OnClickListener listener = new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					showAvatarQuickAction(vh.avatar, current.getUserId(), aPosition);
+					if(v == vh.postHead) {
+						showAvatarQuickAction(vh.avatar, current, aPosition);
+					} else {
+						showPostQuickAction(vh.postBody, current, aPosition);
+					}
 				}
-            });
+            };
+            
+            viewHolder.postHead.setOnClickListener(listener);
+            viewHolder.postBody.setOnClickListener(listener);
             
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
