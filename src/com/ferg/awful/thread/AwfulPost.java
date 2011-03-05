@@ -27,17 +27,13 @@
 
 package com.ferg.awful.thread;
 
-import android.util.Log;
-
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
+import android.util.Log;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -54,25 +50,41 @@ public class AwfulPost {
     private static final String POST_ID   = "//table[@class='post']";
     private static final String POST_DATE = "//td[@class='postdate']";
     private static final String SEEN_LINK = "//td[@class='postdate']//a[@title='Mark thread seen up to this post']";
-    private static final String SEEN      = "//tr[@class='seen1']|//tr[@class='seen2']";
     private static final String AVATAR    = "//dd[@class='title']//img";
     private static final String EDITED    = "//p[@class='editedby']/span";
     private static final String POSTBODY  = "//td[@class='postbody']";
 	private static final String SEEN1     = "//tr[@class='seen1']";
 	private static final String SEEN2     = "//tr[@class='seen2']";
+	private static final String SEEN      = SEEN1+"|"+SEEN2;
+	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
+	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
+	
+	private static final String USERINFO_PREFIX = "userinfo userid-";
 
     private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
     private static final String ELEMENT_END_TD       = "</td>";
     private static final String REPLACEMENT_POSTBODY = "<div class=\"postbody\">";
     private static final String REPLACEMENT_END_TD   = "</div>";
+    
+    private static final String LINK_PROFILE      = "Profile";
+    private static final String LINK_MESSAGE      = "Message";
+    private static final String LINK_POST_HISTORY = "Post History";
+    private static final String LINK_RAP_SHEET    = "Rap Sheet";
 
     private String mId;
     private String mDate;
+    private String mUserId;
     private String mUsername;
     private String mAvatar;
     private String mContent;
     private String mEdited;
-	private boolean mLastRead = false;;
+	private boolean mLastRead = false;
+	private boolean mPreviouslyRead = false;
+	private boolean mEven = false;
+	private boolean mHasProfileLink = false;
+	private boolean mHasMessageLink = false;
+	private boolean mHasPostHistoryLink = false;
+	private boolean mHasRapSheetLink = false;
 
     public String getId() {
         return mId;
@@ -90,6 +102,14 @@ public class AwfulPost {
         mDate = aDate;
     }
 
+    public String getUserId() {
+    	return mUserId;
+    }
+    
+    public void setUserId(String aUserId) {
+    	mUserId = aUserId;
+    }
+    
     public String getUsername() {
         return mUsername;
     }
@@ -129,6 +149,54 @@ public class AwfulPost {
 	public void setLastRead(boolean aLastRead) {
 		mLastRead = aLastRead;
 	}
+	
+	public boolean isPreviouslyRead() {
+		return mPreviouslyRead;
+	}
+
+	public void setPreviouslyRead(boolean aPreviouslyRead) {
+		mPreviouslyRead = aPreviouslyRead;
+	}
+	
+	public void setEven(boolean mEven) {
+		this.mEven = mEven;
+	}
+
+	public boolean isEven() {
+		return mEven;
+	}
+	
+	public void setHasProfileLink(boolean aHasProfileLink) {
+		mHasProfileLink = aHasProfileLink;
+	}
+	
+	public boolean hasProfileLink() {
+		return mHasProfileLink;
+	}
+	
+	public void setHasMessageLink(boolean aHasMessageLink) {
+		mHasMessageLink = aHasMessageLink;
+	}
+	
+	public boolean hasMessageLink() {
+		return mHasMessageLink;
+	}
+	
+	public void setHasPostHistoryLink(boolean aHasPostHistoryLink) {
+		mHasPostHistoryLink = aHasPostHistoryLink;
+	}
+	
+	public boolean hasPostHistoryLink() {
+		return mHasPostHistoryLink;
+	}
+	
+	public void setHasRapSheetLink(boolean aHasRapSheetLink) {
+		mHasRapSheetLink = aHasRapSheetLink;
+	}
+	
+	public boolean hasRapSheetLink() {
+		return mHasRapSheetLink;
+	}
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
@@ -137,13 +205,12 @@ public class AwfulPost {
         properties.setOmitComments(true);
 
 		boolean lastReadFound = false;
-
+		boolean even = false;
         try {
             Object[] postNodes = aThread.evaluateXPath(POST);
 
             for (Object current : postNodes) {
-				boolean previouslyRead = false;
-
+				
                 AwfulPost post = new AwfulPost();
                 TagNode node = (TagNode) current;
 
@@ -163,6 +230,15 @@ public class AwfulPost {
 
                     post.setDate(dateNode.getText().toString().trim());
                 }
+                
+                // The poster's userid is embedded in the class string...
+                nodeList = node.evaluateXPath(USERINFO);
+                if (nodeList.length > 0) {
+                	String classAttr = ((TagNode) nodeList[0]).getAttributeByName("class");
+                	String userid = classAttr.substring(USERINFO_PREFIX.length());
+                	post.setUserId(userid);
+                }
+                
 
 				// Assume it's a post by a normal user first
                 nodeList = node.evaluateXPath(USERNAME);
@@ -200,20 +276,23 @@ public class AwfulPost {
 				if (!lastReadFound) {
 					nodeList = node.evaluateXPath(SEEN1);
 					if (nodeList.length > 0) {
-						previouslyRead = true;
+						post.setPreviouslyRead(true);
 					} else {
 						nodeList = node.evaluateXPath(SEEN2);
 						if (nodeList.length > 0) {
-							previouslyRead = true;
+							post.setPreviouslyRead(true);
 						}
 					}
 
-					if (!previouslyRead) {
+					if (!post.isPreviouslyRead()) {
 						post.setLastRead(true);
 						lastReadFound = true;
 					}
 				}
-
+				post.setEven(even); // even/uneven post for alternating colors
+				even = !even;
+				
+				
                 nodeList = node.evaluateXPath(AVATAR);
                 if (nodeList.length > 0) {
                     post.setAvatar(((TagNode) nodeList[0]).getAttributeByName("src"));
@@ -231,6 +310,18 @@ public class AwfulPost {
 
                     post.setContent(serializer.getAsString((TagNode) nodeList[0]));
                 }
+                
+                // We know how to make the links, but we need to note what links are active for the poster
+                nodeList = node.evaluateXPath(PROFILE_LINKS);
+                for (Object linkNode : nodeList) {
+                	String link = ((TagNode) linkNode).getText().toString();
+                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
+                	else if(link.equals(LINK_MESSAGE))      post.setHasMessageLink(true);
+                	else if(link.equals(LINK_POST_HISTORY)) post.setHasPostHistoryLink(true);
+                	// Rap sheet is actually filled in by javascript for some stupid reason
+                }
+                //it's always there though, so we can set it true without an explicit check
+                post.setHasRapSheetLink(true);
 
                 result.add(post);
             }
@@ -251,4 +342,5 @@ public class AwfulPost {
 
         return aHtml;
     }
+
 }

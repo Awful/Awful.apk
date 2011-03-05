@@ -24,6 +24,14 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/index.php"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:path="/"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
+            </intent-filter>
         </activity>
         <activity android:name="AwfulLoginActivity" />
         <activity android:name="ThreadDisplayActivity">
@@ -31,10 +39,17 @@
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
 			</intent-filter>
         </activity>
-        <activity android:name="ForumDisplayActivity" />
+        <activity android:name="ForumDisplayActivity">
+        	<intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
+        	</intent-filter>
+        </activity>
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"

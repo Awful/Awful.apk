@@ -222,7 +222,7 @@ public class NetworkUtils {
         return result;
     }
 
-    private static String getQueryStringParameters(HashMap<String, String> aParams) {
+    public static String getQueryStringParameters(HashMap<String, String> aParams) {
         StringBuffer result = new StringBuffer("?");
 
         if (aParams != null) {
