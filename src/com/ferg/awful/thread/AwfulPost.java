@@ -50,12 +50,15 @@ public class AwfulPost {
     private static final String POST_ID   = "//table[@class='post']";
     private static final String POST_DATE = "//td[@class='postdate']";
     private static final String SEEN_LINK = "//td[@class='postdate']//a[@title='Mark thread seen up to this post']";
-    private static final String SEEN      = "//tr[@class='seen1']|//tr[@class='seen2']";
     private static final String AVATAR    = "//dd[@class='title']//img";
     private static final String EDITED    = "//p[@class='editedby']/span";
     private static final String POSTBODY  = "//td[@class='postbody']";
 	private static final String SEEN1     = "//tr[@class='seen1']";
 	private static final String SEEN2     = "//tr[@class='seen2']";
+	private static final String SEEN      = SEEN1+"|"+SEEN2;
+	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
+	
+	private static final String USERINFO_PREFIX = "userinfo userid-";
 
     private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
     private static final String ELEMENT_END_TD       = "</td>";
@@ -64,6 +67,7 @@ public class AwfulPost {
 
     private String mId;
     private String mDate;
+    private String mUserId;
     private String mUsername;
     private String mAvatar;
     private String mContent;
@@ -88,6 +92,14 @@ public class AwfulPost {
         mDate = aDate;
     }
 
+    public String getUserId() {
+    	return mUserId;
+    }
+    
+    public void setUserId(String aUserId) {
+    	mUserId = aUserId;
+    }
+    
     public String getUsername() {
         return mUsername;
     }
@@ -176,6 +188,15 @@ public class AwfulPost {
 
                     post.setDate(dateNode.getText().toString().trim());
                 }
+                
+                // The poster's userid is embedded in the class string...
+                nodeList = node.evaluateXPath(USERINFO);
+                if (nodeList.length > 0) {
+                	String classAttr = ((TagNode) nodeList[0]).getAttributeByName("class");
+                	String userid = classAttr.substring(USERINFO_PREFIX.length());
+                	post.setUserId(userid);
+                }
+                
 
 				// Assume it's a post by a normal user first
                 nodeList = node.evaluateXPath(USERNAME);

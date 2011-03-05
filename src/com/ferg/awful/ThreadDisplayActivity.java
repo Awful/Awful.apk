@@ -28,6 +28,8 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,6 +38,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -48,6 +51,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
@@ -60,9 +64,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.htmlwidget.HtmlView;
+import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.quickaction.ActionItem;
+import com.ferg.awful.quickaction.QuickAction;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -70,8 +76,6 @@ import com.ferg.awful.thumbnail.ThumbnailAdapter;
 
 public class ThreadDisplayActivity extends Activity {
     private static final String TAG = "ThreadDisplayActivity";
-
-	private final DrawableManager mImageDownloader = new DrawableManager();
 
 	private AwfulThread mThread;
     private FetchThreadTask mFetchTask;
@@ -483,21 +487,93 @@ public class ThreadDisplayActivity extends Activity {
             mViewResource = aViewResource;
         }
 
+        private void startActivityForLink(String baseUrl, HashMap<String, String> params) {
+        	String paramString = NetworkUtils.getQueryStringParameters(params);
+			Uri uri = Uri.parse(baseUrl + paramString);
+			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
+			startActivity(linkIntent);
+        }
+        
+        private void showAvatarQuickAction(View anchor, final String userid, final long listId) {
+        	ActionItem profileAction = new ActionItem();
+        	profileAction.setTitle("Profile"); // TODO externalize
+        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
+        	profileAction.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					HashMap<String, String> params = new HashMap<String, String>();
+					params.put(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);
+					params.put(Constants.PARAM_USER_ID, userid);
+					startActivityForLink(Constants.FUNCTION_MEMBER, params);
+				}
+        	});
+        	
+        	ActionItem messageAction = new ActionItem();
+        	messageAction.setTitle("Message"); // TODO externalize
+        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+        	messageAction.setOnClickListener(new OnClickListener() {
+        		@Override
+        		public void onClick(View v) {
+        			HashMap<String, String> params = new HashMap<String, String>();
+					params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
+					params.put(Constants.PARAM_USER_ID, userid);
+					startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
+        		}
+        	});
+        	
+        	ActionItem postHistoryAction = new ActionItem();
+        	postHistoryAction.setTitle("Post History"); // TODO externalize
+        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+        	postHistoryAction.setOnClickListener(new OnClickListener() {
+        		@Override
+        		public void onClick(View v) {
+        			HashMap<String, String> params = new HashMap<String, String>();
+					params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
+					params.put(Constants.PARAM_USER_ID, userid);
+					startActivityForLink(Constants.FUNCTION_SEARCH, params);
+        		}
+        	});
+        	
+        	ActionItem rapSheetAction = new ActionItem();
+        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
+        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
+        	rapSheetAction.setOnClickListener(new OnClickListener() {
+        		@Override
+        		public void onClick(View v) {
+        			HashMap<String, String> params = new HashMap<String, String>();
+					params.put(Constants.PARAM_USER_ID, userid);
+					startActivityForLink(Constants.FUNCTION_BANLIST, params);
+        		}
+        	});
+        	
+        	QuickAction result = new QuickAction(anchor);
+        	result.addActionItem(profileAction);
+        	result.addActionItem(messageAction);
+        	result.addActionItem(postHistoryAction);
+        	result.addActionItem(rapSheetAction);
+        	
+        	result.setAnimStyle(QuickAction.ANIM_AUTO);
+        	result.show();
+        }
+        
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
         	public HtmlView postBody;
         	public ImageView avatar;
+        	public View postHead;
+        	
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
         		postDate = (TextView) v.findViewById(R.id.post_date);
         		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
+        		postHead = v.findViewById(R.id.posthead);
         	}
         }
         
         @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
+        public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
             View inflatedView = aConvertView;
             ViewHolder viewHolder = null;
             
@@ -510,8 +586,8 @@ public class ThreadDisplayActivity extends Activity {
             	viewHolder = (ViewHolder) inflatedView.getTag();
             }
 
-            AwfulPost current = getItem(aPosition);
-
+            final AwfulPost current = getItem(aPosition);
+            
             viewHolder.username.setText(current.getUsername());
             viewHolder.postDate.setText("Posted on " + current.getDate());
             viewHolder.postBody.setHtml(current.getContent());
@@ -525,6 +601,15 @@ public class ThreadDisplayActivity extends Activity {
             		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
             	}
             }
+            
+            // Set up header quickactions
+            final ViewHolder vh = viewHolder;
+            viewHolder.postHead.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showAvatarQuickAction(vh.avatar, current.getUserId(), aPosition);
+				}
+            });
             
             // TODO: Why is this crashing when using the cache? Seems to be gif related.
             // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
