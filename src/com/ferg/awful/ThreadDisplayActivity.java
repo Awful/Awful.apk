@@ -109,8 +109,6 @@ public class ThreadDisplayActivity extends Activity {
             // We may be getting thread info from ChromeToPhone so handle that here
             if (getIntent().getData() != null) {
                 if (getIntent().getData().getScheme().equals("http")) {
-                    Log.i(TAG, getIntent().getData().getQueryParameter("pagenumber"));
-
                     mThread = new AwfulThread(getIntent().getData().getQueryParameter("threadid"));
 
                     String page = getIntent().getData().getQueryParameter("pagenumber");
