@@ -634,6 +634,8 @@ public class ThreadDisplayActivity extends Activity {
             	} else {
             		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
             	}
+            } else {
+                viewHolder.postBody.setBackgroundColor(getResources().getColor(R.color.forums_gray));
             }
             
             // Set up header quickactions
