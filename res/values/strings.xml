@@ -14,4 +14,5 @@
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
     <string name="invalid_page">Enter a real number</string>
+    <string name="mark_last_read">Mark last read</string>
 </resources>

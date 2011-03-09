@@ -30,17 +30,17 @@ package com.ferg.awful.constants;
 import android.graphics.Color;
 
 public class Constants {
-    public static final String BASE_URL = "http://forums.somethingawful.com/";
+    public static final String BASE_URL = "http://forums.somethingawful.com";
 
-    public static final String FUNCTION_LOGIN           = BASE_URL + "account.php";
-    public static final String FUNCTION_USERCP          = BASE_URL + "usercp.php";
-    public static final String FUNCTION_FORUM           = BASE_URL + "forumdisplay.php";
-    public static final String FUNCTION_THREAD          = BASE_URL + "showthread.php";
-    public static final String FUNCTION_POST_REPLY      = BASE_URL + "newreply.php";
-    public static final String FUNCTION_MEMBER          = BASE_URL + "member.php";
-    public static final String FUNCTION_SEARCH          = BASE_URL + "search.php";
-    public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "private.php";
-    public static final String FUNCTION_BANLIST         = BASE_URL + "banlist.php";
+    public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
+    public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
+    public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
+    public static final String FUNCTION_THREAD          = BASE_URL + "/showthread.php";
+    public static final String FUNCTION_POST_REPLY      = BASE_URL + "/newreply.php";
+    public static final String FUNCTION_MEMBER          = BASE_URL + "/member.php";
+    public static final String FUNCTION_SEARCH          = BASE_URL + "/search.php";
+    public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "/private.php";
+    public static final String FUNCTION_BANLIST         = BASE_URL + "/banlist.php";
 
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
@@ -55,6 +55,7 @@ public class Constants {
     public static final String PARAM_FORUM_ID  = "forumid";
     public static final String PARAM_GOTO      = "goto";
     public static final String PARAM_PER_PAGE  = "perpage";
+    public static final String PARAM_INDEX     = "index";
 
     // Intent parameters
     public static final String FORUM     = "forum";

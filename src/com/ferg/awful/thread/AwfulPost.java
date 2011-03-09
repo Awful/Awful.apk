@@ -35,6 +35,9 @@ import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 import android.util.Log;
 
+import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
+
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
 
@@ -49,7 +52,7 @@ public class AwfulPost {
     private static final String POST      = "//table[@class='post']";
     private static final String POST_ID   = "//table[@class='post']";
     private static final String POST_DATE = "//td[@class='postdate']";
-    private static final String SEEN_LINK = "//td[@class='postdate']//a[@title='Mark thread seen up to this post']";
+    private static final String SEEN_LINK = "//td[@class='postdate']//a";
     private static final String AVATAR    = "//dd[@class='title']//img";
     private static final String EDITED    = "//p[@class='editedby']/span";
     private static final String POSTBODY  = "//td[@class='postbody']";
@@ -85,6 +88,7 @@ public class AwfulPost {
 	private boolean mHasMessageLink = false;
 	private boolean mHasPostHistoryLink = false;
 	private boolean mHasRapSheetLink = false;
+    private String mLastReadUrl;
 
     public String getId() {
         return mId;
@@ -140,6 +144,14 @@ public class AwfulPost {
 
     public void setEdited(String aEdited) {
         mEdited = aEdited;
+    }
+
+    public String getLastReadUrl() {
+        return mLastReadUrl;
+    }
+
+    public void setLastReadUrl(String aLastReadUrl) {
+        mLastReadUrl = aLastReadUrl;
     }
 
 	public boolean isLastRead() {
@@ -198,6 +210,20 @@ public class AwfulPost {
 		return mHasRapSheetLink;
 	}
 
+    public ArrayList<AwfulPost> markLastRead() {
+        ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+
+        try {
+            TagNode response = NetworkUtils.get(Constants.BASE_URL + mLastReadUrl);
+            
+            result = parsePosts(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
@@ -222,6 +248,11 @@ public class AwfulPost {
                 Object[] nodeList = node.evaluateXPath(POST_DATE);
                 if (nodeList.length > 0) {
                     TagNode dateNode = (TagNode) nodeList[0];
+
+                    String lastRead = dateNode.getChildTags()[0].getAttributeByName("href");
+                    post.setLastReadUrl(lastRead.replaceAll("&amp;", "&"));
+
+                    Log.i(TAG, lastRead.replaceAll("&amp;", "&"));
 
                     // There's got to be a better way to do this
                     dateNode.removeChild(dateNode.findElementHavingAttribute("href", false));
@@ -296,6 +327,12 @@ public class AwfulPost {
                 nodeList = node.evaluateXPath(AVATAR);
                 if (nodeList.length > 0) {
                     post.setAvatar(((TagNode) nodeList[0]).getAttributeByName("src"));
+                }
+				
+                nodeList = node.evaluateXPath(SEEN_LINK);
+                if (nodeList.length > 0) {
+                    Log.i(TAG, ((TagNode) nodeList[0]).getAttributeByName("href"));
+                    post.setLastReadUrl(((TagNode) nodeList[0]).getAttributeByName("href"));
                 }
 
                 nodeList = node.evaluateXPath(EDITED);

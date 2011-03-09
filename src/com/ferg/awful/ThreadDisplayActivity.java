@@ -81,6 +81,7 @@ public class ThreadDisplayActivity extends Activity {
 	private AwfulThread mThread;
     private FetchThreadTask mFetchTask;
     private ParsePostQuoteTask mPostQuoteTask;
+    private MarkLastReadTask mMarkLastReadTask;
 
 	private ImageButton mNext;
 	private ImageButton mReply;
@@ -272,6 +273,10 @@ public class ThreadDisplayActivity extends Activity {
                 mPostQuoteTask = new ParsePostQuoteTask();
                 mPostQuoteTask.execute(info.id);
                 return true;
+            case R.id.last_read:
+                mMarkLastReadTask = new MarkLastReadTask();
+                mMarkLastReadTask.execute(info.id);
+                return true;
         }
 
         return false;
@@ -295,15 +300,25 @@ public class ThreadDisplayActivity extends Activity {
 		}
     }
 
+    private void setListAdapter(ArrayList<AwfulPost> aPosts) {
+        mPostList.setAdapter(generateAdapter(aPosts));
+
+        setLastRead(aPosts);
+    }
+
     private void setListAdapter() {
         ArrayList<AwfulPost> posts = mThread.getPosts();
 
         mPostList.setAdapter(generateAdapter(posts));
 
+        setLastRead(posts);
+    }
+
+    private void setLastRead(ArrayList<AwfulPost> aPosts) {
         AwfulPost lastRead = null;
 
         // Maybe there's a better way to do this? It's 8am and I'm hung over
-        for (AwfulPost post : posts) {
+        for (AwfulPost post : aPosts) {
             if (post.isLastRead()) {
                 lastRead = post;
                 break;
@@ -311,7 +326,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         if (lastRead != null) {
-            int index = posts.indexOf(lastRead);
+            int index = aPosts.indexOf(lastRead);
             mPostList.setSelection(index);
         }
     }
@@ -334,6 +349,39 @@ public class ThreadDisplayActivity extends Activity {
 			}
 		}
 	};
+
+    private class MarkLastReadTask extends AsyncTask<Long, Void, ArrayList<AwfulPost>> {
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public ArrayList<AwfulPost> doInBackground(Long... aParams) {
+            ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+
+            if (!isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    result = selected.markLastRead();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(ArrayList<AwfulPost> aResult) {
+            if (!isCancelled()) {
+                mDialog.dismiss();
+
+                setListAdapter(aResult);
+            }
+        }
+    }
 
     private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
         public void onPreExecute() {
@@ -571,25 +619,6 @@ public class ThreadDisplayActivity extends Activity {
         	result.show();
         }
         
-        private void showPostQuickAction(View anchor, AwfulPost post, final long listId) {
-        	QuickAction result = new QuickAction(anchor);
-        	
-        	ActionItem quoteAction = new ActionItem();
-        	quoteAction.setTitle("Quote"); // TODO externalize
-        	quoteAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_goto));
-        	quoteAction.setOnClickListener(new OnClickListener() {
-        		@Override
-        		public void onClick(View v) {
-        			new ParsePostQuoteTask().execute(listId);
-        		}
-        	});
-        	result.addActionItem(quoteAction);
-        	
-        	result.setAnimStyle(QuickAction.ANIM_AUTO);
-        	result.show();        	
-        }
-        
-        
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
@@ -645,8 +674,6 @@ public class ThreadDisplayActivity extends Activity {
 				public void onClick(View v) {
 					if(v == vh.postHead) {
 						showAvatarQuickAction(vh.avatar, current, aPosition);
-					} else {
-						showPostQuickAction(vh.postBody, current, aPosition);
 					}
 				}
             };
