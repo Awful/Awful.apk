@@ -559,10 +559,10 @@ public class ThreadDisplayActivity extends Activity {
 	        	profileAction.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_MEMBER, params);
+                        Intent profile = new Intent().setClass(ThreadDisplayActivity.this, ProfileActivity.class);
+                        profile.putExtra(Constants.PARAM_USER_ID, userid);
+
+						startActivity(profile);
 					}
 	        	});
 	        	result.addActionItem(profileAction);

@@ -50,6 +50,7 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
         	</intent-filter>
         </activity>
+        <activity android:name="ProfileActivity" />
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"
