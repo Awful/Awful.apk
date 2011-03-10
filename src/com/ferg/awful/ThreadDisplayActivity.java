@@ -29,8 +29,6 @@ package com.ferg.awful;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -42,6 +40,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -96,7 +95,7 @@ public class ThreadDisplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mPostList = (ListView) findViewById(R.id.thread_posts);
         mTitle    = (TextView) findViewById(R.id.title);
