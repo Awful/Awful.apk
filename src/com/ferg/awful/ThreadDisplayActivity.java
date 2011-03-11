@@ -248,6 +248,9 @@ public class ThreadDisplayActivity extends Activity {
 				mFetchTask = new FetchThreadTask(true);
 				mFetchTask.execute(mThread);
 				break;
+			case R.id.settings:
+				startActivity(new Intent().setClass(this, SettingsActivity.class));
+				break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}

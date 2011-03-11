@@ -182,19 +182,20 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
+    		case R.id.settings:
+    			startActivity(new Intent().setClass(this, SettingsActivity.class));
+    			return true;
             case R.id.logout:
                 NetworkUtils.clearLoginCookies(this);
                 startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
-                break;
+                return true;
             case R.id.refresh:
                 mFetchTask = new FetchThreadsTask();
                 mFetchTask.execute(mForum.getForumId());
-                break;
+                return true;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
-
-		return true;
     }
 
     @Override

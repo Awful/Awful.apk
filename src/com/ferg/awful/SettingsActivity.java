@@ -29,7 +29,12 @@ package com.ferg.awful;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 
+/**
+ * Simple, purely xml driven preferences. Access using
+ * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
+ */
 public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
