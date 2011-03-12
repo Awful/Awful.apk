@@ -61,6 +61,7 @@ public class AwfulPost {
 	private static final String SEEN      = SEEN1+"|"+SEEN2;
 	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
+    private static final String EDITABLE  = "//img[@alt='Edit']";
 	
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
@@ -89,6 +90,7 @@ public class AwfulPost {
 	private boolean mHasPostHistoryLink = false;
 	private boolean mHasRapSheetLink = false;
     private String mLastReadUrl;
+    private boolean mEditable;
 
     public String getId() {
         return mId;
@@ -204,6 +206,14 @@ public class AwfulPost {
 	
 	public void setHasRapSheetLink(boolean aHasRapSheetLink) {
 		mHasRapSheetLink = aHasRapSheetLink;
+	}
+
+	public boolean isEditable() {
+		return mEditable;
+	}
+	
+	public void setEditable(boolean aEditable) {
+		mEditable = aEditable;
 	}
 	
 	public boolean hasRapSheetLink() {
@@ -338,6 +348,14 @@ public class AwfulPost {
                 nodeList = node.evaluateXPath(EDITED);
                 if (nodeList.length > 0) {
                     post.setEdited(((TagNode) nodeList[0]).getText().toString());
+                }
+
+                nodeList = node.evaluateXPath(EDITABLE);
+                if (nodeList.length > 0) {
+                    Log.i(TAG, "Editable!");
+                    post.setEditable(true);
+                } else {
+                    post.setEditable(false);
                 }
 
                 nodeList = node.evaluateXPath(POSTBODY);

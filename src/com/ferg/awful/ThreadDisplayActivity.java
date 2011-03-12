@@ -81,6 +81,7 @@ public class ThreadDisplayActivity extends Activity {
 	private AwfulThread mThread;
     private FetchThreadTask mFetchTask;
     private ParsePostQuoteTask mPostQuoteTask;
+    private ParseEditPostTask mEditPostTask;
     private MarkLastReadTask mMarkLastReadTask;
 
 	private ImageButton mNext;
@@ -159,6 +160,10 @@ public class ThreadDisplayActivity extends Activity {
             mFetchTask.cancel(true);
         }
         
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
+        }
+        
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
@@ -176,6 +181,10 @@ public class ThreadDisplayActivity extends Activity {
             mFetchTask.cancel(true);
         }
         
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
+        }
+        
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
@@ -191,6 +200,10 @@ public class ThreadDisplayActivity extends Activity {
 
         if (mFetchTask != null) {
             mFetchTask.cancel(true);
+        }
+        
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
         }
         
         if (mPostQuoteTask != null) {
@@ -261,7 +274,15 @@ public class ThreadDisplayActivity extends Activity {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.post_longpress, aMenu);
+
+        AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+        AwfulPost selected = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+
+        if (selected.isEditable()) {
+            inflater.inflate(R.menu.user_post_longpress, aMenu);
+        } else {
+            inflater.inflate(R.menu.post_longpress, aMenu);
+        }
     }
 
     @Override
@@ -269,6 +290,10 @@ public class ThreadDisplayActivity extends Activity {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
 
         switch (aItem.getItemId()) {
+            case R.id.edit:
+                mEditPostTask = new ParseEditPostTask();
+                mEditPostTask.execute(info.id);
+                return true;
             case R.id.quote:
                 mPostQuoteTask = new ParsePostQuoteTask();
                 mPostQuoteTask.execute(info.id);
@@ -379,6 +404,48 @@ public class ThreadDisplayActivity extends Activity {
                 mDialog.dismiss();
 
                 setListAdapter(aResult);
+            }
+        }
+    }
+
+    private class ParseEditPostTask extends AsyncTask<Long, Void, String> {
+        private String mPostId;
+
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public String doInBackground(Long... aParams) {
+            String result = null;
+
+            if (!isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    mPostId = selected.getId();
+
+                    result = Reply.getPost(selected.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return result;
+        }
+
+        public void onPostExecute(String aResult) {
+            if (!isCancelled()) {
+                mDialog.dismiss();
+
+                Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.QUOTE, aResult);
+                postReply.putExtra(Constants.EDITING, true);
+                postReply.putExtra(Constants.POST_ID, mPostId);
+
+				startActivityForResult(postReply, 0);
             }
         }
     }

@@ -143,13 +143,27 @@ public class PostReplyActivity extends Activity {
 
     private View.OnClickListener onSubmitClick = new View.OnClickListener() {
         public void onClick(View aView) {
-			mSubmitTask = new SubmitReplyTask();
-            mSubmitTask.execute(mMessage.getText().toString(), 
-					mFormKey, mThread.getThreadId());
+            boolean editing = getIntent().getBooleanExtra(Constants.EDITING, false);
+
+			mSubmitTask = new SubmitReplyTask(editing);
+
+            if (editing) {
+                mSubmitTask.execute(mMessage.getText().toString(), 
+                        mFormKey, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
+            } else {
+                mSubmitTask.execute(mMessage.getText().toString(), 
+                        mFormKey, mThread.getThreadId());
+            }
         }
     };
 
 	private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
+        private boolean mEditing;
+
+        public SubmitReplyTask(boolean aEditing) {
+            mEditing = aEditing;
+        }
+
 		public void onPreExecute() {
             mDialog = ProgressDialog.show(PostReplyActivity.this, "Posting", 
                 "Hopefully it didn't suck...", true);
@@ -158,7 +172,12 @@ public class PostReplyActivity extends Activity {
         public Void doInBackground(String... aParams) {
             if (!isCancelled()) {
                 try {
-                    Reply.postReply(aParams[0], aParams[1], aParams[2]);
+                    if (mEditing) {
+                        Log.i(TAG, "Editing!!");
+                        Reply.edit(aParams[0], aParams[1], aParams[2], aParams[3]);
+                    } else {
+                        Reply.post(aParams[0], aParams[1], aParams[2]);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());

@@ -37,6 +37,7 @@ public class Constants {
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
     public static final String FUNCTION_THREAD          = BASE_URL + "/showthread.php";
     public static final String FUNCTION_POST_REPLY      = BASE_URL + "/newreply.php";
+    public static final String FUNCTION_EDIT_POST       = BASE_URL + "/editpost.php";
     public static final String FUNCTION_MEMBER          = BASE_URL + "/member.php";
     public static final String FUNCTION_SEARCH          = BASE_URL + "/search.php";
     public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "/private.php";
@@ -62,8 +63,10 @@ public class Constants {
     public static final String FORUM_ID  = "forum_id";
     public static final String THREAD    = "thread";
     public static final String THREAD_ID = "thread_id";
+    public static final String POST_ID   = "post_id";
     public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
+    public static final String EDITING   = "editing";
 
     public static final String PREFERENCES = "prefs";
     
