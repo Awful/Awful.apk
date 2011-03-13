@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+	<PreferenceCategory android:title="@string/prefs_thread_display">
+		<CheckBoxPreference
+			android:key="use_large_scrollbar"
+			android:title="@string/use_large_scrollbar"
+			android:summary="@string/use_large_scrollbar_summary"
+			android:defaultValue="true"
+			/>
+		<com.ferg.awful.preferences.NumericEditTextPreference
+			android:key="default_post_font_size"
+			android:title="@string/default_post_font_size"
+			android:defaultValue="15"
+			/>
+		<com.ferg.awful.preferences.ColorPickerPreference
+		   	android:key="default_post_font_color"
+		   	android:title="@string/default_post_font_color"
+		   	android:defaultValue="@color/default_post_font"
+		   	alphaSlider="false"
+			/>
+	</PreferenceCategory>
+	<Preference
+		android:key="about"
+		android:title="@string/about"
+		android:summary="@string/about_summary"
+		android:persistent="false"
+		/>
 </PreferenceScreen>

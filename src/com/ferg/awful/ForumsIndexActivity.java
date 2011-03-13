@@ -76,6 +76,7 @@ public class ForumsIndexActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_index);
 		
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mForumList = (ExpandableListView) findViewById(R.id.forum_list);

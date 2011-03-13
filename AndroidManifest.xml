@@ -51,6 +51,7 @@
         	</intent-filter>
         </activity>
         <activity android:name="ProfileActivity" />
+        <activity android:name="SettingsActivity" />
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"
