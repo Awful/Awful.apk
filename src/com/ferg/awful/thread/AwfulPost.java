@@ -347,7 +347,7 @@ public class AwfulPost {
 
                 nodeList = node.evaluateXPath(EDITED);
                 if (nodeList.length > 0) {
-                    post.setEdited(((TagNode) nodeList[0]).getText().toString());
+                    post.setEdited("<i>" + ((TagNode) nodeList[0]).getText().toString() + "</i>");
                 }
 
                 nodeList = node.evaluateXPath(EDITABLE);

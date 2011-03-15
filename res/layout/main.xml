@@ -9,13 +9,38 @@
         layout="@layout/actionbar_thread"
         android:id="@+id/action_bar" 
         />
-	<ListView
-		android:id="@+id/thread_posts"
+	<RelativeLayout
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:cacheColorHint="#f4f4f4"
-		android:scrollingCache="true"
-		android:smoothScrollbar="false"
-		android:fastScrollEnabled="true"
-		/>
+		>
+		<ListView
+			android:id="@+id/thread_posts"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:cacheColorHint="#f4f4f4"
+			android:scrollingCache="true"
+			android:smoothScrollbar="false"
+			android:fastScrollEnabled="true"
+			/>
+		<RelativeLayout
+			android:id="@+id/page_indicator"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="12dip"
+			android:padding="12dip"
+			android:visibility="invisible"
+			android:background="#77000000"
+			>
+			<TextView
+				android:id="@+id/page_text"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:textColor="#ffffff"
+				android:textSize="22dip"
+				android:textStyle="bold"
+				/>
+		</RelativeLayout>
+	</RelativeLayout>
 </LinearLayout>

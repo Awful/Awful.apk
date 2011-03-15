@@ -54,12 +54,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,7 +90,9 @@ public class ThreadDisplayActivity extends Activity {
 	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
+    private RelativeLayout mPageIndicator;
     private SharedPreferences mPrefs;
+    private TextView mPageNumbers;
     private TextView mTitle;
 
     @Override
@@ -99,10 +103,12 @@ public class ThreadDisplayActivity extends Activity {
 		
         mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
 
-        mPostList = (ListView) findViewById(R.id.thread_posts);
-        mTitle    = (TextView) findViewById(R.id.title);
-        mNext     = (ImageButton) findViewById(R.id.next_page);
-        mReply    = (ImageButton) findViewById(R.id.reply);
+        mPostList      = (ListView) findViewById(R.id.thread_posts);
+        mTitle         = (TextView) findViewById(R.id.title);
+        mNext          = (ImageButton) findViewById(R.id.next_page);
+        mReply         = (ImageButton) findViewById(R.id.reply);
+        mPageIndicator = (RelativeLayout) findViewById(R.id.page_indicator);
+        mPageNumbers   = (TextView) findViewById(R.id.page_text);
 
         registerForContextMenu(mPostList);
 
@@ -146,6 +152,18 @@ public class ThreadDisplayActivity extends Activity {
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
+
+        mPostList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScroll(AbsListView aView, int aFirstVisibleItem, int aVisibleItemCount, int aTotalItemCount) {}
+
+            public void onScrollStateChanged(AbsListView aView, int aScrollState) {
+                if (aScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                    mPageIndicator.setVisibility(View.INVISIBLE);
+                } else {
+                    mPageIndicator.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
     
     @Override
@@ -539,6 +557,9 @@ public class ThreadDisplayActivity extends Activity {
                     mTitle.setText(Html.fromHtml(mThread.getTitle()));
                 }
 
+                mPageNumbers.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
+                        "/" + Integer.toString(mThread.getLastPage()));
+
                 if (mDialog != null) {
                     mDialog.dismiss();
                 }
@@ -748,9 +769,6 @@ public class ThreadDisplayActivity extends Activity {
             viewHolder.postHead.setOnClickListener(listener);
             viewHolder.postBody.setOnClickListener(listener);
             
-            // TODO: Why is this crashing when using the cache? Seems to be gif related.
-            // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
-            // mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
             viewHolder.avatar.setTag(current.getAvatar());
 
             return inflatedView;
