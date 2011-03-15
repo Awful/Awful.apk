@@ -29,8 +29,6 @@ package com.ferg.awful;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,9 +37,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -77,7 +77,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailAdapter;
 
-public class ThreadDisplayActivity extends Activity {
+public class ThreadDisplayActivity extends Activity implements OnSharedPreferenceChangeListener {
     private static final String TAG = "ThreadDisplayActivity";
 
 	private AwfulThread mThread;
@@ -95,23 +95,31 @@ public class ThreadDisplayActivity extends Activity {
     private TextView mPageNumbers;
     private TextView mTitle;
 
+    // These just store values from shared preferences. This way, we only have to do redraws
+    // and the like if the preferences defining drawing have actually changed since we last
+    // saw them
+    private int mDefaultPostFontSize;
+    private int mDefaultPostFontColor;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
-
-        mPostList      = (ListView) findViewById(R.id.thread_posts);
-        mTitle         = (TextView) findViewById(R.id.title);
-        mNext          = (ImageButton) findViewById(R.id.next_page);
-        mReply         = (ImageButton) findViewById(R.id.reply);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
+        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
+        
+        mPostList = (ListView) findViewById(R.id.thread_posts);
+        mTitle    = (TextView) findViewById(R.id.title);
+        mNext     = (ImageButton) findViewById(R.id.next_page);
+        mReply    = (ImageButton) findViewById(R.id.reply);
         mPageIndicator = (RelativeLayout) findViewById(R.id.page_indicator);
         mPageNumbers   = (TextView) findViewById(R.id.page_text);
 
         registerForContextMenu(mPostList);
-
+        
         final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
 
         if (retainedThread == null || retainedThread.getPosts() == null) {
@@ -167,9 +175,36 @@ public class ThreadDisplayActivity extends Activity {
     }
     
     @Override
-    public void onPause() {
+    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+    	if("default_post_font_size".equals(key)) {
+    		int newSize = prefs.getInt(key, 15);
+    		if(newSize != mDefaultPostFontSize) {
+    			mDefaultPostFontSize = newSize;
+    			Log.d(TAG, "invalidating (size)");
+    			mPostList.invalidateViews();   			
+    		}
+    	} else if("default_post_font_color".equals(key)) {
+    		int newColor = prefs.getInt(key, 0);
+    		if(newColor != mDefaultPostFontColor) {
+    			mDefaultPostFontColor = newColor;
+    			Log.d(TAG, "invalidating (color)");
+    			mPostList.invalidateViews();    			
+    		}
+    	} else if("use_large_scrollbar".equals(key)) {
+    		setScrollbarType();
+    	}
+    }
+    
+    private void setScrollbarType() {
+    	mPostList.setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
+    }
+    
+    @Override
+    protected void onPause() {
         super.onPause();
 
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        
         if (mDialog != null) {
             mDialog.dismiss();
         }
@@ -188,7 +223,7 @@ public class ThreadDisplayActivity extends Activity {
     }
         
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
 
         if (mDialog != null) {
@@ -209,7 +244,7 @@ public class ThreadDisplayActivity extends Activity {
     }
     
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
 
         if (mDialog != null) {
@@ -227,6 +262,17 @@ public class ThreadDisplayActivity extends Activity {
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
+    }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	
+    	setScrollbarType();
+    	onSharedPreferenceChanged(mPrefs, "default_post_font_size");
+    	onSharedPreferenceChanged(mPrefs, "default_post_font_color");
+    	
+    	mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
     
     @Override
@@ -279,6 +325,9 @@ public class ThreadDisplayActivity extends Activity {
 			case R.id.refresh:
 				mFetchTask = new FetchThreadTask(true);
 				mFetchTask.execute(mThread);
+				break;
+			case R.id.settings:
+				startActivity(new Intent().setClass(this, SettingsActivity.class));
 				break;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -743,6 +792,12 @@ public class ThreadDisplayActivity extends Activity {
             viewHolder.postDate.setText("Posted on " + current.getDate());
             viewHolder.postBody.setHtml(current.getContent());
 
+            // These are done per render instead of at view construction because there's
+            // apparently no good way to force view reconstruction after, say, the user
+            // changes preferences for these things.
+            viewHolder.postBody.setTextSize(mDefaultPostFontSize);
+            viewHolder.postBody.setTextColor(mDefaultPostFontColor);
+            
             // change background color of previously read posts
 
             if (current.isPreviouslyRead()) {

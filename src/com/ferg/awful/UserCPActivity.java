@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,7 +77,7 @@ public class UserCPActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_cp);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mThreadList = (ListView) findViewById(R.id.forum_list);
         mTitle      = (TextView) findViewById(R.id.title);
@@ -153,6 +154,9 @@ public class UserCPActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
+    		case R.id.settings:
+    			startActivity(new Intent().setClass(this, SettingsActivity.class));
+    			return true;
             case R.id.logout:
                 NetworkUtils.clearLoginCookies(this);
                 startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);

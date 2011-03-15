@@ -6,6 +6,10 @@
 		android:icon="@drawable/ic_menu_refresh"
 		android:title="@string/refresh" />
 	<item
+		android:id="@+id/settings"
+		android:icon="@drawable/ic_menu_preferences"
+		android:title="@string/settings" />
+    <item
 		android:id="@+id/logout"
 		android:icon="@drawable/ic_menu_logout"
 		android:title="@string/logout" />
