@@ -184,7 +184,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
     			mPostList.invalidateViews();   			
     		}
     	} else if("default_post_font_color".equals(key)) {
-    		int newColor = prefs.getInt(key, 0);
+    		int newColor = prefs.getInt(key, R.color.default_post_font);
     		if(newColor != mDefaultPostFontColor) {
     			mDefaultPostFontColor = newColor;
     			Log.d(TAG, "invalidating (color)");
