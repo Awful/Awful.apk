@@ -81,10 +81,15 @@ public class PostReplyActivity extends Activity {
             mMessage.setText(quoteText.replaceAll("&quot;", "\""));
         }
 
+        mSubmit.setOnClickListener(onSubmitClick);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
 		// We'll enable it once we have a formkey
 		mSubmit.setEnabled(false);
-
-        mSubmit.setOnClickListener(onSubmitClick);
 
 		mFetchTask = new FetchFormKeyTask();
         mFetchTask.execute(mThread.getThreadId());
