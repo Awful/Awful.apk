@@ -816,7 +816,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
 				@Override
 				public void onClick(View v) {
 					if(v == vh.postHead) {
-						showAvatarQuickAction(vh.avatar, current, aPosition);
+						// showAvatarQuickAction(vh.avatar, current, aPosition);
 					}
 				}
             };
