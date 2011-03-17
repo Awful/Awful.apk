@@ -49,7 +49,7 @@ public class Reply {
     private static final String PARAM_FORMKEY     = "formkey";
     private static final String PARAM_FORM_COOKIE = "form_cookie";
     private static final String PARAM_MESSAGE     = "message";
-    // TODO: Do we need the checkbox options here?
+    private static final String PARAM_BOOKMARK    = "bookmark";
     
     private static final String VALUE_ACTION      = "postreply";
     private static final String VALUE_EDIT        = "updatepost";
@@ -66,6 +66,7 @@ public class Reply {
         params.put(PARAM_FORMKEY, aFormKey);
         params.put(PARAM_FORM_COOKIE, VALUE_FORM_COOKIE);
         params.put(PARAM_MESSAGE, aMessage);
+        params.put(PARAM_BOOKMARK, "yes");
 
         return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
     }
