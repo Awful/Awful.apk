@@ -80,14 +80,14 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         public void run() {
 			if (mIncrement) {
 				changeCurrent(mCurrent + 1);
-				if (mCurrent < mEnd - 1) {
+				if (mCurrent < mEnd) {
 					mHandler.postDelayed(this, mSpeed);
 				} else {
 					mHandler.postDelayed(this, mSpeed * 5);
 				}
 			} else if (mDecrement) {
 				changeCurrent(mCurrent - 1);
-				if (mCurrent > mStart + 1) {
+				if (mCurrent > mStart) {
 					mHandler.postDelayed(this, mSpeed);
 				} else {
 					mHandler.postDelayed(this, mSpeed * 5);
