@@ -49,13 +49,29 @@ public class Reply {
     private static final String PARAM_FORMKEY     = "formkey";
     private static final String PARAM_FORM_COOKIE = "form_cookie";
     private static final String PARAM_MESSAGE     = "message";
-    // TODO: Do we need the checkbox options here?
+    private static final String PARAM_BOOKMARK    = "bookmark";
     
     private static final String VALUE_ACTION      = "postreply";
+    private static final String VALUE_EDIT        = "updatepost";
     private static final String VALUE_POSTID      = "";
     private static final String VALUE_FORM_COOKIE = "formcookie";
 
-    public static final TagNode postReply(String aMessage, String aFormKey, String aThreadId) 
+    public static final TagNode edit(String aMessage, String aFormKey, String aThreadId, String aPostId) 
+        throws Exception 
+    {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_ACTION, VALUE_EDIT);
+        params.put(PARAM_THREADID, aThreadId);
+        params.put(PARAM_POSTID, aPostId);
+        params.put(PARAM_FORMKEY, aFormKey);
+        params.put(PARAM_FORM_COOKIE, VALUE_FORM_COOKIE);
+        params.put(PARAM_MESSAGE, aMessage);
+        params.put(PARAM_BOOKMARK, "yes");
+
+        return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
+    }
+
+    public static final TagNode post(String aMessage, String aFormKey, String aThreadId) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -81,6 +97,23 @@ public class Reply {
         Object[] formkey = response.evaluateXPath(FORMKEY);
         if (formkey.length > 0) {
             result = ((TagNode) formkey[0]).getAttributeByName("value");
+        }
+
+        return result;
+    }
+
+    public static final String getPost(String aPostId) throws Exception {
+        String result = null;
+
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_ACTION, "editpost");
+        params.put(PARAM_POSTID, aPostId);
+
+        TagNode response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
+
+        Object[] formkey = response.evaluateXPath(QUOTE);
+        if (formkey.length > 0) {
+            result = ((TagNode) formkey[0]).getText().toString();
         }
 
         return result;

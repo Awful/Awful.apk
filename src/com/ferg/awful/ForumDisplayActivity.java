@@ -29,15 +29,16 @@ package com.ferg.awful;
 
 import java.util.ArrayList;
 
+import org.htmlcleaner.TagNode;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,17 +48,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AbsListView.OnScrollListener;
-
-import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
@@ -85,7 +82,7 @@ public class ForumDisplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_display);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mThreadAdapter = new AwfulThreadAdapter(ForumDisplayActivity.this, 
                 R.layout.thread_item, mThreads);
         
@@ -98,20 +95,38 @@ public class ForumDisplayActivity extends Activity {
         mThreadList.setAdapter(mThreadAdapter);
 
         mForum = (AwfulSubforum) getIntent().getParcelableExtra(Constants.FORUM);
+        if(mForum == null) {
+        	// This is normally a failure condition, except if we're receiving an
+        	// intent from an outside link (say, ChromeToPhone). Let's check to see
+        	// if we have a URL from such a link.
+        	if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
+        		mForum = new AwfulSubforum();
+        		mForum.setForumId(getIntent().getData().getQueryParameter("forumid"));
+        	} else {
+        		// no dice
+        		Log.e(TAG, "Cannot display null forum");
+        		finish();
+        	}
+        }
         
         final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
 
         if (retainedThreadList == null || retainedThreadList.size() == 0) {
-            mFetchTask = new FetchThreadsTask();
-            mFetchTask.execute(mForum.getForumId());
+        	mFetchTask = new FetchThreadsTask();
+        	mFetchTask.execute(mForum.getForumId());
         } else {
             mThreads.addAll(retainedThreadList);
 
             mThreadAdapter.notifyDataSetChanged();
             mThreadList.setOnItemClickListener(onThreadSelected);
         }
-
-        mTitle.setText(mForum.getTitle());
+        
+        // We might not be able to set this here if we're getting it from
+        // a link and not a ForumsIndexActivity
+        if(mForum.getTitle() != null) {
+        	mTitle.setText(Html.fromHtml(mForum.getTitle()));
+        }
+        
         mUserCp.setOnClickListener(onButtonClick);
 		mNext.setOnClickListener(onButtonClick);
     }
@@ -167,19 +182,20 @@ public class ForumDisplayActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
+    		case R.id.settings:
+    			startActivity(new Intent().setClass(this, SettingsActivity.class));
+    			return true;
             case R.id.logout:
                 NetworkUtils.clearLoginCookies(this);
                 startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
-                break;
+                return true;
             case R.id.refresh:
                 mFetchTask = new FetchThreadsTask();
                 mFetchTask.execute(mForum.getForumId());
-                break;
+                return true;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
-
-		return true;
     }
 
     @Override
@@ -197,7 +213,8 @@ public class ForumDisplayActivity extends Activity {
                     break;
 				case R.id.next_page:
                     if (mForum.getCurrentPage() != mForum.getLastPage()) {
-                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage() + 1);
+                    	mForum.setCurrentPage(mForum.getCurrentPage() + 1);
+                        mFetchTask = new FetchThreadsTask(mForum.getCurrentPage());
                         mFetchTask.execute(mForum.getForumId());
                     }
 					break;
@@ -233,7 +250,8 @@ public class ForumDisplayActivity extends Activity {
                     }
 
                     result = AwfulThread.parseForumThreads(threads);
-
+                    //TODO: On the C2P path, we need to get the forum title here too
+                    
                     // Now that we have the page number list for the current forum we can
                     // populate it
                     if (mForum.getCurrentPage() == 0) {
@@ -253,6 +271,8 @@ public class ForumDisplayActivity extends Activity {
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
             if (!isCancelled()) {
+            	//TODO: We need to set the forum title
+            	
                 mThreads.addAll(aResult);
                 mThreadAdapter.notifyDataSetChanged();
                 mThreadList.setOnItemClickListener(onThreadSelected);
@@ -345,7 +365,8 @@ public class ForumDisplayActivity extends Activity {
     			//load new items in background and add them
     			loading = true;
 				if (mForum.getCurrentPage() != mForum.getLastPage()) {
-					new FetchThreadsTask(mForum.getCurrentPage() + 1).execute(mForum.getForumId());
+					mForum.setCurrentPage(mForum.getCurrentPage() + 1);
+					new FetchThreadsTask(mForum.getCurrentPage()).execute(mForum.getForumId());
 				}
     		}
     	}

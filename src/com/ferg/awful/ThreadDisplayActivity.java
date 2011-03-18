@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,90 +37,174 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.htmlwidget.HtmlView;
+import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.quickaction.ActionItem;
+import com.ferg.awful.quickaction.QuickAction;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailAdapter;
 
-public class ThreadDisplayActivity extends Activity {
+public class ThreadDisplayActivity extends Activity implements OnSharedPreferenceChangeListener {
     private static final String TAG = "ThreadDisplayActivity";
-
-	private final DrawableManager mImageDownloader = new DrawableManager();
 
 	private AwfulThread mThread;
     private FetchThreadTask mFetchTask;
     private ParsePostQuoteTask mPostQuoteTask;
+    private ParseEditPostTask mEditPostTask;
+    private MarkLastReadTask mMarkLastReadTask;
 
 	private ImageButton mNext;
 	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
+    private RelativeLayout mPageIndicator;
     private SharedPreferences mPrefs;
+    private TextView mPageNumbers;
     private TextView mTitle;
 
+    // These just store values from shared preferences. This way, we only have to do redraws
+    // and the like if the preferences defining drawing have actually changed since we last
+    // saw them
+    private int mDefaultPostFontSize;
+    private int mDefaultPostFontColor;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
-
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
+        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
+        
         mPostList = (ListView) findViewById(R.id.thread_posts);
         mTitle    = (TextView) findViewById(R.id.title);
         mNext     = (ImageButton) findViewById(R.id.next_page);
         mReply    = (ImageButton) findViewById(R.id.reply);
+        mPageIndicator = (RelativeLayout) findViewById(R.id.page_indicator);
+        mPageNumbers   = (TextView) findViewById(R.id.page_text);
 
         registerForContextMenu(mPostList);
-
+        
         final AwfulThread retainedThread = (AwfulThread) getLastNonConfigurationInstance();
 
         if (retainedThread == null || retainedThread.getPosts() == null) {
-            mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
-            mFetchTask = new FetchThreadTask();
+            // We may be getting thread info from ChromeToPhone so handle that here
+            if (getIntent().getData() != null) {
+                if (getIntent().getData().getScheme().equals("http")) {
+                    boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
+
+                    // Make sure we're logged in
+                    if (!loggedIn) {
+                        startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
+                    }
+
+                    mThread = new AwfulThread(getIntent().getData().getQueryParameter("threadid"));
+
+                    String page = getIntent().getData().getQueryParameter("pagenumber");
+
+                    if (page != null) {
+                        mFetchTask = new FetchThreadTask(Integer.parseInt(page));
+                    } else {
+                        mFetchTask = new FetchThreadTask();
+                    }
+                }
+            } else {
+                mThread = (AwfulThread) getIntent().getParcelableExtra(Constants.THREAD);
+                mFetchTask = new FetchThreadTask();
+            }
             mFetchTask.execute(mThread);
         } else {
             mThread = retainedThread;
             setListAdapter();
         }
 
-        mTitle.setText(mThread.getTitle());
+        // If this is coming from ChromeToPhone we have to set the title later
+        if (mThread.getTitle() != null) {
+            mTitle.setText(Html.fromHtml(mThread.getTitle()));
+        }
+
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
+
+        mPostList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScroll(AbsListView aView, int aFirstVisibleItem, int aVisibleItemCount, int aTotalItemCount) {}
+
+            public void onScrollStateChanged(AbsListView aView, int aScrollState) {
+                if (aScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                    mPageIndicator.setVisibility(View.INVISIBLE);
+                } else {
+                    mPageIndicator.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
     
     @Override
-    public void onPause() {
+    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+    	if("default_post_font_size".equals(key)) {
+    		int newSize = prefs.getInt(key, 15);
+    		if(newSize != mDefaultPostFontSize) {
+    			mDefaultPostFontSize = newSize;
+    			Log.d(TAG, "invalidating (size)");
+    			mPostList.invalidateViews();   			
+    		}
+    	} else if("default_post_font_color".equals(key)) {
+    		int newColor = prefs.getInt(key, R.color.default_post_font);
+    		if(newColor != mDefaultPostFontColor) {
+    			mDefaultPostFontColor = newColor;
+    			Log.d(TAG, "invalidating (color)");
+    			mPostList.invalidateViews();    			
+    		}
+    	} else if("use_large_scrollbar".equals(key)) {
+    		setScrollbarType();
+    	}
+    }
+    
+    private void setScrollbarType() {
+    	mPostList.setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
+    }
+    
+    @Override
+    protected void onPause() {
         super.onPause();
 
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        
         if (mDialog != null) {
             mDialog.dismiss();
         }
@@ -128,13 +213,17 @@ public class ThreadDisplayActivity extends Activity {
             mFetchTask.cancel(true);
         }
         
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
+        }
+        
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
     }
         
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
 
         if (mDialog != null) {
@@ -145,13 +234,17 @@ public class ThreadDisplayActivity extends Activity {
             mFetchTask.cancel(true);
         }
         
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
+        }
+        
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
     }
     
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
 
         if (mDialog != null) {
@@ -162,9 +255,24 @@ public class ThreadDisplayActivity extends Activity {
             mFetchTask.cancel(true);
         }
         
+        if (mEditPostTask != null) {
+            mEditPostTask.cancel(true);
+        }
+        
         if (mPostQuoteTask != null) {
             mPostQuoteTask.cancel(true);
         }
+    }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	
+    	setScrollbarType();
+    	onSharedPreferenceChanged(mPrefs, "default_post_font_size");
+    	onSharedPreferenceChanged(mPrefs, "default_post_font_color");
+    	
+    	mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
     
     @Override
@@ -214,6 +322,13 @@ public class ThreadDisplayActivity extends Activity {
                         })
                     .setNegativeButton("Cancel", null)
                     .show();
+			case R.id.refresh:
+				mFetchTask = new FetchThreadTask(true);
+				mFetchTask.execute(mThread);
+				break;
+			case R.id.settings:
+				startActivity(new Intent().setClass(this, SettingsActivity.class));
+				break;
 			default:
 				return super.onOptionsItemSelected(item);
     	}
@@ -226,7 +341,15 @@ public class ThreadDisplayActivity extends Activity {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.post_longpress, aMenu);
+
+        AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+        AwfulPost selected = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+
+        if (selected.isEditable()) {
+            inflater.inflate(R.menu.user_post_longpress, aMenu);
+        } else {
+            inflater.inflate(R.menu.post_longpress, aMenu);
+        }
     }
 
     @Override
@@ -234,9 +357,17 @@ public class ThreadDisplayActivity extends Activity {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
 
         switch (aItem.getItemId()) {
+            case R.id.edit:
+                mEditPostTask = new ParseEditPostTask();
+                mEditPostTask.execute(info.id);
+                return true;
             case R.id.quote:
                 mPostQuoteTask = new ParsePostQuoteTask();
                 mPostQuoteTask.execute(info.id);
+                return true;
+            case R.id.last_read:
+                mMarkLastReadTask = new MarkLastReadTask();
+                mMarkLastReadTask.execute(info.id);
                 return true;
         }
 
@@ -261,15 +392,25 @@ public class ThreadDisplayActivity extends Activity {
 		}
     }
 
+    private void setListAdapter(ArrayList<AwfulPost> aPosts) {
+        mPostList.setAdapter(generateAdapter(aPosts));
+
+        setLastRead(aPosts);
+    }
+
     private void setListAdapter() {
         ArrayList<AwfulPost> posts = mThread.getPosts();
 
         mPostList.setAdapter(generateAdapter(posts));
 
+        setLastRead(posts);
+    }
+
+    private void setLastRead(ArrayList<AwfulPost> aPosts) {
         AwfulPost lastRead = null;
 
         // Maybe there's a better way to do this? It's 8am and I'm hung over
-        for (AwfulPost post : posts) {
+        for (AwfulPost post : aPosts) {
             if (post.isLastRead()) {
                 lastRead = post;
                 break;
@@ -277,7 +418,7 @@ public class ThreadDisplayActivity extends Activity {
         }
 
         if (lastRead != null) {
-            int index = posts.indexOf(lastRead);
+            int index = aPosts.indexOf(lastRead);
             mPostList.setSelection(index);
         }
     }
@@ -300,6 +441,81 @@ public class ThreadDisplayActivity extends Activity {
 			}
 		}
 	};
+
+    private class MarkLastReadTask extends AsyncTask<Long, Void, ArrayList<AwfulPost>> {
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public ArrayList<AwfulPost> doInBackground(Long... aParams) {
+            ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+
+            if (!isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    result = selected.markLastRead();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(ArrayList<AwfulPost> aResult) {
+            if (!isCancelled()) {
+                mDialog.dismiss();
+
+                setListAdapter(aResult);
+            }
+        }
+    }
+
+    private class ParseEditPostTask extends AsyncTask<Long, Void, String> {
+        private String mPostId;
+
+        public void onPreExecute() {
+            mDialog = ProgressDialog.show(ThreadDisplayActivity.this, "Loading", 
+                "Hold on...", true);
+        }
+
+        public String doInBackground(Long... aParams) {
+            String result = null;
+
+            if (!isCancelled()) {
+                try {
+                    AwfulPostAdapter adapter = (AwfulPostAdapter) mPostList.getAdapter();
+                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+
+                    mPostId = selected.getId();
+
+                    result = Reply.getPost(selected.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return result;
+        }
+
+        public void onPostExecute(String aResult) {
+            if (!isCancelled()) {
+                mDialog.dismiss();
+
+                Intent postReply = new Intent().setClass(ThreadDisplayActivity.this, PostReplyActivity.class);
+                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.QUOTE, aResult);
+                postReply.putExtra(Constants.EDITING, true);
+                postReply.putExtra(Constants.POST_ID, mPostId);
+
+				startActivityForResult(postReply, 0);
+            }
+        }
+    }
 
     private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
         public void onPreExecute() {
@@ -384,6 +600,15 @@ public class ThreadDisplayActivity extends Activity {
                 mThread = aResult;
                 setListAdapter();
 
+                // If we're loading a thread from ChromeToPhone we have to set the 
+                // title now
+                if (mTitle.getText() == null || mTitle.getText().length() == 0) {
+                    mTitle.setText(Html.fromHtml(mThread.getTitle()));
+                }
+
+                mPageNumbers.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
+                        "/" + Integer.toString(mThread.getLastPage()));
+
                 if (mDialog != null) {
                     mDialog.dismiss();
                 }
@@ -453,21 +678,102 @@ public class ThreadDisplayActivity extends Activity {
             mViewResource = aViewResource;
         }
 
+        private void startActivityForLink(String baseUrl, HashMap<String, String> params) {
+        	String paramString = NetworkUtils.getQueryStringParameters(params);
+			Uri uri = Uri.parse(baseUrl + paramString);
+			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
+			startActivity(linkIntent);
+        }
+        
+        private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
+        	QuickAction result = new QuickAction(anchor);
+        	final String userid = post.getUserId();
+        	
+        	if(post.hasProfileLink()) {
+	        	ActionItem profileAction = new ActionItem();
+	        	profileAction.setTitle("Profile"); // TODO externalize
+	        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
+	        	profileAction.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+                        Intent profile = new Intent().setClass(ThreadDisplayActivity.this, ProfileActivity.class);
+                        profile.putExtra(Constants.PARAM_USER_ID, userid);
+
+						startActivity(profile);
+					}
+	        	});
+	        	result.addActionItem(profileAction);
+        	}	        	
+        	
+        	if(post.hasMessageLink()) {
+	        	ActionItem messageAction = new ActionItem();
+	        	messageAction.setTitle("Message"); // TODO externalize
+	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_send));
+	        	messageAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
+	        		}
+	        	});
+	        	result.addActionItem(messageAction);
+        	}
+        	
+        	if(post.hasPostHistoryLink()) {
+	        	ActionItem postHistoryAction = new ActionItem();
+	        	postHistoryAction.setTitle("Post History"); // TODO externalize
+	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_archive));
+	        	postHistoryAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_SEARCH, params);
+	        		}
+	        	});
+	        	result.addActionItem(postHistoryAction);
+        	}
+        	
+        	if(post.hasRapSheetLink()) {
+	        	ActionItem rapSheetAction = new ActionItem();
+	        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
+	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
+	        	rapSheetAction.setOnClickListener(new OnClickListener() {
+	        		@Override
+	        		public void onClick(View v) {
+	        			HashMap<String, String> params = new HashMap<String, String>();
+						params.put(Constants.PARAM_USER_ID, userid);
+						startActivityForLink(Constants.FUNCTION_BANLIST, params);
+	        		}
+	        	});
+	        	result.addActionItem(rapSheetAction);
+        	}
+        	
+        	result.setAnimStyle(QuickAction.ANIM_AUTO);
+        	result.show();
+        }
+        
         private class ViewHolder {
         	public TextView username;
         	public TextView postDate;
         	public HtmlView postBody;
         	public ImageView avatar;
+        	public View postHead;
+        	
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
         		postDate = (TextView) v.findViewById(R.id.post_date);
         		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
+        		postHead = v.findViewById(R.id.posthead);
         	}
         }
         
         @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
+        public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
             View inflatedView = aConvertView;
             ViewHolder viewHolder = null;
             
@@ -480,15 +786,44 @@ public class ThreadDisplayActivity extends Activity {
             	viewHolder = (ViewHolder) inflatedView.getTag();
             }
 
-            AwfulPost current = getItem(aPosition);
-
+            final AwfulPost current = getItem(aPosition);
+            
             viewHolder.username.setText(current.getUsername());
             viewHolder.postDate.setText("Posted on " + current.getDate());
             viewHolder.postBody.setHtml(current.getContent());
 
-            // TODO: Why is this crashing when using the cache? Seems to be gif related.
-            // Note: ImageDownloader changed since that todo was written; not sure if it's still an issue
-            // mImageDownloader.fetchDrawableOnThread(current.getAvatar(), viewHolder.avatar);
+            // These are done per render instead of at view construction because there's
+            // apparently no good way to force view reconstruction after, say, the user
+            // changes preferences for these things.
+            viewHolder.postBody.setTextSize(mDefaultPostFontSize);
+            viewHolder.postBody.setTextColor(mDefaultPostFontColor);
+            
+            // change background color of previously read posts
+
+            if (current.isPreviouslyRead()) {
+            	if (current.isEven()) {
+            		viewHolder.postBody	.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
+            	} else {
+            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
+            	}
+            } else {
+                viewHolder.postBody.setBackgroundColor(getResources().getColor(R.color.forums_gray));
+            }
+            
+            // Set up header quickactions
+            final ViewHolder vh = viewHolder;
+            OnClickListener listener = new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(v == vh.postHead) {
+						// showAvatarQuickAction(vh.avatar, current, aPosition);
+					}
+				}
+            };
+            
+            viewHolder.postHead.setOnClickListener(listener);
+            viewHolder.postBody.setOnClickListener(listener);
+            
             viewHolder.avatar.setTag(current.getAvatar());
 
             return inflatedView;

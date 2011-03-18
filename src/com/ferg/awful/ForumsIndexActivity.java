@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,7 +76,8 @@ public class ForumsIndexActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_index);
 		
-        mPrefs = getSharedPreferences(Constants.PREFERENCES, MODE_PRIVATE);
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         mForumList = (ExpandableListView) findViewById(R.id.forum_list);
         mTitle     = (TextView) findViewById(R.id.title);
@@ -301,18 +303,19 @@ public class ForumsIndexActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
+    	case R.id.settings:
+    		startActivity(new Intent().setClass(this, SettingsActivity.class));
+    		return true;
     	case R.id.logout:
     		NetworkUtils.clearLoginCookies(this);
     		startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
-            break;
+            return true;
     	case R.id.refresh:
     		mLoadTask = new LoadForumsTask();
             mLoadTask.execute();
-            break;
+            return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
-
-        return true;
     }
 }

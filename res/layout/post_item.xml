@@ -9,6 +9,7 @@
         style="@style/HorizontalSeparator"
         />
 	<RelativeLayout
+		android:id="@+id/posthead"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:background="@color/forums_blue"
@@ -56,7 +57,7 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:padding="6dip"
-			android:textColor="#777777"
+			android:textColor="@color/default_post_font"
 			/>
 	</view>
 </LinearLayout>

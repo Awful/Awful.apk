@@ -6,12 +6,27 @@
     <string name="back">Previous Page</string>
     <string name="forward">Next Page</string>
     <string name="refresh">Refresh</string>
+    <string name="settings">Settings</string>
     <string name="go_to">Go to Page</string>
     <string name="quote">Quote</string>
+    <string name="edit">Edit</string>
     <string name="forums_title">Forums</string>
     <string name="user_cp">User Control Panel</string>
     <string name="post_reply">Post Reply</string>
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
     <string name="invalid_page">Enter a real number</string>
+    <string name="mark_last_read">Mark last read</string>
+    
+    <!-- Preferences -->
+    <string name="prefs_thread_display">Thread Display Settings</string>
+    <string name="use_large_scrollbar">Use Large Scrollbar</string>
+    <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
+    <string name="default_post_font_size">Default Post Font Size</string>
+    <string name="default_post_font_color">Default Post Font Color</string>
+    <string name="press_color_to_apply">Press color to apply</string>
+    <string name="dialog_color_picker">Select Color</string>
+    <string name="about">About...</string>
+    <string name="about_summary">Contributors and library licenses</string>
+	<string name="about_message">"This app sure is something awful. It doesn't even credit its contributors or used libraries here!"</string>
 </resources>

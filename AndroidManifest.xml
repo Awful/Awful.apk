@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awful"
-      android:versionCode="1"
-      android:versionName="1.0">
+      android:versionCode="3"
+      android:versionName="1.1.1">
     <uses-sdk 
 		android:minSdkVersion="7" 
 		/>
@@ -24,15 +24,52 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/index.php"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:path="/"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
+            </intent-filter>
         </activity>
         <activity android:name="AwfulLoginActivity" />
-        <activity android:name="ThreadDisplayActivity" />
-        <activity android:name="ForumDisplayActivity" />
+        <activity android:name="ThreadDisplayActivity">
+            <intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
+			</intent-filter>
+        </activity>
+        <activity android:name="ForumDisplayActivity">
+        	<intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
+        	</intent-filter>
+        </activity>
+        <activity android:name="ProfileActivity" />
+        <activity android:name="SettingsActivity" />
+        <activity 
+            android:name="UserCPActivity" 
+            android:exported="true"
+            />
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
             />
-        <activity android:name="UserCPActivity" />
+        <activity 
+            android:name="UserCPShortcutActivity"
+            android:icon="@drawable/icon" 
+            android:label="@string/usercp"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 		<provider android:name="com.ferg.awful.provider.AwfulProvider"
 				  android:authorities="com.ferg.awful.provider" />
     </application>
