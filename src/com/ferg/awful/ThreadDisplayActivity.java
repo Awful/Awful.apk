@@ -204,49 +204,24 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
         super.onPause();
 
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mEditPostTask != null) {
-            mEditPostTask.cancel(true);
-        }
-        
-        if (mPostQuoteTask != null) {
-            mPostQuoteTask.cancel(true);
-        }
+        cleanupTasks();
     }
         
     @Override
     protected void onStop() {
         super.onStop();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mEditPostTask != null) {
-            mEditPostTask.cancel(true);
-        }
-        
-        if (mPostQuoteTask != null) {
-            mPostQuoteTask.cancel(true);
-        }
+        cleanupTasks();
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        cleanupTasks();
+    }
+
+    private void cleanupTasks() {
         if (mDialog != null) {
             mDialog.dismiss();
         }
@@ -606,6 +581,12 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
                     mTitle.setText(Html.fromHtml(mThread.getTitle()));
                 }
 
+                if (mThread.getCurrentPage() == mThread.getLastPage()) {
+                    mNext.setVisibility(View.GONE);
+                } else {
+                    mNext.setVisibility(View.VISIBLE);
+                }
+
                 mPageNumbers.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
                         "/" + Integer.toString(mThread.getLastPage()));
 
@@ -623,6 +604,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
     	AwfulPostAdapterBase base = new AwfulPostAdapterBase(this, R.layout.post_item, posts);
     	return new AwfulPostAdapter(base);
     }
+
     /**
      * Decorates the base adapter that does the actual work with a
      * ThumbnailAdapter to render avatars, then adds SectionIndexer
