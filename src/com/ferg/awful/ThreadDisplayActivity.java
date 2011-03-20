@@ -90,9 +90,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
 	private ImageButton mReply;
     private ListView mPostList;
 	private ProgressDialog mDialog;
-    private RelativeLayout mPageIndicator;
     private SharedPreferences mPrefs;
-    private TextView mPageNumbers;
     private TextView mTitle;
 
     // These just store values from shared preferences. This way, we only have to do redraws
@@ -115,8 +113,6 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
         mTitle    = (TextView) findViewById(R.id.title);
         mNext     = (ImageButton) findViewById(R.id.next_page);
         mReply    = (ImageButton) findViewById(R.id.reply);
-        mPageIndicator = (RelativeLayout) findViewById(R.id.page_indicator);
-        mPageNumbers   = (TextView) findViewById(R.id.page_text);
 
         registerForContextMenu(mPostList);
         
@@ -160,18 +156,6 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
-
-        mPostList.setOnScrollListener(new AbsListView.OnScrollListener() {
-            public void onScroll(AbsListView aView, int aFirstVisibleItem, int aVisibleItemCount, int aTotalItemCount) {}
-
-            public void onScrollStateChanged(AbsListView aView, int aScrollState) {
-                if (aScrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                    mPageIndicator.setVisibility(View.INVISIBLE);
-                } else {
-                    mPageIndicator.setVisibility(View.VISIBLE);
-                }
-            }
-        });
     }
     
     @Override
@@ -587,9 +571,6 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
                     mNext.setVisibility(View.VISIBLE);
                 }
 
-                mPageNumbers.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
-                        "/" + Integer.toString(mThread.getLastPage()));
-
                 if (mDialog != null) {
                     mDialog.dismiss();
                 }
@@ -744,6 +725,8 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
         	public HtmlView postBody;
         	public ImageView avatar;
         	public View postHead;
+            public TextView pageCount;
+            public RelativeLayout pageIndicator; 
         	
         	public ViewHolder(View v) {
         		username = (TextView) v.findViewById(R.id.username);
@@ -751,6 +734,8 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
         		postBody = (HtmlView) v.findViewById(R.id.postbody);
         		avatar = (ImageView) v.findViewById(R.id.avatar);
         		postHead = v.findViewById(R.id.posthead);
+                pageCount = (TextView) v.findViewById(R.id.page_count);
+                pageIndicator = (RelativeLayout) v.findViewById(R.id.page_indicator);
         	}
         }
         
@@ -802,6 +787,16 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
 					}
 				}
             };
+
+            if (aPosition == (getCount() - 1))  {
+                viewHolder.pageIndicator.setVisibility(View.VISIBLE);
+                viewHolder.pageCount.setVisibility(View.VISIBLE);
+                viewHolder.pageCount.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
+                        "/" + Integer.toString(mThread.getLastPage()));
+            } else if (viewHolder.pageCount.getVisibility() == View.VISIBLE) {
+                viewHolder.pageIndicator.setVisibility(View.GONE);
+                viewHolder.pageCount.setVisibility(View.GONE);
+            }
             
             viewHolder.postHead.setOnClickListener(listener);
             viewHolder.postBody.setOnClickListener(listener);

@@ -31,6 +31,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
+        <item name="android:focusable">true</item>
         <item name="android:shadowColor">#FF000000</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>

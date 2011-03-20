@@ -60,4 +60,25 @@
 			android:textColor="@color/default_post_font"
 			/>
 	</view>
+    <RelativeLayout
+        android:id="@+id/page_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="12dip"
+        android:visibility="gone"
+        android:background="#77000000"
+        >
+        <TextView
+            android:id="@+id/page_count"
+            android:visibility="gone"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="#dddddd"
+            android:textSize="22dip"
+            android:textStyle="bold"
+            />
+    </RelativeLayout>
 </LinearLayout>
