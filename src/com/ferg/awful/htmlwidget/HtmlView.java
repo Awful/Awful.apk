@@ -16,6 +16,7 @@
 
 package com.ferg.awful.htmlwidget;
 
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
@@ -327,10 +328,10 @@ public final class HtmlView extends TextView {
         }
     }
 
-    private void handleEmbed(Attributes attributes, Editable output) {
-        String src = attributes.getValue("src");
-        String type = attributes.getValue("type");
-        boolean allowFullScreen = Boolean.parseBoolean(attributes.getValue("allowfullscreen"));
+    private void handleEmbed(Element node, Editable output) {
+        String src = node.getAttribute("src");
+        String type = node.getAttribute("type");
+        boolean allowFullScreen = Boolean.parseBoolean(node.getAttribute("allowfullscreen"));
 
         Uri uri = null;
         int match = UriMatcher.NO_MATCH;
@@ -400,10 +401,10 @@ public final class HtmlView extends TextView {
         }
     }
 
-    private void handleImg(Attributes attributes, Editable output) {
-        String src = attributes.getValue("src");
-        String alt = attributes.getValue("alt");
-        String title = attributes.getValue("title");
+    private void handleImg(Element node, Editable output) {
+        String src = node.getAttribute("src");
+        String alt = node.getAttribute("alt");
+        String title = node.getAttribute("title");
         
         int start = output.length();
         output.append("\uFFFC");
@@ -471,16 +472,19 @@ public final class HtmlView extends TextView {
             /**
              * {@inheritDoc}
              */
-            public void handleTag(boolean opening, String tag, Attributes attributes,
-                    Editable output, XMLReader xmlReader) {
-                if (opening) {
-                    if (tag.equalsIgnoreCase("embed")) {
-                        handleEmbed(attributes, output);
-                    } else if (tag.equalsIgnoreCase("img")) {
-                        handleImg(attributes, output);
-                    }
+        	@Override
+            public void handleStartTag(Element node, Editable output) {
+            	String tag = node.getTagName();
+            	
+                if (tag.equalsIgnoreCase("embed")) {
+                    handleEmbed(node, output);
+                } else if (tag.equalsIgnoreCase("img")) {
+                    handleImg(node, output);
                 }
             }
+        	
+        	@Override
+        	public void handleEndTag(Element node, Editable output) {}
         };
 
         CharSequence text = Html.fromHtml(source, imageGetter, tagHandler);
