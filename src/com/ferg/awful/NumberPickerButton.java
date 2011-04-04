@@ -16,6 +16,9 @@
 
 package com.ferg.awful;
 
+import com.ferg.awful.R;
+import com.ferg.awful.R.id;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;

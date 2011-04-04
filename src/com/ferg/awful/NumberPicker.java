@@ -16,6 +16,10 @@
 
 package com.ferg.awful;
 
+import com.ferg.awful.R;
+import com.ferg.awful.R.id;
+import com.ferg.awful.R.layout;
+
 import android.content.Context;
 import android.os.Handler;
 import android.text.InputFilter;
