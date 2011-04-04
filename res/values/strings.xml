@@ -29,4 +29,12 @@
     <string name="about">About...</string>
     <string name="about_summary">Contributors and library licenses</string>
 	<string name="about_message">"This app sure is something awful. It doesn't even credit its contributors or used libraries here!"</string>
+	<string name="prefs_global">Global Settings</string>
+	<string name="orientation">Screen Orientation</string>
+	<string-array name="orientations">
+		<item>Default</item>
+		<item>Sensor</item>
+		<item>Portrait</item>
+		<item>Landscape</item>
+	</string-array>
 </resources>

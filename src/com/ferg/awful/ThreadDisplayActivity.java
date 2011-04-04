@@ -76,8 +76,9 @@ import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailAdapter;
+import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayActivity extends Activity implements OnSharedPreferenceChangeListener {
+public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPreferenceChangeListener {
     private static final String TAG = "ThreadDisplayActivity";
 
 	private AwfulThread mThread;
@@ -106,7 +107,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-		
+        
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
         mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
@@ -802,7 +803,7 @@ public class ThreadDisplayActivity extends Activity implements OnSharedPreferenc
 
             if (current.isPreviouslyRead()) {
             	if (current.isEven()) {
-            		viewHolder.postBody	.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
+            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
             	} else {
             		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
             	}

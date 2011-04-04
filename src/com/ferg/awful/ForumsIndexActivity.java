@@ -59,7 +59,7 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulSubforum;
 
-public class ForumsIndexActivity extends Activity {
+public class ForumsIndexActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
 
     private LoadForumsTask mLoadTask;

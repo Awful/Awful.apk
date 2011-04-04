@@ -59,7 +59,7 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
-public class UserCPActivity extends Activity {
+public class UserCPActivity extends AwfulActivity {
     private static final String TAG = "ThreadsActivity";
 
     private ArrayList<AwfulThread> mThreads;

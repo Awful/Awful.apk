@@ -61,7 +61,7 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
 
-public class ForumDisplayActivity extends Activity {
+public class ForumDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadsActivity";
 
 	private AwfulSubforum mForum;

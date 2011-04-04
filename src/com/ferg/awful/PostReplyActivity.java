@@ -43,7 +43,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.AwfulThread;
 
-public class PostReplyActivity extends Activity {
+public class PostReplyActivity extends AwfulActivity {
     private static final String TAG = "PostReplyActivity";
 
 	public static final int RESULT_POSTED = 1;
