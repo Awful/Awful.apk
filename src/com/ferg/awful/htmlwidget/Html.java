@@ -510,7 +510,11 @@ class HtmlToSpannedConverter {
     	
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
-            // so we can safely emite the linebreaks when we handle the close tag.
+            // so we can safely emit the linebreaks when we handle the close tag.
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        	handleP(mSpannableStringBuilder);
+            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Small());
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("div")) {
@@ -538,6 +542,8 @@ class HtmlToSpannedConverter {
             start(mSpannableStringBuilder, new Blockquote());
         } else if (tag.equalsIgnoreCase("tt")) {
             start(mSpannableStringBuilder, new Monospace());
+        } else if (tag.equalsIgnoreCase("code")) {
+        	start(mSpannableStringBuilder, new Monospace());
         } else if (tag.equalsIgnoreCase("a")) {
             startA(mSpannableStringBuilder, node);
         } else if (tag.equalsIgnoreCase("u")) {
@@ -563,6 +569,10 @@ class HtmlToSpannedConverter {
     	
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        	handleP(mSpannableStringBuilder);
+            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("div")) {
@@ -589,8 +599,9 @@ class HtmlToSpannedConverter {
             handleP(mSpannableStringBuilder);
             end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
         } else if (tag.equalsIgnoreCase("tt")) {
-            end(mSpannableStringBuilder, Monospace.class,
-                    new TypefaceSpan("monospace"));
+            end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
+        } else if (tag.equalsIgnoreCase("code")) {
+        	end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("a")) {
             endA(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("u")) {

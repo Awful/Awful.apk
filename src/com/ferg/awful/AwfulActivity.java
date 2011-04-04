@@ -1,7 +1,9 @@
 package com.ferg.awful;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -9,9 +11,12 @@ import android.os.Bundle;
  * 
  * Most Activities in this awful app should extend this guy; that will provide things like locking
  * orientation according to user preference.
+ * 
+ * This class also provides a few helper methods for grabbing preferences and the like.
  */
 public class AwfulActivity extends Activity {
 	private ActivityConfigurator mConf;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,5 +53,5 @@ public class AwfulActivity extends Activity {
 		super.onDestroy();
 		mConf.onDestroy();
 	}
-	
+		
 }
