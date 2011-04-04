@@ -824,7 +824,14 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPref
             viewHolder.postHead.setOnClickListener(listener);
             viewHolder.postBody.setOnClickListener(listener);
             
+            if( current.getAvatar() == null ) {
+            	viewHolder.avatar.setVisibility(View.INVISIBLE);
+            } else {
+            	viewHolder.avatar.setVisibility(View.VISIBLE);
+            }
+            
             viewHolder.avatar.setTag(current.getAvatar());
+            
 
             return inflatedView;
         }
