@@ -30,7 +30,6 @@ package com.ferg.awful;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;

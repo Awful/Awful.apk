@@ -478,7 +478,9 @@ class HtmlToSpannedConverter {
         for (int i = 0; i < length; i++) {
             char c = ch[i];
 
-            if (c == ' ' || c == '\n') {
+            // If we're in something like a code block, we do actually want line breaks
+            // to break lines
+            if (!mUsingTrueWhiteSpace && (c == ' ' || c == '\n')) {
                 char pred;
                 int len = sb.length();
 
@@ -504,6 +506,8 @@ class HtmlToSpannedConverter {
 
         mSpannableStringBuilder.append(sb);
     }
+    
+    private boolean mUsingTrueWhiteSpace = false;
     
     private void handleStartTag(Element node) {
     	String tag = node.getTagName();
@@ -544,6 +548,7 @@ class HtmlToSpannedConverter {
             start(mSpannableStringBuilder, new Monospace());
         } else if (tag.equalsIgnoreCase("code")) {
         	start(mSpannableStringBuilder, new Monospace());
+        	mUsingTrueWhiteSpace = true;
         } else if (tag.equalsIgnoreCase("a")) {
             startA(mSpannableStringBuilder, node);
         } else if (tag.equalsIgnoreCase("u")) {
@@ -601,6 +606,7 @@ class HtmlToSpannedConverter {
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("code")) {
+        	mUsingTrueWhiteSpace = false;
         	end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("a")) {
             endA(mSpannableStringBuilder);
