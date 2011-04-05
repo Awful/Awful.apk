@@ -27,7 +27,7 @@
     </style>
     <style name="ActionBarTitle" parent="@style/ActionBarLogo">
         <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">22dip</item>
+        <item name="android:textSize">20dip</item>
         <item name="android:textStyle">bold</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
