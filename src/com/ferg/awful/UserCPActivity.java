@@ -55,16 +55,16 @@ import android.widget.TextView;
 import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 
-public class UserCPActivity extends Activity {
+public class UserCPActivity extends AwfulActivity {
     private static final String TAG = "ThreadsActivity";
 
-    private ArrayList<AwfulThread> mThreads;
     private FetchThreadsTask mFetchTask;
-
+    private ForumArrayAdapter mAdapter;
     private ImageButton mHome;
     private ListView mThreadList;
 	private ProgressDialog mDialog;
@@ -86,6 +86,10 @@ public class UserCPActivity extends Activity {
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
 
+		mAdapter = new ForumArrayAdapter(this);
+		mThreadList.setAdapter(mAdapter);
+		mThreadList.setOnItemClickListener(onThreadSelected);
+		
         // When coming from the desktop shortcut we won't have login cookies
 		boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 
@@ -96,8 +100,7 @@ public class UserCPActivity extends Activity {
                 mFetchTask = new FetchThreadsTask();
                 mFetchTask.execute();
             } else {
-                mThreads = retainedThreadsList;
-                setThreadListAdapter();
+                mAdapter.setThreads(retainedThreadsList);
             }
 		} else {
 			startActivityForResult(new Intent().setClass(this, AwfulLoginActivity.class), 0);
@@ -174,16 +177,7 @@ public class UserCPActivity extends Activity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        final ArrayList<AwfulThread> currentThreadList = mThreads;
-
-        return currentThreadList;
-    }
-
-    private void setThreadListAdapter() {
-        mThreadList.setAdapter(new AwfulThreadAdapter(UserCPActivity.this, 
-                    R.layout.thread_item, mThreads));
-
-        mThreadList.setOnItemClickListener(onThreadSelected);
+        return mAdapter.getThreads();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -231,9 +225,7 @@ public class UserCPActivity extends Activity {
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
             if (!isCancelled()) {
-                mThreads = aResult;
-
-                setThreadListAdapter();
+            	mAdapter.setThreads(aResult);
 
                 mDialog.dismiss();
             }
@@ -242,8 +234,7 @@ public class UserCPActivity extends Activity {
 
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulThreadAdapter adapter = (AwfulThreadAdapter) mThreadList.getAdapter();
-            AwfulThread thread = adapter.getItem(aPosition);
+            AwfulThread thread = (AwfulThread) mAdapter.getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(UserCPActivity.this, ThreadDisplayActivity.class);
             viewThread.putExtra(Constants.THREAD, thread);
@@ -252,45 +243,4 @@ public class UserCPActivity extends Activity {
 		}
 	};
 
-    public class AwfulThreadAdapter extends ArrayAdapter<AwfulThread> {
-        private ArrayList<AwfulThread> mThreads;
-        private int mViewResource;
-        private LayoutInflater mInflater;
-
-        public AwfulThreadAdapter(Context aContext, int aViewResource, ArrayList<AwfulThread> aThreads) {
-            super(aContext, aViewResource, aThreads);
-
-            mInflater     = LayoutInflater.from(aContext);
-            mThreads        = aThreads;
-            mViewResource = aViewResource;
-        }
-
-        @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
-            View inflatedView = aConvertView;
-
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(mViewResource, null);
-            }
-
-            AwfulThread current = getItem(aPosition);
-
-            TextView title       = (TextView) inflatedView.findViewById(R.id.title);
-            TextView author      = (TextView) inflatedView.findViewById(R.id.author);
-            TextView unreadCount = (TextView) inflatedView.findViewById(R.id.unread_count);
-            ImageView sticky     = (ImageView) inflatedView.findViewById(R.id.sticky_icon);
-
-            title.setText(Html.fromHtml(current.getTitle()));
-            author.setText("Author: " + current.getAuthor());
-            unreadCount.setText(Integer.toString(current.getUnreadCount()));
-
-            if (current.isSticky()) {
-                sticky.setImageResource(R.drawable.sticky);
-            } else {
-                sticky.setImageDrawable(null);
-            }
-
-            return inflatedView;
-        }
-    }
 }

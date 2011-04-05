@@ -51,7 +51,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 
-public class AwfulLoginActivity extends Activity {
+public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
 
     private LoginTask mLoginTask;

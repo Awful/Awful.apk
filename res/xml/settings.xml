@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/prefs_global">
+        <ListPreference
+            android:key="orientation"
+            android:title="@string/orientation"
+            android:entries="@array/orientations"
+            android:entryValues="@array/orientation_values"
+            />
+    </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_thread_display">
 		<CheckBoxPreference
 			android:key="use_large_scrollbar"

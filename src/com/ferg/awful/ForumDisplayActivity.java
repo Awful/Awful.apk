@@ -31,9 +31,7 @@ import java.util.ArrayList;
 
 import org.htmlcleaner.TagNode;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -41,27 +39,25 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
 
-public class ForumDisplayActivity extends Activity {
+public class ForumDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadsActivity";
 
 	private AwfulSubforum mForum;
@@ -70,8 +66,7 @@ public class ForumDisplayActivity extends Activity {
     private ImageButton mUserCp;
 	private ImageButton mNext;
     private ListView mThreadList;
-    private ArrayList<AwfulThread> mThreads = new ArrayList<AwfulThread>();
-    private AwfulThreadAdapter mThreadAdapter;
+    private ForumArrayAdapter mThreadAdapter;
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
@@ -83,8 +78,7 @@ public class ForumDisplayActivity extends Activity {
         setContentView(R.layout.forum_display);
 		
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mThreadAdapter = new AwfulThreadAdapter(ForumDisplayActivity.this, 
-                R.layout.thread_item, mThreads);
+        mThreadAdapter = new ForumArrayAdapter(this);
         
         mThreadList = (ListView) findViewById(R.id.forum_list);
         mTitle      = (TextView) findViewById(R.id.title);
@@ -93,6 +87,7 @@ public class ForumDisplayActivity extends Activity {
 
         mThreadList.setOnScrollListener(new EndlessScrollListener());
         mThreadList.setAdapter(mThreadAdapter);
+        mThreadList.setOnItemClickListener(onThreadSelected);
 
         mForum = (AwfulSubforum) getIntent().getParcelableExtra(Constants.FORUM);
         if(mForum == null) {
@@ -115,10 +110,7 @@ public class ForumDisplayActivity extends Activity {
         	mFetchTask = new FetchThreadsTask();
         	mFetchTask.execute(mForum.getForumId());
         } else {
-            mThreads.addAll(retainedThreadList);
-
-            mThreadAdapter.notifyDataSetChanged();
-            mThreadList.setOnItemClickListener(onThreadSelected);
+            mThreadAdapter.setThreads(retainedThreadList);
         }
         
         // We might not be able to set this here if we're getting it from
@@ -200,9 +192,7 @@ public class ForumDisplayActivity extends Activity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        final ArrayList<AwfulThread> currentThreadList = mThreads;
-
-        return currentThreadList;
+        return mThreadAdapter.getThreads();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -273,9 +263,7 @@ public class ForumDisplayActivity extends Activity {
             if (!isCancelled()) {
             	//TODO: We need to set the forum title
             	
-                mThreads.addAll(aResult);
-                mThreadAdapter.notifyDataSetChanged();
-                mThreadList.setOnItemClickListener(onThreadSelected);
+                mThreadAdapter.addThreads(aResult);
 
                 mDialog.dismiss();
             }
@@ -284,64 +272,27 @@ public class ForumDisplayActivity extends Activity {
 
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulThreadAdapter adapter = (AwfulThreadAdapter) mThreadList.getAdapter();
-            AwfulThread thread = adapter.getItem(aPosition);
-
-            Intent viewThread = new Intent().setClass(ForumDisplayActivity.this, ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD, thread);
-
-            startActivity(viewThread);
+            ForumArrayAdapter adapter = (ForumArrayAdapter) mThreadList.getAdapter();
+            
+            switch(adapter.getItemType(aPosition)) {
+            case THREAD:
+            	AwfulThread thread = (AwfulThread) adapter.getItem(aPosition);
+                Intent viewThread = new Intent().setClass(ForumDisplayActivity.this, ThreadDisplayActivity.class);
+                viewThread.putExtra(Constants.THREAD, thread);
+                startActivity(viewThread);
+                break;
+                
+            case SUB_FORUM:
+            	AwfulForum forum = (AwfulForum) adapter.getItem(aPosition);
+                Intent viewForum = new Intent().setClass(ForumDisplayActivity.this, ForumDisplayActivity.class);
+                viewForum.putExtra(Constants.FORUM, forum);
+                startActivity(viewForum);
+                break;
+            }
+            
 		}
 	};
 
-    public class AwfulThreadAdapter extends ArrayAdapter<AwfulThread> {
-        private ArrayList<AwfulThread> mThreads;
-        private int mViewResource;
-        private LayoutInflater mInflater;
-
-        public AwfulThreadAdapter(Context aContext, int aViewResource, ArrayList<AwfulThread> aThreads) {
-            super(aContext, aViewResource, aThreads);
-
-            mInflater     = LayoutInflater.from(aContext);
-            mThreads        = aThreads;
-            mViewResource = aViewResource;
-        }
-
-        @Override
-        public View getView(int aPosition, View aConvertView, ViewGroup aParent) {
-            View inflatedView = aConvertView;
-
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(mViewResource, null);
-            }
-
-            AwfulThread current = getItem(aPosition);
-
-            TextView title       = (TextView) inflatedView.findViewById(R.id.title);
-            TextView author      = (TextView) inflatedView.findViewById(R.id.author);
-            TextView unreadCount = (TextView) inflatedView.findViewById(R.id.unread_count);
-            ImageView sticky     = (ImageView) inflatedView.findViewById(R.id.sticky_icon);
-
-            title.setText(Html.fromHtml(current.getTitle()));
-            author.setText("Author: " + current.getAuthor());
-
-			if (current.getUnreadCount() == -1) {
-				unreadCount.setVisibility(View.INVISIBLE);
-			} else {
-				unreadCount.setVisibility(View.VISIBLE);
-				unreadCount.setText(Integer.toString(current.getUnreadCount()));
-			}
-
-            if (current.isSticky()) {
-                sticky.setImageResource(R.drawable.sticky);
-            } else {
-                sticky.setImageDrawable(null);
-            }
-
-            return inflatedView;
-        }
-    }
-    
     private class EndlessScrollListener implements OnScrollListener {
     	private int visibleThreshold = 5;
     	private int currentPage = 0;

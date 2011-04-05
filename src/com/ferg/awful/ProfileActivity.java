@@ -43,7 +43,7 @@ import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.user.Profile;
 
-public class ProfileActivity extends Activity {
+public class ProfileActivity extends AwfulActivity {
     private static final String TAG = "ProfileActivity";
 
     private FetchProfileTask mFetchTask;

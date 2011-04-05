@@ -29,9 +29,12 @@ package com.ferg.awful;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -46,10 +49,17 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	Preference mAboutPreference;
 	
 	SharedPreferences mPrefs;
+	ActivityConfigurator mConf;
+
+	// ---------------------------------------------- //
+	// ---------------- LIFECYCLE ------------------- //
+	// ---------------------------------------------- //
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mConf = new ActivityConfigurator(this);
+		mConf.onCreate();
 		
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -59,11 +69,57 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	}
 	
 	@Override
+	public void onStart() {
+		super.onStart();
+		mConf.onStart();
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		mConf.onResume();
+		
+		setSummaries();
+		
+		mPrefs.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		mConf.onPause();
+		
+		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		mConf.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mConf.onDestroy();
+	}
+	
+	
+	// ---------------------------------------------- //
+	// ------------- OTHER LISTENERS ---------------- //
+	// ---------------------------------------------- //
+	
+	@Override
 	protected Dialog onCreateDialog(int dialogId) {
 		switch(dialogId) {
 		case DIALOG_ABOUT:
 			return new AlertDialog.Builder(this)
 				.setMessage(R.string.about_message)
+				.setNeutralButton(android.R.string.ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}})
 				.create();
 		default:
 			return super.onCreateDialog(dialogId);
@@ -83,6 +139,10 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		"default_post_font_size" 
 		};
 	
+	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
+		"orientation"
+	};
+	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_INT) {
@@ -90,23 +150,23 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 				findPreference(key).setSummary(String.valueOf(prefs.getInt(key, 0)));
 			}
 		}
+		
+		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
+			if(valueSummaryKey.equals(key)) {
+				ListPreference p = (ListPreference) findPreference(key);
+				p.setSummary(p.getEntry());
+			}
+		}
 	}
 	
-	@Override
-	public void onResume() {
-		super.onResume();
-		
+	private void setSummaries() {
 		for(String key : VALUE_SUMMARY_KEYS_INT) {
 			findPreference(key).setSummary(String.valueOf(mPrefs.getInt(key, 0)));
 		}
-		
-		mPrefs.registerOnSharedPreferenceChangeListener(this);
+		for(String key : VALUE_SUMMARY_KEYS_LIST) {
+			ListPreference p = (ListPreference) findPreference(key);
+			p.setSummary(p.getEntry());
+		}
 	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();
-		
-		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-	}
+
 }
