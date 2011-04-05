@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dip"
         android:layout_marginRight="4dip"
+        android:src="@drawable/sticky"
         />
 	<RelativeLayout
 		android:layout_width="fill_parent"
