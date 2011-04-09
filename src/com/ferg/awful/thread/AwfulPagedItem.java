@@ -37,30 +37,32 @@ import com.ferg.awful.constants.Constants;
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";
 
-	private static final String CURRENT_PAGE = "//span[@class='curpage']";
-	private static final String LAST_PAGE    = "//a[@class='pagenumber']";
+	//private static final String CURRENT_PAGE = "//span[@class='curpage']";
+	//private static final String LAST_PAGE    = "//a[@class='pagenumber']";
 
 	private int mCurrentPage;
 	private int mLastPage;
 
 	public void parsePageNumbers(TagNode aForum) throws Exception {
-		Object[] nodeList = aForum.evaluateXPath(CURRENT_PAGE);
-		if (nodeList.length > 0) {
-			mCurrentPage = Integer.parseInt(((TagNode) nodeList[0]).getText().toString());
+		//Object[] nodeList = aForum.evaluateXPath(CURRENT_PAGE);
+		TagNode[] tarCurrentPage = aForum.getElementsByAttValue("class", "curpage", true, true);
+		if (tarCurrentPage.length > 0) {
+			mCurrentPage = Integer.parseInt(tarCurrentPage[0].getText().toString());
 		}
 
-		nodeList = aForum.evaluateXPath(LAST_PAGE);
-		if (nodeList.length > 0) {
+		//nodeList = aForum.evaluateXPath(LAST_PAGE);
+		TagNode[] tarLastPage = aForum.getElementsByAttValue("class", "pagenumber", true, true);
+		if (tarLastPage.length > 0) {
 			// We'll look at the last link in the page bar first. If it has the "next page"
 			// title attribute, we'll go back one to grab the highest direct page number. Otherwise
 			// we'll be looking at the Last link, and we can parse out the page number from there.
-			int index = nodeList.length - 1;
+			int index = tarLastPage.length - 1;
 
-			TagNode node = (TagNode) nodeList[index];
+			TagNode node = tarLastPage[index];
 			if (node.hasAttribute("title")) {
 				if (!node.getAttributeByName("title").equals("last page")) {
 					Log.i(TAG, "Next button!");
-					node = (TagNode) nodeList[index - 1];
+					node = tarLastPage[index - 1];
 				}
 			}
 

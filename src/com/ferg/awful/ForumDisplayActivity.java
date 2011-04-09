@@ -227,6 +227,7 @@ public class ForumDisplayActivity extends AwfulActivity {
         }
 
         public ArrayList<AwfulThread> doInBackground(String... aParams) {
+        	long time = System.currentTimeMillis();
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
             if (!isCancelled()) {
@@ -255,7 +256,8 @@ public class ForumDisplayActivity extends AwfulActivity {
                     Log.i(TAG, e.toString());
                 }
             }
-            
+
+            Log.e(TAG, "Total Process Time: "+(System.currentTimeMillis()-time));
             return result;
         }
 
