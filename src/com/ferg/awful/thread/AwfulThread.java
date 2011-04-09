@@ -123,14 +123,14 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
+		long startTime = System.currentTimeMillis();
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-        Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
-
-        for (Object current : threadObjects) {
+        //Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
+        TagNode[] threads = aResponse.getElementsByAttValue("class", "thread", true, true);
+		for(TagNode node : threads){
             AwfulThread thread = new AwfulThread();
-            TagNode node = (TagNode) current;
-
+            
             try {
                 String threadId = node.getAttributeByName("id");
                 thread.setThreadId(threadId.replaceAll("thread", ""));
@@ -139,27 +139,29 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                 e.printStackTrace();
                 continue;
             }
-
-                Object[] nodeList = node.evaluateXPath(THREAD_TITLE);
-                if (nodeList.length > 0) {
-                    thread.setTitle(((TagNode) nodeList[0]).getText().toString().trim());
+            	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
+            	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
+                Object[] nodeList;// = node.evaluateXPath(THREAD_TITLE);
+                if (tarThread.length > 0) {
+                    thread.setTitle(((TagNode) tarThread[0]).getText().toString().trim());
                 }
 
-                nodeList = node.evaluateXPath(THREAD_STICKY);
-                if (nodeList.length > 0) {
+                TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
+                if (tarSticky.length > 0) {
                     thread.setSticky(true);
                 } else {
                     thread.setSticky(false);
                 }
 
-                nodeList = node.evaluateXPath(THREAD_ICON);
-                if (nodeList.length > 0) {
-                    thread.setIcon(((TagNode) nodeList[0]).getAttributeByName("src"));
+                //nodeList = node.evaluateXPath(THREAD_ICON);
+                TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
+                if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
+                    thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
                 }
 
-                nodeList = node.evaluateXPath(THREAD_AUTHOR);
-                if (nodeList.length > 0) {
-                    TagNode authorNode = (TagNode) nodeList[0];
+                //nodeList = node.evaluateXPath(THREAD_AUTHOR);
+                if (tarUser.length > 0) {
+                    TagNode authorNode = (TagNode) tarUser[0];
 
                     // There's got to be a better way to do this
                     authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
@@ -167,10 +169,11 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                     thread.setAuthor(authorNode.getText().toString().trim());
                 }
 
-                nodeList = node.evaluateXPath(UNREAD_POSTS);
-                if (nodeList.length > 0) {
+                //nodeList = node.evaluateXPath(UNREAD_POSTS);
+                TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
+                if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
                     thread.setUnreadCount(Integer.parseInt(
-                                ((TagNode) nodeList[0]).getText().toString().trim()));
+                    		tarCount[0].getChildTags()[0].getText().toString().trim()));
                 } else {
 					nodeList = node.evaluateXPath(UNREAD_UNDO);
 					if (nodeList.length > 0) {
@@ -182,7 +185,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
                 result.add(thread);
         }
-
+        Log.e("AwfulThread", "Process Time: "+(System.currentTimeMillis()-startTime));
         return result;
     }
 
