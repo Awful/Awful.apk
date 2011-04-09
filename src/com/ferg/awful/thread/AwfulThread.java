@@ -43,17 +43,17 @@ import com.ferg.awful.network.NetworkUtils;
 public class AwfulThread extends AwfulPagedItem implements Parcelable {
     private static final String TAG = "AwfulThread";
 
-    private static final String THREAD_ROW      = "//table[@id='forum']//tr";
-    private static final String THREAD_SEEN_ROW = "//tr[@class='thread']";
-    private static final String THREAD_TITLE    = "//a[@class='thread_title']";
-    private static final String THREAD_STICKY   = "//td[@class='title title_sticky']";
-    private static final String THREAD_ICON     = "//td[@class='icon']/img";
-    private static final String THREAD_AUTHOR   = "//td[@class='author']/a";
-    private static final String UNREAD_POSTS    = "//a[@class='count']//b";
-    private static final String UNREAD_UNDO     = "//a[@class='x']";
-	private static final String CURRENT_PAGE    = "//span[@class='curpage']";
-	private static final String LAST_PAGE       = "//a[@class='pagenumber']";
-    private static final String ALT_TITLE       = "//a[@class='bclast']";
+    //private static final String THREAD_ROW      = "//table[@id='forum']//tr";
+    //private static final String THREAD_SEEN_ROW = "//tr[@class='thread']";
+    //private static final String THREAD_TITLE    = "//a[@class='thread_title']";
+    //private static final String THREAD_STICKY   = "//td[@class='title title_sticky']";
+    //private static final String THREAD_ICON     = "//td[@class='icon']/img";
+    //private static final String THREAD_AUTHOR   = "//td[@class='author']/a";
+    //private static final String UNREAD_POSTS    = "//a[@class='count']//b";
+    //private static final String UNREAD_UNDO     = "//a[@class='x']";
+	//private static final String CURRENT_PAGE    = "//span[@class='curpage']";
+	//private static final String LAST_PAGE       = "//a[@class='pagenumber']";
+    //private static final String ALT_TITLE       = "//a[@class='bclast']";
 
     private String mThreadId;
     private String mTitle;
@@ -175,8 +175,9 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                     thread.setUnreadCount(Integer.parseInt(
                     		tarCount[0].getChildTags()[0].getText().toString().trim()));
                 } else {
-					nodeList = node.evaluateXPath(UNREAD_UNDO);
-					if (nodeList.length > 0) {
+                	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
+					//nodeList = node.evaluateXPath(UNREAD_UNDO);
+					if (tarXCount.length > 0) {
 						thread.setUnreadCount(0);
 					} else {
 						thread.setUnreadCount(-1);
@@ -208,10 +209,11 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         // If we got here from ChromeToPhone the title hasn't been parsed yet,
         // so grab that now
         if (mTitle == null) {
-            Object[] titleObject = response.evaluateXPath(ALT_TITLE);
+        	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
+            //Object[] titleObject = response.evaluateXPath(ALT_TITLE);
 
-            if (titleObject.length > 0) {
-                mTitle = ((TagNode) titleObject[0]).getText().toString().trim();
+            if (tarTitle.length > 0) {
+                mTitle = tarTitle[0].getText().toString().trim();
                 Log.i(TAG, mTitle);
             }
         }
