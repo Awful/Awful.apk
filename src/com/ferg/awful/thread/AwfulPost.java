@@ -425,7 +425,6 @@ public class AwfulPost {
                 }*/
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
-                Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
                 result.add(post);
             }
 
@@ -435,6 +434,7 @@ public class AwfulPost {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
 
         return result;
     }
