@@ -127,8 +127,9 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
         //Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
-        TagNode[] threads = aResponse.getElementsByAttValue("class", "thread", true, true);
-		for(TagNode node : threads){
+        TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
+        TagNode[] tbody = threads[0].getElementsByName("tbody", false);
+		for(TagNode node : tbody[0].getChildTags()){
             AwfulThread thread = new AwfulThread();
             
             try {
