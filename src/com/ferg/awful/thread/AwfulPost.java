@@ -283,7 +283,7 @@ public class AwfulPost {
 						if(links.length >0){
 							String href = links[0].getAttributeByName("href").trim();
 							post.setUserId(href.substring(href.lastIndexOf("rid=")+4));
-							Log.e("ProcThread","userid: "+href.substring(href.lastIndexOf("rid=")+4));
+							//Log.e("ProcThread","userid: "+href.substring(href.lastIndexOf("rid=")+4));
 							for (TagNode linkNode : links) {
 			                	String link = linkNode.getText().toString();
 			                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
