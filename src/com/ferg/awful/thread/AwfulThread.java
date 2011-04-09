@@ -123,10 +123,8 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
-		long startTime = System.currentTimeMillis();
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
 
-        //Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         TagNode[] tbody = threads[0].getElementsByName("tbody", false);
 		for(TagNode node : tbody[0].getChildTags()){
@@ -142,7 +140,6 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
             }
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
-                Object[] nodeList;// = node.evaluateXPath(THREAD_TITLE);
                 if (tarThread.length > 0) {
                     thread.setTitle(((TagNode) tarThread[0]).getText().toString().trim());
                 }
@@ -154,30 +151,23 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                     thread.setSticky(false);
                 }
 
-                //nodeList = node.evaluateXPath(THREAD_ICON);
                 TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
                 if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
                     thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
                 }
 
-                //nodeList = node.evaluateXPath(THREAD_AUTHOR);
                 if (tarUser.length > 0) {
-                    //TagNode authorNode = (TagNode) tarUser[0];
-
                     // There's got to be a better way to do this
-                    //authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
-
+                	//heh.
                     thread.setAuthor(tarUser[0].getText().toString().trim());
                 }
 
-                //nodeList = node.evaluateXPath(UNREAD_POSTS);
                 TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
                 if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
                     thread.setUnreadCount(Integer.parseInt(
                     		tarCount[0].getChildTags()[0].getText().toString().trim()));
                 } else {
                 	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
-					//nodeList = node.evaluateXPath(UNREAD_UNDO);
 					if (tarXCount.length > 0) {
 						thread.setUnreadCount(0);
 					} else {
@@ -187,7 +177,6 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
                 result.add(thread);
         }
-        Log.e("AwfulThread", "Process Time: "+(System.currentTimeMillis()-startTime));
         return result;
     }
 
@@ -211,7 +200,6 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         // so grab that now
         if (mTitle == null) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
-            //Object[] titleObject = response.evaluateXPath(ALT_TITLE);
 
             if (tarTitle.length > 0) {
                 mTitle = tarTitle[0].getText().toString().trim();

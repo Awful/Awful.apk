@@ -55,8 +55,8 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
 	public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
 	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
-	private static final String FORUM_TITLE = "//a[@class='forum']";
-    private static final String SUBFORUM    = "//div[@class='subforums']//a";
+	//private static final String FORUM_TITLE = "//a[@class='forum']";
+    //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
 	private String mTitle;
 	private String mForumId;
@@ -124,7 +124,6 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
     }
 
 	private static ArrayList<AwfulForum> getForumsFromRemote(Context aContext) throws Exception {
-		long time = System.currentTimeMillis();
 		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
         TagNode response = NetworkUtils.get(Constants.BASE_URL);
@@ -136,9 +135,9 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
 			TagNode node = (TagNode) current;
 
             // First, grab the parent forum
-            Object[] nodeList = node.evaluateXPath(FORUM_TITLE);
-            if (nodeList.length > 0) {
-                TagNode parentForum = (TagNode) nodeList[0];
+			TagNode[] title = node.getElementsByName("a", true);
+            if (title.length > 0) {
+                TagNode parentForum = title[0];
                 forum.setTitle(parentForum.getText().toString());
 
                 // Just nix the part we don't need to get the forum ID
@@ -149,12 +148,12 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
             }
 
             // Now grab the subforums
-            nodeList = node.evaluateXPath(SUBFORUM);
-            if (nodeList.length > 0) {
-                for (Object obj : nodeList) {
+            // we will see if the prior search found more than one link under the forum row, indicating subforums
+            if (title.length > 1) {
+                for (int x=1;x<title.length;x++) {
                     AwfulSubforum subforum = new AwfulSubforum();
 
-                    TagNode subNode = (TagNode) obj;
+                    TagNode subNode = title[x];
 
                     String id = subNode.getAttributeByName("href");
 
@@ -172,7 +171,6 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
             
             result.add(forum);
         }
-        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
 		return result;
 	}
 
