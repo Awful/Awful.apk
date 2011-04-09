@@ -161,12 +161,12 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
                 //nodeList = node.evaluateXPath(THREAD_AUTHOR);
                 if (tarUser.length > 0) {
-                    TagNode authorNode = (TagNode) tarUser[0];
+                    //TagNode authorNode = (TagNode) tarUser[0];
 
                     // There's got to be a better way to do this
-                    authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
+                    //authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
 
-                    thread.setAuthor(authorNode.getText().toString().trim());
+                    thread.setAuthor(tarUser[0].getText().toString().trim());
                 }
 
                 //nodeList = node.evaluateXPath(UNREAD_POSTS);

@@ -124,6 +124,7 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
     }
 
 	private static ArrayList<AwfulForum> getForumsFromRemote(Context aContext) throws Exception {
+		long time = System.currentTimeMillis();
 		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 
         TagNode response = NetworkUtils.get(Constants.BASE_URL);
@@ -171,7 +172,7 @@ public class AwfulForum extends AwfulSubforum implements Parcelable {
             
             result.add(forum);
         }
-
+        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
 		return result;
 	}
 
