@@ -41,7 +41,7 @@ import com.ferg.awful.network.NetworkUtils;
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
 
-    private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
+    /*private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
     private static final String MOD_SEARCH      = "//dt[@class='author role-mod']|//dt[@class='author role-mod op']";
     private static final String ADMIN_SEARCH    = "//dt[@class='author role-admin']|//dt[@class='author role-admin op']";
 
@@ -62,6 +62,7 @@ public class AwfulPost {
 	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
+    */
 	
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
@@ -235,7 +236,6 @@ public class AwfulPost {
     }
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
-		long time = System.currentTimeMillis();
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties properties = cleaner.getProperties();
@@ -245,7 +245,6 @@ public class AwfulPost {
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
-            //Object[] postNodes = aThread.evaluateXPath(POST);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             for (TagNode node : postNodes) {
 				
@@ -255,16 +254,12 @@ public class AwfulPost {
                 // a ton of them
                 String id = node.getAttributeByName("id");
                 post.setId(id.replaceAll("post", ""));
-
-                //Object[] nodeList = node.evaluateXPath(POST_DATE);
+                
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
 					if(pc.getAttributeByName("class").contains("author")){
 						post.setUsername(pc.getText().toString().trim());
 					}
-					//if(pc.getAttributeByName("class").equalsIgnoreCase("registered")){
-					//	regdate = pc.getText().toString().trim();
-					//}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
 						post.setAvatar(pc.getChildTags()[0].getAttributeByName("src"));
 					}
@@ -283,7 +278,6 @@ public class AwfulPost {
 						if(links.length >0){
 							String href = links[0].getAttributeByName("href").trim();
 							post.setUserId(href.substring(href.lastIndexOf("rid=")+4));
-							//Log.e("ProcThread","userid: "+href.substring(href.lastIndexOf("rid=")+4));
 							for (TagNode linkNode : links) {
 			                	String link = linkNode.getText().toString();
 			                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
@@ -304,137 +298,29 @@ public class AwfulPost {
 						post.setEdited("<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
 				}
-                /*if (POST_DATE.length > 0) {
-                    TagNode dateNode = (TagNode) nodeList[0];
-
-                    String lastRead = dateNode.getChildTags()[0].getAttributeByName("href");
-                    post.setLastReadUrl(lastRead.replaceAll("&amp;", "&"));
-
-                    Log.i(TAG, lastRead.replaceAll("&amp;", "&"));
-
-                    // There's got to be a better way to do this
-                    dateNode.removeChild(dateNode.findElementHavingAttribute("href", false));
-                    dateNode.removeChild(dateNode.findElementHavingAttribute("href", false));
-                    dateNode.removeChild(dateNode.findElementHavingAttribute("href", false));
-
-                    post.setDate(dateNode.getText().toString().trim());
-                }*/
                 
-                // The poster's userid is embedded in the class string...
-                /*nodeList = node.evaluateXPath(USERINFO);
-                if (nodeList.length > 0) {
-                	String classAttr = ((TagNode) nodeList[0]).getAttributeByName("class");
-                	String userid = classAttr.substring(USERINFO_PREFIX.length());
-                	post.setUserId(userid);
-                }*/
-                
-
-				// Assume it's a post by a normal user first
-                /*nodeList = node.evaluateXPath(USERNAME);
-                if (nodeList.length > 0) {
-                    post.setUsername(((TagNode) nodeList[0]).getText().toString());
-                }*/
-
-				// If we didn't get a username, try for an OP
-				/*if (post.getUsername() == null) {
-					nodeList = node.evaluateXPath(OP);
-					if (nodeList.length > 0) {
-						post.setUsername(((TagNode) nodeList[0]).getText().toString());
-					}
-				}
-
-				// Not an OP? Maybe it's a mod
-				if (post.getUsername() == null) {
-					nodeList = node.evaluateXPath(MOD);
-					if (nodeList.length > 0) {
-						post.setUsername(((TagNode) nodeList[0]).getText().toString());
-					}
-				}
-
-				// If it's not a mod, it's probably an admin
-				if (post.getUsername() == null) {
-					nodeList = node.evaluateXPath(ADMIN);
-					if (nodeList.length > 0) {
-						post.setUsername(((TagNode) nodeList[0]).getText().toString());
-					}
-				}*/
-
-				// If we haven't yet found the last read post then check if
-				// this post has "last read" color highlighting. If it doesn't,
-				// it's the first unread post for the page.
-				/*if (!lastReadFound) {
-					nodeList = node.evaluateXPath(SEEN1);
-					if (nodeList.length > 0) {
-						post.setPreviouslyRead(true);
-					} else {
-						nodeList = node.evaluateXPath(SEEN2);
-						if (nodeList.length > 0) {
-							post.setPreviouslyRead(true);
-						}
-					}
-
-					if (!post.isPreviouslyRead()) {
-						post.setLastRead(true);
-						lastReadFound = true;
-					}
-				}*/
 				post.setEven(even); // even/uneven post for alternating colors
 				even = !even;
 				
 				
-                /*nodeList = node.evaluateXPath(AVATAR);
-                if (nodeList.length > 0) {
-                    post.setAvatar(((TagNode) nodeList[0]).getAttributeByName("src"));
-                }*/
-				
-                /*nodeList = node.evaluateXPath(SEEN_LINK);
-                if (nodeList.length > 0) {
-                    Log.i(TAG, ((TagNode) nodeList[0]).getAttributeByName("href"));
-                    post.setLastReadUrl(((TagNode) nodeList[0]).getAttributeByName("href"));
-                }*/
-
-                /*nodeList = node.evaluateXPath(EDITED);
-                if (nodeList.length > 0) {
-                    post.setEdited("<i>" + ((TagNode) nodeList[0]).getText().toString() + "</i>");
-                }*/
-
-				Object[] editnodeList = node.evaluateXPath(EDITABLE);
-                if (editnodeList.length > 0) {
+                
+				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
+                if (editImgs.length > 0) {
                     Log.i(TAG, "Editable!");
                     post.setEditable(true);
                 } else {
                     post.setEditable(false);
                 }
 
-                /*nodeList = node.evaluateXPath(POSTBODY);
-                if (nodeList.length > 0) {
-                    SimpleHtmlSerializer serializer = 
-                        new SimpleHtmlSerializer(cleaner.getProperties());
-
-                    post.setContent(serializer.getAsString((TagNode) nodeList[0]));
-                }*/
-                
-                // We know how to make the links, but we need to note what links are active for the poster
-                /*nodeList = node.evaluateXPath(PROFILE_LINKS);
-                for (Object linkNode : nodeList) {
-                	String link = ((TagNode) linkNode).getText().toString();
-                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
-                	else if(link.equals(LINK_MESSAGE))      post.setHasMessageLink(true);
-                	else if(link.equals(LINK_POST_HISTORY)) post.setHasPostHistoryLink(true);
-                	// Rap sheet is actually filled in by javascript for some stupid reason
-                }*/
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
                 result.add(post);
             }
 
             Log.i(TAG, Integer.toString(postNodes.length));
-        } catch (XPatherException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
 
         return result;
     }

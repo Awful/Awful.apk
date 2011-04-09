@@ -532,7 +532,6 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPref
         }
 
         public AwfulThread doInBackground(AwfulThread... aParams) {
-        	long time = System.currentTimeMillis();
             if (!isCancelled()) {
                 try {
                     if (mPage == 0) {
@@ -551,7 +550,6 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPref
                     Log.i(TAG, e.toString());
                 }
             }
-            Log.e(TAG, "Total Thread Time :"+(System.currentTimeMillis()-time));
 
             return aParams[0];
         }
