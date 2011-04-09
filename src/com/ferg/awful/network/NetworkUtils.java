@@ -165,6 +165,7 @@ public class NetworkUtils {
     }
 
 	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
+		long time = System.currentTimeMillis();
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
 
@@ -175,13 +176,14 @@ public class NetworkUtils {
         HttpResponse httpResponse = sHttpClient.execute(httpGet);
 
         HttpEntity entity = httpResponse.getEntity();
+        Log.e(TAG, "Process Time (DL): "+ (System.currentTimeMillis() - time));
 
         if (entity != null) {
             response = sCleaner.clean(new InputStreamReader(entity.getContent()));
         }
         
         Log.i(TAG, "Fetched "+ aUrl + parameters);
-		
+        Log.e(TAG, "Process Time (DL+Clean): "+ (System.currentTimeMillis() - time));
         return response;
 	}
 

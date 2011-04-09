@@ -235,6 +235,7 @@ public class AwfulPost {
     }
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
+		long time = System.currentTimeMillis();
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties properties = cleaner.getProperties();
@@ -377,7 +378,7 @@ public class AwfulPost {
                 }
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
-
+                Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
                 result.add(post);
             }
 

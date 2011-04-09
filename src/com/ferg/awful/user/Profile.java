@@ -58,6 +58,7 @@ public class Profile {
     }
 
     public static Profile withId(String aUserId) {
+		long time = System.currentTimeMillis();
         Profile result = new Profile();
 
         HashMap<String, String> params = new HashMap<String, String>();
@@ -98,7 +99,7 @@ public class Profile {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
         return result;
     }
 }
