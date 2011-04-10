@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import android.support.v4.app.FragmentActivity;
+
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
  * class should avoid implementing things directly; the ActivityConfigurator does that job.
@@ -14,7 +16,7 @@ import android.preference.PreferenceManager;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends Activity {
+public class AwfulActivity extends FragmentActivity {
 	private ActivityConfigurator mConf;
 	
 	@Override

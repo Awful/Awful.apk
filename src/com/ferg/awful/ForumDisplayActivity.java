@@ -190,11 +190,6 @@ public class ForumDisplayActivity extends AwfulActivity {
     	}
     }
 
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return mThreadAdapter.getThreads();
-    }
-
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {

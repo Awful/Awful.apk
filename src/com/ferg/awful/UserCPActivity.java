@@ -175,11 +175,6 @@ public class UserCPActivity extends AwfulActivity {
         return true;
     }
 
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return mAdapter.getThreads();
-    }
-
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {

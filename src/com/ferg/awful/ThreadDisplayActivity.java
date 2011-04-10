@@ -333,13 +333,6 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPref
 
         return false;
     }
-
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        final AwfulThread currentThread = mThread;
-
-        return currentThread;
-    }
     
     @Override
     protected void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
