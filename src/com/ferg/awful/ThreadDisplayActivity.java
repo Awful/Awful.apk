@@ -281,6 +281,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnSharedPref
                         })
                     .setNegativeButton("Cancel", null)
                     .show();
+                break;
 			case R.id.refresh:
 				mFetchTask = new FetchThreadTask(true);
 				mFetchTask.execute(mThread);
