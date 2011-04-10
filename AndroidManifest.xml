@@ -55,6 +55,7 @@
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"
+            android:clearTaskOnLaunch="true"
             />
         <activity 
             android:name="PostReplyActivity"
