@@ -28,6 +28,8 @@
 package com.ferg.awful.thread;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
@@ -64,6 +66,8 @@ public class AwfulPost {
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
 	
+    private static final Pattern fixNewline = Pattern.compile("[\\n\\r\\f\\a\\e]");
+    
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
     private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
@@ -264,8 +268,7 @@ public class AwfulPost {
 						post.setAvatar(pc.getChildTags()[0].getAttributeByName("src"));
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
-						
-	                    post.setContent(serializer.getAsString(pc));
+	                    post.setContent(fixNewline.matcher(serializer.getAsString(pc)).replaceAll(""));
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postdate")){//done
 						if(pc.getChildTags().length>0){
