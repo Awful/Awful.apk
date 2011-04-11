@@ -264,8 +264,8 @@ public class AwfulPost {
 					if(pc.getAttributeByName("class").contains("author")){
 						post.setUsername(pc.getText().toString().trim());
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
-						post.setAvatar(pc.getChildTags()[0].getAttributeByName("src"));
+					if(pc.getAttributeByName("class").equalsIgnoreCase("img")){
+						post.setAvatar(pc.getAttributeByName("src"));
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
 	                    post.setContent(fixNewline.matcher(serializer.getAsString(pc)).replaceAll(""));
