@@ -66,7 +66,7 @@ public class AwfulPost {
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
 	
-    private static final Pattern fixNewline = Pattern.compile("[\\n\\r\\f\\a\\e]");
+    private static final Pattern fixNewline = Pattern.compile("[\\r\\f\\a\\e]");
     
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
