@@ -50,8 +50,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.CleanerTransformations;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagTransformation;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -255,6 +257,11 @@ public class NetworkUtils {
         }
 
         sCleaner = new HtmlCleaner();
+        CleanerTransformations ct = new CleanerTransformations();
+        ct.addTransformation(new TagTransformation("script"));
+        ct.addTransformation(new TagTransformation("meta"));
+        ct.addTransformation(new TagTransformation("head"));
+        sCleaner.setTransformations(ct);
         CleanerProperties properties = sCleaner.getProperties();
         properties.setOmitComments(true);
     }
