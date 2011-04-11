@@ -32,14 +32,6 @@
             style="@style/ActionBarButton"
             android:src="@drawable/gear"
             />
-        <ImageView 
-            style="@style/ActionBarSeparator" 
-            />
-        <ImageButton 
-            android:id="@+id/next_page"
-            style="@style/ActionBarButton"
-            android:src="@drawable/r_arrow"
-            />
     </LinearLayout>
 </RelativeLayout>
 </merge>
