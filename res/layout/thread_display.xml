@@ -14,7 +14,7 @@
 		android:layout_height="fill_parent"
 		>
 		<ListView
-			android:id="@+id/thread_posts"
+			android:id="@id/android:list"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
 			android:cacheColorHint="#f4f4f4"
