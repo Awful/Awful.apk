@@ -179,7 +179,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent()));
+            response = sCleaner.clean(entity.getContent());
         }
         
         Log.i(TAG, "Fetched "+ aUrl + parameters);
@@ -264,6 +264,7 @@ public class NetworkUtils {
         sCleaner.setTransformations(ct);
         CleanerProperties properties = sCleaner.getProperties();
         properties.setOmitComments(true);
+        properties.setRecognizeUnicodeChars(false);
     }
 
 	public static void logCookies() {
@@ -273,5 +274,9 @@ public class NetworkUtils {
 			Log.i(TAG, c.toString());
 		}
 		Log.i(TAG, "---END COOKIE DUMP---");
+	}
+
+	public static String getAsString(TagNode pc) {
+		return sCleaner.getInnerHtml(pc);
 	}
 }
