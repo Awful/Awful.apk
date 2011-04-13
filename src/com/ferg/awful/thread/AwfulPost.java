@@ -28,6 +28,8 @@
 package com.ferg.awful.thread;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.CleanerProperties;
@@ -65,8 +67,17 @@ public class AwfulPost {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-	
-    private static final Pattern fixNewline = Pattern.compile("[\\r\\f\\a\\e]");
+    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0094])");
+    private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
+    static {
+    	replaceMap.put("\u0091", "'");
+    	replaceMap.put("\u0092", "'");
+    	replaceMap.put("\u0093", "\"");
+    	replaceMap.put("\u0094", "\"");
+    	replaceMap.put("\n", "");
+    	replaceMap.put("\r", "");
+    	replaceMap.put("\f", "");
+    }
     
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
@@ -241,10 +252,6 @@ public class AwfulPost {
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-        HtmlCleaner cleaner = new HtmlCleaner();
-        CleanerProperties properties = cleaner.getProperties();
-        properties.setOmitComments(true);
-		SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
 
 		boolean lastReadFound = false;
 		boolean even = false;
@@ -271,7 +278,13 @@ public class AwfulPost {
 						}
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
-	                    post.setContent(fixNewline.matcher(serializer.getAsString(pc)).replaceAll(""));
+						StringBuffer fixedContent = new StringBuffer();
+						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						while(fixCharMatch.find()){
+							fixCharMatch.appendReplacement(fixedContent, replaceMap.get(fixCharMatch.group(1)));
+							}
+						fixCharMatch.appendTail(fixedContent);
+	                    post.setContent(fixedContent.toString());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postdate")){//done
 						if(pc.getChildTags().length>0){
@@ -309,9 +322,6 @@ public class AwfulPost {
                 
 				post.setEven(even); // even/uneven post for alternating colors
 				even = !even;
-				
-				
-                
 				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
                 if (editImgs.length > 0) {
                     Log.i(TAG, "Editable!");
