@@ -179,7 +179,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(entity.getContent());
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
         
         Log.i(TAG, "Fetched "+ aUrl + parameters);
@@ -200,7 +200,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent()));
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
 
 		return response;

@@ -72,7 +72,7 @@ public class AwfulPost {
     private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
     static {
     	replaceMap.put("\u0091", "'");
-    	replaceMap.put("\u0092", "\"");
+    	replaceMap.put("\u0092", "'");
     	replaceMap.put("\u0093", "\"");
     	replaceMap.put("\u0094", "\"");
     	replaceMap.put("\n", "");
@@ -288,8 +288,7 @@ public class AwfulPost {
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
 						while(fixCharMatch.find()){
 							fixCharMatch.appendReplacement(fixedContent, replaceMap.get(fixCharMatch.group(1)));
-							Log.e(TAG,"Replacing: "+fixCharMatch.group().codePointAt(0)+" with: "+replaceMap.get(fixCharMatch.group(1)).charAt(0));
-						}
+							}
 						fixCharMatch.appendTail(fixedContent);
 	                    post.setContent(fixedContent.toString());
 					}
