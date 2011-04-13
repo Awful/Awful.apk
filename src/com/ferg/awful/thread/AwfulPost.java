@@ -278,7 +278,7 @@ public class AwfulPost {
 						post.setUsername(pc.getText().toString().trim());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
-						TagNode[] avatar = pc.getElementsByAttValue("class", "img", true, true);
+						TagNode[] avatar = pc.getElementsByName("img", true);
 						if(avatar.length >0){
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}
@@ -315,10 +315,11 @@ public class AwfulPost {
 					if(pc.getAttributeByName("class").contains("seen") && !lastReadFound){
 						post.setPreviouslyRead(true);
 					}
-						if (!post.isPreviouslyRead()) {
-							post.setLastRead(true);
-							lastReadFound = true;
-						}
+
+                    if (!post.isPreviouslyRead()) {
+                        post.setLastRead(true);
+                        lastReadFound = true;
+                    }
 
 					if(pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length >0){
 						post.setEdited("<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
@@ -329,6 +330,7 @@ public class AwfulPost {
 				even = !even;
 				
 				
+                
 				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
                 if (editImgs.length > 0) {
                     Log.i(TAG, "Editable!");
