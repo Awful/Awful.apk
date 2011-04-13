@@ -67,13 +67,18 @@ public class AwfulPost {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0094])");
+    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0095\u0099\u0080\u0082\u0083])");
     private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
     static {
+    	replaceMap.put("\u0080", "\u20AC");
+    	replaceMap.put("\u0082", "\u201A");
+    	replaceMap.put("\u0083", "\u0192");
     	replaceMap.put("\u0091", "'");
     	replaceMap.put("\u0092", "'");
     	replaceMap.put("\u0093", "\"");
     	replaceMap.put("\u0094", "\"");
+    	replaceMap.put("\u0095", "\u2022");
+    	replaceMap.put("\u0099", "\u2122");
     	replaceMap.put("\n", "");
     	replaceMap.put("\r", "");
     	replaceMap.put("\f", "");
