@@ -249,7 +249,7 @@ public class AwfulPost {
 
         try {
             List<URI> redirects = new LinkedList<URI>();
-            TagNode response = NetworkUtils.getWithRedirects(Constants.BASE_URL
+            TagNode response = NetworkUtils.get(Constants.BASE_URL
                     + mLastReadUrl, redirects);
 
             int pti = -1;
