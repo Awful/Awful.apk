@@ -272,19 +272,15 @@ public class AwfulPost {
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-        //HtmlCleaner cleaner = new HtmlCleaner();
-        //CleanerProperties properties = cleaner.getProperties();
-        //properties.setOmitComments(true);
-        //properties.setRecognizeUnicodeChars(false);
-		//SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(properties);
 
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
+			boolean fyad = false;
             for (TagNode node : postNodes) {
-				
+            	//fyad status, to prevent processing postbody twice if we are in fyad
                 AwfulPost post = new AwfulPost();
 
                 // We'll just reuse the array of objects rather than create 
@@ -303,7 +299,17 @@ public class AwfulPost {
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
+					if(pc.getAttributeByName("class").contains("complete_shit")){
+						StringBuffer fixedContent = new StringBuffer();
+						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						while(fixCharMatch.find()){
+							fixCharMatch.appendReplacement(fixedContent, replaceMap.get(fixCharMatch.group(1)));
+							}
+						fixCharMatch.appendTail(fixedContent);
+	                    post.setContent(fixedContent.toString());
+	                    fyad = true;
+					}
+					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){ 
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
 						while(fixCharMatch.find()){
