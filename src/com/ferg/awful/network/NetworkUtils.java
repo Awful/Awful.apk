@@ -223,7 +223,7 @@ public class NetworkUtils {
 
         if (entity != null) {
             response = sCleaner
-                    .clean(new InputStreamReader(entity.getContent()));
+                    .clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
 
         Log.i(TAG, "Fetched " + location.toString());
