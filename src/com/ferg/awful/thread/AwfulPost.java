@@ -27,7 +27,12 @@
 
 package com.ferg.awful.thread;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.CleanerProperties;
@@ -229,9 +234,21 @@ public class AwfulPost {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
         try {
-            TagNode response = NetworkUtils.get(Constants.BASE_URL + mLastReadUrl);
-            
-            result = parsePosts(response);
+            List<URI> redirects = new LinkedList<URI>();
+            TagNode response = NetworkUtils.getWithRedirects(Constants.BASE_URL
+                    + mLastReadUrl, redirects);
+
+            int pti = -1;
+            if (redirects.size() > 1) {
+                String fragment = redirects.get(redirects.size() - 1)
+                        .getFragment();
+                if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
+                    pti = Integer.parseInt(
+                            fragment.substring(Constants.FRAGMENT_PTI.length()));
+                }
+            }
+
+            result = parsePosts(response, pti);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -239,7 +256,7 @@ public class AwfulPost {
         return result;
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties properties = cleaner.getProperties();
@@ -250,6 +267,7 @@ public class AwfulPost {
 		boolean even = false;
         try {
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
+            int index = 1;
             for (TagNode node : postNodes) {
 				
                 AwfulPost post = new AwfulPost();
@@ -293,7 +311,8 @@ public class AwfulPost {
 			                }
 						}
 					}
-					if(pc.getAttributeByName("class").contains("seen") && !lastReadFound){
+					if((pti != -1 && index < pti) ||
+					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}
 
@@ -323,8 +342,16 @@ public class AwfulPost {
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
                 result.add(post);
+                index++;
             }
 
+            // if there are zero unread posts the pti points to what the next post
+            // would be. a thread with 6 posts would have a pti of 7 
+            if (index == pti) {
+                result.get(result.size() - 1).setLastRead(true);
+                lastReadFound = true;
+            }
+            
             Log.i(TAG, Integer.toString(postNodes.length));
         } catch (Exception e) {
             e.printStackTrace();
