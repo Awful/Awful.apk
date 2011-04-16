@@ -27,9 +27,12 @@
 
 package com.ferg.awful.thread;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.CleanerProperties;
@@ -67,14 +70,18 @@ public class AwfulPost {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-	//\\n\\r\\f
-    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0094])");
+    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0095\u0099\u0080\u0082\u0083])");
     private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
     static {
+    	replaceMap.put("\u0080", "\u20AC");
+    	replaceMap.put("\u0082", "\u201A");
+    	replaceMap.put("\u0083", "\u0192");
     	replaceMap.put("\u0091", "'");
     	replaceMap.put("\u0092", "'");
     	replaceMap.put("\u0093", "\"");
     	replaceMap.put("\u0094", "\"");
+    	replaceMap.put("\u0095", "\u2022");
+    	replaceMap.put("\u0099", "\u2122");
     	replaceMap.put("\n", "");
     	replaceMap.put("\r", "");
     	replaceMap.put("\f", "");
@@ -241,9 +248,21 @@ public class AwfulPost {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
         try {
-            TagNode response = NetworkUtils.get(Constants.BASE_URL + mLastReadUrl);
-            
-            result = parsePosts(response);
+            List<URI> redirects = new LinkedList<URI>();
+            TagNode response = NetworkUtils.getWithRedirects(Constants.BASE_URL
+                    + mLastReadUrl, redirects);
+
+            int pti = -1;
+            if (redirects.size() > 1) {
+                String fragment = redirects.get(redirects.size() - 1)
+                        .getFragment();
+                if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
+                    pti = Integer.parseInt(
+                            fragment.substring(Constants.FRAGMENT_PTI.length()));
+                }
+            }
+
+            result = parsePosts(response, pti);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -251,7 +270,7 @@ public class AwfulPost {
         return result;
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         //HtmlCleaner cleaner = new HtmlCleaner();
         //CleanerProperties properties = cleaner.getProperties();
@@ -263,6 +282,7 @@ public class AwfulPost {
 		boolean even = false;
         try {
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
+            int index = 1;
             for (TagNode node : postNodes) {
 				
                 AwfulPost post = new AwfulPost();
@@ -278,7 +298,7 @@ public class AwfulPost {
 						post.setUsername(pc.getText().toString().trim());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
-						TagNode[] avatar = pc.getElementsByName("img", true);
+						TagNode[] avatar = pc.getElementsByAttValue("class", "img", true, true);
 						if(avatar.length >0){
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}
@@ -312,7 +332,8 @@ public class AwfulPost {
 			                }
 						}
 					}
-					if(pc.getAttributeByName("class").contains("seen") && !lastReadFound){
+					if((pti != -1 && index < pti) ||
+					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}
 
@@ -342,8 +363,16 @@ public class AwfulPost {
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
                 result.add(post);
+                index++;
             }
 
+            // if there are zero unread posts the pti points to what the next post
+            // would be. a thread with 6 posts would have a pti of 7 
+            if (index == pti) {
+                result.get(result.size() - 1).setLastRead(true);
+                lastReadFound = true;
+            }
+            
             Log.i(TAG, Integer.toString(postNodes.length));
         } catch (Exception e) {
             e.printStackTrace();
