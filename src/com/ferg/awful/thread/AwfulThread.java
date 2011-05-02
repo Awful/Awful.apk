@@ -124,7 +124,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 	}
 	
     public static TagNode getUserCPThreads() throws Exception {
-        return NetworkUtils.get(Constants.FUNCTION_USERCP, null);
+        return NetworkUtils.get(Constants.FUNCTION_USERCP, null, null);
 	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
@@ -200,7 +200,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         }
 
         List<URI> redirects = new LinkedList<URI>();
-        TagNode response = NetworkUtils.getWithRedirects(
+        TagNode response = NetworkUtils.get(
                 Constants.FUNCTION_THREAD, params, redirects);
 
         mPTI = -1;
