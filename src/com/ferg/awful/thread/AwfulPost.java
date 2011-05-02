@@ -27,7 +27,12 @@
 
 package com.ferg.awful.thread;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.CleanerProperties;
@@ -65,8 +70,18 @@ public class AwfulPost {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-	
-    private static final Pattern fixNewline = Pattern.compile("[\\r\\f\\a\\e]");
+	//\\n\\r\\f
+    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0094])");
+    private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
+    static {
+    	replaceMap.put("\u0091", "'");
+    	replaceMap.put("\u0092", "'");
+    	replaceMap.put("\u0093", "\"");
+    	replaceMap.put("\u0094", "\"");
+    	replaceMap.put("\n", "");
+    	replaceMap.put("\r", "");
+    	replaceMap.put("\f", "");
+    }
     
 	private static final String USERINFO_PREFIX = "userinfo userid-";
 
@@ -229,9 +244,21 @@ public class AwfulPost {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
         try {
-            TagNode response = NetworkUtils.get(Constants.BASE_URL + mLastReadUrl);
-            
-            result = parsePosts(response);
+            List<URI> redirects = new LinkedList<URI>();
+            TagNode response = NetworkUtils.get(Constants.BASE_URL
+                    + mLastReadUrl, redirects);
+
+            int pti = -1;
+            if (redirects.size() > 1) {
+                String fragment = redirects.get(redirects.size() - 1)
+                        .getFragment();
+                if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
+                    pti = Integer.parseInt(
+                            fragment.substring(Constants.FRAGMENT_PTI.length()));
+                }
+            }
+
+            result = parsePosts(response, pti);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -239,17 +266,19 @@ public class AwfulPost {
         return result;
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread) {
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-        HtmlCleaner cleaner = new HtmlCleaner();
-        CleanerProperties properties = cleaner.getProperties();
-        properties.setOmitComments(true);
-		SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+        //HtmlCleaner cleaner = new HtmlCleaner();
+        //CleanerProperties properties = cleaner.getProperties();
+        //properties.setOmitComments(true);
+        //properties.setRecognizeUnicodeChars(false);
+		//SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(properties);
 
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
+            int index = 1;
             for (TagNode node : postNodes) {
 				
                 AwfulPost post = new AwfulPost();
@@ -271,7 +300,13 @@ public class AwfulPost {
 						}
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
-	                    post.setContent(fixNewline.matcher(serializer.getAsString(pc)).replaceAll(""));
+						StringBuffer fixedContent = new StringBuffer();
+						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						while(fixCharMatch.find()){
+							fixCharMatch.appendReplacement(fixedContent, replaceMap.get(fixCharMatch.group(1)));
+							}
+						fixCharMatch.appendTail(fixedContent);
+	                    post.setContent(fixedContent.toString());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postdate")){//done
 						if(pc.getChildTags().length>0){
@@ -293,7 +328,8 @@ public class AwfulPost {
 			                }
 						}
 					}
-					if(pc.getAttributeByName("class").contains("seen") && !lastReadFound){
+					if((pti != -1 && index < pti) ||
+					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}
 
@@ -323,8 +359,16 @@ public class AwfulPost {
                 //it's always there though, so we can set it true without an explicit check
                 post.setHasRapSheetLink(true);
                 result.add(post);
+                index++;
             }
 
+            // if there are zero unread posts the pti points to what the next post
+            // would be. a thread with 6 posts would have a pti of 7 
+            if (index == pti) {
+                result.get(result.size() - 1).setLastRead(true);
+                lastReadFound = true;
+            }
+            
             Log.i(TAG, Integer.toString(postNodes.length));
         } catch (Exception e) {
             e.printStackTrace();

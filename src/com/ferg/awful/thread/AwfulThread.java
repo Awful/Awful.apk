@@ -27,15 +27,17 @@
 
 package com.ferg.awful.thread;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.htmlcleaner.TagNode;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
@@ -61,6 +63,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
     private boolean mSticky;
     private String mIcon;
     private int mUnreadCount;
+    private int mPTI;
     private ArrayList<AwfulPost> mPosts;
 
     public AwfulThread() {}
@@ -76,6 +79,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         mSticky      = aAwfulThread.readInt() == 1 ? true : false;
         mIcon        = aAwfulThread.readString();
         mUnreadCount = aAwfulThread.readInt();
+        mPTI         = aAwfulThread.readInt();
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -101,6 +105,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         aDestination.writeInt(mSticky ? 1 : 0);
         aDestination.writeString(mIcon);
         aDestination.writeInt(mUnreadCount);
+        aDestination.writeInt(mPTI);
     }
     
     public static TagNode getForumThreads(String aForumId) throws Exception {
@@ -119,7 +124,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 	}
 	
     public static TagNode getUserCPThreads() throws Exception {
-        return NetworkUtils.get(Constants.FUNCTION_USERCP, null);
+        return NetworkUtils.get(Constants.FUNCTION_USERCP, null, null);
 	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
@@ -192,9 +197,20 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
             params.put(Constants.PARAM_GOTO, "newpost");
         } else {
             params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        } 
+        }
 
-		TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
+        List<URI> redirects = new LinkedList<URI>();
+        TagNode response = NetworkUtils.get(
+                Constants.FUNCTION_THREAD, params, redirects);
+
+        mPTI = -1;
+        if (redirects.size() > 1) {
+            String fragment = redirects.get(redirects.size() - 1).getFragment();
+            if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
+                mPTI = Integer.parseInt(
+                        fragment.substring(Constants.FRAGMENT_PTI.length()));
+            }
+        }
 
         // If we got here from ChromeToPhone the title hasn't been parsed yet,
         // so grab that now
@@ -207,8 +223,8 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
             }
         }
 
-        setPosts(AwfulPost.parsePosts(response));
-		parsePageNumbers(response);
+        setPosts(AwfulPost.parsePosts(response, mPTI));
+        parsePageNumbers(response);
     }
 
     public String getThreadId() {

@@ -29,6 +29,7 @@ package com.ferg.awful.network;
 
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,6 +45,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -163,26 +165,96 @@ public class NetworkUtils {
     }
     
     public static TagNode get(String aUrl) throws Exception {
-        return get(aUrl, null);
+        return get(aUrl, null, null);
     }
 
 	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
+        return get(aUrl, aParams, null);
+	}
+	
+	public static TagNode get(String aUrl, List<URI> redirects) throws Exception {
+	    return get(aUrl, null, redirects);
+	}
+
+	public static TagNode get(String aUrl, HashMap<String, String> aParams,
+			List<URI> redirects) throws Exception {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
+        URI location = new URI(aUrl + parameters);
 
-		Log.i(TAG, "Fetching "+ aUrl + parameters);
+        Log.i(TAG, "Fetching " + location);
 
-        HttpGet httpGet = new HttpGet(aUrl + parameters);
+        HttpGet httpGet;
+        HttpResponse httpResponse;
 
-        HttpResponse httpResponse = sHttpClient.execute(httpGet);
+        if (redirects == null) {
+            httpGet = new HttpGet(location);
+            httpResponse = sHttpClient.execute(httpGet);
+        } else {
+            do {
+                httpGet = new HttpGet(location);
+                redirects.add(location);
+                HttpClientParams.setRedirecting(httpGet.getParams(), false);
+
+                httpResponse = sHttpClient.execute(httpGet);
+
+                if (httpResponse.containsHeader("location")) {
+                    location = location.resolve(httpResponse.getFirstHeader(
+                            "location").getValue());
+                    Log.i(TAG, "Redirecting to " + location);
+                }
+            } while (httpResponse.containsHeader("location"));
+        }
 
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent()));
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
         
-        Log.i(TAG, "Fetched "+ aUrl + parameters);
+        Log.i(TAG, "Fetched " + location);
+        return response;
+    }
+
+	public static TagNode getWithRedirects(String aUrl, List<URI> redirects)
+			throws Exception {
+		return getWithRedirects(aUrl, null, redirects);
+	}
+
+	public static TagNode getWithRedirects(String aUrl, HashMap<String, String> aParams,
+			List<URI> redirects) throws Exception {
+        TagNode response = null;
+        String parameters = getQueryStringParameters(aParams);
+
+        Log.i(TAG, "Fetching " + aUrl + parameters);
+
+        URI location = new URI(aUrl + parameters);
+
+        HttpGet httpGet;
+        HttpResponse httpResponse;
+
+        do {
+            httpGet = new HttpGet(location);
+            redirects.add(location);
+            HttpClientParams.setRedirecting(httpGet.getParams(), false);
+
+            httpResponse = sHttpClient.execute(httpGet);
+
+            if (httpResponse.containsHeader("location")) {
+                location = location.resolve(httpResponse.getFirstHeader(
+                        "location").getValue());
+                Log.i(TAG, "Redirecting to " + location.toString());
+            }
+        } while (httpResponse.containsHeader("location"));
+
+        HttpEntity entity = httpResponse.getEntity();
+
+        if (entity != null) {
+            response = sCleaner
+                    .clean(new InputStreamReader(entity.getContent()));
+        }
+
+        Log.i(TAG, "Fetched " + location.toString());
         return response;
 	}
 
@@ -200,7 +272,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent()));
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
 
 		return response;
@@ -264,6 +336,7 @@ public class NetworkUtils {
         sCleaner.setTransformations(ct);
         CleanerProperties properties = sCleaner.getProperties();
         properties.setOmitComments(true);
+        properties.setRecognizeUnicodeChars(false);
     }
 
 	public static void logCookies() {
@@ -273,5 +346,9 @@ public class NetworkUtils {
 			Log.i(TAG, c.toString());
 		}
 		Log.i(TAG, "---END COOKIE DUMP---");
+	}
+
+	public static String getAsString(TagNode pc) {
+		return sCleaner.getInnerHtml(pc);
 	}
 }

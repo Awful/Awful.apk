@@ -58,6 +58,8 @@ public class Constants {
     public static final String PARAM_PER_PAGE  = "perpage";
     public static final String PARAM_INDEX     = "index";
     public static final String PARAM_BOOKMARK  = "bookmark";
+    
+    public static final String FRAGMENT_PTI    = "pti";
 
     // Intent parameters
     public static final String FORUM     = "forum";
