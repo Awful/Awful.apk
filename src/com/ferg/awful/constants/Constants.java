@@ -71,6 +71,8 @@ public class Constants {
     public static final String PAGE      = "page";
     public static final String EDITING   = "editing";
 
+    public static final String FORM_KEY = "form_key";
+
     public static final String PREFERENCES = "prefs";
     
 	public static final String COOKIE_DOMAIN        = "forums.somethingawful.com";

@@ -40,8 +40,9 @@ import com.ferg.awful.network.NetworkUtils;
 public class Reply {
     private static final String TAG = "Reply";
 
-    private static final String FORMKEY = "//input[@name='formkey']";
-    private static final String QUOTE   = "//textarea[@name='message']";
+    private static final String FORMKEY    = "//input[@name='formkey']";
+    private static final String FORMCOOKIE = "//input[@name='form_cookie']";
+    private static final String QUOTE      = "//textarea[@name='message']";
 
     private static final String PARAM_ACTION      = "action";
     private static final String PARAM_THREADID    = "threadid";
@@ -56,7 +57,7 @@ public class Reply {
     private static final String VALUE_POSTID      = "";
     private static final String VALUE_FORM_COOKIE = "formcookie";
 
-    public static final TagNode edit(String aMessage, String aFormKey, String aThreadId, String aPostId) 
+    public static final TagNode edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -64,14 +65,14 @@ public class Reply {
         params.put(PARAM_THREADID, aThreadId);
         params.put(PARAM_POSTID, aPostId);
         params.put(PARAM_FORMKEY, aFormKey);
-        params.put(PARAM_FORM_COOKIE, VALUE_FORM_COOKIE);
+        params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
         params.put(PARAM_BOOKMARK, "yes");
 
         return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
     }
 
-    public static final TagNode post(String aMessage, String aFormKey, String aThreadId) 
+    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -79,7 +80,7 @@ public class Reply {
         params.put(PARAM_THREADID, aThreadId);
         params.put(PARAM_POSTID, VALUE_POSTID);
         params.put(PARAM_FORMKEY, aFormKey);
-        params.put(PARAM_FORM_COOKIE, VALUE_FORM_COOKIE);
+        params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
 
         return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
@@ -97,6 +98,23 @@ public class Reply {
         Object[] formkey = response.evaluateXPath(FORMKEY);
         if (formkey.length > 0) {
             result = ((TagNode) formkey[0]).getAttributeByName("value");
+        }
+
+        return result;
+    }
+
+    public static final String getFormCookie(String aThreadId) throws Exception {
+        String result = null;
+
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_ACTION, "newreply");
+        params.put(PARAM_THREADID, aThreadId);
+
+        TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
+
+        Object[] formCookie = response.evaluateXPath(FORMCOOKIE);
+        if (formCookie.length > 0) {
+            result = ((TagNode) formCookie[0]).getAttributeByName("value");
         }
 
         return result;
