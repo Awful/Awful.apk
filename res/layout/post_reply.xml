@@ -16,6 +16,7 @@
 		android:layout_above="@+id/submit_button"
 		android:singleLine="false"
         android:gravity="top"
+        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
 		/>
 	<Button
 		android:id="@id/submit_button"
