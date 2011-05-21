@@ -1,5 +1,7 @@
 package com.ferg.awful;
 
+import com.ferg.awful.network.NetworkUtils;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -25,7 +27,9 @@ public class ActivityConfigurator implements OnSharedPreferenceChangeListener {
 	
 	public void onCreate() {}
 	
-	public void onStart() {}
+	public void onStart() {
+		NetworkUtils.restoreLoginCookies(mActivity);
+	}
 	
 	public void onResume() {
 		setOrientation();
