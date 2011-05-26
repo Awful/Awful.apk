@@ -98,6 +98,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     // saw them
     private int mDefaultPostFontSize;
     private int mDefaultPostFontColor;
+    private int mDefaultPostBackgroundColor;
+    private int mReadPostBackgroundColor;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -108,7 +110,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         mTitle    = (TextView) result.findViewById(R.id.title);
         mNext     = (ImageButton) result.findViewById(R.id.next_page);
         mReply    = (ImageButton) result.findViewById(R.id.reply);
-
+        
+        
         return result;
     }
 
@@ -119,10 +122,16 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setHasOptionsMenu(true);
         setRetainInstance(true);
         
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        
+        
         mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
         mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
-
+        mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
+        
         registerForContextMenu(getListView());
 
 		mNext.setOnClickListener(onButtonClick);
@@ -188,6 +197,20 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     			Log.d(TAG, "invalidating (color)");
     			getListView().invalidateViews();    			
     		}
+    	} else if("default_post_background_color".equals(key)) {
+        	int newBackground = prefs.getInt(key, R.color.background);
+        	if(newBackground != mDefaultPostBackgroundColor) {
+        		mDefaultPostBackgroundColor = newBackground;
+        		Log.d(TAG, "invalidating (color)");
+        		getListView().invalidateViews(); 
+        	}   			
+        } else if("read_post_background_color".equals(key)) {
+           	int newReadBG = prefs.getInt(key, R.color.background_read);
+           	if(newReadBG != mReadPostBackgroundColor) {
+           		mReadPostBackgroundColor = newReadBG;
+           		Log.d(TAG, "invalidating (color)");
+           		getListView().invalidateViews();  
+           	}
     	} else if("use_large_scrollbar".equals(key)) {
     		setScrollbarType();
     	}
@@ -746,7 +769,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         
         @Override
         public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
-            View inflatedView = aConvertView;
+            
+            mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
+            mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
+            mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
+        	mReadPostBackgroundColor = mPrefs.getInt("read_post_background_color", getResources().getColor(R.color.background_read));
+        	
+        	View inflatedView = aConvertView;
             ViewHolder viewHolder = null;
             
             if (inflatedView == null) {
@@ -773,13 +802,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             // change background color of previously read posts
 
             if (current.isPreviouslyRead()) {
-            	if (current.isEven()) {
-            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
-            	} else {
-            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
-            	}
+            	viewHolder.postBody.setBackgroundColor(mReadPostBackgroundColor);
             } else {
-                viewHolder.postBody.setBackgroundColor(getResources().getColor(R.color.forums_gray));
+                viewHolder.postBody.setBackgroundColor(mDefaultPostBackgroundColor);
             }
             
             // Set up header quickactions

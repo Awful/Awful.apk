@@ -98,6 +98,9 @@ public class ForumDisplayFragment extends ListFragment {
 
         getListView().setOnScrollListener(new EndlessScrollListener());
         getListView().setOnItemClickListener(onThreadSelected);
+        getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+
 
         mForum = (AwfulSubforum) getActivity().getIntent().getParcelableExtra(Constants.FORUM);
         if(mForum == null) {

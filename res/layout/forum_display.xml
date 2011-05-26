@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="#f4f4f4"
+	android:background="@color/background"
     >
     <include
         layout="@layout/actionbar_forum"
@@ -15,6 +15,6 @@
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
         android:dividerHeight="1px"
-		android:cacheColorHint="#f4f4f4"
+		android:cacheColorHint="@color/background"
 		/>
 </LinearLayout>
