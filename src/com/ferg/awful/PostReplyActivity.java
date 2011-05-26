@@ -84,8 +84,9 @@ public class PostReplyActivity extends AwfulActivity {
 
         // If we're quoting a post, add it to the message box
         if (caller.hasExtra(Constants.QUOTE)) {
-            String quoteText = caller.getStringExtra(Constants.QUOTE);
-            mMessage.setText(quoteText.replaceAll("&quot;", "\""));
+            String quoteText = caller.getStringExtra(Constants.QUOTE).replaceAll("&quot;", "\"");
+            mMessage.setText(quoteText);
+	    mMessage.setSelection(quoteText.length());
         }
 
         mSubmit.setOnClickListener(onSubmitClick);
