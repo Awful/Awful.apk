@@ -27,18 +27,10 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,20 +38,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.support.v4.app.ListFragment;
 
-import org.htmlcleaner.TagNode;
-
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
-import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
@@ -124,42 +109,19 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     }
     
     @Override
-    public void onPause() {
-        super.onPause();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
+    public void onResume() {
+        super.onResume();
+        adapt.refresh();
     }
         
     @Override
     public void onStop() {
         super.onStop();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-       //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-       // if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
     }
     
     @Override

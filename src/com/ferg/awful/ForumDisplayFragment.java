@@ -80,30 +80,20 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         setRetainInstance(true);
 		
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        int id = getActivity().getIntent().getIntExtra(Constants.FORUM, 0);
+        String c2pForumID = null;
+        // we're receiving an intent from an outside link (say, ChromeToPhone). Let's check to see
+    	// if we have a URL from such a link.
+    	if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
+    		c2pForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
+    	}
+    	int id = getActivity().getIntent().getIntExtra(Constants.FORUM, 0);
+    	if(c2pForumID != null){
+    		id = Integer.parseInt(c2pForumID);
+    	}
         adapt = ((ForumDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, id, this);
         setListAdapter(adapt);
-
         //getListView().setOnScrollListener(new EndlessScrollListener());
         getListView().setOnItemClickListener(onThreadSelected);
-
-        //TODO mForum = (AwfulForum) getActivity().getIntent().getParcelableExtra(Constants.FORUM);
-        //if(mForum == null) {
-        	// This is normally a failure condition, except if we're receiving an
-        	// intent from an outside link (say, ChromeToPhone). Let's check to see
-        	// if we have a URL from such a link.
-        	/*if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-        		mForum = new AwfulForum();
-        		//TODO mForum.setForumId(getActivity().getIntent().getData().getQueryParameter("forumid"));
-        	} else {
-        		// no dice
-        		Log.e(TAG, "Cannot display null forum");
-        		getActivity().finish();
-        	}*/
-        //}
-        
-        // We might not be able to set this here if we're getting it from
-        // a link and not a ForumsIndexActivity
         if(adapt.getTitle() != null) {
         	mTitle.setText(Html.fromHtml(adapt.getTitle()));
         }
@@ -138,7 +128,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         //   mFetchTask.cancel(true);
         //}
     }
-        
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapt.refresh();
+    }    
     @Override
     public void onStop() {
         super.onStop();

@@ -78,7 +78,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
 
     public AwfulThread(String aThreadId) {
-        mThreadId = aThreadId;
+    	setThreadId(aThreadId);
+    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
+    }
+    public AwfulThread(int aThreadId) {
+    	setThreadId(aThreadId+"");
     	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
     }
     
@@ -146,14 +150,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
                 if (tarUser.length > 0) {
                     // There's got to be a better way to do this
-                	//heh.
                     thread.setAuthor(tarUser[0].getText().toString().trim());
                 }
 
                 TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
                 if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
-                    thread.setUnreadCount(Integer.parseInt(
-                    		tarCount[0].getChildTags()[0].getText().toString().trim()));
+                    thread.setUnreadCount(Integer.parseInt(tarCount[0].getChildTags()[0].getText().toString().trim()));
                 } else {
                 	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
 					if (tarXCount.length > 0) {
@@ -271,6 +273,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
 
     public void setUnreadCount(int aUnreadCount) {
+		Log.e(TAG, "id "+getID()+ " aUnreadCount: "+aUnreadCount);
         mUnreadCount = aUnreadCount;
     }
 
@@ -352,11 +355,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		return mPosts.get(page).get(ix);
 	}
 	public int getLastReadPage() {
-		Log.e(TAG,"id: "+getID()+" lastread: "+((mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1));
+		if(getUnreadCount()==-1){
+			return 1;
+		}
+		Log.e(TAG,"PAGE id: "+getID()+" lastread: "+((mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1)+" tp: "+mTotalPosts+" up: "+mUnreadCount);
 		return (mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1;
 	}
 	public int getLastReadPost() {
-		Log.e(TAG,"id: "+getID()+" lastread: "+(mUnreadCount/Constants.ITEMS_PER_PAGE));
+		Log.e(TAG,"POST id: "+getID()+" lastread: "+(mUnreadCount/Constants.ITEMS_PER_PAGE));
 		return (mTotalPosts-mUnreadCount)%Constants.ITEMS_PER_PAGE;
 	}
 	public void setTotalCount(int postTotal) {

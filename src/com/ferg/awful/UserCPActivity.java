@@ -39,16 +39,19 @@ public class UserCPActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         service = new AwfulServiceConnection();
         setContentView(R.layout.user_cp_activity);
+		service.connect(this);
     }
 	public AwfulServiceConnection getServiceConnection(){
 		return service;
 	}
 	public void onResume(){
 		super.onResume();
-		service.connect(this);
 	}
 	public void onPause(){
 		super.onPause();
+	}
+	public void onDestroy(){
+		super.onDestroy();
 		service.disconnect(this);
 	}
 }

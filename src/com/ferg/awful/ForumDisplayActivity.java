@@ -30,6 +30,7 @@ package com.ferg.awful;
 import com.ferg.awful.service.AwfulServiceConnection;
 
 import android.os.Bundle;
+import android.util.Log;
 
 public class ForumDisplayActivity extends AwfulActivity {
 
@@ -40,6 +41,7 @@ public class ForumDisplayActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         service = new AwfulServiceConnection();
+		service.connect(this);
         setContentView(R.layout.forum_display_activity);
     }
 	public AwfulServiceConnection getServiceConnection(){
@@ -47,10 +49,12 @@ public class ForumDisplayActivity extends AwfulActivity {
 	}
 	public void onResume(){
 		super.onResume();
-		service.connect(this);
 	}
 	public void onPause(){
 		super.onPause();
+	}
+	public void onDestroy(){
+		super.onDestroy();
 		service.disconnect(this);
 	}
 }

@@ -116,13 +116,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			currentType = viewType;
 			mCallback = frag;
 			if(boundState){
-				loadPage(true, true);
+				loadPage(true);
 			}
 		}
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
 			Log.e(TAG, "connected()? "+currentId);
-			loadPage(true, true);
+			loadPage(true);
 		}
 		public void disconnected() {
 			if(mObserver != null){
@@ -130,7 +130,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 		}
 		public void dataUpdate() {
-			loadPage(false, true);
+			loadPage(false);
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
@@ -240,7 +240,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 
 		public void refresh() {
-			loadPage(true, false);
+			loadPage(true);
 		}
 
 		public void goToPage(int pageInt) {
@@ -255,10 +255,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 					tmp.setUnreadCount(tmp.getTotalCount()-(pageInt-1)*Constants.ITEMS_PER_PAGE);
 				}
 			}
+			lastReadLoaded = true;
 			currentPage = pageInt;
-			loadPage(true, false);
+			loadPage(true);
 		}
-		private void loadPage(boolean refresh, boolean getLastRead){
+		private void loadPage(boolean refresh){
+			if(!boundState || mService == null){
+				return;
+			}
 			switch(currentType){
 			case FORUM:
 				state = mService.getForum(currentId);
@@ -268,7 +272,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				break;
 			case THREAD:
 				state = mService.getThread(currentId);
-				if(state !=null && getLastRead && !lastReadLoaded){
+				if(state !=null && !lastReadLoaded){
+					Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
 					currentPage = state.getLastReadPage();
 					lastReadLoaded = true;
 				}

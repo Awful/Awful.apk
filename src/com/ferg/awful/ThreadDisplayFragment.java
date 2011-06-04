@@ -114,38 +114,22 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onStart() {
         super.onStart();
-        
-        //final AwfulThread retainedThread = null;
-
-        /*if (retainedThread == null || retainedThread.getPosts() == null) {
-            // We may be getting thread info from ChromeToPhone so handle that here
-            if (getActivity().getIntent().getData() != null) {
-                if (getActivity().getIntent().getData().getScheme().equals("http")) {
-                    
-
-                    mThread = new AwfulThread(getActivity().getIntent().getData().getQueryParameter("threadid"));
-
-                    String page = getActivity().getIntent().getData().getQueryParameter("pagenumber");
-
-                    if (page != null) {
-                        mFetchTask = new FetchThreadTask(Integer.parseInt(page));
-                    } else {
-                        mFetchTask = new FetchThreadTask();
-                    }
-                }
-            } else {
-                mThread = (AwfulThread) getActivity().getIntent().getParcelableExtra(Constants.THREAD);
-                mFetchTask = new FetchThreadTask();
-            }
-            mFetchTask.execute(mThread);
-        } else {
-            mThread = retainedThread;
-            setListAdapter();
-        }*/
+        String c2pThreadID = null;
+        String c2pPage = null;
+        // We may be getting thread info from ChromeToPhone so handle that here
+        if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
+        	c2pThreadID = getActivity().getIntent().getData().getQueryParameter("threadid");
+            c2pPage = getActivity().getIntent().getData().getQueryParameter("pagenumber");
+        }
         int threadid = getActivity().getIntent().getIntExtra(Constants.THREAD, 0);
+        if(c2pThreadID != null){
+        	threadid = Integer.parseInt(c2pThreadID);
+        }
         adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.THREAD, threadid, this);
         //ThumbnailAdapter imgadapt = new ThumbnailAdapter(getActivity(), adapt, ((AwfulApplication) getActivity().getApplication()).getImageCache(), new int[] {R.id.avatar});//new int[] {R.id.avatar}
-        //thumbnailadapter isn't working, ugh
+        if(c2pPage != null){
+    		adapt.goToPage(Integer.parseInt(c2pPage));
+    	}
         setListAdapter(adapt);
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
     }
@@ -575,6 +559,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
 			startActivity(linkIntent);
         }
+        /**
+         * this is already dead code, but I imagine someone will reimplement it eventually
+         */
+	/*
         private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
         	QuickAction result = new QuickAction(anchor);
         	final String userid = post.getUserId();

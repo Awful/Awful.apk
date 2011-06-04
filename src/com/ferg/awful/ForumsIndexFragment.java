@@ -175,7 +175,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     	//	mLoadTask = new LoadForumsTask();
         //    mLoadTask.execute();
     	//}
-    	//TODO refresh
+    	//refresh
     	adapt.refresh();
     }
 

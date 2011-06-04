@@ -70,9 +70,11 @@ public class AwfulService extends Service {
 		public FetchThreadTask(int id, int page) {
 			threadID = id;
 			pageNum = page;
-			thread = (AwfulThread) db.get("threadid="+id);
+			thread = (AwfulThread) db.get("threadid="+threadID);
 			if(thread == null){
-				Log.e(TAG,"thread not in DB. id: "+id);
+				Log.e(TAG,"thread not in DB. id: "+threadID);
+				thread = new AwfulThread(threadID);
+				db.put("threadid="+threadID, thread);
 			}
 		}
 
@@ -113,7 +115,6 @@ public class AwfulService extends Service {
 		private int mPage;
 		private AwfulForum mForum;
 		private int mForumID;
-		private boolean blankForum;
 		private ArrayList<AwfulForum> newSubforums;//it's 2:21am, time to hack shit together
 		
 		public FetchForumThreadsTask(int forumID, int aPage) {
@@ -146,9 +147,6 @@ public class AwfulService extends Service {
                         newSubforums = AwfulThread.parseSubforums(threads);
                     }
                     result = AwfulThread.parseForumThreads(threads);
-                    //TODO: On the C2P path, we need to get the forum title here too
-                    // Now that we have the page number list for the current forum we can
-                    // populate it
                     mForum.parsePageNumbers(threads);
                     Log.i(TAG, "Last Page: " +mForum.getLastPage());
                 } catch (Exception e) {
