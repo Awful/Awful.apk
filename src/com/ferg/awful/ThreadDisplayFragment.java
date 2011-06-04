@@ -28,21 +28,17 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -51,38 +47,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.ListFragment;
 
-import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.htmlwidget.HtmlView;
-import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.quickaction.ActionItem;
-import com.ferg.awful.quickaction.QuickAction;
 import com.ferg.awful.reply.Reply;
+import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulPost;
-import com.ferg.awful.thread.AwfulThread;
-import com.ferg.awful.thumbnail.ThumbnailAdapter;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener {
+public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
-	private AwfulThread mThread;
-    private FetchThreadTask mFetchTask;
+	private AwfulListAdapter adapt;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private MarkLastReadTask mMarkLastReadTask;
@@ -133,18 +115,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public void onStart() {
         super.onStart();
         
-        final AwfulThread retainedThread = null;
+        //final AwfulThread retainedThread = null;
 
-        if (retainedThread == null || retainedThread.getPosts() == null) {
+        /*if (retainedThread == null || retainedThread.getPosts() == null) {
             // We may be getting thread info from ChromeToPhone so handle that here
             if (getActivity().getIntent().getData() != null) {
                 if (getActivity().getIntent().getData().getScheme().equals("http")) {
-                    boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-
-                    // Make sure we're logged in
-                    if (!loggedIn) {
-                        startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-                    }
+                    
 
                     mThread = new AwfulThread(getActivity().getIntent().getData().getQueryParameter("threadid"));
 
@@ -164,12 +141,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         } else {
             mThread = retainedThread;
             setListAdapter();
-        }
-
-        // If this is coming from ChromeToPhone we have to set the title later
-        if (mThread.getTitle() != null) {
-            mTitle.setText(Html.fromHtml(mThread.getTitle()));
-        }
+        }*/
+        int threadid = getActivity().getIntent().getIntExtra(Constants.THREAD, 0);
+        adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.THREAD, threadid, this);
+        //ThumbnailAdapter imgadapt = new ThumbnailAdapter(getActivity(), adapt, ((AwfulApplication) getActivity().getApplication()).getImageCache(), new int[] {R.id.avatar});//new int[] {R.id.avatar}
+        //thumbnailadapter isn't working, ugh
+        setListAdapter(adapt);
+        mTitle.setText(Html.fromHtml(adapt.getTitle()));
     }
     
     @Override
@@ -215,18 +193,17 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         cleanupTasks();
     }
 
     private void cleanupTasks() {
-        if (mDialog != null) {
+        /*if (mDialog != null) {
             mDialog.dismiss();
-        }
+        }*/
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
         
         if (mEditPostTask != null) {
             mEditPostTask.cancel(true);
@@ -257,18 +234,19 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
 			case R.id.go_back:
-				if (mThread.getCurrentPage() != 1) {
+				/*if (mThread.getCurrentPage() != 1) {
 					mFetchTask = new FetchThreadTask(mThread.getCurrentPage() - 1);
                     mFetchTask.execute(mThread);
-				}
+				}*/
+				adapt.goToPage(adapt.getPage()-1);
 				break;
 			case R.id.usercp:
                 startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
 				break;
 			case R.id.go_to:
                 final NumberPicker jumpToText = new NumberPicker(getActivity());
-                jumpToText.setRange(1, mThread.getLastPage());
-                jumpToText.setCurrent(mThread.getCurrentPage());
+                jumpToText.setRange(1, adapt.getLastPage());
+                jumpToText.setCurrent(adapt.getPage());
                 new AlertDialog.Builder(getActivity())
                     .setTitle("Jump to Page")
                     .setView(jumpToText)
@@ -277,9 +255,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                             public void onClick(DialogInterface aDialog, int aWhich) {
                                 try {
                                     int pageInt = jumpToText.getCurrent();
-                                    if (pageInt > 0 && pageInt <= mThread.getLastPage()) {
-                                        mFetchTask = new FetchThreadTask(pageInt);
-                                        mFetchTask.execute(mThread);
+                                    if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
+                                        //mFetchTask = new FetchThreadTask(pageInt);
+                                        //mFetchTask.execute(mThread);
+                                    	adapt.goToPage(pageInt);
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Not a valid number: " + e.toString());
@@ -294,8 +273,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                     .show();
                 break;
 			case R.id.refresh:
-				mFetchTask = new FetchThreadTask(true);
-				mFetchTask.execute(mThread);
+				//mFetchTask = new FetchThreadTask(true);
+				//mFetchTask.execute(mThread);
+				adapt.refresh();
 				break;
 			case R.id.settings:
 				startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -313,8 +293,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         MenuInflater inflater = getActivity().getMenuInflater();
 
-        AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-        AwfulPost selected = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+        //AwfulServiceAdapter adapter = new AwfulServiceAdapter(this.getActivity(), DISPLAY_TYPE.THREAD, 0,0);
+        Log.e(TAG, "onCreateContextMenu");
+        AwfulPost selected = (AwfulPost) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+        // = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
 
         if (selected.isEditable()) {
             inflater.inflate(R.menu.user_post_longpress, aMenu);
@@ -350,13 +332,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		// If we're here because of a post result, refresh the thread
 		switch (aResultCode) {
 			case PostReplyActivity.RESULT_POSTED:
-				mFetchTask = new FetchThreadTask(true);
-				mFetchTask.execute(mThread);
+				adapt.refresh();
 				break;
 		}
     }
 
-    private void setListAdapter(ArrayList<AwfulPost> aPosts) {
+    /*private void setListAdapter(ArrayList<AwfulPost> aPosts) {
         setListAdapter(generateAdapter(aPosts));
 
         setLastRead(aPosts);
@@ -368,7 +349,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setListAdapter(generateAdapter(posts));
 
         setLastRead(posts);
-    }
+    }*/
 
     private void setLastRead(ArrayList<AwfulPost> aPosts) {
         AwfulPost lastRead = null;
@@ -391,15 +372,14 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		public void onClick(View aView) {
 			switch (aView.getId()) {
 				case R.id.next_page:
-					if (mThread.getCurrentPage() < mThread.getLastPage()) {
-						mFetchTask = new FetchThreadTask(mThread.getCurrentPage() + 1);
-                        mFetchTask.execute(mThread);
+					if (adapt.getPage() < adapt.getLastPage()) {
+						adapt.goToPage(adapt.getPage()+1);
 					}
 					break;
 				case R.id.reply:
 					Intent postReply = new Intent().setClass(getActivity(),
 							PostReplyActivity.class);
-					postReply.putExtra(Constants.THREAD, mThread);
+					postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
 					startActivityForResult(postReply, 0);
 					break;
 			}
@@ -417,8 +397,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = selected.markLastRead();
                 } catch (Exception e) {
@@ -434,7 +414,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             if (!isCancelled()) {
                 mDialog.dismiss();
 
-                setListAdapter(aResult);
+                //setListAdapter(aResult);
             }
         }
     }
@@ -452,8 +432,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     mPostId = selected.getId();
 
@@ -471,7 +451,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mDialog.dismiss();
 
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
                 postReply.putExtra(Constants.EDITING, true);
                 postReply.putExtra(Constants.POST_ID, mPostId);
@@ -492,8 +472,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = Reply.getQuote(selected.getId());
                 } catch (Exception e) {
@@ -509,7 +489,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mDialog.dismiss();
 
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
 
 				startActivityForResult(postReply, 0);
@@ -517,79 +497,20 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
-		private boolean mForceLastPage = false;
-		private int mPage;
+	@Override
+	public void dataUpdate() {
+		mTitle.setText(adapt.getTitle());
+	}
 
-		public FetchThreadTask() {}
-
-		public FetchThreadTask(boolean aForceLastPage) {
-			mForceLastPage = aForceLastPage;
-		}
-
-		public FetchThreadTask(int aPage) {
-			mPage = aPage;
-		}
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
-
-        public AwfulThread doInBackground(AwfulThread... aParams) {
-            if (!isCancelled()) {
-                try {
-                    if (mPage == 0) {
-                        // We set the unread count to -1 if the user has never
-                        // visited that thread before
-                        if (aParams[0].getUnreadCount() > -1 || mForceLastPage) {
-                            aParams[0].getThreadPosts();
-                        } else {
-                            aParams[0].getThreadPosts(1);
-                        }
-                    } else {
-                        aParams[0].getThreadPosts(mPage);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return aParams[0];
-        }
-
-        public void onPostExecute(AwfulThread aResult) {
-            if (!isCancelled()) {
-                mThread = aResult;
-                setListAdapter();
-
-                // If we're loading a thread from ChromeToPhone we have to set the 
-                // title now
-                if (mTitle.getText() == null || mTitle.getText().length() == 0) {
-                    mTitle.setText(Html.fromHtml(mThread.getTitle()));
-                }
-
-                if (mThread.getCurrentPage() == mThread.getLastPage()) {
-                    mNext.setVisibility(View.GONE);
-                } else {
-                    mNext.setVisibility(View.VISIBLE);
-                }
-
-                if (mDialog != null) {
-                    mDialog.dismiss();
-                }
-            }
-        }
-    }
+    
 
     /**
      * Factory method for a post adapter. Deals with a few decorator classes.
      */
-    private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
+    /*private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
     	AwfulPostAdapterBase base = new AwfulPostAdapterBase(getActivity(), R.layout.post_item, posts);
-    	return new AwfulPostAdapter(base);
-    }
+    	return new AwfulServiceAdapter(base);
+    }*/
 
     /**
      * Decorates the base adapter that does the actual work with a
@@ -600,6 +521,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
      * to the start of the page. In the future this might change to use
      * the page number in an endless list. 
      */
+    /*
     public class AwfulPostAdapter extends AdapterWrapper implements SectionIndexer {
     	private AwfulPostAdapterBase mBaseAdapter;
     	
@@ -632,6 +554,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			return sections;
 		}
     }
+
     
     public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
         private ArrayList<AwfulPost> mPosts;
@@ -652,7 +575,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
 			startActivity(linkIntent);
         }
-        
         private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
         	QuickAction result = new QuickAction(anchor);
         	final String userid = post.getUserId();
@@ -817,5 +739,5 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             return inflatedView;
         }
-    }
+    }*/
 }

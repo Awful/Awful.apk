@@ -27,18 +27,10 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,25 +43,30 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulSubforum;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
-public class ForumsIndexFragment extends Fragment {
+public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
 
-    private LoadForumsTask mLoadTask;
+    //private LoadForumsTask mLoadTask;
 
     private ImageButton mUserCp;
-    private ExpandableListView mForumList;
-	private ProgressDialog mDialog;
+    private ListView mForumList;
+	//private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
+
+	private AwfulListAdapter adapt;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -77,10 +74,25 @@ public class ForumsIndexFragment extends Fragment {
 
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
-        mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
+        mForumList = (ListView) result.findViewById(R.id.forum_list);
         mTitle     = (TextView) result.findViewById(R.id.title);
         mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
+        if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
+        	adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, 0, this);
+            mForumList.setAdapter(adapt);
+        }
+        mForumList.setOnItemClickListener(new OnItemClickListener(){
 
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+	            viewForum.putExtra(Constants.FORUM, (int) arg3);
+	            Log.e(TAG, "Starting ForumDisplay, ID: "+arg3);
+	            startActivity(viewForum);
+			}
+        	
+        });
         return result;
     }
 
@@ -103,11 +115,12 @@ public class ForumsIndexFragment extends Fragment {
         super.onStart();
 
 		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-
 		if (loggedIn) {
             Log.i(TAG, "Starting task!");
-			mLoadTask = new LoadForumsTask();
-            mLoadTask.execute();
+			//mLoadTask = new LoadForumsTask();
+            //mLoadTask.execute();
+            //TODO load forums
+            //adapt.refresh();
 		} else {
 			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
 		}
@@ -117,39 +130,39 @@ public class ForumsIndexFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mLoadTask != null) {
-            mLoadTask.cancel(true);
-        }
+        //if (mLoadTask != null) {
+        //    mLoadTask.cancel(true);
+        //}
     }
         
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+         //   mDialog.dismiss();
+        //}
 
-        if (mLoadTask != null) {
-            mLoadTask.cancel(true);
-        }
+        //if (mLoadTask != null) {
+        //    mLoadTask.cancel(true);
+        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mLoadTask != null) {
-            mLoadTask.cancel(true);
-        }
+        //if (mLoadTask != null) {
+        //    mLoadTask.cancel(true);
+        //}
     }
     
     @Override
@@ -158,10 +171,12 @@ public class ForumsIndexFragment extends Fragment {
     	// Odds are we want to refresh whether or not it was successful
     	
     	// But we do need to make sure we aren't already in the middle of a refresh
-    	if(mDialog == null || !mDialog.isShowing()) {
-    		mLoadTask = new LoadForumsTask();
-            mLoadTask.execute();
-    	}
+    	//if(mDialog == null || !mDialog.isShowing()) {
+    	//	mLoadTask = new LoadForumsTask();
+        //    mLoadTask.execute();
+    	//}
+    	//TODO refresh
+    	adapt.refresh();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -174,53 +189,25 @@ public class ForumsIndexFragment extends Fragment {
         }
     };
 
-    private class LoadForumsTask extends AsyncTask<Void, Void, ArrayList<AwfulForum>> {
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
+    
 
-        public ArrayList<AwfulForum> doInBackground(Void... aParams) {
-            ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
-            if (!isCancelled()) {
-                try {
-                    result = AwfulForum.getForums(getActivity());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return result;
-        }
-
-        public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            if (!isCancelled()) {
-                mForumList.setAdapter(new AwfulForumAdapter(getActivity(), aResult));
-
-                mForumList.setOnChildClickListener(onForumSelected);
-
-                mDialog.dismiss();
-            }
-        }
-    }
-
-	private ExpandableListView.OnChildClickListener onForumSelected = new ExpandableListView.OnChildClickListener() {
+	/*private ExpandableListView.OnChildClickListener onForumSelected = new ExpandableListView.OnChildClickListener() {
 		public boolean onChildClick(ExpandableListView aParent, View aView, int aGroupPosition, 
                 int aChildPosition, long aId) 
         {
             AwfulForumAdapter adapter = (AwfulForumAdapter) mForumList.getExpandableListAdapter();
-            AwfulSubforum forum = (AwfulSubforum) adapter.getChild(aGroupPosition, aChildPosition);
+            AwfulForum forum = (AwfulForum) adapter.getChild(aGroupPosition, aChildPosition);
 
             Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, forum);
+            viewForum.putExtra(Constants.FORUM, forum.getID());
 
             startActivity(viewForum);
 
             return true;
 		}
-	};
+	};*/
 
-    public class AwfulForumAdapter extends BaseExpandableListAdapter {
+    /*public class AwfulForumAdapter extends BaseExpandableListAdapter {
         private ArrayList<AwfulForum> mForums;
         private LayoutInflater mInflater;
 
@@ -239,7 +226,7 @@ public class ForumsIndexFragment extends Fragment {
                 inflatedView = mInflater.inflate(R.layout.subforum_item, null);
             }
 
-			AwfulSubforum current = (AwfulSubforum) getChild(aGroupPosition, aChildPosition);
+			AwfulForum current = (AwfulForum) getChild(aGroupPosition, aChildPosition);
 
 			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
 			title.setText(Html.fromHtml(current.getTitle()));
@@ -259,16 +246,15 @@ public class ForumsIndexFragment extends Fragment {
 
 			TextView title            = (TextView) inflatedView.findViewById(R.id.title);
 			TextView subtext          = (TextView) inflatedView.findViewById(R.id.subtext);
-			RelativeLayout viewButton = (RelativeLayout) inflatedView.findViewById(R.id.parent_button);
 
 			title.setText(Html.fromHtml(current.getTitle()));
 			subtext.setText(current.getSubtext());
 
-            viewButton.setOnClickListener(new View.OnClickListener() {
+            inflatedView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View aView) {
                     Intent viewForum = new Intent().setClass(getActivity(), 
                         ForumDisplayActivity.class);
-                    viewForum.putExtra(Constants.FORUM, current);
+                    viewForum.putExtra(Constants.FORUM, current.getID());
 
                     startActivity(viewForum);
                 }
@@ -308,7 +294,7 @@ public class ForumsIndexFragment extends Fragment {
         public boolean hasStableIds() {
             return true;
         }
-    }
+    }*/
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -326,11 +312,16 @@ public class ForumsIndexFragment extends Fragment {
     		startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
             return true;
     	case R.id.refresh:
-    		mLoadTask = new LoadForumsTask();
-            mLoadTask.execute();
+    		adapt.refresh();
             return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
     }
+
+	@Override
+	public void dataUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
 }

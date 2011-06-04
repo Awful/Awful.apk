@@ -27,49 +27,36 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-
-import org.htmlcleaner.TagNode;
-
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
-public class ForumDisplayFragment extends ListFragment {
+public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
-
-	private AwfulSubforum mForum;
-    private FetchThreadsTask mFetchTask;
-
+    
+    private AwfulListAdapter adapt;
     private ImageButton mUserCp;
 	private ImageButton mNext;
-    private ForumArrayAdapter mThreadAdapter;
-    private ProgressDialog mDialog;
+    //private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
 
@@ -93,31 +80,32 @@ public class ForumDisplayFragment extends ListFragment {
         setRetainInstance(true);
 		
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int id = getActivity().getIntent().getIntExtra(Constants.FORUM, 0);
+        adapt = ((ForumDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, id, this);
+        setListAdapter(adapt);
 
-        setListAdapter(new ForumArrayAdapter(getActivity()));
-
-        getListView().setOnScrollListener(new EndlessScrollListener());
+        //getListView().setOnScrollListener(new EndlessScrollListener());
         getListView().setOnItemClickListener(onThreadSelected);
 
-        mForum = (AwfulSubforum) getActivity().getIntent().getParcelableExtra(Constants.FORUM);
-        if(mForum == null) {
+        //TODO mForum = (AwfulForum) getActivity().getIntent().getParcelableExtra(Constants.FORUM);
+        //if(mForum == null) {
         	// This is normally a failure condition, except if we're receiving an
         	// intent from an outside link (say, ChromeToPhone). Let's check to see
         	// if we have a URL from such a link.
-        	if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-        		mForum = new AwfulSubforum();
-        		mForum.setForumId(getActivity().getIntent().getData().getQueryParameter("forumid"));
+        	/*if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
+        		mForum = new AwfulForum();
+        		//TODO mForum.setForumId(getActivity().getIntent().getData().getQueryParameter("forumid"));
         	} else {
         		// no dice
         		Log.e(TAG, "Cannot display null forum");
         		getActivity().finish();
-        	}
-        }
+        	}*/
+        //}
         
         // We might not be able to set this here if we're getting it from
         // a link and not a ForumsIndexActivity
-        if(mForum.getTitle() != null) {
-        	mTitle.setText(Html.fromHtml(mForum.getTitle()));
+        if(adapt.getTitle() != null) {
+        	mTitle.setText(Html.fromHtml(adapt.getTitle()));
         }
         
         mUserCp.setOnClickListener(onButtonClick);
@@ -128,53 +116,53 @@ public class ForumDisplayFragment extends ListFragment {
         super.onStart();
         
         // final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
-        final ArrayList<AwfulThread> retainedThreadList = null;
+        /*final ArrayList<AwfulThread> retainedThreadList = null;
 
         if (retainedThreadList == null || retainedThreadList.size() == 0) {
         	mFetchTask = new FetchThreadsTask();
         	mFetchTask.execute(mForum.getForumId());
         } else {
             ((ForumArrayAdapter) getListAdapter()).setThreads(retainedThreadList);
-        }
+        }*/
     }
     
     @Override
     public void onPause() {
         super.onPause();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //   mFetchTask.cancel(true);
+        //}
     }
         
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
     }
     
     @Override
@@ -193,8 +181,7 @@ public class ForumDisplayFragment extends ListFragment {
                 startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
                 return true;
             case R.id.refresh:
-                mFetchTask = new FetchThreadsTask();
-                mFetchTask.execute(mForum.getForumId());
+                adapt.refresh();
                 return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -211,85 +198,29 @@ public class ForumDisplayFragment extends ListFragment {
         }
     };
 
-    private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
-		private int mPage;
-
-		public FetchThreadsTask() {}
-
-		public FetchThreadsTask(int aPage) {
-			mPage = aPage;
-		}
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
-
-        public ArrayList<AwfulThread> doInBackground(String... aParams) {
-            ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
-
-            if (!isCancelled()) {
-                try {
-                    TagNode threads = null;
-
-                    if (mPage == 0) {
-                        threads = AwfulThread.getForumThreads(aParams[0]);
-                    } else {
-                        threads = AwfulThread.getForumThreads(aParams[0], mPage);
-                    }
-
-                    result = AwfulThread.parseForumThreads(threads);
-                    //TODO: On the C2P path, we need to get the forum title here too
-                    
-                    // Now that we have the page number list for the current forum we can
-                    // populate it
-                    if (mForum.getCurrentPage() == 0) {
-                        mForum.parsePageNumbers(threads);
-
-                        Log.i(TAG, Integer.toString(mForum.getCurrentPage()));
-                        Log.i(TAG, Integer.toString(mForum.getLastPage()));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return result;
-        }
-
-        public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            if (!isCancelled()) {
-            	//TODO: We need to set the forum title
-                ((ForumArrayAdapter) getListAdapter()).addThreads(aResult);
-
-                mDialog.dismiss();
-            }
-        }
-    }
 
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            ForumArrayAdapter adapter = (ForumArrayAdapter) getListAdapter();
             
-            switch(adapter.getItemType(aPosition)) {
+            switch(adapt.getItemType(aPosition)) {
             case THREAD:
-            	AwfulThread thread = (AwfulThread) adapter.getItem(aPosition);
+            	AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
                 Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-                viewThread.putExtra(Constants.THREAD, thread);
+                viewThread.putExtra(Constants.THREAD, thread.getID());
                 startActivity(viewThread);
                 break;
                 
-            case SUB_FORUM:
-            	AwfulForum forum = (AwfulForum) adapter.getItem(aPosition);
+            case FORUM:
+            	AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
                 Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-                viewForum.putExtra(Constants.FORUM, forum);
+                viewForum.putExtra(Constants.FORUM, forum.getID());
                 startActivity(viewForum);
                 break;
             }
             
 		}
 	};
-
+	/*
     private class EndlessScrollListener implements OnScrollListener {
     	private int visibleThreshold = 5;
     	private int currentPage = 0;
@@ -312,9 +243,9 @@ public class ForumDisplayFragment extends ListFragment {
     		if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
     			//load new items in background and add them
     			loading = true;
-				if (mForum.getCurrentPage() != mForum.getLastPage()) {
-					mForum.setCurrentPage(mForum.getCurrentPage() + 1);
-					new FetchThreadsTask(mForum.getCurrentPage()).execute(mForum.getForumId());
+				if (adapt.getPage() != adapt.getLastPage()) {
+					adapt.goToPage(adapt.getPage() + 1);
+					//TODO new FetchThreadsTask(mForum.getCurrentPage()).execute(mForum.getForumId());
 				}
     		}
     	}
@@ -322,5 +253,10 @@ public class ForumDisplayFragment extends ListFragment {
     	public void onScrollStateChanged(AbsListView view, int scrollState) {
     		
     	}
-    }
+    }*/
+
+	@Override
+	public void dataUpdate() {
+        mTitle.setText(Html.fromHtml(adapt.getTitle()));
+	}
 }

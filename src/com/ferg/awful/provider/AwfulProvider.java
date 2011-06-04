@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.thread.AwfulSubforum;
 import com.ferg.awful.thread.AwfulForum;
 
 import java.util.ArrayList;
@@ -51,10 +50,10 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR);");
 
-            aDb.execSQL("CREATE TABLE " + TABLE_SUBFORUM + " (" +
-                AwfulSubforum.ID        + " INTEGER UNIQUE," + 
-                AwfulSubforum.TITLE     + " VARCHAR,"        + 
-                AwfulSubforum.PARENT_ID + " INTEGER);");
+            //aDb.execSQL("CREATE TABLE " + TABLE_SUBFORUM + " (" +
+                //AwfulSubforum.ID        + " INTEGER UNIQUE," + 
+               // AwfulSubforum.TITLE     + " VARCHAR,"        + 
+               // AwfulSubforum.PARENT_ID + " INTEGER);");
         }
 
         @Override
@@ -210,7 +209,7 @@ public class AwfulProvider extends ContentProvider {
 				break;
 			case SUBFORUM_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulSubforum.ID + "=?");
+                //builder.appendWhere(AwfulSubforum.ID + "=?");
 			case SUBFORUM:
 				builder.setTables(TABLE_SUBFORUM);
 				builder.setProjectionMap(sSubforumProjectionMap);
@@ -266,8 +265,8 @@ public class AwfulProvider extends ContentProvider {
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 
-		sSubforumProjectionMap.put(AwfulSubforum.ID, AwfulSubforum.ID);
-		sSubforumProjectionMap.put(AwfulSubforum.TITLE, AwfulSubforum.TITLE);
-		sSubforumProjectionMap.put(AwfulSubforum.PARENT_ID, AwfulSubforum.PARENT_ID);
+		//sSubforumProjectionMap.put(AwfulSubforum.ID, AwfulSubforum.ID);
+		//sSubforumProjectionMap.put(AwfulSubforum.TITLE, AwfulSubforum.TITLE);
+		//sSubforumProjectionMap.put(AwfulSubforum.PARENT_ID, AwfulSubforum.PARENT_ID);
     }
 }

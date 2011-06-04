@@ -19,7 +19,7 @@
 		android:theme="@android:style/Theme.NoTitleBar"
 		android:name=".AwfulApplication"
         android:hardwareAccelerated="true"
-		>
+		android:debuggable="true">
         <activity android:name="ForumsIndexActivity"
                   android:label="@string/app_name">
             <intent-filter>
@@ -75,6 +75,7 @@
         </activity>
 		<provider android:name="com.ferg.awful.provider.AwfulProvider"
 				  android:authorities="com.ferg.awful.provider" />
+		<service android:label="AwfulService" android:name="com.ferg.awful.service.AwfulService"></service>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

@@ -85,9 +85,18 @@ public class Constants {
 
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awful.provider";
+    
+    //broadcast intent
+    public static final String DATA_UPDATE_BROADCAST = "com.ferg.awful.service.dataupdated";
+	public static final String DATA_UPDATE_URL = "dataURL";
 
 	//TODO: Make these colors changeable by the user?
 	public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);
     public static int READ_BACKGROUND_UNEVEN = Color.rgb(221, 238, 255);
+    
+    //TODO: make this user configurable, 
+    //or reduce to speed processing time once auto-load is in
+    public static final int ITEMS_PER_PAGE = 40;
+
     
 }

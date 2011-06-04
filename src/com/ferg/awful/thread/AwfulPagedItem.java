@@ -27,6 +27,8 @@
 
 package com.ferg.awful.thread;
 
+import java.util.ArrayList;
+
 import android.util.Log;
 
 import org.htmlcleaner.TagNode;
@@ -37,17 +39,18 @@ import com.ferg.awful.constants.Constants;
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";
 
-	//private static final String CURRENT_PAGE = "//span[@class='curpage']";
-	//private static final String LAST_PAGE    = "//a[@class='pagenumber']";
-
-	private int mCurrentPage;
 	private int mLastPage;
+    protected String mTitle;
+	
+	public abstract ArrayList<? extends AwfulDisplayItem> getChildren(int page);
+	public abstract int getChildrenCount(int page);
+	public abstract AwfulDisplayItem getChild(int page, int ix);
 
-	public void parsePageNumbers(TagNode aForum) throws Exception {
-		//Object[] nodeList = aForum.evaluateXPath(CURRENT_PAGE);
+	public int parsePageNumbers(TagNode aForum) throws Exception {
+		int currentPage = 1;
 		TagNode[] tarCurrentPage = aForum.getElementsByAttValue("class", "curpage", true, true);
 		if (tarCurrentPage.length > 0) {
-			mCurrentPage = Integer.parseInt(tarCurrentPage[0].getText().toString());
+			currentPage = Integer.parseInt(tarCurrentPage[0].getText().toString());
 		}
 
 		//nodeList = aForum.evaluateXPath(LAST_PAGE);
@@ -76,20 +79,13 @@ public abstract class AwfulPagedItem {
 
 				if (keyValue[0].equals("amp;" + Constants.PARAM_PAGE)) {
 					mLastPage = Integer.parseInt(keyValue[1]);
-                    if (mCurrentPage > mLastPage) {
-                        mLastPage = mCurrentPage;
+                    if (currentPage > mLastPage) {
+                        mLastPage = currentPage;
                     }
 				}
 			}
 		}
-	}
-
-	public int getCurrentPage() {
-		return mCurrentPage;
-	}
-
-	public void setCurrentPage(int aCurrentPage) {
-		mCurrentPage = aCurrentPage;
+		return currentPage;
 	}
 
 	public int getLastPage() {
@@ -98,5 +94,17 @@ public abstract class AwfulPagedItem {
 
 	public void setLastPage(int aLastPage) {
 		mLastPage = aLastPage;
+	}
+	public String getTitle() {
+        return mTitle;
+    }
+	public void setTitle(String aTitle) {
+        mTitle = aTitle;
+    }
+
+
+	public abstract int getID();
+	public int getLastReadPage() {
+		return 1;
 	}
 }

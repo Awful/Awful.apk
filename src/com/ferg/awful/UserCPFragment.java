@@ -58,17 +58,20 @@ import org.htmlcleaner.TagNode;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
-public class UserCPFragment extends ListFragment {
-    private static final String TAG = "ThreadsActivity";
+public class UserCPFragment extends ListFragment implements AwfulUpdateCallback {
+    private static final String TAG = "UserCPActivity";
 
-    private FetchThreadsTask mFetchTask;
+    //private FetchThreadsTask mFetchTask;
     private ImageButton mHome;
-	private ProgressDialog mDialog;
+	//private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
+    private AwfulListAdapter adapt;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -93,8 +96,8 @@ public class UserCPFragment extends ListFragment {
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
-
-		setListAdapter(new ForumArrayAdapter(getActivity()));
+		adapt = ((UserCPActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, -1, this);
+        setListAdapter(adapt);
 
 		getListView().setOnItemClickListener(onThreadSelected);
     }
@@ -104,7 +107,7 @@ public class UserCPFragment extends ListFragment {
         super.onStart();
 		
         // When coming from the desktop shortcut we won't have login cookies
-		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
+		/*boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
 		if (loggedIn) {
             final ArrayList<AwfulThread> retainedThreadsList = null;
@@ -117,46 +120,46 @@ public class UserCPFragment extends ListFragment {
             }
 		} else {
 			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-		}
+		}*/
     }
     
     @Override
     public void onPause() {
         super.onPause();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
     }
         
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+        //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+        //if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
+       //if (mDialog != null) {
+        //    mDialog.dismiss();
+        //}
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+       // if (mFetchTask != null) {
+        //    mFetchTask.cancel(true);
+        //}
     }
     
     @Override
@@ -175,8 +178,9 @@ public class UserCPFragment extends ListFragment {
                 startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
                 break;
             case R.id.refresh:
-                mFetchTask = new FetchThreadsTask();
-                mFetchTask.execute();
+                //mFetchTask = new FetchThreadsTask();
+                //mFetchTask.execute();
+            	adapt.refresh();
                 break;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -194,7 +198,7 @@ public class UserCPFragment extends ListFragment {
             }
         }
     };
-
+/*
     private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
         private int mPage;
 
@@ -235,16 +239,22 @@ public class UserCPFragment extends ListFragment {
                 mDialog.dismiss();
             }
         }
-    }
+    }*/
 
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             AwfulThread thread = (AwfulThread) getListAdapter().getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD, thread);
+            viewThread.putExtra(Constants.THREAD, thread.getID());
 
             startActivity(viewThread);
 		}
 	};
+
+	@Override
+	public void dataUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
 }

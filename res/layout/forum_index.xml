@@ -9,7 +9,7 @@
         layout="@layout/actionbar_index"
         android:id="@+id/action_bar" 
         />
-	<ExpandableListView
+	<ListView
 		android:id="@+id/forum_list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"

@@ -27,9 +27,7 @@
 
 package com.ferg.awful;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,7 +39,6 @@ import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
-import com.ferg.awful.thread.AwfulThread;
 
 public class PostReplyActivity extends AwfulActivity {
     private static final String TAG = "PostReplyActivity";
@@ -56,7 +53,7 @@ public class PostReplyActivity extends AwfulActivity {
 	private ProgressDialog mDialog;
 	private TextView mTitle;
 
-	private AwfulThread mThread;
+	private String mThreadId;
 	private String mFormKey;
 
     @Override
@@ -71,7 +68,7 @@ public class PostReplyActivity extends AwfulActivity {
 
         Intent caller = getIntent();
 
-		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
+		mThreadId = caller.getStringExtra(Constants.THREAD);
 		
 		mTitle.setText(getString(R.string.post_reply));
 
@@ -92,7 +89,7 @@ public class PostReplyActivity extends AwfulActivity {
 		mSubmit.setEnabled(false);
 
 		mFetchTask = new FetchFormKeyTask();
-        mFetchTask.execute(mThread.getThreadId());
+        mFetchTask.execute(mThreadId);
     }
     
     @Override
@@ -154,10 +151,10 @@ public class PostReplyActivity extends AwfulActivity {
 
             if (editing) {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
+                        mFormKey, mThreadId, getIntent().getStringExtra(Constants.POST_ID));
             } else {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThread.getThreadId());
+                        mFormKey, mThreadId);
             }
         }
     };

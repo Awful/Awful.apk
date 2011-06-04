@@ -35,17 +35,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
-import android.util.Log;
 
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.network.NetworkUtils;
 
-public class AwfulPost {
+public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
     /*private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
@@ -98,6 +104,7 @@ public class AwfulPost {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
     private static final String LINK_RAP_SHEET    = "Rap Sheet";
+    
 
     private String mId;
     private String mDate;
@@ -387,11 +394,59 @@ public class AwfulPost {
         return result;
     }
 
-    private static String createPostHtml(String aHtml) {
-        aHtml = aHtml.replaceAll(ELEMENT_POSTBODY, REPLACEMENT_POSTBODY);
-        aHtml = aHtml.replaceAll(ELEMENT_END_TD, REPLACEMENT_END_TD);
+	@Override
+	public View getView(LayoutInflater inf, View current, ViewGroup parent) {
+		View tmp = current;
+		if(tmp == null || tmp.getId() != R.layout.post_item){
+			tmp = inf.inflate(R.layout.post_item, parent, false);
+			tmp.setTag(this);
+		}
+		TextView author = (TextView) tmp.findViewById(R.id.username);
+		author.setText(mUsername);
+		TextView unread = (TextView) tmp.findViewById(R.id.post_date);
+		unread.setText(mDate);
+		TextView pc = (TextView) tmp.findViewById(R.id.page_count);
+		pc.setVisibility(View.GONE);
+		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
+		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
+		//View postHead = tmp.findViewById(R.id.posthead);
+        RelativeLayout pageIndicator = (RelativeLayout) tmp.findViewById(R.id.page_indicator);
+        pageIndicator.setVisibility(View.GONE);
+        if(postBody.getMovementMethod() == null){
+        	postBody.setMovementMethod(LinkMovementMethod.getInstance());
+        }
+        postBody.setHtml(getContent());
+		if( getAvatar() == null ) {
+        	avatar.setVisibility(View.INVISIBLE);
+        } else {
+        	avatar.setVisibility(View.VISIBLE);
+        }
+        avatar.setTag(getAvatar());
+        if (isPreviouslyRead()) {
+        	if (isEven()) {
+        		postBody.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
+        	} else {
+        		postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
+        	}
+        } else {
+            postBody.setBackgroundColor(inf.getContext().getResources().getColor(R.color.forums_gray));
+        }
+		return tmp;
+	}
 
-        return aHtml;
-    }
+	@Override
+	public int getID() {
+		return Integer.parseInt(mId);
+	}
+
+	@Override
+	public DISPLAY_TYPE getType() {
+		return DISPLAY_TYPE.POST;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
+	}
 
 }
