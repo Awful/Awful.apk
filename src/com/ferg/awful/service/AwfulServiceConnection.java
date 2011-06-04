@@ -300,6 +300,12 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public AwfulPagedItem getState() {
 			return state;
 		}
+		public int getLastReadPost() {
+			if(state == null || !(state instanceof AwfulThread)){
+				return -1;
+			}
+			return ((AwfulThread) state).getLastReadPost();
+		}
 	}
 
 

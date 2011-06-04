@@ -304,7 +304,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 return true;
             case R.id.last_read:
                 mMarkLastReadTask = new MarkLastReadTask();
-                mMarkLastReadTask.execute(info.id);
+                mMarkLastReadTask.execute(info.position);
                 return true;
         }
 
@@ -335,7 +335,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setLastRead(posts);
     }*/
 
-    private void setLastRead(ArrayList<AwfulPost> aPosts) {
+    /*private void setLastRead(int pos) {
         AwfulPost lastRead = null;
 
         // Maybe there's a better way to do getActivity()? It's 8am and I'm hung over
@@ -350,7 +350,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             int index = aPosts.indexOf(lastRead);
             getListView().setSelection(index);
         }
-    }
+    }*/
 
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
 		public void onClick(View aView) {
@@ -370,13 +370,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 	};
 
-    private class MarkLastReadTask extends AsyncTask<Long, Void, ArrayList<AwfulPost>> {
+    private class MarkLastReadTask extends AsyncTask<Integer, Void, ArrayList<AwfulPost>> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Loading", 
                 "Hold on...", true);
         }
 
-        public ArrayList<AwfulPost> doInBackground(Long... aParams) {
+        public ArrayList<AwfulPost> doInBackground(Integer... aParams) {
             ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
             if (!isCancelled()) {
@@ -484,6 +484,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	@Override
 	public void dataUpdate() {
 		mTitle.setText(adapt.getTitle());
+		int last = adapt.getLastReadPost();
+		if(last >0){
+			getListView().setSelection(last);
+		}
 	}
 
     

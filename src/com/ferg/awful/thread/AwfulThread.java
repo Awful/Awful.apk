@@ -362,8 +362,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		return (mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1;
 	}
 	public int getLastReadPost() {
-		Log.e(TAG,"POST id: "+getID()+" lastread: "+(mUnreadCount/Constants.ITEMS_PER_PAGE));
-		return (mTotalPosts-mUnreadCount)%Constants.ITEMS_PER_PAGE;
+		if(getUnreadCount()==-1){
+			return 0;
+		}
+		Log.e(TAG,"POST id: "+getID()+" lastpost: "+((mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE));
+		return (mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE;
 	}
 	public void setTotalCount(int postTotal) {
 		Log.e(TAG, "id "+getID()+ " postTotal: "+postTotal);
