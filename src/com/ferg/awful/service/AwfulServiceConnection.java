@@ -3,13 +3,6 @@ package com.ferg.awful.service;
 
 import java.util.ArrayList;
 
-import com.ferg.awful.AwfulUpdateCallback;
-import com.ferg.awful.R;
-import com.ferg.awful.constants.Constants;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
-import com.ferg.awful.thread.AwfulPagedItem;
-import com.ferg.awful.thread.AwfulThread;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,7 +15,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
+import android.widget.SectionIndexer;
+
+import com.ferg.awful.AwfulUpdateCallback;
+import com.ferg.awful.R;
+import com.ferg.awful.constants.Constants;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulThread;
 
 public class AwfulServiceConnection extends BroadcastReceiver implements
 		ServiceConnection {
@@ -32,7 +33,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	private boolean boundState;
 	private LayoutInflater inf;
 	private ArrayList<AwfulListAdapter> fragments;
-	
+
 	public AwfulServiceConnection(){
 		fragments = new ArrayList<AwfulListAdapter>();
 	}
@@ -99,10 +100,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mService.fetchForum(id, page);
 		}
 	}
-	
-	
-	
-	public class AwfulListAdapter implements ListAdapter{
+
+
+
+	public class AwfulListAdapter extends BaseAdapter implements SectionIndexer {
 		private int currentId;
 		private int currentPage;
 		private DISPLAY_TYPE currentType;
@@ -305,6 +306,26 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				return -1;
 			}
 			return ((AwfulThread) state).getLastReadPost();
+		}
+
+		// Section Indexer methods
+
+		@Override
+		public int getPositionForSection(int section) {
+			return section;
+		}
+		@Override
+		public int getSectionForPosition(int position) {
+			return position;
+		}
+		@Override
+		public Object[] getSections() {
+			int count = getCount();
+			String[] ret = new String[count];
+			for(int i=0;i<count;i++) {
+				ret[i] = Integer.toString(i+1);
+			}
+			return ret;
 		}
 	}
 
