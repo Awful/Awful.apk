@@ -296,11 +296,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         switch (aItem.getItemId()) {
             case R.id.edit:
                 mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(info.id);
+                mEditPostTask.execute(info.position);
                 return true;
             case R.id.quote:
                 mPostQuoteTask = new ParsePostQuoteTask();
-                mPostQuoteTask.execute(info.id);
+                mPostQuoteTask.execute(info.position);
                 return true;
             case R.id.last_read:
                 mMarkLastReadTask = new MarkLastReadTask();
@@ -403,7 +403,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class ParseEditPostTask extends AsyncTask<Long, Void, String> {
+    private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
         private String mPostId;
 
         public void onPreExecute() {
@@ -411,7 +411,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 "Hold on...", true);
         }
 
-        public String doInBackground(Long... aParams) {
+        public String doInBackground(Integer... aParams) {
             String result = null;
 
             if (!isCancelled()) {
@@ -445,13 +445,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
+    private class ParsePostQuoteTask extends AsyncTask<Integer, Void, String> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Loading", 
                 "Hold on...", true);
         }
 
-        public String doInBackground(Long... aParams) {
+        public String doInBackground(Integer... aParams) {
             String result = null;
 
             if (!isCancelled()) {
@@ -485,6 +485,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	public void dataUpdate() {
 		mTitle.setText(adapt.getTitle());
 		int last = adapt.getLastReadPost();
+		if(last >= adapt.getCount()){
+			last = adapt.getCount()-1;
+		}
 		if(last >0){
 			getListView().setSelection(last);
 		}
