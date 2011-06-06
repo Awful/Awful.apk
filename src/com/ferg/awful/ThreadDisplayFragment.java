@@ -59,6 +59,7 @@ import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
 public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
@@ -212,6 +213,14 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.post_menu, menu);
+    }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+    	MenuItem bk = menu.findItem(R.id.bookmark);
+    	if(bk != null){
+    		AwfulThread th = (AwfulThread) adapt.getState();
+    		bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+    	}
     }
     
     @Override
