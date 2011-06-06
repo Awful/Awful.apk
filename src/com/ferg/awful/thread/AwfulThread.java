@@ -293,10 +293,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		TextView author = (TextView) tmp.findViewById(R.id.author);
 		ImageView sticky = (ImageView) tmp.findViewById(R.id.sticky_icon);
 		if(mSticky){
+			sticky.setImageResource(R.drawable.sticky);
 			sticky.setVisibility(View.VISIBLE);
 		}
 		if(mBookmarked){
-			sticky.setImageResource(R.drawable.star);
+			sticky.setImageResource(R.drawable.star_blue);
 			sticky.setVisibility(View.VISIBLE);
 		}
 		if(!mSticky && !mBookmarked){

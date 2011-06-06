@@ -227,10 +227,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
 			case R.id.go_back:
-				/*if (mThread.getCurrentPage() != 1) {
-					mFetchTask = new FetchThreadTask(mThread.getCurrentPage() - 1);
-                    mFetchTask.execute(mThread);
-				}*/
 				adapt.goToPage(adapt.getPage()-1);
 				break;
 			case R.id.usercp:
