@@ -107,4 +107,8 @@ public abstract class AwfulPagedItem {
 	public int getLastReadPage() {
 		return 1;
 	}
+
+	public boolean isPaged(){
+		return (getLastPage() > 1);
+	}
 }

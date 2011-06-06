@@ -9,5 +9,5 @@ public interface AwfulDisplayItem {
 	public int getID();
 	public DISPLAY_TYPE getType();
 	public boolean isEnabled();
-	public enum DISPLAY_TYPE {POST, THREAD, FORUM};
+	public enum DISPLAY_TYPE {POST, THREAD, FORUM, PAGE_COUNT};
 }

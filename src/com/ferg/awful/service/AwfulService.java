@@ -131,7 +131,7 @@ public class AwfulService extends Service {
                 try {
                     TagNode threads = null;
                     if(mForum.getID()<0){
-                    	threads = AwfulThread.getUserCPThreads();
+                    	threads = AwfulThread.getUserCPThreads(mPage);
                     }else{
                     	threads = AwfulThread.getForumThreads(mForum.getForumId(), mPage);
                         if(mForum.getTitle() == null){

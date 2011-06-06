@@ -27,11 +27,14 @@
 
 package com.ferg.awful;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
@@ -49,6 +53,7 @@ import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.widget.NumberPicker;
 
 public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
@@ -161,7 +166,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.forum_index_options, menu);
+		inflater.inflate(R.menu.forum_display_menu, menu);
     }
     
     @Override
@@ -176,6 +181,33 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 return true;
             case R.id.refresh:
                 adapt.refresh();
+                return true;
+            case R.id.go_to:
+                final NumberPicker jumpToText = new NumberPicker(getActivity());
+                jumpToText.setRange(1, adapt.getLastPage());
+                jumpToText.setCurrent(adapt.getPage());
+                new AlertDialog.Builder(getActivity())
+                    .setTitle("Jump to Page")
+                    .setView(jumpToText)
+                    .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface aDialog, int aWhich) {
+                                try {
+                                    int pageInt = jumpToText.getCurrent();
+                                    if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
+                                    	adapt.goToPage(pageInt);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.d(TAG, "Not a valid number: " + e.toString());
+        	                        Toast.makeText(getActivity(),
+                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    Log.d(TAG, e.toString());
+                                }
+                            }
+                        })
+                    .setNegativeButton("Cancel", null)
+                    .show();
                 return true;
 			default:
 				return super.onOptionsItemSelected(item);

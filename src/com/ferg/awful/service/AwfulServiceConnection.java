@@ -14,14 +14,18 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.SectionIndexer;
+import android.widget.TextView;
 
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.thread.AwfulPageCount;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -111,6 +115,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		private DataSetObserver mObserver;
 		private AwfulUpdateCallback mCallback;
 		private boolean lastReadLoaded;
+		private AwfulPageCount pageCount;
+		private TextView pageCountText;
 		public AwfulListAdapter(DISPLAY_TYPE viewType, int id, AwfulUpdateCallback frag){
 			currentId = id;
 			currentPage = 1;
@@ -142,13 +148,12 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(state == null){
 				return 1;
 			}
-			//Log.e(TAG, "Count: "+state.getChildrenCount(currentPage));
-			return state.getChildrenCount(currentPage);
+			return state.getChildrenCount(currentPage)+(state.isPaged()?1:0);
 		}
 
 		@Override
 		public Object getItem(int ix) {
-			if(state == null){
+			if(state == null || isPageCount(ix)){
 				return null;
 			}
 			return state.getChild(currentPage, ix);
@@ -159,13 +164,23 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(state == null){
 				return 0;
 			}
+			if(isPageCount(ix)){
+				return -2;
+			}
 			return state.getChild(currentPage, ix).getID();
 		}
 
+		private boolean isPageCount(int ix) {
+			return (state != null && state.isPaged() && ix == state.getChildrenCount(currentPage));
+		}
+		
 		@Override
 		public int getItemViewType(int ix) {
 			if(state == null){
 				return 0;
+			}
+			if(isPageCount(ix)){
+				return 3;
 			}
 			switch(state.getChild(currentPage, ix).getType()){
 			case FORUM:
@@ -174,6 +189,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				return 1;
 			case POST:
 				return 2;
+			case PAGE_COUNT:
+				return 3;
 			}
 			return 0;
 		}
@@ -186,12 +203,18 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(state == null){
 				return inf.inflate(R.layout.loading, parent, false);
 			}
+			if(isPageCount(ix)){
+				if(pageCount == null){
+					pageCount = new AwfulPageCount(this);
+				}
+				return pageCount.getView(inf, current, parent);
+			}
 			return state.getChild(currentPage, ix).getView(inf, current, parent);
 		}
 
 		@Override
 		public int getViewTypeCount() {
-			return 3;
+			return 4;
 		}
 
 		@Override
@@ -228,7 +251,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public boolean isEnabled(int ix) {
-			if(state == null){
+			if(state == null || isPageCount(ix)){
 				return false;
 			}
 			return state.getChild(currentPage,ix).isEnabled();
@@ -247,6 +270,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void goToPage(int pageInt) {
 			if(pageInt < 1){
 				pageInt = 1;
+			}
+			if(pageInt > getLastPage()){
+				pageInt = getLastPage();
 			}
 			if(currentPage < pageInt && state != null && state instanceof AwfulThread){
 				AwfulThread tmp = (AwfulThread) state;
@@ -334,9 +360,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mService.toggleBookmark(state.getID(), ((AwfulThread) state).isBookmarked());
 			((AwfulThread) state).setBookmarked(!((AwfulThread) state).isBookmarked());//toggle until next thread refresh.
 		}
+		
 	}
 
-
+	
 
 	public AwfulListAdapter createAdapter(DISPLAY_TYPE type, int id, AwfulUpdateCallback forumDisplayFragment) {
 		AwfulListAdapter ad =  new AwfulListAdapter(type, id, forumDisplayFragment);

@@ -192,7 +192,10 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 
 	@Override
 	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		ArrayList<AwfulDisplayItem> tmp = new ArrayList<AwfulDisplayItem>(mSubforums);
+		ArrayList<AwfulDisplayItem> tmp = new ArrayList<AwfulDisplayItem>();
+		if(page <2){
+			tmp.addAll(mSubforums);
+		}
 		if(threads.get(page) != null){
 			tmp.addAll(threads.get(page));
 		}
@@ -210,7 +213,8 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 
 	@Override
 	public int getChildrenCount(int page) {
-		return mSubforums.size()+(threads.get(page) == null? 0 : threads.get(page).size());
+		return (page <2 ? mSubforums.size() : 0)+
+		(threads.get(page) == null? 0 : threads.get(page).size());
 	}
 
 	@Override
@@ -218,7 +222,10 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		if(ix<mSubforums.size() && page < 2){
 			return mSubforums.get(ix);
 		}
-		return threads.get(page).get(ix-mSubforums.size());
+		if(page < 2){
+			return threads.get(page).get(ix-mSubforums.size());
+		}
+		return threads.get(page).get(ix);
 	}
 
 	public static String parseTitle(TagNode data) {

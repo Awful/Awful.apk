@@ -405,13 +405,8 @@ public class AwfulPost implements AwfulDisplayItem {
 		author.setText(mUsername);
 		TextView unread = (TextView) tmp.findViewById(R.id.post_date);
 		unread.setText(mDate);
-		TextView pc = (TextView) tmp.findViewById(R.id.page_count);
-		pc.setVisibility(View.GONE);
 		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
 		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
-		//View postHead = tmp.findViewById(R.id.posthead);
-        RelativeLayout pageIndicator = (RelativeLayout) tmp.findViewById(R.id.page_indicator);
-        pageIndicator.setVisibility(View.GONE);
         if(postBody.getMovementMethod() == null){
         	postBody.setMovementMethod(LinkMovementMethod.getInstance());
         }

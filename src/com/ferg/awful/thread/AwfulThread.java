@@ -91,8 +91,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return NetworkUtils.get(Constants.FUNCTION_FORUM, params);
 	}
 	
-    public static TagNode getUserCPThreads() throws Exception {
-        return NetworkUtils.get(Constants.FUNCTION_USERCP, null, null);
+    public static TagNode getUserCPThreads(int aPage) throws Exception {
+    	HashMap<String, String> params = new HashMap<String, String>();
+		params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+        return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {

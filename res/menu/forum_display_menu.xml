@@ -3,20 +3,12 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	>
 	<item
-		android:id="@+id/go_back"
-		android:icon="@drawable/ic_menu_back"
-		android:title="@string/back"
-		/>
-	<item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_goto"
 		android:title="@string/go_to"
 		/>
 	<item
-		android:id="@+id/usercp"
-		android:icon="@drawable/ic_menu_usercp"
-		android:title="@string/usercp"
-		/>
+		android:title="@string/logout" android:id="@+id/logout" android:icon="@drawable/ic_menu_logout"/>
 	<item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_refresh"
