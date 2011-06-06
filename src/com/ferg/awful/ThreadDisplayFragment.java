@@ -257,12 +257,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                     .show();
                 break;
 			case R.id.refresh:
-				//mFetchTask = new FetchThreadTask(true);
-				//mFetchTask.execute(mThread);
 				adapt.refresh();
 				break;
 			case R.id.settings:
 				startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+				break;
+			case R.id.bookmark:
+				adapt.toggleBookmark();
 				break;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -276,12 +277,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getActivity().getMenuInflater();
-
-        //AwfulServiceAdapter adapter = new AwfulServiceAdapter(this.getActivity(), DISPLAY_TYPE.THREAD, 0,0);
         Log.e(TAG, "onCreateContextMenu");
         AwfulPost selected = (AwfulPost) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
-        // = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
-
+        
         if (selected.isEditable()) {
             inflater.inflate(R.menu.user_post_longpress, aMenu);
         } else {

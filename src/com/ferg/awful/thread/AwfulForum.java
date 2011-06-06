@@ -27,9 +27,6 @@
 
 package com.ferg.awful.thread;
 
-import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +40,6 @@ import org.htmlcleaner.TagNode;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
 public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulForum";

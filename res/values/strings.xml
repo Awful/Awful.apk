@@ -37,4 +37,6 @@
 		<item>Portrait</item>
 		<item>Landscape</item>
 	</string-array>
+	<string name="bookmark">Bookmark</string>
+	<string name="unbookmark">Unbookmark</string>
 </resources>

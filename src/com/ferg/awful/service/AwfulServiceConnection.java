@@ -122,7 +122,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
-			Log.e(TAG, "connected()? "+currentId);
+			Log.e(TAG, "connected(): "+currentId);
 			loadPage(true);
 		}
 		public void disconnected() {
@@ -142,7 +142,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(state == null){
 				return 1;
 			}
-			Log.e(TAG, "Count: "+state.getChildrenCount(currentPage));
+			//Log.e(TAG, "Count: "+state.getChildrenCount(currentPage));
 			return state.getChildrenCount(currentPage);
 		}
 
@@ -326,6 +326,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				ret[i] = Integer.toString(i+1);
 			}
 			return ret;
+		}
+		public void toggleBookmark() {
+			if(currentType != DISPLAY_TYPE.THREAD || state == null || !boundState){
+				return;
+			}
+			mService.toggleBookmark(state.getID(), ((AwfulThread) state).isBookmarked());
+			((AwfulThread) state).setBookmarked(!((AwfulThread) state).isBookmarked());//toggle until next thread refresh.
 		}
 	}
 

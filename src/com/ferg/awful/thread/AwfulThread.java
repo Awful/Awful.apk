@@ -35,7 +35,6 @@ import java.util.List;
 
 import org.htmlcleaner.TagNode;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +68,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private int mUnreadCount;
 	private int mTotalPosts;
     private int mPTI;
+	private boolean mBookmarked;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
+
 
 
 
@@ -108,8 +109,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
-        //TODO we need to add subforum parsing here
-        //OK, done~
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1){
         	return result;
@@ -164,10 +163,26 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 						thread.setUnreadCount(-1);
 					} 
                 }
+                TagNode[] tarStar = node.getElementsByAttValue("class", "star", true, true);
+                if(tarStar.length>0){
+                	TagNode[] tarStarImg = tarStar[0].getElementsByName("img", true);
+                	if(tarStarImg.length >0 && !tarStarImg[0].getAttributeByName("src").contains("star-off")){
+                		thread.setBookmarked(true);
+                	}else{
+                		thread.setBookmarked(false);
+                	}
+                }
 
                 result.add(thread);
         }
         return result;
+	}
+
+	public void setBookmarked(boolean b) {
+		mBookmarked = b;
+	}
+	public boolean isBookmarked() {
+		return mBookmarked;
 	}
 
 	public static ArrayList<AwfulForum> parseSubforums(TagNode aResponse){
@@ -219,15 +234,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                         fragment.substring(Constants.FRAGMENT_PTI.length()));
             }
         }
-
-        // If we got here from ChromeToPhone the title hasn't been parsed yet,
-        // so grab that now
         if (mTitle == null) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
 
             if (tarTitle.length > 0) {
                 mTitle = tarTitle[0].getText().toString().trim();
-                Log.i(TAG, mTitle);
             }
         }
 
@@ -273,7 +284,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
 
     public void setUnreadCount(int aUnreadCount) {
-		Log.e(TAG, "id "+getID()+ " aUnreadCount: "+aUnreadCount);
         mUnreadCount = aUnreadCount;
     }
 
@@ -296,7 +306,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		ImageView sticky = (ImageView) tmp.findViewById(R.id.sticky_icon);
 		if(mSticky){
 			sticky.setVisibility(View.VISIBLE);
-		}else{
+		}
+		if(mBookmarked){
+			sticky.setImageResource(R.drawable.star);
+			sticky.setVisibility(View.VISIBLE);
+		}
+		if(!mSticky && !mBookmarked){
 			sticky.setVisibility(View.GONE);
 		}
 		author.setText(mAuthor);
@@ -309,6 +324,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		}
 		TextView title = (TextView) tmp.findViewById(R.id.title);
 		title.setText(mTitle);
+		
 		return tmp;
 	}
 
@@ -358,18 +374,15 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(getUnreadCount()==-1){
 			return 1;
 		}
-		Log.e(TAG,"PAGE id: "+getID()+" lastread: "+((mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1)+" tp: "+mTotalPosts+" up: "+mUnreadCount);
 		return (mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1;
 	}
 	public int getLastReadPost() {
 		if(getUnreadCount()==-1){
 			return 0;
 		}
-		Log.e(TAG,"POST id: "+getID()+" lastpost: "+((mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE));
 		return (mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE;
 	}
 	public void setTotalCount(int postTotal) {
-		Log.e(TAG, "id "+getID()+ " postTotal: "+postTotal);
 		mTotalPosts = postTotal;
 	}
 

@@ -28,12 +28,6 @@ public class AwfulService extends Service {
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
-
-        // Make sure we're logged in
-        if (!loggedIn) {
-    		Log.e(TAG, "Not logged in, forwarding to new login activity.");
-            startActivity(new Intent().setClass(this, AwfulLoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        }
 		Log.e(TAG, "Service started.");
 	}
 
@@ -43,6 +37,10 @@ public class AwfulService extends Service {
 			at.cancel(true);
 		}
 		threadPool.clear();
+	}
+	
+	public boolean isLoggedIn(){
+		return loggedIn;
 	}
 	
 	//basic local-binding stuff.
@@ -56,11 +54,6 @@ public class AwfulService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return bindServ;
 	}
-	public AwfulPagedItem getData(String URL) {
-		synchronized(db){
-			return db.get(URL);
-		}
-	}
 	
 	private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
 
@@ -72,7 +65,7 @@ public class AwfulService extends Service {
 			pageNum = page;
 			thread = (AwfulThread) db.get("threadid="+threadID);
 			if(thread == null){
-				Log.e(TAG,"thread not in DB. id: "+threadID);
+				//Log.e(TAG,"thread not in DB. id: "+threadID);
 				thread = new AwfulThread(threadID);
 				db.put("threadid="+threadID, thread);
 			}
@@ -132,7 +125,7 @@ public class AwfulService extends Service {
             if(mForum == null){
             	mForum = new AwfulForum(mForumID);
             	db.put("forumid="+mForumID, mForum);
-            	Log.e(TAG, "Forum Not Found ID: "+mForumID);
+            	//Log.e(TAG, "Forum Not Found ID: "+mForumID);
             }
             if (!isCancelled() && !(mForum == null || mForum.getForumId() == null || mForum.getForumId().equals(""))) {
                 try {
@@ -148,7 +141,7 @@ public class AwfulService extends Service {
                     }
                     result = AwfulThread.parseForumThreads(threads);
                     mForum.parsePageNumbers(threads);
-                    Log.i(TAG, "Last Page: " +mForum.getLastPage());
+                    //Log.i(TAG, "Last Page: " +mForum.getLastPage());
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
@@ -162,11 +155,12 @@ public class AwfulService extends Service {
             	for(AwfulThread at: aResult){
             		AwfulThread old = (AwfulThread) db.get("threadid="+at.getThreadId());
             		if(old==null){
-            			Log.e(TAG,"Added thread: "+at.getThreadId());
+            			//Log.e(TAG,"Added thread: "+at.getThreadId());
             			db.put("threadid="+at.getThreadId(), at);
-            		}else{
+            		}else{//use this section to copy any data you want to update during a forum refresh. ie: post count, bookmark status, ect
             			old.setUnreadCount(at.getUnreadCount());
             			old.setTotalCount(at.getTotalCount());
+            			old.setBookmarked(at.isBookmarked());
             		}
             	}
             	mForum.setThreadPage(mPage, aResult);
@@ -188,8 +182,7 @@ public class AwfulService extends Service {
         					db.put("forumid="+af.getID(), af);
         					mForum.addSubforum(af);
         				}
-        			}//so, what the fuck was all that for? to cover edge cases where the user did not browse to a specific forum from its parent, 
-        			//but instead from the subforum up to its parent forum. also, i am tired and somewhat delirious.
+        			}
         			
             	}
             	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mForumID));
@@ -226,7 +219,41 @@ public class AwfulService extends Service {
 		Log.e(TAG, "getThread "+currentId);
 		return (AwfulThread) db.get("threadid="+currentId);
 	}
+	
+	public void toggleBookmark(int threadId, boolean remove){
+		threadPool.put(new BookmarkToggleTask(remove).execute(threadId), threadId+"");
+	}
+	
+	private class BookmarkToggleTask extends AsyncTask<Integer, Void, Void> {
+		boolean removeBookmark;
+        public BookmarkToggleTask(boolean remove) {
+        	removeBookmark = remove;
+		}
 
+		public Void doInBackground(Integer... aParams) {
+            if (!isCancelled()) {
+            	HashMap<String, String> params = new HashMap<String, String>();
+                params.put(Constants.PARAM_THREAD_ID, aParams[0].toString());
+                if(removeBookmark){
+                	params.put(Constants.PARAM_ACTION, "remove");
+                }else{
+                	params.put(Constants.PARAM_ACTION, "add");
+                }
+
+                try {
+                    NetworkUtils.post(Constants.FUNCTION_BOOKMARK, params);
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return null;
+        }
+
+        public void onPostExecute(Void aResult) {
+            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, 0));
+            threadPool.remove(this);
+        }
+    }
 	
 	private class LoadForumsTask extends AsyncTask<Void, Void, ArrayList<AwfulForum>> {
         public void onPreExecute() {
