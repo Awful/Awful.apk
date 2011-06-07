@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import android.util.Log;
 
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.constants.Constants;
 
@@ -51,6 +50,10 @@ public abstract class AwfulPagedItem {
 		TagNode[] tarCurrentPage = aForum.getElementsByAttValue("class", "curpage", true, true);
 		if (tarCurrentPage.length > 0) {
 			currentPage = Integer.parseInt(tarCurrentPage[0].getText().toString());
+		}else{
+			mLastPage = 1;
+			currentPage = 1;
+			return currentPage;
 		}
 
 		//nodeList = aForum.evaluateXPath(LAST_PAGE);
