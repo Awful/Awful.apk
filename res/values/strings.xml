@@ -24,6 +24,10 @@
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
     <string name="default_post_font_size">Default Post Font Size</string>
     <string name="default_post_font_color">Default Post Font Color</string>
+    <string name="default_post_background_color">Default Post BG Color</string>
+    <string name="default_post_background2_color">Alternative Post/BG Color</string>
+    <string name="read_post_background_color">Read Post BG Color</string>
+    <string name="read_post_font_color">Read Post BG Color</string>
     <string name="press_color_to_apply">Press color to apply</string>
     <string name="dialog_color_picker">Select Color</string>
     <string name="about">About...</string>

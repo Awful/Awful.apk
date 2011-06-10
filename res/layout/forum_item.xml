@@ -18,7 +18,7 @@
             android:singleLine="true"
             android:ellipsize="marquee"
 			android:textSize="18dip"
-			android:textColor="#000000"
+			android:textColor="@color/default_post_font"
             android:layout_alignParentLeft="true"
 			/>
 		<TextView
@@ -27,7 +27,7 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@id/title"
 			android:textSize="16dip"
-			android:textColor="#8c8c8c"
+			android:textColor="@color/background2"
             android:layout_alignParentLeft="true"
 			/>
 	</RelativeLayout>

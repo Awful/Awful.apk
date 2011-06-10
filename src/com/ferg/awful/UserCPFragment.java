@@ -57,7 +57,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-
+        
         View result = aInflater.inflate(R.layout.user_cp, aContainer, false);
 
         mTitle      = (TextView) result.findViewById(R.id.title);
@@ -79,6 +79,9 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
         setListAdapter(adapt);
 
 		getListView().setOnItemClickListener(onThreadSelected);
+		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+		getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        
     }
 
     @Override

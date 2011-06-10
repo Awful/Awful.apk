@@ -53,6 +53,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private ImageButton mUserCp;
     private ListView mForumList;
     private TextView mTitle;
+    private int mDefaultPostFontColor;
+    private int mDefaultPostBackgroundColor;
+    private int mDefaultPostBackground2Color;
 
 	private ForumListAdapter adapt;
 
@@ -65,12 +68,15 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mForumList = (ListView) result.findViewById(R.id.forum_list);
         mTitle     = (TextView) result.findViewById(R.id.title);
         mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
-        if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
-        	adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
-            mForumList.setAdapter(adapt);
-        }
-        mForumList.setOnItemClickListener(new OnItemClickListener(){
-
+        
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        
+        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
+        mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
+        mDefaultPostBackground2Color = mPrefs.getInt("default_post_background2_color", getResources().getColor(R.color.background2));
+        mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
+        mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
@@ -91,6 +97,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         setHasOptionsMenu(true);
         setRetainInstance(true);
 		
+
 
         mTitle.setText(getString(R.string.forums_title));
         mUserCp.setOnClickListener(onButtonClick);
@@ -180,10 +187,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             }
 
 			AwfulForum current = (AwfulForum) getChild(aGroupPosition, aChildPosition);
-
+			inflatedView.setBackgroundColor(mDefaultPostBackground2Color);
 			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
 			title.setText(Html.fromHtml(current.getTitle()));
-
+			title.setTextColor(mDefaultPostFontColor);
             return inflatedView;
         }
 
@@ -201,7 +208,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 			TextView subtext          = (TextView) inflatedView.findViewById(R.id.subtext);
 
 			title.setText(Html.fromHtml(current.getTitle()));
+			title.setTextColor(mDefaultPostFontColor);
 			subtext.setText(current.getSubtext());
+			subtext.setTextColor(mDefaultPostBackground2Color);
 
             inflatedView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View aView) {

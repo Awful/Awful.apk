@@ -29,8 +29,10 @@ package com.ferg.awful;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -45,15 +47,18 @@ public class PostReplyActivity extends AwfulActivity {
 
 	public static final int RESULT_POSTED = 1;
 
-    private FetchFormKeyTask mFetchTask;
+    private FetchFormCookieTask mFetchCookieTask;
+    private FetchFormKeyTask mFetchKeyTask;
     private SubmitReplyTask mSubmitTask;
 
     private Button mSubmit;
     private EditText mMessage;
 	private ProgressDialog mDialog;
+    private SharedPreferences mPrefs;
 	private TextView mTitle;
 
 	private String mThreadId;
+    private String mFormCookie;
 	private String mFormKey;
 
     @Override
@@ -66,6 +71,8 @@ public class PostReplyActivity extends AwfulActivity {
         mMessage = (EditText) findViewById(R.id.post_message);
 		mTitle   = (TextView) findViewById(R.id.title);
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         Intent caller = getIntent();
 
 		mThreadId = caller.getStringExtra(Constants.THREAD);
@@ -74,8 +81,9 @@ public class PostReplyActivity extends AwfulActivity {
 
         // If we're quoting a post, add it to the message box
         if (caller.hasExtra(Constants.QUOTE)) {
-            String quoteText = caller.getStringExtra(Constants.QUOTE);
-            mMessage.setText(quoteText.replaceAll("&quot;", "\""));
+            String quoteText = caller.getStringExtra(Constants.QUOTE).replaceAll("&quot;", "\"");
+            mMessage.setText(quoteText);
+	    mMessage.setSelection(quoteText.length());
         }
 
         mSubmit.setOnClickListener(onSubmitClick);
@@ -85,57 +93,51 @@ public class PostReplyActivity extends AwfulActivity {
     public void onResume() {
         super.onResume();
 
-		// We'll enable it once we have a formkey
+        mFormKey = mPrefs.getString(Constants.FORM_KEY, null);
+        if (mFormKey == null) {
+            mFetchKeyTask = new FetchFormKeyTask();
+            mFetchKeyTask.execute(mThread.getThreadId());
+        } else {
+            mFetchCookieTask = new FetchFormCookieTask();
+            mFetchCookieTask.execute(mThread.getThreadId());
+        }
+        
+		// We'll enable it once we have a formkey and cookie
 		mSubmit.setEnabled(false);
-
-		mFetchTask = new FetchFormKeyTask();
-        mFetchTask.execute(mThreadId);
     }
     
     @Override
     public void onPause() {
         super.onPause();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
-        }
+        cleanupTasks();
     }
         
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
-        }
+        cleanupTasks();
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        cleanupTasks();
+    }
+
+    private void cleanupTasks() {
         if (mDialog != null) {
             mDialog.dismiss();
         }
 
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
+        if (mFetchCookieTask != null) {
+            mFetchCookieTask.cancel(true);
+        }
+
+        if (mFetchKeyTask != null) {
+            mFetchKeyTask.cancel(true);
         }
         
         if (mSubmitTask != null) {
@@ -151,10 +153,10 @@ public class PostReplyActivity extends AwfulActivity {
 
             if (editing) {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThreadId, getIntent().getStringExtra(Constants.POST_ID));
+                        mFormKey, mFormCookie, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
             } else {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThreadId);
+                        mFormKey, mFormCookie, mThread.getThreadId());
             }
         }
     };
@@ -176,9 +178,9 @@ public class PostReplyActivity extends AwfulActivity {
                 try {
                     if (mEditing) {
                         Log.i(TAG, "Editing!!");
-                        Reply.edit(aParams[0], aParams[1], aParams[2], aParams[3]);
+                        Reply.edit(aParams[0], aParams[1], aParams[2], aParams[3], aParams[4]);
                     } else {
-                        Reply.post(aParams[0], aParams[1], aParams[2]);
+                        Reply.post(aParams[0], aParams[1], aParams[2], aParams[3]);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -198,6 +200,9 @@ public class PostReplyActivity extends AwfulActivity {
         }
     }
 
+    // Fetches the user's Form Key if we haven't already gotten it.  This should
+    // only occur once for any user, and we'll store it in a user preference
+    // after that.
     private class FetchFormKeyTask extends AsyncTask<String, Void, String> {
         public String doInBackground(String... aParams) {
             String result = null;
@@ -217,10 +222,48 @@ public class PostReplyActivity extends AwfulActivity {
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
                 if (aResult.length() > 0) {
+                    mFormKey = aResult;
+
+                    SharedPreferences.Editor editor = mPrefs.edit();
+                    editor.putString(Constants.FORM_KEY, mFormKey);
+                    editor.commit();
+
+                    mFetchCookieTask = new FetchFormCookieTask();
+                    mFetchCookieTask.execute(mThread.getThreadId());
+                }
+            }
+        }
+	}
+
+    // Fetches the form cookie.  This is necessary every time we post, otherwise
+    // the post will fail silently for roughly 5 minutes after posting one time.
+    private class FetchFormCookieTask extends AsyncTask<String, Void, String> {
+        public String doInBackground(String... aParams) {
+            String result = null;
+
+            if (!isCancelled()) {
+                try {
+                    result = Reply.getFormCookie(aParams[0]);
+                    Log.i(TAG, "Form cookie: " + result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+
+            return result;
+        }
+
+        public void onPostExecute(String aResult) {
+            if (!isCancelled()) {
+                if (aResult.length() > 0) {
                     Log.i(TAG, aResult);
 
-                    mFormKey = aResult;
-                    mSubmit.setEnabled(true);
+                    mFormCookie = aResult;
+
+                    if (mFormKey != null) {
+                        mSubmit.setEnabled(true);
+                    }
                 }
             }
         }
