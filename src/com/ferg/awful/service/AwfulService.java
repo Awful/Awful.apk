@@ -6,6 +6,7 @@ import java.util.Stack;
 
 import org.htmlcleaner.TagNode;
 
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
@@ -17,24 +18,26 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
 	private HashMap<String, AwfulPagedItem> db = new HashMap<String, AwfulPagedItem>();
 	private boolean loggedIn;
-	private AwfulTask<?> currentThread;
+	private AwfulTask<?> currentTask;
 	private Stack<AwfulTask<?>> threadPool = new Stack<AwfulTask<?>>();
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 		Log.e(TAG, "Service started.");
 	}
 
 	public void onDestroy(){
 		Log.e(TAG, "Service onDestroy.");
-		if(currentThread != null){
-			currentThread.cancel(true);
+		if(currentTask != null){
+			currentTask.cancel(true);
 		}
 		threadPool.clear();
 	}
@@ -43,21 +46,24 @@ public class AwfulService extends Service {
 		startNextThread();
 	}
 	private void startNextThread() {
-		if(currentThread == null && !threadPool.isEmpty()){
-			currentThread = threadPool.pop();
-			currentThread.execute();
+		if(currentTask == null && !threadPool.isEmpty()){
+			currentTask = threadPool.pop();
+			currentTask.execute();
 		}
 	}
 
 	private void threadFinished(AwfulTask<?> threadTask) {
-		currentThread = null;
+		currentTask = null;
 		startNextThread();
 	}
 	private boolean isThreadQueued(int targetId, int targetPage) {
 		for(AwfulTask<?> at : threadPool){
-			if(at.getId()== targetId && at.getId() == targetPage){
+			if(at.getId()== targetId && at.getPage() == targetPage){
 				return true;
 			}
+		}
+		if(currentTask != null && currentTask.getId()== targetId && currentTask.getPage() == targetPage){
+			return true;
 		}
 		return false;
 	}

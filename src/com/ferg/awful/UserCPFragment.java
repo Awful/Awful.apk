@@ -51,7 +51,6 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     private static final String TAG = "UserCPActivity";
 
     private ImageButton mHome;
-    private SharedPreferences mPrefs;
     private TextView mTitle;
     private ForumListAdapter adapt;
 
@@ -73,8 +72,6 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         setHasOptionsMenu(true);
         setRetainInstance(true);
-		
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
@@ -159,7 +156,9 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 	};
 
 	@Override
-	public void dataUpdate() {
-		//nothin to do here.
+	public void dataUpdate(boolean pageChange) {
+		if(pageChange){
+        	getListView().setSelection(0);
+        }
 	}
 }

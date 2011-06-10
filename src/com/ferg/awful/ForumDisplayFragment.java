@@ -30,9 +30,7 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,7 +58,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private ForumListAdapter adapt;
     private ImageButton mUserCp;
 	private ImageButton mNext;
-    private SharedPreferences mPrefs;
     private TextView mTitle;
 
     @Override
@@ -82,7 +79,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         setHasOptionsMenu(true);
         setRetainInstance(true);
 		
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String c2pForumID = null;
         // we're receiving an intent from an outside link (say, ChromeToPhone). Let's check to see
     	// if we have a URL from such a link.
@@ -211,7 +207,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	};
 
 	@Override
-	public void dataUpdate() {
+	public void dataUpdate(boolean pageChange) {
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
+        if(pageChange){//this will only reset the position if the user selects next/prev page
+        	getListView().setSelection(0);
+        }
 	}
 }

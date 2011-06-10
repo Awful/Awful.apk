@@ -120,6 +120,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
+			mCallback.dataUpdate(refresh);
 		}
 		
 	}
@@ -147,10 +148,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
+			mCallback.dataUpdate(false);
 		}
 		public int getLastReadPost() {
 			if(state == null || state.getLastReadPage() != currentPage){
-				return 1;
+				return 0;
 			}
 			return state.getLastReadPost();
 		}
@@ -205,7 +207,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate();
 		}
 		@Override
 		public int getCount() {

@@ -371,7 +371,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(getUnreadCount()==-1){
 			return 0;
 		}
-		return (mTotalPosts-mUnreadCount)%Constants.ITEMS_PER_PAGE;
+		return (mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE;
 	}
 	public void setTotalCount(int postTotal) {
 		mTotalPosts = postTotal;

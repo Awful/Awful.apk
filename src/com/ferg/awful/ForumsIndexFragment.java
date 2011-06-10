@@ -28,9 +28,7 @@
 package com.ferg.awful;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,31 +37,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
-import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 
 public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
 
     private ImageButton mUserCp;
     private ListView mForumList;
-	private SharedPreferences mPrefs;
     private TextView mTitle;
 
-	private AwfulListAdapter adapt;
+	private ForumListAdapter adapt;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -100,8 +91,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         setHasOptionsMenu(true);
         setRetainInstance(true);
 		
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mTitle.setText(getString(R.string.forums_title));
         mUserCp.setOnClickListener(onButtonClick);
@@ -284,7 +273,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
 
 	@Override
-	public void dataUpdate() {
+	public void dataUpdate(boolean pageChange) {
 		
 	}
 }

@@ -126,7 +126,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         	threadid = Integer.parseInt(c2pThreadID);
         }
         adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createThreadAdapter(threadid, this);
-        //ThumbnailAdapter imgadapt = new ThumbnailAdapter(getActivity(), adapt, ((AwfulApplication) getActivity().getApplication()).getImageCache(), new int[] {R.id.avatar});//new int[] {R.id.avatar}
         if(c2pPage != null){
     		adapt.goToPage(Integer.parseInt(c2pPage));
     	}
@@ -181,13 +180,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void cleanupTasks() {
-        /*if (mDialog != null) {
-            mDialog.dismiss();
-        }*/
-
-        //if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
         
         if (mEditPostTask != null) {
             mEditPostTask.cancel(true);
@@ -244,8 +236,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                                 try {
                                     int pageInt = jumpToText.getCurrent();
                                     if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-                                        //mFetchTask = new FetchThreadTask(pageInt);
-                                        //mFetchTask.execute(mThread);
                                     	adapt.goToPage(pageInt);
                                     }
                                 } catch (NumberFormatException e) {
@@ -281,7 +271,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getActivity().getMenuInflater();
-        Log.e(TAG, "onCreateContextMenu");
         AwfulPost selected = (AwfulPost) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
         
         if (selected.isEditable()) {
@@ -323,37 +312,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
     }
 
-    /*private void setListAdapter(ArrayList<AwfulPost> aPosts) {
-        setListAdapter(generateAdapter(aPosts));
-
-        setLastRead(aPosts);
-    }
-
-    private void setListAdapter() {
-        ArrayList<AwfulPost> posts = mThread.getPosts();
-
-        setListAdapter(generateAdapter(posts));
-
-        setLastRead(posts);
-    }*/
-
-    /*private void setLastRead(int pos) {
-        AwfulPost lastRead = null;
-
-        // Maybe there's a better way to do getActivity()? It's 8am and I'm hung over
-        for (AwfulPost post : aPosts) {
-            if (post.isLastRead()) {
-                lastRead = post;
-                break;
-            }
-        }
-
-        if (lastRead != null) {
-            int index = aPosts.indexOf(lastRead);
-            getListView().setSelection(index);
-        }
-    }*/
-
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
 		public void onClick(View aView) {
 			switch (aView.getId()) {
@@ -383,7 +341,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
                     AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = selected.markLastRead();
@@ -398,9 +355,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(ArrayList<AwfulPost> aResult) {
             if (!isCancelled()) {
-                mDialog.dismiss();
-
-                //setListAdapter(aResult);
             }
         }
     }
@@ -418,7 +372,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
                     AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     mPostId = selected.getId();
@@ -458,7 +411,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
             if (!isCancelled()) {
                 try {
-                    //AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
                     AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = Reply.getQuote(selected.getId());
@@ -484,10 +436,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
 	@Override
-	public void dataUpdate() {
+	public void dataUpdate(boolean pageChange) {
 		mTitle.setText(adapt.getTitle());
 		int last = adapt.getLastReadPost();
-		if(last >0){
+		if(last >= 0 && last < adapt.getCount()){
 			getListView().setSelection(last);
 		}
 	}
