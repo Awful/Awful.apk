@@ -95,21 +95,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-
-        mForum = (AwfulSubforum) getActivity().getIntent().getParcelableExtra(Constants.FORUM);
-        if(mForum == null) {
-        	// This is normally a failure condition, except if we're receiving an
-        	// intent from an outside link (say, ChromeToPhone). Let's check to see
-        	// if we have a URL from such a link.
-        	if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-        		mForum = new AwfulSubforum();
-        		mForum.setForumId(getActivity().getIntent().getData().getQueryParameter("forumid"));
-        	} else {
-        		// no dice
-        		Log.e(TAG, "Cannot display null forum");
-        		getActivity().finish();
-        	}
-        }
+		if(adapt.getTitle() != null) {
+			mTitle.setText(Html.fromHtml(adapt.getTitle()));
+		}
+        
         
         mUserCp.setOnClickListener(onButtonClick);
     }

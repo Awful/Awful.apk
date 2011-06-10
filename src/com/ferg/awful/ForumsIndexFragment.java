@@ -77,6 +77,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mDefaultPostBackground2Color = mPrefs.getInt("default_post_background2_color", getResources().getColor(R.color.background2));
         mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
         mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
+		if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
+			adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
+			mForumList.setAdapter(adapt);
+		}
+		mForumList.setOnItemClickListener(new OnItemClickListener(){
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
@@ -85,7 +90,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	            Log.e(TAG, "Starting ForumDisplay, ID: "+arg3);
 	            startActivity(viewForum);
 			}
-        	
         });
         return result;
     }
@@ -148,115 +152,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             }
         }
     };
-
-    
-
-	/*private ExpandableListView.OnChildClickListener onForumSelected = new ExpandableListView.OnChildClickListener() {
-		public boolean onChildClick(ExpandableListView aParent, View aView, int aGroupPosition, 
-                int aChildPosition, long aId) 
-        {
-            AwfulForumAdapter adapter = (AwfulForumAdapter) mForumList.getExpandableListAdapter();
-            AwfulForum forum = (AwfulForum) adapter.getChild(aGroupPosition, aChildPosition);
-
-            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, forum.getID());
-
-            startActivity(viewForum);
-
-            return true;
-		}
-	};*/
-
-    /*public class AwfulForumAdapter extends BaseExpandableListAdapter {
-        private ArrayList<AwfulForum> mForums;
-        private LayoutInflater mInflater;
-
-        public AwfulForumAdapter(Context aContext, ArrayList<AwfulForum> aForums) {
-            mInflater     = LayoutInflater.from(aContext);
-            mForums       = aForums;
-        }
-
-        @Override
-        public View getChildView(int aGroupPosition, int aChildPosition, boolean isLastChild, 
-                View aConvertView, ViewGroup aParent) 
-        {
-            View inflatedView = aConvertView;
-
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(R.layout.subforum_item, null);
-            }
-
-			AwfulForum current = (AwfulForum) getChild(aGroupPosition, aChildPosition);
-			inflatedView.setBackgroundColor(mDefaultPostBackground2Color);
-			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
-			title.setText(Html.fromHtml(current.getTitle()));
-			title.setTextColor(mDefaultPostFontColor);
-            return inflatedView;
-        }
-
-        @Override
-        public View getGroupView(int aGroupPosition, boolean isExpanded, View aConvertView, ViewGroup aParent) {
-            View inflatedView = aConvertView;
-
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(R.layout.forum_item, null);
-            }
-
-			final AwfulForum current = (AwfulForum) getGroup(aGroupPosition);
-
-			TextView title            = (TextView) inflatedView.findViewById(R.id.title);
-			TextView subtext          = (TextView) inflatedView.findViewById(R.id.subtext);
-
-			title.setText(Html.fromHtml(current.getTitle()));
-			title.setTextColor(mDefaultPostFontColor);
-			subtext.setText(current.getSubtext());
-			subtext.setTextColor(mDefaultPostBackground2Color);
-
-            inflatedView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View aView) {
-                    Intent viewForum = new Intent().setClass(getActivity(), 
-                        ForumDisplayActivity.class);
-                    viewForum.putExtra(Constants.FORUM, current.getID());
-
-                    startActivity(viewForum);
-                }
-            });
-
-            return inflatedView;
-        }
-
-        public Object getChild(int aGroupPosition, int aChildPosition) {
-            return mForums.get(aGroupPosition).getSubforums().get(aChildPosition);
-        }
-
-        public long getChildId(int aGroupPosition, int aChildPosition) {
-            return aChildPosition;
-        }
-
-        public int getChildrenCount(int aGroupPosition) {
-            return mForums.get(aGroupPosition).getSubforums().size();
-        }
-
-        public Object getGroup(int aGroupPosition) {
-            return mForums.get(aGroupPosition);
-        }
-
-        public long getGroupId(int aGroupPosition) {
-            return aGroupPosition;
-        }
-
-        public int getGroupCount() {
-            return mForums.size();
-        }
-
-        public boolean isChildSelectable(int aGroupPosition, int aChildPosition) {
-            return true;
-        }
-
-        public boolean hasStableIds() {
-            return true;
-        }
-    }*/
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
