@@ -58,12 +58,9 @@ import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
 
-    //private LoadForumsTask mLoadTask;
-
     private ImageButton mUserCp;
     private ListView mForumList;
-	//private ProgressDialog mDialog;
-    private SharedPreferences mPrefs;
+	private SharedPreferences mPrefs;
     private TextView mTitle;
 
 	private AwfulListAdapter adapt;
@@ -78,7 +75,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mTitle     = (TextView) result.findViewById(R.id.title);
         mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
         if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
-        	adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, 0, this);
+        	adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
             mForumList.setAdapter(adapt);
         }
         mForumList.setOnItemClickListener(new OnItemClickListener(){
@@ -116,11 +113,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
 		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 		if (loggedIn) {
-            Log.i(TAG, "Starting task!");
-			//mLoadTask = new LoadForumsTask();
-            //mLoadTask.execute();
-            //TODO load forums
-            //adapt.refresh();
+            Log.e(TAG, "Cookie Loaded!");
 		} else {
 			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
 		}
@@ -129,40 +122,16 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void onPause() {
         super.onPause();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mLoadTask != null) {
-        //    mLoadTask.cancel(true);
-        //}
     }
         
     @Override
     public void onStop() {
         super.onStop();
-
-        //if (mDialog != null) {
-         //   mDialog.dismiss();
-        //}
-
-        //if (mLoadTask != null) {
-        //    mLoadTask.cancel(true);
-        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mLoadTask != null) {
-        //    mLoadTask.cancel(true);
-        //}
     }
     
     @Override
@@ -170,11 +139,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     	// The only activity we call for result is login
     	// Odds are we want to refresh whether or not it was successful
     	
-    	// But we do need to make sure we aren't already in the middle of a refresh
-    	//if(mDialog == null || !mDialog.isShowing()) {
-    	//	mLoadTask = new LoadForumsTask();
-        //    mLoadTask.execute();
-    	//}
     	//refresh
     	adapt.refresh();
     }
@@ -321,7 +285,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
 	@Override
 	public void dataUpdate() {
-		// TODO Auto-generated method stub
 		
 	}
 }

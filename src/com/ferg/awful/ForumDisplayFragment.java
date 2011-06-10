@@ -49,19 +49,17 @@ import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
+import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.widget.NumberPicker;
 
 public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
-    private AwfulListAdapter adapt;
+    private ForumListAdapter adapt;
     private ImageButton mUserCp;
 	private ImageButton mNext;
-    //private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
 
@@ -95,9 +93,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     	if(c2pForumID != null){
     		id = Integer.parseInt(c2pForumID);
     	}
-        adapt = ((ForumDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.FORUM, id, this);
+        adapt = ((ForumDisplayActivity) getActivity()).getServiceConnection().createForumAdapter(id, this);
         setListAdapter(adapt);
-        //getListView().setOnScrollListener(new EndlessScrollListener());
         getListView().setOnItemClickListener(onThreadSelected);
         if(adapt.getTitle() != null) {
         	mTitle.setText(Html.fromHtml(adapt.getTitle()));
@@ -109,29 +106,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart();
-        
-        // final ArrayList<AwfulThread> retainedThreadList = (ArrayList<AwfulThread>) getLastNonConfigurationInstance();
-        /*final ArrayList<AwfulThread> retainedThreadList = null;
-
-        if (retainedThreadList == null || retainedThreadList.size() == 0) {
-        	mFetchTask = new FetchThreadsTask();
-        	mFetchTask.execute(mForum.getForumId());
-        } else {
-            ((ForumArrayAdapter) getListAdapter()).setThreads(retainedThreadList);
-        }*/
     }
     
     @Override
     public void onPause() {
         super.onPause();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mFetchTask != null) {
-        //   mFetchTask.cancel(true);
-        //}
     }
     @Override
     public void onResume() {
@@ -141,27 +120,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStop() {
         super.onStop();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //if (mDialog != null) {
-        //    mDialog.dismiss();
-        //}
-
-        //if (mFetchTask != null) {
-        //    mFetchTask.cancel(true);
-        //}
     }
     
     @Override
@@ -246,40 +209,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             
 		}
 	};
-	/*
-    private class EndlessScrollListener implements OnScrollListener {
-    	private int visibleThreshold = 5;
-    	private int currentPage = 0;
-    	private int previousTotal = 0;
-    	private boolean loading = true;
-    	
-    	public EndlessScrollListener() {
-    	}
-    	
-    	public void onScroll(AbsListView view, int firstVisibleItem,
-    			int visibleItemCount, int totalItemCount) {
-    		if (loading) {
-    			if (totalItemCount > previousTotal) {
-    				loading = false;
-    				previousTotal = totalItemCount;
-    				currentPage++;
-    			}
-    		}
-    		
-    		if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-    			//load new items in background and add them
-    			loading = true;
-				if (adapt.getPage() != adapt.getLastPage()) {
-					adapt.goToPage(adapt.getPage() + 1);
-					//TODO new FetchThreadsTask(mForum.getCurrentPage()).execute(mForum.getForumId());
-				}
-    		}
-    	}
-
-    	public void onScrollStateChanged(AbsListView view, int scrollState) {
-    		
-    	}
-    }*/
 
 	@Override
 	public void dataUpdate() {

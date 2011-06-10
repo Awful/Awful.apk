@@ -14,17 +14,15 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.SectionIndexer;
-import android.widget.TextView;
 
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPageCount;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
@@ -104,23 +102,89 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mService.fetchForum(id, page);
 		}
 	}
+	
+	public class ForumListAdapter extends AwfulListAdapter<AwfulForum>{
 
+		public ForumListAdapter(int id, AwfulUpdateCallback frag) {
+			super(id, frag);
+		}
+		@Override
+		public void loadPage(boolean refresh){
+			if(mService == null || !boundState){
+				return;
+			}
+			state = mService.getForum(currentId);
+			if(refresh){
+				fetchForum(currentId, currentPage);
+			}
+			if(mObserver != null){
+				mObserver.onChanged();
+			}
+		}
+		
+	}
 
+	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
+		protected boolean lastReadLoaded;
 
-	public class AwfulListAdapter extends BaseAdapter implements SectionIndexer {
-		private int currentId;
-		private int currentPage;
-		private DISPLAY_TYPE currentType;
-		private AwfulPagedItem state;
-		private DataSetObserver mObserver;
-		private AwfulUpdateCallback mCallback;
-		private boolean lastReadLoaded;
-		private AwfulPageCount pageCount;
-		private TextView pageCountText;
-		public AwfulListAdapter(DISPLAY_TYPE viewType, int id, AwfulUpdateCallback frag){
+		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
+			super(id, frag);
+		}
+		
+		public void loadPage(boolean refresh){
+			if(mService == null || !boundState){
+				return;
+			}
+			state = mService.getThread(currentId);
+			if(state !=null && !lastReadLoaded){
+				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
+				currentPage = state.getLastReadPage();
+				lastReadLoaded = true;
+			}
+			if(refresh){
+				fetchThread(currentId, currentPage);
+			}
+			if(mObserver != null){
+				mObserver.onChanged();
+			}
+		}
+		public int getLastReadPost() {
+			if(state == null || state.getLastReadPage() != currentPage){
+				return 1;
+			}
+			return state.getLastReadPost();
+		}
+		
+		public void goToPage(int page){
+			if(currentPage < page && state != null){
+				if(page >= (state.getTotalCount()/Constants.ITEMS_PER_PAGE+1)){
+					state.setUnreadCount(0);
+				}else{
+					state.setUnreadCount(state.getTotalCount()-(page-1)*Constants.ITEMS_PER_PAGE);
+				}
+			}
+			lastReadLoaded = true;
+			super.goToPage(page);
+		}
+
+		public void toggleBookmark() {
+			if(state == null || !boundState){
+				return;
+			}
+			mService.toggleBookmark(state.getID());
+		}
+	}
+
+	public abstract class AwfulListAdapter<T extends AwfulPagedItem> extends BaseAdapter implements SectionIndexer {
+		protected int currentId;
+		protected int currentPage;
+		protected T state;
+		protected DataSetObserver mObserver;
+		protected AwfulUpdateCallback mCallback;
+		protected AwfulPageCount pageCount;
+		public AwfulListAdapter(int id, AwfulUpdateCallback frag){
 			currentId = id;
 			currentPage = 1;
-			currentType = viewType;
 			mCallback = frag;
 			if(boundState){
 				loadPage(true);
@@ -170,7 +234,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return state.getChild(currentPage, ix).getID();
 		}
 
-		private boolean isPageCount(int ix) {
+		protected boolean isPageCount(int ix) {
 			return (state != null && state.isPaged() && ix == state.getChildrenCount(currentPage));
 		}
 		
@@ -232,7 +296,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		@Override
 		public void registerDataSetObserver(DataSetObserver ob) {
 			if(mObserver != null){
-				//is there any case where you would have more than one DataSetObserver? A: nope
 				Log.e(TAG, "dataSetObserver overidden!");
 			}
 			Log.e(TAG, "dataSetObserver set!");
@@ -274,44 +337,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(pageInt > getLastPage()){
 				pageInt = getLastPage();
 			}
-			if(currentPage < pageInt && state != null && state instanceof AwfulThread){
-				AwfulThread tmp = (AwfulThread) state;
-				if(pageInt >= (tmp.getTotalCount()/Constants.ITEMS_PER_PAGE+1)){
-					tmp.setUnreadCount(0);
-				}else{
-					tmp.setUnreadCount(tmp.getTotalCount()-(pageInt-1)*Constants.ITEMS_PER_PAGE);
-				}
-			}
-			lastReadLoaded = true;
 			currentPage = pageInt;
 			loadPage(true);
 		}
-		private void loadPage(boolean refresh){
-			if(!boundState || mService == null){
-				return;
-			}
-			switch(currentType){
-			case FORUM:
-				state = mService.getForum(currentId);
-				if(refresh){
-					fetchForum(currentId, currentPage);
-				}
-				break;
-			case THREAD:
-				state = mService.getThread(currentId);
-				if(state !=null && !lastReadLoaded){
-					Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
-					currentPage = state.getLastReadPage();
-					lastReadLoaded = true;
-				}
-				if(refresh){
-					fetchThread(currentId, currentPage);
-				}
-			}
-			if(mObserver != null){
-				mObserver.onChanged();
-			}
-		}
+		protected abstract void loadPage(boolean refresh);
 
 		public int getPage() {
 			return currentPage;
@@ -328,10 +357,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return state;
 		}
 		public int getLastReadPost() {
-			if(state == null || !(state instanceof AwfulThread)){
-				return -1;
-			}
-			return ((AwfulThread) state).getLastReadPost();
+			return 1;
 		}
 
 		// Section Indexer methods
@@ -353,20 +379,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			return ret;
 		}
-		public void toggleBookmark() {
-			if(currentType != DISPLAY_TYPE.THREAD || state == null || !boundState){
-				return;
-			}
-			mService.toggleBookmark(state.getID(), ((AwfulThread) state).isBookmarked());
-			((AwfulThread) state).setBookmarked(!((AwfulThread) state).isBookmarked());//toggle until next thread refresh.
-		}
 		
 	}
-
-	
-
-	public AwfulListAdapter createAdapter(DISPLAY_TYPE type, int id, AwfulUpdateCallback forumDisplayFragment) {
-		AwfulListAdapter ad =  new AwfulListAdapter(type, id, forumDisplayFragment);
+	public ThreadListAdapter createThreadAdapter(int id, AwfulUpdateCallback threadDisplayFragment) {
+		ThreadListAdapter ad =  new ThreadListAdapter(id, threadDisplayFragment);
+		fragments.add(ad);
+		return ad;
+	}
+	public ForumListAdapter createForumAdapter(int id, AwfulUpdateCallback forumDisplayFragment) {
+		ForumListAdapter ad =  new ForumListAdapter(id, forumDisplayFragment);
 		fragments.add(ad);
 		return ad;
 	}

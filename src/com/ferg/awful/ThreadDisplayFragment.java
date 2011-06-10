@@ -56,16 +56,15 @@ import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
-import com.ferg.awful.service.AwfulServiceConnection.AwfulListAdapter;
+import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 import com.ferg.awful.thread.AwfulPost;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
 public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
-	private AwfulListAdapter adapt;
+	private ThreadListAdapter adapt;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private MarkLastReadTask mMarkLastReadTask;
@@ -126,7 +125,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         if(c2pThreadID != null){
         	threadid = Integer.parseInt(c2pThreadID);
         }
-        adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createAdapter(DISPLAY_TYPE.THREAD, threadid, this);
+        adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createThreadAdapter(threadid, this);
         //ThumbnailAdapter imgadapt = new ThumbnailAdapter(getActivity(), adapt, ((AwfulApplication) getActivity().getApplication()).getImageCache(), new int[] {R.id.avatar});//new int[] {R.id.avatar}
         if(c2pPage != null){
     		adapt.goToPage(Integer.parseInt(c2pPage));
@@ -488,254 +487,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	public void dataUpdate() {
 		mTitle.setText(adapt.getTitle());
 		int last = adapt.getLastReadPost();
-		if(last >= adapt.getCount()){
-			last = adapt.getCount()-1;
-		}
 		if(last >0){
 			getListView().setSelection(last);
 		}
 	}
-
-    
-
-    /**
-     * Factory method for a post adapter. Deals with a few decorator classes.
-     */
-    /*private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
-    	AwfulPostAdapterBase base = new AwfulPostAdapterBase(getActivity(), R.layout.post_item, posts);
-    	return new AwfulServiceAdapter(base);
-    }*/
-
-    /**
-     * Decorates the base adapter that does the actual work with a
-     * ThumbnailAdapter to render avatars, then adds SectionIndexer
-     * capabilities for the fast scroll bar.
-     *
-     * Right now the SectionIndexer just does the post number relative
-     * to the start of the page. In the future this might change to use
-     * the page number in an endless list. 
-     */
-    /*
-    public class AwfulPostAdapter extends AdapterWrapper implements SectionIndexer {
-    	private AwfulPostAdapterBase mBaseAdapter;
-    	
-    	public AwfulPostAdapter(AwfulPostAdapterBase base) {
-    		super(new ThumbnailAdapter(    		
-    				getActivity(),
-    				base,
-    				((AwfulApplication) getActivity().getApplication()).getImageCache(),
-        			new int[] {R.id.avatar}));
-    		mBaseAdapter = base;
-    	}
-
-		@Override
-		public int getPositionForSection(int section) {
-			return section;
-		}
-
-		@Override
-		public int getSectionForPosition(int position) {
-			return position;
-		}
-
-		@Override
-		public Object[] getSections() {
-			int count = mBaseAdapter.getCount();
-			String[] sections = new String[count];
-			for(int i=0;i<count;i++) {
-				sections[i] = Integer.toString(i+1);
-			}
-			return sections;
-		}
-    }
-
-    
-    public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
-        private ArrayList<AwfulPost> mPosts;
-        private int mViewResource;
-        private LayoutInflater mInflater;
-
-        public AwfulPostAdapterBase(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
-            super(aContext, aViewResource, aPosts);
-
-            mInflater     = LayoutInflater.from(aContext);
-            mPosts        = aPosts;
-            mViewResource = aViewResource;
-        }
-
-        private void startActivityForLink(String baseUrl, HashMap<String, String> params) {
-        	String paramString = NetworkUtils.getQueryStringParameters(params);
-			Uri uri = Uri.parse(baseUrl + paramString);
-			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
-			startActivity(linkIntent);
-        }
-        /**
-         * this is already dead code, but I imagine someone will reimplement it eventually
-         */
-	/*
-        private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
-        	QuickAction result = new QuickAction(anchor);
-        	final String userid = post.getUserId();
-        	
-        	if(post.hasProfileLink()) {
-	        	ActionItem profileAction = new ActionItem();
-	        	profileAction.setTitle("Profile"); // TODO externalize
-	        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
-	        	profileAction.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-                        Intent profile = new Intent().setClass(getActivity(), ProfileActivity.class);
-                        profile.putExtra(Constants.PARAM_USER_ID, userid);
-
-						startActivity(profile);
-					}
-	        	});
-	        	result.addActionItem(profileAction);
-        	}	        	
-        	
-        	if(post.hasMessageLink()) {
-	        	ActionItem messageAction = new ActionItem();
-	        	messageAction.setTitle("Message"); // TODO externalize
-	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_send));
-	        	messageAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
-	        		}
-	        	});
-	        	result.addActionItem(messageAction);
-        	}
-        	
-        	if(post.hasPostHistoryLink()) {
-	        	ActionItem postHistoryAction = new ActionItem();
-	        	postHistoryAction.setTitle("Post History"); // TODO externalize
-	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_archive));
-	        	postHistoryAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_SEARCH, params);
-	        		}
-	        	});
-	        	result.addActionItem(postHistoryAction);
-        	}
-        	
-        	if(post.hasRapSheetLink()) {
-	        	ActionItem rapSheetAction = new ActionItem();
-	        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
-	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
-	        	rapSheetAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_BANLIST, params);
-	        		}
-	        	});
-	        	result.addActionItem(rapSheetAction);
-        	}
-        	
-        	result.setAnimStyle(QuickAction.ANIM_AUTO);
-        	result.show();
-        }
-        
-        private class ViewHolder {
-        	public TextView username;
-        	public TextView postDate;
-        	public HtmlView postBody;
-        	public ImageView avatar;
-        	public View postHead;
-            public TextView pageCount;
-            public RelativeLayout pageIndicator; 
-        	
-        	public ViewHolder(View v) {
-        		username = (TextView) v.findViewById(R.id.username);
-        		postDate = (TextView) v.findViewById(R.id.post_date);
-        		postBody = (HtmlView) v.findViewById(R.id.postbody);
-        		avatar = (ImageView) v.findViewById(R.id.avatar);
-        		postHead = v.findViewById(R.id.posthead);
-                pageCount = (TextView) v.findViewById(R.id.page_count);
-                pageIndicator = (RelativeLayout) v.findViewById(R.id.page_indicator);
-        	}
-        }
-        
-        @Override
-        public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
-            View inflatedView = aConvertView;
-            ViewHolder viewHolder = null;
-            
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(mViewResource, null);
-                viewHolder = new ViewHolder(inflatedView);
-                inflatedView.setTag(viewHolder);
-                viewHolder.postBody.setMovementMethod(LinkMovementMethod.getInstance());
-            } else {
-            	viewHolder = (ViewHolder) inflatedView.getTag();
-            }
-
-            final AwfulPost current = getItem(aPosition);
-            
-            viewHolder.username.setText(current.getUsername());
-            viewHolder.postDate.setText("Posted on " + current.getDate());
-            viewHolder.postBody.setHtml(current.getContent());
-
-            // These are done per render instead of at view construction because there's
-            // apparently no good way to force view reconstruction after, say, the user
-            // changes preferences for these things.
-            viewHolder.postBody.setTextSize(mDefaultPostFontSize);
-            viewHolder.postBody.setTextColor(mDefaultPostFontColor);
-            
-            // change background color of previously read posts
-
-            if (current.isPreviouslyRead()) {
-            	if (current.isEven()) {
-            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
-            	} else {
-            		viewHolder.postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
-            	}
-            } else {
-                viewHolder.postBody.setBackgroundColor(getResources().getColor(R.color.forums_gray));
-            }
-            
-            // Set up header quickactions
-            final ViewHolder vh = viewHolder;
-            OnClickListener listener = new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if(v == vh.postHead) {
-						// showAvatarQuickAction(vh.avatar, current, aPosition);
-					}
-				}
-            };
-
-            if (aPosition == (getCount() - 1))  {
-                viewHolder.pageIndicator.setVisibility(View.VISIBLE);
-                viewHolder.pageCount.setVisibility(View.VISIBLE);
-                viewHolder.pageCount.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
-                        "/" + Integer.toString(mThread.getLastPage()));
-            } else if (viewHolder.pageCount.getVisibility() == View.VISIBLE) {
-                viewHolder.pageIndicator.setVisibility(View.GONE);
-                viewHolder.pageCount.setVisibility(View.GONE);
-            }
-            
-            viewHolder.postHead.setOnClickListener(listener);
-            viewHolder.postBody.setOnClickListener(listener);
-            
-            if( current.getAvatar() == null ) {
-            	viewHolder.avatar.setVisibility(View.INVISIBLE);
-            } else {
-            	viewHolder.avatar.setVisibility(View.VISIBLE);
-            }
-            
-            viewHolder.avatar.setTag(current.getAvatar());
-            
-
-            return inflatedView;
-        }
-    }*/
 }

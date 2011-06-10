@@ -2,11 +2,10 @@ package com.ferg.awful.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.WeakHashMap;
+import java.util.Stack;
 
 import org.htmlcleaner.TagNode;
 
-import com.ferg.awful.AwfulLoginActivity;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
@@ -24,7 +23,8 @@ public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
 	private HashMap<String, AwfulPagedItem> db = new HashMap<String, AwfulPagedItem>();
 	private boolean loggedIn;
-	private WeakHashMap<AsyncTask, String> threadPool = new WeakHashMap<AsyncTask, String>();
+	private AwfulTask<?> currentThread;
+	private Stack<AwfulTask<?>> threadPool = new Stack<AwfulTask<?>>();
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
@@ -33,10 +33,33 @@ public class AwfulService extends Service {
 
 	public void onDestroy(){
 		Log.e(TAG, "Service onDestroy.");
-		for(AsyncTask at : threadPool.keySet()){
-			at.cancel(true);
+		if(currentThread != null){
+			currentThread.cancel(true);
 		}
 		threadPool.clear();
+	}
+	private void queueThread(AwfulTask<?> threadTask) {
+		threadPool.push(threadTask);
+		startNextThread();
+	}
+	private void startNextThread() {
+		if(currentThread == null && !threadPool.isEmpty()){
+			currentThread = threadPool.pop();
+			currentThread.execute();
+		}
+	}
+
+	private void threadFinished(AwfulTask<?> threadTask) {
+		currentThread = null;
+		startNextThread();
+	}
+	private boolean isThreadQueued(int targetId, int targetPage) {
+		for(AwfulTask<?> at : threadPool){
+			if(at.getId()== targetId && at.getId() == targetPage){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean isLoggedIn(){
@@ -55,31 +78,36 @@ public class AwfulService extends Service {
 		return bindServ;
 	}
 	
-	private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
-
-		private int threadID;
-		private int pageNum;
+	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
+		protected int mId = 0;
+		protected int mPage = 1;
+		public int getId(){
+			return mId;
+		}
+		public int getPage(){
+			return mPage;
+		}
+	}
+	
+	private class FetchThreadTask extends AwfulTask<AwfulThread> {
 		private AwfulThread thread;
 		public FetchThreadTask(int id, int page) {
-			threadID = id;
-			pageNum = page;
-			thread = (AwfulThread) db.get("threadid="+threadID);
+			mId = id;
+			mPage = page;
+			thread = (AwfulThread) db.get("threadid="+mId);
 			if(thread == null){
-				//Log.e(TAG,"thread not in DB. id: "+threadID);
-				thread = new AwfulThread(threadID);
-				db.put("threadid="+threadID, thread);
+				thread = new AwfulThread(mId);
+				db.put("threadid="+mId, thread);
 			}
 		}
 
         public void onPreExecute() {
         }
 
-        public AwfulThread doInBackground(AwfulThread... aParams) {
+        public AwfulThread doInBackground(Void... vParams) {
             if (!isCancelled() && thread != null) {
                 try {
-                    // We set the unread count to -1 if the user has never
-                    // visited that thread before
-                	thread.getThreadPosts(pageNum);
+                	thread.getThreadPosts(mPage);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
@@ -91,28 +119,24 @@ public class AwfulService extends Service {
 
         public void onPostExecute(AwfulThread aResult) {
             if (!isCancelled() && thread != null) {
-            	//db.put("threadid="+threadID, aResult);//we should already have this in the db
-
-                // If we're loading a thread from ChromeToPhone we have to set the 
-                // title now
-                //if (mTitle.getText() == null || mTitle.getText().length() == 0) {
-                //    mTitle.setText(Html.fromHtml(mThread.getTitle()));
-               // }
             	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, thread.getID()));
             }
-            threadPool.remove(this);
+            threadFinished(this);
         }
     }
 
-    private class FetchForumThreadsTask extends AsyncTask<Integer, Void, ArrayList<AwfulThread>> {
-		private int mPage;
+    private class FetchForumThreadsTask extends AwfulTask<ArrayList<AwfulThread>> {
 		private AwfulForum mForum;
-		private int mForumID;
-		private ArrayList<AwfulForum> newSubforums;//it's 2:21am, time to hack shit together
+		private ArrayList<AwfulForum> newSubforums;
+		@Override
+		public String toString(){
+			Log.e(TAG, "forumtask ToString?");
+			return mId+" "+mPage;
+		}
 		
 		public FetchForumThreadsTask(int forumID, int aPage) {
 			mPage = aPage;
-			mForumID = forumID;
+			mId = forumID;
 			mForum = (AwfulForum) db.get("forumid="+forumID);
 		}
 
@@ -120,11 +144,11 @@ public class AwfulService extends Service {
         	
         }
 
-        public ArrayList<AwfulThread> doInBackground(Integer... aParams) {
+        public ArrayList<AwfulThread> doInBackground(Void... vParams) {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
             if(mForum == null){
-            	mForum = new AwfulForum(mForumID);
-            	db.put("forumid="+mForumID, mForum);
+            	mForum = new AwfulForum(mId);
+            	db.put("forumid="+mId, mForum);
             	//Log.e(TAG, "Forum Not Found ID: "+mForumID);
             }
             if (!isCancelled() && !(mForum == null || mForum.getForumId() == null || mForum.getForumId().equals(""))) {
@@ -185,32 +209,34 @@ public class AwfulService extends Service {
         			}
         			
             	}
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mForumID));
+            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mId));
             }
-            threadPool.remove(this);
+            threadFinished(this);
         }
     }
     
 	public void fetchThread(int id, int page) {
-		if(threadPool.containsValue(id+" "+page)){
+		if(isThreadQueued(id,page)){
 			Log.e(TAG, "dupe fetchThread "+id);
 			return;
 		}
 		Log.e(TAG, "fetchThread "+id);
-		threadPool.put(new FetchThreadTask(id, page).execute(), id+" "+page);
+		queueThread(new FetchThreadTask(id, page));
 	}
 	public void fetchForum(int id, int page) {
-		if(threadPool.containsValue(id+" "+page)){
+		if(isThreadQueued(id,page)){
 			Log.e(TAG, "dupe fetchForum "+id);
 			return;
 		}
 		Log.e(TAG, "fetchForum "+id);
 		if(id == 0){
-			threadPool.put(new LoadForumsTask().execute(),id+" "+page);
+			queueThread(new LoadForumsTask());
 		}else{
-			threadPool.put(new FetchForumThreadsTask(id, page).execute(), id+" "+page);
+			queueThread(new FetchForumThreadsTask(id, page));
 		}
 	}
+	
+
 	public AwfulForum getForum(int currentId) {
 		Log.e(TAG, "getForum "+currentId);
 		return (AwfulForum) db.get("forumid="+currentId);
@@ -220,20 +246,21 @@ public class AwfulService extends Service {
 		return (AwfulThread) db.get("threadid="+currentId);
 	}
 	
-	public void toggleBookmark(int threadId, boolean remove){
-		threadPool.put(new BookmarkToggleTask(remove).execute(threadId), threadId+"");
+	public void toggleBookmark(int threadId){
+		queueThread(new BookmarkToggleTask(threadId));
 	}
 	
-	private class BookmarkToggleTask extends AsyncTask<Integer, Void, Void> {
-		boolean removeBookmark;
-        public BookmarkToggleTask(boolean remove) {
-        	removeBookmark = remove;
+	private class BookmarkToggleTask extends AwfulTask<Void> {
+		private boolean removeBookmark;
+        public BookmarkToggleTask(int threadId) {
+        	mId = threadId;
+        	AwfulThread th = (AwfulThread) db.get("threadid="+mId);
+        	removeBookmark = (th != null ? th.isBookmarked() : true);
 		}
-
-		public Void doInBackground(Integer... aParams) {
+		public Void doInBackground(Void... aParams) {
             if (!isCancelled()) {
             	HashMap<String, String> params = new HashMap<String, String>();
-                params.put(Constants.PARAM_THREAD_ID, aParams[0].toString());
+                params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
                 if(removeBookmark){
                 	params.put(Constants.PARAM_ACTION, "remove");
                 }else{
@@ -250,15 +277,12 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Void aResult) {
-            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, 0));
-            threadPool.remove(this);
+            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mId));
+            threadFinished(this);
         }
     }
 	
-	private class LoadForumsTask extends AsyncTask<Void, Void, ArrayList<AwfulForum>> {
-        public void onPreExecute() {
-        }
-
+	private class LoadForumsTask extends AwfulTask<ArrayList<AwfulForum>> {
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
             if (!isCancelled()) {
@@ -281,7 +305,7 @@ public class AwfulService extends Service {
             	}
             	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, 0));
             }
-            threadPool.remove(this);
+            threadFinished(this);
         }
     }
 }
