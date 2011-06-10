@@ -39,6 +39,7 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.style.CharacterStyle;
 import android.text.style.ImageSpan;
+import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -70,6 +71,8 @@ public final class HtmlView extends TextView {
     private static final boolean USE_PLACEHOLDER_IMAGE = true;
 
     private static UriMatcher sUriMatcher;
+    
+    private boolean imagesEnabled;
 
     /**
      * Logs an error message about a resource with a URL.
@@ -308,7 +311,7 @@ public final class HtmlView extends TextView {
         super.onRestoreInstanceState(ss.getSuperState());
         String html = ss.mHtml;
         if (html != null) {
-            setHtml(html);
+            setHtml(html, true);
         }
     }
 
@@ -452,7 +455,8 @@ public final class HtmlView extends TextView {
         }
     }
 
-    public void setHtml(String source) {
+    public void setHtml(String source, boolean loadImages) {
+    	imagesEnabled = loadImages;
         if (source == null) {
             setText(null);
             return;
@@ -479,7 +483,19 @@ public final class HtmlView extends TextView {
                 if (tag.equalsIgnoreCase("embed")) {
                     handleEmbed(node, output);
                 } else if (tag.equalsIgnoreCase("img")) {
-                    handleImg(node, output);
+                	if(imagesEnabled){
+                		handleImg(node, output);
+                	}else{
+                		if(node.getAttribute("title").equalsIgnoreCase("")){
+                			int start = output.length();
+                			output.append(node.getAttribute("src"));
+                			output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                		}else{
+                			int start = output.length();
+                			output.append(node.getAttribute("title"));
+                			output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                		}
+                	}
                 }
             }
         	

@@ -27,14 +27,34 @@
 
 package com.ferg.awful;
 
+import com.ferg.awful.service.AwfulServiceConnection;
+
 import android.os.Bundle;
+import android.util.Log;
 
 public class ForumDisplayActivity extends AwfulActivity {
 
-    @Override
+    private AwfulServiceConnection service;
+
+	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        service = new AwfulServiceConnection();
+		service.connect(this);
         setContentView(R.layout.forum_display_activity);
     }
+	public AwfulServiceConnection getServiceConnection(){
+		return service;
+	}
+	public void onResume(){
+		super.onResume();
+	}
+	public void onPause(){
+		super.onPause();
+	}
+	public void onDestroy(){
+		super.onDestroy();
+		service.disconnect(this);
+	}
 }
