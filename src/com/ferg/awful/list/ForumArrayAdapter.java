@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,7 @@ public class ForumArrayAdapter extends BaseAdapter {
 		SUB_FORUM,
 		THREAD
 	}
-	
+	private SharedPreferences mPrefs;
 	private List<AwfulForum>  mSubForums;
     private List<AwfulThread> mThreads;
     
@@ -33,7 +35,8 @@ public class ForumArrayAdapter extends BaseAdapter {
 
     public ForumArrayAdapter(Context aContext) {
         super();
-
+        
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(aContext);
         mInflater = LayoutInflater.from(aContext);
 
         mSubForums = null;
@@ -180,7 +183,9 @@ public class ForumArrayAdapter extends BaseAdapter {
     	
     	public ThreadViewHolder(View view) {
     		title       = (TextView)  view.findViewById(R.id.title);
+    		title.setTextColor(mPrefs.getInt("default_post_font_color", view.getResources().getColor(R.color.default_post_font)));
             author      = (TextView)  view.findViewById(R.id.author);
+            author.setTextColor(mPrefs.getInt("default_post_background2_color", view.getResources().getColor(R.color.background2)));
             unreadCount = (TextView)  view.findViewById(R.id.unread_count);
             stickyIcon  = (ImageView) view.findViewById(R.id.sticky_icon);
     	}
