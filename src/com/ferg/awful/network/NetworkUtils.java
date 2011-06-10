@@ -176,7 +176,7 @@ public class NetworkUtils {
 	    return get(aUrl, null, redirects);
 	}
 
-	public static TagNode get(String aUrl, HashMap<String, String> aParams,
+	public synchronized static TagNode get(String aUrl, HashMap<String, String> aParams,
 			List<URI> redirects) throws Exception {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
@@ -251,7 +251,7 @@ public class NetworkUtils {
 
         if (entity != null) {
             response = sCleaner
-                    .clean(new InputStreamReader(entity.getContent()));
+                    .clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
         }
 
         Log.i(TAG, "Fetched " + location.toString());

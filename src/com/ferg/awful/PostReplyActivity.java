@@ -27,9 +27,7 @@
 
 package com.ferg.awful;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -43,7 +41,6 @@ import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
-import com.ferg.awful.thread.AwfulThread;
 
 public class PostReplyActivity extends AwfulActivity {
     private static final String TAG = "PostReplyActivity";
@@ -60,7 +57,7 @@ public class PostReplyActivity extends AwfulActivity {
     private SharedPreferences mPrefs;
 	private TextView mTitle;
 
-	private AwfulThread mThread;
+	private String mThreadId;
     private String mFormCookie;
 	private String mFormKey;
 
@@ -78,7 +75,7 @@ public class PostReplyActivity extends AwfulActivity {
 
         Intent caller = getIntent();
 
-		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
+		mThreadId = caller.getStringExtra(Constants.THREAD);
 		
 		mTitle.setText(getString(R.string.post_reply));
 
@@ -99,10 +96,10 @@ public class PostReplyActivity extends AwfulActivity {
         mFormKey = mPrefs.getString(Constants.FORM_KEY, null);
         if (mFormKey == null) {
             mFetchKeyTask = new FetchFormKeyTask();
-            mFetchKeyTask.execute(mThread.getThreadId());
+            mFetchKeyTask.execute(mThreadId);
         } else {
             mFetchCookieTask = new FetchFormCookieTask();
-            mFetchCookieTask.execute(mThread.getThreadId());
+            mFetchCookieTask.execute(mThreadId);
         }
         
 		// We'll enable it once we have a formkey and cookie
@@ -156,10 +153,10 @@ public class PostReplyActivity extends AwfulActivity {
 
             if (editing) {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mFormCookie, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
+                        mFormKey, mFormCookie, mThreadId, getIntent().getStringExtra(Constants.POST_ID));
             } else {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mFormCookie, mThread.getThreadId());
+                        mFormKey, mFormCookie, mThreadId);
             }
         }
     };
@@ -232,7 +229,7 @@ public class PostReplyActivity extends AwfulActivity {
                     editor.commit();
 
                     mFetchCookieTask = new FetchFormCookieTask();
-                    mFetchCookieTask.execute(mThread.getThreadId());
+                    mFetchCookieTask.execute(mThreadId);
                 }
             }
         }

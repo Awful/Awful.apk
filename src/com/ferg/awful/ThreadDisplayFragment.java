@@ -28,21 +28,17 @@
 package com.ferg.awful;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -51,38 +47,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.ListFragment;
 
-import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.htmlwidget.HtmlView;
-import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.quickaction.ActionItem;
-import com.ferg.awful.quickaction.QuickAction;
 import com.ferg.awful.reply.Reply;
+import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
-import com.ferg.awful.thumbnail.ThumbnailAdapter;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener {
+public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
-	private AwfulThread mThread;
-    private FetchThreadTask mFetchTask;
+	private ThreadListAdapter adapt;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private MarkLastReadTask mMarkLastReadTask;
@@ -141,44 +123,23 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onStart() {
         super.onStart();
-        
-        final AwfulThread retainedThread = null;
-
-        if (retainedThread == null || retainedThread.getPosts() == null) {
-            // We may be getting thread info from ChromeToPhone so handle that here
-            if (getActivity().getIntent().getData() != null) {
-                if (getActivity().getIntent().getData().getScheme().equals("http")) {
-                    boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-
-                    // Make sure we're logged in
-                    if (!loggedIn) {
-                        startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-                    }
-
-                    mThread = new AwfulThread(getActivity().getIntent().getData().getQueryParameter("threadid"));
-
-                    String page = getActivity().getIntent().getData().getQueryParameter("pagenumber");
-
-                    if (page != null) {
-                        mFetchTask = new FetchThreadTask(Integer.parseInt(page));
-                    } else {
-                        mFetchTask = new FetchThreadTask();
-                    }
-                }
-            } else {
-                mThread = (AwfulThread) getActivity().getIntent().getParcelableExtra(Constants.THREAD);
-                mFetchTask = new FetchThreadTask();
-            }
-            mFetchTask.execute(mThread);
-        } else {
-            mThread = retainedThread;
-            setListAdapter();
+        String c2pThreadID = null;
+        String c2pPage = null;
+        // We may be getting thread info from ChromeToPhone so handle that here
+        if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
+        	c2pThreadID = getActivity().getIntent().getData().getQueryParameter("threadid");
+            c2pPage = getActivity().getIntent().getData().getQueryParameter("pagenumber");
         }
-
-        // If this is coming from ChromeToPhone we have to set the title later
-        if (mThread.getTitle() != null) {
-            mTitle.setText(Html.fromHtml(mThread.getTitle()));
+        int threadid = getActivity().getIntent().getIntExtra(Constants.THREAD, 0);
+        if(c2pThreadID != null){
+        	threadid = Integer.parseInt(c2pThreadID);
         }
+        adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createThreadAdapter(threadid, this);
+        if(c2pPage != null){
+    		adapt.goToPage(Integer.parseInt(c2pPage));
+    	}
+        setListAdapter(adapt);
+        mTitle.setText(Html.fromHtml(adapt.getTitle()));
     }
     
     @Override
@@ -238,18 +199,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         cleanupTasks();
     }
 
     private void cleanupTasks() {
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
         
         if (mEditPostTask != null) {
             mEditPostTask.cancel(true);
@@ -275,23 +228,28 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.post_menu, menu);
     }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+    	MenuItem bk = menu.findItem(R.id.bookmark);
+    	if(bk != null){
+    		AwfulThread th = (AwfulThread) adapt.getState();
+    		bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+    	}
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
 			case R.id.go_back:
-				if (mThread.getCurrentPage() != 1) {
-					mFetchTask = new FetchThreadTask(mThread.getCurrentPage() - 1);
-                    mFetchTask.execute(mThread);
-				}
+				adapt.goToPage(adapt.getPage()-1);
 				break;
 			case R.id.usercp:
                 startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
 				break;
 			case R.id.go_to:
                 final NumberPicker jumpToText = new NumberPicker(getActivity());
-                jumpToText.setRange(1, mThread.getLastPage());
-                jumpToText.setCurrent(mThread.getCurrentPage());
+                jumpToText.setRange(1, adapt.getLastPage());
+                jumpToText.setCurrent(adapt.getPage());
                 new AlertDialog.Builder(getActivity())
                     .setTitle("Jump to Page")
                     .setView(jumpToText)
@@ -300,9 +258,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                             public void onClick(DialogInterface aDialog, int aWhich) {
                                 try {
                                     int pageInt = jumpToText.getCurrent();
-                                    if (pageInt > 0 && pageInt <= mThread.getLastPage()) {
-                                        mFetchTask = new FetchThreadTask(pageInt);
-                                        mFetchTask.execute(mThread);
+                                    if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
+                                    	adapt.goToPage(pageInt);
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Not a valid number: " + e.toString());
@@ -317,11 +274,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                     .show();
                 break;
 			case R.id.refresh:
-				mFetchTask = new FetchThreadTask(true);
-				mFetchTask.execute(mThread);
+				adapt.refresh();
 				break;
 			case R.id.settings:
 				startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+				break;
+			case R.id.bookmark:
+				adapt.toggleBookmark();
 				break;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -335,10 +294,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getActivity().getMenuInflater();
-
-        AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-        AwfulPost selected = (AwfulPost) adapter.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
-
+        AwfulPost selected = (AwfulPost) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+        
         if (selected.isEditable()) {
             inflater.inflate(R.menu.user_post_longpress, aMenu);
         } else {
@@ -353,15 +310,15 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         switch (aItem.getItemId()) {
             case R.id.edit:
                 mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(info.id);
+                mEditPostTask.execute(info.position);
                 return true;
             case R.id.quote:
                 mPostQuoteTask = new ParsePostQuoteTask();
-                mPostQuoteTask.execute(info.id);
+                mPostQuoteTask.execute(info.position);
                 return true;
             case R.id.last_read:
                 mMarkLastReadTask = new MarkLastReadTask();
-                mMarkLastReadTask.execute(info.id);
+                mMarkLastReadTask.execute(info.position);
                 return true;
         }
 
@@ -373,75 +330,41 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		// If we're here because of a post result, refresh the thread
 		switch (aResultCode) {
 			case PostReplyActivity.RESULT_POSTED:
-				mFetchTask = new FetchThreadTask(true);
-				mFetchTask.execute(mThread);
+				adapt.refresh();
 				break;
 		}
-    }
-
-    private void setListAdapter(ArrayList<AwfulPost> aPosts) {
-        setListAdapter(generateAdapter(aPosts));
-
-        setLastRead(aPosts);
-    }
-
-    private void setListAdapter() {
-        ArrayList<AwfulPost> posts = mThread.getPosts();
-
-        setListAdapter(generateAdapter(posts));
-
-        setLastRead(posts);
-    }
-
-    private void setLastRead(ArrayList<AwfulPost> aPosts) {
-        AwfulPost lastRead = null;
-
-        // Maybe there's a better way to do getActivity()? It's 8am and I'm hung over
-        for (AwfulPost post : aPosts) {
-            if (post.isLastRead()) {
-                lastRead = post;
-                break;
-            }
-        }
-
-        if (lastRead != null) {
-            int index = aPosts.indexOf(lastRead);
-            getListView().setSelection(index);
-        }
     }
 
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
 		public void onClick(View aView) {
 			switch (aView.getId()) {
 				case R.id.next_page:
-					if (mThread.getCurrentPage() < mThread.getLastPage()) {
-						mFetchTask = new FetchThreadTask(mThread.getCurrentPage() + 1);
-                        mFetchTask.execute(mThread);
+					if (adapt.getPage() < adapt.getLastPage()) {
+						adapt.goToPage(adapt.getPage()+1);
 					}
 					break;
 				case R.id.reply:
 					Intent postReply = new Intent().setClass(getActivity(),
 							PostReplyActivity.class);
-					postReply.putExtra(Constants.THREAD, mThread);
+					postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
 					startActivityForResult(postReply, 0);
 					break;
 			}
 		}
 	};
 
-    private class MarkLastReadTask extends AsyncTask<Long, Void, ArrayList<AwfulPost>> {
+    private class MarkLastReadTask extends AsyncTask<Integer, Void, ArrayList<AwfulPost>> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Loading", 
                 "Hold on...", true);
         }
 
-        public ArrayList<AwfulPost> doInBackground(Long... aParams) {
+        public ArrayList<AwfulPost> doInBackground(Integer... aParams) {
             ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = selected.markLastRead();
                 } catch (Exception e) {
@@ -455,14 +378,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(ArrayList<AwfulPost> aResult) {
             if (!isCancelled()) {
-                mDialog.dismiss();
-
-                setListAdapter(aResult);
             }
         }
     }
 
-    private class ParseEditPostTask extends AsyncTask<Long, Void, String> {
+    private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
         private String mPostId;
 
         public void onPreExecute() {
@@ -470,13 +390,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 "Hold on...", true);
         }
 
-        public String doInBackground(Long... aParams) {
+        public String doInBackground(Integer... aParams) {
             String result = null;
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     mPostId = selected.getId();
 
@@ -494,7 +413,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mDialog.dismiss();
 
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
                 postReply.putExtra(Constants.EDITING, true);
                 postReply.putExtra(Constants.POST_ID, mPostId);
@@ -504,19 +423,18 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class ParsePostQuoteTask extends AsyncTask<Long, Void, String> {
+    private class ParsePostQuoteTask extends AsyncTask<Integer, Void, String> {
         public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Loading", 
                 "Hold on...", true);
         }
 
-        public String doInBackground(Long... aParams) {
+        public String doInBackground(Integer... aParams) {
             String result = null;
 
             if (!isCancelled()) {
                 try {
-                    AwfulPostAdapter adapter = (AwfulPostAdapter) getListAdapter();
-                    AwfulPost selected = (AwfulPost) adapter.getItem(aParams[0].intValue());
+                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
 
                     result = Reply.getQuote(selected.getId());
                 } catch (Exception e) {
@@ -532,7 +450,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mDialog.dismiss();
 
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, mThread);
+                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
 
 				startActivityForResult(postReply, 0);
@@ -540,307 +458,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class FetchThreadTask extends AsyncTask<AwfulThread, Void, AwfulThread> {
-		private boolean mForceLastPage = false;
-		private int mPage;
-
-		public FetchThreadTask() {}
-
-		public FetchThreadTask(boolean aForceLastPage) {
-			mForceLastPage = aForceLastPage;
+	@Override
+	public void dataUpdate(boolean pageChange) {
+		mTitle.setText(adapt.getTitle());
+		int last = adapt.getLastReadPost();
+		if(last >= 0 && last < adapt.getCount()){
+			getListView().setSelection(last);
 		}
-
-		public FetchThreadTask(int aPage) {
-			mPage = aPage;
-		}
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
-
-        public AwfulThread doInBackground(AwfulThread... aParams) {
-            if (!isCancelled()) {
-                try {
-                    if (mPage == 0) {
-                        // We set the unread count to -1 if the user has never
-                        // visited that thread before
-                        if (aParams[0].getUnreadCount() > -1 || mForceLastPage) {
-                            aParams[0].getThreadPosts();
-                        } else {
-                            aParams[0].getThreadPosts(1);
-                        }
-                    } else {
-                        aParams[0].getThreadPosts(mPage);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return aParams[0];
-        }
-
-        public void onPostExecute(AwfulThread aResult) {
-            if (!isCancelled()) {
-                mThread = aResult;
-                setListAdapter();
-
-                // If we're loading a thread from ChromeToPhone we have to set the 
-                // title now
-                if (mTitle.getText() == null || mTitle.getText().length() == 0) {
-                    mTitle.setText(Html.fromHtml(mThread.getTitle()));
-                }
-
-                if (mThread.getCurrentPage() == mThread.getLastPage()) {
-                    mNext.setVisibility(View.GONE);
-                } else {
-                    mNext.setVisibility(View.VISIBLE);
-                }
-
-                if (mDialog != null) {
-                    mDialog.dismiss();
-                }
-            }
-        }
-    }
-
-    /**
-     * Factory method for a post adapter. Deals with a few decorator classes.
-     */
-    private ListAdapter generateAdapter(ArrayList<AwfulPost> posts) {
-    	AwfulPostAdapterBase base = new AwfulPostAdapterBase(getActivity(), R.layout.post_item, posts);
-    	return new AwfulPostAdapter(base);
-    }
-
-    /**
-     * Decorates the base adapter that does the actual work with a
-     * ThumbnailAdapter to render avatars, then adds SectionIndexer
-     * capabilities for the fast scroll bar.
-     *
-     * Right now the SectionIndexer just does the post number relative
-     * to the start of the page. In the future this might change to use
-     * the page number in an endless list. 
-     */
-    public class AwfulPostAdapter extends AdapterWrapper implements SectionIndexer {
-    	private AwfulPostAdapterBase mBaseAdapter;
-    	
-    	public AwfulPostAdapter(AwfulPostAdapterBase base) {
-    		super(new ThumbnailAdapter(    		
-    				getActivity(),
-    				base,
-    				((AwfulApplication) getActivity().getApplication()).getImageCache(),
-        			new int[] {R.id.avatar}));
-    		mBaseAdapter = base;
-    	}
-
-		@Override
-		public int getPositionForSection(int section) {
-			return section;
-		}
-
-		@Override
-		public int getSectionForPosition(int position) {
-			return position;
-		}
-
-		@Override
-		public Object[] getSections() {
-			int count = mBaseAdapter.getCount();
-			String[] sections = new String[count];
-			for(int i=0;i<count;i++) {
-				sections[i] = Integer.toString(i+1);
-			}
-			return sections;
-		}
-    }
-    
-    public class AwfulPostAdapterBase extends ArrayAdapter<AwfulPost> {
-        private ArrayList<AwfulPost> mPosts;
-        private int mViewResource;
-        private LayoutInflater mInflater;
-
-        public AwfulPostAdapterBase(Context aContext, int aViewResource, ArrayList<AwfulPost> aPosts) {
-            super(aContext, aViewResource, aPosts);
-
-            mInflater     = LayoutInflater.from(aContext);
-            mPosts        = aPosts;
-            mViewResource = aViewResource;
-        }
-
-        private void startActivityForLink(String baseUrl, HashMap<String, String> params) {
-        	String paramString = NetworkUtils.getQueryStringParameters(params);
-			Uri uri = Uri.parse(baseUrl + paramString);
-			Intent linkIntent = new Intent("android.intent.action.VIEW", uri);
-			startActivity(linkIntent);
-        }
-        
-        private void showAvatarQuickAction(View anchor, final AwfulPost post, final long listId) {
-        	QuickAction result = new QuickAction(anchor);
-        	final String userid = post.getUserId();
-        	
-        	if(post.hasProfileLink()) {
-	        	ActionItem profileAction = new ActionItem();
-	        	profileAction.setTitle("Profile"); // TODO externalize
-	        	profileAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_usercp));
-	        	profileAction.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-                        Intent profile = new Intent().setClass(getActivity(), ProfileActivity.class);
-                        profile.putExtra(Constants.PARAM_USER_ID, userid);
-
-						startActivity(profile);
-					}
-	        	});
-	        	result.addActionItem(profileAction);
-        	}	        	
-        	
-        	if(post.hasMessageLink()) {
-	        	ActionItem messageAction = new ActionItem();
-	        	messageAction.setTitle("Message"); // TODO externalize
-	        	messageAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_send));
-	        	messageAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_ACTION, Constants.ACTION_NEW_MESSAGE);
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_PRIVATE_MESSAGE, params);
-	        		}
-	        	});
-	        	result.addActionItem(messageAction);
-        	}
-        	
-        	if(post.hasPostHistoryLink()) {
-	        	ActionItem postHistoryAction = new ActionItem();
-	        	postHistoryAction.setTitle("Post History"); // TODO externalize
-	        	postHistoryAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_archive));
-	        	postHistoryAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_ACTION, Constants.ACTION_SEARCH_POST_HISTORY);
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_SEARCH, params);
-	        		}
-	        	});
-	        	result.addActionItem(postHistoryAction);
-        	}
-        	
-        	if(post.hasRapSheetLink()) {
-	        	ActionItem rapSheetAction = new ActionItem();
-	        	rapSheetAction.setTitle("Rap Sheet"); // TODO externalize
-	        	rapSheetAction.setIcon(getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
-	        	rapSheetAction.setOnClickListener(new OnClickListener() {
-	        		@Override
-	        		public void onClick(View v) {
-	        			HashMap<String, String> params = new HashMap<String, String>();
-						params.put(Constants.PARAM_USER_ID, userid);
-						startActivityForLink(Constants.FUNCTION_BANLIST, params);
-	        		}
-	        	});
-	        	result.addActionItem(rapSheetAction);
-        	}
-        	
-        	result.setAnimStyle(QuickAction.ANIM_AUTO);
-        	result.show();
-        }
-        
-        private class ViewHolder {
-        	public TextView username;
-        	public TextView postDate;
-        	public HtmlView postBody;
-        	public ImageView avatar;
-        	public View postHead;
-            public TextView pageCount;
-            public RelativeLayout pageIndicator; 
-        	
-        	public ViewHolder(View v) {
-        		username = (TextView) v.findViewById(R.id.username);
-        		postDate = (TextView) v.findViewById(R.id.post_date);
-        		postBody = (HtmlView) v.findViewById(R.id.postbody);
-        		avatar = (ImageView) v.findViewById(R.id.avatar);
-        		postHead = v.findViewById(R.id.posthead);
-                pageCount = (TextView) v.findViewById(R.id.page_count);
-                pageIndicator = (RelativeLayout) v.findViewById(R.id.page_indicator);
-        	}
-        }
-        
-        @Override
-        public View getView(final int aPosition, View aConvertView, ViewGroup aParent) {
-            
-            mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
-            mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
-            mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
-        	mReadPostBackgroundColor = mPrefs.getInt("read_post_background_color", getResources().getColor(R.color.background_read));
-        	
-        	View inflatedView = aConvertView;
-            ViewHolder viewHolder = null;
-            
-            if (inflatedView == null) {
-                inflatedView = mInflater.inflate(mViewResource, null);
-                viewHolder = new ViewHolder(inflatedView);
-                inflatedView.setTag(viewHolder);
-                viewHolder.postBody.setMovementMethod(LinkMovementMethod.getInstance());
-            } else {
-            	viewHolder = (ViewHolder) inflatedView.getTag();
-            }
-
-            final AwfulPost current = getItem(aPosition);
-            
-            viewHolder.username.setText(current.getUsername());
-            viewHolder.postDate.setText("Posted on " + current.getDate());
-            viewHolder.postBody.setHtml(current.getContent());
-
-            // These are done per render instead of at view construction because there's
-            // apparently no good way to force view reconstruction after, say, the user
-            // changes preferences for these things.
-            viewHolder.postBody.setTextSize(mDefaultPostFontSize);
-            viewHolder.postBody.setTextColor(mDefaultPostFontColor);
-            
-            // change background color of previously read posts
-
-            if (current.isPreviouslyRead()) {
-            	viewHolder.postBody.setBackgroundColor(mReadPostBackgroundColor);
-            } else {
-                viewHolder.postBody.setBackgroundColor(mDefaultPostBackgroundColor);
-            }
-            
-            // Set up header quickactions
-            final ViewHolder vh = viewHolder;
-            OnClickListener listener = new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if(v == vh.postHead) {
-						// showAvatarQuickAction(vh.avatar, current, aPosition);
-					}
-				}
-            };
-
-            if (aPosition == (getCount() - 1))  {
-                viewHolder.pageIndicator.setVisibility(View.VISIBLE);
-                viewHolder.pageCount.setVisibility(View.VISIBLE);
-                viewHolder.pageCount.setText("Page " + Integer.toString(mThread.getCurrentPage()) +
-                        "/" + Integer.toString(mThread.getLastPage()));
-            } else if (viewHolder.pageCount.getVisibility() == View.VISIBLE) {
-                viewHolder.pageIndicator.setVisibility(View.GONE);
-                viewHolder.pageCount.setVisibility(View.GONE);
-            }
-            
-            viewHolder.postHead.setOnClickListener(listener);
-            viewHolder.postBody.setOnClickListener(listener);
-            
-            if( current.getAvatar() == null ) {
-            	viewHolder.avatar.setVisibility(View.INVISIBLE);
-            } else {
-            	viewHolder.avatar.setVisibility(View.VISIBLE);
-            }
-            
-            viewHolder.avatar.setTag(current.getAvatar());
-            
-
-            return inflatedView;
-        }
-    }
+	}
 }

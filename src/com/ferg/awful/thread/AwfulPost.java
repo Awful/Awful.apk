@@ -35,17 +35,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
+
+import android.content.SharedPreferences;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
-public class AwfulPost {
+public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
     /*private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
@@ -70,14 +78,18 @@ public class AwfulPost {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-	//\\n\\r\\f
-    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0094])");
+    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0095\u0099\u0080\u0082\u0083])");
     private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
     static {
+    	replaceMap.put("\u0080", "\u20AC");
+    	replaceMap.put("\u0082", "\u201A");
+    	replaceMap.put("\u0083", "\u0192");
     	replaceMap.put("\u0091", "'");
     	replaceMap.put("\u0092", "'");
     	replaceMap.put("\u0093", "\"");
     	replaceMap.put("\u0094", "\"");
+    	replaceMap.put("\u0095", "\u2022");
+    	replaceMap.put("\u0099", "\u2122");
     	replaceMap.put("\n", "");
     	replaceMap.put("\r", "");
     	replaceMap.put("\f", "");
@@ -94,6 +106,7 @@ public class AwfulPost {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
     private static final String LINK_RAP_SHEET    = "Rap Sheet";
+    
 
     private String mId;
     private String mDate;
@@ -268,19 +281,15 @@ public class AwfulPost {
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-        //HtmlCleaner cleaner = new HtmlCleaner();
-        //CleanerProperties properties = cleaner.getProperties();
-        //properties.setOmitComments(true);
-        //properties.setRecognizeUnicodeChars(false);
-		//SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(properties);
 
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
+			boolean fyad = false;
             for (TagNode node : postNodes) {
-				
+            	//fyad status, to prevent processing postbody twice if we are in fyad
                 AwfulPost post = new AwfulPost();
 
                 // We'll just reuse the array of objects rather than create 
@@ -299,7 +308,17 @@ public class AwfulPost {
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody")){
+					if(pc.getAttributeByName("class").contains("complete_shit")){
+						StringBuffer fixedContent = new StringBuffer();
+						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						while(fixCharMatch.find()){
+							fixCharMatch.appendReplacement(fixedContent, replaceMap.get(fixCharMatch.group(1)));
+							}
+						fixCharMatch.appendTail(fixedContent);
+	                    post.setContent(fixedContent.toString());
+	                    fyad = true;
+					}
+					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){ 
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
 						while(fixCharMatch.find()){
@@ -377,11 +396,67 @@ public class AwfulPost {
         return result;
     }
 
-    private static String createPostHtml(String aHtml) {
-        aHtml = aHtml.replaceAll(ELEMENT_POSTBODY, REPLACEMENT_POSTBODY);
-        aHtml = aHtml.replaceAll(ELEMENT_END_TD, REPLACEMENT_END_TD);
+	@Override
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
+		View tmp = current;
+		if(tmp == null || tmp.getId() != R.layout.post_item){
+			tmp = inf.inflate(R.layout.post_item, parent, false);
+			tmp.setTag(this);
+		}
+		TextView author = (TextView) tmp.findViewById(R.id.username);
+		author.setText(mUsername);
+		TextView date = (TextView) tmp.findViewById(R.id.post_date);
+		date.setText(mDate);
+		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
+		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
+		
+        if(postBody.getMovementMethod() == null){
+        	postBody.setMovementMethod(LinkMovementMethod.getInstance());
+        }
+        boolean loadImg = true;
+        if(mPrefs != null){
+        	loadImg = mPrefs.imagesEnabled;
+        }
+        postBody.setHtml(getContent(), loadImg);
+		if( getAvatar() == null ) {
+        	avatar.setVisibility(View.INVISIBLE);
+        } else {
+        	avatar.setVisibility(View.VISIBLE);
+        }
+        avatar.setTag(getAvatar());
+        if(mPrefs != null){
+        	if (isPreviouslyRead()) {
+            	if (isEven()) {
+            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor);
+            	} else {
+            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor2);
+            	}
+            } else {
+            	if (isEven()) {
+            		postBody.setBackgroundColor(mPrefs.postBackgroundColor);
+            	} else {
+            		postBody.setBackgroundColor(mPrefs.postBackgroundColor2);
+            	}
+            }
+			postBody.setTextColor(mPrefs.postFontColor);
+			postBody.setTextSize(mPrefs.postFontSize);
+		}
+		return tmp;
+	}
 
-        return aHtml;
-    }
+	@Override
+	public int getID() {
+		return Integer.parseInt(mId);
+	}
+
+	@Override
+	public DISPLAY_TYPE getType() {
+		return DISPLAY_TYPE.POST;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
+	}
 
 }

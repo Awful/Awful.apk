@@ -27,18 +27,10 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,29 +38,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.support.v4.app.ListFragment;
 
-import org.htmlcleaner.TagNode;
-
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.list.ForumArrayAdapter;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulThread;
 
-public class UserCPFragment extends ListFragment {
-    private static final String TAG = "ThreadsActivity";
+public class UserCPFragment extends ListFragment implements AwfulUpdateCallback {
+    private static final String TAG = "UserCPActivity";
 
-    private FetchThreadsTask mFetchTask;
     private ImageButton mHome;
-	private ProgressDialog mDialog;
-    private SharedPreferences mPrefs;
     private TextView mTitle;
+    private ForumListAdapter adapt;
+	private SharedPreferences mPrefs;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -78,6 +63,8 @@ public class UserCPFragment extends ListFragment {
 
         mTitle      = (TextView) result.findViewById(R.id.title);
         mHome       = (ImageButton) result.findViewById(R.id.home);
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         return result;
     }
@@ -88,13 +75,11 @@ public class UserCPFragment extends ListFragment {
 
         setHasOptionsMenu(true);
         setRetainInstance(true);
-		
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
-
-		setListAdapter(new ForumArrayAdapter(getActivity()));
+		adapt = ((UserCPActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
+        setListAdapter(adapt);
 
 		getListView().setOnItemClickListener(onThreadSelected);
 		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
@@ -109,57 +94,25 @@ public class UserCPFragment extends ListFragment {
         // When coming from the desktop shortcut we won't have login cookies
 		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
-		if (loggedIn) {
-            final ArrayList<AwfulThread> retainedThreadsList = null;
-
-            if (retainedThreadsList == null) {
-                mFetchTask = new FetchThreadsTask();
-                mFetchTask.execute();
-            } else {
-                ((ForumArrayAdapter) getListAdapter()).setThreads(retainedThreadsList);
-            }
-		} else {
+		if (!loggedIn) {
 			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
 		}
     }
     
     @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
+    public void onResume() {
+        super.onResume();
+        adapt.refresh();
     }
         
     @Override
     public void onStop() {
         super.onStop();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
     }
     
     @Override
@@ -178,8 +131,7 @@ public class UserCPFragment extends ListFragment {
                 startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
                 break;
             case R.id.refresh:
-                mFetchTask = new FetchThreadsTask();
-                mFetchTask.execute();
+            	adapt.refresh();
                 break;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -198,56 +150,21 @@ public class UserCPFragment extends ListFragment {
         }
     };
 
-    private class FetchThreadsTask extends AsyncTask<String, Void, ArrayList<AwfulThread>> {
-        private int mPage;
-
-        public FetchThreadsTask() {}
-
-        public FetchThreadsTask(int aPage) {
-            mPage = aPage;
-        }
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                    "Hold on...", true);
-        }
-
-        public ArrayList<AwfulThread> doInBackground(String... aParams) {
-            ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
-
-            if (!isCancelled()) {
-                try {
-                    TagNode threads = null;
-
-                    threads = AwfulThread.getUserCPThreads();
-
-                    result = AwfulThread.parseForumThreads(threads);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return result;
-        }
-
-        public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            if (!isCancelled()) {
-            	((ForumArrayAdapter) getListAdapter()).setThreads(aResult);
-
-                mDialog.dismiss();
-            }
-        }
-    }
-
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             AwfulThread thread = (AwfulThread) getListAdapter().getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD, thread);
+            viewThread.putExtra(Constants.THREAD, thread.getID());
 
             startActivity(viewThread);
 		}
 	};
+
+	@Override
+	public void dataUpdate(boolean pageChange) {
+		if(pageChange){
+        	getListView().setSelection(0);
+        }
+	}
 }

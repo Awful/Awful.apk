@@ -27,13 +27,31 @@
 
 package com.ferg.awful;
 
+import com.ferg.awful.service.AwfulServiceConnection;
+
 import android.os.Bundle;
 
 public class UserCPActivity extends AwfulActivity {
+    private AwfulServiceConnection service;
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        service = new AwfulServiceConnection();
         setContentView(R.layout.user_cp_activity);
+		service.connect(this);
     }
+	public AwfulServiceConnection getServiceConnection(){
+		return service;
+	}
+	public void onResume(){
+		super.onResume();
+	}
+	public void onPause(){
+		super.onPause();
+	}
+	public void onDestroy(){
+		super.onDestroy();
+		service.disconnect(this);
+	}
 }

@@ -33,6 +33,7 @@ public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
+    public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
     public static final String FUNCTION_THREAD          = BASE_URL + "/showthread.php";
@@ -87,9 +88,18 @@ public class Constants {
 
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awful.provider";
+    
+    //broadcast intent
+    public static final String DATA_UPDATE_BROADCAST = "com.ferg.awful.service.dataupdated";
+	public static final String DATA_UPDATE_URL = "dataURL";
 
 	//TODO: Make these colors changeable by the user?
 	public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);
     public static int READ_BACKGROUND_UNEVEN = Color.rgb(221, 238, 255);
+    
+    //TODO: make this user configurable, 
+    //or reduce to speed processing time once auto-load is in
+    public static final int ITEMS_PER_PAGE = 40;
+
     
 }
