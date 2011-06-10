@@ -70,6 +70,9 @@ public class ForumsIndexFragment extends Fragment {
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
+    private int mDefaultPostFontColor;
+    private int mDefaultPostBackgroundColor;
+    private int mDefaultPostBackground2Color;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -80,7 +83,15 @@ public class ForumsIndexFragment extends Fragment {
         mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
         mTitle     = (TextView) result.findViewById(R.id.title);
         mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
-
+        
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        
+        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
+        mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
+        mDefaultPostBackground2Color = mPrefs.getInt("default_post_background2_color", getResources().getColor(R.color.background2));
+        mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
+        mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
         return result;
     }
 
@@ -91,8 +102,7 @@ public class ForumsIndexFragment extends Fragment {
         setHasOptionsMenu(true);
         setRetainInstance(true);
 		
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
 
         mTitle.setText(getString(R.string.forums_title));
         mUserCp.setOnClickListener(onButtonClick);
@@ -240,10 +250,10 @@ public class ForumsIndexFragment extends Fragment {
             }
 
 			AwfulSubforum current = (AwfulSubforum) getChild(aGroupPosition, aChildPosition);
-
+			inflatedView.setBackgroundColor(mDefaultPostBackground2Color);
 			TextView title   = (TextView) inflatedView.findViewById(R.id.title);
 			title.setText(Html.fromHtml(current.getTitle()));
-
+			title.setTextColor(mDefaultPostFontColor);
             return inflatedView;
         }
 
@@ -262,7 +272,9 @@ public class ForumsIndexFragment extends Fragment {
 			RelativeLayout viewButton = (RelativeLayout) inflatedView.findViewById(R.id.parent_button);
 
 			title.setText(Html.fromHtml(current.getTitle()));
+			title.setTextColor(mDefaultPostFontColor);
 			subtext.setText(current.getSubtext());
+			subtext.setTextColor(mDefaultPostBackground2Color);
 
             viewButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View aView) {
