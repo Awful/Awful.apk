@@ -96,10 +96,10 @@ public class PostReplyActivity extends AwfulActivity {
         mFormKey = mPrefs.getString(Constants.FORM_KEY, null);
         if (mFormKey == null) {
             mFetchKeyTask = new FetchFormKeyTask();
-            mFetchKeyTask.execute(mThread.getThreadId());
+            mFetchKeyTask.execute(mThreadId);
         } else {
             mFetchCookieTask = new FetchFormCookieTask();
-            mFetchCookieTask.execute(mThread.getThreadId());
+            mFetchCookieTask.execute(mThreadId);
         }
         
 		// We'll enable it once we have a formkey and cookie
@@ -153,10 +153,10 @@ public class PostReplyActivity extends AwfulActivity {
 
             if (editing) {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mFormCookie, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
+                        mFormKey, mFormCookie, mThreadId, getIntent().getStringExtra(Constants.POST_ID));
             } else {
                 mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mFormCookie, mThread.getThreadId());
+                        mFormKey, mFormCookie, mThreadId);
             }
         }
     };
@@ -229,7 +229,7 @@ public class PostReplyActivity extends AwfulActivity {
                     editor.commit();
 
                     mFetchCookieTask = new FetchFormCookieTask();
-                    mFetchCookieTask.execute(mThread.getThreadId());
+                    mFetchCookieTask.execute(mThreadId);
                 }
             }
         }

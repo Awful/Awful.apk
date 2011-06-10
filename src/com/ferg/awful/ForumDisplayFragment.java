@@ -30,7 +30,9 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,6 +62,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	private ImageButton mNext;
     private TextView mTitle;
 
+	private SharedPreferences mPrefs;
+
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -69,6 +73,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         mTitle      = (TextView) result.findViewById(R.id.title);
         mUserCp     = (ImageButton) result.findViewById(R.id.user_cp);
 
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         return result;
     }
 

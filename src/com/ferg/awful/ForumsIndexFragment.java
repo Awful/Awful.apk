@@ -28,7 +28,10 @@
 package com.ferg.awful;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +50,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 
-public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
+public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback, OnSharedPreferenceChangeListener {
     private static final String TAG = "ForumsIndex";
 
     private ImageButton mUserCp;
@@ -55,9 +58,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private TextView mTitle;
     private int mDefaultPostFontColor;
     private int mDefaultPostBackgroundColor;
-    private int mDefaultPostBackground2Color;
 
 	private ForumListAdapter adapt;
+
+	private SharedPreferences mPrefs;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -74,7 +78,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         
         mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
-        mDefaultPostBackground2Color = mPrefs.getInt("default_post_background2_color", getResources().getColor(R.color.background2));
         mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
         mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
 		if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
@@ -122,6 +125,12 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void onPause() {
         super.onPause();
+    	mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    	mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
         
     @Override
@@ -152,6 +161,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             }
         }
     };
+
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -179,5 +189,27 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	@Override
 	public void dataUpdate(boolean pageChange) {
 		
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences prefs,
+			String key) {
+    	if("default_post_font_color".equals(key)) {
+    		int newColor = prefs.getInt(key, R.color.default_post_font);
+    		if(newColor != mDefaultPostFontColor) {
+    			mDefaultPostFontColor = newColor;
+    			Log.d(TAG, "invalidating (color)");
+    			mForumList.invalidateViews();    			
+    		}
+    	} else if("default_post_background_color".equals(key)) {
+        	int newBackground = prefs.getInt(key, R.color.background);
+        	if(newBackground != mDefaultPostBackgroundColor) {
+        		mDefaultPostBackgroundColor = newBackground;
+                mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
+                mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
+        		Log.d(TAG, "invalidating (color)");
+        		mForumList.invalidateViews(); 
+        	}   			
+        }
 	}
 }

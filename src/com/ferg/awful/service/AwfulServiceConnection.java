@@ -9,8 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.widget.SectionIndexer;
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPageCount;
@@ -35,6 +38,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	private boolean boundState;
 	private LayoutInflater inf;
 	private ArrayList<AwfulListAdapter> fragments;
+	private AwfulPreferences mPrefs;
 
 	public AwfulServiceConnection(){
 		fragments = new ArrayList<AwfulListAdapter>();
@@ -49,6 +53,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			for(AwfulListAdapter la : fragments){
 				la.connected();
 			}
+	        mPrefs = new AwfulPreferences(mService);
 		}
 	}
 
@@ -272,9 +277,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				if(pageCount == null){
 					pageCount = new AwfulPageCount(this);
 				}
-				return pageCount.getView(inf, current, parent);
+				return pageCount.getView(inf, current, parent, mPrefs);
 			}
-			return state.getChild(currentPage, ix).getView(inf, current, parent);
+			return state.getChild(currentPage, ix).getView(inf, current, parent, mPrefs);
 		}
 
 		@Override

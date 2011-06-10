@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import android.content.SharedPreferences;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
@@ -395,7 +397,7 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
 		View tmp = current;
 		if(tmp == null || tmp.getId() != R.layout.post_item){
 			tmp = inf.inflate(R.layout.post_item, parent, false);
@@ -403,29 +405,42 @@ public class AwfulPost implements AwfulDisplayItem {
 		}
 		TextView author = (TextView) tmp.findViewById(R.id.username);
 		author.setText(mUsername);
-		TextView unread = (TextView) tmp.findViewById(R.id.post_date);
-		unread.setText(mDate);
+		TextView date = (TextView) tmp.findViewById(R.id.post_date);
+		date.setText(mDate);
 		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
 		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
+		
         if(postBody.getMovementMethod() == null){
         	postBody.setMovementMethod(LinkMovementMethod.getInstance());
         }
-        postBody.setHtml(getContent());
+        boolean loadImg = true;
+        if(mPrefs != null){
+        	loadImg = mPrefs.imagesEnabled;
+        }
+        postBody.setHtml(getContent(), loadImg);
 		if( getAvatar() == null ) {
         	avatar.setVisibility(View.INVISIBLE);
         } else {
         	avatar.setVisibility(View.VISIBLE);
         }
         avatar.setTag(getAvatar());
-        if (isPreviouslyRead()) {
-        	if (isEven()) {
-        		postBody.setBackgroundColor(Constants.READ_BACKGROUND_EVEN);
-        	} else {
-        		postBody.setBackgroundColor(Constants.READ_BACKGROUND_UNEVEN);
-        	}
-        } else {
-            postBody.setBackgroundColor(inf.getContext().getResources().getColor(R.color.forums_gray));
-        }
+        if(mPrefs != null){
+        	if (isPreviouslyRead()) {
+            	if (isEven()) {
+            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor);
+            	} else {
+            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor2);
+            	}
+            } else {
+            	if (isEven()) {
+            		postBody.setBackgroundColor(mPrefs.postBackgroundColor);
+            	} else {
+            		postBody.setBackgroundColor(mPrefs.postBackgroundColor2);
+            	}
+            }
+			postBody.setTextColor(mPrefs.postFontColor);
+			postBody.setTextSize(mPrefs.postFontSize);
+		}
 		return tmp;
 	}
 

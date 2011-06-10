@@ -53,6 +53,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     private ImageButton mHome;
     private TextView mTitle;
     private ForumListAdapter adapt;
+	private SharedPreferences mPrefs;
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -62,6 +63,8 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         mTitle      = (TextView) result.findViewById(R.id.title);
         mHome       = (ImageButton) result.findViewById(R.id.home);
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         return result;
     }

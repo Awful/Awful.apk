@@ -27,6 +27,8 @@
 
 package com.ferg.awful.thread;
 
+import android.content.SharedPreferences;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,7 @@ import org.htmlcleaner.TagNode;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulForum";
@@ -168,14 +171,18 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
 		View tmp = current;
 		if(tmp == null || tmp.getId() != R.layout.forum_item){
 			tmp = inf.inflate(R.layout.forum_item, parent, false);
 		}
 		TextView title = (TextView) tmp.findViewById(R.id.title);
 		TextView sub = (TextView) tmp.findViewById(R.id.subtext);
-		title.setText(mTitle);
+		if(mPrefs != null){
+			title.setTextColor(mPrefs.postFontColor);
+			sub.setTextColor(mPrefs.postFontColor);
+		}
+		title.setText(Html.fromHtml(mTitle));
 		sub.setText(mSubtext);
 		return tmp;
 	}

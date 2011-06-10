@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.htmlcleaner.TagNode;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ import android.widget.TextView;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
@@ -286,7 +288,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences prefs) {
 		View tmp = current;
 		if(tmp == null || tmp.getId() != R.layout.thread_item){
 			tmp = inf.inflate(R.layout.thread_item, parent, false);
@@ -314,8 +316,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			unread.setVisibility(View.GONE);
 		}
 		TextView title = (TextView) tmp.findViewById(R.id.title);
-		title.setText(mTitle);
-		
+		title.setText(Html.fromHtml(mTitle));
+		if(prefs != null){
+			title.setTextColor(prefs.postFontColor);
+			author.setTextColor(prefs.postFontColor);
+		}
 		return tmp;
 	}
 
