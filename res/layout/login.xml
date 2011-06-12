@@ -36,6 +36,8 @@
 		android:layout_below="@id/password"
         android:layout_alignRight="@id/password"
         android:drawableRight="@drawable/r_blue_arrow"
+        android:padding="15dip"
+        android:drawablePadding="15dip"
 		android:text="Login"
 		/>
 
