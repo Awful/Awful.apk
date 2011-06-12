@@ -5,6 +5,14 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
+    <ImageView
+		android:id="@+id/dealwithit"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:scaleType="fitCenter"
+		android:adjustViewBounds="true"
+		android:src="@drawable/dealwithit" />
 	<EditText
 		android:id="@+id/username"
 		android:layout_width="fill_parent"
@@ -27,14 +35,8 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@id/password"
         android:layout_alignRight="@id/password"
+        android:drawableRight="@drawable/r_blue_arrow"
 		android:text="Login"
 		/>
-	<ImageView
-		android:id="@+id/dealwithit"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:scaleType="fitCenter"
-		android:adjustViewBounds="true"
-		android:src="@drawable/dealwithit" />
+
 </RelativeLayout>
