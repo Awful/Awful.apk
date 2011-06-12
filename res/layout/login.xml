@@ -23,6 +23,7 @@
         android:textColor="#ff000000"
         android:textSize="18dip"
         android:layout_alignParentTop="true"
+        android:drawableLeft="@drawable/emot_goonsay"
         />
 	<EditText
 		android:id="@+id/username"
