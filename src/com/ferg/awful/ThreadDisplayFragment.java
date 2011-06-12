@@ -39,6 +39,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -92,6 +93,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         mTitle    = (TextView) result.findViewById(R.id.title);
         mNext     = (ImageButton) result.findViewById(R.id.next_page);
         mReply    = (ImageButton) result.findViewById(R.id.reply);
+
+        mTitle.setMovementMethod(new ScrollingMovementMethod());
         
         
         return result;
