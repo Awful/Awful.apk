@@ -34,7 +34,9 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
             </intent-filter>
         </activity>
-        <activity android:name="AwfulLoginActivity" />
+        <activity
+                android:name="AwfulLoginActivity"
+                android:windowSoftInputMode="adjustResize"/>
         <activity android:name="ThreadDisplayActivity">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />

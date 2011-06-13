@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -72,6 +73,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         mTitle      = (TextView) result.findViewById(R.id.title);
         mUserCp     = (ImageButton) result.findViewById(R.id.user_cp);
+
+        mTitle.setMovementMethod(new ScrollingMovementMethod());
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
