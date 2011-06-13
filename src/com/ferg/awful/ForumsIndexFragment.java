@@ -177,8 +177,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     		return true;
     	case R.id.logout:
             new LogOutDialog(getActivity()).show();
-//    		NetworkUtils.clearLoginCookies(getActivity());
-//    		startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
             return true;
     	case R.id.refresh:
     		adapt.refresh();
