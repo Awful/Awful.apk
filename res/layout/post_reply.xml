@@ -17,11 +17,4 @@
 		android:singleLine="false"
         android:gravity="top"
 		/>
-	<Button
-		android:id="@id/submit_button"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:text="Submit"
-		/>
 </RelativeLayout>

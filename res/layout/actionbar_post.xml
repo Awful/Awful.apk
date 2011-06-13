@@ -28,9 +28,9 @@
             style="@style/ActionBarSeparator" 
             />
         <ImageButton 
-            android:id="@+id/next"
+            android:id="@+id/submit_button"
             style="@style/ActionBarButton"
-            android:src="@drawable/r_arrow"
+            android:src="@drawable/action_bar_send_submit"
             />
     </LinearLayout>
 </RelativeLayout>
