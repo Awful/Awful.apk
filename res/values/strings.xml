@@ -15,7 +15,7 @@
     <string name="post_reply">Post Reply</string>
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
-    <string name="logout_message">Your wildest dreams will come true if you select Log Out.</string>
+    <string name="logout_message">Your wildest dreams will become true if you select Log Out.</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="mark_last_read">Mark last read</string>
     <string name="cancel">Cancel</string>
