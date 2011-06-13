@@ -43,6 +43,7 @@ import android.widget.TextView;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulThread;
@@ -127,8 +128,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     			startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
     			return true;
             case R.id.logout:
-                NetworkUtils.clearLoginCookies(getActivity());
-                startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
+                new LogOutDialog(getActivity()).show();
                 break;
             case R.id.refresh:
             	adapt.refresh();
