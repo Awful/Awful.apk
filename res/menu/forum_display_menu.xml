@@ -8,7 +8,9 @@
 		android:title="@string/go_to"
 		/>
 	<item
-		android:title="@string/logout" android:id="@+id/logout" android:icon="@drawable/ic_menu_logout"/>
+		android:title="@string/logout"
+        android:id="@+id/logout"
+        android:icon="@drawable/ic_menu_logout"/>
 	<item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_refresh"
