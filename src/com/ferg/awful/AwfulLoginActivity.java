@@ -67,6 +67,8 @@ public class AwfulLoginActivity extends AwfulActivity {
         mPassword = (EditText) findViewById(R.id.password);
 
         mLogin.setOnClickListener(onLoginClick);
+
+        mUsername.requestFocus();
         
         final ImageView image = (ImageView) findViewById(R.id.dealwithit); 
         image.setOnClickListener(new OnClickListener() {
