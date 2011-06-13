@@ -30,6 +30,7 @@
         <ImageButton 
             android:id="@+id/submit_button"
             style="@style/ActionBarButton"
+            android:layout_width="60dip"
             android:src="@drawable/action_bar_send_submit"
             />
     </LinearLayout>
