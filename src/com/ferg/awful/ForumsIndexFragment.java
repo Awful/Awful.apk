@@ -47,6 +47,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 
@@ -175,8 +176,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     		startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
     		return true;
     	case R.id.logout:
-    		NetworkUtils.clearLoginCookies(getActivity());
-    		startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
+            new LogOutDialog(getActivity()).show();
+//    		NetworkUtils.clearLoginCookies(getActivity());
+//    		startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
             return true;
     	case R.id.refresh:
     		adapt.refresh();
