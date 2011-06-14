@@ -71,8 +71,6 @@ public final class HtmlView extends TextView {
     private static final boolean USE_PLACEHOLDER_IMAGE = true;
 
     private static UriMatcher sUriMatcher;
-    
-    private boolean imagesEnabled;
 
     /**
      * Logs an error message about a resource with a URL.
@@ -196,6 +194,8 @@ public final class HtmlView extends TextView {
      * The y-position of the last touch event.
      */
     private int mLastY;
+    
+    private boolean imagesEnabled;
 
     private String mHtml;
 

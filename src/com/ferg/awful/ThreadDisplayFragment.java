@@ -27,8 +27,6 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -68,7 +66,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	private ThreadListAdapter adapt;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
-    private MarkLastReadTask mMarkLastReadTask;
 
 	private ImageButton mNext;
 	private ImageButton mReply;
@@ -79,8 +76,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     // These just store values from shared preferences. This way, we only have to do redraws
     // and the like if the preferences defining drawing have actually changed since we last
     // saw them
-    private int mDefaultPostFontSize;
-    private int mDefaultPostFontColor;
     private int mDefaultPostBackgroundColor;
     private int mReadPostBackgroundColor;
 
@@ -113,8 +108,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         
         
-        mDefaultPostFontSize = mPrefs.getInt("default_post_font_size", 15);
-        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
         
         registerForContextMenu(getListView());
@@ -148,19 +141,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
     	if("default_post_font_size".equals(key)) {
-    		int newSize = prefs.getInt(key, 15);
-    		if(newSize != mDefaultPostFontSize) {
-    			mDefaultPostFontSize = newSize;
-    			Log.d(TAG, "invalidating (size)");
-    			getListView().invalidateViews();   			
-    		}
+    		Log.d(TAG, "invalidating (size)");
+    		getListView().invalidateViews();
     	} else if("default_post_font_color".equals(key)) {
-    		int newColor = prefs.getInt(key, R.color.default_post_font);
-    		if(newColor != mDefaultPostFontColor) {
-    			mDefaultPostFontColor = newColor;
-    			Log.d(TAG, "invalidating (color)");
-    			getListView().invalidateViews();    			
-    		}
+    		Log.d(TAG, "invalidating (color)");
+    		getListView().invalidateViews();    
     	} else if("default_post_background_color".equals(key)) {
         	int newBackground = prefs.getInt(key, R.color.background);
         	if(newBackground != mDefaultPostBackgroundColor) {
@@ -320,8 +305,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mPostQuoteTask.execute(info.position);
                 return true;
             case R.id.last_read:
-                mMarkLastReadTask = new MarkLastReadTask();
-                mMarkLastReadTask.execute(info.position);
+                adapt.markLastRead((AwfulPost) adapt.getItem(info.position));
                 return true;
         }
 
@@ -356,34 +340,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 	};
 
-    private class MarkLastReadTask extends AsyncTask<Integer, Void, ArrayList<AwfulPost>> {
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
-
-        public ArrayList<AwfulPost> doInBackground(Integer... aParams) {
-            ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-
-            if (!isCancelled()) {
-                try {
-                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
-
-                    result = selected.markLastRead();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return result;
-        }
-
-        public void onPostExecute(ArrayList<AwfulPost> aResult) {
-            if (!isCancelled()) {
-            }
-        }
-    }
+    
 
     private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
         private String mPostId;
