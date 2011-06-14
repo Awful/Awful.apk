@@ -293,7 +293,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		@Override
 		public int getCount() {
-			if(state == null){
+			if(state == null || state.getChildrenCount(currentPage) == 0){
 				return 1;
 			}
 			return state.getChildrenCount(currentPage)+(state.isPaged()?1:0);
@@ -301,7 +301,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public Object getItem(int ix) {
-			if(state == null || isPageCount(ix)){
+			if(state == null || isPageCount(ix) || state.getChildrenCount(currentPage) == 0){
 				return null;
 			}
 			return state.getChild(currentPage, ix);
@@ -309,7 +309,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public long getItemId(int ix) {
-			if(state == null){
+			if(state == null || state.getChildrenCount(currentPage) == 0){
 				return 0;
 			}
 			if(isPageCount(ix)){
@@ -324,7 +324,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		
 		@Override
 		public int getItemViewType(int ix) {
-			if(state == null){
+			if(state == null || state.getChildrenCount(currentPage) == 0){
 				return 0;
 			}
 			if(isPageCount(ix)){
@@ -343,12 +343,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return 0;
 		}
 		public DISPLAY_TYPE getItemType(int ix){
+			if(state == null || isPageCount(ix) || state.getChildrenCount(currentPage) == 0){
+				return DISPLAY_TYPE.PAGE_COUNT;
+			}
 			return state.getChild(currentPage, ix).getType();
 		}
 
 		@Override
 		public View getView(int ix, View current, ViewGroup parent) {
-			if(state == null){
+			if(state == null || state.getChildrenCount(currentPage) == 0){
 				return inf.inflate(R.layout.loading, parent, false);
 			}
 			if(isPageCount(ix)){
@@ -372,9 +375,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public boolean isEmpty() {
-			//this might seem contradictory, but we want to display a "Loading" message if the page hasn't loaded yet.
-			//this may be too much of a hack, so I might revisit the idea.
-			return (state != null && state.getChildrenCount(currentPage) == 0);
+			return false;
 		}
 
 		@Override
@@ -399,7 +400,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public boolean isEnabled(int ix) {
-			if(state == null || isPageCount(ix)){
+			if(state == null || isPageCount(ix) || state.getChildrenCount(currentPage) == 0){
 				return false;
 			}
 			return state.getChild(currentPage,ix).isEnabled();
