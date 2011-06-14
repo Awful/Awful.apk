@@ -414,7 +414,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
-		mTitle.setText(adapt.getTitle());
+		mTitle.setText(Html.fromHtml(adapt.getTitle()));
 		int last = adapt.getLastReadPost();
 		if(last >= 0 && last < adapt.getCount()){
 			getListView().setSelection(last);
