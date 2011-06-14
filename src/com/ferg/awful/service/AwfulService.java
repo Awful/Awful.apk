@@ -2,16 +2,22 @@ package com.ferg.awful.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import org.htmlcleaner.TagNode;
 
+import com.commonsware.cwac.bus.AbstractBus.Receiver;
+import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thumbnail.ThumbnailBus;
+import com.ferg.awful.thumbnail.ThumbnailMessage;
 
 import android.app.Service;
 import android.content.Intent;
@@ -27,6 +33,9 @@ public class AwfulService extends Service {
 	private boolean loggedIn;
 	private AwfulTask<?> currentTask;
 	private Stack<AwfulTask<?>> threadPool = new Stack<AwfulTask<?>>();
+	private ThumbnailBus avatarBus=new ThumbnailBus();
+	private SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> avatarCache=new SimpleWebImageCache<ThumbnailBus, ThumbnailMessage>(null, null, 101, avatarBus);
+	private LinkedList<Receiver<ThumbnailMessage>> registeredAvatarClients = new LinkedList<Receiver<ThumbnailMessage>>();
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
@@ -40,6 +49,9 @@ public class AwfulService extends Service {
 			currentTask.cancel(true);
 		}
 		threadPool.clear();
+		while(registeredAvatarClients.peek() != null){
+			avatarCache.getBus().unregister(registeredAvatarClients.poll());
+		}
 	}
 	private void queueThread(AwfulTask<?> threadTask) {
 		threadPool.push(threadTask);
@@ -72,6 +84,21 @@ public class AwfulService extends Service {
 		return loggedIn;
 	}
 	
+
+	public void registerForAvatarCache(String filter, Receiver<ThumbnailMessage> receiver) {
+		avatarCache.getBus().register(filter, receiver);
+		registeredAvatarClients.add(receiver);
+	}
+
+	public void unregisterForAvatarCache(Receiver<ThumbnailMessage> receiver) {
+		avatarCache.getBus().unregister(receiver);
+		registeredAvatarClients.remove(receiver);
+	}
+	
+	public SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> getAvatarCache() {
+		return avatarCache;
+	}
+	
 	//basic local-binding stuff.
 	private final IBinder bindServ = new AwfulBinder();
 	public class AwfulBinder extends Binder{
@@ -82,6 +109,75 @@ public class AwfulService extends Service {
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return bindServ;
+	}
+	
+	
+    /**
+     * Starts an asynchronous process that loads a thread's data for the specified page.
+     * A broadcast will be sent once the data is processed. It will use Constants.DATA_UPDATE_BROADCAST and an integer extra DATA_UPDATE_ID_EXTRA.
+     * @param id Thread ID number
+     * @param page Page number
+     */
+	public void fetchThread(int id, int page) {
+		if(isThreadQueued(id,page)){
+			Log.e(TAG, "dupe fetchThread "+id);
+			return;
+		}
+		Log.e(TAG, "fetchThread "+id);
+		queueThread(new FetchThreadTask(id, page));
+	}
+	/**
+     * Starts an asynchronous process that loads a forum's data (threads/subforums) for the specified page.
+     * A broadcast will be sent once the data is processed. It will use Constants.DATA_UPDATE_BROADCAST and an integer extra DATA_UPDATE_ID_EXTRA.
+     * @param id Forum ID number
+     * @param page Page number
+     */
+	public void fetchForum(int id, int page) {
+		if(isThreadQueued(id,page)){
+			Log.e(TAG, "dupe fetchForum "+id);
+			return;
+		}
+		Log.e(TAG, "fetchForum "+id);
+		if(id == 0){
+			queueThread(new LoadForumsTask());
+		}else{
+			queueThread(new FetchForumThreadsTask(id, page));
+		}
+	}
+	/**
+	 * Queues a background task to mark a specific post as the last read. 
+	 * Changes won't update locally until the next time the thread is parsed.
+	 * Do not refresh immediately after calling this, or the changes will be lost.
+	 * @param post The selected post.
+	 */
+	public void MarkLastRead(AwfulPost post){
+		queueThread(new MarkLastReadTask(post.getLastReadUrl()));
+	}
+	/**
+	 * Pulls an AwfulForum instance for the ID specified, or null if none exist yet.
+	 * The forum's threads may not have been populated yet.
+	 * @param currentId
+	 * @return Forum or null if none exist.
+	 */
+	public AwfulForum getForum(int currentId) {
+		Log.e(TAG, "getForum "+currentId);
+		return (AwfulForum) db.get("forumid="+currentId);
+	}
+	/**
+	 * Pulls an AwfulThread instance for the ID specified, or null if none exist yet.
+	 * @param currentId
+	 * @return Thread or null if none exist.
+	 */
+	public AwfulThread getThread(int currentId) {
+		Log.e(TAG, "getThread "+currentId);
+		return (AwfulThread) db.get("threadid="+currentId);
+	}
+	/**
+	 * Toggles the bookmark status for the selected thread.
+	 * @param threadId
+	 */
+	public void toggleBookmark(int threadId){
+		queueThread(new BookmarkToggleTask(threadId));
 	}
 	
 	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
@@ -125,7 +221,7 @@ public class AwfulService extends Service {
 
         public void onPostExecute(AwfulThread aResult) {
             if (!isCancelled() && thread != null) {
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, thread.getID()));
+            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, thread.getID()));
             }
             threadFinished(this);
         }
@@ -145,10 +241,6 @@ public class AwfulService extends Service {
 			mId = forumID;
 			mForum = (AwfulForum) db.get("forumid="+forumID);
 		}
-
-        public void onPreExecute() {
-        	
-        }
 
         public ArrayList<AwfulThread> doInBackground(Void... vParams) {
             ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
@@ -215,46 +307,11 @@ public class AwfulService extends Service {
         			}
         			
             	}
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mId));
+            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, mId));
             }
             threadFinished(this);
         }
     }
-    
-	public void fetchThread(int id, int page) {
-		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchThread "+id);
-			return;
-		}
-		Log.e(TAG, "fetchThread "+id);
-		queueThread(new FetchThreadTask(id, page));
-	}
-	public void fetchForum(int id, int page) {
-		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchForum "+id);
-			return;
-		}
-		Log.e(TAG, "fetchForum "+id);
-		if(id == 0){
-			queueThread(new LoadForumsTask());
-		}else{
-			queueThread(new FetchForumThreadsTask(id, page));
-		}
-	}
-	
-
-	public AwfulForum getForum(int currentId) {
-		Log.e(TAG, "getForum "+currentId);
-		return (AwfulForum) db.get("forumid="+currentId);
-	}
-	public AwfulThread getThread(int currentId) {
-		Log.e(TAG, "getThread "+currentId);
-		return (AwfulThread) db.get("threadid="+currentId);
-	}
-	
-	public void toggleBookmark(int threadId){
-		queueThread(new BookmarkToggleTask(threadId));
-	}
 	
 	private class BookmarkToggleTask extends AwfulTask<Void> {
 		private boolean removeBookmark;
@@ -283,7 +340,7 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Void aResult) {
-            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, mId));
+            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, mId));
             threadFinished(this);
         }
     }
@@ -309,8 +366,31 @@ public class AwfulService extends Service {
             			db.put("forumid="+af.getForumId(), af);
             		}
             	}
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_URL, 0));
+            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, 0));
             }
+            threadFinished(this);
+        }
+    }
+	private class MarkLastReadTask extends AwfulTask<Void> {
+		private String lrUrl;
+        public MarkLastReadTask(String lastReadUrl){
+        	lrUrl = lastReadUrl;
+        	mId = -99;
+        }
+
+        public Void doInBackground(Void... aParams) {
+            if (!isCancelled()) {
+                try {
+                    NetworkUtils.get(Constants.BASE_URL+ lrUrl);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return null;
+        }
+
+        public void onPostExecute(Void aResult) {
             threadFinished(this);
         }
     }

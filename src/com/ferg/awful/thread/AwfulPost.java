@@ -253,30 +253,15 @@ public class AwfulPost implements AwfulDisplayItem {
 		return mHasRapSheetLink;
 	}
 
-    public ArrayList<AwfulPost> markLastRead() {
-        ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
-
+    public void markLastRead() {
         try {
             List<URI> redirects = new LinkedList<URI>();
-            TagNode response = NetworkUtils.get(Constants.BASE_URL
-                    + mLastReadUrl, redirects);
-
-            int pti = -1;
-            if (redirects.size() > 1) {
-                String fragment = redirects.get(redirects.size() - 1)
-                        .getFragment();
-                if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
-                    pti = Integer.parseInt(
-                            fragment.substring(Constants.FRAGMENT_PTI.length()));
-                }
+            if(mLastReadUrl != null){
+            	NetworkUtils.get(Constants.BASE_URL+ mLastReadUrl, redirects);
             }
-
-            result = parsePosts(response, pti);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return result;
     }
 
     public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
@@ -303,7 +288,7 @@ public class AwfulPost implements AwfulDisplayItem {
 						post.setUsername(pc.getText().toString().trim());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
-						TagNode[] avatar = pc.getElementsByAttValue("class", "img", true, true);
+						TagNode[] avatar = pc.getElementsByName("img", true);
 						if(avatar.length >0){
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}

@@ -78,6 +78,15 @@ public class AwfulLoginActivity extends AwfulActivity {
 			}
 		});
     }
+
+    //Not sure if this needs a @Override since it worked without one
+    public void onResume(){
+    	super.onResume();
+    	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
+		if (loggedIn) {
+			this.finish();
+		}
+    }
     
     @Override
     public void onPause() {
