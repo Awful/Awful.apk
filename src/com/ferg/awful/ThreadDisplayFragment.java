@@ -425,5 +425,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		if(last >= 0 && last < adapt.getCount()){
 			getListView().setSelection(last);
 		}
+		if(adapt.getPage() == adapt.getLastPage()){
+			mNext.setVisibility(View.GONE);
+		}else{
+			mNext.setVisibility(View.VISIBLE);
+		}
 	}
 }

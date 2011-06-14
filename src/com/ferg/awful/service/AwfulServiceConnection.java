@@ -223,7 +223,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			View tmp = super.getView(ix, current, parent);
 			ImageView image=(ImageView)tmp.findViewById(R.id.avatar);
 			if (image!=null){
-				if(image.getTag()!=null) {
+				if(image.getTag()!=null && cache != null) {
 					image.setImageResource(android.R.drawable.ic_menu_rotate);
 					ThumbnailMessage msg=cache.getBus().createMessage(this.toString());
 					image.startAnimation(mLoadingAnimation);
