@@ -4,7 +4,7 @@
     <color name="forums_gray">#f4f4f4</color>
     <color name="default_post_font">#777777</color>
     <color name="background">#f4f4f4</color>
-    <color name="background2">#aeaeae</color>
+    <color name="background2">#DFDFDF</color>
     <color name="background_read">#ddeeff</color>
     <color name="background2_read">#c0e0ff</color>
 </resources>

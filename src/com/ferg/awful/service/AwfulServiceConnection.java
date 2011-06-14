@@ -9,10 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +26,7 @@ import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPageCount;
 import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 
 public class AwfulServiceConnection extends BroadcastReceiver implements
@@ -61,6 +60,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void onServiceDisconnected(ComponentName arg0) {
 		boundState = false;
 		mService = null;
+		mPrefs.unRegisterListener();
 		Log.e(TAG, "service disconnected!");
 		for(AwfulListAdapter la : fragments){
 			la.disconnected();
@@ -69,8 +69,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(boundState && intent.getAction().equalsIgnoreCase(Constants.DATA_UPDATE_BROADCAST) && intent.hasExtra(Constants.DATA_UPDATE_URL)){
-			int id = intent.getIntExtra(Constants.DATA_UPDATE_URL, -1);
+		if(boundState && intent.getAction().equalsIgnoreCase(Constants.DATA_UPDATE_BROADCAST) && intent.hasExtra(Constants.DATA_UPDATE_ID_EXTRA)){
+			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -1);
 			Log.e(TAG, "Broadcast Received: id "+id);
 			for(AwfulListAdapter la : fragments){
 				if(la.currentId == id){
@@ -179,6 +179,12 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				return;
 			}
 			mService.toggleBookmark(state.getID());
+		}
+
+		public void markLastRead(AwfulPost post) {
+			if(mService != null && boundState){
+				mService.MarkLastRead(post); 
+			}
 		}
 	}
 
