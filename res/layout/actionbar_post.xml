@@ -9,7 +9,7 @@
     android:gravity="center_vertical"
 	android:background="@drawable/bar"
 	>
-	<com.ferg.awful.widget.AlwaysFocusedTextView
+	<TextView
 		android:id="@+id/title"
         android:layout_toLeftOf="@+id/buttons"
         android:layout_alignParentLeft="true"
@@ -28,9 +28,10 @@
             style="@style/ActionBarSeparator" 
             />
         <ImageButton 
-            android:id="@+id/next"
+            android:id="@+id/submit_button"
             style="@style/ActionBarButton"
-            android:src="@drawable/r_arrow"
+            android:layout_width="60dip"
+            android:src="@drawable/action_bar_send_submit"
             />
     </LinearLayout>
 </RelativeLayout>

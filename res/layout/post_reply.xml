@@ -18,11 +18,4 @@
         android:gravity="top"
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
 		/>
-	<Button
-		android:id="@id/submit_button"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:text="Submit"
-		/>
 </RelativeLayout>

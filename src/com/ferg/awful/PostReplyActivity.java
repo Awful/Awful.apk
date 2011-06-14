@@ -35,8 +35,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.ferg.awful.constants.Constants;
@@ -51,7 +51,7 @@ public class PostReplyActivity extends AwfulActivity {
     private FetchFormKeyTask mFetchKeyTask;
     private SubmitReplyTask mSubmitTask;
 
-    private Button mSubmit;
+    private ImageButton mSubmit;
     private EditText mMessage;
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
@@ -67,7 +67,7 @@ public class PostReplyActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply);
 
-        mSubmit  = (Button) findViewById(R.id.submit_button);
+        mSubmit  = (ImageButton) findViewById(R.id.submit_button);
         mMessage = (EditText) findViewById(R.id.post_message);
 		mTitle   = (TextView) findViewById(R.id.title);
 
