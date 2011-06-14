@@ -114,12 +114,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        String c2pThreadID = null;
+		
+		String c2pThreadID = null;
         String c2pPage = null;
         // We may be getting thread info from ChromeToPhone so handle that here
         if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
@@ -135,18 +131,18 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     		adapt.goToPage(Integer.parseInt(c2pPage));
     	}
         setListAdapter(adapt);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
     }
     
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-    	if("default_post_font_size".equals(key)) {
-    		Log.d(TAG, "invalidating (size)");
-    		getListView().invalidateViews();
-    	} else if("default_post_font_color".equals(key)) {
-    		Log.d(TAG, "invalidating (color)");
-    		getListView().invalidateViews();    
-    	} else if("default_post_background_color".equals(key)) {
+    	if("default_post_background_color".equals(key)) {
         	int newBackground = prefs.getInt(key, R.color.background);
         	if(newBackground != mDefaultPostBackgroundColor) {
         		mDefaultPostBackgroundColor = newBackground;
@@ -206,8 +202,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     	super.onResume();
     	
     	setScrollbarType();
-    	onSharedPreferenceChanged(mPrefs, "default_post_font_size");
-    	onSharedPreferenceChanged(mPrefs, "default_post_font_color");
     	
     	mPrefs.registerOnSharedPreferenceChangeListener(this);
     }

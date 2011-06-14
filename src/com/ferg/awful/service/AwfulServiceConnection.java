@@ -152,7 +152,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
 		protected boolean lastReadLoaded;
 		private Handler imgHandler = new Handler();
-		private SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> cache;
 
 		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
 			super(id, frag);
@@ -160,12 +159,12 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		@Override
 		public void connected(){
 			super.connected();
-			cache = mService.getAvatarCache(this.toString(), onCache);
+			mService.registerForAvatarCache(currentId+"", onCache);
 		}
 		@Override
 		public void disconnected(){
 			super.disconnected();
-			cache = null;
+			mService.unregisterForAvatarCache(onCache);
 		}
 		
 		public void loadPage(boolean refresh){
@@ -223,14 +222,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			View tmp = super.getView(ix, current, parent);
 			ImageView image=(ImageView)tmp.findViewById(R.id.avatar);
 			if (image!=null){
-				if(image.getTag()!=null && cache != null && mPrefs.imagesEnabled) {
+				if(image.getTag()!=null && mService != null && mPrefs.imagesEnabled) {
 					image.setImageResource(android.R.drawable.ic_menu_rotate);
-					ThumbnailMessage msg=cache.getBus().createMessage(this.toString());
+					ThumbnailMessage msg=mService.getAvatarCache().getBus().createMessage(currentId+"");
 					image.startAnimation(mLoadingAnimation);
 					msg.setImageView(image);
 					msg.setUrl(image.getTag().toString());
 					try {
-						cache.notify(msg.getUrl(), msg);
+						mService.getAvatarCache().notify(msg.getUrl(), msg);
 					}
 					catch (Throwable t) {
 						Log.e(TAG, "Exception trying to fetch image", t);
@@ -249,9 +248,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 				imgHandler.post(new Runnable() {
 					public void run() {
-						if (image.getTag()!=null && image.getTag().toString().equals(message.getUrl())) {
+						if (image.getTag()!=null && mService != null && image.getTag().toString().equals(message.getUrl())) {
 							image.setAnimation(null);
-							image.setImageDrawable(cache.get(message.getUrl()));
+							image.setImageDrawable(mService.getAvatarCache().get(message.getUrl()));
 						}
 					}
 				});
@@ -281,6 +280,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			loadPage(true);
 		}
 		public void disconnected() {
+			Log.e(TAG, "disconnected(): "+currentId);
 			if(mObserver != null){
 				mObserver.onInvalidated();
 			}
@@ -388,6 +388,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public void unregisterDataSetObserver(DataSetObserver observer) {
+			Log.e(TAG, "dataSetObserver unregister!");
 			mObserver = null;
 		}
 

@@ -85,9 +85,17 @@ public class AwfulService extends Service {
 	}
 	
 
-	public SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> getAvatarCache(String filter, Receiver<ThumbnailMessage> receiver) {
+	public void registerForAvatarCache(String filter, Receiver<ThumbnailMessage> receiver) {
 		avatarCache.getBus().register(filter, receiver);
-		
+		registeredAvatarClients.add(receiver);
+	}
+
+	public void unregisterForAvatarCache(Receiver<ThumbnailMessage> receiver) {
+		avatarCache.getBus().unregister(receiver);
+		registeredAvatarClients.remove(receiver);
+	}
+	
+	public SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> getAvatarCache() {
 		return avatarCache;
 	}
 	
