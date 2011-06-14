@@ -223,7 +223,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			View tmp = super.getView(ix, current, parent);
 			ImageView image=(ImageView)tmp.findViewById(R.id.avatar);
 			if (image!=null){
-				if(image.getTag()!=null && cache != null) {
+				if(image.getTag()!=null && cache != null && mPrefs.imagesEnabled) {
 					image.setImageResource(android.R.drawable.ic_menu_rotate);
 					ThumbnailMessage msg=cache.getBus().createMessage(this.toString());
 					image.startAnimation(mLoadingAnimation);
@@ -237,7 +237,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 					}
 				}else{
 					image.setImageResource(0);
-					image.setVisibility(View.INVISIBLE);
+					image.setVisibility(View.GONE);
 				}
 			}
 			return tmp;
