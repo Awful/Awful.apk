@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Awful</string>
-    <string name="logout">All your dreams</string>
+    <string name="logout">Log Out</string>
     <string name="usercp">User Control Panel</string>
     <string name="back">Previous Page</string>
     <string name="forward">Next Page</string>
@@ -15,8 +15,10 @@
     <string name="post_reply">Post Reply</string>
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
+    <string name="logout_message">Your wildest dreams will become true if you select Log Out.</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="mark_last_read">Mark last read</string>
+    <string name="cancel">Cancel</string>
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>
