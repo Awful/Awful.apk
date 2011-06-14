@@ -43,6 +43,16 @@ public class AwfulPageCount implements AwfulDisplayItem {
 				adapter.goToPage(adapter.getPage()-1);
 			}
 		});
+		if(adapter.getPage() <= 1){
+			prev.setVisibility(View.INVISIBLE);
+		}else{
+			prev.setVisibility(View.VISIBLE);
+		}
+		if(adapter.getPage() == adapter.getLastPage()){
+			next.setVisibility(View.INVISIBLE);
+		}else{
+			next.setVisibility(View.VISIBLE);
+		}
 		return current;
 	}
 
