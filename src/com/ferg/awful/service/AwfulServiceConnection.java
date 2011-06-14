@@ -10,14 +10,20 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.DataSetObserver;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.SectionIndexer;
 
+import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
@@ -28,6 +34,8 @@ import com.ferg.awful.thread.AwfulPageCount;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thumbnail.ThumbnailBus;
+import com.ferg.awful.thumbnail.ThumbnailMessage;
 
 public class AwfulServiceConnection extends BroadcastReceiver implements
 		ServiceConnection {
@@ -129,12 +137,34 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		
 	}
+	
+	private static final RotateAnimation mLoadingAnimation = 
+		new RotateAnimation(
+				0f, 360f,
+				Animation.RELATIVE_TO_SELF, 0.5f,
+				Animation.RELATIVE_TO_SELF, 0.5f);
+	static {
+		mLoadingAnimation.setInterpolator(new LinearInterpolator());
+		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
+		mLoadingAnimation.setDuration(700);
+	}
 
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
 		protected boolean lastReadLoaded;
+		private Handler imgHandler = new Handler();
 
 		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
 			super(id, frag);
+		}
+		@Override
+		public void connected(){
+			super.connected();
+			mService.registerForAvatarCache(currentId+"", onCache);
+		}
+		@Override
+		public void disconnected(){
+			super.disconnected();
+			mService.unregisterForAvatarCache(onCache);
 		}
 		
 		public void loadPage(boolean refresh){
@@ -186,6 +216,47 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				mService.MarkLastRead(post); 
 			}
 		}
+		
+		@Override
+		public View getView(int ix, View current, ViewGroup parent) {
+			View tmp = super.getView(ix, current, parent);
+			ImageView image=(ImageView)tmp.findViewById(R.id.avatar);
+			if (image!=null){
+				if(image.getTag()!=null && mService != null && mPrefs.imagesEnabled) {
+					image.setImageResource(android.R.drawable.ic_menu_rotate);
+					ThumbnailMessage msg=mService.getAvatarCache().getBus().createMessage(currentId+"");
+					image.startAnimation(mLoadingAnimation);
+					msg.setImageView(image);
+					msg.setUrl(image.getTag().toString());
+					try {
+						mService.getAvatarCache().notify(msg.getUrl(), msg);
+					}
+					catch (Throwable t) {
+						Log.e(TAG, "Exception trying to fetch image", t);
+					}
+				}else{
+					image.setImageResource(0);
+					image.setVisibility(View.GONE);
+				}
+			}
+			return tmp;
+		}
+		
+		private ThumbnailBus.Receiver<ThumbnailMessage> onCache= new ThumbnailBus.Receiver<ThumbnailMessage>() {
+			public void onReceive(final ThumbnailMessage message) {
+				final ImageView image=message.getImageView();
+
+				imgHandler.post(new Runnable() {
+					public void run() {
+						if (image.getTag()!=null && mService != null && image.getTag().toString().equals(message.getUrl())) {
+							image.setAnimation(null);
+							image.setImageDrawable(mService.getAvatarCache().get(message.getUrl()));
+						}
+					}
+				});
+			}
+		};
+		
 	}
 
 	public abstract class AwfulListAdapter<T extends AwfulPagedItem> extends BaseAdapter implements SectionIndexer {
@@ -209,6 +280,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			loadPage(true);
 		}
 		public void disconnected() {
+			Log.e(TAG, "disconnected(): "+currentId);
 			if(mObserver != null){
 				mObserver.onInvalidated();
 			}
@@ -316,6 +388,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public void unregisterDataSetObserver(DataSetObserver observer) {
+			Log.e(TAG, "dataSetObserver unregister!");
 			mObserver = null;
 		}
 
@@ -391,6 +464,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			return ret;
 		}
+		
+		
 		
 	}
 	public ThreadListAdapter createThreadAdapter(int id, AwfulUpdateCallback threadDisplayFragment) {
