@@ -2,10 +2,13 @@ package com.ferg.awful.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import org.htmlcleaner.TagNode;
 
+import com.commonsware.cwac.bus.AbstractBus.Receiver;
+import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
@@ -13,6 +16,8 @@ import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thumbnail.ThumbnailBus;
+import com.ferg.awful.thumbnail.ThumbnailMessage;
 
 import android.app.Service;
 import android.content.Intent;
@@ -28,6 +33,9 @@ public class AwfulService extends Service {
 	private boolean loggedIn;
 	private AwfulTask<?> currentTask;
 	private Stack<AwfulTask<?>> threadPool = new Stack<AwfulTask<?>>();
+	private ThumbnailBus avatarBus=new ThumbnailBus();
+	private SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> avatarCache=new SimpleWebImageCache<ThumbnailBus, ThumbnailMessage>(null, null, 101, avatarBus);
+	private LinkedList<Receiver<ThumbnailMessage>> registeredAvatarClients = new LinkedList<Receiver<ThumbnailMessage>>();
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
@@ -41,6 +49,9 @@ public class AwfulService extends Service {
 			currentTask.cancel(true);
 		}
 		threadPool.clear();
+		while(registeredAvatarClients.peek() != null){
+			avatarCache.getBus().unregister(registeredAvatarClients.poll());
+		}
 	}
 	private void queueThread(AwfulTask<?> threadTask) {
 		threadPool.push(threadTask);
@@ -71,6 +82,13 @@ public class AwfulService extends Service {
 	
 	public boolean isLoggedIn(){
 		return loggedIn;
+	}
+	
+
+	public SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> getAvatarCache(String filter, Receiver<ThumbnailMessage> receiver) {
+		avatarCache.getBus().register(filter, receiver);
+		
+		return avatarCache;
 	}
 	
 	//basic local-binding stuff.

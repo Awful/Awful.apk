@@ -288,7 +288,7 @@ public class AwfulPost implements AwfulDisplayItem {
 						post.setUsername(pc.getText().toString().trim());
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
-						TagNode[] avatar = pc.getElementsByAttValue("class", "img", true, true);
+						TagNode[] avatar = pc.getElementsByName("img", true);
 						if(avatar.length >0){
 							post.setAvatar(avatar[0].getAttributeByName("src"));
 						}
