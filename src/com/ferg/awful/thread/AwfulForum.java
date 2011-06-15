@@ -61,15 +61,10 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	private String mSubtext;
     private ArrayList<AwfulForum> mSubforums;
 	private HashMap<Integer, ArrayList<AwfulThread>> threads;
-	private AwfulThread placeholderLoadingMessage;
 	
 	public AwfulForum() {
         mSubforums = new ArrayList<AwfulForum>();
         threads = new HashMap<Integer, ArrayList<AwfulThread>>();
-        placeholderLoadingMessage = new AwfulThread(-99);
-        placeholderLoadingMessage.setTitle("Loading...");
-        placeholderLoadingMessage.setAuthor("Please Wait.");
-        placeholderLoadingMessage.setUnreadCount(-1);
     }
 
 	public AwfulForum(int mForumID2) {
@@ -226,7 +221,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	@Override
 	public int getChildrenCount(int page) {
 		return (page <2 ? mSubforums.size() : 0)+
-		(threads.get(page) == null? 1 : threads.get(page).size());
+		(threads.get(page) == null? 0 : threads.get(page).size());
 	}
 
 	@Override
@@ -235,17 +230,9 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 			return mSubforums.get(ix);
 		}
 		if(page < 2){
-			if(threads.get(page) == null){
-				return placeholderLoadingMessage;
-			}else{
-				return threads.get(page).get(ix-mSubforums.size());
-			}
+			return threads.get(page).get(ix-mSubforums.size());
 		}
-		if(threads.get(page) == null){
-			return placeholderLoadingMessage;
-		}else{
-			return threads.get(page).get(ix);
-		}
+		return threads.get(page).get(ix);
 	}
 
 	public static String parseTitle(TagNode data) {

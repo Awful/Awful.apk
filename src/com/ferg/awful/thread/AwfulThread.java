@@ -348,7 +348,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
 	@Override
 	public boolean isEnabled() {
-		return (threadId > 0);
+		return true;
 	}
 
 	@Override
