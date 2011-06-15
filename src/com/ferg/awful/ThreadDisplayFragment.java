@@ -82,7 +82,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
         
         mTitle    = (TextView) result.findViewById(R.id.title);
@@ -187,7 +186,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void cleanupTasks() {
-        
+    	if (mDialog != null) {
+            mDialog.dismiss();
+        }
         if (mEditPostTask != null) {
             mEditPostTask.cancel(true);
         }
@@ -414,6 +415,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
+		if(!this.isResumed()){
+			return;
+		}
 		mTitle.setText(Html.fromHtml(adapt.getTitle()));
 		int last = adapt.getLastReadPost();
 		if(last >= 0 && last < adapt.getCount()){
