@@ -221,6 +221,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
+		if(!this.isResumed()){
+			return;
+		}
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
         if(pageChange){//this will only reset the position if the user selects next/prev page
         	getListView().setSelection(0);
