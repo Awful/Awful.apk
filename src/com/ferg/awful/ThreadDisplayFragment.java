@@ -365,8 +365,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-                mDialog.dismiss();
-
+            	if (mDialog != null) {
+                    mDialog.dismiss();
+                }
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
                 postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
@@ -402,8 +403,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-                mDialog.dismiss();
-
+            	if (mDialog != null) {
+                    mDialog.dismiss();
+                }
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
                 postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
                 postReply.putExtra(Constants.QUOTE, aResult);
