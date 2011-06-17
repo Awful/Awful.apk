@@ -57,6 +57,12 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 	private SharedPreferences mPrefs;
 
     @Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+	}
+		
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         
@@ -66,7 +72,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
         mHome       = (ImageButton) result.findViewById(R.id.home);
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
+        
         return result;
     }
 
@@ -74,18 +80,17 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setHasOptionsMenu(true);
         setRetainInstance(true);
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
-		adapt = ((UserCPActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
-        setListAdapter(adapt);
 
 		getListView().setOnItemClickListener(onThreadSelected);
 		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 		getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        
+
+		adapt = ((UserCPActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
+        setListAdapter(adapt);
     }
 
     @Override
@@ -114,11 +119,14 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        setListAdapter(null);
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.forum_index_options, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.forum_index_options, menu);
+    	}
     }
     
     @Override
@@ -163,7 +171,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
-		if(pageChange){
+		if(pageChange && this.isAdded()){
         	getListView().setSelection(0);
         }
 	}
