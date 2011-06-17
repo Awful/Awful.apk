@@ -48,7 +48,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -62,7 +64,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
+public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback, OnScrollListener {
     private static final String TAG = "ThreadDisplayActivity";
 
 	private ThreadListAdapter adapt;
@@ -82,7 +84,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			delayedDataUpdate();
 		}
 	};
-	private int savedPage;
+	private int savedPage = 0;
+	private int savedPos = 0;
+
+
 
     // These just store values from shared preferences. This way, we only have to do redraws
     // and the like if the preferences defining drawing have actually changed since we last
@@ -129,6 +134,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
+		getListView().setOnScrollListener(this);
     }
 
     @Override
@@ -184,9 +190,14 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onStop();
 		Log.e(TAG,"onStop()");
         cleanupTasks();
-        savedPage = adapt.getPage();//saves page for orientation change.
     }
-    
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+		Log.e(TAG,"onDetach()");
+	    savedPage = adapt.getPage();//saves page for orientation change.
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -352,7 +363,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 
 
-
     
 
     private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
@@ -446,10 +456,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	public void delayedDataUpdate() {
 		mTitle.setText(Html.fromHtml(adapt.getTitle()));
 		int last = adapt.getLastReadPost();
-		Log.e(TAG, "Lastreadpost: "+last +" of "+adapt.getCount());
-		Log.e(TAG,getListView().getChildCount()+" children");
-		if(last >= 0 && last < adapt.getCount()){
-			getListView().setSelection(last);
+		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
+			getListView().setSelection(savedPos);
+		}else{
+			if(last >= 0 && last < adapt.getCount()){
+				getListView().setSelection(last);
+				savedPos = last;
+			}
 		}
 		if(adapt.getPage() == adapt.getLastPage()){
 			mNext.setVisibility(View.GONE);
@@ -457,8 +470,19 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			mNext.setVisibility(View.VISIBLE);
 		}
 	}
-
-	public Integer getPage() {
+	public int getSavedPage() {
 		return savedPage;
+	}
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem,
+			int visibleItemCount, int totalItemCount) {
+		if(visibleItemCount>0 && firstVisibleItem >0){
+			savedPos = firstVisibleItem+1;
+			Log.e(TAG,"Scrolled: "+firstVisibleItem);
+		}
+		
+	}
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 }

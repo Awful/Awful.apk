@@ -63,7 +63,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         	threadid = Integer.parseInt(c2pThreadID);
         }
         if(savedInstanceState != null){
-        	adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getPage());
+        	adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getSavedPage());
         }else{
     		adapt = getServiceConnection().createThreadAdapter(threadid, display);
     		if(c2pPage != null && c2pPage.matches("\\d+")){

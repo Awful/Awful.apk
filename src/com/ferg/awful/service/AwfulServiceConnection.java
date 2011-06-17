@@ -507,8 +507,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	 * @param page Page to load. Will not check to see if page is legit.
 	 * @return The new ListAdapter.
 	 */
-	public ThreadListAdapter createThreadAdapter(int threadid, ThreadDisplayFragment display, Integer page) {
-		ThreadListAdapter ad =  new ThreadListAdapter(threadid, display, page.intValue());
+	public ThreadListAdapter createThreadAdapter(int threadid, ThreadDisplayFragment display, int page) {
+		ThreadListAdapter ad =  new ThreadListAdapter(threadid, display, page);
 		fragments.add(ad);
 		return ad;
 	}
