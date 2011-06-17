@@ -37,9 +37,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.RelativeLayout;
 
-public class ForumsIndexActivity extends AwfulActivity {
+public class ForumsTabletActivity extends AwfulActivity {
 
-    private static final String TAG = "ForumsIndexActivity";
+    private static final String TAG = "ForumsTabletActivity";
 
     private RelativeLayout mContent;
     
@@ -47,28 +47,17 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate()");
+        setContentView(R.layout.forum_index_activity);
 
-        if (isHoneycomb()) {
-            startTabletActivity();
-        } else {
-            setContentView(R.layout.forum_index_activity);
-        }
+        mContent = (RelativeLayout) findViewById(R.id.content);
+
+        setActionBar();
     }
 
-    private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-
-    private void startTabletActivity() {
-        Intent shim = new Intent(this, ForumsTabletActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
-        }
-
-        startActivity(shim);
-        finish();
+    private void setActionBar() {
+        ActionBar action = getActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
     }
 
     public void onResume(){
@@ -85,5 +74,18 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onDestroy(){
         super.onDestroy();
         Log.e(TAG, "onDestroy()");
+    }
+
+    public boolean isDualPane() {
+        return mContent != null;
+    }
+
+    public void setContentPane(int aForumId) {
+        ForumDisplayFragment fragment = 
+            ForumDisplayFragment.newInstance(aForumId);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
     }
 }

@@ -86,8 +86,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
         mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
         mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
-        if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
-            adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
+        if(((AwfulActivity) getActivity()).getServiceConnection() != null){
+            adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
             mForumList.setAdapter(adapt);
         }
         mForumList.setOnItemClickListener(onForumSelected);
@@ -151,12 +151,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private OnItemClickListener onForumSelected = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-            ForumsIndexActivity activity = (ForumsIndexActivity) getActivity();
-
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (activity.isDualPane()) {
-                activity.setContentPane((int) arg3);
+            if (getActivity() instanceof ForumsTabletActivity) {
+                ((ForumsTabletActivity) getActivity()).setContentPane((int) arg3);
             } else {
                 startForumActivity((int) arg3);
             }

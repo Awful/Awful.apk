@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 
 import com.ferg.awful.service.AwfulServiceConnection;
-import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This

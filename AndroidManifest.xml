@@ -34,10 +34,15 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
             </intent-filter>
         </activity>
+        <activity android:name="ForumsTabletActivity" />
         <activity
                 android:name="AwfulLoginActivity"
+                android:theme="@android:style/Theme.NoTitleBar"
                 android:windowSoftInputMode="adjustResize"/>
-        <activity android:name="ThreadDisplayActivity">
+        <activity 
+            android:name="ThreadDisplayActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
+            >
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -45,7 +50,10 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
 			</intent-filter>
         </activity>
-        <activity android:name="ForumDisplayActivity">
+        <activity 
+            android:name="ForumDisplayActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
+            >
         	<intent-filter>
             	<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -53,21 +61,24 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
         	</intent-filter>
         </activity>
-        <activity android:name="ProfileActivity" />
-        <activity android:name="SettingsActivity" />
+        <activity android:name="ProfileActivity" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="SettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"
-            android:clearTaskOnLaunch="true"
+            android:clearTaskOnLaunch="true" 
+            android:theme="@android:style/Theme.NoTitleBar"
             />
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
+            android:theme="@android:style/Theme.NoTitleBar"
             />
         <activity 
             android:name="UserCPShortcutActivity"
             android:icon="@drawable/icon" 
             android:label="@string/usercp"
+            android:theme="@android:style/Theme.NoTitleBar"
             >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
