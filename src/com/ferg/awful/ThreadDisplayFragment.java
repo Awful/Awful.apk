@@ -35,6 +35,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
@@ -47,8 +48,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AbsListView;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.ListFragment;
@@ -60,7 +64,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
+public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback, OnScrollListener {
     private static final String TAG = "ThreadDisplayActivity";
 
 	private ThreadListAdapter adapt;
@@ -72,17 +76,35 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
+	private boolean queueDataUpdate;
+	private Handler handler = new Handler();
+	private Runnable runDataUpdate = new Runnable(){
+		@Override
+		public void run() {
+			delayedDataUpdate();
+		}
+	};
+	private int savedPage = 0;
+	private int savedPos = 0;
+
+
 
     // These just store values from shared preferences. This way, we only have to do redraws
     // and the like if the preferences defining drawing have actually changed since we last
     // saw them
     private int mDefaultPostBackgroundColor;
     private int mReadPostBackgroundColor;
-
+    
+    @Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+	}
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
+		Log.e(TAG,"onCreateView()");
+        View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
         mTitle    = (TextView) result.findViewById(R.id.title);
         mNext     = (ImageButton) result.findViewById(R.id.next_page);
@@ -97,8 +119,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-
-        setHasOptionsMenu(true);
+		Log.e(TAG,"onActivityCreated()");
         setRetainInstance(true);
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -108,35 +129,26 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         
         
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
-        
+
         registerForContextMenu(getListView());
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
-		
-		String c2pThreadID = null;
-        String c2pPage = null;
-        // We may be getting thread info from ChromeToPhone so handle that here
-        if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-        	c2pThreadID = getActivity().getIntent().getData().getQueryParameter("threadid");
-            c2pPage = getActivity().getIntent().getData().getQueryParameter("pagenumber");
-        }
-        int threadid = getActivity().getIntent().getIntExtra(Constants.THREAD, 0);
-        if(c2pThreadID != null){
-        	threadid = Integer.parseInt(c2pThreadID);
-        }
-        adapt = ((ThreadDisplayActivity) getActivity()).getServiceConnection().createThreadAdapter(threadid, this);
-        if(c2pPage != null){
-    		adapt.goToPage(Integer.parseInt(c2pPage));
-    	}
-        setListAdapter(adapt);
+		getListView().setOnScrollListener(this);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        
-        mTitle.setText(Html.fromHtml(adapt.getTitle()));
+		Log.e(TAG,"onStart()");
+
+        mTitle.setText("Loading...");
+    }
+    
+    @Override
+    public void setListAdapter(ListAdapter adapter){
+    	super.setListAdapter(adapter);
+    	adapt = (ThreadListAdapter) adapter;
     }
     
     @Override
@@ -167,6 +179,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onPause() {
         super.onPause();
+		Log.e(TAG,"onPause()");
 
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         cleanupTasks();
@@ -175,13 +188,20 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onStop() {
         super.onStop();
-
+		Log.e(TAG,"onStop()");
         cleanupTasks();
     }
-    
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+		Log.e(TAG,"onDetach()");
+	    savedPage = adapt.getPage();//saves page for orientation change.
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();
+		Log.e(TAG,"onDestroy()");
         cleanupTasks();
     }
 
@@ -201,15 +221,21 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onResume() {
     	super.onResume();
+		Log.e(TAG,"onResume()");
     	
     	setScrollbarType();
     	
     	mPrefs.registerOnSharedPreferenceChangeListener(this);
+    	if(queueDataUpdate){
+    		dataUpdate(false);
+    	}
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.post_menu, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.post_menu, menu);
+    	}
     }
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -335,6 +361,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 	};
 
+
+
     
 
     private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
@@ -407,7 +435,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                     mDialog.dismiss();
                 }
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
+                postReply.putExtra(Constants.THREAD, Integer.toString(adapt.getState().getID()));
                 postReply.putExtra(Constants.QUOTE, aResult);
 
 				startActivityForResult(postReply, 0);
@@ -418,17 +446,43 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	@Override
 	public void dataUpdate(boolean pageChange) {
 		if(!this.isResumed()){
+			queueDataUpdate = true;
 			return;
+		}else{
+			queueDataUpdate = false;
+			handler.post(runDataUpdate);
 		}
+	}
+	public void delayedDataUpdate() {
 		mTitle.setText(Html.fromHtml(adapt.getTitle()));
 		int last = adapt.getLastReadPost();
-		if(last >= 0 && last < adapt.getCount()){
-			getListView().setSelection(last);
+		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
+			getListView().setSelection(savedPos);
+		}else{
+			if(last >= 0 && last < adapt.getCount()){
+				getListView().setSelection(last);
+				savedPos = last;
+			}
 		}
 		if(adapt.getPage() == adapt.getLastPage()){
 			mNext.setVisibility(View.GONE);
 		}else{
 			mNext.setVisibility(View.VISIBLE);
 		}
+	}
+	public int getSavedPage() {
+		return savedPage;
+	}
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem,
+			int visibleItemCount, int totalItemCount) {
+		if(visibleItemCount>0 && firstVisibleItem >0){
+			savedPos = firstVisibleItem+1;
+			Log.e(TAG,"Scrolled: "+firstVisibleItem);
+		}
+		
+	}
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 }

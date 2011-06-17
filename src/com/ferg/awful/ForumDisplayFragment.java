@@ -65,7 +65,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private TextView mTitle;
 
 	private SharedPreferences mPrefs;
-
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+	}
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -86,7 +90,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setHasOptionsMenu(true);
         setRetainInstance(true);
 		
         String c2pForumID = null;
@@ -135,11 +138,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onDestroy() {
         super.onDestroy();
+        setListAdapter(null);
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.forum_display_menu, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.forum_display_menu, menu);
+    	}
     }
     
     @Override

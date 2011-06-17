@@ -26,6 +26,7 @@ import android.widget.SectionIndexer;
 import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
+import com.ferg.awful.ThreadDisplayFragment;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
@@ -97,13 +98,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 	}
 	public void disconnect(Context parent){
-		if(mService != null && boundState){
+		//if(mService != null && boundState){
 			Log.e(TAG, "disconnect()");
 			parent.unbindService(this);
 			parent.unregisterReceiver(this);
 			boundState = false;
 			mService = null;
-		}
+		//}
 	}
 	public void fetchThread(int id, int page){
 		if(boundState){
@@ -119,21 +120,22 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public class ForumListAdapter extends AwfulListAdapter<AwfulForum>{
 
 		public ForumListAdapter(int id, AwfulUpdateCallback frag) {
-			super(id, frag);
+			super(id);
+			mCallback = frag;
 		}
 		@Override
-		public void loadPage(boolean refresh){
+		public void loadPage(boolean forceRefresh){
 			if(mService == null || !boundState){
 				return;
 			}
 			state = mService.getForum(currentId);
-			if(refresh){
+			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchForum(currentId, currentPage);
 			}
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(refresh);
+			mCallback.dataUpdate(forceRefresh || state == null || state.isPageCached(currentPage));
 		}
 		
 	}
@@ -154,12 +156,19 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		private Handler imgHandler = new Handler();
 
 		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
-			super(id, frag);
+			super(id);
+			mCallback = frag;
+		}
+		public ThreadListAdapter(int id, AwfulUpdateCallback frag, int loadPage) {
+			super(id);
+			currentPage = loadPage;
+			lastReadLoaded = true;
+			mCallback = frag;
 		}
 		@Override
 		public void connected(){
 			super.connected();
-			mService.registerForAvatarCache(currentId+"", onCache);
+			mService.registerForAvatarCache(Integer.toString(currentId), onCache);
 		}
 		@Override
 		public void disconnected(){
@@ -167,7 +176,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mService.unregisterForAvatarCache(onCache);
 		}
 		
-		public void loadPage(boolean refresh){
+		public void loadPage(boolean forceRefresh){
 			if(mService == null || !boundState){
 				return;
 			}
@@ -177,7 +186,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				currentPage = state.getLastReadPage();
 				lastReadLoaded = true;
 			}
-			if(refresh){
+			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchThread(currentId, currentPage);
 			}
 			if(mObserver != null){
@@ -266,18 +275,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		protected DataSetObserver mObserver;
 		protected AwfulUpdateCallback mCallback;
 		protected AwfulPageCount pageCount;
-		public AwfulListAdapter(int id, AwfulUpdateCallback frag){
+		public AwfulListAdapter(int id){
 			currentId = id;
 			currentPage = 1;
-			mCallback = frag;
-			if(boundState){
-				loadPage(true);
-			}
 		}
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
 			Log.e(TAG, "connected(): "+currentId);
-			loadPage(true);
+			loadPage(false);
 		}
 		public void disconnected() {
 			Log.e(TAG, "disconnected(): "+currentId);
@@ -287,9 +292,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		public void dataUpdate() {
 			loadPage(false);
-			if(mObserver != null){
-				mObserver.onChanged();
-			}
 		}
 		@Override
 		public int getCount() {
@@ -415,18 +417,23 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void refresh() {
 			loadPage(true);
 		}
-
-		public void goToPage(int pageInt) {
+		public void goToPage(int page){
+			goToPage(page, true, false);
+		}
+		public void forceGoToPage(int page){
+			goToPage(page, true, true);
+		}
+		public void goToPage(int pageInt, boolean refresh, boolean ignoreMaxBound) {
 			if(pageInt < 1){
 				pageInt = 1;
 			}
-			if(pageInt > getLastPage()){
+			if(pageInt > getLastPage() && !ignoreMaxBound){
 				pageInt = getLastPage();
 			}
 			currentPage = pageInt;
-			loadPage(true);
+			loadPage(refresh);
 		}
-		protected abstract void loadPage(boolean refresh);
+		protected abstract void loadPage(boolean forceRefresh);
 
 		public int getPage() {
 			return currentPage;
@@ -469,13 +476,39 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		
 		
 	}
-	public ThreadListAdapter createThreadAdapter(int id, AwfulUpdateCallback threadDisplayFragment) {
-		ThreadListAdapter ad =  new ThreadListAdapter(id, threadDisplayFragment);
+	/**
+	 * Creates a ThreadListAdapter, loading the last read page in the process.
+	 * @param id Thread ID.
+	 * @param frag Fragment to receive update callbacks.
+	 * @return A ListAdapter.
+	 */
+	public ThreadListAdapter createThreadAdapter(int id, AwfulUpdateCallback frag) {
+		ThreadListAdapter ad =  new ThreadListAdapter(id, frag);
 		fragments.add(ad);
 		return ad;
 	}
-	public ForumListAdapter createForumAdapter(int id, AwfulUpdateCallback forumDisplayFragment) {
-		ForumListAdapter ad =  new ForumListAdapter(id, forumDisplayFragment);
+	/**
+	 * Creates a ForumListAdapter, automatically queues a load.
+	 * @param id ID.
+	 * @param frag Callback.
+	 * @return Forum ListAdapter
+	 */
+	public ForumListAdapter createForumAdapter(int id, AwfulUpdateCallback frag) {
+		ForumListAdapter ad =  new ForumListAdapter(id, frag);
+		fragments.add(ad);
+		return ad;
+	}
+	/**
+	 * Creates a thread ListAdapter set to a specific page. 
+	 * Used for returning to a page after orientation change or starting at the beginning of a thread.
+	 * It does not validate the page range.
+	 * @param threadid Thread ID.
+	 * @param display Fragment for callbacks.
+	 * @param page Page to load. Will not check to see if page is legit.
+	 * @return The new ListAdapter.
+	 */
+	public ThreadListAdapter createThreadAdapter(int threadid, ThreadDisplayFragment display, int page) {
+		ThreadListAdapter ad =  new ThreadListAdapter(threadid, display, page);
 		fragments.add(ad);
 		return ad;
 	}

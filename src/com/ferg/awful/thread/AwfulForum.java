@@ -252,4 +252,9 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		TagNode[] result = data.getElementsByName("title", true);
 		return result[0].getText().toString();
 	}
+
+	@Override
+	public boolean isPageCached(int page) {
+		return threads.get(page) != null || forumId == 0;
+	}
 }

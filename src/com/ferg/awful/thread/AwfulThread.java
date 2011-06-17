@@ -385,4 +385,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	public int getTotalCount() {
 		return mTotalPosts;
 	}
+
+	public boolean isPageCached(int page) {
+		return mPosts.get(page) != null;
+	}
 }

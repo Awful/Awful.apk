@@ -28,12 +28,7 @@ public class AwfulPageCount implements AwfulDisplayItem {
 		pageCountText.setText("Page "+adapter.getPage()+"/"+adapter.getLastPage());
 		ImageButton next = (ImageButton) current.findViewById(R.id.next_page);
 		ImageButton prev = (ImageButton) current.findViewById(R.id.prev_page);
-		next.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				adapter.goToPage(adapter.getPage()+1);
-			}
-		});
+		
 		prev.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -46,9 +41,21 @@ public class AwfulPageCount implements AwfulDisplayItem {
 			prev.setVisibility(View.VISIBLE);
 		}
 		if(adapter.getPage() == adapter.getLastPage()){
-			next.setVisibility(View.INVISIBLE);
+			next.setImageResource(android.R.drawable.stat_notify_sync);
+			next.setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View v) {
+					adapter.refresh();
+				}
+			});
 		}else{
-			next.setVisibility(View.VISIBLE);
+			next.setImageResource(R.drawable.r_arrow);
+			next.setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View v) {
+					adapter.goToPage(adapter.getPage()+1);
+				}
+			});
 		}
 		return current;
 	}
