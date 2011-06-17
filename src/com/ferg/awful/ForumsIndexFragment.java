@@ -63,7 +63,12 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	private ForumListAdapter adapt;
 
 	private SharedPreferences mPrefs;
-
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+	}
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -102,7 +107,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setHasOptionsMenu(true);
         setRetainInstance(true);
 		
 
@@ -166,7 +170,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forum_index_options, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.forum_index_options, menu);
+    	}
     }
     
     @Override
