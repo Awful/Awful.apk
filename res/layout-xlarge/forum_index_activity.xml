@@ -4,6 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="horizontal"
+	android:background="@color/background"
     >
     <fragment
         class="com.ferg.awful.ForumsIndexFragment"
@@ -21,7 +22,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Select a forum"
+            android:text="@string/select_forum"
+			android:textSize="22dip"
+			android:textStyle="bold"
             />
     </RelativeLayout>
 </LinearLayout>

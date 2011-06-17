@@ -237,7 +237,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             switch(adapt.getItemType(aPosition)) {
             case THREAD:
                 AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
-                Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
+                Intent viewThread = new Intent();
+				
+				if (isHoneycomb()) {
+					viewThread.setClass(getActivity(), ThreadDisplayTabletActivity.class);
+				} else {
+					viewThread.setClass(getActivity(), ThreadDisplayActivity.class);
+				}
+
                 viewThread.putExtra(Constants.THREAD, thread.getID());
                 startActivity(viewThread);
                 break;

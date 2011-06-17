@@ -34,11 +34,14 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
             </intent-filter>
         </activity>
-        <activity android:name="ForumsTabletActivity" />
+        <activity 
+            android:name="ForumsTabletActivity" 
+            />
         <activity
                 android:name="AwfulLoginActivity"
                 android:theme="@android:style/Theme.NoTitleBar"
                 android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="ThreadDisplayTabletActivity" />
         <activity 
             android:name="ThreadDisplayActivity"
             android:theme="@android:style/Theme.NoTitleBar"

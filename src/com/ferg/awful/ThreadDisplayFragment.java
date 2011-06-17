@@ -48,6 +48,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AbsListView;
@@ -106,12 +107,15 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		Log.e(TAG,"onCreateView()");
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
-        mTitle    = (TextView) result.findViewById(R.id.title);
-        mNext     = (ImageButton) result.findViewById(R.id.next_page);
-        mReply    = (ImageButton) result.findViewById(R.id.reply);
+		if (!isHoneycomb()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
-        mTitle.setMovementMethod(new ScrollingMovementMethod());
-        
+			mTitle    = (TextView) actionbar.findViewById(R.id.title);
+			mNext     = (ImageButton) actionbar.findViewById(R.id.next_page);
+			mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
+
+			mTitle.setMovementMethod(new ScrollingMovementMethod());
+		}
         
         return result;
     }
@@ -132,9 +136,16 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         registerForContextMenu(getListView());
 
-		mNext.setOnClickListener(onButtonClick);
-		mReply.setOnClickListener(onButtonClick);
+		if (!isHoneycomb()) {
+			mNext.setOnClickListener(onButtonClick);
+			mReply.setOnClickListener(onButtonClick);
+		}
+
 		getListView().setOnScrollListener(this);
+    }
+
+    private boolean isHoneycomb() {
+        return (getActivity() instanceof ForumsTabletActivity);
     }
 
     @Override
@@ -142,38 +153,40 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onStart();
 		Log.e(TAG,"onStart()");
 
-        mTitle.setText("Loading...");
+		if (!isHoneycomb()) {
+			mTitle.setText("Loading...");
+		}
     }
     
     @Override
     public void setListAdapter(ListAdapter adapter){
-    	super.setListAdapter(adapter);
-    	adapt = (ThreadListAdapter) adapter;
+		super.setListAdapter(adapter);
+		adapt = (ThreadListAdapter) adapter;
     }
     
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-    	if("default_post_background_color".equals(key)) {
-        	int newBackground = prefs.getInt(key, R.color.background);
-        	if(newBackground != mDefaultPostBackgroundColor) {
-        		mDefaultPostBackgroundColor = newBackground;
-        		Log.d(TAG, "invalidating (color)");
-        		getListView().invalidateViews(); 
-        	}   			
+		if("default_post_background_color".equals(key)) {
+			int newBackground = prefs.getInt(key, R.color.background);
+			if(newBackground != mDefaultPostBackgroundColor) {
+				mDefaultPostBackgroundColor = newBackground;
+				Log.d(TAG, "invalidating (color)");
+				getListView().invalidateViews(); 
+			}				
         } else if("read_post_background_color".equals(key)) {
-           	int newReadBG = prefs.getInt(key, R.color.background_read);
-           	if(newReadBG != mReadPostBackgroundColor) {
-           		mReadPostBackgroundColor = newReadBG;
-           		Log.d(TAG, "invalidating (color)");
-           		getListView().invalidateViews();  
-           	}
-    	} else if("use_large_scrollbar".equals(key)) {
-    		setScrollbarType();
-    	}
+			int newReadBG = prefs.getInt(key, R.color.background_read);
+			if(newReadBG != mReadPostBackgroundColor) {
+				mReadPostBackgroundColor = newReadBG;
+				Log.d(TAG, "invalidating (color)");
+				getListView().invalidateViews();  
+			}
+		} else if("use_large_scrollbar".equals(key)) {
+			setScrollbarType();
+		}
     }
     
     private void setScrollbarType() {
-    	getListView().setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
+		getListView().setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
     }
     
     @Override
@@ -196,7 +209,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public void onDetach() {
         super.onDetach();
 		Log.e(TAG,"onDetach()");
-	    savedPage = adapt.getPage();//saves page for orientation change.
+		savedPage = adapt.getPage();//saves page for orientation change.
     }
     @Override
     public void onDestroy() {
@@ -206,7 +219,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void cleanupTasks() {
-    	if (mDialog != null) {
+		if (mDialog != null) {
             mDialog.dismiss();
         }
         if (mEditPostTask != null) {
@@ -220,35 +233,35 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     
     @Override
     public void onResume() {
-    	super.onResume();
+		super.onResume();
 		Log.e(TAG,"onResume()");
-    	
-    	setScrollbarType();
-    	
-    	mPrefs.registerOnSharedPreferenceChangeListener(this);
-    	if(queueDataUpdate){
-    		dataUpdate(false);
-    	}
+		
+		setScrollbarType();
+		
+		mPrefs.registerOnSharedPreferenceChangeListener(this);
+		if(queueDataUpdate){
+			dataUpdate(false);
+		}
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	if(menu.size() == 0){
-    		inflater.inflate(R.menu.post_menu, menu);
-    	}
+		if(menu.size() == 0){
+			inflater.inflate(R.menu.post_menu, menu);
+		}
     }
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-    	MenuItem bk = menu.findItem(R.id.bookmark);
-    	if(bk != null){
-    		AwfulThread th = (AwfulThread) adapt.getState();
-    		bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
-    	}
+		MenuItem bk = menu.findItem(R.id.bookmark);
+		if(bk != null){
+			AwfulThread th = (AwfulThread) adapt.getState();
+			bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+		}
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) {
+		switch(item.getItemId()) {
 			case R.id.go_back:
 				adapt.goToPage(adapt.getPage()-1);
 				break;
@@ -268,11 +281,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                                 try {
                                     int pageInt = jumpToText.getCurrent();
                                     if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-                                    	adapt.goToPage(pageInt);
+										adapt.goToPage(pageInt);
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Not a valid number: " + e.toString());
-        	                        Toast.makeText(getActivity(),
+									Toast.makeText(getActivity(),
                                         R.string.invalid_page, Toast.LENGTH_SHORT).show();
                                 } catch (Exception e) {
                                     Log.d(TAG, e.toString());
@@ -293,7 +306,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 				break;
 			default:
 				return super.onOptionsItemSelected(item);
-    	}
+		}
 
 		return true;
     }
@@ -393,7 +406,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-            	if (mDialog != null) {
+				if (mDialog != null) {
                     mDialog.dismiss();
                 }
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
@@ -431,7 +444,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-            	if (mDialog != null) {
+				if (mDialog != null) {
                     mDialog.dismiss();
                 }
                 Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
@@ -454,7 +467,10 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 	}
 	public void delayedDataUpdate() {
-		mTitle.setText(Html.fromHtml(adapt.getTitle()));
+		if (!isHoneycomb()) {
+			mTitle.setText(Html.fromHtml(adapt.getTitle()));
+		}
+
 		int last = adapt.getLastReadPost();
 		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
 			getListView().setSelection(savedPos);
@@ -464,10 +480,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 				savedPos = last;
 			}
 		}
-		if(adapt.getPage() == adapt.getLastPage()){
-			mNext.setVisibility(View.GONE);
-		}else{
-			mNext.setVisibility(View.VISIBLE);
+
+		if (!isHoneycomb()) {
+			if (adapt.getPage() == adapt.getLastPage()) {
+				mNext.setVisibility(View.GONE);
+			} else {
+				mNext.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 	public int getSavedPage() {

@@ -7,4 +7,5 @@
     <color name="background2">#DFDFDF</color>
     <color name="background_read">#ddeeff</color>
     <color name="background2_read">#c0e0ff</color>
+	<color name="profile_column">#e7eff5</color>
 </resources>
