@@ -44,6 +44,7 @@ public abstract class AwfulPagedItem {
 	public abstract ArrayList<? extends AwfulDisplayItem> getChildren(int page);
 	public abstract int getChildrenCount(int page);
 	public abstract AwfulDisplayItem getChild(int page, int ix);
+	public abstract boolean isPageCached(int page);
 
 	public int parsePageNumbers(TagNode aForum) throws Exception {
 		int currentPage = 1;
