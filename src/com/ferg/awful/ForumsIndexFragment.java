@@ -39,6 +39,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -76,8 +77,12 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
         mForumList = (ListView) result.findViewById(R.id.forum_list);
-        mTitle     = (TextView) result.findViewById(R.id.title);
-        mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
+
+        if (!isHoneycomb()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
+            mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
+        }
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -94,16 +99,20 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         return result;
     }
 
+    private boolean isHoneycomb() {
+        return (getActivity() instanceof ForumsTabletActivity);
+    }
+
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
         setRetainInstance(true);
         
-
-
-        mTitle.setText(getString(R.string.forums_title));
-        mUserCp.setOnClickListener(onButtonClick);
+        if (!isHoneycomb()) {
+            mTitle.setText(getString(R.string.forums_title));
+            mUserCp.setOnClickListener(onButtonClick);
+        }
     }
 
     @Override

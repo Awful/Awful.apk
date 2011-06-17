@@ -5,9 +5,12 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <include
+    <ViewStub
+        android:id="@+id/actionbar"
+        android:inflatedId="@+id/actionbar_inflated"
         layout="@layout/actionbar_index"
-        android:id="@+id/action_bar" 
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
         />
 	<ListView
 		android:id="@+id/forum_list"

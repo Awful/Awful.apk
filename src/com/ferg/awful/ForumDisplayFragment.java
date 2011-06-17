@@ -42,6 +42,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -88,10 +89,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-        mTitle      = (TextView) result.findViewById(R.id.title);
-        mUserCp     = (ImageButton) result.findViewById(R.id.user_cp);
+        if (!isHoneycomb()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
+            mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
 
-        mTitle.setMovementMethod(new ScrollingMovementMethod());
+			mTitle.setMovementMethod(new ScrollingMovementMethod());
+        }
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -127,12 +131,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-        if(adapt.getTitle() != null) {
-            mTitle.setText(Html.fromHtml(adapt.getTitle()));
-        }
+		if (!isHoneycomb()) {
+			if(adapt.getTitle() != null) {
+				mTitle.setText(Html.fromHtml(adapt.getTitle()));
+			}
         
-        
-        mUserCp.setOnClickListener(onButtonClick);
+			mUserCp.setOnClickListener(onButtonClick);
+		}
+    }
+
+    private boolean isHoneycomb() {
+        return (getActivity() instanceof ForumsTabletActivity);
     }
 
     @Override
@@ -249,7 +258,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         if(!this.isResumed()){
             return;
         }
-        mTitle.setText(Html.fromHtml(adapt.getTitle()));
+
+		if (!isHoneycomb()) {
+			mTitle.setText(Html.fromHtml(adapt.getTitle()));
+		}
+
         if(pageChange){//this will only reset the position if the user selects next/prev page
             getListView().setSelection(0);
         }
