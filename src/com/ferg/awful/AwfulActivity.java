@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 
 import android.support.v4.app.FragmentActivity;
 
+import com.ferg.awful.service.AwfulServiceConnection;
+import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
+
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
  * class should avoid implementing things directly; the ActivityConfigurator does that job.
@@ -17,43 +20,51 @@ import android.support.v4.app.FragmentActivity;
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
 public class AwfulActivity extends FragmentActivity {
-	private ActivityConfigurator mConf;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mConf = new ActivityConfigurator(this);
-		mConf.onCreate();
-	}
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
-		mConf.onStart();
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mConf.onResume();
-	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mConf.onPause();
-	}
-	
-	@Override
-	protected void onStop() {
-		super.onStop();
-		mConf.onStop();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		mConf.onDestroy();
-	}
-		
+    private ActivityConfigurator mConf;
+    private AwfulServiceConnection mService;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mConf = new ActivityConfigurator(this);
+        mConf.onCreate();
+        mService = new AwfulServiceConnection();
+        mService.connect(this);
+    }
+
+    public AwfulServiceConnection getServiceConnection(){
+        return mService;
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mConf.onStart();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mConf.onResume();
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mConf.onPause();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mConf.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mConf.onDestroy();
+        mService.disconnect(this);
+    }
+        
 }
