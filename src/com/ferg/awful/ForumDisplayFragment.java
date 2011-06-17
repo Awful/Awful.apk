@@ -61,15 +61,27 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     
     private ForumListAdapter adapt;
     private ImageButton mUserCp;
-	private ImageButton mNext;
+    private ImageButton mNext;
     private TextView mTitle;
 
-	private SharedPreferences mPrefs;
-	@Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
+    private SharedPreferences mPrefs;
+
+    public static ForumDisplayFragment newInstance(int aForum) {
+        ForumDisplayFragment fragment = new ForumDisplayFragment();
+
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putInt(Constants.FORUM, aForum);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-	}
+    }
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -91,26 +103,33 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onActivityCreated(aSavedState);
 
         setRetainInstance(true);
-		
+        
         String c2pForumID = null;
         // we're receiving an intent from an outside link (say, ChromeToPhone). Let's check to see
-    	// if we have a URL from such a link.
-    	if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-    		c2pForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
-    	}
-    	int id = getActivity().getIntent().getIntExtra(Constants.FORUM, 0);
-    	if(c2pForumID != null){
-    		id = Integer.parseInt(c2pForumID);
-    	}
-        adapt = ((ForumDisplayActivity) getActivity()).getServiceConnection().createForumAdapter(id, this);
+        // if we have a URL from such a link.
+        if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
+            c2pForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
+        }
+        
+        int id = getActivity().getIntent().getIntExtra(Constants.FORUM, 0);
+        
+        // Check if it was passed in as an argument to the fragment
+        // or set it from c2pForumId
+        if (getArguments() != null) {
+            id = getArguments().getInt(Constants.FORUM, 0);
+        } else if (c2pForumID != null) {
+            id = Integer.parseInt(c2pForumID);
+        }
+
+        adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(id, this);
         setListAdapter(adapt);
         getListView().setOnItemClickListener(onThreadSelected);
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-		if(adapt.getTitle() != null) {
-			mTitle.setText(Html.fromHtml(adapt.getTitle()));
-		}
+        if(adapt.getTitle() != null) {
+            mTitle.setText(Html.fromHtml(adapt.getTitle()));
+        }
         
         
         mUserCp.setOnClickListener(onButtonClick);
@@ -143,17 +162,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	if(menu.size() == 0){
-    		inflater.inflate(R.menu.forum_display_menu, menu);
-    	}
+        if(menu.size() == 0){
+            inflater.inflate(R.menu.forum_display_menu, menu);
+        }
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) {
-    		case R.id.settings:
-    			startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-    			return true;
+        switch(item.getItemId()) {
+            case R.id.settings:
+                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                return true;
             case R.id.logout:
                 new LogOutDialog(getActivity()).show();
                 return true;
@@ -173,11 +192,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                                 try {
                                     int pageInt = jumpToText.getCurrent();
                                     if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-                                    	adapt.goToPage(pageInt);
+                                        adapt.goToPage(pageInt);
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Not a valid number: " + e.toString());
-        	                        Toast.makeText(getActivity(),
+                                    Toast.makeText(getActivity(),
                                         R.string.invalid_page, Toast.LENGTH_SHORT).show();
                                 } catch (Exception e) {
                                     Log.d(TAG, e.toString());
@@ -187,9 +206,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                     .setNegativeButton("Cancel", null)
                     .show();
                 return true;
-			default:
-				return super.onOptionsItemSelected(item);
-    	}
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -203,36 +222,36 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     };
 
 
-	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
-		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
+    private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             
             switch(adapt.getItemType(aPosition)) {
             case THREAD:
-            	AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
+                AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
                 Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
                 viewThread.putExtra(Constants.THREAD, thread.getID());
                 startActivity(viewThread);
                 break;
                 
             case FORUM:
-            	AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
+                AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
                 Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
                 viewForum.putExtra(Constants.FORUM, forum.getID());
                 startActivity(viewForum);
                 break;
             }
             
-		}
-	};
+        }
+    };
 
-	@Override
-	public void dataUpdate(boolean pageChange) {
-		if(!this.isResumed()){
-			return;
-		}
+    @Override
+    public void dataUpdate(boolean pageChange) {
+        if(!this.isResumed()){
+            return;
+        }
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
         if(pageChange){//this will only reset the position if the user selects next/prev page
-        	getListView().setSelection(0);
+            getListView().setSelection(0);
         }
-	}
+    }
 }

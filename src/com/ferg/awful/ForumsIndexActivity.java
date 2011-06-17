@@ -31,37 +31,52 @@ import com.ferg.awful.service.AwfulServiceConnection;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.widget.RelativeLayout;
 
 public class ForumsIndexActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsIndexActivity";
-	private AwfulServiceConnection service;
+
+    private RelativeLayout mContent;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-		Log.e(TAG, "onCreate()");
-        service = new AwfulServiceConnection();
-		service.connect(this);
+        Log.e(TAG, "onCreate()");
         setContentView(R.layout.forum_index_activity);
+
+        mContent = (RelativeLayout) findViewById(R.id.content);
     }
-    public AwfulServiceConnection getServiceConnection(){
-		return service;
-	}
-	public void onResume(){
-		super.onResume();
-		Log.e(TAG, "onResume()");
-		//service.connect(this);
-	}
-	public void onPause(){
-		super.onPause();
-		Log.e(TAG, "onPause()");
-	}
-	public void onDestroy(){
-		super.onDestroy();
-		Log.e(TAG, "onDestroy()");
-		service.disconnect(this);
-	}
+
+    public void onResume(){
+        super.onResume();
+        Log.e(TAG, "onResume()");
+        //service.connect(this);
+    }
+
+    public void onPause(){
+        super.onPause();
+        Log.e(TAG, "onPause()");
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+        Log.e(TAG, "onDestroy()");
+    }
+
+    public boolean isDualPane() {
+        return mContent != null;
+    }
+
+    public void setContentPane(int aForumId) {
+        ForumDisplayFragment fragment = 
+            ForumDisplayFragment.newInstance(aForumId);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
+    }
 }

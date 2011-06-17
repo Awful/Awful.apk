@@ -60,15 +60,15 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private int mDefaultPostFontColor;
     private int mDefaultPostBackgroundColor;
 
-	private ForumListAdapter adapt;
+    private ForumListAdapter adapt;
 
-	private SharedPreferences mPrefs;
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
+    private SharedPreferences mPrefs;
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-	}
+    }
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -86,20 +86,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
         mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
         mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
-		if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
-			adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
-			mForumList.setAdapter(adapt);
-		}
-		mForumList.setOnItemClickListener(new OnItemClickListener(){
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-	            viewForum.putExtra(Constants.FORUM, (int) arg3);
-	            Log.e(TAG, "Starting ForumDisplay, ID: "+arg3);
-	            startActivity(viewForum);
-			}
-        });
+        if(((ForumsIndexActivity) getActivity()).getServiceConnection() != null){
+            adapt = ((ForumsIndexActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
+            mForumList.setAdapter(adapt);
+        }
+        mForumList.setOnItemClickListener(onForumSelected);
         return result;
     }
 
@@ -108,7 +99,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         super.onActivityCreated(aSavedState);
 
         setRetainInstance(true);
-		
+        
 
 
         mTitle.setText(getString(R.string.forums_title));
@@ -119,23 +110,23 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onStart() {
         super.onStart();
 
-		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-		if (loggedIn) {
+        boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
+        if (loggedIn) {
             Log.e(TAG, "Cookie Loaded!");
-		} else {
-			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-		}
+        } else {
+            startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
+        }
     }
     
     @Override
     public void onPause() {
         super.onPause();
-    	mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
     @Override
     public void onResume() {
         super.onResume();
-    	mPrefs.registerOnSharedPreferenceChangeListener(this);
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
         
     @Override
@@ -150,11 +141,32 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	// The only activity we call for result is login
-    	// Odds are we want to refresh whether or not it was successful
-    	
-    	//refresh
-    	adapt.refresh();
+        // The only activity we call for result is login
+        // Odds are we want to refresh whether or not it was successful
+        
+        //refresh
+        adapt.refresh();
+    }
+
+    private OnItemClickListener onForumSelected = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+            ForumsIndexActivity activity = (ForumsIndexActivity) getActivity();
+
+            // If we've got two panes (tablet) then set the content pane, otherwise
+            // push an activity as normal
+            if (activity.isDualPane()) {
+                activity.setContentPane((int) arg3);
+            } else {
+                startForumActivity((int) arg3);
+            }
+        }
+    };
+
+    private void startForumActivity(int aForumId) {
+        Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+        viewForum.putExtra(Constants.FORUM, aForumId);
+        startActivity(viewForum);
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -170,52 +182,52 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	if(menu.size() == 0){
-    		inflater.inflate(R.menu.forum_index_options, menu);
-    	}
+        if(menu.size() == 0){
+            inflater.inflate(R.menu.forum_index_options, menu);
+        }
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) {
-    	case R.id.settings:
-    		startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-    		return true;
-    	case R.id.logout:
+        switch(item.getItemId()) {
+        case R.id.settings:
+            startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            return true;
+        case R.id.logout:
             new LogOutDialog(getActivity()).show();
             return true;
-    	case R.id.refresh:
-    		adapt.refresh();
+        case R.id.refresh:
+            adapt.refresh();
             return true;
-    	default:
-    		return super.onOptionsItemSelected(item);
-    	}
+        default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 
-	@Override
-	public void dataUpdate(boolean pageChange) {
-		
-	}
+    @Override
+    public void dataUpdate(boolean pageChange) {
+        
+    }
 
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs,
-			String key) {
-    	if("default_post_font_color".equals(key)) {
-    		int newColor = prefs.getInt(key, R.color.default_post_font);
-    		if(newColor != mDefaultPostFontColor) {
-    			mDefaultPostFontColor = newColor;
-    			Log.d(TAG, "invalidating (color)");
-    			mForumList.invalidateViews();    			
-    		}
-    	} else if("default_post_background_color".equals(key)) {
-        	int newBackground = prefs.getInt(key, R.color.background);
-        	if(newBackground != mDefaultPostBackgroundColor) {
-        		mDefaultPostBackgroundColor = newBackground;
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences prefs,
+            String key) {
+        if("default_post_font_color".equals(key)) {
+            int newColor = prefs.getInt(key, R.color.default_post_font);
+            if(newColor != mDefaultPostFontColor) {
+                mDefaultPostFontColor = newColor;
+                Log.d(TAG, "invalidating (color)");
+                mForumList.invalidateViews();               
+            }
+        } else if("default_post_background_color".equals(key)) {
+            int newBackground = prefs.getInt(key, R.color.background);
+            if(newBackground != mDefaultPostBackgroundColor) {
+                mDefaultPostBackgroundColor = newBackground;
                 mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
                 mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
-        		Log.d(TAG, "invalidating (color)");
-        		mForumList.invalidateViews(); 
-        	}   			
+                Log.d(TAG, "invalidating (color)");
+                mForumList.invalidateViews(); 
+            }               
         }
-	}
+    }
 }
