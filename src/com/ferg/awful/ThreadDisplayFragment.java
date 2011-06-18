@@ -286,31 +286,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
 				break;
 			case R.id.go_to:
-                final NumberPicker jumpToText = new NumberPicker(getActivity());
-                jumpToText.setRange(1, adapt.getLastPage());
-                jumpToText.setCurrent(adapt.getPage());
-                new AlertDialog.Builder(getActivity())
-                    .setTitle("Jump to Page")
-                    .setView(jumpToText)
-                    .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface aDialog, int aWhich) {
-                                try {
-                                    int pageInt = jumpToText.getCurrent();
-                                    if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-										adapt.goToPage(pageInt);
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.d(TAG, "Not a valid number: " + e.toString());
-									Toast.makeText(getActivity(),
-                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
-                                } catch (Exception e) {
-                                    Log.d(TAG, e.toString());
-                                }
-                            }
-                        })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+                displayPagePicker();
                 break;
 			case R.id.refresh:
 				adapt.refresh();
@@ -326,6 +302,34 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 
 		return true;
+    }
+
+    private void displayPagePicker() {
+        final NumberPicker jumpToText = new NumberPicker(getActivity());
+        jumpToText.setRange(1, adapt.getLastPage());
+        jumpToText.setCurrent(adapt.getPage());
+        new AlertDialog.Builder(getActivity())
+            .setTitle("Jump to Page")
+            .setView(jumpToText)
+            .setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface aDialog, int aWhich) {
+                        try {
+                            int pageInt = jumpToText.getCurrent();
+                            if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
+                                adapt.goToPage(pageInt);
+                            }
+                        } catch (NumberFormatException e) {
+                            Log.d(TAG, "Not a valid number: " + e.toString());
+                            Toast.makeText(getActivity(),
+                                R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Log.d(TAG, e.toString());
+                        }
+                    }
+                })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     @Override
