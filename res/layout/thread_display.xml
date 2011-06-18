@@ -6,7 +6,7 @@
 	android:background="@color/background"
     >
     <ViewStub
-        android:id="@+id/action_bar" 
+        android:id="@+id/actionbar" 
         android:inflatedId="@+id/actionbar_inflated"
         layout="@layout/actionbar_thread"
         android:layout_width="fill_parent"

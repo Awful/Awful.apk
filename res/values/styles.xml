@@ -5,6 +5,11 @@
         <item name="android:layout_height">1px</item>
         <item name="android:background">#000000</item>
     </style>
+    <style name="VerticalSeparator">
+        <item name="android:layout_width">1px</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">#555555</item>
+    </style>
     <style name="ActionBarSeparator">
         <item name="android:layout_width">1px</item>
         <item name="android:layout_height">fill_parent</item>

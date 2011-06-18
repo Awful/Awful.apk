@@ -44,6 +44,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -388,39 +389,45 @@ public class AwfulPost implements AwfulDisplayItem {
 			tmp = inf.inflate(R.layout.post_item, parent, false);
 			tmp.setTag(this);
 		}
+
 		TextView author = (TextView) tmp.findViewById(R.id.username);
-		author.setText(mUsername);
 		TextView date = (TextView) tmp.findViewById(R.id.post_date);
-		date.setText(mDate);
+        LinearLayout postRow = (LinearLayout) tmp.findViewById(R.id.post_row);
 		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
 		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
 		
+		author.setText(mUsername);
+		date.setText(mDate);
+
         if(postBody.getMovementMethod() == null){
         	postBody.setMovementMethod(LinkMovementMethod.getInstance());
         }
+
         boolean loadImg = true;
         if(mPrefs != null){
         	loadImg = mPrefs.imagesEnabled;
         }
+
         postBody.setHtml(getContent(), loadImg);
 		if( getAvatar() == null ) {
         	avatar.setVisibility(View.INVISIBLE);
         } else {
         	avatar.setVisibility(View.VISIBLE);
         }
+
         avatar.setTag(getAvatar());
         if(mPrefs != null){
         	if (isPreviouslyRead()) {
             	if (isEven()) {
-            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor);
+            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor);
             	} else {
-            		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor2);
+            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor2);
             	}
             } else {
             	if (isEven()) {
-            		postBody.setBackgroundColor(mPrefs.postBackgroundColor);
+            		postRow.setBackgroundColor(mPrefs.postBackgroundColor);
             	} else {
-            		postBody.setBackgroundColor(mPrefs.postBackgroundColor2);
+            		postRow.setBackgroundColor(mPrefs.postBackgroundColor2);
             	}
             }
 			postBody.setTextColor(mPrefs.postFontColor);

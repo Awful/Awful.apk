@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -145,7 +146,15 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private boolean isHoneycomb() {
-        return (getActivity() instanceof ForumsTabletActivity);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
+
+    private void setActionbarTitle(String aTitle) {
+		if (!isHoneycomb()) {
+			mTitle.setText(Html.fromHtml(aTitle));
+		} else {
+            ((ThreadDisplayActivity) getActivity()).setThreadTitle(aTitle);
+        }
     }
 
     @Override
@@ -153,9 +162,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onStart();
 		Log.e(TAG,"onStart()");
 
-		if (!isHoneycomb()) {
-			mTitle.setText("Loading...");
-		}
+        setActionbarTitle("Loading...");
     }
     
     @Override
@@ -250,6 +257,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			inflater.inflate(R.menu.post_menu, menu);
 		}
     }
+
+    /*
+     * TODO: Figure out why this causes the app to crash on Honeycomb
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
 		MenuItem bk = menu.findItem(R.id.bookmark);
@@ -258,10 +268,17 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
 		}
     }
+    */
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
+            case R.id.next_page:
+                showNextPage();
+                break;
+            case R.id.reply:
+                displayPostReplyDialog();
+                break;
 			case R.id.go_back:
 				adapt.goToPage(adapt.getPage()-1);
 				break;
@@ -360,23 +377,27 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		public void onClick(View aView) {
 			switch (aView.getId()) {
 				case R.id.next_page:
-					if (adapt.getPage() < adapt.getLastPage()) {
-						adapt.goToPage(adapt.getPage()+1);
-					}
+                    showNextPage();
 					break;
 				case R.id.reply:
-					Intent postReply = new Intent().setClass(getActivity(),
-							PostReplyActivity.class);
-					postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
-					startActivityForResult(postReply, 0);
+                    displayPostReplyDialog();
 					break;
 			}
 		}
 	};
 
+    private void showNextPage() {
+        if (adapt.getPage() < adapt.getLastPage()) {
+            adapt.goToPage(adapt.getPage()+1);
+        }
+    }
 
-
-    
+    private void displayPostReplyDialog() {
+        Intent postReply = new Intent().setClass(getActivity(),
+                PostReplyActivity.class);
+        postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
+        startActivityForResult(postReply, 0);
+    }
 
     private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
         private String mPostId;
@@ -467,9 +488,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 	}
 	public void delayedDataUpdate() {
-		if (!isHoneycomb()) {
-			mTitle.setText(Html.fromHtml(adapt.getTitle()));
-		}
+        setActionbarTitle(adapt.getTitle());
 
 		int last = adapt.getLastReadPost();
 		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){

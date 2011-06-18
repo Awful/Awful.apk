@@ -29,8 +29,10 @@ package com.ferg.awful;
 
 import com.ferg.awful.constants.Constants;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 
@@ -45,48 +47,57 @@ public class ThreadDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Log.e(TAG,"onCreate()");
+        
+        if (isHoneycomb()) {
+            requestWindowFeature(Window.FEATURE_ACTION_BAR);
+            setActionBar();
+        } else {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
+
         setContentView(R.layout.thread_display_activity);
+
+        configureAdapter(savedInstanceState);
+    }
+
+    private void setActionBar() {
+        ActionBar action = getActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+    }
+
+    public void setThreadTitle(String aTitle) {
+        if (isHoneycomb()) {
+            ActionBar action = getActionBar();
+            action.setTitle(aTitle);
+        }
+    }
+
+    protected void configureAdapter(Bundle aSavedState) {
         display = (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
         String c2pThreadID = null;
         c2pPage = null;
+
         // We may be getting thread info from ChromeToPhone so handle that here
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
             c2pThreadID = getIntent().getData().getQueryParameter("threadid");
             c2pPage = getIntent().getData().getQueryParameter("pagenumber");
         }
+
         threadid = getIntent().getIntExtra(Constants.THREAD, 0);
-        if(c2pThreadID != null){
+        if (c2pThreadID != null) {
             threadid = Integer.parseInt(c2pThreadID);
         }
-        if(savedInstanceState != null){
+
+        if (aSavedState != null) {
             adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getSavedPage());
-        }else{
+        } else {
             adapt = getServiceConnection().createThreadAdapter(threadid, display);
-            if(c2pPage != null && c2pPage.matches("\\d+")){
+
+            if (c2pPage != null && c2pPage.matches("\\d+")) {
                 adapt.forceGoToPage(Integer.parseInt(c2pPage));
             }
         }
+
         display.setListAdapter(adapt);
-    }
-    public void onStart(){
-        super.onStart();
-        Log.e(TAG,"onStart()");
-    }
-    public void onResume(){
-        super.onResume();
-        Log.e(TAG,"onResume()");
-    }
-    public void onPause(){
-        super.onPause();
-        Log.e(TAG,"onPause()");
-    }
-    public void onStop(){
-        super.onStop();
-        Log.e(TAG,"onStop()");
-    }
-    public void onDestroy(){
-        super.onDestroy();
-        Log.e(TAG,"onDestroy()");
     }
 }

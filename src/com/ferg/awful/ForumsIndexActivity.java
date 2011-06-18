@@ -32,7 +32,6 @@ import com.ferg.awful.service.AwfulServiceConnection;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.RelativeLayout;
@@ -53,10 +52,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         } else {
             setContentView(R.layout.forum_index_activity);
         }
-    }
-
-    private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     private void startTabletActivity() {
