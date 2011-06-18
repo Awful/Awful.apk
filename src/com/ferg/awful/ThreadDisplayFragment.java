@@ -380,7 +380,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
 		// If we're here because of a post result, refresh the thread
 		switch (aResultCode) {
-			case PostReplyActivity.RESULT_POSTED:
+			case PostReplyFragment.RESULT_POSTED:
 				adapt.refresh();
 				break;
 		}
@@ -406,10 +406,15 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void displayPostReplyDialog() {
-        Intent postReply = new Intent().setClass(getActivity(),
-                PostReplyActivity.class);
-        postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
-        startActivityForResult(postReply, 0);
+        if (isHoneycomb()) {
+            PostReplyFragment fragment = PostReplyFragment.newInstance(adapt.getState().getID() + "");
+            fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
+        } else {
+            Intent postReply = new Intent().setClass(getActivity(),
+                    PostReplyActivity.class);
+            postReply.putExtra(Constants.THREAD, adapt.getState().getID() + "");
+            startActivityForResult(postReply, 0);
+        }
     }
 
     private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {

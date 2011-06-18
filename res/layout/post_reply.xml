@@ -17,5 +17,6 @@
 		android:singleLine="false"
         android:gravity="top"
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
+        android:textColor="#000000"
 		/>
 </RelativeLayout>
