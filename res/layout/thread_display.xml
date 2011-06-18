@@ -8,7 +8,7 @@
     <ViewStub
         android:id="@+id/actionbar" 
         android:inflatedId="@+id/actionbar_inflated"
-        layout="@layout/actionbar_thread"
+        android:layout="@layout/actionbar_thread"
         android:layout_width="fill_parent"
         android:layout_height="45dip"
         />
