@@ -180,12 +180,20 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.user_cp:
-                    startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+                    displayUserCP();
                     break;
             }
         }
     };
 
+    private void displayUserCP() {
+        if (isHoneycomb()) {
+            UserCPFragment fragment = UserCPFragment.newInstance(true);
+            fragment.show(getActivity().getSupportFragmentManager(), "usercp_dialog");
+        } else {
+            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+        }
+    }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -197,18 +205,21 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-        case R.id.settings:
-            startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-            return true;
-        case R.id.logout:
-            new LogOutDialog(getActivity()).show();
-            return true;
-        case R.id.refresh:
-            adapt.refresh();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case R.id.user_cp:
+                displayUserCP();
+                break;
+            case R.id.settings:
+                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                break;
+            case R.id.logout:
+                new LogOutDialog(getActivity()).show();
+                break;
+            case R.id.refresh:
+                adapt.refresh();
+                break;
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -13,6 +13,11 @@
         android:showAsAction="ifRoom"
 		/>
 	<item
+		android:id="@+id/usercp"
+		android:icon="@drawable/gear"
+        android:showAsAction="ifRoom"
+		/>
+	<item
 		android:id="@+id/go_back"
 		android:icon="@drawable/ic_menu_back"
 		android:title="@string/back"
@@ -21,11 +26,6 @@
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_goto"
 		android:title="@string/go_to"
-		/>
-	<item
-		android:id="@+id/usercp"
-		android:icon="@drawable/ic_menu_usercp"
-		android:title="@string/usercp"
 		/>
 	<item
 		android:id="@+id/refresh"

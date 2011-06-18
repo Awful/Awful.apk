@@ -71,6 +71,7 @@ public class Constants {
     public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
     public static final String EDITING   = "editing";
+    public static final String MODAL     = "modal";
 
     public static final String FORM_KEY = "form_key";
 

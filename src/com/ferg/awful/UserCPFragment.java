@@ -30,6 +30,7 @@ package com.ferg.awful;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,10 +38,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.DialogFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
@@ -48,13 +51,29 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulThread;
 
-public class UserCPFragment extends ListFragment implements AwfulUpdateCallback {
+public class UserCPFragment extends DialogFragment implements AwfulUpdateCallback {
     private static final String TAG = "UserCPActivity";
 
     private ImageButton mHome;
+    private ListView mBookmarkList;
     private TextView mTitle;
     private ForumListAdapter adapt;
 	private SharedPreferences mPrefs;
+
+    public static UserCPFragment newInstance(boolean aModal) {
+        UserCPFragment fragment = new UserCPFragment();
+
+        // Supply num input as an argument.
+        Bundle args = new Bundle();
+        args.putBoolean(Constants.MODAL, aModal);
+
+        fragment.setArguments(args);
+
+        fragment.setShowsDialog(false);
+        fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+
+        return fragment;
+    }
 
     @Override
 	public void onCreate(Bundle savedInstanceState){
@@ -65,13 +84,22 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
+
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
         View result = aInflater.inflate(R.layout.user_cp, aContainer, false);
 
-        mTitle      = (TextView) result.findViewById(R.id.title);
-        mHome       = (ImageButton) result.findViewById(R.id.home);
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
+
+		if (isHoneycomb()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
+        } else {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+            mHome          = (ImageButton) actionbar.findViewById(R.id.home);
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
+        }
         
         return result;
     }
@@ -83,14 +111,17 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
         setRetainInstance(true);
 
         mTitle.setText(getString(R.string.user_cp));
-		mHome.setOnClickListener(onButtonClick);
 
-		getListView().setOnItemClickListener(onThreadSelected);
-		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-		getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        if (!isHoneycomb()) {
+            mHome.setOnClickListener(onButtonClick);
+        }
 
-		adapt = ((UserCPActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
-        setListAdapter(adapt);
+		mBookmarkList.setOnItemClickListener(onThreadSelected);
+		mBookmarkList.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+		mBookmarkList.setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+
+		adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
+        mBookmarkList.setAdapter(adapt);
     }
 
     @Override
@@ -119,7 +150,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        setListAdapter(null);
+        mBookmarkList.setAdapter(null);
     }
     
     @Override
@@ -148,6 +179,10 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
         return true;
     }
 
+    private boolean isHoneycomb() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
+
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
@@ -160,7 +195,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
 	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
 		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulThread thread = (AwfulThread) getListAdapter().getItem(aPosition);
+            AwfulThread thread = (AwfulThread) mBookmarkList.getAdapter().getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
             viewThread.putExtra(Constants.THREAD, thread.getID());
@@ -172,7 +207,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 	@Override
 	public void dataUpdate(boolean pageChange) {
 		if(pageChange && this.isAdded()){
-        	getListView().setSelection(0);
+        	mBookmarkList.setSelection(0);
         }
 	}
 }

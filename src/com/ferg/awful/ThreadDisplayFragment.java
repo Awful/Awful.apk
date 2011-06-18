@@ -283,7 +283,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 				adapt.goToPage(adapt.getPage()-1);
 				break;
 			case R.id.usercp:
-                startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+                displayUserCP();
 				break;
 			case R.id.go_to:
                 displayPagePicker();
@@ -302,6 +302,15 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 		}
 
 		return true;
+    }
+
+    private void displayUserCP() {
+        if (isHoneycomb()) {
+            UserCPFragment fragment = UserCPFragment.newInstance(true);
+            fragment.show(getActivity().getSupportFragmentManager(), "usercp_dialog");
+        } else {
+            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+        }
     }
 
     private void displayPagePicker() {

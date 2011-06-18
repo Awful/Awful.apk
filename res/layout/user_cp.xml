@@ -5,12 +5,22 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <include
-        layout="@layout/actionbar_cp"
-        android:id="@+id/action_bar" 
+    <ViewStub
+        android:id="@+id/actionbar"
+        android:inflatedId="@+id/actionbar_inflated"
+        android:layout="@layout/actionbar_cp"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        />
+    <ViewStub
+        android:id="@+id/actionbar_blank"
+        android:inflatedId="@+id/actionbar_blank_inflated"
+        android:layout="@layout/actionbar_blank"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
         />
 	<ListView
-		android:id="@id/android:list"
+		android:id="@+id/bookmark_list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
