@@ -73,7 +73,9 @@ public class PostReplyActivity extends AwfulActivity {
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        Intent caller = getIntent();
+        mMessage.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+
+         Intent caller = getIntent();
 
 		mThreadId = caller.getStringExtra(Constants.THREAD);
 		

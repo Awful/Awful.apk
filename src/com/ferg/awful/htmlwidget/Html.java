@@ -37,8 +37,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.ferg.awful.R.color;
+import com.ferg.awful.preferences.AwfulPreferences;
+
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -114,7 +120,7 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source) {
-        return fromHtml(source, null, null);
+        return fromHtml(source, null, null, null);
     }
 
     /**
@@ -127,12 +133,12 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
+                                   TagHandler tagHandler, Context context) {
         HtmlCleaner cleaner = new HtmlCleaner();
         
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        cleaner);
+                        cleaner,context);
         return converter.convert();
     }
 
@@ -390,12 +396,14 @@ class HtmlToSpannedConverter {
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
-	private DomSerializer mDomSerializer;
+    private DomSerializer mDomSerializer;
+    private Context mContext;
 
     public HtmlToSpannedConverter(
             String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            HtmlCleaner cleaner) {
+            HtmlCleaner cleaner, Context context) {
         mSource = source;
+	   mContext = context;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
@@ -603,7 +611,7 @@ class HtmlToSpannedConverter {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
+            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan(PreferenceManager.getDefaultSharedPreferences(mContext).getInt("link_quote_color", color.link_quote)));
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("pre")) {
@@ -611,7 +619,7 @@ class HtmlToSpannedConverter {
         } else if (tag.equalsIgnoreCase("code")) {
         	mNumTagsEnforcingTrueWhitespace--;
         } else if (tag.equalsIgnoreCase("a")) {
-            endA(mSpannableStringBuilder);
+            endA(mSpannableStringBuilder,mContext);
         } else if (tag.equalsIgnoreCase("u")) {
             end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
         } else if (tag.equalsIgnoreCase("sup")) {
@@ -830,7 +838,7 @@ class HtmlToSpannedConverter {
         text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void endA(SpannableStringBuilder text) {
+    private static void endA(SpannableStringBuilder text, Context context) {
         int len = text.length();
         Object obj = getLast(text, Href.class);
         int where = text.getSpanStart(obj);
@@ -843,7 +851,12 @@ class HtmlToSpannedConverter {
             if (h.mHref != null) {
                 text.setSpan(new URLSpan(h.mHref), where, len,
                              Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if(context != null){
+                text.setSpan(new ForegroundColorSpan(PreferenceManager.getDefaultSharedPreferences(context).getInt("link_quote_color", color.link_quote)), where, len,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
+
         }
     }
 

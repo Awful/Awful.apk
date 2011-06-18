@@ -25,24 +25,10 @@
 			android:title="@string/default_post_font_size"
 			android:defaultValue="15"
 			/>
-		<com.ferg.awful.preferences.ColorPickerPreference
-		   	android:key="default_post_font_color"
-		   	android:title="@string/default_post_font_color"
-		   	android:defaultValue="@color/default_post_font"
-		   	alphaSlider="false"
+		<Preference 
+			android:key="colors" 
+			android:title="@string/colors"
 			/>
-		<com.ferg.awful.preferences.ColorPickerPreference
-		   	android:key="default_post_background_color"
-		   	android:title="@string/default_post_background_color"
-		   	android:defaultValue="@color/background"
-		   	alphaSlider="false"
-			/>
-		<com.ferg.awful.preferences.ColorPickerPreference
-		   	alphaSlider="false" android:defaultValue="@color/background2" android:key="default_post_background2_color" android:title="@string/default_post_background2_color"/>
-		<com.ferg.awful.preferences.ColorPickerPreference
-		   	alphaSlider="false" android:key="read_post_background_color" android:title="@string/read_post_background_color" android:defaultValue="@color/background_read"/>
-		   	<com.ferg.awful.preferences.ColorPickerPreference
-		   	alphaSlider="false" android:key="read_post_background2_color" android:title="@string/read_post_background2_color" android:defaultValue="@color/background2_read"/>
 	</PreferenceCategory>
 	<Preference
 		android:key="about"

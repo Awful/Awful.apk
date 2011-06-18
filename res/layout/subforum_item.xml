@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="8dip"
-    android:background="@color/background2"
+    android:background="@color/background"
     >
     <TextView
         android:id="@+id/title"

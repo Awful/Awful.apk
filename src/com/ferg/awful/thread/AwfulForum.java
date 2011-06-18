@@ -180,7 +180,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		TextView sub = (TextView) tmp.findViewById(R.id.subtext);
 		if(mPrefs != null){
 			title.setTextColor(mPrefs.postFontColor);
-			sub.setTextColor(mPrefs.postFontColor);
+			sub.setTextColor(mPrefs.postFontColor2);
 		}
 		title.setText(Html.fromHtml(mTitle));
 		sub.setText(mSubtext);

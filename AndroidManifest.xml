@@ -56,6 +56,7 @@
         </activity>
         <activity android:name="ProfileActivity" />
         <activity android:name="SettingsActivity" />
+ 	<activity android:name="ColorSettingsActivity" />
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"
