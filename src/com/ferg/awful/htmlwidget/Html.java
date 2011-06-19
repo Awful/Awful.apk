@@ -53,6 +53,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -573,6 +574,10 @@ class HtmlToSpannedConverter {
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img") && mImageGetter != null) {
             startImg(mSpannableStringBuilder, node, mImageGetter);
+        } else if(tag.equalsIgnoreCase("span")){
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+        		start(mSpannableStringBuilder, new Span());
+        	}
         } else if (mTagHandler != null) {
             mTagHandler.handleStartTag(node, mSpannableStringBuilder);
         }
@@ -626,6 +631,10 @@ class HtmlToSpannedConverter {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
+        }else if (tag.equalsIgnoreCase("span")) {
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+            endSpan(mSpannableStringBuilder,mContext);
+        	}
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -860,6 +869,22 @@ class HtmlToSpannedConverter {
         }
     }
 
+	private static void endSpan(SpannableStringBuilder text, Context context) {
+        int len = text.length();
+        Object obj = getLast(text, Span.class);
+        int where = text.getSpanStart(obj);
+
+        text.removeSpan(obj);
+        if(where != len && where != -1){
+        	int fg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_font_color", color.link_quote);
+        	int bg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_background_color", color.link_quote);
+            text.setSpan(new BackgroundColorSpan(fg), where, len, Spannable.SPAN_MARK_MARK);
+            text.setSpan(new SpoilerSpan(fg,bg), where, len, Spannable.SPAN_MARK_MARK);
+
+        }
+
+    }
+
     private static void endHeader(SpannableStringBuilder text) {
         int len = text.length();
         Object obj = getLast(text, Header.class);
@@ -892,6 +917,7 @@ class HtmlToSpannedConverter {
     private static class Blockquote { }
     private static class Super { }
     private static class Sub { }
+    private static class Span { }
 
     private static class Font {
         public String mColor;
