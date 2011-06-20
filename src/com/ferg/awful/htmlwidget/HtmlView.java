@@ -159,6 +159,7 @@ public final class HtmlView extends TextView {
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI("www.youtube.com", "v/*", EMBED_YOUTUBE);
+        sUriMatcher.addURI("www.youtube-nocookie.com", "v/*", EMBED_YOUTUBE);
     }
 
     /**
