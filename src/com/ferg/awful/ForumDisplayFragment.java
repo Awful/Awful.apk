@@ -247,15 +247,24 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 break;
                 
             case FORUM:
-                AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
-                Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-                viewForum.putExtra(Constants.FORUM, forum.getID());
-                startActivity(viewForum);
+                displayForumContents(aPosition);
                 break;
             }
             
         }
     };
+
+    private void displayForumContents(int aPosition) {
+        AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
+
+        if (getActivity() instanceof ForumsTabletActivity) {
+            ((ForumsTabletActivity) getActivity()).setContentPane((int) forum.getID());
+        } else {
+            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+            viewForum.putExtra(Constants.FORUM, forum.getID());
+            startActivity(viewForum);
+        }
+    }
 
     @Override
     public void dataUpdate(boolean pageChange) {
