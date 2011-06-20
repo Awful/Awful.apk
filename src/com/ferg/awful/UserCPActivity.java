@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
 public class UserCPActivity extends AwfulActivity {
     @Override
@@ -35,14 +36,16 @@ public class UserCPActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_cp_activity);
+
+        setContentPane();
     }
-    public void onResume(){
-        super.onResume();
-    }
-    public void onPause(){
-        super.onPause();
-    }
-    public void onDestroy(){
-        super.onDestroy();
+
+    public void setContentPane() {
+        UserCPFragment fragment = 
+            UserCPFragment.newInstance(false);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
     }
 }

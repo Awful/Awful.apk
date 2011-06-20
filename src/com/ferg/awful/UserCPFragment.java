@@ -58,7 +58,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private ListView mBookmarkList;
     private TextView mTitle;
     private ForumListAdapter adapt;
-	private SharedPreferences mPrefs;
+    private SharedPreferences mPrefs;
 
     public static UserCPFragment newInstance(boolean aModal) {
         UserCPFragment fragment = new UserCPFragment();
@@ -76,11 +76,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     }
 
     @Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-	}
-		
+    }
+        
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -92,7 +92,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
 
-		if (isHoneycomb()) {
+        if (isHoneycomb()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         } else {
@@ -116,24 +116,24 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mHome.setOnClickListener(onButtonClick);
         }
 
-		mBookmarkList.setOnItemClickListener(onThreadSelected);
-		mBookmarkList.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-		mBookmarkList.setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        mBookmarkList.setOnItemClickListener(onThreadSelected);
+        mBookmarkList.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        mBookmarkList.setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-		adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
+        adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
         mBookmarkList.setAdapter(adapt);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-		
+        
         // When coming from the desktop shortcut we won't have login cookies
-		boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
+        boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
-		if (!loggedIn) {
-			startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-		}
+        if (!loggedIn) {
+            startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
+        }
     }
     
     @Override
@@ -155,26 +155,26 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	if(menu.size() == 0){
-    		inflater.inflate(R.menu.forum_index_options, menu);
-    	}
+        if(menu.size() == 0){
+            inflater.inflate(R.menu.forum_index_options, menu);
+        }
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) {
-    		case R.id.settings:
-    			startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-    			return true;
+        switch(item.getItemId()) {
+            case R.id.settings:
+                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                return true;
             case R.id.logout:
                 new LogOutDialog(getActivity()).show();
                 break;
             case R.id.refresh:
-            	adapt.refresh();
+                adapt.refresh();
                 break;
-			default:
-				return super.onOptionsItemSelected(item);
-    	}
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
         return true;
     }
@@ -193,21 +193,21 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         }
     };
 
-	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
-		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
+    private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             AwfulThread thread = (AwfulThread) mBookmarkList.getAdapter().getItem(aPosition);
 
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
             viewThread.putExtra(Constants.THREAD, thread.getID());
 
             startActivity(viewThread);
-		}
-	};
-
-	@Override
-	public void dataUpdate(boolean pageChange) {
-		if(pageChange && this.isAdded()){
-        	mBookmarkList.setSelection(0);
         }
-	}
+    };
+
+    @Override
+    public void dataUpdate(boolean pageChange) {
+        if(pageChange && this.isAdded()){
+            mBookmarkList.setSelection(0);
+        }
+    }
 }
