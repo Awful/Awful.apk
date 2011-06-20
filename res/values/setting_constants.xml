@@ -6,4 +6,9 @@
         <item>portrait</item>
         <item>landscape</item>
     </string-array>
+        <string-array name="schemas_values">
+        <item>default</item>
+        <item>dark</item>
+        <item>custom</item>
+    </string-array>
 </resources>

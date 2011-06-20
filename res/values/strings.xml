@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Awful</string>
-    <string name="logout">Log Out</string>
+    <string name="logout">All your dreams</string>
     <string name="usercp">User Control Panel</string>
     <string name="back">Previous Page</string>
     <string name="forward">Next Page</string>
@@ -25,11 +25,17 @@
     <string name="use_large_scrollbar">Use Large Scrollbar</string>
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
     <string name="default_post_font_size">Default Post Font Size</string>
+    <string name="colors">Change Colors</string>
+    <string name="themes">Choose Theme</string>
+    <string name="alternate_backgrounds">Alternate Post BG Colors</string>
     <string name="default_post_font_color">Default Post Font Color</string>
-    <string name="default_post_background_color">Default Post BG Color</string>
-    <string name="default_post_background2_color">Alternative Post/BG Color</string>
+    <string name="secondary_post_font_color">Alternative Font Color</string>
+    <string name="default_post_background_color">Default Background Color</string>
+    <string name="alt_post_background_color">Alternative Background Color</string>
     <string name="read_post_background_color">Read Post BG Color</string>
-    <string name="read_post_font_color">Read Post BG Color</string>
+    <string name="alt_read_post_background_color">Alt Read Post BG Color</string>
+    <string name="op_post_color">OP Post Color</string>
+    <string name="hyperlink_font_quote_color">Quote / Link Font Color</string>
     <string name="press_color_to_apply">Press color to apply</string>
     <string name="dialog_color_picker">Select Color</string>
     <string name="about">About...</string>
@@ -42,6 +48,11 @@
 		<item>Sensor</item>
 		<item>Portrait</item>
 		<item>Landscape</item>
+	</string-array>
+		<string-array name="themes">
+		<item>Default</item>
+		<item>Dark</item>
+		<item>Custom</item>
 	</string-array>
 	<string name="bookmark">Bookmark</string>
 	<string name="unbookmark">Unbookmark</string>

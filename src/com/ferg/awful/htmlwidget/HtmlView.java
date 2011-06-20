@@ -503,7 +503,7 @@ public final class HtmlView extends TextView {
         	public void handleEndTag(Element node, Editable output) {}
         };
 
-        CharSequence text = Html.fromHtml(source, imageGetter, tagHandler);
+        CharSequence text = Html.fromHtml(source, imageGetter, tagHandler, getContext());
 
         // Although the text is not editable by the user, it needs to be
         // BufferType.EDITABLE so that asynchronous tasks can replace spans with

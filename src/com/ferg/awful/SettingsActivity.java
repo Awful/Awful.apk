@@ -29,8 +29,10 @@ package com.ferg.awful;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -47,6 +49,8 @@ import android.preference.PreferenceManager;
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
+	Preference mColorsPreference;
+	Context mThis = this;
 	
 	SharedPreferences mPrefs;
 	ActivityConfigurator mConf;
@@ -66,6 +70,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
+		mColorsPreference = getPreferenceScreen().findPreference("colors");
+		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
 	}
 	
 	@Override
@@ -130,6 +136,14 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			showDialog(DIALOG_ABOUT);
+			return true;
+		}
+	};
+
+	private OnPreferenceClickListener onColorsListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			startActivity(new Intent().setClass(mThis, ColorSettingsActivity.class));
 			return true;
 		}
 	};

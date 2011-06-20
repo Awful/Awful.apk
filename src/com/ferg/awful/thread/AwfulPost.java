@@ -115,6 +115,9 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mAvatar;
     private String mContent;
     private String mEdited;
+    private AwfulThread mThread;
+
+
 	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;
 	private boolean mEven = false;
@@ -124,6 +127,14 @@ public class AwfulPost implements AwfulDisplayItem {
 	private boolean mHasRapSheetLink = false;
     private String mLastReadUrl;
     private boolean mEditable;
+
+    public AwfulThread getThread() {
+        return mThread;
+    }
+
+    public void setThread(AwfulThread aThread) {
+        mThread = aThread;
+    }
 
     public String getId() {
         return mId;
@@ -264,7 +275,7 @@ public class AwfulPost implements AwfulDisplayItem {
         }
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti) {
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti, AwfulThread aThreadObject){
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
 
 		boolean lastReadFound = false;
@@ -276,7 +287,7 @@ public class AwfulPost implements AwfulDisplayItem {
             for (TagNode node : postNodes) {
             	//fyad status, to prevent processing postbody twice if we are in fyad
                 AwfulPost post = new AwfulPost();
-
+			post.setThread(aThreadObject);
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
                 String id = node.getAttributeByName("id");
@@ -388,6 +399,10 @@ public class AwfulPost implements AwfulDisplayItem {
 			tmp = inf.inflate(R.layout.post_item, parent, false);
 			tmp.setTag(this);
 		}
+		if(mUserId.equals(mThread.getAuthorID())){
+		RelativeLayout posthead = (RelativeLayout) tmp.findViewById(R.id.posthead);
+		posthead.setBackgroundColor(mPrefs.postOPColor);
+		}
 		TextView author = (TextView) tmp.findViewById(R.id.username);
 		author.setText(mUsername);
 		TextView date = (TextView) tmp.findViewById(R.id.post_date);
@@ -411,13 +426,13 @@ public class AwfulPost implements AwfulDisplayItem {
         avatar.setTag(getAvatar());
         if(mPrefs != null){
         	if (isPreviouslyRead()) {
-            	if (isEven()) {
+            	if (!mPrefs.alternateBackground || isEven()) {
             		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor);
             	} else {
             		postBody.setBackgroundColor(mPrefs.postReadBackgroundColor2);
             	}
             } else {
-            	if (isEven()) {
+            	if (!mPrefs.alternateBackground || isEven()) {
             		postBody.setBackgroundColor(mPrefs.postBackgroundColor);
             	} else {
             		postBody.setBackgroundColor(mPrefs.postBackgroundColor2);

@@ -27,7 +27,7 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@id/title"
 			android:textSize="16dip"
-			android:textColor="@color/background2"
+			android:textColor="@color/secondary_post_font"
             android:layout_alignParentLeft="true"
 			/>
 	</RelativeLayout>
