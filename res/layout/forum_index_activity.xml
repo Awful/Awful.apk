@@ -2,7 +2,6 @@
 <fragment
     xmlns:android="http://schemas.android.com/apk/res/android"
     class="com.ferg.awful.ForumsIndexFragment"
-    android:layout_width="0dip"
+    android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_weight="1"
     />
