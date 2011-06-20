@@ -48,30 +48,27 @@ import com.ferg.awful.reply.Reply;
 public class PostReplyFragment extends DialogFragment {
     private static final String TAG = "PostReplyActivity";
 
-	public static final int RESULT_POSTED = 1;
+    public static final int RESULT_POSTED = 1;
 
     private FetchFormCookieTask mFetchCookieTask;
     private FetchFormKeyTask mFetchKeyTask;
     private SubmitReplyTask mSubmitTask;
 
+    private Bundle mExtras;
     private ImageButton mSubmit;
     private EditText mMessage;
-	private ProgressDialog mDialog;
+    private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-	private TextView mTitle;
+    private TextView mTitle;
 
-	private String mThreadId;
+    private String mThreadId;
     private String mFormCookie;
-	private String mFormKey;
+    private String mFormKey;
 
-    public static PostReplyFragment newInstance(String aThread) {
+    public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
 
-        // Supply num input as an argument.
-        Bundle args = new Bundle();
-        args.putString(Constants.THREAD, aThread);
-
-        fragment.setArguments(args);
+        fragment.setArguments(aArguments);
 
         fragment.setShowsDialog(false);
         fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
@@ -84,7 +81,7 @@ public class PostReplyFragment extends DialogFragment {
     {
         super.onCreate(savedInstanceState);
     }
-		
+        
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -92,7 +89,7 @@ public class PostReplyFragment extends DialogFragment {
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-		mTitle   = (TextView) result.findViewById(R.id.title);
+        mTitle   = (TextView) result.findViewById(R.id.title);
         mSubmit  = (ImageButton) result.findViewById(R.id.submit_button);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -106,18 +103,21 @@ public class PostReplyFragment extends DialogFragment {
 
         setRetainInstance(true);
 
-        Intent caller = getActivity().getIntent();
+        mMessage.setBackgroundColor(mPrefs.getInt("default_post_background_color", 
+                    getResources().getColor(R.color.background)));
 
-		mThreadId = caller.getStringExtra(Constants.THREAD);
+        mExtras = getExtras();
+
+        mThreadId = mExtras.getString(Constants.THREAD);
         if (mThreadId == null) {
             mThreadId = getArguments().getString(Constants.THREAD);
         }
-		
-		mTitle.setText(getString(R.string.post_reply));
+        
+        mTitle.setText(getString(R.string.post_reply));
 
         // If we're quoting a post, add it to the message box
-        if (caller.hasExtra(Constants.QUOTE)) {
-            String quoteText = caller.getStringExtra(Constants.QUOTE).replaceAll("&quot;", "\"");
+        if (mExtras.containsKey(Constants.QUOTE)) {
+            String quoteText = mExtras.getString(Constants.QUOTE).replaceAll("&quot;", "\"");
             mMessage.setText(quoteText);
             mMessage.setSelection(quoteText.length());
         }
@@ -138,8 +138,8 @@ public class PostReplyFragment extends DialogFragment {
             mFetchCookieTask.execute(mThreadId);
         }
         
-		// We'll enable it once we have a formkey and cookie
-		mSubmit.setEnabled(false);
+        // We'll enable it once we have a formkey and cookie
+        mSubmit.setEnabled(false);
     }
     
     @Override
@@ -181,15 +181,23 @@ public class PostReplyFragment extends DialogFragment {
         }
     }
 
+    private Bundle getExtras() {
+        if (getArguments() != null) {
+            return getArguments();
+        }
+
+        return getActivity().getIntent().getExtras();
+    }
+
     private View.OnClickListener onSubmitClick = new View.OnClickListener() {
         public void onClick(View aView) {
-            boolean editing = getActivity().getIntent().getBooleanExtra(Constants.EDITING, false);
+            boolean editing = mExtras.getBoolean(Constants.EDITING, false);
 
-			mSubmitTask = new SubmitReplyTask(editing);
+            mSubmitTask = new SubmitReplyTask(editing);
 
             if (editing) {
                 mSubmitTask.execute(mMessage.getText().toString(), mFormKey, mFormCookie, 
-                        mThreadId, getActivity().getIntent().getStringExtra(Constants.POST_ID));
+                        mThreadId, mExtras.getString(Constants.POST_ID));
             } else {
                 mSubmitTask.execute(mMessage.getText().toString(), 
                         mFormKey, mFormCookie, mThreadId);
@@ -197,14 +205,14 @@ public class PostReplyFragment extends DialogFragment {
         }
     };
 
-	private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
+    private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
         private boolean mEditing;
 
         public SubmitReplyTask(boolean aEditing) {
             mEditing = aEditing;
         }
 
-		public void onPreExecute() {
+        public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Posting", 
                 "Hopefully it didn't suck...", true);
         }
@@ -230,8 +238,8 @@ public class PostReplyFragment extends DialogFragment {
             if (!isCancelled()) {
                 mDialog.dismiss();
 
-				getActivity().setResult(RESULT_POSTED);
-				getActivity().finish();
+                getActivity().setResult(RESULT_POSTED);
+                getActivity().finish();
             }
         }
     }
@@ -269,7 +277,7 @@ public class PostReplyFragment extends DialogFragment {
                 }
             }
         }
-	}
+    }
 
     // Fetches the form cookie.  This is necessary every time we post, otherwise
     // the post will fail silently for roughly 5 minutes after posting one time.
@@ -303,5 +311,5 @@ public class PostReplyFragment extends DialogFragment {
                 }
             }
         }
-	}
+    }
 }

@@ -69,25 +69,25 @@ import com.ferg.awful.widget.NumberPicker;
 public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback, OnScrollListener {
     private static final String TAG = "ThreadDisplayActivity";
 
-	private ThreadListAdapter adapt;
+    private ThreadListAdapter adapt;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
 
-	private ImageButton mNext;
-	private ImageButton mReply;
-	private ProgressDialog mDialog;
+    private ImageButton mNext;
+    private ImageButton mReply;
+    private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
     private TextView mTitle;
-	private boolean queueDataUpdate;
-	private Handler handler = new Handler();
-	private Runnable runDataUpdate = new Runnable(){
-		@Override
-		public void run() {
-			delayedDataUpdate();
-		}
-	};
-	private int savedPage = 0;
-	private int savedPos = 0;
+    private boolean queueDataUpdate;
+    private Handler handler = new Handler();
+    private Runnable runDataUpdate = new Runnable(){
+        @Override
+        public void run() {
+            delayedDataUpdate();
+        }
+    };
+    private int savedPage = 0;
+    private int savedPos = 0;
 
 
 
@@ -98,25 +98,25 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private int mReadPostBackgroundColor;
     
     @Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-	}
+    }
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-		Log.e(TAG,"onCreateView()");
+        Log.e(TAG,"onCreateView()");
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
-		if (!isHoneycomb()) {
+        if (!isHoneycomb()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
-			mTitle    = (TextView) actionbar.findViewById(R.id.title);
-			mNext     = (ImageButton) actionbar.findViewById(R.id.next_page);
-			mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
+            mTitle    = (TextView) actionbar.findViewById(R.id.title);
+            mNext     = (ImageButton) actionbar.findViewById(R.id.next_page);
+            mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
 
-			mTitle.setMovementMethod(new ScrollingMovementMethod());
-		}
+            mTitle.setMovementMethod(new ScrollingMovementMethod());
+        }
         
         return result;
     }
@@ -124,7 +124,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-		Log.e(TAG,"onActivityCreated()");
+        Log.e(TAG,"onActivityCreated()");
         setRetainInstance(true);
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -137,12 +137,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         registerForContextMenu(getListView());
 
-		if (!isHoneycomb()) {
-			mNext.setOnClickListener(onButtonClick);
-			mReply.setOnClickListener(onButtonClick);
-		}
+        if (!isHoneycomb()) {
+            mNext.setOnClickListener(onButtonClick);
+            mReply.setOnClickListener(onButtonClick);
+        }
 
-		getListView().setOnScrollListener(this);
+        getListView().setOnScrollListener(this);
     }
 
     private boolean isHoneycomb() {
@@ -150,9 +150,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void setActionbarTitle(String aTitle) {
-		if (!isHoneycomb()) {
-			mTitle.setText(Html.fromHtml(aTitle));
-		} else {
+        if (!isHoneycomb()) {
+            mTitle.setText(Html.fromHtml(aTitle));
+        } else {
             ((ThreadDisplayActivity) getActivity()).setThreadTitle(aTitle);
         }
     }
@@ -160,46 +160,46 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onStart() {
         super.onStart();
-		Log.e(TAG,"onStart()");
+        Log.e(TAG,"onStart()");
 
         setActionbarTitle("Loading...");
     }
     
     @Override
     public void setListAdapter(ListAdapter adapter){
-		super.setListAdapter(adapter);
-		adapt = (ThreadListAdapter) adapter;
+        super.setListAdapter(adapter);
+        adapt = (ThreadListAdapter) adapter;
     }
     
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		if("default_post_background_color".equals(key)) {
-			int newBackground = prefs.getInt(key, R.color.background);
-			if(newBackground != mDefaultPostBackgroundColor) {
-				mDefaultPostBackgroundColor = newBackground;
-				Log.d(TAG, "invalidating (color)");
-				getListView().invalidateViews(); 
-			}				
+        if("default_post_background_color".equals(key)) {
+            int newBackground = prefs.getInt(key, R.color.background);
+            if(newBackground != mDefaultPostBackgroundColor) {
+                mDefaultPostBackgroundColor = newBackground;
+                Log.d(TAG, "invalidating (color)");
+                getListView().invalidateViews(); 
+            }               
         } else if("read_post_background_color".equals(key)) {
-			int newReadBG = prefs.getInt(key, R.color.background_read);
-			if(newReadBG != mReadPostBackgroundColor) {
-				mReadPostBackgroundColor = newReadBG;
-				Log.d(TAG, "invalidating (color)");
-				getListView().invalidateViews();  
-			}
-		} else if("use_large_scrollbar".equals(key)) {
-			setScrollbarType();
-		}
+            int newReadBG = prefs.getInt(key, R.color.background_read);
+            if(newReadBG != mReadPostBackgroundColor) {
+                mReadPostBackgroundColor = newReadBG;
+                Log.d(TAG, "invalidating (color)");
+                getListView().invalidateViews();  
+            }
+        } else if("use_large_scrollbar".equals(key)) {
+            setScrollbarType();
+        }
     }
     
     private void setScrollbarType() {
-		getListView().setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
+        getListView().setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
     }
     
     @Override
     public void onPause() {
         super.onPause();
-		Log.e(TAG,"onPause()");
+        Log.e(TAG,"onPause()");
 
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         cleanupTasks();
@@ -208,25 +208,25 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onStop() {
         super.onStop();
-		Log.e(TAG,"onStop()");
+        Log.e(TAG,"onStop()");
         cleanupTasks();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-		Log.e(TAG,"onDetach()");
-		savedPage = adapt.getPage();//saves page for orientation change.
+        Log.e(TAG,"onDetach()");
+        savedPage = adapt.getPage();//saves page for orientation change.
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-		Log.e(TAG,"onDestroy()");
+        Log.e(TAG,"onDestroy()");
         cleanupTasks();
     }
 
     private void cleanupTasks() {
-		if (mDialog != null) {
+        if (mDialog != null) {
             mDialog.dismiss();
         }
         if (mEditPostTask != null) {
@@ -240,68 +240,68 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     
     @Override
     public void onResume() {
-		super.onResume();
-		Log.e(TAG,"onResume()");
-		
-		setScrollbarType();
-		
-		mPrefs.registerOnSharedPreferenceChangeListener(this);
-		if(queueDataUpdate){
-			dataUpdate(false);
-		}
+        super.onResume();
+        Log.e(TAG,"onResume()");
+        
+        setScrollbarType();
+        
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
+        if(queueDataUpdate){
+            dataUpdate(false);
+        }
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if(menu.size() == 0){
-			inflater.inflate(R.menu.post_menu, menu);
-		}
+        if(menu.size() == 0){
+            inflater.inflate(R.menu.post_menu, menu);
+        }
     }
 
     /*
      * TODO: Figure out why this causes the app to crash on Honeycomb
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-		MenuItem bk = menu.findItem(R.id.bookmark);
-		if(bk != null){
-			AwfulThread th = (AwfulThread) adapt.getState();
-			bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
-		}
+        MenuItem bk = menu.findItem(R.id.bookmark);
+        if(bk != null){
+            AwfulThread th = (AwfulThread) adapt.getState();
+            bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+        }
     }
     */
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.next_page:
                 showNextPage();
                 break;
             case R.id.reply:
                 displayPostReplyDialog();
                 break;
-			case R.id.go_back:
-				adapt.goToPage(adapt.getPage()-1);
-				break;
-			case R.id.usercp:
+            case R.id.go_back:
+                adapt.goToPage(adapt.getPage()-1);
+                break;
+            case R.id.usercp:
                 displayUserCP();
-				break;
-			case R.id.go_to:
+                break;
+            case R.id.go_to:
                 displayPagePicker();
                 break;
-			case R.id.refresh:
-				adapt.refresh();
-				break;
-			case R.id.settings:
-				startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-				break;
-			case R.id.bookmark:
-				adapt.toggleBookmark();
-				break;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
+            case R.id.refresh:
+                adapt.refresh();
+                break;
+            case R.id.settings:
+                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                break;
+            case R.id.bookmark:
+                adapt.toggleBookmark();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
-		return true;
+        return true;
     }
 
     private void displayUserCP() {
@@ -378,26 +378,26 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
-		// If we're here because of a post result, refresh the thread
-		switch (aResultCode) {
-			case PostReplyFragment.RESULT_POSTED:
-				adapt.refresh();
-				break;
-		}
+        // If we're here because of a post result, refresh the thread
+        switch (aResultCode) {
+            case PostReplyFragment.RESULT_POSTED:
+                adapt.refresh();
+                break;
+        }
     }
 
-	private View.OnClickListener onButtonClick = new View.OnClickListener() {
-		public void onClick(View aView) {
-			switch (aView.getId()) {
-				case R.id.next_page:
+    private View.OnClickListener onButtonClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.next_page:
                     showNextPage();
-					break;
-				case R.id.reply:
+                    break;
+                case R.id.reply:
                     displayPostReplyDialog();
-					break;
-			}
-		}
-	};
+                    break;
+            }
+        }
+    };
 
     private void showNextPage() {
         if (adapt.getPage() < adapt.getLastPage()) {
@@ -406,13 +406,20 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void displayPostReplyDialog() {
+        Bundle args = new Bundle();
+        args.putString(Constants.THREAD, adapt.getState().getID() + "");
+
+        displayPostReplyDialog(args);
+    }
+
+    private void displayPostReplyDialog(Bundle aArgs) {
         if (isHoneycomb()) {
-            PostReplyFragment fragment = PostReplyFragment.newInstance(adapt.getState().getID() + "");
+            PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
         } else {
             Intent postReply = new Intent().setClass(getActivity(),
                     PostReplyActivity.class);
-            postReply.putExtra(Constants.THREAD, adapt.getState().getID() + "");
+            postReply.putExtras(aArgs);
             startActivityForResult(postReply, 0);
         }
     }
@@ -445,16 +452,18 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-				if (mDialog != null) {
+                if (mDialog != null) {
                     mDialog.dismiss();
                 }
-                Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
-                postReply.putExtra(Constants.QUOTE, aResult);
-                postReply.putExtra(Constants.EDITING, true);
-                postReply.putExtra(Constants.POST_ID, mPostId);
 
-				startActivityForResult(postReply, 0);
+                Bundle args = new Bundle();
+
+                args.putString(Constants.THREAD, adapt.getState().getID()+"");
+                args.putString(Constants.QUOTE, aResult);
+                args.putBoolean(Constants.EDITING, true);
+                args.putString(Constants.POST_ID, mPostId);
+
+                displayPostReplyDialog(args);
             }
         }
     }
@@ -483,62 +492,63 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
         public void onPostExecute(String aResult) {
             if (!isCancelled()) {
-				if (mDialog != null) {
+                if (mDialog != null) {
                     mDialog.dismiss();
                 }
-                Intent postReply = new Intent().setClass(getActivity(), PostReplyActivity.class);
-                postReply.putExtra(Constants.THREAD, Integer.toString(adapt.getState().getID()));
-                postReply.putExtra(Constants.QUOTE, aResult);
 
-				startActivityForResult(postReply, 0);
+                Bundle args = new Bundle();
+                args.putString(Constants.THREAD, Integer.toString(adapt.getState().getID()));
+                args.putString(Constants.QUOTE, aResult);
+
+                displayPostReplyDialog(args);
             }
         }
     }
 
-	@Override
-	public void dataUpdate(boolean pageChange) {
-		if(!this.isResumed()){
-			queueDataUpdate = true;
-			return;
-		}else{
-			queueDataUpdate = false;
-			handler.post(runDataUpdate);
-		}
-	}
-	public void delayedDataUpdate() {
+    @Override
+    public void dataUpdate(boolean pageChange) {
+        if(!this.isResumed()){
+            queueDataUpdate = true;
+            return;
+        }else{
+            queueDataUpdate = false;
+            handler.post(runDataUpdate);
+        }
+    }
+    public void delayedDataUpdate() {
         setActionbarTitle(adapt.getTitle());
 
-		int last = adapt.getLastReadPost();
-		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
-			getListView().setSelection(savedPos);
-		}else{
-			if(last >= 0 && last < adapt.getCount()){
-				getListView().setSelection(last);
-				savedPos = last;
-			}
-		}
+        int last = adapt.getLastReadPost();
+        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
+            getListView().setSelection(savedPos);
+        }else{
+            if(last >= 0 && last < adapt.getCount()){
+                getListView().setSelection(last);
+                savedPos = last;
+            }
+        }
 
-		if (!isHoneycomb()) {
-			if (adapt.getPage() == adapt.getLastPage()) {
-				mNext.setVisibility(View.GONE);
-			} else {
-				mNext.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-	public int getSavedPage() {
-		return savedPage;
-	}
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		if(visibleItemCount>0 && firstVisibleItem >0){
-			savedPos = firstVisibleItem+1;
-			//Log.e(TAG,"Scrolled: "+firstVisibleItem);
-		}
-		
-	}
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-	}
+        if (!isHoneycomb()) {
+            if (adapt.getPage() == adapt.getLastPage()) {
+                mNext.setVisibility(View.GONE);
+            } else {
+                mNext.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+    public int getSavedPage() {
+        return savedPage;
+    }
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+            int visibleItemCount, int totalItemCount) {
+        if(visibleItemCount>0 && firstVisibleItem >0){
+            savedPos = firstVisibleItem+1;
+            //Log.e(TAG,"Scrolled: "+firstVisibleItem);
+        }
+        
+    }
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    }
 }
