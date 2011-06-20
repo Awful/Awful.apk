@@ -72,8 +72,12 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
     }
 
+    public void refreshThread() {
+        getFragment().refresh();
+    }
+
     protected void configureAdapter(Bundle aSavedState) {
-        display = (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
+        display = getFragment();
         String c2pThreadID = null;
         c2pPage = null;
 
@@ -99,5 +103,9 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
 
         display.setListAdapter(adapt);
+    }
+
+    private ThreadDisplayFragment getFragment() {
+        return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
     }
 }

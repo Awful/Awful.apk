@@ -238,8 +238,13 @@ public class PostReplyFragment extends DialogFragment {
             if (!isCancelled()) {
                 mDialog.dismiss();
 
-                getActivity().setResult(RESULT_POSTED);
-                getActivity().finish();
+                if (((AwfulActivity) getActivity()).isHoneycomb()) {
+                    ((ThreadDisplayActivity) getActivity()).refreshThread();
+                    dismiss();
+                } else {
+                    getActivity().setResult(RESULT_POSTED);
+                    getActivity().finish();
+                }
             }
         }
     }

@@ -289,7 +289,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 displayPagePicker();
                 break;
             case R.id.refresh:
-                adapt.refresh();
+                refresh();
                 break;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -381,9 +381,13 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         // If we're here because of a post result, refresh the thread
         switch (aResultCode) {
             case PostReplyFragment.RESULT_POSTED:
-                adapt.refresh();
+                refresh();
                 break;
         }
+    }
+
+    public void refresh() {
+        adapt.refresh();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -415,6 +419,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private void displayPostReplyDialog(Bundle aArgs) {
         if (isHoneycomb()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
+            fragment.setTargetFragment(this, 0);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
         } else {
             Intent postReply = new Intent().setClass(getActivity(),
