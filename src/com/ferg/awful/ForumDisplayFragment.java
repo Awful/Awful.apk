@@ -94,7 +94,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
 
-			mTitle.setMovementMethod(new ScrollingMovementMethod());
+            mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -131,13 +131,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-		if (!isHoneycomb()) {
-			if(adapt.getTitle() != null) {
-				mTitle.setText(Html.fromHtml(adapt.getTitle()));
-			}
+        if (!isHoneycomb()) {
+            if(adapt.getTitle() != null) {
+                mTitle.setText(Html.fromHtml(adapt.getTitle()));
+            }
         
-			mUserCp.setOnClickListener(onButtonClick);
-		}
+            mUserCp.setOnClickListener(onButtonClick);
+        }
     }
 
     private boolean isHoneycomb() {
@@ -189,35 +189,39 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 adapt.refresh();
                 return true;
             case R.id.go_to:
-                final NumberPicker jumpToText = new NumberPicker(getActivity());
-                jumpToText.setRange(1, adapt.getLastPage());
-                jumpToText.setCurrent(adapt.getPage());
-                new AlertDialog.Builder(getActivity())
-                    .setTitle("Jump to Page")
-                    .setView(jumpToText)
-                    .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface aDialog, int aWhich) {
-                                try {
-                                    int pageInt = jumpToText.getCurrent();
-                                    if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-                                        adapt.goToPage(pageInt);
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.d(TAG, "Not a valid number: " + e.toString());
-                                    Toast.makeText(getActivity(),
-                                        R.string.invalid_page, Toast.LENGTH_SHORT).show();
-                                } catch (Exception e) {
-                                    Log.d(TAG, e.toString());
-                                }
-                            }
-                        })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+                displayPagePicker();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void displayPagePicker() {
+        final NumberPicker jumpToText = new NumberPicker(getActivity());
+        jumpToText.setRange(1, adapt.getLastPage());
+        jumpToText.setCurrent(adapt.getPage());
+        new AlertDialog.Builder(getActivity())
+            .setTitle("Jump to Page")
+            .setView(jumpToText)
+            .setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface aDialog, int aWhich) {
+                        try {
+                            int pageInt = jumpToText.getCurrent();
+                            if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
+                                adapt.goToPage(pageInt);
+                            }
+                        } catch (NumberFormatException e) {
+                            Log.d(TAG, "Not a valid number: " + e.toString());
+                            Toast.makeText(getActivity(),
+                                R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Log.d(TAG, e.toString());
+                        }
+                    }
+                })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -259,9 +263,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             return;
         }
 
-		if (!isHoneycomb()) {
-			mTitle.setText(Html.fromHtml(adapt.getTitle()));
-		}
+        if (!isHoneycomb()) {
+            mTitle.setText(Html.fromHtml(adapt.getTitle()));
+        }
 
         if(pageChange){//this will only reset the position if the user selects next/prev page
             getListView().setSelection(0);
