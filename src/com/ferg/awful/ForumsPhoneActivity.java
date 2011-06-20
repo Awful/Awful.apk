@@ -27,52 +27,17 @@
 
 package com.ferg.awful;
 
-import com.ferg.awful.service.AwfulServiceConnection;
-
-import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.widget.RelativeLayout;
 
-public class ForumsIndexActivity extends AwfulActivity {
+public class ForumsPhoneActivity extends AwfulActivity {
 
-    private static final String TAG = "ForumsIndexActivity";
-    
+    private static final String TAG = "ForumsPhoneActivity";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        if (isHoneycomb()) {
-            startTabletActivity();
-        } else {
-            startPhoneActivity();
-        }
-    }
-
-    private void startPhoneActivity() {
-        Intent shim = new Intent(this, ForumsPhoneActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
-        }
-
-        startActivity(shim);
-        finish();
-    }
-
-    private void startTabletActivity() {
-        Intent shim = new Intent(this, ForumsTabletActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
-        }
-
-        startActivity(shim);
-        finish();
+        setContentView(R.layout.forum_index_activity);
     }
 }

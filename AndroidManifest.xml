@@ -38,6 +38,10 @@
         <activity 
             android:name="ForumsTabletActivity" 
             />
+        <activity 
+            android:name="ForumsPhoneActivity" 
+            android:theme="@android:style/Theme.NoTitleBar"
+            />
         <activity
                 android:name="AwfulLoginActivity"
                 android:theme="@android:style/Theme.NoTitleBar"
