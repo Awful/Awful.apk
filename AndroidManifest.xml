@@ -66,6 +66,7 @@
         </activity>
         <activity android:name="ProfileActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="SettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
+ 	<activity android:name="ColorSettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity 
             android:name="UserCPActivity" 
             android:exported="true"

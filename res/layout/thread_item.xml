@@ -37,7 +37,7 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@id/title"
 			android:textSize="16dip"
-			android:textColor="@color/background2"
+			android:textColor="@color/background"
 			/>
         <TextView
             android:id="@id/unread_count"

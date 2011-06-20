@@ -18,11 +18,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	public int postFontSize;
 	public int postFontColor;
+	public int postFontColor2;
 	public int postBackgroundColor;
 	public int postBackgroundColor2;
 	public int postReadBackgroundColor;
 	public int postReadBackgroundColor2;
+	public int postOPColor;
+	public int postLinkQuoteColor;
 	public boolean imagesEnabled;
+	public boolean alternateBackground;
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
 	 * @param context
@@ -48,12 +52,17 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 	private void updateValues(SharedPreferences prefs) {
 		postFontSize = mPrefs.getInt("default_post_font_size", 15);
-        postFontColor = mPrefs.getInt("default_post_font_color", parent.getResources().getColor(R.color.default_post_font));
-        postBackgroundColor = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
-        postBackgroundColor2 = mPrefs.getInt("default_post_background2_color", parent.getResources().getColor(R.color.background2));
-    	postReadBackgroundColor = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
-    	postReadBackgroundColor2 = mPrefs.getInt("read_post_background2_color", parent.getResources().getColor(R.color.background2_read));
-        imagesEnabled = mPrefs.getBoolean("images_enabled", true);
+		postFontColor = mPrefs.getInt("default_post_font_color", parent.getResources().getColor(R.color.default_post_font));
+		postFontColor2 = mPrefs.getInt("secondary_post_font_color", parent.getResources().getColor(R.color.secondary_post_font));
+      	postBackgroundColor = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
+       	postBackgroundColor2 = mPrefs.getInt("alternative_post_background_color", parent.getResources().getColor(R.color.alt_background));
+    		postReadBackgroundColor = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
+    		postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background));
+    		postOPColor = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
+    		postLinkQuoteColor = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
+        	imagesEnabled = mPrefs.getBoolean("images_enabled", true);
+       	alternateBackground = mPrefs.getBoolean("alternate_backgrounds",false);
+       	 //TODO: I have never seen this before oh god
 	}
 
 }
