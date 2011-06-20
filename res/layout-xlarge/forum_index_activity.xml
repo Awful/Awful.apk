@@ -26,5 +26,8 @@
 			android:textSize="22dip"
 			android:textStyle="bold"
             />
+        <ImageView
+            style="@style/VerticalGradient"
+            />
     </RelativeLayout>
 </LinearLayout>
