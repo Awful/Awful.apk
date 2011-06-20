@@ -478,7 +478,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			int visibleItemCount, int totalItemCount) {
 		if(visibleItemCount>0 && firstVisibleItem >0){
 			savedPos = firstVisibleItem+1;
-			Log.e(TAG,"Scrolled: "+firstVisibleItem);
+			//Log.e(TAG,"Scrolled: "+firstVisibleItem);
 		}
 		
 	}

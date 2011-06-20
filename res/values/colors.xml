@@ -3,8 +3,19 @@
     <color name="forums_blue">#006699</color>
     <color name="forums_gray">#f4f4f4</color>
     <color name="default_post_font">#777777</color>
+    <color name="secondary_post_font">#383838</color>
     <color name="background">#f4f4f4</color>
-    <color name="background2">#DFDFDF</color>
+    <color name="alt_background">#dfdfdf</color>
     <color name="background_read">#ddeeff</color>
-    <color name="background2_read">#c0e0ff</color>
+    <color name="alt_background_read">#c0e0ff</color>
+    <color name="op_post">#199ed7</color>
+    <color name="link_quote">#0000ff</color>
+    <color name="dark_default_post_font">#ffffff</color>
+    <color name="dark_secondary_post_font">#777777</color>
+    <color name="dark_background">#000000</color>
+    <color name="dark_alt_background">#222222</color>
+    <color name="dark_background_read">#001122</color>
+    <color name="dark_alt_background_read">#223344</color>
+    <color name="dark_op_post">#003366</color>
+    <color name="dark_link_quote">#00ff00</color>
 </resources>

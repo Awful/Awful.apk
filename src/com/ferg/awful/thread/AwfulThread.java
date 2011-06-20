@@ -53,6 +53,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private String mThreadId;
     private int threadId;
     private String mAuthor;
+    private String mAuthorID;
     private boolean mSticky;
     private String mIcon;
     private int mUnreadCount;
@@ -142,6 +143,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                 if (tarUser.length > 0) {
                     // There's got to be a better way to do this
                     thread.setAuthor(tarUser[0].getText().toString().trim());
+			    // And probably a much better way to do this
+			    thread.setAuthorID(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").substring(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").indexOf("userid=")+7));
                 }
 
                 TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
@@ -234,7 +237,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             }
         }
 
-        setPosts(AwfulPost.parsePosts(response, mPTI), aPage);
+        setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
         parsePageNumbers(response);
     }
 
@@ -253,6 +256,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
     public void setAuthor(String aAuthor) {
         mAuthor = aAuthor;
+    }
+
+    public String getAuthorID() {
+        return mAuthorID;
+    }
+
+    public void setAuthorID(String aAuthorID) {
+        mAuthorID = aAuthorID;
     }
 
     public String getIcon() {
@@ -301,7 +312,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			sticky.setVisibility(View.VISIBLE);
 		}
 		if(mBookmarked){
-			sticky.setImageResource(R.drawable.star_blue);
+			sticky.setImageResource(R.drawable.blue_star);
 			sticky.setVisibility(View.VISIBLE);
 		}
 		if(!mSticky && !mBookmarked){
@@ -319,7 +330,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		title.setText(Html.fromHtml(mTitle));
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
-			author.setTextColor(prefs.postFontColor);
+			author.setTextColor(prefs.postFontColor2);
 		}
 		return tmp;
 	}

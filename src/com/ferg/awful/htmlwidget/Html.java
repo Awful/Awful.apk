@@ -37,8 +37,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.ferg.awful.R.color;
+import com.ferg.awful.preferences.AwfulPreferences;
+
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -47,6 +53,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -114,7 +121,7 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source) {
-        return fromHtml(source, null, null);
+        return fromHtml(source, null, null, null);
     }
 
     /**
@@ -127,12 +134,12 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
+                                   TagHandler tagHandler, Context context) {
         HtmlCleaner cleaner = new HtmlCleaner();
         
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        cleaner);
+                        cleaner,context);
         return converter.convert();
     }
 
@@ -390,12 +397,14 @@ class HtmlToSpannedConverter {
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
-	private DomSerializer mDomSerializer;
+    private DomSerializer mDomSerializer;
+    private Context mContext;
 
     public HtmlToSpannedConverter(
             String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            HtmlCleaner cleaner) {
+            HtmlCleaner cleaner, Context context) {
         mSource = source;
+	   mContext = context;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
@@ -565,6 +574,10 @@ class HtmlToSpannedConverter {
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img") && mImageGetter != null) {
             startImg(mSpannableStringBuilder, node, mImageGetter);
+        } else if(tag.equalsIgnoreCase("span")){
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+        		start(mSpannableStringBuilder, new Span());
+        	}
         } else if (mTagHandler != null) {
             mTagHandler.handleStartTag(node, mSpannableStringBuilder);
         }
@@ -603,7 +616,7 @@ class HtmlToSpannedConverter {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
+            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan(PreferenceManager.getDefaultSharedPreferences(mContext).getInt("link_quote_color", color.link_quote)));
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("pre")) {
@@ -611,13 +624,17 @@ class HtmlToSpannedConverter {
         } else if (tag.equalsIgnoreCase("code")) {
         	mNumTagsEnforcingTrueWhitespace--;
         } else if (tag.equalsIgnoreCase("a")) {
-            endA(mSpannableStringBuilder);
+            endA(mSpannableStringBuilder,mContext);
         } else if (tag.equalsIgnoreCase("u")) {
             end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
         } else if (tag.equalsIgnoreCase("sup")) {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
+        }else if (tag.equalsIgnoreCase("span")) {
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+            endSpan(mSpannableStringBuilder,mContext);
+        	}
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -830,7 +847,7 @@ class HtmlToSpannedConverter {
         text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void endA(SpannableStringBuilder text) {
+    private static void endA(SpannableStringBuilder text, Context context) {
         int len = text.length();
         Object obj = getLast(text, Href.class);
         int where = text.getSpanStart(obj);
@@ -843,8 +860,29 @@ class HtmlToSpannedConverter {
             if (h.mHref != null) {
                 text.setSpan(new URLSpan(h.mHref), where, len,
                              Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if(context != null){
+                text.setSpan(new ForegroundColorSpan(PreferenceManager.getDefaultSharedPreferences(context).getInt("link_quote_color", color.link_quote)), where, len,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
+
         }
+    }
+
+	private static void endSpan(SpannableStringBuilder text, Context context) {
+        int len = text.length();
+        Object obj = getLast(text, Span.class);
+        int where = text.getSpanStart(obj);
+
+        text.removeSpan(obj);
+        if(where != len && where != -1){
+        	int fg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_font_color", color.link_quote);
+        	int bg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_background_color", color.link_quote);
+            text.setSpan(new BackgroundColorSpan(fg), where, len, Spannable.SPAN_MARK_MARK);
+            text.setSpan(new SpoilerSpan(fg,bg), where, len, Spannable.SPAN_MARK_MARK);
+
+        }
+
     }
 
     private static void endHeader(SpannableStringBuilder text) {
@@ -879,6 +917,7 @@ class HtmlToSpannedConverter {
     private static class Blockquote { }
     private static class Super { }
     private static class Sub { }
+    private static class Span { }
 
     private static class Font {
         public String mColor;
