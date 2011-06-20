@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+	android:background="@color/background"
+    >
+    <ViewStub
+        android:id="@+id/actionbar" 
+        android:inflatedId="@+id/actionbar_inflated"
+        android:layout="@layout/actionbar_thread"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        />
+	<RelativeLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		>
+		<ListView
+			android:id="@id/android:list"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+            android:divider="#8c8c8c"
+            android:dividerHeight="1px"
+			android:cacheColorHint="@color/background"
+			android:scrollingCache="true"
+			android:smoothScrollbar="false"
+			android:fastScrollEnabled="true"
+			/>
+	</RelativeLayout>
+</LinearLayout>
