@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 
 public class PostReplyActivity extends AwfulActivity {
     @Override
@@ -35,5 +36,16 @@ public class PostReplyActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply_activity);
+
+        setContentPane();
+    }
+
+    public void setContentPane() {
+        PostReplyFragment fragment = 
+            PostReplyFragment.newInstance(getIntent().getExtras());
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
     }
 }
