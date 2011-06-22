@@ -1,6 +1,7 @@
 package com.ferg.awful.preferences;
 
 import com.ferg.awful.R;
+import com.ferg.awful.constants.Constants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,6 +28,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postLinkQuoteColor;
 	public boolean imagesEnabled;
 	public boolean alternateBackground;
+	public int postPerPage;
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
 	 * @param context
@@ -56,11 +58,12 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		postFontColor2 = mPrefs.getInt("secondary_post_font_color", parent.getResources().getColor(R.color.secondary_post_font));
       	postBackgroundColor = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
        	postBackgroundColor2 = mPrefs.getInt("alternative_post_background_color", parent.getResources().getColor(R.color.alt_background));
-    		postReadBackgroundColor = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
-    		postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background));
-    		postOPColor = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
-    		postLinkQuoteColor = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
-        	imagesEnabled = mPrefs.getBoolean("images_enabled", true);
+    	postReadBackgroundColor = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
+    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background));
+    	postOPColor = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
+    	postLinkQuoteColor = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
+        imagesEnabled = mPrefs.getBoolean("images_enabled", true);
+        postPerPage = mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE);
        	alternateBackground = mPrefs.getBoolean("alternate_backgrounds",false);
        	 //TODO: I have never seen this before oh god
 	}
