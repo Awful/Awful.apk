@@ -136,8 +136,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
     
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDetach() {
+        super.onDetach();
         setListAdapter(null);
     }
     

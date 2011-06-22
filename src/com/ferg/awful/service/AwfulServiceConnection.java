@@ -153,6 +153,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
 		protected boolean lastReadLoaded;
+		protected boolean pageHasChanged;//if true, we have already navigated to a new page
 		private Handler imgHandler = new Handler();
 
 		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
@@ -163,6 +164,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			super(id);
 			currentPage = loadPage;
 			lastReadLoaded = true;
+			pageHasChanged = true;
 			mCallback = frag;
 		}
 		@Override
@@ -174,6 +176,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void disconnected(){
 			super.disconnected();
 			mService.unregisterForAvatarCache(onCache);
+		}
+		/**
+		 * This function jumps to the last-read-page and post.
+		 * This is the same as creating the default adapter.
+		 */
+		public void loadLastReadPage(){
+			lastReadLoaded = false;//recalculate and jump to the last read page
+			pageHasChanged = false;//navigating between pages causes the view to jump to top of page, this'll reset that
+			loadPage(false);
 		}
 		
 		public void loadPage(boolean forceRefresh){
@@ -192,7 +203,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(false);
+			mCallback.dataUpdate(pageHasChanged);
 		}
 		public int getLastReadPost() {
 			if(state == null || state.getLastReadPage() != currentPage){
@@ -210,6 +221,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				}
 			}
 			lastReadLoaded = true;
+			pageHasChanged = true;
 			super.goToPage(page);
 		}
 
