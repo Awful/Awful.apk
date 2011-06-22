@@ -108,7 +108,7 @@ public abstract class AwfulPagedItem {
 
 
 	public abstract int getID();
-	public int getLastReadPage() {
+	public int getLastReadPage(int postsPerPage) {
 		return 1;
 	}
 

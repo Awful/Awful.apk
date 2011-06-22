@@ -63,7 +63,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			for(AwfulListAdapter la : fragments){
 				la.connected();
 			}
-	        mPrefs = new AwfulPreferences(mService);
 		}
 	}
 
@@ -71,7 +70,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void onServiceDisconnected(ComponentName arg0) {
 		boundState = false;
 		mService = null;
-		mPrefs.unRegisterListener();
 		Log.e(TAG, "service disconnected!");
 		for(AwfulListAdapter la : fragments){
 			la.disconnected();
@@ -94,6 +92,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 	}
 	public void connect(Context parent){
+        mPrefs = new AwfulPreferences(parent);
 		if(mService == null && !boundState){
 			Log.e(TAG, "connect()");
 			parent.bindService(new Intent(parent, AwfulService.class), this, Context.BIND_AUTO_CREATE);
@@ -102,13 +101,12 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 	}
 	public void disconnect(Context parent){
-		//if(mService != null && boundState){
-			Log.e(TAG, "disconnect()");
-			parent.unbindService(this);
-			parent.unregisterReceiver(this);
-			boundState = false;
-			mService = null;
-		//}
+		Log.e(TAG, "disconnect()");
+		parent.unbindService(this);
+		parent.unregisterReceiver(this);
+		boundState = false;
+		mService = null;
+		mPrefs.unRegisterListener();
 	}
 	public void fetchThread(int id, int page){
 		if(boundState){
@@ -207,8 +205,8 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			state = mService.getThread(currentId);
 			if(state !=null && !lastReadLoaded){
-				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
-				currentPage = state.getLastReadPage();
+				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage(mPrefs.postPerPage));
+				currentPage = state.getLastReadPage(mPrefs.postPerPage);
 				lastReadLoaded = true;
 				forceRefresh = true;
 			}
@@ -222,18 +220,18 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mCallback.dataUpdate(pageHasChanged);
 		}
 		public int getLastReadPost() {
-			if(state == null || state.getLastReadPage() != currentPage){
+			if(state == null || state.getLastReadPage(mPrefs.postPerPage) != currentPage){
 				return 0;
 			}
-			return state.getLastReadPost();
+			return state.getLastReadPost(mPrefs.postPerPage);
 		}
 		
 		public void goToPage(int page){
 			if(currentPage < page && state != null){
-				if(page >= (state.getTotalCount()/Constants.ITEMS_PER_PAGE+1)){
+				if(page >= (state.getTotalCount()/mPrefs.postPerPage+1)){
 					state.setUnreadCount(0);
 				}else{
-					state.setUnreadCount(state.getTotalCount()-(page-1)*Constants.ITEMS_PER_PAGE);
+					state.setUnreadCount(state.getTotalCount()-(page-1)*mPrefs.postPerPage);
 				}
 			}
 			lastReadLoaded = true;

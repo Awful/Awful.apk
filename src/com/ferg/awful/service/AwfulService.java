@@ -12,6 +12,7 @@ import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
@@ -36,10 +37,11 @@ public class AwfulService extends Service {
 	private ThumbnailBus avatarBus=new ThumbnailBus();
 	private SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> avatarCache=new SimpleWebImageCache<ThumbnailBus, ThumbnailMessage>(null, null, 101, avatarBus);
 	private LinkedList<Receiver<ThumbnailMessage>> registeredAvatarClients = new LinkedList<Receiver<ThumbnailMessage>>();
+	private AwfulPreferences mPrefs;
 	
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
-        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+        mPrefs = new AwfulPreferences(this);
 		Log.e(TAG, "Service started.");
 	}
 
@@ -52,6 +54,7 @@ public class AwfulService extends Service {
 		while(registeredAvatarClients.peek() != null){
 			avatarCache.getBus().unregister(registeredAvatarClients.poll());
 		}
+		mPrefs.unRegisterListener();
 	}
 	private void queueThread(AwfulTask<?> threadTask) {
 		threadPool.push(threadTask);
@@ -216,7 +219,7 @@ public class AwfulService extends Service {
         	boolean status = false;
             if (!isCancelled() && thread != null) {
                 try {
-                	thread.getThreadPosts(mPage);
+                	thread.getThreadPosts(mPage, mPrefs.postPerPage);
                 	status = true;
                 } catch (Exception e) {
                 	status = false;

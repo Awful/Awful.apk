@@ -203,13 +203,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return result;
     }
 
-    public void getThreadPosts() throws Exception {
-        getThreadPosts(-1);
+    public void getThreadPosts(int postPerPage) throws Exception {
+        getThreadPosts(-1, postPerPage);
     }
 
-    public void getThreadPosts(int aPage) throws Exception {
+    public void getThreadPosts(int aPage, int postPerPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
+        params.put(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 
         if (aPage == -1) {
             params.put(Constants.PARAM_GOTO, "newpost");
@@ -377,17 +378,17 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		}
 		return mPosts.get(page).get(ix);
 	}
-	public int getLastReadPage() {
+	public int getLastReadPage(int postPerPage) {
 		if(getUnreadCount()==-1){
 			return 1;
 		}
-		return (mTotalPosts-mUnreadCount+1)/Constants.ITEMS_PER_PAGE+1;
+		return (mTotalPosts-mUnreadCount+1)/postPerPage+1;
 	}
-	public int getLastReadPost() {
+	public int getLastReadPost(int postPerPage) {
 		if(getUnreadCount()==-1){
 			return 0;
 		}
-		return (mTotalPosts-mUnreadCount+1)%Constants.ITEMS_PER_PAGE;
+		return (mTotalPosts-mUnreadCount+1)%postPerPage;
 	}
 	public void setTotalCount(int postTotal) {
 		mTotalPosts = postTotal;
