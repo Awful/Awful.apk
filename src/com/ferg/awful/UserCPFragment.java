@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -117,8 +118,8 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     }
     
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDetach() {
+        super.onDetach();
         setListAdapter(null);
     }
     
@@ -171,7 +172,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
-		if(pageChange && this.isAdded()){
+		if(pageChange && this.isAdded() && adapt.getCount() >0){
         	getListView().setSelection(0);
         }
 	}
