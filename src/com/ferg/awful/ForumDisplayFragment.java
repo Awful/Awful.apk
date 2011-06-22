@@ -139,6 +139,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void onDetach() {
         super.onDetach();
         setListAdapter(null);
+        adapt = null;
     }
     
     @Override
