@@ -124,6 +124,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mCallback = frag;
 		}
 		@Override
+		public void connected(){
+			loadPage(true);
+		}
+		@Override
 		public void loadPage(boolean forceRefresh){
 			if(mService == null || !boundState){
 				return;
