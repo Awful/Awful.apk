@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -148,8 +149,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     }
     
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDetach() {
+        super.onDetach();
         mBookmarkList.setAdapter(null);
     }
     
@@ -206,7 +207,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public void dataUpdate(boolean pageChange) {
-        if(pageChange && this.isAdded()){
+        if(pageChange && this.isAdded() && adapt.getCount() >0){
             mBookmarkList.setSelection(0);
         }
     }
