@@ -56,6 +56,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     private TextView mTitle;
     private ForumListAdapter adapt;
 	private SharedPreferences mPrefs;
+	private ImageButton mRefresh;
 
     @Override
 	public void onCreate(Bundle savedInstanceState){
@@ -71,6 +72,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         mTitle      = (TextView) result.findViewById(R.id.title);
         mHome       = (ImageButton) result.findViewById(R.id.home);
+        mRefresh       = (ImageButton) result.findViewById(R.id.refresh);
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
@@ -85,6 +87,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
+		mRefresh.setOnClickListener(onButtonClick);
 
 		getListView().setOnItemClickListener(onThreadSelected);
 		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
@@ -155,6 +158,9 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
                 case R.id.home:
                     startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
                     break;
+                case R.id.refresh:
+                	adapt.refresh();
+                	break;
             }
         }
     };
@@ -180,15 +186,19 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 	@Override
 	public void loadingFailed() {
 		Log.e(TAG, "Loading failed.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setImageResource(R.drawable.gear);
 	}
 
 	@Override
 	public void loadingStarted() {
 		Log.e(TAG, "Loading started.");
+		mRefresh.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void loadingSucceeded() {
 		Log.e(TAG, "Loading succeeded.");
+		mRefresh.setVisibility(View.GONE);
 	}
 }

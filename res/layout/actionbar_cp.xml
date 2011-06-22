@@ -24,6 +24,11 @@
         android:layout_alignParentRight="true"
         android:orientation="horizontal"
         >
+        <ImageButton 
+            android:id="@+id/refresh"
+            style="@style/ActionBarButton"
+            android:src="@drawable/ic_menu_refresh"
+            />
         <ImageView 
             style="@style/ActionBarSeparator" 
             />
