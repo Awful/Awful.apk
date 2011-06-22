@@ -7,4 +7,18 @@ public interface AwfulUpdateCallback {
 	 * @param pageChange Specifies if the current page number has changed since the last dataUpdate(), useful for resetting List position.
 	 */
 	public void dataUpdate(boolean pageChange);
+	/**
+	 * Called when the loading process for this view has failed.
+	 * Keep in mind, the user may still have cached data.
+	 */
+	public void loadingFailed();
+	/**
+	 * Called when a background load for this page has begun.
+	 */
+	public void loadingStarted();
+	/**
+	 * Called when a loading process has succeeded for the current view.
+	 * This does not supplement/replace dataUpdate(), it is only used for displaying loading status.
+	 */
+	public void loadingSucceeded();
 }

@@ -16,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.SectionIndexer;
@@ -79,11 +81,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if(boundState && intent.getAction().equalsIgnoreCase(Constants.DATA_UPDATE_BROADCAST) && intent.hasExtra(Constants.DATA_UPDATE_ID_EXTRA)){
-			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -1);
+			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -99);
+			int page = intent.getIntExtra(Constants.DATA_UPDATE_PAGE_EXTRA, -99);
+			boolean status = intent.getBooleanExtra(Constants.DATA_UPDATE_STATUS_EXTRA, false);
 			Log.e(TAG, "Broadcast Received: id "+id);
 			for(AwfulListAdapter la : fragments){
 				if(la.currentId == id){
-					la.dataUpdate();
+					la.dataUpdate(status, page);
 					Log.e(TAG, "Broadcast ack: id "+la.currentId);
 				}
 			}
@@ -135,6 +139,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			state = mService.getForum(currentId);
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchForum(currentId, currentPage);
+				mCallback.loadingStarted();
 			}
 			if(mObserver != null){
 				mObserver.onChanged();
@@ -149,10 +154,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				0f, 360f,
 				Animation.RELATIVE_TO_SELF, 0.5f,
 				Animation.RELATIVE_TO_SELF, 0.5f);
+	private static final AlphaAnimation mFailedLoadingAnimation = 
+					new AlphaAnimation(	1f, 0f);
 	static {
 		mLoadingAnimation.setInterpolator(new LinearInterpolator());
 		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
 		mLoadingAnimation.setDuration(700);
+		mFailedLoadingAnimation.setInterpolator(new LinearInterpolator());
+		mFailedLoadingAnimation.setRepeatCount(Animation.INFINITE);
+		mFailedLoadingAnimation.setDuration(500);
 	}
 
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
@@ -200,9 +210,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
 				currentPage = state.getLastReadPage();
 				lastReadLoaded = true;
+				forceRefresh = true;
 			}
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchThread(currentId, currentPage);
+				mCallback.loadingStarted();
 			}
 			if(mObserver != null){
 				mObserver.onChanged();
@@ -306,8 +318,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				mObserver.onInvalidated();
 			}
 		}
-		public void dataUpdate() {
-			loadPage(false);
+		public void dataUpdate(boolean status, int page) {
+			if(page == currentPage && mCallback != null){
+				if(status){
+					mCallback.loadingSucceeded();
+					loadPage(false);
+				}else{
+					mCallback.loadingFailed();
+				}
+			}
 		}
 		@Override
 		public int getCount() {
@@ -489,7 +508,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		
 		
-		
+
+		public RotateAnimation getRotateAnimation(){
+			return mLoadingAnimation;
+		}
+		public AlphaAnimation getBlinkingAnimation(){
+			return mFailedLoadingAnimation;
+		}
 	}
 	/**
 	 * Creates a ThreadListAdapter, loading the last read page in the process.

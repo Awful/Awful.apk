@@ -29,6 +29,7 @@ package com.ferg.awful;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -41,6 +42,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
@@ -56,6 +58,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
     private TextView mTitle;
     private ForumListAdapter adapt;
 	private SharedPreferences mPrefs;
+	private ImageButton mRefresh;
 
     @Override
 	public void onCreate(Bundle savedInstanceState){
@@ -71,6 +74,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         mTitle      = (TextView) result.findViewById(R.id.title);
         mHome       = (ImageButton) result.findViewById(R.id.home);
+        mRefresh       = (ImageButton) result.findViewById(R.id.refresh);
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
@@ -85,6 +89,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
         mTitle.setText(getString(R.string.user_cp));
 		mHome.setOnClickListener(onButtonClick);
+		mRefresh.setOnClickListener(onButtonClick);
 
 		getListView().setOnItemClickListener(onThreadSelected);
 		getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
@@ -155,6 +160,9 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
                 case R.id.home:
                     startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
                     break;
+                case R.id.refresh:
+                	adapt.refresh();
+                	break;
             }
         }
     };
@@ -175,5 +183,30 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 		if(pageChange && this.isAdded() && adapt.getCount() >0){
         	getListView().setSelection(0);
         }
+	}
+
+	@Override
+	public void loadingFailed() {
+		Log.e(TAG, "Loading failed.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setAnimation(null);
+		mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+		mRefresh.startAnimation(adapt.getBlinkingAnimation());
+		Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void loadingStarted() {
+		Log.e(TAG, "Loading started.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+		mRefresh.startAnimation(adapt.getRotateAnimation());
+	}
+
+	@Override
+	public void loadingSucceeded() {
+		Log.e(TAG, "Loading succeeded.");
+		mRefresh.setAnimation(null);
+		mRefresh.setVisibility(View.GONE);
 	}
 }
