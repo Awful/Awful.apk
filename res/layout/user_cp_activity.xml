@@ -4,4 +4,5 @@
     class="com.ferg.awful.UserCPFragment"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    />
+    android:id="@+id/user_cp_fragment"
+    ></fragment>
