@@ -356,7 +356,7 @@ public final class HtmlView extends TextView {
                     // Try opening with YouTube application
                     new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId)),
                     // Fallback to opening website
-                    new Intent(Intent.ACTION_VIEW, Uri.parse("www.youtube.com/watch?v=" + videoId))
+                    new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId))
             };
         } else {
             if ("application/x-shockwave-flash".equals(type) && allowFullScreen) {
@@ -391,7 +391,7 @@ public final class HtmlView extends TextView {
         if (intents != null) {
             output.setSpan(new IntentsSpan(intents), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        if (frame != null && snapshotUrl != null) {
+        if (frame != null && snapshotUrl != null && PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("images_enabled", true)) {
             int layerId = android.R.id.background;
             Bitmap snapshotBitmap = getImage(snapshotUrl);
             if (snapshotBitmap != null) {
