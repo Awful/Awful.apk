@@ -79,11 +79,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if(boundState && intent.getAction().equalsIgnoreCase(Constants.DATA_UPDATE_BROADCAST) && intent.hasExtra(Constants.DATA_UPDATE_ID_EXTRA)){
-			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -1);
+			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -99);
+			int page = intent.getIntExtra(Constants.DATA_UPDATE_PAGE_EXTRA, -99);
+			boolean status = intent.getBooleanExtra(Constants.DATA_UPDATE_STATUS_EXTRA, false);
 			Log.e(TAG, "Broadcast Received: id "+id);
 			for(AwfulListAdapter la : fragments){
 				if(la.currentId == id){
-					la.dataUpdate();
+					la.dataUpdate(status, page);
 					Log.e(TAG, "Broadcast ack: id "+la.currentId);
 				}
 			}
@@ -135,6 +137,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			state = mService.getForum(currentId);
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchForum(currentId, currentPage);
+				mCallback.loadingStarted();
 			}
 			if(mObserver != null){
 				mObserver.onChanged();
@@ -204,6 +207,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchThread(currentId, currentPage);
+				mCallback.loadingStarted();
 			}
 			if(mObserver != null){
 				mObserver.onChanged();
@@ -307,7 +311,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				mObserver.onInvalidated();
 			}
 		}
-		public void dataUpdate() {
+		public void dataUpdate(boolean status, int page) {
+			if(page == currentPage && mCallback != null){
+				if(status){
+					mCallback.loadingSucceeded();
+				}else{
+					mCallback.loadingFailed();
+				}
+			}
 			loadPage(false);
 		}
 		@Override

@@ -179,19 +179,16 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
 	@Override
 	public void loadingFailed() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading failed.");
 	}
 
 	@Override
 	public void loadingStarted() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading started.");
 	}
 
 	@Override
 	public void loadingSucceeded() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading succeeded.");
 	}
 }
