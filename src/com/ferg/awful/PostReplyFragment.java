@@ -27,6 +27,8 @@
 
 package com.ferg.awful;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -117,7 +119,7 @@ public class PostReplyFragment extends DialogFragment {
 
         // If we're quoting a post, add it to the message box
         if (mExtras.containsKey(Constants.QUOTE)) {
-            String quoteText = mExtras.getString(Constants.QUOTE).replaceAll("&quot;", "\"");
+            String quoteText = StringEscapeUtils.unescapeHtml(mExtras.getString(Constants.QUOTE));
             mMessage.setText(quoteText);
             mMessage.setSelection(quoteText.length());
         }
