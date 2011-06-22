@@ -19,4 +19,5 @@
     <color name="dark_op_post">#003366</color>
     <color name="dark_link_quote">#00ff00</color>
     <color name="profile_column">#e7eff5</color>
+    <color name="selected_item">#33eeeeee</color>
 </resources>
