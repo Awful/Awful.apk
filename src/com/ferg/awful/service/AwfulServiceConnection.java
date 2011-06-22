@@ -16,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.SectionIndexer;
@@ -152,10 +154,15 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				0f, 360f,
 				Animation.RELATIVE_TO_SELF, 0.5f,
 				Animation.RELATIVE_TO_SELF, 0.5f);
+	private static final AlphaAnimation mFailedLoadingAnimation = 
+					new AlphaAnimation(	1f, 0f);
 	static {
 		mLoadingAnimation.setInterpolator(new LinearInterpolator());
 		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
 		mLoadingAnimation.setDuration(700);
+		mFailedLoadingAnimation.setInterpolator(new LinearInterpolator());
+		mFailedLoadingAnimation.setRepeatCount(Animation.INFINITE);
+		mFailedLoadingAnimation.setDuration(500);
 	}
 
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
@@ -315,11 +322,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(page == currentPage && mCallback != null){
 				if(status){
 					mCallback.loadingSucceeded();
+					loadPage(false);
 				}else{
 					mCallback.loadingFailed();
 				}
 			}
-			loadPage(false);
 		}
 		@Override
 		public int getCount() {
@@ -501,7 +508,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		
 		
-		
+
+		public RotateAnimation getRotateAnimation(){
+			return mLoadingAnimation;
+		}
+		public AlphaAnimation getBlinkingAnimation(){
+			return mFailedLoadingAnimation;
+		}
 	}
 	/**
 	 * Creates a ThreadListAdapter, loading the last read page in the process.

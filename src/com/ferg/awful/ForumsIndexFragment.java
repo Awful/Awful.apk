@@ -43,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 
@@ -59,10 +60,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private TextView mTitle;
     private int mDefaultPostFontColor;
     private int mDefaultPostBackgroundColor;
-
 	private ForumListAdapter adapt;
-
 	private SharedPreferences mPrefs;
+	private ImageButton mRefresh;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -78,6 +78,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mForumList = (ListView) result.findViewById(R.id.forum_list);
         mTitle     = (TextView) result.findViewById(R.id.title);
         mUserCp    = (ImageButton) result.findViewById(R.id.user_cp);
+        mRefresh       = (ImageButton) result.findViewById(R.id.refresh);
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -113,6 +114,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         mTitle.setText(getString(R.string.forums_title));
         mUserCp.setOnClickListener(onButtonClick);
+        mRefresh.setOnClickListener(onButtonClick);
     }
 
     @Override
@@ -163,6 +165,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 case R.id.user_cp:
                     startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
                     break;
+                case R.id.refresh:
+                	adapt.refresh();
+                	break;
             }
         }
     };
@@ -220,17 +225,24 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	}
 	@Override
 	public void loadingFailed() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading failed.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setAnimation(null);
+		mRefresh.startAnimation(adapt.getBlinkingAnimation());
+		Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 	}
+
 	@Override
 	public void loadingStarted() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading started.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.startAnimation(adapt.getRotateAnimation());
 	}
+
 	@Override
 	public void loadingSucceeded() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading succeeded.");
+		mRefresh.setAnimation(null);
+		mRefresh.setVisibility(View.GONE);
 	}
 }

@@ -247,15 +247,14 @@ public class AwfulService extends Service {
 			mPage = aPage;
 			mId = forumID;
 			mForum = (AwfulForum) db.get("forumid="+forumID);
+            if(mForum == null){
+            	mForum = new AwfulForum(mId);
+            	db.put("forumid="+mId, mForum);
+            }
 		}
 
         public ArrayList<AwfulThread> doInBackground(Void... vParams) {
             ArrayList<AwfulThread> result = null;
-            if(mForum == null){
-            	mForum = new AwfulForum(mId);
-            	db.put("forumid="+mId, mForum);
-            	//Log.e(TAG, "Forum Not Found ID: "+mForumID);
-            }
             if (!isCancelled() && !(mForum == null || mForum.getForumId() == null || mForum.getForumId().equals(""))) {
                 try {
                     TagNode threads = null;

@@ -29,6 +29,7 @@ package com.ferg.awful;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -41,6 +42,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
@@ -187,18 +189,22 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 	public void loadingFailed() {
 		Log.e(TAG, "Loading failed.");
 		mRefresh.setVisibility(View.VISIBLE);
-		mRefresh.setImageResource(R.drawable.gear);
+		mRefresh.setAnimation(null);
+		mRefresh.startAnimation(adapt.getBlinkingAnimation());
+		Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void loadingStarted() {
 		Log.e(TAG, "Loading started.");
 		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.startAnimation(adapt.getRotateAnimation());
 	}
 
 	@Override
 	public void loadingSucceeded() {
 		Log.e(TAG, "Loading succeeded.");
+		mRefresh.setAnimation(null);
 		mRefresh.setVisibility(View.GONE);
 	}
 }
