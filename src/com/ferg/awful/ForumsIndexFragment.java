@@ -228,6 +228,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		Log.e(TAG, "Loading failed.");
 		mRefresh.setVisibility(View.VISIBLE);
 		mRefresh.setAnimation(null);
+		mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
 		mRefresh.startAnimation(adapt.getBlinkingAnimation());
 		Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 	}
@@ -236,9 +237,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	public void loadingStarted() {
 		Log.e(TAG, "Loading started.");
 		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setImageResource(R.drawable.ic_menu_refresh);
 		mRefresh.startAnimation(adapt.getRotateAnimation());
 	}
-
 	@Override
 	public void loadingSucceeded() {
 		Log.e(TAG, "Loading succeeded.");

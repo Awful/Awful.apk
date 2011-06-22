@@ -73,9 +73,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 	private ImageButton mNext;
 	private ImageButton mReply;
+	private ImageButton mRefresh;
+    private TextView mTitle;
+	
 	private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-    private TextView mTitle;
+    
 	private boolean queueDataUpdate;
 	private Handler handler = new Handler();
 	private class RunDataUpdate implements Runnable{
@@ -98,6 +101,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     // saw them
     private int mDefaultPostBackgroundColor;
     private int mReadPostBackgroundColor;
+
     
     @Override
 	public void onCreate(Bundle savedInstanceState){
@@ -113,6 +117,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         mTitle    = (TextView) result.findViewById(R.id.title);
         mNext     = (ImageButton) result.findViewById(R.id.next_page);
         mReply    = (ImageButton) result.findViewById(R.id.reply);
+        mRefresh       = (ImageButton) result.findViewById(R.id.refresh);
 
         mTitle.setMovementMethod(new ScrollingMovementMethod());
         
@@ -138,6 +143,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
 		mNext.setOnClickListener(onButtonClick);
 		mReply.setOnClickListener(onButtonClick);
+		mRefresh.setOnClickListener(onButtonClick);
 		getListView().setOnScrollListener(this);
     }
 
@@ -361,6 +367,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 					postReply.putExtra(Constants.THREAD, adapt.getState().getID()+"");
 					startActivityForResult(postReply, 0);
 					break;
+				case R.id.refresh:
+					adapt.refresh();
+					break;
 			}
 		}
 	};
@@ -491,19 +500,29 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
+	
 	@Override
 	public void loadingFailed() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading failed.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setAnimation(null);
+		mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+		mRefresh.startAnimation(adapt.getBlinkingAnimation());
+		Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 	}
+
 	@Override
 	public void loadingStarted() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading started.");
+		mRefresh.setVisibility(View.VISIBLE);
+		mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+		mRefresh.startAnimation(adapt.getRotateAnimation());
 	}
+
 	@Override
 	public void loadingSucceeded() {
-		// TODO Auto-generated method stub
-		
+		Log.e(TAG, "Loading succeeded.");
+		mRefresh.setAnimation(null);
+		mRefresh.setVisibility(View.GONE);
 	}
 }
