@@ -75,23 +75,25 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 
     private ImageButton mNext;
     private ImageButton mReply;
+    private ImageButton mRefresh;
+    private TextView mTitle;
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-    private TextView mTitle;
-	private boolean queueDataUpdate;
-	private Handler handler = new Handler();
-	private class RunDataUpdate implements Runnable{
-		boolean pageChange;
-		public RunDataUpdate(boolean hasPageChanged){
-			pageChange = hasPageChanged;
-		}
-		@Override
-		public void run() {
-			delayedDataUpdate(pageChange);
-		}
-	};
-	private int savedPage = 0;
-	private int savedPos = 0;
+    
+    private boolean queueDataUpdate;
+    private Handler handler = new Handler();
+    private class RunDataUpdate implements Runnable{
+        boolean pageChange;
+        public RunDataUpdate(boolean hasPageChanged){
+            pageChange = hasPageChanged;
+        }
+        @Override
+        public void run() {
+            delayedDataUpdate(pageChange);
+        }
+    };
+    private int savedPage = 0;
+    private int savedPos = 0;
 
 
 
@@ -100,6 +102,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     // saw them
     private int mDefaultPostBackgroundColor;
     private int mReadPostBackgroundColor;
+
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -118,6 +121,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mTitle    = (TextView) actionbar.findViewById(R.id.title);
             mNext     = (ImageButton) actionbar.findViewById(R.id.next_page);
             mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
+            mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
@@ -144,6 +148,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         if (!isHoneycomb()) {
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
+            mRefresh.setOnClickListener(onButtonClick);
         }
 
         getListView().setOnScrollListener(this);
@@ -403,6 +408,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 case R.id.reply:
                     displayPostReplyDialog();
                     break;
+                case R.id.refresh:
+            adapt.refresh();
+            break;
             }
         }
     };
@@ -532,12 +540,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             getListView().setSelection(savedPos);
         }else{
             if(!pageChange && last >= 0 && last < adapt.getCount()){
-		getListView().setSelection(last);
-		savedPos = last;
-	    }
-	    if(pageChange && adapt.getCount() > 0){
-		getListView().setSelection(0);
-	    }
+        getListView().setSelection(last);
+        savedPos = last;
+        }
+        if(pageChange && adapt.getCount() > 0){
+        getListView().setSelection(0);
+        }
         }
 
         if (!isHoneycomb()) {
@@ -561,5 +569,37 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+    }
+
+    @Override
+    public void loadingFailed() {
+        Log.e(TAG, "Loading failed.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setAnimation(null);
+            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        }
+
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void loadingStarted() {
+        Log.e(TAG, "Loading started.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(adapt.getRotateAnimation());
+        }
+    }
+
+    @Override
+    public void loadingSucceeded() {
+        Log.e(TAG, "Loading succeeded.");
+        if (!isHoneycomb()) {
+            mRefresh.setAnimation(null);
+            mRefresh.setVisibility(View.GONE);
+        }
     }
 }

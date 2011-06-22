@@ -189,9 +189,15 @@ public class AwfulService extends Service {
 		public int getPage(){
 			return mPage;
 		}
+		protected void sendUpdate(boolean success){
+        	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(
+        			Constants.DATA_UPDATE_ID_EXTRA, mId).putExtra(
+        					Constants.DATA_UPDATE_PAGE_EXTRA, mPage).putExtra(
+        							Constants.DATA_UPDATE_STATUS_EXTRA, success));
+		}
 	}
 	
-	private class FetchThreadTask extends AwfulTask<AwfulThread> {
+	private class FetchThreadTask extends AwfulTask<Boolean> {
 		private AwfulThread thread;
 		public FetchThreadTask(int id, int page) {
 			mId = id;
@@ -206,24 +212,25 @@ public class AwfulService extends Service {
         public void onPreExecute() {
         }
 
-        public AwfulThread doInBackground(Void... vParams) {
+        public Boolean doInBackground(Void... vParams) {
+        	boolean status = false;
             if (!isCancelled() && thread != null) {
                 try {
                 	thread.getThreadPosts(mPage);
+                	status = true;
                 } catch (Exception e) {
+                	status = false;
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
             }
 
-            return thread;
+            return status;
         }
 
-        public void onPostExecute(AwfulThread aResult) {
-            if (!isCancelled() && thread != null) {
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, thread.getID()));
-            }
-            threadFinished(this);
+        public void onPostExecute(Boolean aResult) {
+        	sendUpdate(aResult);
+           	threadFinished(this);
         }
     }
 
@@ -240,15 +247,14 @@ public class AwfulService extends Service {
 			mPage = aPage;
 			mId = forumID;
 			mForum = (AwfulForum) db.get("forumid="+forumID);
-		}
-
-        public ArrayList<AwfulThread> doInBackground(Void... vParams) {
-            ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
             if(mForum == null){
             	mForum = new AwfulForum(mId);
             	db.put("forumid="+mId, mForum);
-            	//Log.e(TAG, "Forum Not Found ID: "+mForumID);
             }
+		}
+
+        public ArrayList<AwfulThread> doInBackground(Void... vParams) {
+            ArrayList<AwfulThread> result = null;
             if (!isCancelled() && !(mForum == null || mForum.getForumId() == null || mForum.getForumId().equals(""))) {
                 try {
                     TagNode threads = null;
@@ -265,6 +271,7 @@ public class AwfulService extends Service {
                     mForum.parsePageNumbers(threads);
                     //Log.i(TAG, "Last Page: " +mForum.getLastPage());
                 } catch (Exception e) {
+                	result = null;
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
@@ -273,7 +280,7 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            if (!isCancelled()) {
+            if (!isCancelled() && aResult != null) {
             	for(AwfulThread at: aResult){
             		AwfulThread old = (AwfulThread) db.get("threadid="+at.getThreadId());
             		if(old==null){
@@ -307,20 +314,23 @@ public class AwfulService extends Service {
         			}
         			
             	}
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, mId));
+            	sendUpdate(true);
+            }else{
+            	sendUpdate(false);
             }
             threadFinished(this);
         }
     }
 	
-	private class BookmarkToggleTask extends AwfulTask<Void> {
+	private class BookmarkToggleTask extends AwfulTask<Boolean> {
 		private boolean removeBookmark;
         public BookmarkToggleTask(int threadId) {
         	mId = threadId;
         	AwfulThread th = (AwfulThread) db.get("threadid="+mId);
         	removeBookmark = (th != null ? th.isBookmarked() : true);
 		}
-		public Void doInBackground(Void... aParams) {
+		public Boolean doInBackground(Void... aParams) {
+			boolean status = false;
             if (!isCancelled()) {
             	HashMap<String, String> params = new HashMap<String, String>();
                 params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
@@ -332,26 +342,29 @@ public class AwfulService extends Service {
 
                 try {
                     NetworkUtils.post(Constants.FUNCTION_BOOKMARK, params);
+                    status = true;
                 } catch (Exception e) {
+                	status = false;
                     Log.i(TAG, e.toString());
                 }
             }
-            return null;
+            return status;
         }
 
-        public void onPostExecute(Void aResult) {
-            sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, mId));
+        public void onPostExecute(Boolean aResult) {
+            sendUpdate(aResult);
             threadFinished(this);
         }
     }
 	
 	private class LoadForumsTask extends AwfulTask<ArrayList<AwfulForum>> {
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
-            ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+            ArrayList<AwfulForum> result = null;
             if (!isCancelled()) {
                 try {
                     result = AwfulForum.getForumsFromRemote();
                 } catch (Exception e) {
+                	result = null;
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
@@ -360,13 +373,15 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            if (!isCancelled()) {
+            if (!isCancelled() && aResult != null) {
             	for(AwfulForum af : aResult){
             		if(db.get("forumid="+af.getForumId()) == null){
             			db.put("forumid="+af.getForumId(), af);
             		}
             	}
-            	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(Constants.DATA_UPDATE_ID_EXTRA, 0));
+            	sendUpdate(true);
+            }else{
+            	sendUpdate(false);
             }
             threadFinished(this);
         }

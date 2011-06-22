@@ -29,6 +29,7 @@ package com.ferg.awful;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -44,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.DialogFragment;
 
 import com.ferg.awful.constants.Constants;
@@ -60,6 +62,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private TextView mTitle;
     private ForumListAdapter adapt;
     private SharedPreferences mPrefs;
+    private ImageButton mRefresh;
 
     public static UserCPFragment newInstance(boolean aModal) {
         UserCPFragment fragment = new UserCPFragment();
@@ -100,6 +103,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
+            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
         
         return result;
@@ -115,6 +119,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         if (!isHoneycomb()) {
             mHome.setOnClickListener(onButtonClick);
+            mRefresh.setOnClickListener(onButtonClick);
         }
 
         mBookmarkList.setOnItemClickListener(onThreadSelected);
@@ -190,6 +195,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 case R.id.home:
                     startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
                     break;
+                case R.id.refresh:
+                    adapt.refresh();
+                    break;
             }
         }
     };
@@ -209,6 +217,37 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     public void dataUpdate(boolean pageChange) {
         if(pageChange && this.isAdded() && adapt.getCount() >0){
             mBookmarkList.setSelection(0);
+        }
+    }
+
+    @Override
+    public void loadingFailed() {
+        Log.e(TAG, "Loading failed.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setAnimation(null);
+            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        }
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void loadingStarted() {
+        Log.e(TAG, "Loading started.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(adapt.getRotateAnimation());
+        }
+    }
+
+    @Override
+    public void loadingSucceeded() {
+        Log.e(TAG, "Loading succeeded.");
+        if (!isHoneycomb()) {
+            mRefresh.setAnimation(null);
+            mRefresh.setVisibility(View.GONE);
         }
     }
 }

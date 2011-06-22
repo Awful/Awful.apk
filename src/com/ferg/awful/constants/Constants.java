@@ -93,6 +93,8 @@ public class Constants {
     //broadcast intent
     public static final String DATA_UPDATE_BROADCAST = "com.ferg.awful.service.dataupdated";
 	public static final String DATA_UPDATE_ID_EXTRA = "updatedID";
+	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";
+	public static final String DATA_UPDATE_STATUS_EXTRA = "updateStatus";
 
 	//TODO: Make these colors changeable by the user?
 	public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);

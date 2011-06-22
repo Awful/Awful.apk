@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -457,7 +458,7 @@ public final class HtmlView extends TextView {
     }
 
     public void setHtml(String source, boolean loadImages) {
-    	imagesEnabled = loadImages;
+        imagesEnabled = loadImages;
         if (source == null) {
             setText(null);
             return;
@@ -477,31 +478,31 @@ public final class HtmlView extends TextView {
             /**
              * {@inheritDoc}
              */
-        	@Override
+            @Override
             public void handleStartTag(Element node, Editable output) {
-            	String tag = node.getTagName();
-            	
+                String tag = node.getTagName();
+                
                 if (tag.equalsIgnoreCase("embed")) {
                     handleEmbed(node, output);
                 } else if (tag.equalsIgnoreCase("img")) {
-                	if(imagesEnabled){
-                		handleImg(node, output);
-                	}else{
-                		if(node.getAttribute("title").equalsIgnoreCase("")){
-                			int start = output.length();
-                			output.append(node.getAttribute("src"));
-                			output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                		}else{
-                			int start = output.length();
-                			output.append(node.getAttribute("title"));
-                			output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                		}
-                	}
+                    if(imagesEnabled){
+                        handleImg(node, output);
+                    }else{
+                        if(node.getAttribute("title").equalsIgnoreCase("")){
+                            int start = output.length();
+                            output.append(node.getAttribute("src"));
+                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }else{
+                            int start = output.length();
+                            output.append(node.getAttribute("title"));
+                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
                 }
             }
-        	
-        	@Override
-        	public void handleEndTag(Element node, Editable output) {}
+            
+            @Override
+            public void handleEndTag(Element node, Editable output) {}
         };
 
         CharSequence text = Html.fromHtml(source, imageGetter, tagHandler, getContext());

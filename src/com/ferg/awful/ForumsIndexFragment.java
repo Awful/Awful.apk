@@ -44,6 +44,7 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 
@@ -64,6 +65,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private ForumListAdapter adapt;
 
     private SharedPreferences mPrefs;
+    private ImageButton mRefresh;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -82,6 +84,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
+            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -112,6 +115,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (!isHoneycomb()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
+            mRefresh.setOnClickListener(onButtonClick);
         }
     }
 
@@ -182,6 +186,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 case R.id.user_cp:
                     displayUserCP();
                     break;
+                case R.id.refresh:
+                    adapt.refresh();
+                    break;
             }
         }
     };
@@ -246,6 +253,37 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 Log.d(TAG, "invalidating (color)");
                 mForumList.invalidateViews(); 
             }               
+        }
+    }
+
+    @Override
+    public void loadingFailed() {
+        Log.e(TAG, "Loading failed.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setAnimation(null);
+            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        }
+
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void loadingStarted() {
+        Log.e(TAG, "Loading started.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(adapt.getRotateAnimation());
+        }
+    }
+    @Override
+    public void loadingSucceeded() {
+        Log.e(TAG, "Loading succeeded.");
+        if (!isHoneycomb()) {
+            mRefresh.setAnimation(null);
+            mRefresh.setVisibility(View.GONE);
         }
     }
 }

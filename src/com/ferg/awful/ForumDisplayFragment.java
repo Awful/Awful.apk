@@ -64,6 +64,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private ImageButton mUserCp;
     private ImageButton mNext;
     private TextView mTitle;
+    private ImageButton mRefresh;
 
     private SharedPreferences mPrefs;
 
@@ -93,6 +94,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
+            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
@@ -137,6 +139,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             }
         
             mUserCp.setOnClickListener(onButtonClick);
+            mRefresh.setOnClickListener(onButtonClick);
         }
     }
 
@@ -231,6 +234,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 case R.id.user_cp:
                     startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
                     break;
+                case R.id.refresh:
+                    adapt.refresh();
+                    break;
             }
         }
     };
@@ -279,6 +285,37 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         if(pageChange && adapt.getCount() >0){//this will only reset the position if the user selects next/prev page
             getListView().setSelection(0);
+        }
+    }
+
+    @Override
+    public void loadingFailed() {
+        Log.e(TAG, "Loading failed.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setAnimation(null);
+            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        }
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void loadingStarted() {
+        Log.e(TAG, "Loading started.");
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(adapt.getRotateAnimation());
+        }
+    }
+
+    @Override
+    public void loadingSucceeded() {
+        Log.e(TAG, "Loading succeeded.");
+        if (!isHoneycomb()) {
+            mRefresh.setAnimation(null);
+            mRefresh.setVisibility(View.GONE);
         }
     }
 }
