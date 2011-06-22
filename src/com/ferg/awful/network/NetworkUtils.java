@@ -51,6 +51,9 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.CleanerTransformations;
 import org.htmlcleaner.HtmlCleaner;
@@ -325,7 +328,9 @@ public class NetworkUtils {
     
     static {
         if (sHttpClient == null) {
-            sHttpClient = new DefaultHttpClient(); 
+        	HttpParams httpPar = new BasicHttpParams();
+        	HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
+            sHttpClient = new DefaultHttpClient(httpPar);
         }
 
         sCleaner = new HtmlCleaner();

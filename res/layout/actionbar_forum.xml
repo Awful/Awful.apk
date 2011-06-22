@@ -9,10 +9,24 @@
     android:gravity="center_vertical"
 	android:background="@drawable/bar"
 	>
+	<LinearLayout 
+        android:id="@+id/refresh_container"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:orientation="horizontal"
+        >
+	<ImageButton 
+            android:id="@+id/refresh"
+            style="@style/ActionBarButton"
+            android:src="@drawable/ic_menu_refresh"
+        	android:visibility="gone"
+            />
+    </LinearLayout>
 	<TextView
 		android:id="@+id/title"
         android:layout_toLeftOf="@+id/buttons"
-        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@+id/refresh_container"
         android:layout_marginTop="8dip"
         android:ellipsize="none"
         android:scrollHorizontally="true"
