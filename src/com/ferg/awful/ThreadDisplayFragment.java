@@ -78,10 +78,14 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private TextView mTitle;
 	private boolean queueDataUpdate;
 	private Handler handler = new Handler();
-	private Runnable runDataUpdate = new Runnable(){
+	private class RunDataUpdate implements Runnable{
+		boolean pageChange;
+		public RunDataUpdate(boolean hasPageChanged){
+			pageChange = hasPageChanged;
+		}
 		@Override
 		public void run() {
-			delayedDataUpdate();
+			delayedDataUpdate(pageChange);
 		}
 	};
 	private int savedPage = 0;
@@ -450,18 +454,21 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			return;
 		}else{
 			queueDataUpdate = false;
-			handler.post(runDataUpdate);
+			handler.post(new RunDataUpdate(pageChange));
 		}
 	}
-	public void delayedDataUpdate() {
+	public void delayedDataUpdate(boolean pageChange) {
 		mTitle.setText(Html.fromHtml(adapt.getTitle()));
 		int last = adapt.getLastReadPost();
 		if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
 			getListView().setSelection(savedPos);
 		}else{
-			if(last >= 0 && last < adapt.getCount()){
+			if(!pageChange && last >= 0 && last < adapt.getCount()){
 				getListView().setSelection(last);
 				savedPos = last;
+			}
+			if(pageChange && adapt.getCount() > 0){
+				getListView().setSelection(0);
 			}
 		}
 		if(adapt.getPage() == adapt.getLastPage()){
@@ -478,7 +485,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 			int visibleItemCount, int totalItemCount) {
 		if(visibleItemCount>0 && firstVisibleItem >0){
 			savedPos = firstVisibleItem+1;
-			//Log.e(TAG,"Scrolled: "+firstVisibleItem);
 		}
 		
 	}

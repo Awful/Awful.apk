@@ -4,4 +4,5 @@
     class="com.ferg.awful.ForumsIndexFragment"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    />
+    android:id="@+id/forum_index_fragment"
+    ></fragment>
