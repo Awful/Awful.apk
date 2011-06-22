@@ -236,4 +236,19 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	getListView().setSelection(0);
         }
 	}
+	@Override
+	public void loadingFailed() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingSucceeded() {
+		// TODO Auto-generated method stub
+		
+	}
 }

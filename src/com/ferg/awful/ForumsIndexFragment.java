@@ -218,4 +218,19 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         	}   			
         }
 	}
+	@Override
+	public void loadingFailed() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingSucceeded() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -491,4 +491,19 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
+	@Override
+	public void loadingFailed() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void loadingSucceeded() {
+		// TODO Auto-generated method stub
+		
+	}
 }
