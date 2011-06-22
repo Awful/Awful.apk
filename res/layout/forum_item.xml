@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
+<com.ferg.awful.widget.CheckableRelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -31,4 +31,4 @@
             android:layout_alignParentLeft="true"
 			/>
 	</RelativeLayout>
-</RelativeLayout>
+</com.ferg.awful.widget.CheckableRelativeLayout>

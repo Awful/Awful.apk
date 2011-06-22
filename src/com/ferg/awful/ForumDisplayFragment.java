@@ -144,7 +144,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     private boolean isHoneycomb() {
-        return (getActivity() instanceof ForumsTabletActivity);
+        return ((AwfulActivity) getActivity()).isHoneycomb();
     }
 
     @Override
