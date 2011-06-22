@@ -16,7 +16,8 @@
 		android:layout_above="@+id/submit_button"
 		android:singleLine="false"
         android:gravity="top"
+        android:scrollbars="vertical"
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-        android:textColor="#000000"
+        android:textColor="@color/default_post_font"
 		/>
 </RelativeLayout>

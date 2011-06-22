@@ -105,7 +105,8 @@ public class PostReplyFragment extends DialogFragment {
 
         mMessage.setBackgroundColor(mPrefs.getInt("default_post_background_color", 
                     getResources().getColor(R.color.background)));
-
+	   mMessage.setTextColor(mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font)));
+        
         mExtras = getExtras();
 
         mThreadId = mExtras.getString(Constants.THREAD);
