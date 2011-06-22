@@ -200,6 +200,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage());
 				currentPage = state.getLastReadPage();
 				lastReadLoaded = true;
+				forceRefresh = true;
 			}
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchThread(currentId, currentPage);
