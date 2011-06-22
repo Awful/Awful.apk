@@ -172,7 +172,7 @@ public class UserCPFragment extends ListFragment implements AwfulUpdateCallback 
 
 	@Override
 	public void dataUpdate(boolean pageChange) {
-		if(pageChange && this.isAdded()){
+		if(pageChange && this.isAdded() && adapt.getCount() >0){
         	getListView().setSelection(0);
         }
 	}

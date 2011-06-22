@@ -232,7 +232,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 			return;
 		}
         mTitle.setText(Html.fromHtml(adapt.getTitle()));
-        if(pageChange){//this will only reset the position if the user selects next/prev page
+        if(pageChange && adapt.getCount() >0){//this will only reset the position if the user selects next/prev page
         	getListView().setSelection(0);
         }
 	}
