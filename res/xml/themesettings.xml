@@ -12,7 +12,7 @@
                 <CheckBoxPreference
 			android:key="alternate_backgrounds"
 			android:title="@string/alternate_backgrounds"
-			android:defaultValue="false"
+			android:defaultValue="true"
 			/>
 		</PreferenceCategory>
 </PreferenceScreen>
