@@ -296,7 +296,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
             mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
+
         Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
     }
 
@@ -307,6 +310,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(true);
         }
     }
 
@@ -316,6 +321,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         if (!isHoneycomb()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
 }

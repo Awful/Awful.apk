@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Window;
 import android.widget.RelativeLayout;
 
 public class ForumsTabletActivity extends AwfulActivity {
@@ -47,7 +48,7 @@ public class ForumsTabletActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate()");
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.forum_index_activity);
 
         mContent = (RelativeLayout) findViewById(R.id.content);

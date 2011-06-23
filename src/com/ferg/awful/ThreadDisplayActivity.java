@@ -50,6 +50,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         
         if (isHoneycomb()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
+            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
             setActionBar();
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
