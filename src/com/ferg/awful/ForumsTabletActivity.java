@@ -38,6 +38,8 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
+import com.ferg.awful.constants.Constants;
+
 public class ForumsTabletActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsTabletActivity";
@@ -54,11 +56,23 @@ public class ForumsTabletActivity extends AwfulActivity {
         mContent = (RelativeLayout) findViewById(R.id.content);
 
         setActionBar();
+
+        checkIntentExtras();
     }
 
     private void setActionBar() {
         ActionBar action = getActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+    }
+
+    private void checkIntentExtras() {
+        if (getIntent().hasExtra(Constants.SHORTCUT)) {
+            if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
+                ForumsIndexFragment fragment = 
+                    (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
+                fragment.displayUserCP();
+            }
+        }
     }
 
     public void onResume(){

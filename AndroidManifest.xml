@@ -38,6 +38,7 @@
         </activity>
         <activity 
             android:name="ForumsTabletActivity" 
+            android:exported="true"
             />
         <activity 
             android:name="ForumsPhoneActivity" 

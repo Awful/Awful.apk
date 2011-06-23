@@ -8,6 +8,7 @@
     >
     <fragment
         class="com.ferg.awful.ForumsIndexFragment"
+        android:id="@+id/forums_index"
         android:layout_width="0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1"
