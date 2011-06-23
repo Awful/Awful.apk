@@ -19,5 +19,6 @@
         android:divider="#8c8c8c"
         android:dividerHeight="1px"
 		android:cacheColorHint="@color/background"
+        android:choiceMode="singleChoice"
 		/>
 </LinearLayout>
