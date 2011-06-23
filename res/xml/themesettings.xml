@@ -6,6 +6,7 @@
             android:title="@string/themes"
             android:entries="@array/themes"
             android:entryValues="@array/schemas_values"
+			android:defaultValue="default"
             />
         </PreferenceCategory>
           <PreferenceCategory android:title="@string/alternate_backgrounds">
