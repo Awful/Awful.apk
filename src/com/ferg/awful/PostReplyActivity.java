@@ -40,12 +40,12 @@ public class PostReplyActivity extends AwfulActivity {
         setContentPane();
     }
 
-    public void setContentPane() {
-        PostReplyFragment fragment = 
-            PostReplyFragment.newInstance(getIntent().getExtras());
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, fragment);
-        transaction.commit();
-    }
+	public void setContentPane() {
+		if (getSupportFragmentManager().findFragmentById(R.id.content) == null) {
+			PostReplyFragment fragment = PostReplyFragment.newInstance(getIntent().getExtras());
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.content, fragment);
+			transaction.commit();
+		}
+	}
 }
