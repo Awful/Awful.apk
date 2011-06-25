@@ -318,17 +318,23 @@ public class PostReplyFragment extends DialogFragment {
         }
 
         public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (aResult.length() > 0) {
-                    Log.i(TAG, aResult);
+			if (!isCancelled()) {
+				if (aResult != null) {
+					if (aResult.length() > 0) {
+						Log.i(TAG, aResult);
 
-                    mFormCookie = aResult;
+						mFormCookie = aResult;
 
-                    if (mFormKey != null) {
-                        mSubmit.setEnabled(true);
-                    }
-                }
-            }
-        }
+						if (mFormKey != null) {
+							mSubmit.setEnabled(true);
+						}
+					}
+				}else{
+					ProgressDialog.show(getActivity(), "You can't post here",
+					"This thread is closed");
+					getActivity().finish();
+				}
+			}
+		}
     }
 }
