@@ -336,6 +336,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(mUnreadCount >=0){
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(mUnreadCount+"");
+            if (mUnreadCount == 0){
+                unread.setBackgroundResource(R.drawable.unread_background_dim);
+            }
 		}else{
 			unread.setVisibility(View.GONE);
 		}
