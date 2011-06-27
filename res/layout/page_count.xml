@@ -22,7 +22,17 @@
             android:textStyle="bold"
             android:text="Page 1/1"
             android:layout_centerVertical="true"/>
-        <ImageButton android:layout_height="wrap_content" android:src="@drawable/l_arrow" android:id="@+id/prev_page" android:layout_width="wrap_content" android:layout_alignParentLeft="true"></ImageButton>
-        <ImageButton android:layout_height="wrap_content" android:src="@drawable/r_arrow" android:id="@+id/next_page" android:layout_width="wrap_content" android:layout_alignParentRight="true"></ImageButton>
+        <ImageButton
+             android:id="@+id/prev_page"
+             android:layout_height="wrap_content"
+             android:src="@drawable/l_arrow"
+             android:layout_width="wrap_content"
+             android:layout_alignParentLeft="true"/>
+        <ImageButton
+             android:id="@+id/next_page"
+             android:layout_height="wrap_content"
+             android:src="@drawable/r_arrow"
+             android:layout_width="wrap_content"
+             android:layout_alignParentRight="true"/>
     </RelativeLayout>
-   </LinearLayout>
+</LinearLayout>
