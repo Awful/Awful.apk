@@ -37,6 +37,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.ferg.awful.R;
 import com.ferg.awful.R.color;
 import com.ferg.awful.preferences.AwfulPreferences;
 
@@ -616,7 +617,7 @@ class HtmlToSpannedConverter {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan(PreferenceManager.getDefaultSharedPreferences(mContext).getInt("link_quote_color", color.link_quote)));
+            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan(PreferenceManager.getDefaultSharedPreferences(mContext).getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote))));
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("pre")) {
@@ -861,7 +862,7 @@ class HtmlToSpannedConverter {
                 text.setSpan(new URLSpan(h.mHref), where, len,
                              Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 if(context != null){
-                text.setSpan(new ForegroundColorSpan(PreferenceManager.getDefaultSharedPreferences(context).getInt("link_quote_color", color.link_quote)), where, len,
+                text.setSpan(new ForegroundColorSpan(PreferenceManager.getDefaultSharedPreferences(context).getInt("link_quote_color", context.getResources().getColor(R.color.link_quote))), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
             }
@@ -876,8 +877,8 @@ class HtmlToSpannedConverter {
 
         text.removeSpan(obj);
         if(where != len && where != -1){
-        	int fg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_font_color", color.link_quote);
-        	int bg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_background_color", color.link_quote);
+        	int fg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_font_color",context.getResources().getColor(R.color.default_post_font));
+        	int bg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_background_color", context.getResources().getColor(R.color.background));
             text.setSpan(new BackgroundColorSpan(fg), where, len, Spannable.SPAN_MARK_MARK);
             text.setSpan(new SpoilerSpan(fg,bg), where, len, Spannable.SPAN_MARK_MARK);
 

@@ -554,6 +554,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             } else {
                 mNext.setVisibility(View.VISIBLE);
             }
+            if(adapt.getThreadClosed()){
+            	mReply.setVisibility(View.GONE);
+            } else {
+            	mReply.setVisibility(View.VISIBLE);
+            }
         }
     }
     public int getSavedPage() {
