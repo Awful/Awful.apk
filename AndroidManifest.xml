@@ -82,7 +82,7 @@
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/ThemeDialogWhenLarge"
             />
         <activity 
             android:name="UserCPShortcutActivity"
