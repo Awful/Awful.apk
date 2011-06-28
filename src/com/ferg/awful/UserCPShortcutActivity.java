@@ -36,13 +36,7 @@ public class UserCPShortcutActivity extends Activity {
     private void setupShortcut() {
 
         Intent shortcutIntent = new Intent();
-
-        if (isHoneycomb()) {
-            shortcutIntent.setClass(this, ForumsTabletActivity.class);
-            shortcutIntent.putExtra(Constants.SHORTCUT, true);
-        } else {
-            shortcutIntent.setClass(this, UserCPActivity.class);
-        }
+        shortcutIntent.setClass(this, UserCPActivity.class);
 
         // Then, set up the container intent (the response to the caller)
         Intent intent = new Intent();

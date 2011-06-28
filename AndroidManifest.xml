@@ -77,7 +77,7 @@
             android:name="UserCPActivity" 
             android:exported="true"
             android:clearTaskOnLaunch="true" 
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/ThemeDialogWhenLarge"
             />
         <activity 
             android:name="PostReplyActivity"
