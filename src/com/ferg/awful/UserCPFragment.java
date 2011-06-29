@@ -156,6 +156,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onDetach() {
         super.onDetach();
+        if(mBookmarkList != null)
         mBookmarkList.setAdapter(null);
     }
     
