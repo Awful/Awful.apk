@@ -215,7 +215,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public void dataUpdate(boolean pageChange) {
-        if(pageChange && this.isAdded() && adapt.getCount() >0){
+        if(pageChange && this.isAdded() && mBookmarkList.getChildCount() >0){
             mBookmarkList.setSelection(0);
         }
     }
