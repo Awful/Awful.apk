@@ -314,12 +314,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     }
 
     private void displayUserCP() {
-        if (isHoneycomb()) {
-            UserCPFragment fragment = UserCPFragment.newInstance(true);
-            fragment.show(getActivity().getSupportFragmentManager(), "usercp_dialog");
-        } else {
-            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
-        }
+        startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
     }
 
     private void displayPagePicker() {
@@ -553,6 +548,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
                 mNext.setVisibility(View.GONE);
             } else {
                 mNext.setVisibility(View.VISIBLE);
+            }
+            if(adapt.getThreadClosed()){
+            	mReply.setVisibility(View.GONE);
+            } else {
+            	mReply.setVisibility(View.VISIBLE);
             }
         }
     }

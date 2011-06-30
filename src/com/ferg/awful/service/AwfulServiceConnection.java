@@ -165,6 +165,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 	public class ThreadListAdapter extends AwfulListAdapter<AwfulThread>{
 		protected boolean lastReadLoaded;
+		protected boolean threadClosed;
 		protected boolean pageHasChanged;//if true, we have already navigated to a new page
 		private Handler imgHandler = new Handler();
 
@@ -204,11 +205,18 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				return;
 			}
 			state = mService.getThread(currentId);
-			if(state !=null && !lastReadLoaded){
-				Log.e(TAG,"loading lastread id: "+currentId +" page: "+state.getLastReadPage(mPrefs.postPerPage));
-				currentPage = state.getLastReadPage(mPrefs.postPerPage);
-				lastReadLoaded = true;
-				forceRefresh = true;
+			if (state != null) {
+				this.threadClosed = state.isClosed();
+
+				if (!lastReadLoaded) {
+					Log.e(TAG,
+							"loading lastread id: " + currentId + " page: "
+									+ state.getLastReadPage(mPrefs.postPerPage));
+					currentPage = state.getLastReadPage(mPrefs.postPerPage);
+					lastReadLoaded = true;
+					forceRefresh = true;
+
+				}
 			}
 			if(forceRefresh || state == null || !state.isPageCached(currentPage)){
 				fetchThread(currentId, currentPage);
@@ -219,6 +227,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			mCallback.dataUpdate(pageHasChanged);
 		}
+
+		public boolean getThreadClosed(){
+			return threadClosed;
+		}
+		
 		public int getLastReadPost() {
 			if(state == null || state.getLastReadPage(mPrefs.postPerPage) != currentPage){
 				return 0;

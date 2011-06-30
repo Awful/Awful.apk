@@ -30,8 +30,10 @@ package com.ferg.awful;
 import com.ferg.awful.constants.Constants;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.Window;
 
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
@@ -51,7 +53,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
         if (isHoneycomb()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-            setActionBar();
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
@@ -64,6 +65,27 @@ public class ThreadDisplayActivity extends AwfulActivity {
     private void setActionBar() {
         ActionBar action = getActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (isHoneycomb()) {
+            setActionBar();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void setThreadTitle(String aTitle) {

@@ -59,6 +59,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private int mUnreadCount;
 	private int mTotalPosts;
     private int mPTI;
+    private boolean mClosed;
 	private boolean mBookmarked;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
 
@@ -237,7 +238,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                 mTitle = tarTitle[0].getText().toString().trim();
             }
         }
-
+        TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
+        if(replyAlts[0].getAttributeByName("src").contains("forum-closed")){
+        	this.mClosed=true;
+        }
         setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
         parsePageNumbers(response);
     }
@@ -273,6 +277,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
     public void setIcon(String aIcon) {
         mIcon = aIcon;
+    }
+
+    public boolean isClosed(){
+    	return mClosed;
+    }
+    
+    public void setClosed(boolean aClosed) {
+        mClosed = aClosed;
     }
 
     public boolean isSticky() {
@@ -324,6 +336,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(mUnreadCount >=0){
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(mUnreadCount+"");
+            if (mUnreadCount == 0){
+                unread.setBackgroundResource(R.drawable.unread_background_dim);
+            }
 		}else{
 			unread.setVisibility(View.GONE);
 		}

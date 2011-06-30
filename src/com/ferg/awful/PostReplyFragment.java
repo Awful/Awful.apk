@@ -66,6 +66,7 @@ public class PostReplyFragment extends DialogFragment {
     private String mThreadId;
     private String mFormCookie;
     private String mFormKey;
+    private String mReply;
 
     public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
@@ -118,13 +119,17 @@ public class PostReplyFragment extends DialogFragment {
         
         mTitle.setText(getString(R.string.post_reply));
 
-        // If we're quoting a post, add it to the message box
-        if (mExtras.containsKey(Constants.QUOTE)) {
-            String quoteText = StringEscapeUtils.unescapeHtml(mExtras.getString(Constants.QUOTE));
-            mMessage.setText(quoteText);
-            mMessage.setSelection(quoteText.length());
-        }
-
+	   if (mReply != null) {
+			mMessage.setText(mReply);
+		} else {
+            //If we're quoting a post, add it to the message box
+			if (mExtras.containsKey(Constants.QUOTE)) {
+				String quoteText = StringEscapeUtils.unescapeHtml(mExtras
+						.getString(Constants.QUOTE));
+				mMessage.setText(quoteText);
+				mMessage.setSelection(quoteText.length());
+			}
+		}
         mSubmit.setOnClickListener(onSubmitClick);
     }
 
@@ -165,6 +170,12 @@ public class PostReplyFragment extends DialogFragment {
 
         cleanupTasks();
     }
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mReply = mMessage.getText().toString();
+	}
 
     private void cleanupTasks() {
         if (mDialog != null) {
@@ -240,7 +251,7 @@ public class PostReplyFragment extends DialogFragment {
         public void onPostExecute(Void aResult) {
             if (!isCancelled()) {
                 mDialog.dismiss();
-
+			mReply = null;
                 if (((AwfulActivity) getActivity()).isHoneycomb()) {
                     ((ThreadDisplayActivity) getActivity()).refreshThread();
                     dismiss();
@@ -307,17 +318,23 @@ public class PostReplyFragment extends DialogFragment {
         }
 
         public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (aResult.length() > 0) {
-                    Log.i(TAG, aResult);
+			if (!isCancelled()) {
+				if (aResult != null) {
+					if (aResult.length() > 0) {
+						Log.i(TAG, aResult);
 
-                    mFormCookie = aResult;
+						mFormCookie = aResult;
 
-                    if (mFormKey != null) {
-                        mSubmit.setEnabled(true);
-                    }
-                }
-            }
-        }
+						if (mFormKey != null) {
+							mSubmit.setEnabled(true);
+						}
+					}
+				}else{
+					ProgressDialog.show(getActivity(), "You can't post here",
+					"This thread is closed");
+					getActivity().finish();
+				}
+			}
+		}
     }
 }

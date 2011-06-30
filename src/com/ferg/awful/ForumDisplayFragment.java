@@ -318,11 +318,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
-        if (!isHoneycomb()) {
-            mRefresh.setAnimation(null);
-            mRefresh.setVisibility(View.GONE);
-        } else {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+        if (isAdded()) {
+            if (!isHoneycomb()) {
+                mRefresh.setAnimation(null);
+                mRefresh.setVisibility(View.GONE);
+            } else {
+                getActivity().setProgressBarIndeterminateVisibility(false);
+            }
         }
     }
 }
