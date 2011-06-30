@@ -283,7 +283,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mTitle.setText(Html.fromHtml(adapt.getTitle()));
         }
 
-        if(pageChange && adapt.getCount() >0){//this will only reset the position if the user selects next/prev page
+        if(pageChange && getListView().getChildCount() >0){//this will only reset the position if the user selects next/prev page
             getListView().setSelection(0);
         }
     }
