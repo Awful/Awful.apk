@@ -283,21 +283,26 @@ public class PostReplyFragment extends DialogFragment {
         }
 
         public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (aResult.length() > 0) {
-                    mFormKey = aResult;
+        	if (!isCancelled()) {
+            	if (aResult != null) {
+            		if (aResult.length() > 0) {
+                		mFormKey = aResult;
 
-                    SharedPreferences.Editor editor = mPrefs.edit();
-                    editor.putString(Constants.FORM_KEY, mFormKey);
-                    editor.commit();
+                    		SharedPreferences.Editor editor = mPrefs.edit();
+                    		editor.putString(Constants.FORM_KEY, mFormKey);
+                    		editor.commit();
 
-                    mFetchCookieTask = new FetchFormCookieTask();
-                    mFetchCookieTask.execute(mThreadId);
-                }
+                    		mFetchCookieTask = new FetchFormCookieTask();
+                    		mFetchCookieTask.execute(mThreadId);
+            		}
+           	}else{
+            		ProgressDialog.show(getActivity(), getActivity().getString(R.string.reply_invalid_title),
+							getActivity().getString(R.string.reply_invalid_message));
+				getActivity().finish();
+            	}
             }
         }
     }
-
     // Fetches the form cookie.  This is necessary every time we post, otherwise
     // the post will fail silently for roughly 5 minutes after posting one time.
     private class FetchFormCookieTask extends AsyncTask<String, Void, String> {
@@ -330,8 +335,8 @@ public class PostReplyFragment extends DialogFragment {
 						}
 					}
 				}else{
-					ProgressDialog.show(getActivity(), "You can't post here",
-					"This thread is closed");
+					ProgressDialog.show(getActivity(), getActivity().getString(R.string.reply_invalid_title),
+							getActivity().getString(R.string.reply_invalid_message));
 					getActivity().finish();
 				}
 			}
