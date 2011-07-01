@@ -54,6 +54,7 @@
 		<string-array name="themes">
 		<item>Default</item>
 		<item>Dark</item>
+		<item>yospos</item>
 		<item>Custom</item>
 	</string-array>
 	<string name="bookmark">Bookmark</string>
