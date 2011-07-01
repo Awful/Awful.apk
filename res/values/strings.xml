@@ -18,7 +18,7 @@
     <string name="logout_message">Make all your wildest dreams come true?</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="mark_last_read">Mark last read</string>
-    <string name="reply_invalid_title">You can't post here</string>
+    <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
     

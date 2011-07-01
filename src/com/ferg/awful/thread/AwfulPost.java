@@ -79,7 +79,7 @@ public class AwfulPost implements AwfulDisplayItem {
 	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
     private static final String EDITABLE  = "//img[@alt='Edit']";
     */
-    private static final Pattern fixCharacters = Pattern.compile("([\\n\\r\\f\u0091-\u0095\u0099\u0080\u0082\u0083])");
+    private static final Pattern fixCharacters = Pattern.compile("([\\r\\f\u0091-\u0095\u0099\u0080\u0082\u0083])");
     private static HashMap<String,String> replaceMap = new HashMap<String,String>(10);
     static {
     	replaceMap.put("\u0080", "\u20AC");
@@ -91,7 +91,7 @@ public class AwfulPost implements AwfulDisplayItem {
     	replaceMap.put("\u0094", "\"");
     	replaceMap.put("\u0095", "\u2022");
     	replaceMap.put("\u0099", "\u2122");
-    	replaceMap.put("\n", "");
+    	//replaceMap.put("\n", "");
     	replaceMap.put("\r", "");
     	replaceMap.put("\f", "");
     }
