@@ -142,7 +142,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(forceRefresh || state == null || state.isPageCached(currentPage));
+			mCallback.dataUpdate(forceRefresh || state == null || !state.isPageCached(currentPage));
 		}
 		
 	}
