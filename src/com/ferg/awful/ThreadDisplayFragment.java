@@ -534,11 +534,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
             getListView().setSelection(savedPos);
         }else{
-            if(!pageChange && last >= 0 && last < adapt.getCount()){
+            if(!pageChange && last >= 0 && last < getListView().getChildCount()){
 		        getListView().setSelection(last);
 		        savedPos = last;
 	        }
-	        if(pageChange && getListView().getCount() > 0){
+	        if(pageChange && getListView().getChildCount() > 0){
 	        	getListView().setSelection(0);
 	        }
         }
