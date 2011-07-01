@@ -69,6 +69,7 @@ import com.ferg.awful.constants.Constants;
 
 public class NetworkUtils {
     private static final String TAG = "NetworkUtils";
+    private static final String CHARSET = "windows-1252";
 
     private static DefaultHttpClient sHttpClient;
     private static HtmlCleaner sCleaner;
@@ -212,7 +213,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
         }
         
         Log.i(TAG, "Fetched " + location);
@@ -254,7 +255,7 @@ public class NetworkUtils {
 
         if (entity != null) {
             response = sCleaner
-                    .clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
+                    .clean(new InputStreamReader(entity.getContent(), CHARSET));
         }
 
         Log.i(TAG, "Fetched " + location.toString());
@@ -275,7 +276,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent(), "ISO-8859-1"));
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
         }
 
 		return response;
