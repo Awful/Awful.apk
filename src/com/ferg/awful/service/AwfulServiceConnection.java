@@ -460,7 +460,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return state.getChild(currentPage,ix).isEnabled();
 		}
 		public String getTitle() {
-			if(state == null){
+			if(state == null || state.getTitle() == null){
 				return "Loading...";
 			}
 			return state.getTitle();

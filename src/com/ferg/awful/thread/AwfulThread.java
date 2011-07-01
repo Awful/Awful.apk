@@ -36,6 +36,7 @@ import java.util.List;
 import org.htmlcleaner.TagNode;
 
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -239,8 +240,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             }
         }
         TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
-        if(replyAlts[0].getAttributeByName("src").contains("forum-closed")){
+        if(replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")){
         	this.mClosed=true;
+        }
+        TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
+        if(bkButtons.length >0){
+        	String bkSrc = bkButtons[0].getAttributeByName("src");
+        	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
         setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
         parsePageNumbers(response);

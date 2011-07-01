@@ -169,7 +169,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onStart();
         Log.e(TAG,"onStart()");
 
-        setActionbarTitle("Loading...");
+        setActionbarTitle(adapt.getTitle());
     }
     
     @Override
@@ -273,7 +273,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
             AwfulThread th = (AwfulThread) adapt.getState();
-            bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            if(th != null){
+            	bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            }
         }
     }
     
@@ -533,12 +535,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             getListView().setSelection(savedPos);
         }else{
             if(!pageChange && last >= 0 && last < adapt.getCount()){
-        getListView().setSelection(last);
-        savedPos = last;
-        }
-        if(pageChange && adapt.getCount() > 0){
-        getListView().setSelection(0);
-        }
+		        getListView().setSelection(last);
+		        savedPos = last;
+	        }
+	        if(pageChange && getListView().getCount() > 0){
+	        	getListView().setSelection(0);
+	        }
         }
 
         if (!isHoneycomb()) {
