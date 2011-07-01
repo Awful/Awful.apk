@@ -531,14 +531,14 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setActionbarTitle(adapt.getTitle());
 
         int last = adapt.getLastReadPost();
-        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
+        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < getListView().getCount()){
             getListView().setSelection(savedPos);
         }else{
-            if(!pageChange && last >= 0 && last < getListView().getChildCount()){
+            if(!pageChange && last >= 0 && last < getListView().getCount()){
 		        getListView().setSelection(last);
 		        savedPos = last;
 	        }
-	        if(pageChange && getListView().getChildCount() > 0){
+	        if(pageChange && getListView().getCount() > 0){
 	        	getListView().setSelection(0);
 	        }
         }
