@@ -63,4 +63,7 @@
 	<string name="read_post_background2_color">Read Post Alternate Color</string>
 	<string name="select_forum">Select a forum</string>
 	<string name="setting_posts_per_page">Posts Per Page</string>
+	<string name="goto_firstpage">First Page</string>
+	<string name="goto_lastpage">Last Page</string>
+	<string name="toggle_bookmark">Toggle Bookmark</string>
 </resources>

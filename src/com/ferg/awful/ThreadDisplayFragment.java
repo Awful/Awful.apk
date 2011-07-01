@@ -112,7 +112,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        Log.e(TAG,"onCreateView()");
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
         if (!isHoneycomb()) {
@@ -132,7 +131,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        Log.e(TAG,"onActivityCreated()");
         setRetainInstance(true);
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -267,17 +265,17 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    /*
-     * TODO: Figure out why this causes the app to crash on Honeycomb
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+    	if(menu == null || isHoneycomb()){
+    		return;
+    	}
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
             AwfulThread th = (AwfulThread) adapt.getState();
             bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
         }
     }
-    */
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

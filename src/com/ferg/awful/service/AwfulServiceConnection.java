@@ -145,6 +145,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mCallback.dataUpdate(forceRefresh || state == null || !state.isPageCached(currentPage));
 		}
 		
+		public void toggleBookmark(int id) {
+			if(!boundState){
+				return;
+			}
+			mService.toggleBookmark(id);
+		}
+		
 	}
 	
 	private static final RotateAnimation mLoadingAnimation = 
