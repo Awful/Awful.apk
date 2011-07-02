@@ -43,11 +43,13 @@ public class UserCPActivity extends AwfulActivity {
     }
 
     public void setContentPane() {
+    	if (getSupportFragmentManager().findFragmentById(R.id.ucpcontent) == null) {
         UserCPFragment fragment = 
             UserCPFragment.newInstance(false);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, fragment);
+        transaction.replace(R.id.ucpcontent, fragment);
         transaction.commit();
+    	}
     }
 }

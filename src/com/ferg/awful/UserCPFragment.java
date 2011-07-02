@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,18 +42,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.support.v4.app.DialogFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
+import com.ferg.awful.thread.AwfulDisplayItem;
 import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
 public class UserCPFragment extends DialogFragment implements AwfulUpdateCallback {
     private static final String TAG = "UserCPActivity";
@@ -128,6 +133,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
         mBookmarkList.setAdapter(adapt);
+        registerForContextMenu(mBookmarkList);
     }
 
     @Override
@@ -156,7 +162,48 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onDetach() {
         super.onDetach();
-        mBookmarkList.setAdapter(null);
+        if(mBookmarkList != null){
+        	mBookmarkList.setAdapter(null);
+        }
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
+        super.onCreateContextMenu(aMenu, aView, aMenuInfo);
+
+        MenuInflater inflater = getActivity().getMenuInflater();
+        AwfulDisplayItem selected = (AwfulDisplayItem) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+        
+        switch(selected.getType()){
+	        case THREAD:
+	            inflater.inflate(R.menu.thread_longpress, aMenu);
+	        	break;
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+    	AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
+    	if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
+    		return false;
+    	}
+        switch (aItem.getItemId()) {
+            case R.id.first_page:
+                Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, 1);
+                startActivity(viewThread);
+                return true;
+            case R.id.last_page:
+            	Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, thread.getLastPage());
+            	startActivity(viewThread2);
+                return true;
+            case R.id.thread_bookmark:
+            	adapt.toggleBookmark(thread.getID());
+            	adapt.refresh();
+                return true;
+        }
+
+        return false;
     }
     
     @Override
@@ -215,7 +262,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public void dataUpdate(boolean pageChange) {
-        if(pageChange && this.isAdded() && adapt.getCount() >0){
+        if(pageChange && this.isAdded() && mBookmarkList!= null && mBookmarkList.getChildCount() >0){
             mBookmarkList.setSelection(0);
         }
     }

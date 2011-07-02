@@ -38,7 +38,7 @@ import com.ferg.awful.constants.Constants;
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";
 
-	private int mLastPage;
+	protected int mLastPage;
     protected String mTitle;
 	
 	public abstract ArrayList<? extends AwfulDisplayItem> getChildren(int page);

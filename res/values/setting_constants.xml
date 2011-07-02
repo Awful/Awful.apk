@@ -9,6 +9,7 @@
         <string-array name="schemas_values">
         <item>default</item>
         <item>dark</item>
+        <item>yospos</item>
         <item>custom</item>
     </string-array>
 </resources>

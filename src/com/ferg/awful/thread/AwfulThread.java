@@ -36,6 +36,7 @@ import java.util.List;
 import org.htmlcleaner.TagNode;
 
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,7 +102,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
+	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse, int postPerPage) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1){
@@ -122,7 +123,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
             	if (tarPostCount.length > 0) {
-                    thread.setTotalCount(Integer.parseInt(tarPostCount[0].getText().toString().trim()));
+                    thread.setTotalCount(Integer.parseInt(tarPostCount[0].getText().toString().trim()), postPerPage);
                 }
             	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
                 if (tarThread.length > 0) {
@@ -239,8 +240,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             }
         }
         TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
-        if(replyAlts[0].getAttributeByName("src").contains("forum-closed")){
+        if(replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")){
         	this.mClosed=true;
+        }
+        TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
+        if(bkButtons.length >0){
+        	String bkSrc = bkButtons[0].getAttributeByName("src");
+        	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
         setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
         parsePageNumbers(response);
@@ -405,8 +411,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		}
 		return (mTotalPosts-mUnreadCount+1)%postPerPage;
 	}
-	public void setTotalCount(int postTotal) {
+	public void setTotalCount(int postTotal, int perPage) {
 		mTotalPosts = postTotal;
+		setLastPage(postTotal/perPage+1);
 	}
 
 	public int getTotalCount() {

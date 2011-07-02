@@ -111,6 +111,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
 
         threadid = getIntent().getIntExtra(Constants.THREAD, 0);
+        int loadPage = getIntent().getIntExtra(Constants.PAGE, 0);
         if (c2pThreadID != null) {
             threadid = Integer.parseInt(c2pThreadID);
         }
@@ -118,10 +119,15 @@ public class ThreadDisplayActivity extends AwfulActivity {
         if (aSavedState != null) {
             adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getSavedPage());
         } else {
-            adapt = getServiceConnection().createThreadAdapter(threadid, display);
 
-            if (c2pPage != null && c2pPage.matches("\\d+")) {
-                adapt.forceGoToPage(Integer.parseInt(c2pPage));
+            if (c2pPage != null) {
+                adapt = getServiceConnection().createThreadAdapter(threadid, display, Integer.parseInt(c2pPage));
+            }else{
+            	if(loadPage >0){
+            		adapt = getServiceConnection().createThreadAdapter(threadid, display, loadPage);
+            	}else{
+            		adapt = getServiceConnection().createThreadAdapter(threadid, display);
+            	}
             }
         }
 
