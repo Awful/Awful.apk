@@ -43,10 +43,10 @@ public class PostReplyActivity extends AwfulActivity {
     }
 
 	public void setContentPane() {
-		if (getSupportFragmentManager().findFragmentById(R.id.content) == null) {
+		if (getSupportFragmentManager().findFragmentById(R.id.replycontent) == null) {
 			PostReplyFragment fragment = PostReplyFragment.newInstance(getIntent().getExtras());
 			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-			transaction.replace(R.id.content, fragment);
+			transaction.replace(R.id.replycontent, fragment);
 			transaction.commit();
 		}
 	}

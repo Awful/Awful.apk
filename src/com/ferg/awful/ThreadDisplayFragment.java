@@ -112,7 +112,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        Log.e(TAG,"onCreateView()");
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
         if (!isHoneycomb()) {
@@ -132,7 +131,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        Log.e(TAG,"onActivityCreated()");
         setRetainInstance(true);
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
@@ -171,7 +169,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onStart();
         Log.e(TAG,"onStart()");
 
-        setActionbarTitle("Loading...");
+        setActionbarTitle(adapt.getTitle());
     }
     
     @Override
@@ -267,17 +265,19 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    /*
-     * TODO: Figure out why this causes the app to crash on Honeycomb
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+    	if(menu == null || isHoneycomb()){
+    		return;
+    	}
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
             AwfulThread th = (AwfulThread) adapt.getState();
-            bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            if(th != null){
+            	bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            }
         }
     }
-    */
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -531,16 +531,16 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setActionbarTitle(adapt.getTitle());
 
         int last = adapt.getLastReadPost();
-        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < adapt.getCount()){
+        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < getListView().getCount()){
             getListView().setSelection(savedPos);
         }else{
-            if(!pageChange && last >= 0 && last < adapt.getCount()){
-        getListView().setSelection(last);
-        savedPos = last;
-        }
-        if(pageChange && adapt.getCount() > 0){
-        getListView().setSelection(0);
-        }
+            if(!pageChange && last >= 0 && last < getListView().getCount()){
+		        getListView().setSelection(last);
+		        savedPos = last;
+	        }
+	        if(pageChange && getListView().getCount() > 0){
+	        	getListView().setSelection(0);
+	        }
         }
 
         if (!isHoneycomb()) {

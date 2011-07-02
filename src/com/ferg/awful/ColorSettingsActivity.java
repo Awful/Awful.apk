@@ -109,6 +109,24 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						lastTheme = "default";
 						this.finish();
 						return;
+					}else if(p.getValue().equals("yospos")){
+						if(lastTheme.equals("custom")){
+							saveCustomTheme();
+						}
+						Editor prefEdit = prefs.edit();
+						prefEdit.putInt("default_post_font_color", getResources().getColor(R.color.yospos_default_post_font));
+						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.yospos_secondary_post_font));
+						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.yospos_background));
+						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.yospos_alt_background));
+						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.yospos_background_read));
+						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.yospos_alt_background_read));
+						prefEdit.putInt("op_post_color", getResources().getColor(R.color.yospos_op_post));
+						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.yospos_link_quote));
+						prefEdit.commit();
+						p.setSummary("yospos, bitch");
+						lastTheme = "yospos";
+						this.finish();
+						return;
 					}else if(!lastTheme.equals("custom")){
 							Editor prefEdit = prefs.edit();
 							prefEdit.putInt("default_post_font_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.default_post_font)));

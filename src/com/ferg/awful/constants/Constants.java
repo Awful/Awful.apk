@@ -96,10 +96,6 @@ public class Constants {
 	public static final String DATA_UPDATE_ID_EXTRA = "updatedID";
 	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";
 	public static final String DATA_UPDATE_STATUS_EXTRA = "updateStatus";
-
-	//TODO: Make these colors changeable by the user?
-	public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);
-    public static int READ_BACKGROUND_UNEVEN = Color.rgb(221, 238, 255);
     
     //TODO: make this user configurable, 
     //or reduce to speed processing time once auto-load is in

@@ -270,7 +270,7 @@ public class AwfulService extends Service {
                         }
                         newSubforums = AwfulThread.parseSubforums(threads);
                     }
-                    result = AwfulThread.parseForumThreads(threads);
+                    result = AwfulThread.parseForumThreads(threads, mPrefs.postPerPage);
                     mForum.parsePageNumbers(threads);
                     //Log.i(TAG, "Last Page: " +mForum.getLastPage());
                 } catch (Exception e) {
@@ -291,7 +291,7 @@ public class AwfulService extends Service {
             			db.put("threadid="+at.getThreadId(), at);
             		}else{//use this section to copy any data you want to update during a forum refresh. ie: post count, bookmark status, ect
             			old.setUnreadCount(at.getUnreadCount());
-            			old.setTotalCount(at.getTotalCount());
+            			old.setTotalCount(at.getTotalCount(), mPrefs.postPerPage);
             			old.setBookmarked(at.isBookmarked());
             		}
             	}
