@@ -36,6 +36,7 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,16 +44,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
-import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
+import com.ferg.awful.thread.AwfulDisplayItem;
+import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
@@ -62,7 +66,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     
     private ForumListAdapter adapt;
     private ImageButton mUserCp;
-    private ImageButton mNext;
     private TextView mTitle;
     private ImageButton mRefresh;
 
@@ -141,6 +144,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mUserCp.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
+        registerForContextMenu(getListView());
     }
 
     private boolean isHoneycomb() {
@@ -198,6 +202,47 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
+        super.onCreateContextMenu(aMenu, aView, aMenuInfo);
+
+        MenuInflater inflater = getActivity().getMenuInflater();
+        AwfulDisplayItem selected = (AwfulDisplayItem) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+        
+        switch(selected.getType()){
+	        case FORUM:
+	        	break;
+	        case THREAD:
+	            inflater.inflate(R.menu.thread_longpress, aMenu);
+	        	break;
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+    	AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
+    	if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
+    		return false;
+    	}
+        switch (aItem.getItemId()) {
+            case R.id.first_page:
+                Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, 1);
+                startActivity(viewThread);
+                return true;
+            case R.id.last_page:
+            	Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, thread.getLastPage());
+            	startActivity(viewThread2);
+                return true;
+            case R.id.thread_bookmark:
+            	adapt.toggleBookmark(thread.getID());
+            	adapt.refresh();
+                return true;
+        }
+
+        return false;
     }
 
     private void displayPagePicker() {

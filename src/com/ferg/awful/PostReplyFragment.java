@@ -125,7 +125,7 @@ public class PostReplyFragment extends DialogFragment {
             //If we're quoting a post, add it to the message box
 			if (mExtras.containsKey(Constants.QUOTE)) {
 				String quoteText = StringEscapeUtils.unescapeHtml(mExtras
-						.getString(Constants.QUOTE));
+						.getString(Constants.QUOTE)).replaceAll("[\\r\\f]", "");
 				mMessage.setText(quoteText);
 				mMessage.setSelection(quoteText.length());
 			}

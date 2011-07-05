@@ -246,7 +246,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
                 mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
                 Log.d(TAG, "invalidating (color)");
-                mForumList.invalidateViews(); 
+                mForumList.invalidateViews();
+                mForumList.invalidate();
             }               
         }
     }
