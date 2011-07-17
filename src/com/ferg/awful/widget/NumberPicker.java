@@ -425,6 +425,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
      * @return the current value.
      */
     public int getCurrent() {
+        mText.setFocusable(false);
         return mCurrent;
     }
 }
