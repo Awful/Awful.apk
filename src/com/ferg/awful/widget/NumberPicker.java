@@ -425,7 +425,10 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
      * @return the current value.
      */
     public int getCurrent() {
-        // This might cause regressions.
+        /* This sets the edittext to be unfocusable so that the widget is unfocused.
+        *  It allows the numberpicker to update itself with what's in the widget when the user presses OK
+        *  and the user is still focused on the edittext widget. This might cause regressions so YMMV.
+        * */
         mText.setFocusable(false);
         return mCurrent;
     }
