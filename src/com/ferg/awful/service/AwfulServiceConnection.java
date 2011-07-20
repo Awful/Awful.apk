@@ -151,7 +151,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			mService.toggleBookmark(id);
 		}
-		
+
+		public void markThreadUnread(int id) {
+			if(!boundState){
+				return;
+			}
+			mService.markThreadUnread(id);
+		}
 	}
 	
 	private static final RotateAnimation mLoadingAnimation = 
@@ -270,6 +276,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mService != null && boundState){
 				mService.MarkLastRead(post); 
 			}
+		}
+		
+		public void markThreadUnread() {
+			if(!boundState && state != null){
+				return;
+			}
+			mService.markThreadUnread(state.getID());
 		}
 		
 		@Override
