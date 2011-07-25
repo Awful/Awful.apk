@@ -183,6 +183,14 @@ public class AwfulService extends Service {
 		queueThread(new BookmarkToggleTask(threadId));
 	}
 	
+	/**
+	 * Removed the unread-post-count for the specified thread (same as clicking the X).
+	 * @param id Thread Id
+	 */
+	public void markThreadUnread(int id) {
+		queueThread(new MarkThreadUnreadTask(id));
+	}
+	
 	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
 		protected int mId = 0;
 		protected int mPage = 1;
@@ -345,6 +353,36 @@ public class AwfulService extends Service {
 
                 try {
                     NetworkUtils.post(Constants.FUNCTION_BOOKMARK, params);
+                    status = true;
+                } catch (Exception e) {
+                	status = false;
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return status;
+        }
+
+        public void onPostExecute(Boolean aResult) {
+            sendUpdate(aResult);
+            threadFinished(this);
+        }
+    }
+	
+	private class MarkThreadUnreadTask extends AwfulTask<Boolean> {
+        public MarkThreadUnreadTask(int threadId) {
+        	mId = threadId;
+        	AwfulThread th = (AwfulThread) db.get("threadid="+mId);
+        	th.setUnreadCount(-1);
+		}
+		public Boolean doInBackground(Void... aParams) {
+			boolean status = false;
+            if (!isCancelled()) {
+            	HashMap<String, String> params = new HashMap<String, String>();
+                params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
+                params.put(Constants.PARAM_ACTION, "resetseen");
+
+                try {
+                    NetworkUtils.post(Constants.FUNCTION_THREAD, params);
                     status = true;
                 } catch (Exception e) {
                 	status = false;
