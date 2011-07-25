@@ -145,6 +145,7 @@ public class PostReplyFragment extends DialogFragment {
             mFetchCookieTask = new FetchFormCookieTask();
             mFetchCookieTask.execute(mThreadId);
         }
+        mMessage.setSelection(mMessage.getText().length());
         
         // We'll enable it once we have a formkey and cookie
         mSubmit.setEnabled(false);
