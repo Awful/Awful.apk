@@ -67,6 +67,7 @@ public class PostReplyFragment extends DialogFragment {
     private String mFormCookie;
     private String mFormKey;
     private String mReply;
+    private int mSelection;
 
     public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
@@ -84,6 +85,7 @@ public class PostReplyFragment extends DialogFragment {
     {
         super.onCreate(savedInstanceState);
     }
+    
         
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -145,7 +147,8 @@ public class PostReplyFragment extends DialogFragment {
             mFetchCookieTask = new FetchFormCookieTask();
             mFetchCookieTask.execute(mThreadId);
         }
-        
+       if(mSelection>0){
+        mMessage.setSelection(mSelection);}
         // We'll enable it once we have a formkey and cookie
         mSubmit.setEnabled(false);
     }
@@ -175,6 +178,7 @@ public class PostReplyFragment extends DialogFragment {
 	public void onDetach() {
 		super.onDetach();
 		mReply = mMessage.getText().toString();
+		mSelection = mMessage.getSelectionStart();
 	}
 
     private void cleanupTasks() {
