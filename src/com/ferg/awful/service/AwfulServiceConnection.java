@@ -326,6 +326,27 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		};
 		
 	}
+	
+	public class GenericListAdapter extends AwfulListAdapter<AwfulPagedItem>{
+		private String mType;
+		public GenericListAdapter(int id, String type) {
+			super(id);
+			mType = type;
+		}
+
+		@Override
+		protected void loadPage(boolean forceRefresh) {
+			if(mService == null || !boundState){
+				return;
+			}
+			state = mService.getItem(mType+currentId);
+			if(mObserver != null){
+				mObserver.onChanged();
+			}
+			mCallback.dataUpdate(false);
+		}
+		
+	}
 
 	public abstract class AwfulListAdapter<T extends AwfulPagedItem> extends BaseAdapter implements SectionIndexer {
 		protected int currentId;
