@@ -156,6 +156,12 @@ public class AwfulService extends Service {
 	public void MarkLastRead(AwfulPost post){
 		queueThread(new MarkLastReadTask(post.getLastReadUrl()));
 	}
+	
+	public AwfulPagedItem getItem(String string) {
+		Log.e(TAG, "getItem "+string);
+		return (AwfulForum) db.get(string);
+	}
+	
 	/**
 	 * Pulls an AwfulForum instance for the ID specified, or null if none exist yet.
 	 * The forum's threads may not have been populated yet.
