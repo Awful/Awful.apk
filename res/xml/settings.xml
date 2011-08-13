@@ -6,6 +6,7 @@
             android:title="@string/orientation"
             android:entries="@array/orientations"
             android:entryValues="@array/orientation_values"
+            android:defaultValue="default"
             />
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_thread_display">

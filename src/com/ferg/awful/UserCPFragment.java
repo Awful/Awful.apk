@@ -201,6 +201,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             	adapt.toggleBookmark(thread.getID());
             	adapt.refresh();
                 return true;
+            case R.id.mark_thread_unread:
+            	adapt.markThreadUnread(thread.getID());
+            	adapt.refresh();
+                return true;
         }
 
         return false;
