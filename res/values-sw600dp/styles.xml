@@ -1,0 +1,23 @@
+<resources>
+    <!-- For API level 11 or later, we can use the magical DialogWhenLarge theme. -->
+    <style name="ThemeDialogWhenLarge" parent="android:style/Theme.Holo.DialogWhenLarge">
+    </style>
+
+    <style name="ThemeCustomActionBar" parent="android:style/Theme.Holo">
+        <item name="android:actionBarStyle">@style/customActionBarTextStyle</item>
+    </style>
+
+    <style name="customActionBarTextStyle" parent="android:style/Widget.Holo.ActionBar">
+        <item name="android:titleTextStyle">@style/customActionBarTextStyle.TitleTextStyle</item>
+    </style>
+
+    <style name="customActionBarTextStyle.TitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">20dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1.36</item>
+        <item name="android:shadowRadius">0.2</item>
+    </style>
+</resources>

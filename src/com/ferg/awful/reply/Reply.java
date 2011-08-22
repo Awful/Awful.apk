@@ -27,6 +27,7 @@
 
 package com.ferg.awful.reply;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.util.HashMap;

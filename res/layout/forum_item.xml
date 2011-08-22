@@ -18,7 +18,12 @@
             android:singleLine="true"
             android:ellipsize="marquee"
 			android:textSize="18dip"
-			android:textColor="@color/default_post_font"
+			android:textStyle="bold"
+			android:textColor="@color/forum_title"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="-1.36"
+            android:shadowRadius="0.3"
             android:layout_alignParentLeft="true"
 			/>
 		<TextView

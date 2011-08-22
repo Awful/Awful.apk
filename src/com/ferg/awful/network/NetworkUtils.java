@@ -289,7 +289,7 @@ public class NetworkUtils {
 		return response;
 	}
 
-    public static boolean postImage(String aUrl, HashMap<String, String> aParams, String aBitmapKey, 
+    public static TagNode postImage(String aUrl, HashMap<String, String> aParams, String aBitmapKey, 
             Bitmap aBitmap) throws Exception
 	{
         TagNode response = null;
