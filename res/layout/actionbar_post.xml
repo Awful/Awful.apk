@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
 <RelativeLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="55dip"
+	android:layout_height="45dip"
 	android:orientation="horizontal"
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
 	android:background="@drawable/bar"
 	>
-	<TextView 
+	<TextView
 		android:id="@+id/title"
         android:layout_toLeftOf="@+id/buttons"
         android:layout_alignParentLeft="true"
@@ -28,10 +27,10 @@
             style="@style/ActionBarSeparator" 
             />
         <ImageButton 
-            android:id="@+id/next"
+            android:id="@+id/submit_button"
             style="@style/ActionBarButton"
-            android:src="@drawable/r_arrow"
+            android:layout_width="60dip"
+            android:src="@drawable/action_bar_send_submit"
             />
     </LinearLayout>
 </RelativeLayout>
-</merge>

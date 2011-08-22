@@ -27,23 +27,16 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
-
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.webkit.WebView;
 
-import com.ferg.awful.async.DrawableManager;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.user.Profile;
 
-public class ProfileActivity extends Activity {
+public class ProfileActivity extends AwfulActivity {
     private static final String TAG = "ProfileActivity";
 
     private FetchProfileTask mFetchTask;

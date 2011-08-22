@@ -27,84 +27,63 @@
 
 package com.ferg.awful.thread;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
-
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
 
+import android.text.Html;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
-public class AwfulThread extends AwfulPagedItem implements Parcelable {
+public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
 
-    private static final String THREAD_ROW      = "//table[@id='forum']//tr";
-    private static final String THREAD_SEEN_ROW = "//tr[@class='thread seen']";
-    private static final String THREAD_TITLE    = "//a[@class='thread_title']";
-    private static final String THREAD_STICKY   = "//td[@class='title title_sticky']";
-    private static final String THREAD_ICON     = "//td[@class='icon']/img";
-    private static final String THREAD_AUTHOR   = "//td[@class='author']/a";
-    private static final String UNREAD_POSTS    = "//a[@class='count']//b";
-    private static final String UNREAD_UNDO     = "//a[@class='x']";
-	private static final String CURRENT_PAGE    = "//span[@class='curpage']";
-	private static final String LAST_PAGE       = "//a[@class='pagenumber']";
-    private static final String ALT_TITLE       = "//a[@class='bclast']";
 
     private String mThreadId;
-    private String mTitle;
+    private int threadId;
     private String mAuthor;
+    private String mAuthorID;
     private boolean mSticky;
     private String mIcon;
     private int mUnreadCount;
-    private ArrayList<AwfulPost> mPosts;
+	private int mTotalPosts;
+    private int mPTI;
+    private boolean mClosed;
+	private boolean mBookmarked;
+    private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
 
-    public AwfulThread() {}
+
+
+
+    public AwfulThread() {
+    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
+    }
 
     public AwfulThread(String aThreadId) {
-        mThreadId = aThreadId;
+    	setThreadId(aThreadId);
+    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
     }
-
-    public AwfulThread(Parcel aAwfulThread) {
-        mThreadId    = aAwfulThread.readString();
-        mTitle       = aAwfulThread.readString();
-        mAuthor      = aAwfulThread.readString();
-        mSticky      = aAwfulThread.readInt() == 1 ? true : false;
-        mIcon        = aAwfulThread.readString();
-        mUnreadCount = aAwfulThread.readInt();
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public AwfulThread createFromParcel(Parcel aAwfulThread) {
-            return new AwfulThread(aAwfulThread);
-        }
-
-        public AwfulThread[] newArray(int aSize) {
-            return new AwfulThread[aSize];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel aDestination, int aFlags) {
-        aDestination.writeString(mThreadId);
-        aDestination.writeString(mTitle);
-        aDestination.writeString(mAuthor);
-        aDestination.writeInt(mSticky ? 1 : 0);
-        aDestination.writeString(mIcon);
-        aDestination.writeInt(mUnreadCount);
+    public AwfulThread(int aThreadId) {
+    	setThreadId(aThreadId+"");
+    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
     }
     
+    
     public static TagNode getForumThreads(String aForumId) throws Exception {
-		return getForumThreads(aForumId, 0);
+		return getForumThreads(aForumId, 1);
 	}
 	
     public static TagNode getForumThreads(String aForumId, int aPage) throws Exception {
@@ -118,19 +97,22 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         return NetworkUtils.get(Constants.FUNCTION_FORUM, params);
 	}
 	
-    public static TagNode getUserCPThreads() throws Exception {
-        return NetworkUtils.get(Constants.FUNCTION_USERCP, null);
+    public static TagNode getUserCPThreads(int aPage) throws Exception {
+    	HashMap<String, String> params = new HashMap<String, String>();
+		params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+        return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-    public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse) throws Exception {
+	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse, int postPerPage) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
-
-        Object[] threadObjects = aResponse.evaluateXPath(THREAD_ROW);
-
-        for (Object current : threadObjects) {
+        TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
+        if(threads.length >1){
+        	return result;
+        }
+        TagNode[] tbody = threads[0].getElementsByName("tbody", false);
+		for(TagNode node : tbody[0].getChildTags()){
             AwfulThread thread = new AwfulThread();
-            TagNode node = (TagNode) current;
-
+            
             try {
                 String threadId = node.getAttributeByName("id");
                 thread.setThreadId(threadId.replaceAll("thread", ""));
@@ -139,82 +121,136 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
                 e.printStackTrace();
                 continue;
             }
+            	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
+            	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
+            	if (tarPostCount.length > 0) {
+                    thread.setTotalCount(Integer.parseInt(tarPostCount[0].getText().toString().trim()), postPerPage);
+                }
+            	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
+                if (tarThread.length > 0) {
+                    thread.setTitle(tarThread[0].getText().toString().trim());
+                }
 
-            Object[] nodeList = node.evaluateXPath(THREAD_TITLE);
-            if (nodeList.length > 0) {
-                thread.setTitle(((TagNode) nodeList[0]).getText().toString().trim());
-            }
-
-            nodeList = node.evaluateXPath(THREAD_STICKY);
-            if (nodeList.length > 0) {
-                thread.setSticky(true);
-            } else {
-                thread.setSticky(false);
-            }
-
-            nodeList = node.evaluateXPath(THREAD_ICON);
-            if (nodeList.length > 0) {
-                thread.setIcon(((TagNode) nodeList[0]).getAttributeByName("src"));
-            }
-
-            nodeList = node.evaluateXPath(THREAD_AUTHOR);
-            if (nodeList.length > 0) {
-                TagNode authorNode = (TagNode) nodeList[0];
-
-                // There's got to be a better way to do this
-                authorNode.removeChild(authorNode.findElementHavingAttribute("href", false));
-
-                thread.setAuthor(authorNode.getText().toString().trim());
-            }
-
-            nodeList = node.evaluateXPath(UNREAD_POSTS);
-            if (nodeList.length > 0) {
-                thread.setUnreadCount(Integer.parseInt(
-                            ((TagNode) nodeList[0]).getText().toString().trim()));
-            } else {
-                nodeList = node.evaluateXPath(UNREAD_UNDO);
-                if (nodeList.length > 0) {
-                    thread.setUnreadCount(0);
+                TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
+                if (tarSticky.length > 0) {
+                    thread.setSticky(true);
                 } else {
-                    thread.setUnreadCount(-1);
-                } 
-            }
+                    thread.setSticky(false);
+                }
 
-            result.add(thread);
+                TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
+                if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
+                    thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
+                }
+
+                if (tarUser.length > 0) {
+                    // There's got to be a better way to do this
+                    thread.setAuthor(tarUser[0].getText().toString().trim());
+			    // And probably a much better way to do this
+			    thread.setAuthorID(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").substring(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").indexOf("userid=")+7));
+                }
+
+                TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
+                if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
+                    thread.setUnreadCount(Integer.parseInt(tarCount[0].getChildTags()[0].getText().toString().trim()));
+                } else {
+                	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
+					if (tarXCount.length > 0) {
+						thread.setUnreadCount(0);
+					} else {
+						thread.setUnreadCount(-1);
+					} 
+                }
+                TagNode[] tarStar = node.getElementsByAttValue("class", "star", true, true);
+                if(tarStar.length>0){
+                	TagNode[] tarStarImg = tarStar[0].getElementsByName("img", true);
+                	if(tarStarImg.length >0 && !tarStarImg[0].getAttributeByName("src").contains("star-off")){
+                		thread.setBookmarked(true);
+                	}else{
+                		thread.setBookmarked(false);
+                	}
+                }
+
+                result.add(thread);
         }
+        return result;
+	}
 
+	public void setBookmarked(boolean b) {
+		mBookmarked = b;
+	}
+	public boolean isBookmarked() {
+		return mBookmarked;
+	}
+
+	public static ArrayList<AwfulForum> parseSubforums(TagNode aResponse){
+        ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+		TagNode[] subforums = aResponse.getElementsByAttValue("class", "subforum", true, false);
+        for(TagNode sf : subforums){
+        	TagNode[] href = sf.getElementsHavingAttribute("href", true);
+        	if(href.length <1){
+        		continue;
+        	}
+        	int id = Integer.parseInt(href[0].getAttributeByName("href").replaceAll("\\D", ""));
+        	if(id > 0){
+        		AwfulForum tmp = new AwfulForum(id);
+        		tmp.setTitle(href[0].getText().toString());
+        		TagNode[] subtext = sf.getElementsByName("dd", true);
+        		if(subtext.length >0){
+        			//Log.e(TAG,"parsed subtext: "+subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));
+        			tmp.setSubtext(subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));//ugh
+        		}
+        		result.add(tmp);
+        	}
+        }
         return result;
     }
 
-    public void getThreadPosts() throws Exception {
-        getThreadPosts(-1);
+    public void getThreadPosts(int postPerPage) throws Exception {
+        getThreadPosts(-1, postPerPage);
     }
 
-    public void getThreadPosts(int aPage) throws Exception {
+    public void getThreadPosts(int aPage, int postPerPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
+        params.put(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 
         if (aPage == -1) {
             params.put(Constants.PARAM_GOTO, "newpost");
         } else {
             params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        } 
-
-		TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
-
-        // If we got here from ChromeToPhone the title hasn't been parsed yet,
-        // so grab that now
-        if (mTitle == null) {
-            Object[] titleObject = response.evaluateXPath(ALT_TITLE);
-
-            if (titleObject.length > 0) {
-                mTitle = ((TagNode) titleObject[0]).getText().toString().trim();
-                Log.i(TAG, mTitle);
-            }
         }
 
-        setPosts(AwfulPost.parsePosts(response));
-		parsePageNumbers(response);
+        List<URI> redirects = new LinkedList<URI>();
+        TagNode response = NetworkUtils.get(
+                Constants.FUNCTION_THREAD, params, redirects);
+
+        mPTI = -1;
+        if (redirects.size() > 1) {
+            String fragment = redirects.get(redirects.size() - 1).getFragment();
+            if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
+                mPTI = Integer.parseInt(
+                        fragment.substring(Constants.FRAGMENT_PTI.length()));
+            }
+        }
+        if (mTitle == null) {
+        	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
+
+            if (tarTitle.length > 0) {
+                mTitle = tarTitle[0].getText().toString().trim();
+            }
+        }
+        TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
+        if(replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")){
+        	this.mClosed=true;
+        }
+        TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
+        if(bkButtons.length >0){
+        	String bkSrc = bkButtons[0].getAttributeByName("src");
+        	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
+        }
+        setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
+        parsePageNumbers(response);
     }
 
     public String getThreadId() {
@@ -223,14 +259,7 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
 
     public void setThreadId(String aThreadId) {
         mThreadId = aThreadId;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String aTitle) {
-        mTitle = aTitle;
+        threadId = Integer.parseInt(aThreadId);
     }
 
     public String getAuthor() {
@@ -241,12 +270,28 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         mAuthor = aAuthor;
     }
 
+    public String getAuthorID() {
+        return mAuthorID;
+    }
+
+    public void setAuthorID(String aAuthorID) {
+        mAuthorID = aAuthorID;
+    }
+
     public String getIcon() {
         return mIcon;
     }
 
     public void setIcon(String aIcon) {
         mIcon = aIcon;
+    }
+
+    public boolean isClosed(){
+    	return mClosed;
+    }
+    
+    public void setClosed(boolean aClosed) {
+        mClosed = aClosed;
     }
 
     public boolean isSticky() {
@@ -265,11 +310,118 @@ public class AwfulThread extends AwfulPagedItem implements Parcelable {
         mUnreadCount = aUnreadCount;
     }
 
-    public ArrayList<AwfulPost> getPosts() {
-        return mPosts;
+    public ArrayList<AwfulPost> getPosts(int page) {
+        return mPosts.get(page);
     }
 
-    public void setPosts(ArrayList<AwfulPost> aPosts) {
-        mPosts = aPosts;
+    public void setPosts(ArrayList<AwfulPost> aPosts, int page) {
+   		mPosts.put(page, aPosts);
     }
+
+	@Override
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences prefs) {
+		View tmp = current;
+		if(tmp == null || tmp.getId() != R.layout.thread_item){
+			tmp = inf.inflate(R.layout.thread_item, parent, false);
+			tmp.setTag(this);
+		}
+		TextView author = (TextView) tmp.findViewById(R.id.author);
+		ImageView sticky = (ImageView) tmp.findViewById(R.id.sticky_icon);
+		if(mSticky){
+			sticky.setImageResource(R.drawable.sticky);
+			sticky.setVisibility(View.VISIBLE);
+		}
+		if(mBookmarked){
+			sticky.setImageResource(R.drawable.blue_star);
+			sticky.setVisibility(View.VISIBLE);
+		}
+		if(!mSticky && !mBookmarked){
+			sticky.setVisibility(View.GONE);
+		}
+		author.setText(mAuthor);
+		TextView unread = (TextView) tmp.findViewById(R.id.unread_count);
+		if(mUnreadCount >=0){
+			unread.setVisibility(View.VISIBLE);
+			unread.setText(mUnreadCount+"");
+            if (mUnreadCount == 0){
+                unread.setBackgroundResource(R.drawable.unread_background_dim);
+            }
+		}else{
+			unread.setVisibility(View.GONE);
+		}
+		TextView title = (TextView) tmp.findViewById(R.id.title);
+		title.setText(Html.fromHtml(mTitle));
+		if(prefs != null){
+			title.setTextColor(prefs.postFontColor);
+			author.setTextColor(prefs.postFontColor2);
+		}
+		return tmp;
+	}
+
+	@Override
+	public int getID() {
+		return threadId;
+	}
+
+	@Override
+	public DISPLAY_TYPE getType() {
+		return DISPLAY_TYPE.THREAD;
+	}
+
+	@Override
+	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
+		return mPosts.get(mPosts.size()-1);
+	}
+	public void prunePages(int save){
+		ArrayList<AwfulPost> tmp = mPosts.get(save);
+		mPosts.clear();
+		if(tmp != null){
+			mPosts.put(save, tmp);
+		}
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+	@Override
+	public int getChildrenCount(int page) {
+		if(mPosts.get(page) == null){
+			return 0;
+		}
+		return mPosts.get(page).size();
+	}
+
+	@Override
+	public AwfulDisplayItem getChild(int page, int ix) {
+		if(mPosts.get(page) == null){
+			return null;
+		}
+		return mPosts.get(page).get(ix);
+	}
+	public int getLastReadPage(int postPerPage) {
+		if(getUnreadCount()==-1){
+			return 1;
+		}
+		return (mTotalPosts-mUnreadCount+1)/postPerPage+1;
+	}
+	public int getLastReadPost(int postPerPage) {
+		if(getUnreadCount()==-1){
+			return 0;
+		}
+		return (mTotalPosts-mUnreadCount+1)%postPerPage;
+	}
+	public void setTotalCount(int postTotal, int perPage) {
+		mTotalPosts = postTotal;
+		setLastPage(postTotal/perPage+1);
+	}
+
+	public int getTotalCount() {
+		return mTotalPosts;
+	}
+
+	public boolean isPageCached(int page) {
+		return mPosts.get(page) != null;
+	}
 }

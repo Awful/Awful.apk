@@ -27,14 +27,10 @@
 
 package com.ferg.awful;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,12 +42,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.ferg.awful.ForumsIndexActivity.AwfulForumAdapter;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.thread.AwfulForum;
 
-public class AwfulLoginActivity extends Activity {
+public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
 
     private LoginTask mLoginTask;
@@ -73,6 +67,8 @@ public class AwfulLoginActivity extends Activity {
         mPassword = (EditText) findViewById(R.id.password);
 
         mLogin.setOnClickListener(onLoginClick);
+
+        mUsername.requestFocus();
         
         final ImageView image = (ImageView) findViewById(R.id.dealwithit); 
         image.setOnClickListener(new OnClickListener() {
@@ -81,6 +77,15 @@ public class AwfulLoginActivity extends Activity {
 				((AnimationDrawable) image.getDrawable()).start();
 			}
 		});
+    }
+
+    //Not sure if this needs a @Override since it worked without one
+    public void onResume(){
+    	super.onResume();
+    	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
+		if (loggedIn) {
+			this.finish();
+		}
     }
     
     @Override

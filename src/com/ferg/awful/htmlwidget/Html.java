@@ -23,8 +23,29 @@
 
 package com.ferg.awful.htmlwidget;
 
+import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.htmlcleaner.DomSerializer;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
+import com.ferg.awful.R;
+import com.ferg.awful.R.color;
+import com.ferg.awful.preferences.AwfulPreferences;
+
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -33,6 +54,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -46,18 +68,7 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
-
-import org.ccil.cowan.tagsoup.HTMLSchema;
-import org.ccil.cowan.tagsoup.Parser;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-
-import java.io.IOException;
-import java.io.StringReader;
+import android.util.Log;
 
 /**
  * This class processes HTML strings into displayable styled text.
@@ -86,11 +97,18 @@ class Html {
      */
     public static interface TagHandler {
         /**
-         * This method will be called whenn the HTML parser encounters
-         * a tag that it does not know how to interpret.
+         * This gets called when a tag opening is encountered. This method should just put the
+         * required Spannable in the output parameter - recursively handling the TagNode
+         * contents is NOT the responsibility of this handler
          */
-        public void handleTag(boolean opening, String tag, Attributes attributes,
-                                 Editable output, XMLReader xmlReader);
+        public void handleStartTag(Element node, Editable output);
+        
+        /**
+         * This gets called when a closing tag is encountered. This method should just put the
+         * required Spannable in the output parameter - recursively handling the TagNode
+         * contents is NOT the responsibility of this handler
+         */
+        public void handleEndTag(Element node, Editable output);
     }
 
     private Html() { }
@@ -104,16 +122,7 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source) {
-        return fromHtml(source, null, null);
-    }
-
-    /**
-     * Lazy initialization holder for HTML parser. This class will
-     * a) be preloaded by the zygote, or b) not loaded until absolutely
-     * necessary.
-     */
-    private static class HtmlParser {
-        private static final HTMLSchema schema = new HTMLSchema();
+        return fromHtml(source, null, null, null);
     }
 
     /**
@@ -126,21 +135,12 @@ class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
-        Parser parser = new Parser();
-        try {
-            parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
-        } catch (org.xml.sax.SAXNotRecognizedException e) {
-            // Should not happen.
-            throw new RuntimeException(e);
-        } catch (org.xml.sax.SAXNotSupportedException e) {
-            // Should not happen.
-            throw new RuntimeException(e);
-        }
-
+                                   TagHandler tagHandler, Context context) {
+        HtmlCleaner cleaner = new HtmlCleaner();
+        
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        parser);
+                        cleaner,context);
         return converter.convert();
     }
 
@@ -196,13 +196,13 @@ class Html {
             next = text.nextSpanTransition(i, end, QuoteSpan.class);
             QuoteSpan[] quotes = text.getSpans(i, next, QuoteSpan.class);
 
-            for (QuoteSpan quote: quotes) {
+            for (int j=0;j<quotes.length;j++) {
                 out.append("<blockquote>");
             }
 
             withinBlockquote(out, text, i, next);
 
-            for (QuoteSpan quote: quotes) {
+            for (int j=0;j<quotes.length;j++) {
                 out.append("</blockquote>\n");
             }
         }
@@ -387,41 +387,45 @@ class Html {
     }
 }
 
-class HtmlToSpannedConverter implements ContentHandler {
+class HtmlToSpannedConverter {
 
     private static final float[] HEADER_SIZES = {
         1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f,
     };
 
     private String mSource;
-    private XMLReader mReader;
+    private HtmlCleaner mCleaner;
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
+    private DomSerializer mDomSerializer;
+    private Context mContext;
 
     public HtmlToSpannedConverter(
             String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            Parser parser) {
+            HtmlCleaner cleaner, Context context) {
         mSource = source;
+	   mContext = context;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
-        mReader = parser;
+        
+        mCleaner = cleaner;
+        mDomSerializer = new DomSerializer(cleaner.getProperties());
     }
 
     public Spanned convert() {
-
-        mReader.setContentHandler(this);
-        try {
-            mReader.parse(new InputSource(new StringReader(mSource)));
-        } catch (IOException e) {
-            // We are reading from a string. There should not be IO problems.
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            // TagSoup doesn't throw parse exceptions.
-            throw new RuntimeException(e);
-        }
-
+    	TagNode rootTagNode = mCleaner.clean(mSource);
+    	Document root;
+		try {
+			root = mDomSerializer.createDOM(rootTagNode);
+		} catch (ParserConfigurationException e) {
+			// Shouldn't happen, so long as HtmlCleaner is valid
+			e.printStackTrace();
+			return null;
+		}
+    	traverse(root.getDocumentElement());
+    	
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
@@ -446,10 +450,85 @@ class HtmlToSpannedConverter implements ContentHandler {
         return mSpannableStringBuilder;
     }
 
-    private void handleStartTag(String tag, Attributes attributes) {
+    private void traverse(Element node) {
+		handleStartTag(node);
+		
+		NodeList children = node.getChildNodes();
+		int numChildren = children.getLength();
+		Node child;
+		for(int i=0;i<numChildren;i++) {
+			child = children.item(i);
+			switch(child.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				traverse((Element) child);
+				break;
+			case Node.TEXT_NODE:
+				characters(((Text) child).getData());
+				break;
+			default:
+				Log.w("Html", "Traversing non-text, non-element node");
+			}
+		}
+		
+		handleEndTag(node);
+	}
+	
+
+    public void characters(String str) {
+    	char[] ch = str.toCharArray();
+    	int length = ch.length;
+    	
+        StringBuilder sb = new StringBuilder();
+
+        /*
+         * Ignore whitespace that immediately follows other whitespace;
+         * newlines count as spaces.
+         */
+
+        for (int i = 0; i < length; i++) {
+            char c = ch[i];
+
+            // If we're in something like a code block, we do actually want line breaks
+            // to break lines
+            if ((mNumTagsEnforcingTrueWhitespace == 0) && (c == ' ' || c == '\n')) {
+                char pred;
+                int len = sb.length();
+
+                if (len == 0) {
+                    len = mSpannableStringBuilder.length();
+
+                    if (len == 0) {
+                        pred = '\n';
+                    } else {
+                        pred = mSpannableStringBuilder.charAt(len - 1);
+                    }
+                } else {
+                    pred = sb.charAt(len - 1);
+                }
+
+                if (pred != ' ' && pred != '\n') {
+                    sb.append(' ');
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+
+        mSpannableStringBuilder.append(sb);
+    }
+    
+    private int mNumTagsEnforcingTrueWhitespace = 0;
+    
+    private void handleStartTag(Element node) {
+    	String tag = node.getTagName();
+    	
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
-            // so we can safely emite the linebreaks when we handle the close tag.
+            // so we can safely emit the linebreaks when we handle the close tag.
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        	handleP(mSpannableStringBuilder);
+            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Small());
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("div")) {
@@ -471,14 +550,18 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("small")) {
             start(mSpannableStringBuilder, new Small());
         } else if (tag.equalsIgnoreCase("font")) {
-            startFont(mSpannableStringBuilder, attributes);
+            startFont(mSpannableStringBuilder, node);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
             start(mSpannableStringBuilder, new Blockquote());
         } else if (tag.equalsIgnoreCase("tt")) {
             start(mSpannableStringBuilder, new Monospace());
+        } else if (tag.equalsIgnoreCase("pre")) {
+            start(mSpannableStringBuilder, new Monospace());
+        } else if (tag.equalsIgnoreCase("code")) {
+        	mNumTagsEnforcingTrueWhitespace++;
         } else if (tag.equalsIgnoreCase("a")) {
-            startA(mSpannableStringBuilder, attributes);
+            startA(mSpannableStringBuilder, node);
         } else if (tag.equalsIgnoreCase("u")) {
             start(mSpannableStringBuilder, new Underline());
         } else if (tag.equalsIgnoreCase("sup")) {
@@ -491,15 +574,25 @@ class HtmlToSpannedConverter implements ContentHandler {
             handleP(mSpannableStringBuilder);
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img") && mImageGetter != null) {
-            startImg(mSpannableStringBuilder, attributes, mImageGetter);
+            startImg(mSpannableStringBuilder, node, mImageGetter);
+        } else if(tag.equalsIgnoreCase("span")){
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+        		start(mSpannableStringBuilder, new Span());
+        	}
         } else if (mTagHandler != null) {
-            mTagHandler.handleTag(true, tag, attributes, mSpannableStringBuilder, mReader);
+            mTagHandler.handleStartTag(node, mSpannableStringBuilder);
         }
     }
 
-    private void handleEndTag(String tag) {
+    private void handleEndTag(Element node) {
+    	String tag = node.getTagName();
+    	
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        	handleP(mSpannableStringBuilder);
+            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("div")) {
@@ -524,25 +617,32 @@ class HtmlToSpannedConverter implements ContentHandler {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
+            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan(PreferenceManager.getDefaultSharedPreferences(mContext).getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote))));
         } else if (tag.equalsIgnoreCase("tt")) {
-            end(mSpannableStringBuilder, Monospace.class,
-                    new TypefaceSpan("monospace"));
+            end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
+        } else if (tag.equalsIgnoreCase("pre")) {
+        	end(mSpannableStringBuilder, Monospace.class, new TypefaceSpan("monospace"));
+        } else if (tag.equalsIgnoreCase("code")) {
+        	mNumTagsEnforcingTrueWhitespace--;
         } else if (tag.equalsIgnoreCase("a")) {
-            endA(mSpannableStringBuilder);
+            endA(mSpannableStringBuilder,mContext);
         } else if (tag.equalsIgnoreCase("u")) {
             end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
         } else if (tag.equalsIgnoreCase("sup")) {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
+        }else if (tag.equalsIgnoreCase("span")) {
+        	if(node.getAttribute("class").equals("bbc-spoiler")){
+            endSpan(mSpannableStringBuilder,mContext);
+        	}
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             handleP(mSpannableStringBuilder);
             endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
-            mTagHandler.handleTag(false, tag, null, mSpannableStringBuilder, mReader);
+            mTagHandler.handleEndTag(node, mSpannableStringBuilder);
         }
     }
 
@@ -554,10 +654,9 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         String nm = charSeq.toString();
 
-        // XXX This code is copied from Integer.decode() so we don't
+        // This code is copied from Integer.decode() so we don't
         // have to instantiate an Integer!
 
-        int value;
         int sign = 1;
         int index = 0;
         int len = nm.length();
@@ -614,12 +713,12 @@ class HtmlToSpannedConverter implements ContentHandler {
         text.append("\n");
     }
 
-    private static Object getLast(Spanned text, Class kind) {
+    private static <T> T getLast(Spanned text, Class<T> kind) {
         /*
          * This knows that the last returned object from getSpans()
          * will be the most recently added.
          */
-        Object[] objs = text.getSpans(0, text.length(), kind);
+        T[] objs = text.getSpans(0, text.length(), kind);
 
         if (objs.length == 0) {
             return null;
@@ -633,7 +732,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         text.setSpan(mark, len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void end(SpannableStringBuilder text, Class kind,
+    private static <T> void end(SpannableStringBuilder text, Class<T> kind,
                             Object repl) {
         int len = text.length();
         Object obj = getLast(text, kind);
@@ -648,9 +747,8 @@ class HtmlToSpannedConverter implements ContentHandler {
         return;
     }
 
-    private static void startImg(SpannableStringBuilder text,
-                                 Attributes attributes, Html.ImageGetter img) {
-        String src = attributes.getValue("", "src");
+    private static void startImg(SpannableStringBuilder text, Element node, Html.ImageGetter img) {
+        String src = node.getAttribute("src");
         Drawable d = null;
 
         if (img != null) {
@@ -668,10 +766,9 @@ class HtmlToSpannedConverter implements ContentHandler {
                      Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private static void startFont(SpannableStringBuilder text,
-                                  Attributes attributes) {
-        String color = attributes.getValue("", "color");
-        String face = attributes.getValue("", "face");
+    private static void startFont(SpannableStringBuilder text, Element node) {
+        String color = node.getAttribute("color");
+        String face = node.getAttribute("face");
 
         int len = text.length();
         text.setSpan(new Font(color, face), len, len, Spannable.SPAN_MARK_MARK);
@@ -744,14 +841,14 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    private static void startA(SpannableStringBuilder text, Attributes attributes) {
-        String href = attributes.getValue("", "href");
+    private static void startA(SpannableStringBuilder text, Element node) {
+        String href = node.getAttribute("href");
 
         int len = text.length();
         text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void endA(SpannableStringBuilder text) {
+    private static void endA(SpannableStringBuilder text, Context context) {
         int len = text.length();
         Object obj = getLast(text, Href.class);
         int where = text.getSpanStart(obj);
@@ -764,8 +861,29 @@ class HtmlToSpannedConverter implements ContentHandler {
             if (h.mHref != null) {
                 text.setSpan(new URLSpan(h.mHref), where, len,
                              Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if(context != null){
+                text.setSpan(new ForegroundColorSpan(PreferenceManager.getDefaultSharedPreferences(context).getInt("link_quote_color", context.getResources().getColor(R.color.link_quote))), where, len,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
             }
+
         }
+    }
+
+	private static void endSpan(SpannableStringBuilder text, Context context) {
+        int len = text.length();
+        Object obj = getLast(text, Span.class);
+        int where = text.getSpanStart(obj);
+
+        text.removeSpan(obj);
+        if(where != len && where != -1){
+        	int fg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_font_color",context.getResources().getColor(R.color.default_post_font));
+        	int bg = PreferenceManager.getDefaultSharedPreferences(context).getInt("default_post_background_color", context.getResources().getColor(R.color.background));
+            text.setSpan(new BackgroundColorSpan(fg), where, len, Spannable.SPAN_MARK_MARK);
+            text.setSpan(new SpoilerSpan(fg,bg), where, len, Spannable.SPAN_MARK_MARK);
+
+        }
+
     }
 
     private static void endHeader(SpannableStringBuilder text) {
@@ -791,77 +909,6 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
     }
 
-    public void setDocumentLocator(Locator locator) {
-    }
-
-    public void startDocument() throws SAXException {
-    }
-
-    public void endDocument() throws SAXException {
-    }
-
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
-    }
-
-    public void endPrefixMapping(String prefix) throws SAXException {
-    }
-
-    public void startElement(String uri, String localName, String qName, Attributes attributes)
-            throws SAXException {
-        handleStartTag(localName, attributes);
-    }
-
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        handleEndTag(localName);
-    }
-
-    public void characters(char ch[], int start, int length) throws SAXException {
-        StringBuilder sb = new StringBuilder();
-
-        /*
-         * Ignore whitespace that immediately follows other whitespace;
-         * newlines count as spaces.
-         */
-
-        for (int i = 0; i < length; i++) {
-            char c = ch[i + start];
-
-            if (c == ' ' || c == '\n') {
-                char pred;
-                int len = sb.length();
-
-                if (len == 0) {
-                    len = mSpannableStringBuilder.length();
-
-                    if (len == 0) {
-                        pred = '\n';
-                    } else {
-                        pred = mSpannableStringBuilder.charAt(len - 1);
-                    }
-                } else {
-                    pred = sb.charAt(len - 1);
-                }
-
-                if (pred != ' ' && pred != '\n') {
-                    sb.append(' ');
-                }
-            } else {
-                sb.append(c);
-            }
-        }
-
-        mSpannableStringBuilder.append(sb);
-    }
-
-    public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {
-    }
-
-    public void processingInstruction(String target, String data) throws SAXException {
-    }
-
-    public void skippedEntity(String name) throws SAXException {
-    }
-
     private static class Bold { }
     private static class Italic { }
     private static class Underline { }
@@ -871,6 +918,7 @@ class HtmlToSpannedConverter implements ContentHandler {
     private static class Blockquote { }
     private static class Super { }
     private static class Sub { }
+    private static class Span { }
 
     private static class Font {
         public String mColor;

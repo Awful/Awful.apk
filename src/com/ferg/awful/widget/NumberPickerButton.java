@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.ferg.awful;
+package com.ferg.awful.widget;
+
+import com.ferg.awful.R;
+import com.ferg.awful.R.id;
 
 import android.content.Context;
 import android.util.AttributeSet;

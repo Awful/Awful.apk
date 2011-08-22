@@ -1,0 +1,5 @@
+<resources>
+    <!-- For API level 11 or later, we can use the magical DialogWhenLarge theme. -->
+    <style name="ThemeDialogWhenLarge" parent="android:style/Theme.Holo.DialogWhenLarge">
+    </style>
+</resources>

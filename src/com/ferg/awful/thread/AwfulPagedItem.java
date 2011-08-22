@@ -27,40 +27,49 @@
 
 package com.ferg.awful.thread;
 
+import java.util.ArrayList;
+
 import android.util.Log;
 
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.constants.Constants;
 
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";
 
-	private static final String CURRENT_PAGE = "//span[@class='curpage']";
-	private static final String LAST_PAGE    = "//a[@class='pagenumber']";
+	protected int mLastPage;
+    protected String mTitle;
+	
+	public abstract ArrayList<? extends AwfulDisplayItem> getChildren(int page);
+	public abstract int getChildrenCount(int page);
+	public abstract AwfulDisplayItem getChild(int page, int ix);
+	public abstract boolean isPageCached(int page);
 
-	private int mCurrentPage;
-	private int mLastPage;
-
-	public void parsePageNumbers(TagNode aForum) throws Exception {
-		Object[] nodeList = aForum.evaluateXPath(CURRENT_PAGE);
-		if (nodeList.length > 0) {
-			mCurrentPage = Integer.parseInt(((TagNode) nodeList[0]).getText().toString());
+	public int parsePageNumbers(TagNode aForum) throws Exception {
+		int currentPage = 1;
+		TagNode[] tarCurrentPage = aForum.getElementsByAttValue("class", "curpage", true, true);
+		if (tarCurrentPage.length > 0) {
+			currentPage = Integer.parseInt(tarCurrentPage[0].getText().toString());
+		}else{
+			mLastPage = 1;
+			currentPage = 1;
+			return currentPage;
 		}
 
-		nodeList = aForum.evaluateXPath(LAST_PAGE);
-		if (nodeList.length > 0) {
+		//nodeList = aForum.evaluateXPath(LAST_PAGE);
+		TagNode[] tarLastPage = aForum.getElementsByAttValue("class", "pagenumber", true, true);
+		if (tarLastPage.length > 0) {
 			// We'll look at the last link in the page bar first. If it has the "next page"
 			// title attribute, we'll go back one to grab the highest direct page number. Otherwise
 			// we'll be looking at the Last link, and we can parse out the page number from there.
-			int index = nodeList.length - 1;
+			int index = tarLastPage.length - 1;
 
-			TagNode node = (TagNode) nodeList[index];
+			TagNode node = tarLastPage[index];
 			if (node.hasAttribute("title")) {
 				if (!node.getAttributeByName("title").equals("last page")) {
 					Log.i(TAG, "Next button!");
-					node = (TagNode) nodeList[index - 1];
+					node = tarLastPage[index - 1];
 				}
 			}
 
@@ -74,20 +83,13 @@ public abstract class AwfulPagedItem {
 
 				if (keyValue[0].equals("amp;" + Constants.PARAM_PAGE)) {
 					mLastPage = Integer.parseInt(keyValue[1]);
-                    if (mCurrentPage > mLastPage) {
-                        mLastPage = mCurrentPage;
+                    if (currentPage > mLastPage) {
+                        mLastPage = currentPage;
                     }
 				}
 			}
 		}
-	}
-
-	public int getCurrentPage() {
-		return mCurrentPage;
-	}
-
-	public void setCurrentPage(int aCurrentPage) {
-		mCurrentPage = aCurrentPage;
+		return currentPage;
 	}
 
 	public int getLastPage() {
@@ -96,5 +98,21 @@ public abstract class AwfulPagedItem {
 
 	public void setLastPage(int aLastPage) {
 		mLastPage = aLastPage;
+	}
+	public String getTitle() {
+        return mTitle;
+    }
+	public void setTitle(String aTitle) {
+        mTitle = aTitle;
+    }
+
+
+	public abstract int getID();
+	public int getLastReadPage(int postsPerPage) {
+		return 1;
+	}
+
+	public boolean isPaged(){
+		return (getLastPage() > 1);
 	}
 }

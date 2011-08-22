@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/prefs_global">
+        <ListPreference
+            android:key="orientation"
+            android:title="@string/orientation"
+            android:entries="@array/orientations"
+            android:entryValues="@array/orientation_values"
+            android:defaultValue="default"
+            />
+    </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_thread_display">
+		<CheckBoxPreference android:key="images_enabled" 
+			android:title="@string/load_images"
+			android:summary="@string/load_images_summary"
+			android:defaultValue="true"
+			/>
 		<CheckBoxPreference
 			android:key="use_large_scrollbar"
 			android:title="@string/use_large_scrollbar"
@@ -8,15 +22,18 @@
 			android:defaultValue="true"
 			/>
 		<com.ferg.awful.preferences.NumericEditTextPreference
+			android:key="post_per_page"
+			android:title="@string/setting_posts_per_page"
+			android:defaultValue="40"
+			/>
+		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="default_post_font_size"
 			android:title="@string/default_post_font_size"
 			android:defaultValue="15"
 			/>
-		<com.ferg.awful.preferences.ColorPickerPreference
-		   	android:key="default_post_font_color"
-		   	android:title="@string/default_post_font_color"
-		   	android:defaultValue="@color/default_post_font"
-		   	alphaSlider="false"
+		<Preference 
+			android:key="colors" 
+			android:title="@string/colors"
 			/>
 	</PreferenceCategory>
 	<Preference

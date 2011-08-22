@@ -3,18 +3,21 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="#f4f4f4"
+	android:background="@color/background"
     >
-    <include
-        layout="@layout/actionbar_index"
-        android:id="@+id/action_bar" 
+    <ViewStub
+        android:id="@+id/actionbar"
+        android:inflatedId="@+id/actionbar_inflated"
+        android:layout="@layout/actionbar_index"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
         />
-	<ExpandableListView
+	<ListView
 		android:id="@+id/forum_list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
         android:dividerHeight="1px"
-		android:cacheColorHint="#f4f4f4"
+		android:cacheColorHint="@color/background"
 		/>
 </LinearLayout>

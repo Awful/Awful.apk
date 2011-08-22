@@ -33,6 +33,7 @@ public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
+    public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
     public static final String FUNCTION_THREAD          = BASE_URL + "/showthread.php";
@@ -58,6 +59,8 @@ public class Constants {
     public static final String PARAM_PER_PAGE  = "perpage";
     public static final String PARAM_INDEX     = "index";
     public static final String PARAM_BOOKMARK  = "bookmark";
+    
+    public static final String FRAGMENT_PTI    = "pti";
 
     // Intent parameters
     public static final String FORUM     = "forum";
@@ -68,6 +71,10 @@ public class Constants {
     public static final String QUOTE     = "quote";
     public static final String PAGE      = "page";
     public static final String EDITING   = "editing";
+    public static final String MODAL     = "modal";
+    public static final String SHORTCUT  = "shortcut";
+
+    public static final String FORM_KEY = "form_key";
 
     public static final String PREFERENCES = "prefs";
     
@@ -83,9 +90,16 @@ public class Constants {
 
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awful.provider";
+    
+    //broadcast intent
+    public static final String DATA_UPDATE_BROADCAST = "com.ferg.awful.service.dataupdated";
+	public static final String DATA_UPDATE_ID_EXTRA = "updatedID";
+	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";
+	public static final String DATA_UPDATE_STATUS_EXTRA = "updateStatus";
+    
+    //TODO: make this user configurable, 
+    //or reduce to speed processing time once auto-load is in
+    public static final int ITEMS_PER_PAGE = 40;
 
-	//TODO: Make these colors changeable by the user?
-	public static int READ_BACKGROUND_EVEN= Color.rgb(187, 204, 221);
-    public static int READ_BACKGROUND_UNEVEN = Color.rgb(221, 238, 255);
     
 }

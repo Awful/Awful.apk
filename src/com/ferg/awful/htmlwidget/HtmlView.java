@@ -16,6 +16,7 @@
 
 package com.ferg.awful.htmlwidget;
 
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
@@ -33,11 +34,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.style.CharacterStyle;
 import android.text.style.ImageSpan;
+import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -157,6 +160,7 @@ public final class HtmlView extends TextView {
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI("www.youtube.com", "v/*", EMBED_YOUTUBE);
+        sUriMatcher.addURI("www.youtube-nocookie.com", "v/*", EMBED_YOUTUBE);
     }
 
     /**
@@ -192,6 +196,8 @@ public final class HtmlView extends TextView {
      * The y-position of the last touch event.
      */
     private int mLastY;
+    
+    private boolean imagesEnabled;
 
     private String mHtml;
 
@@ -307,7 +313,7 @@ public final class HtmlView extends TextView {
         super.onRestoreInstanceState(ss.getSuperState());
         String html = ss.mHtml;
         if (html != null) {
-            setHtml(html);
+            setHtml(html, true);
         }
     }
 
@@ -327,10 +333,10 @@ public final class HtmlView extends TextView {
         }
     }
 
-    private void handleEmbed(Attributes attributes, Editable output) {
-        String src = attributes.getValue("src");
-        String type = attributes.getValue("type");
-        boolean allowFullScreen = Boolean.parseBoolean(attributes.getValue("allowfullscreen"));
+    private void handleEmbed(Element node, Editable output) {
+        String src = node.getAttribute("src");
+        String type = node.getAttribute("type");
+        boolean allowFullScreen = Boolean.parseBoolean(node.getAttribute("allowfullscreen"));
 
         Uri uri = null;
         int match = UriMatcher.NO_MATCH;
@@ -351,7 +357,7 @@ public final class HtmlView extends TextView {
                     // Try opening with YouTube application
                     new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId)),
                     // Fallback to opening website
-                    new Intent(Intent.ACTION_VIEW, Uri.parse("www.youtube.com/watch?v=" + videoId))
+                    new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId))
             };
         } else {
             if ("application/x-shockwave-flash".equals(type) && allowFullScreen) {
@@ -386,7 +392,7 @@ public final class HtmlView extends TextView {
         if (intents != null) {
             output.setSpan(new IntentsSpan(intents), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        if (frame != null && snapshotUrl != null) {
+        if (frame != null && snapshotUrl != null && PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("images_enabled", true)) {
             int layerId = android.R.id.background;
             Bitmap snapshotBitmap = getImage(snapshotUrl);
             if (snapshotBitmap != null) {
@@ -400,10 +406,10 @@ public final class HtmlView extends TextView {
         }
     }
 
-    private void handleImg(Attributes attributes, Editable output) {
-        String src = attributes.getValue("src");
-        String alt = attributes.getValue("alt");
-        String title = attributes.getValue("title");
+    private void handleImg(Element node, Editable output) {
+        String src = node.getAttribute("src");
+        String alt = node.getAttribute("alt");
+        String title = node.getAttribute("title");
         
         int start = output.length();
         output.append("\uFFFC");
@@ -451,7 +457,8 @@ public final class HtmlView extends TextView {
         }
     }
 
-    public void setHtml(String source) {
+    public void setHtml(String source, boolean loadImages) {
+        imagesEnabled = loadImages;
         if (source == null) {
             setText(null);
             return;
@@ -471,19 +478,34 @@ public final class HtmlView extends TextView {
             /**
              * {@inheritDoc}
              */
-            public void handleTag(boolean opening, String tag, Attributes attributes,
-                    Editable output, XMLReader xmlReader) {
-                if (opening) {
-                    if (tag.equalsIgnoreCase("embed")) {
-                        handleEmbed(attributes, output);
-                    } else if (tag.equalsIgnoreCase("img")) {
-                        handleImg(attributes, output);
+            @Override
+            public void handleStartTag(Element node, Editable output) {
+                String tag = node.getTagName();
+                
+                if (tag.equalsIgnoreCase("embed")) {
+                    handleEmbed(node, output);
+                } else if (tag.equalsIgnoreCase("img")) {
+                    if(imagesEnabled){
+                        handleImg(node, output);
+                    }else{
+                        if(node.getAttribute("title").equalsIgnoreCase("")){
+                            int start = output.length();
+                            output.append(node.getAttribute("src"));
+                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }else{
+                            int start = output.length();
+                            output.append(node.getAttribute("title"));
+                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
                     }
                 }
             }
+            
+            @Override
+            public void handleEndTag(Element node, Editable output) {}
         };
 
-        CharSequence text = Html.fromHtml(source, imageGetter, tagHandler);
+        CharSequence text = Html.fromHtml(source, imageGetter, tagHandler, getContext());
 
         // Although the text is not editable by the user, it needs to be
         // BufferType.EDITABLE so that asynchronous tasks can replace spans with

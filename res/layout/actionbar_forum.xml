@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
 <RelativeLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="55dip"
+	android:layout_height="45dip"
 	android:orientation="horizontal"
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
 	android:background="@drawable/bar"
 	>
-	<TextView 
+	<LinearLayout 
+        android:id="@+id/refresh_container"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:orientation="horizontal"
+        >
+	<ImageButton 
+            android:id="@+id/refresh"
+            style="@style/ActionBarButton"
+            android:src="@drawable/ic_menu_refresh"
+        	android:visibility="gone"
+            />
+    </LinearLayout>
+	<TextView
 		android:id="@+id/title"
         android:layout_toLeftOf="@+id/buttons"
-        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@+id/refresh_container"
         android:layout_marginTop="8dip"
+        android:ellipsize="none"
+        android:scrollHorizontally="true"
+        android:focusable="false"
+        android:focusableInTouchMode="true"
 		style="@style/ActionBarTitle"
 		/>
     <LinearLayout 
@@ -32,14 +49,5 @@
             style="@style/ActionBarButton"
             android:src="@drawable/gear"
             />
-        <ImageView 
-            style="@style/ActionBarSeparator" 
-            />
-        <ImageButton 
-            android:id="@+id/next_page"
-            style="@style/ActionBarButton"
-            android:src="@drawable/r_arrow"
-            />
     </LinearLayout>
 </RelativeLayout>
-</merge>

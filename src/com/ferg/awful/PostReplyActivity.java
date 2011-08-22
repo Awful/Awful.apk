@@ -27,205 +27,27 @@
 
 package com.ferg.awful;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.support.v4.app.FragmentTransaction;
+import android.view.Window;
 
-import com.ferg.awful.constants.Constants;
-import com.ferg.awful.reply.Reply;
-import com.ferg.awful.thread.AwfulThread;
-
-public class PostReplyActivity extends Activity {
-    private static final String TAG = "PostReplyActivity";
-
-	public static final int RESULT_POSTED = 1;
-
-    private FetchFormKeyTask mFetchTask;
-    private SubmitReplyTask mSubmitTask;
-
-    private Button mSubmit;
-    private EditText mMessage;
-	private ProgressDialog mDialog;
-	private TextView mTitle;
-
-	private AwfulThread mThread;
-	private String mFormKey;
-
+public class PostReplyActivity extends AwfulActivity {
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.post_reply);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.post_reply_activity);
 
-        mSubmit  = (Button) findViewById(R.id.submit_button);
-        mMessage = (EditText) findViewById(R.id.post_message);
-		mTitle   = (TextView) findViewById(R.id.title);
-
-        Intent caller = getIntent();
-
-		mThread = (AwfulThread) caller.getParcelableExtra(Constants.THREAD);
-		
-		mTitle.setText(getString(R.string.post_reply));
-
-        // If we're quoting a post, add it to the message box
-        if (caller.hasExtra(Constants.QUOTE)) {
-            String quoteText = caller.getStringExtra(Constants.QUOTE);
-            mMessage.setText(quoteText.replaceAll("&quot;", "\""));
-        }
-
-        mSubmit.setOnClickListener(onSubmitClick);
+        setContentPane();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-		// We'll enable it once we have a formkey
-		mSubmit.setEnabled(false);
-
-		mFetchTask = new FetchFormKeyTask();
-        mFetchTask.execute(mThread.getThreadId());
-    }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
-        }
-    }
-        
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
-        }
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-
-        if (mFetchTask != null) {
-            mFetchTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
-        }
-    }
-
-    private View.OnClickListener onSubmitClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            boolean editing = getIntent().getBooleanExtra(Constants.EDITING, false);
-
-			mSubmitTask = new SubmitReplyTask(editing);
-
-            if (editing) {
-                mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThread.getThreadId(), getIntent().getStringExtra(Constants.POST_ID));
-            } else {
-                mSubmitTask.execute(mMessage.getText().toString(), 
-                        mFormKey, mThread.getThreadId());
-            }
-        }
-    };
-
-	private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
-        private boolean mEditing;
-
-        public SubmitReplyTask(boolean aEditing) {
-            mEditing = aEditing;
-        }
-
-		public void onPreExecute() {
-            mDialog = ProgressDialog.show(PostReplyActivity.this, "Posting", 
-                "Hopefully it didn't suck...", true);
-        }
-
-        public Void doInBackground(String... aParams) {
-            if (!isCancelled()) {
-                try {
-                    if (mEditing) {
-                        Log.i(TAG, "Editing!!");
-                        Reply.edit(aParams[0], aParams[1], aParams[2], aParams[3]);
-                    } else {
-                        Reply.post(aParams[0], aParams[1], aParams[2]);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return null;
-        }
-
-        public void onPostExecute(Void aResult) {
-            if (!isCancelled()) {
-                mDialog.dismiss();
-
-				PostReplyActivity.this.setResult(RESULT_POSTED);
-				PostReplyActivity.this.finish();
-            }
-        }
-    }
-
-    private class FetchFormKeyTask extends AsyncTask<String, Void, String> {
-        public String doInBackground(String... aParams) {
-            String result = null;
-
-            if (!isCancelled()) {
-                try {
-                    result = Reply.getFormKey(aParams[0]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return result;
-        }
-
-        public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (aResult.length() > 0) {
-                    Log.i(TAG, aResult);
-
-                    mFormKey = aResult;
-                    mSubmit.setEnabled(true);
-                }
-            }
-        }
+	public void setContentPane() {
+		if (getSupportFragmentManager().findFragmentById(R.id.replycontent) == null) {
+			PostReplyFragment fragment = PostReplyFragment.newInstance(getIntent().getExtras());
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.replycontent, fragment);
+			transaction.commit();
+		}
 	}
 }

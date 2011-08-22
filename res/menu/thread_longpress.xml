@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/goto_firstpage" android:id="@+id/first_page"></item>
+    <item android:id="@+id/last_page" android:title="@string/goto_lastpage"></item>
+    <item android:id="@+id/thread_bookmark" android:title="@string/toggle_bookmark"></item>
+    <item android:title="@string/mark_unread" android:id="@+id/mark_thread_unread"></item>
+    
+</menu>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
+<com.ferg.awful.widget.CheckableRelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -10,7 +10,6 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="30dip"
 		>
 		<TextView
 			android:id="@+id/title"
@@ -19,9 +18,8 @@
             android:singleLine="true"
             android:ellipsize="marquee"
 			android:textSize="18dip"
-			android:textColor="#000000"
+			android:textColor="@color/default_post_font"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/parent_button"
 			/>
 		<TextView
 			android:id="@+id/subtext"
@@ -29,27 +27,8 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@id/title"
 			android:textSize="16dip"
-			android:textColor="#8c8c8c"
+			android:textColor="@color/secondary_post_font"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@id/parent_button"
 			/>
-        <RelativeLayout
-            android:id="@id/parent_button"
-            android:layout_width="45dip"
-            android:layout_height="45dip"
-            android:paddingLeft="10dip"
-            android:paddingRight="4dip"
-            android:focusable="false"
-            android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            >
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_centerVertical="true"
-                android:src="@drawable/r_blue_arrow"
-                />
-        </RelativeLayout>
 	</RelativeLayout>
-</RelativeLayout>
+</com.ferg.awful.widget.CheckableRelativeLayout>
