@@ -74,7 +74,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
                 public String toString(int value) {
                     mArgs[0] = value;
                     mBuilder.delete(0, mBuilder.length());
-                    mFmt.format("%02d", mArgs);
+                    mFmt.format("%d", mArgs);
                     return mFmt.toString();
                 }
         };
@@ -82,21 +82,21 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
     private final Handler mHandler;
     private final Runnable mRunnable = new Runnable() {
         public void run() {
-			if (mIncrement) {
-				changeCurrent(mCurrent + 1);
-				if (mCurrent < mEnd) {
-					mHandler.postDelayed(this, mSpeed);
-				} else {
-					mHandler.postDelayed(this, mSpeed * 5);
-				}
-			} else if (mDecrement) {
-				changeCurrent(mCurrent - 1);
-				if (mCurrent > mStart) {
-					mHandler.postDelayed(this, mSpeed);
-				} else {
-					mHandler.postDelayed(this, mSpeed * 5);
-				}
-			}
+            if (mIncrement) {
+                changeCurrent(mCurrent + 1);
+                if (mCurrent < mEnd) {
+                    mHandler.postDelayed(this, mSpeed);
+                } else {
+                    mHandler.postDelayed(this, mSpeed * 5);
+                }
+            } else if (mDecrement) {
+                changeCurrent(mCurrent - 1);
+                if (mCurrent > mStart) {
+                    mHandler.postDelayed(this, mSpeed);
+                } else {
+                    mHandler.postDelayed(this, mSpeed * 5);
+                }
+            }
         }
     };
 
