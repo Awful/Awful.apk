@@ -564,6 +564,8 @@ class HtmlToSpannedConverter {
             startA(mSpannableStringBuilder, node);
         } else if (tag.equalsIgnoreCase("u")) {
             start(mSpannableStringBuilder, new Underline());
+        } else if (tag.equalsIgnoreCase("s")) {
+            start(mSpannableStringBuilder, new Strike());
         } else if (tag.equalsIgnoreCase("sup")) {
             start(mSpannableStringBuilder, new Super());
         } else if (tag.equalsIgnoreCase("sub")) {
@@ -628,6 +630,8 @@ class HtmlToSpannedConverter {
             endA(mSpannableStringBuilder,mContext);
         } else if (tag.equalsIgnoreCase("u")) {
             end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
+        } else if (tag.equalsIgnoreCase("s")) {
+            end(mSpannableStringBuilder, Strike.class, new StrikethroughSpan());
         } else if (tag.equalsIgnoreCase("sup")) {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
@@ -919,6 +923,7 @@ class HtmlToSpannedConverter {
     private static class Super { }
     private static class Sub { }
     private static class Span { }
+    private static class Strike {}
 
     private static class Font {
         public String mColor;
