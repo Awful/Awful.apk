@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
-    <dimen name="forum_item_margin">0dip</dimen>
+    <dimen name="forum_item_margin">4dip</dimen>
 </resources>
