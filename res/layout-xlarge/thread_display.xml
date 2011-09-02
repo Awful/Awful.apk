@@ -26,6 +26,13 @@
 			android:scrollingCache="true"
 			android:smoothScrollbar="false"
 			android:fastScrollEnabled="true"
+            android:visibility="gone"
 			/>
+        <WebView
+            android:background="#ffffff"
+            android:id="@+id/thread"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
 	</RelativeLayout>
 </LinearLayout>

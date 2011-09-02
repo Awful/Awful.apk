@@ -1,0 +1,37 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0" />
+<link rel="stylesheet" href="thread.css">
+<script src="zepto.js"></script>	
+<script src="ICanHaz.min.js"></script>	
+<script src="thread.js"></script>	
+</head>
+<body>
+<script id="post" type="text/html">
+    <tr>
+        <td>
+            <div class="userinfo">
+                <div class="username">
+                    {{ username }}
+                </div>
+                <div class="postdate">
+                    {{ postdate }}
+                </div>
+            </div>
+            <div class="avatar">
+                <img src="{{ avatar }}" />
+            </div>
+        </td>
+        <td>
+            <div class="post-content">
+                {{{ content }}}
+            </div>
+        </td>
+    </tr>
+</script>
+<div class="content">
+    <table id="thread-body" width="100%">
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+body {
+    font: Arial, helvetica;
+    font-size: 12pt;
+}
+
+#thread-body {
+    border: 1px solid #dddddd;
+}
+
+td {
+    border: 1px solid #dddddd;
+}

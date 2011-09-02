@@ -50,6 +50,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.webkit.WebView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AbsListView;
@@ -79,7 +80,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private TextView mTitle;
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-    
+
+    private WebView mWebView;
+
     private boolean queueDataUpdate;
     private Handler handler = new Handler();
     private class RunDataUpdate implements Runnable{
@@ -123,6 +126,8 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
+        } else {
+            mWebView = (WebView) result.findViewById(R.id.thread);
         }
         
         return result;
@@ -147,6 +152,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
+        } else {
+            mWebView.getSettings().setJavaScriptEnabled(true);
+            mWebView.loadUrl("file:///android_asset/thread.html");
         }
 
         getListView().setOnScrollListener(this);
