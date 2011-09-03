@@ -1,16 +1,95 @@
 body {
-    font: Arial, helvetica;
-    font-size: 12pt;
+    font: 13px Verdana, Arial, sans-serif
+    margin: 0px;
+    padding: 0;
+    width: 100%;
+}
+
+td {
+    border: 1px solid #c1c1c1;
+}
+
+img {
+    max-width: 400px;
+}
+
+h4 {
+    font-weight: bold;
+    margin: 0px;
+}
+
+table {
+    border-width: 1px;
+    border-collapse: collapse;
 }
 
 #thread-body {
     border: 1px solid #dddddd;
 }
 
-td {
-    border: 1px solid #dddddd;
+.bbc-block {
+    margin: 12px 32px;
+    border-bottom: 1px #999999 solid;
 }
 
-img {
-    max-width: 400px;
+.bbc-block h4 {
+    border-top: 1px #999999 solid;
+    padding: 8px 0 2px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: #555;
+}
+
+.bbc-block blockquote {
+    margin: 0 0 8px 0;
+    padding: 0;
+}
+
+.post-content {
+    vertical-align: top;
+    border-width: 1px;
+    border-collapse: collapse;
+}
+
+.username {
+    font-style: bold !important;
+}
+
+.userinfo, .post-content {
+    color: black;
+    font: normal normal normal 13px Verdana, Arial, sans-serif;
+    vertical-align: top;
+}
+
+.post-content {
+    padding: 5px 5px 1px;
+}
+
+.postdate, .post-tools {
+    color: black;
+    font: normal normal normal 10px Verdana, Arial, sans-serif;
+}
+
+.post-tools {
+    padding-left: 5px;
+}
+
+.userinfo {
+    padding: 5px;
+}
+
+.avatar {
+    text-align: center;
+    margin-top: 15px;
+    padding-bottom: 5px;
+}
+
+.usercolumn {
+    width: 13em;
+}
+
+.quote-button {
+    text-align: right;
+    margin-right: 15px;
+    padding: 4px;
 }

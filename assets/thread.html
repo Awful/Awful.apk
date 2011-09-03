@@ -9,10 +9,10 @@
 <body>
 <script id="post" type="text/html">
     <tr>
-        <td>
+        <td class="usercolumn" style="background: {{ background }}">
             <div class="userinfo">
                 <div class="username">
-                    {{ username }}
+                    <h4>{{ username }}</h4>
                 </div>
                 <div class="postdate">
                     {{ postdate }}
@@ -22,15 +22,28 @@
                 <img src="{{ avatar }}" />
             </div>
         </td>
-        <td>
+        <td style="background: {{ background }}">
             <div class="post-content">
                 {{{ content }}}
             </div>
         </td>
     </tr>
+    <tr>
+        <td style="background: {{ background }}">
+            <div class="post-tools">
+                <a href="#">1</a>
+                <a href="#">2</a>
+            </div>
+        </td>
+        <td style="background: {{ background }}">
+            <div class="quote-button">
+                <img src="file:///android_res/drawable/sa_quote.gif" />
+            </div>
+        </td>
+    </tr>
 </script>
 <div class="content">
-    <table id="thread-body" width="100%">
+    <table id="thread-body" width="100%" cellpadding="0">
     </table>
 </div>
 </body>

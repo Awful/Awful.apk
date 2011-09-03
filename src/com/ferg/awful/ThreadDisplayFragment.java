@@ -155,6 +155,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh.setOnClickListener(onButtonClick);
         } else {
             mWebView.getSettings().setJavaScriptEnabled(true);
+            mWebView.getSettings().setEnableSmoothTransition(true);
             mWebView.setWebChromeClient(new WebChromeClient() {
                 public void onConsoleMessage(String message, int lineNumber, String sourceID) {
                     Log.d("WebConsole", message + " -- From line " + lineNumber + " of " + sourceID);
