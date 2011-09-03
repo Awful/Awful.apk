@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
+import org.json.*;
 
 import android.content.SharedPreferences;
 import android.text.method.LinkMovementMethod;
@@ -116,6 +117,19 @@ public class AwfulPost implements AwfulDisplayItem {
 
     public AwfulThread getThread() {
         return mThread;
+    }
+
+    public JSONObject toJSON() throws JSONException {
+        JSONObject result = new JSONObject();
+        result.put("id", mId);
+        result.put("date", mDate);
+        result.put("user_id", mUserId);
+        result.put("username", mUsername);
+        result.put("avatar", mAvatar);
+        result.put("content", mContent);
+        result.put("edited", mEdited);
+
+        return result;
     }
 
     public void setThread(AwfulThread aThread) {

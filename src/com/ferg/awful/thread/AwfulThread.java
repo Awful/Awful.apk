@@ -43,6 +43,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.*;
+
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
@@ -63,9 +65,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private boolean mClosed;
 	private boolean mBookmarked;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
-
-
-
 
     public AwfulThread() {
     	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
@@ -369,8 +368,25 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
 	@Override
 	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		return mPosts.get(mPosts.size()-1);
+		return mPosts.get(page);
 	}
+
+    @Override
+    public JSONArray getSerializedChildren(int aPage) {
+        JSONArray result = new JSONArray();
+        ArrayList<AwfulPost> posts = mPosts.get(aPage);
+
+        try {
+            for (AwfulPost post : posts) {
+                result.put(post.toJSON().toString());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
 	public void prunePages(int save){
 		ArrayList<AwfulPost> tmp = mPosts.get(save);
 		mPosts.clear();
