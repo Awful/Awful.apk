@@ -50,6 +50,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -154,7 +155,11 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh.setOnClickListener(onButtonClick);
         } else {
             mWebView.getSettings().setJavaScriptEnabled(true);
-            mWebView.loadUrl("file:///android_asset/thread.html");
+            mWebView.setWebChromeClient(new WebChromeClient() {
+                public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+                    Log.d("WebConsole", message + " -- From line " + lineNumber + " of " + sourceID);
+                }
+            });
         }
 
         getListView().setOnScrollListener(this);
@@ -614,6 +619,12 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh.setVisibility(View.GONE);
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
+            setWebview();
         }
+    }
+
+    private void setWebview() {
+        mWebView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
+        mWebView.loadUrl("file:///android_asset/thread.html");
     }
 }

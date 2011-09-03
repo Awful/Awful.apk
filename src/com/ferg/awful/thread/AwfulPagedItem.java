@@ -33,6 +33,8 @@ import android.util.Log;
 
 import org.htmlcleaner.TagNode;
 
+import org.json.*;
+
 import com.ferg.awful.constants.Constants;
 
 public abstract class AwfulPagedItem {
@@ -45,6 +47,10 @@ public abstract class AwfulPagedItem {
 	public abstract int getChildrenCount(int page);
 	public abstract AwfulDisplayItem getChild(int page, int ix);
 	public abstract boolean isPageCached(int page);
+
+    public JSONArray getSerializedChildren(int aPage) {
+        return new JSONArray();
+    }
 
 	public int parsePageNumbers(TagNode aForum) throws Exception {
 		int currentPage = 1;

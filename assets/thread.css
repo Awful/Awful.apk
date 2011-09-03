@@ -10,3 +10,7 @@ body {
 td {
     border: 1px solid #dddddd;
 }
+
+img {
+    max-width: 400px;
+}

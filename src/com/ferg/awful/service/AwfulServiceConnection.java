@@ -32,13 +32,11 @@ import com.ferg.awful.ThreadDisplayFragment;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
-import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulPageCount;
-import com.ferg.awful.thread.AwfulPagedItem;
-import com.ferg.awful.thread.AwfulPost;
-import com.ferg.awful.thread.AwfulThread;
+import com.ferg.awful.thread.*;
 import com.ferg.awful.thumbnail.ThumbnailBus;
 import com.ferg.awful.thumbnail.ThumbnailMessage;
+
+import org.json.*;
 
 public class AwfulServiceConnection extends BroadcastReceiver implements
 		ServiceConnection {
@@ -352,13 +350,22 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void dataUpdate(boolean status, int page) {
 			if(page == currentPage && mCallback != null){
 				if(status){
-					mCallback.loadingSucceeded();
 					loadPage(false);
+					mCallback.loadingSucceeded();
 				}else{
 					mCallback.loadingFailed();
 				}
 			}
 		}
+        
+        public ArrayList<? extends AwfulDisplayItem> getChildren() {
+            return state.getChildren(currentPage);
+        }
+
+        public JSONArray getSerializedChildren() {
+            return state.getSerializedChildren(currentPage);
+        }
+
 		@Override
 		public int getCount() {
 			if(state == null){
