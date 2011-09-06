@@ -1,0 +1,26 @@
+.avatar {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    margin-top: 0px;
+    text-align: left;
+    float: left;
+}
+
+.avatar img {
+    max-width: 100px;
+}
+
+.userinfo {
+    padding: 5px;
+    float: left;
+    color: white;
+}
+
+.userinfo-row {
+    background: #006699;
+}
+
+.postdate {
+    color: white;
+}

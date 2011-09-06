@@ -17,14 +17,11 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		>
-		<ListView
-			android:id="@id/android:list"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:cacheColorHint="@color/background"
-			android:scrollingCache="true"
-			android:smoothScrollbar="false"
-			android:fastScrollEnabled="true"
-			/>
+        <WebView
+            android:background="#ffffff"
+            android:id="@+id/thread"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
 	</RelativeLayout>
 </LinearLayout>

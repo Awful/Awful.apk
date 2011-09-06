@@ -16,18 +16,6 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		>
-		<ListView
-			android:id="@id/android:list"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-            android:divider="#8c8c8c"
-            android:dividerHeight="1px"
-			android:cacheColorHint="@color/background"
-			android:scrollingCache="true"
-			android:smoothScrollbar="false"
-			android:fastScrollEnabled="true"
-            android:visibility="gone"
-			/>
         <WebView
             android:background="#ffffff"
             android:id="@+id/thread"

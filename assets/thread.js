@@ -52,6 +52,10 @@ $(document).ready(function() {
         },
     ];
 
+    $('.post-cell').live('click', function(event) {
+        listener.onPostClick($(this).attr('id'));
+    });
+
     var posts = JSON.parse(post_list);
 
     var light = true;
@@ -62,6 +66,8 @@ $(document).ready(function() {
     var darkColor = "#e8e8e8";
     var lightColor = "#f4f4f4";
 
+    var foundLastRead = false;
+
     for (var i = 0; i < posts.length; i++) {
         current = JSON.parse(posts[i]);
         // current = posts[i];
@@ -71,10 +77,15 @@ $(document).ready(function() {
         if (current.previouslyRead) {
             background = light ? lightReadColor : darkReadColor;
         } else {
+            if (!foundLastRead) {
+                true;
+            }
+
             background = light ? lightColor : darkColor;
         }
 
         var post_data = {
+            postId: current.id,
             username: current.username,
             postdate: current.date,
             avatar: current.avatar,

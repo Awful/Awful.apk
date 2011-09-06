@@ -1,12 +1,10 @@
 body {
-    font: 13px Verdana, Arial, sans-serif
-    margin: 0px;
-    padding: 0;
-    width: 100%;
+    font: 16px Verdana, Arial, sans-serif
 }
 
 td {
     border: 1px solid #c1c1c1;
+    overflow: auto;
 }
 
 img {
@@ -35,7 +33,7 @@ table {
 .bbc-block h4 {
     border-top: 1px #999999 solid;
     padding: 8px 0 2px 0;
-    font-size: 13px;
+    font-size: 16px;
     font-style: italic;
     color: #555;
 }
@@ -57,7 +55,7 @@ table {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 13px Verdana, Arial, sans-serif;
+    font: normal normal normal 16px Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
@@ -65,13 +63,9 @@ table {
     padding: 5px 5px 1px;
 }
 
-.postdate, .post-tools {
+.postdate {
     color: black;
-    font: normal normal normal 10px Verdana, Arial, sans-serif;
-}
-
-.post-tools {
-    padding-left: 5px;
+    font: normal normal normal 13px Verdana, Arial, sans-serif;
 }
 
 .userinfo {

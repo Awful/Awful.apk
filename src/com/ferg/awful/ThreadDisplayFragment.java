@@ -29,37 +29,19 @@ package com.ferg.awful;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
+import android.content.res.Configuration;
+import android.os.*;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
+import android.view.*;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AbsListView;
-import android.widget.ImageButton;
-import android.widget.ListAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.support.v4.app.ListFragment;
+import android.widget.*;
+import android.support.v4.app.Fragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.reply.Reply;
@@ -68,7 +50,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends ListFragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback, OnScrollListener {
+public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
     private ThreadListAdapter adapt;
@@ -82,15 +64,17 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
 
-    private WebView mWebView;
+    private WebView mThreadView;
 
     private boolean queueDataUpdate;
     private Handler handler = new Handler();
     private class RunDataUpdate implements Runnable{
         boolean pageChange;
+
         public RunDataUpdate(boolean hasPageChanged){
             pageChange = hasPageChanged;
         }
+
         @Override
         public void run() {
             delayedDataUpdate(pageChange);
@@ -107,7 +91,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     private int mDefaultPostBackgroundColor;
     private int mReadPostBackgroundColor;
 
-    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -127,9 +110,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
-        } else {
-            mWebView = (WebView) result.findViewById(R.id.thread);
         }
+
+        mThreadView = (WebView) result.findViewById(R.id.thread);
         
         return result;
     }
@@ -141,29 +124,30 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        
+
+        // TODO: Swap this to the javascript interface
+        // getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+        // getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         
         mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
-
-        registerForContextMenu(getListView());
 
         if (!isHoneycomb()) {
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
-        } else {
-            mWebView.getSettings().setJavaScriptEnabled(true);
-            mWebView.getSettings().setEnableSmoothTransition(true);
-            mWebView.setWebChromeClient(new WebChromeClient() {
-                public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-                    Log.d("WebConsole", message + " -- From line " + lineNumber + " of " + sourceID);
-                }
-            });
         }
 
-        getListView().setOnScrollListener(this);
+        mThreadView.getSettings().setJavaScriptEnabled(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mThreadView.getSettings().setEnableSmoothTransition(true);
+        }
+        
+        mThreadView.setWebChromeClient(new WebChromeClient() {
+            public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+                Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
+            }
+        });
     }
 
     private boolean isHoneycomb() {
@@ -186,9 +170,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         setActionbarTitle(adapt.getTitle());
     }
     
-    @Override
     public void setListAdapter(ListAdapter adapter){
-        super.setListAdapter(adapter);
         adapt = (ThreadListAdapter) adapter;
     }
     
@@ -199,22 +181,16 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             if(newBackground != mDefaultPostBackgroundColor) {
                 mDefaultPostBackgroundColor = newBackground;
                 Log.d(TAG, "invalidating (color)");
-                getListView().invalidateViews(); 
+                // TODO: Invalidate views
             }               
         } else if("read_post_background_color".equals(key)) {
             int newReadBG = prefs.getInt(key, R.color.background_read);
             if(newReadBG != mReadPostBackgroundColor) {
                 mReadPostBackgroundColor = newReadBG;
                 Log.d(TAG, "invalidating (color)");
-                getListView().invalidateViews();  
+                // TODO: Invalidate views
             }
-        } else if("use_large_scrollbar".equals(key)) {
-            setScrollbarType();
         }
-    }
-    
-    private void setScrollbarType() {
-        getListView().setFastScrollEnabled(mPrefs.getBoolean("use_large_scrollbar", true));
     }
     
     @Override
@@ -237,7 +213,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     public void onDetach() {
         super.onDetach();
         Log.e(TAG,"onDetach()");
-        savedPage = adapt.getPage();//saves page for orientation change.
+        savedPage = adapt.getPage(); // saves page for orientation change.
     }
     @Override
     public void onDestroy() {
@@ -264,8 +240,6 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         super.onResume();
         Log.e(TAG,"onResume()");
         
-        setScrollbarType();
-        
         mPrefs.registerOnSharedPreferenceChangeListener(this);
         if(queueDataUpdate){
             dataUpdate(false);
@@ -284,7 +258,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
     	if(menu == null || isHoneycomb()){
     		return;
     	}
+
         MenuItem bk = menu.findItem(R.id.bookmark);
+
         if(bk != null){
             AwfulThread th = (AwfulThread) adapt.getState();
             if(th != null){
@@ -359,35 +335,19 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             .show();
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
-        super.onCreateContextMenu(aMenu, aView, aMenuInfo);
-
-        MenuInflater inflater = getActivity().getMenuInflater();
-        AwfulPost selected = (AwfulPost) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
-        
-        if (selected.isEditable()) {
-            inflater.inflate(R.menu.user_post_longpress, aMenu);
-        } else {
-            inflater.inflate(R.menu.post_longpress, aMenu);
-        }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem aItem) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
-
-        switch (aItem.getItemId()) {
-            case R.id.edit:
+    private boolean onPostActionItemSelected(int aItem, String aPostId) {
+        switch (aItem) {
+            case ClickInterface.EDIT:
                 mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(info.position);
+                mEditPostTask.execute(aPostId);
                 return true;
-            case R.id.quote:
+            case ClickInterface.QUOTE:
                 mPostQuoteTask = new ParsePostQuoteTask();
-                mPostQuoteTask.execute(info.position);
+                mPostQuoteTask.execute(aPostId);
                 return true;
-            case R.id.last_read:
-                adapt.markLastRead((AwfulPost) adapt.getItem(info.position));
+            case ClickInterface.LAST_READ:
+                // TODO: Fix mark last read
+                adapt.markLastRead(null);
                 return true;
         }
 
@@ -450,24 +410,22 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class ParseEditPostTask extends AsyncTask<Integer, Void, String> {
-        private String mPostId;
+    private class ParseEditPostTask extends AsyncTask<String, Void, String> {
+        private String mPostId = null;
 
         public void onPreExecute() {
             mDialog = ProgressDialog.show(getActivity(), "Loading", 
                 "Hold on...", true);
         }
 
-        public String doInBackground(Integer... aParams) {
+        public String doInBackground(String... aParams) {
             String result = null;
 
             if (!isCancelled()) {
                 try {
-                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
+                    mPostId = aParams[0];
 
-                    mPostId = selected.getId();
-
-                    result = Reply.getPost(selected.getId());
+                    result = Reply.getPost(mPostId);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
@@ -494,20 +452,17 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
         }
     }
 
-    private class ParsePostQuoteTask extends AsyncTask<Integer, Void, String> {
+    private class ParsePostQuoteTask extends AsyncTask<String, Void, String> {
         public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
+            mDialog = ProgressDialog.show(getActivity(), "Loading", "Hold on...", true);
         }
 
-        public String doInBackground(Integer... aParams) {
+        public String doInBackground(String... aParams) {
             String result = null;
 
             if (!isCancelled()) {
                 try {
-                    AwfulPost selected = (AwfulPost) adapt.getItem(aParams[0].intValue());
-
-                    result = Reply.getQuote(selected.getId());
+                    result = Reply.getQuote(aParams[0]);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
@@ -541,13 +496,16 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             handler.post(new RunDataUpdate(pageChange));
         }
     }
+
     public void delayedDataUpdate(boolean pageChange) {
         setActionbarTitle(adapt.getTitle());
 
+        // TODO: Reimplement this
+        /*
         int last = adapt.getLastReadPost();
         if(savedPage == adapt.getPage() && savedPos >0 && savedPos < getListView().getCount()){
             getListView().setSelection(savedPos);
-        }else{
+        } else {
             if(!pageChange && last >= 0 && last < getListView().getCount()){
 		        getListView().setSelection(last);
 		        savedPos = last;
@@ -556,6 +514,7 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
 	        	getListView().setSelection(0);
 	        }
         }
+        */
 
         if (!isHoneycomb()) {
             if (adapt.getPage() == adapt.getLastPage()) {
@@ -570,19 +529,9 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             }
         }
     }
+
     public int getSavedPage() {
         return savedPage;
-    }
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem,
-            int visibleItemCount, int totalItemCount) {
-        if(visibleItemCount>0 && firstVisibleItem >0){
-            savedPos = firstVisibleItem+1;
-        }
-        
-    }
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
     }
 
     @Override
@@ -620,12 +569,49 @@ public class ThreadDisplayFragment extends ListFragment implements OnSharedPrefe
             mRefresh.setVisibility(View.GONE);
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
-            setWebview();
+        }
+
+        populateThreadView();
+    }
+
+    private void populateThreadView() {
+        mThreadView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
+        mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
+
+        Configuration config = getActivity().getResources().getConfiguration();
+        if (isHoneycomb() && config.smallestScreenWidthDp >= 600) {
+            mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
+        } else {
+            mThreadView.loadUrl("file:///android_asset/thread-phone.html");
         }
     }
 
-    private void setWebview() {
-        mWebView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
-        mWebView.loadUrl("file:///android_asset/thread.html");
+    private class ClickInterface {
+        public static final int QUOTE     = 0;
+        public static final int LAST_READ = 1;
+        public static final int EDIT      = 2;
+
+        final CharSequence[] mUserPostItems = {
+            "Quote", 
+            "Mark last read",
+            "Edit Post"
+        };
+        final CharSequence[] mPostItems = {
+            "Quote", 
+            "Mark last read"
+        };
+
+        // Post ID is the item tapped
+        public void onPostClick(final String aPostId) {
+            Log.i(TAG, aPostId);
+            new AlertDialog.Builder(getActivity())
+                .setTitle("Select an Action")
+                .setItems(mPostItems, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface aDialog, int aItem) {
+                        onPostActionItemSelected(aItem, aPostId);
+                    }
+                })
+                .show();
+        }
     }
 }
