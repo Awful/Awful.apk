@@ -145,6 +145,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mThreadView.getSettings().setEnableSmoothTransition(true);
+            mThreadView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         
         mThreadView.setWebChromeClient(new WebChromeClient() {
