@@ -104,3 +104,7 @@ table {
     margin-right: 15px;
     padding: 4px;
 }
+
+.bbc-spoiler, .bbc-spoiler li {
+    background: black;
+}
