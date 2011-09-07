@@ -130,6 +130,7 @@ public class AwfulPost implements AwfulDisplayItem {
         result.put("edited", mEdited);
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
+        result.put("editable", Boolean.toString(mEditable));
 
         return result;
     }

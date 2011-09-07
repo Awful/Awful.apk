@@ -12,16 +12,10 @@
         android:layout_width="fill_parent"
         android:layout_height="45dip"
         />
-	<RelativeLayout
-        android:id="@+id/thread_layout"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		>
-        <WebView
-            android:background="#ffffff"
-            android:id="@+id/thread"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
-	</RelativeLayout>
+    <WebView
+        android:background="#ffffff"
+        android:id="@+id/thread"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        />
 </LinearLayout>

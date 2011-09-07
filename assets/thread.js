@@ -61,7 +61,11 @@ $(document).ready(function() {
     ];
 
     $('.action-button').live('click', function(event) {
-        listener.onPostClick($(this).attr('id'));
+        if ($(this).hasClass("editable")) {
+            listener.onEditablePostClick($(this).attr('id'), $(this).attr('lastreadurl'));
+        } else {
+            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'));
+        }
     });
 
     var posts = JSON.parse(post_list);
@@ -104,6 +108,8 @@ $(document).ready(function() {
             content: current.content,
             background: background,
             lastread: (current.previouslyRead == "true") ? "read" : "unread",
+            lastreadurl: current.lastReadUrl,
+            editable: (current.editable == "true") ? "editable" : "noneditable",
         };
 
         thread.append(ich.post(post_data));

@@ -340,7 +340,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             .show();
     }
 
-    private boolean onPostActionItemSelected(int aItem, String aPostId) {
+    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl) {
         switch (aItem) {
             case ClickInterface.EDIT:
                 mEditPostTask = new ParseEditPostTask();
@@ -351,8 +351,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 mPostQuoteTask.execute(aPostId);
                 return true;
             case ClickInterface.LAST_READ:
-                // TODO: Fix mark last read
-                adapt.markLastRead(null);
+                adapt.markLastRead(aLastReadUrl);
                 return true;
         }
 
@@ -609,7 +608,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         public static final int LAST_READ = 1;
         public static final int EDIT      = 2;
 
-        final CharSequence[] mUserPostItems = {
+        final CharSequence[] mEditablePostItems = {
             "Quote", 
             "Mark last read",
             "Edit Post"
@@ -620,13 +619,24 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         };
 
         // Post ID is the item tapped
-        public void onPostClick(final String aPostId) {
-            Log.i(TAG, aPostId);
+        public void onPostClick(final String aPostId, final String aLastReadUrl) {
             new AlertDialog.Builder(getActivity())
                 .setTitle("Select an Action")
                 .setItems(mPostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                    }
+                })
+                .show();
+        }
+
+        // Post ID is the item tapped
+        public void onEditablePostClick(final String aPostId, final String aLastReadUrl) {
+            new AlertDialog.Builder(getActivity())
+                .setTitle("Select an Action")
+                .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface aDialog, int aItem) {
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
                     }
                 })
                 .show();

@@ -270,9 +270,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			mService.toggleBookmark(state.getID());
 		}
 
-		public void markLastRead(AwfulPost post) {
+		public void markLastRead(String aLastReadUrl) {
 			if(mService != null && boundState){
-				mService.MarkLastRead(post); 
+				mService.MarkLastRead(aLastReadUrl); 
 			}
 		}
 		

@@ -153,8 +153,8 @@ public class AwfulService extends Service {
 	 * Do not refresh immediately after calling this, or the changes will be lost.
 	 * @param post The selected post.
 	 */
-	public void MarkLastRead(AwfulPost post){
-		queueThread(new MarkLastReadTask(post.getLastReadUrl()));
+	public void MarkLastRead(String aLastReadUrl){
+		queueThread(new MarkLastReadTask(aLastReadUrl));
 	}
 	/**
 	 * Pulls an AwfulForum instance for the ID specified, or null if none exist yet.
