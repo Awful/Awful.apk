@@ -55,7 +55,7 @@ table {
     vertical-align: top;
     border-width: 1px;
     border-collapse: collapse;
-    padding-right: 12px;
+    margin-right: 50px;
 }
 
 .username {
