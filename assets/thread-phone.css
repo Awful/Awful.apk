@@ -11,10 +11,30 @@
     max-width: 100px;
 }
 
+.post-content {
+    vertical-align: top;
+    border-width: 1px;
+    border-collapse: collapse;
+}
+
+.userinfo, .post-content {
+    color: black;
+    font: normal normal normal 24px Verdana, Arial, sans-serif;
+    vertical-align: top;
+}
+
 .userinfo {
     padding: 5px;
     float: left;
     color: white;
+}
+
+.action-button {
+    float: right;
+    vertical-align: middle;
+    margin-right: 18px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .userinfo-row {
@@ -23,4 +43,13 @@
 
 .postdate {
     color: white;
+    font: normal normal normal 21px Verdana, Arial, sans-serif;
+}
+
+.bbc-block h4 {
+    border-top: 1px #999999 solid;
+    padding: 8px 0 2px 0;
+    font-size: 24px;
+    font-style: italic;
+    color: #555;
 }

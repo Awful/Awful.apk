@@ -1,4 +1,6 @@
 body {
+    margin: 0;
+    padding: 0;
     font: 16px Verdana, Arial, sans-serif
 }
 
@@ -17,8 +19,14 @@ h4 {
 }
 
 table {
+    table-layout: fixed;
     border-width: 1px;
     border-collapse: collapse;
+    width: 100%;
+}
+
+.content {
+    width: 100%;
 }
 
 #thread-body {
@@ -47,6 +55,7 @@ table {
     vertical-align: top;
     border-width: 1px;
     border-collapse: collapse;
+    padding-right: 12px;
 }
 
 .username {
@@ -66,6 +75,14 @@ table {
 .postdate {
     color: black;
     font: normal normal normal 13px Verdana, Arial, sans-serif;
+}
+
+.action-button {
+    float: right;
+    vertical-align: middle;
+    margin-right: 12px;
+    margin-top: 12px;
+    margin-bottom: 20px;
 }
 
 .userinfo {

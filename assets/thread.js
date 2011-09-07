@@ -6,59 +6,75 @@ $(document).ready(function() {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "true",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "true",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "true",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "true",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "false",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "false",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "false",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
         {
             username: 'Ferg',
             date: 'Sep 3, 2011',
             avatar: 'http://fi.somethingawful.com/safs/titles/9e/ab/00115838.0002.jpg',
+            previouslyRead: "false",
             content: '<div class="bbc-block"><h4>falz posted:</h4><blockquote>We\'ll still be able to have a dark background option, right?<br /></blockquote></div><br />Yeah everything will be configurable<!-- google_ad_section_end --><!-- EndContentMarker --><p class="editedby">',
         },
     ];
 
-    $('.post-cell').live('click', function(event) {
+    $('.action-button').live('click', function(event) {
         listener.onPostClick($(this).attr('id'));
     });
 
     var posts = JSON.parse(post_list);
 
     var light = true;
+
+    /*
+    var lightReadColor = preferences.backgroundColor;
+    var darkReadColor = preferences.backgroundColor2;
+
+    var lightColor = preferences.readBackgroundColor;
+    var darkColor = preferences.readBackgroundColor2;
+    */
 
     var lightReadColor = "#e7eff5";
     var darkReadColor = "#dbe8f5";
@@ -74,13 +90,9 @@ $(document).ready(function() {
 
         var background;
 
-        if (current.previouslyRead) {
+        if (current.previouslyRead == "true") {
             background = light ? lightReadColor : darkReadColor;
         } else {
-            if (!foundLastRead) {
-                true;
-            }
-
             background = light ? lightColor : darkColor;
         }
 
@@ -91,10 +103,17 @@ $(document).ready(function() {
             avatar: current.avatar,
             content: current.content,
             background: background,
+            lastread: (current.previouslyRead == "true") ? "read" : "unread",
         };
 
         thread.append(ich.post(post_data));
 
         light = !light;
     }
+
+    $(window).scrollTop($('.unread').first().offset().top);
+});
+
+$(window).load(function() {
+    $(window).scrollTop($('.unread').first().offset().top);
 });

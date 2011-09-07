@@ -9,7 +9,7 @@
 <body>
 <script id="post" type="text/html">
     <tr class="{{ lastread }}">
-        <td class="usercolumn" style="background: {{ background }}">
+        <td class="usercolumn" style="background: {{ background }};">
             <div class="userinfo">
                 <div class="username">
                     <h4>{{ username }}</h4>
@@ -22,7 +22,10 @@
                 <img src="{{ avatar }}" />
             </div>
         </td>
-        <td class="post-cell" id="{{ postId }}" style="background: {{ background }}">
+        <td class="post-cell" style="background: {{ background }};">
+            <div class="action-button" id="{{ postId }}">
+                <img src="file:///android_asset/ic_action_example.png" />
+            </div>
             <div class="post-content">
                 {{{ content }}}
             </div>
@@ -30,7 +33,7 @@
     </tr>
 </script>
 <div class="content">
-    <table id="thread-body" width="100%" cellpadding="0">
+    <table id="thread-body">
     </table>
 </div>
 </body>

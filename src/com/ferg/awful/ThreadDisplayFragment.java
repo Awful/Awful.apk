@@ -44,6 +44,8 @@ import android.widget.*;
 import android.support.v4.app.Fragment;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 import com.ferg.awful.thread.AwfulPost;
@@ -63,6 +65,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private TextView mTitle;
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
+    private AwfulPreferences mAppPrefs;
 
     private WebView mThreadView;
 
@@ -124,6 +127,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mAppPrefs = new AwfulPreferences(getActivity());
 
         // TODO: Swap this to the javascript interface
         // getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
@@ -577,6 +581,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private void populateThreadView() {
         mThreadView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
+        mThreadView.addJavascriptInterface(new PreferencesInterface(), "preferences");
 
         Configuration config = getActivity().getResources().getConfiguration();
         if (isHoneycomb() && config.smallestScreenWidthDp >= 600) {
@@ -584,6 +589,18 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         } else {
             mThreadView.loadUrl("file:///android_asset/thread-phone.html");
         }
+    }
+
+    private class PreferencesInterface {
+        public String fontSize = Integer.toString(mAppPrefs.postFontSize);
+        public String fontColor = ColorPickerPreference.convertToARGB(mAppPrefs.postFontColor);
+        public String fontColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postFontColor2);
+        public String backgroundColor = ColorPickerPreference.convertToARGB(mAppPrefs.postBackgroundColor);
+        public String backgroundColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postBackgroundColor2);
+        public String readBackgroundColor = ColorPickerPreference.convertToARGB(mAppPrefs.postReadBackgroundColor);
+        public String readBackgroundColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postReadBackgroundColor2);
+        public String OPColor = ColorPickerPreference.convertToARGB(mAppPrefs.postOPColor);
+        public String linkQuoteColor = ColorPickerPreference.convertToARGB(mAppPrefs.postLinkQuoteColor);
     }
 
     private class ClickInterface {

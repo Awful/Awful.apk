@@ -3,14 +3,18 @@
 <meta name="viewport" content="width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0" />
 <link rel="stylesheet" href="thread.css">
 <link rel="stylesheet" href="thread-phone.css">
-<script src="jquery.min.js"></script>	
-<script src="ICanHaz.min.js"></script>	
-<script src="thread.js"></script>	
+<script src="jquery.min.js" type="text/javascript"></script>	
+<script type="text/javascript">
+    window.JSON = null;
+</script>
+<script src="json2.js" type="text/javascript"></script>
+<script src="ICanHaz.min.js" type="text/javascript"></script>	
+<script src="thread.js" type="text/javascript"></script>	
 </head>
 <body>
 <script id="post" type="text/html">
     <tr class="{{ lastread }}">
-        <td class="userinfo-row">
+        <td class="userinfo-row" style="width: 100%">
             <div class="avatar">
                 <img src="{{ avatar }}" />
             </div>
@@ -22,10 +26,13 @@
                     {{ postdate }}
                 </div>
             </div>
+            <div class="action-button" id="{{ postId }}">
+                <img src="file:///android_asset/ic_action_example.png" />
+            </div>
         </td>
     </tr>
     <tr>
-        <td class="post-cell" id="{{ postId }}" colspan="2" style="background: {{ background }}">
+        <td class="post-cell" colspan="2" style="background: {{ background }};">
             <div class="post-content">
                 {{{ content }}}
             </div>
@@ -33,7 +40,7 @@
     </tr>
 </script>
 <div class="content">
-    <table id="thread-body" width="100%" cellpadding="0">
+    <table id="thread-body">
     </table>
 </div>
 </body>

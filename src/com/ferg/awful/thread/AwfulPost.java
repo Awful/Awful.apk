@@ -128,7 +128,7 @@ public class AwfulPost implements AwfulDisplayItem {
         result.put("avatar", mAvatar);
         result.put("content", mContent);
         result.put("edited", mEdited);
-        result.put("previouslyRead", mPreviouslyRead);
+        result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
 
         return result;
