@@ -36,6 +36,10 @@
 				android:textSize="20dip"
 				android:textStyle="bold"
 				android:textColor="#ffffff"
+                android:shadowColor="#070707"
+                android:shadowDx="0"
+                android:shadowDy="-1"
+                android:shadowRadius="0.2"
 				/>
 			<TextView
 				android:id="@+id/post_date"

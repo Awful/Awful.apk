@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
+import org.json.*;
 
 import android.content.SharedPreferences;
 import android.text.method.LinkMovementMethod;
@@ -50,35 +51,12 @@ import android.widget.TextView;
 
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
-    /*private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
-    private static final String MOD_SEARCH      = "//dt[@class='author role-mod']|//dt[@class='author role-mod op']";
-    private static final String ADMIN_SEARCH    = "//dt[@class='author role-admin']|//dt[@class='author role-admin op']";
-
-    private static final String USERNAME  = "//dt[@class='author']";
-    private static final String OP        = "//dt[@class='author op']";
-	private static final String MOD       = "//dt[@class='author role-mod']";
-	private static final String ADMIN     = "//dt[@class='author role-admin']";
-    private static final String POST      = "//table[@class='post']";
-    private static final String POST_ID   = "//table[@class='post']";
-    private static final String POST_DATE = "//td[@class='postdate']";
-    private static final String SEEN_LINK = "//td[@class='postdate']//a";
-    private static final String AVATAR    = "//dd[@class='title']//img";
-    private static final String EDITED    = "//p[@class='editedby']/span";
-    private static final String POSTBODY  = "//td[@class='postbody']";
-	private static final String SEEN1     = "//tr[@class='seen1']";
-	private static final String SEEN2     = "//tr[@class='seen2']";
-	private static final String SEEN      = SEEN1+"|"+SEEN2;
-	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
-	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
-    private static final String EDITABLE  = "//img[@alt='Edit']";
-    */
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
     
 	private static final String USERINFO_PREFIX = "userinfo userid-";
@@ -92,7 +70,6 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
     private static final String LINK_RAP_SHEET    = "Rap Sheet";
-    
 
     private String mId;
     private String mDate;
@@ -102,7 +79,6 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mContent;
     private String mEdited;
     private AwfulThread mThread;
-
 
 	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;
@@ -116,6 +92,23 @@ public class AwfulPost implements AwfulDisplayItem {
 
     public AwfulThread getThread() {
         return mThread;
+    }
+
+    public JSONObject toJSON() throws JSONException {
+        JSONObject result = new JSONObject();
+        result.put("id", mId);
+        result.put("date", mDate);
+        result.put("user_id", mUserId);
+        result.put("username", mUsername);
+        result.put("avatar", mAvatar);
+        result.put("content", mContent);
+        result.put("edited", mEdited);
+        result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
+        result.put("lastReadUrl", mLastReadUrl);
+        result.put("editable", Boolean.toString(mEditable));
+        result.put("isOp", Boolean.toString(mUserId.equals(mThread.getAuthorID())));
+
+        return result;
     }
 
     public void setThread(AwfulThread aThread) {
@@ -380,60 +373,8 @@ public class AwfulPost implements AwfulDisplayItem {
 
 	@Override
 	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
-		View tmp = current;
-		if(tmp == null || tmp.getId() != R.layout.post_item){
-			tmp = inf.inflate(R.layout.post_item, parent, false);
-			tmp.setTag(this);
-		}
-		if(mUserId.equals(mThread.getAuthorID())){
-		RelativeLayout posthead = (RelativeLayout) tmp.findViewById(R.id.posthead);
-		posthead.setBackgroundColor(mPrefs.postOPColor);
-		}
-		TextView author = (TextView) tmp.findViewById(R.id.username);
-		TextView date = (TextView) tmp.findViewById(R.id.post_date);
-        LinearLayout postRow = (LinearLayout) tmp.findViewById(R.id.post_row);
-		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
-		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
-		
-		author.setText(mUsername);
-		date.setText(mDate);
-
-        if(postBody.getMovementMethod() == null){
-        	postBody.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-
-        boolean loadImg = true;
-        if(mPrefs != null){
-        	loadImg = mPrefs.imagesEnabled;
-        }
-
-        postBody.setHtml(getContent(), loadImg);
-		if( getAvatar() == null ) {
-        	avatar.setVisibility(View.INVISIBLE);
-        } else {
-        	avatar.setVisibility(View.VISIBLE);
-        }
-
-        avatar.setTag(getAvatar());
-        if(mPrefs != null){
-        	if (isPreviouslyRead()) {
-            	if (!mPrefs.alternateBackground || isEven()) {
-            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor);
-            	} else {
-            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor2);
-            	}
-            } else {
-            	if (!mPrefs.alternateBackground || isEven()) {
-            		postRow.setBackgroundColor(mPrefs.postBackgroundColor);
-            	} else {
-            		postRow.setBackgroundColor(mPrefs.postBackgroundColor2);
-            	}
-            }
-			postBody.setTextColor(mPrefs.postFontColor);
-			postBody.setTextSize(mPrefs.postFontSize);
-		}
-		return tmp;
-	}
+        return null;
+    }
 
 	@Override
 	public int getID() {

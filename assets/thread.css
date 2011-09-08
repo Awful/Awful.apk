@@ -1,0 +1,137 @@
+body {
+    margin: 0;
+    padding: 0;
+    font: 16px Verdana, Arial, sans-serif
+}
+
+td {
+    border: 1px solid #c1c1c1;
+    overflow: auto;
+}
+
+img {
+    max-width: 400px;
+}
+
+h4 {
+    font-weight: bold;
+    margin: 0px;
+}
+
+table {
+    table-layout: fixed;
+    border-width: 1px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.content {
+    width: 100%;
+}
+
+#thread-body {
+    border: 1px solid #dddddd;
+}
+
+.bbc-block {
+    margin: 12px 32px;
+    border-bottom: 1px #999999 solid;
+}
+
+.bbc-block h4 {
+    border-top: 1px #999999 solid;
+    padding: 8px 0 2px 0;
+    font-size: 16px;
+    font-style: italic;
+    color: #555;
+}
+
+.bbc-block blockquote {
+    margin: 0 0 8px 0;
+    padding: 0;
+}
+
+.post-content {
+    vertical-align: top;
+    border-width: 1px;
+    border-collapse: collapse;
+    margin-right: 110px;
+}
+
+.username {
+    font-style: bold !important;
+}
+
+.userinfo, .post-content {
+    color: black;
+    font: normal normal normal 16px Verdana, Arial, sans-serif;
+    vertical-align: top;
+}
+
+.post-content {
+    padding: 5px 5px 1px;
+}
+
+.postdate {
+    color: black;
+    font: normal normal normal 13px Verdana, Arial, sans-serif;
+}
+
+.action-button {
+    float: right;
+    vertical-align: middle;
+    margin-right: 12px;
+    margin-top: 12px;
+    margin-bottom: 20px;
+}
+
+.userinfo {
+    padding: 5px;
+}
+
+.avatar {
+    text-align: center;
+    margin-top: 15px;
+    padding-bottom: 5px;
+}
+
+.usercolumn {
+    width: 13em;
+}
+
+.quote-button {
+    text-align: right;
+    margin-right: 15px;
+    padding: 4px;
+}
+
+.bbc-spoiler, .bbc-spoiler li {
+    background: black;
+}
+
+.footer {
+    width: 100%;
+    height: 100px;
+    background: url("page_indicator_background.png") repeat-x;
+    text-align: center;
+}
+
+.number {
+    top: 20px;
+    font: bold 40px Verdana, Arial, sans-serif;
+    text-shadow: 1px 1px 1px #444;
+    color: #eee;
+    position: relative;
+}
+
+#previous-page {
+    float: left;
+    margin-left: 20px;
+    margin-top: 35px;
+}
+
+#next-page {
+    float: right;
+    margin-right: 20px;
+    margin-top: 35px;
+}

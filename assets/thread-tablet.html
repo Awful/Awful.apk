@@ -1,0 +1,55 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0" />
+<link rel="stylesheet" href="thread.css">
+<script src="jquery.min.js"></script>	
+<script src="ICanHaz.min.js"></script>	
+<script src="salr.js"></script>	
+<script src="thread.js"></script>	
+</head>
+<body>
+<script id="post" type="text/html">
+    <tr class="{{ lastread }}">
+        <td class="usercolumn" style="background: {{ background }};">
+            <div class="userinfo">
+                <div class="username">
+                    <h4>{{ username }}</h4>
+                </div>
+                <div class="postdate">
+                    {{ postdate }}
+                </div>
+            </div>
+            <div class="avatar">
+                <img src="{{ avatar }}" />
+            </div>
+        </td>
+        <td class="post-cell" style="background: {{ background }};">
+            <div class="action-button {{ editable }}" id="{{ postId }}" lastreadurl="{{ lastreadurl }}">
+                <img src="file:///android_asset/post_action_icon.png" />
+            </div>
+            <div class="post-content" style="color: {{ fontColor }}; font-size: {{ fontSize }};">
+                {{{ content }}}
+            </div>
+        </td>
+    </tr>
+</script>
+
+<script id="page-footer" type="text/html">
+    <div class="footer">
+        <div id="previous-page">
+            <img src="l_arrow.png" />
+        </div>
+        <span class="number">
+            Page {{ currentPage }} | {{ pageTotal }}
+        </span>
+        <div id="next-page">
+            <img src="r_arrow.png" />
+        </div>
+    </div>
+</script>
+<div class="content">
+    <table id="thread-body">
+    </table>
+</div>
+</body>
+</html>

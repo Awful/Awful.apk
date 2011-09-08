@@ -27,6 +27,7 @@
 
 package com.ferg.awful.network;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -47,6 +48,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -61,8 +66,10 @@ import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagTransformation;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
@@ -281,6 +288,47 @@ public class NetworkUtils {
 
 		return response;
 	}
+
+    public static TagNode postImage(String aUrl, HashMap<String, String> aParams, String aBitmapKey, 
+            Bitmap aBitmap) throws Exception
+	{
+        TagNode response = null;
+
+        HttpPost httpPost = new HttpPost(aUrl);
+
+        MultipartEntity reqEntity = new MultipartEntity();
+
+        if (aBitmap != null) {
+            ByteArrayOutputStream bitmapOutputStream = new ByteArrayOutputStream();
+            aBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bitmapOutputStream);
+
+            ByteArrayBody bitmapBody = 
+                new ByteArrayBody(bitmapOutputStream.toByteArray(), "image/jpg", "snippet.jpg");
+
+            reqEntity.addPart(aBitmapKey, bitmapBody);
+        }
+		
+		// Now write the form data 
+		Iterator<?> iter = aParams.entrySet().iterator();
+
+		while (iter.hasNext()) {
+			@SuppressWarnings("unchecked")
+			Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
+
+			reqEntity.addPart(param.getKey(), new StringBody(param.getValue()));
+		}
+
+		httpPost.setEntity(reqEntity);
+
+        HttpResponse httpResponse = sHttpClient.execute(httpPost);
+        HttpEntity entity = httpResponse.getEntity();
+
+        if (entity != null) {
+            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
+        }
+
+		return response;
+    }
 
     private static ArrayList<NameValuePair> getPostParameters(HashMap<String, String> aParams) {
         // Append parameters

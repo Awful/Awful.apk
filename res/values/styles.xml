@@ -60,6 +60,9 @@
          in correctly laying out an activity as a dialog. -->
     <style name="ThemeDialogWhenLarge" parent="android:style/Theme.NoTitleBar">
     </style>
+
+    <style name="CustomActionBar" parent="android:style/Theme.Holo.Light">
+    </style>
     
     
     <!-- QuickActions -->

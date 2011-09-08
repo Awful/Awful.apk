@@ -21,6 +21,12 @@
     <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
+    <string name="username_pref">Username</string>
+    <string name="user_quote">Highlight your quotes</string>
+    <string name="user_highlight">Highlight username</string>
+    <string name="user_quote_summary">Allows the app to highlight when you\'re quoted in a post</string>
+    <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
+    <string name="prefs_salr">SALR Preferences</string>
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>

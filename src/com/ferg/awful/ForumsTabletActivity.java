@@ -101,7 +101,6 @@ public class ForumsTabletActivity extends AwfulActivity {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.content, fragment);
-        transaction.addToBackStack(null);
         transaction.commit();
     }
 }

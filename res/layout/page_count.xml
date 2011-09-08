@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:padding="12dip"
-        android:background="#77000000"
+        android:background="@drawable/page_bottom_bg"
         >
         <TextView
             android:id="@+id/page_count"
@@ -17,9 +17,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textColor="#dddddd"
+            android:textColor="#eeeeee"
             android:textSize="22dip"
             android:textStyle="bold"
+            android:shadowColor="#070707"
+            android:shadowDx="0"
+            android:shadowDy="-1"
+            android:shadowRadius="0.2"
             android:text="Page 1/1"
             android:layout_centerVertical="true"/>
         <ImageButton

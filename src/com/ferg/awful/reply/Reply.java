@@ -27,6 +27,7 @@
 
 package com.ferg.awful.reply;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -74,6 +75,20 @@ public class Reply {
 
     public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId) 
         throws Exception 
+    {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_ACTION, VALUE_ACTION);
+        params.put(PARAM_THREADID, aThreadId);
+        params.put(PARAM_POSTID, VALUE_POSTID);
+        params.put(PARAM_FORMKEY, aFormKey);
+        params.put(PARAM_FORM_COOKIE, aFormCookie);
+        params.put(PARAM_MESSAGE, aMessage);
+
+        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
+    }
+
+    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId,
+            Bitmap aImage) throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, VALUE_ACTION);

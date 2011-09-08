@@ -32,6 +32,7 @@ import com.ferg.awful.constants.Constants;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
@@ -81,17 +82,24 @@ public class ThreadDisplayActivity extends AwfulActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                returnHome();
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void returnHome() {
+        finish();
+        Intent i = new Intent(this, ForumsIndexActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
+
     public void setThreadTitle(String aTitle) {
         if (isHoneycomb()) {
             ActionBar action = getActionBar();
-            action.setTitle(aTitle);
+            action.setTitle(Html.fromHtml(aTitle).toString());
         }
     }
 

@@ -204,7 +204,7 @@ public class ColorPickerPreference
             blue = "0" + blue;
         }
 
-        return "#" + alpha + red + green + blue;
+        return "#" + red + green + blue;
     }
 
     /**
