@@ -30,6 +30,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean imagesEnabled;
 	public boolean alternateBackground;
 	public int postPerPage;
+    public boolean highlightUserQuote;
+    public boolean highlightUsername;
+
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
 	 * @param context
@@ -41,18 +44,20 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 	}
+
 	public void unRegisterListener(){
 		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
+
 	public SharedPreferences getPrefs(){
 		return mPrefs;
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs,
-			String key) {
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
 	}
+
 	private void updateValues(SharedPreferences prefs) {
         username                 = mPrefs.getString("username", "Username");
 		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
@@ -67,7 +72,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         postPerPage              = mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE);
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
+        highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
+        highlightUsername        = mPrefs.getBoolean("user_highlight", true);
        	 //TODO: I have never seen this before oh god
 	}
-
 }

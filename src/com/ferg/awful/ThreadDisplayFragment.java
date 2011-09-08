@@ -370,6 +370,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     public void refresh() {
         adapt.refresh();
+        populateThreadView();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -382,8 +383,8 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                     displayPostReplyDialog();
                     break;
                 case R.id.refresh:
-            adapt.refresh();
-            break;
+                    refresh();
+                    break;
             }
         }
     };
@@ -618,6 +619,8 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             result.put("readBackgroundColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postReadBackgroundColor2));
             result.put("OPColor", ColorPickerPreference.convertToARGB(aAppPrefs.postOPColor));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
+            result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
+            result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
         } catch (JSONException e) {
             e.printStackTrace();
         }

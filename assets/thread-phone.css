@@ -16,6 +16,7 @@
     border-width: 1px;
     border-collapse: collapse;
     padding: 6px;
+    margin-right: 0px;
 }
 
 .userinfo, .post-content {

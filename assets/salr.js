@@ -31,8 +31,14 @@ function SALR(preferences) {
 };
 
 SALR.prototype.init = function() {
-    this.highlightOwnUsername();
-    this.highlightOwnQuotes();
+    if (this.preferences.highlightUsername == "true") {
+        this.highlightOwnUsername();
+    }
+
+    if (this.preferences.highlightUserQuote == "true") {
+        this.highlightOwnQuotes();
+    }
+
 	// this.modifyImages();
     // this.inlineYoutubes();
     // this.highlightFriendPosts();    

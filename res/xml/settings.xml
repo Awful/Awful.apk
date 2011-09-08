@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/prefs_global">
-        <EditTextPreference
-            android:key="username"
-            android:title="@string/username_pref"
-            android:summary="@string/username_summary"
-            android:defaultValue="Username"
-            />
         <ListPreference
             android:key="orientation"
             android:title="@string/orientation"
@@ -14,13 +8,14 @@
             android:entryValues="@array/orientation_values"
             android:defaultValue="default"
             />
+        <Preference
+            android:key="about"
+            android:title="@string/about"
+            android:summary="@string/about_summary"
+            android:persistent="false"
+            />
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_thread_display">
-		<CheckBoxPreference android:key="images_enabled" 
-			android:title="@string/load_images"
-			android:summary="@string/load_images_summary"
-			android:defaultValue="true"
-			/>
 		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="post_per_page"
 			android:title="@string/setting_posts_per_page"
@@ -36,10 +31,29 @@
 			android:title="@string/colors"
 			/>
 	</PreferenceCategory>
-	<Preference
-		android:key="about"
-		android:title="@string/about"
-		android:summary="@string/about_summary"
-		android:persistent="false"
-		/>
+    <PreferenceCategory android:title="@string/prefs_salr">
+        <EditTextPreference
+            android:key="username"
+            android:title="@string/username_pref"
+            android:defaultValue="Username"
+            />
+		<CheckBoxPreference 
+            android:key="user_quotes" 
+			android:title="@string/user_quote"
+            android:summary="@string/user_quote_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="user_highlight" 
+			android:title="@string/user_highlight"
+            android:summary="@string/user_highlight_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="images_enabled" 
+			android:title="@string/load_images"
+			android:summary="@string/load_images_summary"
+			android:defaultValue="true"
+			/>
+    </PreferenceCategory>
 </PreferenceScreen>
