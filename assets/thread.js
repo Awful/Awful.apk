@@ -7,6 +7,14 @@ $(document).ready(function() {
         }
     });
 
+    $('#previous-page').live('click', function(event) {
+        listener.onPreviousPageClick();
+    });
+
+    $('#next-page').live('click', function(event) {
+        listener.onNextPageClick();
+    });
+
     var posts = JSON.parse(post_list);
     var prefs = JSON.parse(preferences);
 
@@ -44,6 +52,11 @@ $(document).ready(function() {
 
         thread.append(ich.post(post_data));
     }
+
+    $('.content').append(ich.pagefooter({
+        currentPage: currentPage,
+        pageTotal: pageTotal,
+    }));
 
     var salr = new SALR(prefs);
 

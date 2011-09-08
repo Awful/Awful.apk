@@ -108,3 +108,30 @@ table {
 .bbc-spoiler, .bbc-spoiler li {
     background: black;
 }
+
+.footer {
+    width: 100%;
+    height: 100px;
+    background: url("page_indicator_background.png") repeat-x;
+    text-align: center;
+}
+
+.number {
+    top: 20px;
+    font: bold 40px Verdana, Arial, sans-serif;
+    text-shadow: 1px 1px 1px #444;
+    color: #eee;
+    position: relative;
+}
+
+#previous-page {
+    float: left;
+    margin-left: 20px;
+    margin-top: 35px;
+}
+
+#next-page {
+    float: right;
+    margin-right: 20px;
+    margin-top: 35px;
+}

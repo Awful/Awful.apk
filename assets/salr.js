@@ -38,6 +38,10 @@ SALR.prototype.init = function() {
     if (this.preferences.highlightUserQuote == "true") {
         this.highlightOwnQuotes();
     }
+    
+	if (this.preferences.imagesEnabled == "false") {
+        this.replaceImagesWithLinks();
+	}
 
 	// this.modifyImages();
     // this.inlineYoutubes();
@@ -82,26 +86,6 @@ SALR.prototype.modifyImages = function() {
 		});
 	}
 
-	// Replace inline Images with Links
-	if (this.preferences.replaceImagesWithLinks == 'true') {
-		var subset = $('.postbody img');
-		
-		if(this.preferences.replaceImagesReadOnly == 'true') {
-			subset = subset.filter('.seen1 img, .seen2 img');
-		}
-		
-		//if(preferences.dontReplaceEmoticons) {
-			subset = subset.not('img[src*=http://i.somethingawful.com/forumsystem/emoticons/]');
-			subset = subset.not('img[src*=http://fi.somethingawful.com/images/smilies/]');
-		//}
-
-		subset.each(function() {
-			var source = $(this).attr('src');
-			$(this).after("<a href='" + source + "'>" + source + "</a>");
-			$(this).remove();
-		});
-	}
-
 	if (this.preferences.restrictImageSize == 'true') {
 		$('.postbody img').each(function() {
             var width = $(this).width();
@@ -125,6 +109,19 @@ SALR.prototype.modifyImages = function() {
             }
         });
 	}
+};
+
+SALR.prototype.replaceImagesWithLinks = function() {
+    var subset = $('.post-content img');
+    
+    subset = subset.not('img[src*=http://i.somethingawful.com/forumsystem/emoticons/]');
+    subset = subset.not('img[src*=http://fi.somethingawful.com/images/smilies/]');
+
+    subset.each(function() {
+        var source = $(this).attr('src');
+        $(this).after("<a href='" + source + "'>" + source + "</a>");
+        $(this).remove();
+    });
 };
 
 SALR.prototype.inlineYoutubes = function() {

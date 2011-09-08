@@ -57,7 +57,7 @@ import com.ferg.awful.widget.NumberPicker;
 public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
-    private ThreadListAdapter adapt;
+    private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
 
@@ -170,13 +170,12 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     @Override
     public void onStart() {
         super.onStart();
-        Log.e(TAG,"onStart()");
 
-        setActionbarTitle(adapt.getTitle());
+        setActionbarTitle(mAdapter.getTitle());
     }
     
     public void setListAdapter(ListAdapter adapter){
-        adapt = (ThreadListAdapter) adapter;
+        mAdapter = (ThreadListAdapter) adapter;
     }
     
     @Override
@@ -192,7 +191,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             int newReadBG = prefs.getInt(key, R.color.background_read);
             if(newReadBG != mReadPostBackgroundColor) {
                 mReadPostBackgroundColor = newReadBG;
-                Log.d(TAG, "invalidating (color)");
                 // TODO: Invalidate views
             }
         }
@@ -201,7 +199,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     @Override
     public void onPause() {
         super.onPause();
-        Log.e(TAG,"onPause()");
 
         mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         cleanupTasks();
@@ -210,20 +207,17 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     @Override
     public void onStop() {
         super.onStop();
-        Log.e(TAG,"onStop()");
         cleanupTasks();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.e(TAG,"onDetach()");
-        savedPage = adapt.getPage(); // saves page for orientation change.
+        savedPage = mAdapter.getPage(); // saves page for orientation change.
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG,"onDestroy()");
         cleanupTasks();
     }
 
@@ -243,7 +237,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG,"onResume()");
         
         mPrefs.registerOnSharedPreferenceChangeListener(this);
         if(queueDataUpdate){
@@ -267,7 +260,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         MenuItem bk = menu.findItem(R.id.bookmark);
 
         if(bk != null){
-            AwfulThread th = (AwfulThread) adapt.getState();
+            AwfulThread th = (AwfulThread) mAdapter.getState();
             if(th != null){
                 bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
             }
@@ -284,7 +277,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 displayPostReplyDialog();
                 break;
             case R.id.go_back:
-                adapt.goToPage(adapt.getPage()-1);
+                mAdapter.goToPage(mAdapter.getPage()-1);
                 break;
             case R.id.usercp:
                 displayUserCP();
@@ -299,7 +292,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
                 break;
             case R.id.bookmark:
-                adapt.toggleBookmark();
+                mAdapter.toggleBookmark();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -314,8 +307,8 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     private void displayPagePicker() {
         final NumberPicker jumpToText = new NumberPicker(getActivity());
-        jumpToText.setRange(1, adapt.getLastPage());
-        jumpToText.setCurrent(adapt.getPage());
+        jumpToText.setRange(1, mAdapter.getLastPage());
+        jumpToText.setCurrent(mAdapter.getPage());
         new AlertDialog.Builder(getActivity())
             .setTitle("Jump to Page")
             .setView(jumpToText)
@@ -324,11 +317,10 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                     public void onClick(DialogInterface aDialog, int aWhich) {
                         try {
                             int pageInt = jumpToText.getCurrent();
-                            if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-                                adapt.goToPage(pageInt);
+                            if (pageInt > 0 && pageInt <= mAdapter.getLastPage()) {
+                                mAdapter.goToPage(pageInt);
                             }
                         } catch (NumberFormatException e) {
-                            Log.d(TAG, "Not a valid number: " + e.toString());
                             Toast.makeText(getActivity(),
                                 R.string.invalid_page, Toast.LENGTH_SHORT).show();
                         } catch (Exception e) {
@@ -351,7 +343,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 mPostQuoteTask.execute(aPostId);
                 return true;
             case ClickInterface.LAST_READ:
-                adapt.markLastRead(aLastReadUrl);
+                mAdapter.markLastRead(aLastReadUrl);
                 return true;
         }
 
@@ -369,7 +361,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     }
 
     public void refresh() {
-        adapt.refresh();
+        mAdapter.refresh();
         populateThreadView();
     }
 
@@ -390,14 +382,14 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     };
 
     private void showNextPage() {
-        if (adapt.getPage() < adapt.getLastPage()) {
-            adapt.goToPage(adapt.getPage()+1);
+        if (mAdapter.getPage() < mAdapter.getLastPage()) {
+            mAdapter.goToPage(mAdapter.getPage()+1);
         }
     }
 
     private void displayPostReplyDialog() {
         Bundle args = new Bundle();
-        args.putString(Constants.THREAD, adapt.getState().getID() + "");
+        args.putString(Constants.THREAD, mAdapter.getState().getID() + "");
 
         displayPostReplyDialog(args);
     }
@@ -447,7 +439,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
                 Bundle args = new Bundle();
 
-                args.putString(Constants.THREAD, adapt.getState().getID()+"");
+                args.putString(Constants.THREAD, mAdapter.getState().getID()+"");
                 args.putString(Constants.QUOTE, aResult);
                 args.putBoolean(Constants.EDITING, true);
                 args.putString(Constants.POST_ID, mPostId);
@@ -483,7 +475,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 }
 
                 Bundle args = new Bundle();
-                args.putString(Constants.THREAD, Integer.toString(adapt.getState().getID()));
+                args.putString(Constants.THREAD, Integer.toString(mAdapter.getState().getID()));
                 args.putString(Constants.QUOTE, aResult);
 
                 displayPostReplyDialog(args);
@@ -503,31 +495,15 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     }
 
     public void delayedDataUpdate(boolean pageChange) {
-        setActionbarTitle(adapt.getTitle());
-
-        // TODO: Reimplement this
-        /*
-        int last = adapt.getLastReadPost();
-        if(savedPage == adapt.getPage() && savedPos >0 && savedPos < getListView().getCount()){
-            getListView().setSelection(savedPos);
-        } else {
-            if(!pageChange && last >= 0 && last < getListView().getCount()){
-                getListView().setSelection(last);
-                savedPos = last;
-            }
-            if(pageChange && getListView().getCount() > 0){
-                getListView().setSelection(0);
-            }
-        }
-        */
+        setActionbarTitle(mAdapter.getTitle());
 
         if (!isHoneycomb()) {
-            if (adapt.getPage() == adapt.getLastPage()) {
+            if (mAdapter.getPage() == mAdapter.getLastPage()) {
                 mNext.setVisibility(View.GONE);
             } else {
                 mNext.setVisibility(View.VISIBLE);
             }
-            if(adapt.getThreadClosed()){
+            if(mAdapter.getThreadClosed()){
                 mReply.setVisibility(View.GONE);
             } else {
                 mReply.setVisibility(View.VISIBLE);
@@ -541,12 +517,11 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     @Override
     public void loadingFailed() {
-        Log.e(TAG, "Loading failed.");
         if (!isHoneycomb()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+            mRefresh.startAnimation(mAdapter.getBlinkingAnimation());
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
@@ -556,19 +531,21 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     @Override
     public void loadingStarted() {
-        Log.e(TAG, "Loading started.");
-        if (!isHoneycomb()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(adapt.getRotateAnimation());
-        } else {
-            getActivity().setProgressBarIndeterminateVisibility(true);
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                if (!isHoneycomb()) {
+                    mRefresh.setVisibility(View.VISIBLE);
+                    mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+                    mRefresh.startAnimation(mAdapter.getRotateAnimation());
+                } else {
+                    getActivity().setProgressBarIndeterminateVisibility(true);
+                }
+            }
+        });
     }
 
     @Override
     public void loadingSucceeded() {
-        Log.e(TAG, "Loading succeeded.");
         if (!isHoneycomb()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
@@ -580,9 +557,11 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     }
 
     private void populateThreadView() {
-        mThreadView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
+        mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
         mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
+        mThreadView.addJavascriptInterface(mAdapter.getLastPage(), "pageTotal");
+        mThreadView.addJavascriptInterface(mAdapter.getPage(), "currentPage");
 
         if (isTablet()) {
             mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
@@ -621,6 +600,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
+            result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -665,6 +645,14 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                     }
                 })
                 .show();
+        }
+
+        public void onPreviousPageClick() {
+            mAdapter.goToPage(mAdapter.getPage() - 1);
+        }
+
+        public void onNextPageClick() {
+            mAdapter.goToPage(mAdapter.getPage() - 1);
         }
     }
 }
