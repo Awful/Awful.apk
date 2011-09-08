@@ -260,16 +260,16 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-    	if(menu == null || isHoneycomb()){
-    		return;
-    	}
+        if(menu == null || isHoneycomb()){
+            return;
+        }
 
         MenuItem bk = menu.findItem(R.id.bookmark);
 
         if(bk != null){
             AwfulThread th = (AwfulThread) adapt.getState();
             if(th != null){
-            	bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
+                bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
             }
         }
     }
@@ -511,12 +511,12 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             getListView().setSelection(savedPos);
         } else {
             if(!pageChange && last >= 0 && last < getListView().getCount()){
-		        getListView().setSelection(last);
-		        savedPos = last;
-	        }
-	        if(pageChange && getListView().getCount() > 0){
-	        	getListView().setSelection(0);
-	        }
+                getListView().setSelection(last);
+                savedPos = last;
+            }
+            if(pageChange && getListView().getCount() > 0){
+                getListView().setSelection(0);
+            }
         }
         */
 
@@ -527,9 +527,9 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 mNext.setVisibility(View.VISIBLE);
             }
             if(adapt.getThreadClosed()){
-            	mReply.setVisibility(View.GONE);
+                mReply.setVisibility(View.GONE);
             } else {
-            	mReply.setVisibility(View.VISIBLE);
+                mReply.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -583,12 +583,24 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
         mThreadView.addJavascriptInterface(new PreferencesInterface(), "preferences");
 
-        Configuration config = getActivity().getResources().getConfiguration();
-        if (isHoneycomb() && config.smallestScreenWidthDp >= 600) {
+        if (isTablet()) {
             mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
         } else {
             mThreadView.loadUrl("file:///android_asset/thread-phone.html");
         }
+    }
+
+    private boolean isTablet() {
+        if (isHoneycomb()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                Configuration config = getActivity().getResources().getConfiguration();
+                return config.smallestScreenWidthDp >= 600;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private class PreferencesInterface {
