@@ -58,28 +58,6 @@ import com.ferg.awful.preferences.AwfulPreferences;
 public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
-    /*private static final String USERNAME_SEARCH = "//dt[@class='author']|//dt[@class='author op']|//dt[@class='author role-mod']|//dt[@class='author role-admin']|//dt[@class='author role-mod op']|//dt[@class='author role-admin op']";
-    private static final String MOD_SEARCH      = "//dt[@class='author role-mod']|//dt[@class='author role-mod op']";
-    private static final String ADMIN_SEARCH    = "//dt[@class='author role-admin']|//dt[@class='author role-admin op']";
-
-    private static final String USERNAME  = "//dt[@class='author']";
-    private static final String OP        = "//dt[@class='author op']";
-	private static final String MOD       = "//dt[@class='author role-mod']";
-	private static final String ADMIN     = "//dt[@class='author role-admin']";
-    private static final String POST      = "//table[@class='post']";
-    private static final String POST_ID   = "//table[@class='post']";
-    private static final String POST_DATE = "//td[@class='postdate']";
-    private static final String SEEN_LINK = "//td[@class='postdate']//a";
-    private static final String AVATAR    = "//dd[@class='title']//img";
-    private static final String EDITED    = "//p[@class='editedby']/span";
-    private static final String POSTBODY  = "//td[@class='postbody']";
-	private static final String SEEN1     = "//tr[@class='seen1']";
-	private static final String SEEN2     = "//tr[@class='seen2']";
-	private static final String SEEN      = SEEN1+"|"+SEEN2;
-	private static final String USERINFO  = "//tr[position()=1]/td[position()=1]"; //this would be nicer if HtmlCleaner supported starts-with
-	private static final String PROFILE_LINKS = "//ul[@class='profilelinks']//a";
-    private static final String EDITABLE  = "//img[@alt='Edit']";
-    */
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
     
 	private static final String USERINFO_PREFIX = "userinfo userid-";
@@ -93,7 +71,6 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
     private static final String LINK_RAP_SHEET    = "Rap Sheet";
-    
 
     private String mId;
     private String mDate;
@@ -103,7 +80,6 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mContent;
     private String mEdited;
     private AwfulThread mThread;
-
 
 	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;

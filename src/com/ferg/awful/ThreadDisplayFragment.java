@@ -43,6 +43,8 @@ import android.webkit.WebView;
 import android.widget.*;
 import android.support.v4.app.Fragment;
 
+import org.json.*;
+
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
@@ -65,7 +67,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private TextView mTitle;
     private ProgressDialog mDialog;
     private SharedPreferences mPrefs;
-    private AwfulPreferences mAppPrefs;
 
     private WebView mThreadView;
 
@@ -127,7 +128,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mAppPrefs = new AwfulPreferences(getActivity());
 
         // TODO: Swap this to the javascript interface
         // getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
@@ -581,7 +581,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private void populateThreadView() {
         mThreadView.addJavascriptInterface(adapt.getSerializedChildren().toString(), "post_list");
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
-        mThreadView.addJavascriptInterface(new PreferencesInterface(), "preferences");
+        mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
         Configuration config = getActivity().getResources().getConfiguration();
         if (isHoneycomb() && config.smallestScreenWidthDp >= 600) {
@@ -591,16 +591,28 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         }
     }
 
-    private class PreferencesInterface {
-        public String fontSize = Integer.toString(mAppPrefs.postFontSize);
-        public String fontColor = ColorPickerPreference.convertToARGB(mAppPrefs.postFontColor);
-        public String fontColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postFontColor2);
-        public String backgroundColor = ColorPickerPreference.convertToARGB(mAppPrefs.postBackgroundColor);
-        public String backgroundColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postBackgroundColor2);
-        public String readBackgroundColor = ColorPickerPreference.convertToARGB(mAppPrefs.postReadBackgroundColor);
-        public String readBackgroundColor2 = ColorPickerPreference.convertToARGB(mAppPrefs.postReadBackgroundColor2);
-        public String OPColor = ColorPickerPreference.convertToARGB(mAppPrefs.postOPColor);
-        public String linkQuoteColor = ColorPickerPreference.convertToARGB(mAppPrefs.postLinkQuoteColor);
+    private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
+        JSONObject result = new JSONObject();
+
+        try {
+            result.put("username", aAppPrefs.username);
+            result.put("userQuote", "#a2cd5a");
+            result.put("fontSize", Integer.toString(aAppPrefs.postFontSize));
+            result.put("fontColor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
+            result.put("fontColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor2));
+            result.put("backgroundColor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
+            result.put("backgroundColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor2));
+            result.put("readBackgroundColor", ColorPickerPreference.convertToARGB(aAppPrefs.postReadBackgroundColor));
+            result.put("readBackgroundColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postReadBackgroundColor2));
+            result.put("OPColor", ColorPickerPreference.convertToARGB(aAppPrefs.postOPColor));
+            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, result.toString());
+
+        return result.toString();
     }
 
     private class ClickInterface {

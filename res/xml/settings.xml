@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/prefs_global">
+        <EditTextPreference
+            android:key="username"
+            android:title="@string/username_pref"
+            android:summary="@string/username_summary"
+            android:defaultValue="Username"
+            />
         <ListPreference
             android:key="orientation"
             android:title="@string/orientation"

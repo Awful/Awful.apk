@@ -21,6 +21,8 @@
     <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
+    <string name="username_pref">Username</string>
+    <string name="username_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>
