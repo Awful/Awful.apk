@@ -595,9 +595,9 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
                 Configuration config = getActivity().getResources().getConfiguration();
                 return config.smallestScreenWidthDp >= 600;
-            } else {
-                return true;
             }
+
+            return true;
         }
 
         return false;
