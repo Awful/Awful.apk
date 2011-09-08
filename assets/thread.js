@@ -18,7 +18,9 @@ $(document).ready(function() {
 
         var background;
 
-        if (current.previouslyRead == "true") {
+        if (current.isOp == "true") {
+            background = prefs.OPColor;
+        } else if (current.previouslyRead == "true") {
             background = light ? prefs.readBackgroundColor : prefs.readBackgroundColor2;
         } else {
             background = light ? prefs.backgroundColor : prefs.backgroundColor2;
@@ -36,6 +38,8 @@ $(document).ready(function() {
             lastread: (current.previouslyRead == "true") ? "read" : "unread",
             lastreadurl: current.lastReadUrl,
             editable: (current.editable == "true") ? "editable" : "noneditable",
+            fontColor: prefs.fontColor,
+            fontSize: prefs.fontSize,
         };
 
         thread.append(ich.post(post_data));

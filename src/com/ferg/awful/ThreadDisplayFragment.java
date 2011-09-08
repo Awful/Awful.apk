@@ -598,6 +598,9 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             }
 
             return true;
+        }
+
+        return false;
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {

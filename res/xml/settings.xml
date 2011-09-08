@@ -21,12 +21,6 @@
 			android:summary="@string/load_images_summary"
 			android:defaultValue="true"
 			/>
-		<CheckBoxPreference
-			android:key="use_large_scrollbar"
-			android:title="@string/use_large_scrollbar"
-			android:summary="@string/use_large_scrollbar_summary"
-			android:defaultValue="true"
-			/>
 		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="post_per_page"
 			android:title="@string/setting_posts_per_page"

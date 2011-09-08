@@ -51,7 +51,6 @@ import android.widget.TextView;
 
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.htmlwidget.HtmlView;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 
@@ -107,6 +106,7 @@ public class AwfulPost implements AwfulDisplayItem {
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
+        result.put("isOp", Boolean.toString(mUserId.equals(mThread.getAuthorID())));
 
         return result;
     }
@@ -373,60 +373,8 @@ public class AwfulPost implements AwfulDisplayItem {
 
 	@Override
 	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
-		View tmp = current;
-		if(tmp == null || tmp.getId() != R.layout.post_item){
-			tmp = inf.inflate(R.layout.post_item, parent, false);
-			tmp.setTag(this);
-		}
-		if(mUserId.equals(mThread.getAuthorID())){
-		RelativeLayout posthead = (RelativeLayout) tmp.findViewById(R.id.posthead);
-		posthead.setBackgroundColor(mPrefs.postOPColor);
-		}
-		TextView author = (TextView) tmp.findViewById(R.id.username);
-		TextView date = (TextView) tmp.findViewById(R.id.post_date);
-        LinearLayout postRow = (LinearLayout) tmp.findViewById(R.id.post_row);
-		ImageView avatar = (ImageView) tmp.findViewById(R.id.avatar);
-		HtmlView postBody = (HtmlView) tmp.findViewById(R.id.postbody);
-		
-		author.setText(mUsername);
-		date.setText(mDate);
-
-        if(postBody.getMovementMethod() == null){
-        	postBody.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-
-        boolean loadImg = true;
-        if(mPrefs != null){
-        	loadImg = mPrefs.imagesEnabled;
-        }
-
-        postBody.setHtml(getContent(), loadImg);
-		if( getAvatar() == null ) {
-        	avatar.setVisibility(View.INVISIBLE);
-        } else {
-        	avatar.setVisibility(View.VISIBLE);
-        }
-
-        avatar.setTag(getAvatar());
-        if(mPrefs != null){
-        	if (isPreviouslyRead()) {
-            	if (!mPrefs.alternateBackground || isEven()) {
-            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor);
-            	} else {
-            		postRow.setBackgroundColor(mPrefs.postReadBackgroundColor2);
-            	}
-            } else {
-            	if (!mPrefs.alternateBackground || isEven()) {
-            		postRow.setBackgroundColor(mPrefs.postBackgroundColor);
-            	} else {
-            		postRow.setBackgroundColor(mPrefs.postBackgroundColor2);
-            	}
-            }
-			postBody.setTextColor(mPrefs.postFontColor);
-			postBody.setTextSize(mPrefs.postFontSize);
-		}
-		return tmp;
-	}
+        return null;
+    }
 
 	@Override
 	public int getID() {

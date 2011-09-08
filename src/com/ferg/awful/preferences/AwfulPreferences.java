@@ -55,7 +55,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 	private void updateValues(SharedPreferences prefs) {
         username                 = mPrefs.getString("username", "Username");
-		postFontSize             = mPrefs.getInt("default_post_font_size", 15);
+		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
 		postFontColor            = mPrefs.getInt("default_post_font_color", parent.getResources().getColor(R.color.default_post_font));
 		postFontColor2           = mPrefs.getInt("secondary_post_font_color", parent.getResources().getColor(R.color.secondary_post_font));
       	postBackgroundColor      = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
