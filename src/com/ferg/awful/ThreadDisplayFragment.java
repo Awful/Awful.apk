@@ -531,17 +531,13 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     @Override
     public void loadingStarted() {
-        getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                if (!isHoneycomb()) {
-                    mRefresh.setVisibility(View.VISIBLE);
-                    mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-                    mRefresh.startAnimation(mAdapter.getRotateAnimation());
-                } else {
-                    getActivity().setProgressBarIndeterminateVisibility(true);
-                }
-            }
-        });
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(mAdapter.getRotateAnimation());
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(true);
+        }
     }
 
     @Override
@@ -560,8 +556,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
         mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-        mThreadView.addJavascriptInterface(mAdapter.getLastPage(), "pageTotal");
-        mThreadView.addJavascriptInterface(mAdapter.getPage(), "currentPage");
+        mThreadView.addJavascriptInterface(getSerializedPager(), "pager");
 
         if (isTablet()) {
             mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
@@ -581,6 +576,20 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         }
 
         return false;
+    }
+
+    private String getSerializedPager() {
+        JSONObject result = new JSONObject();
+
+        try {
+            result.put("pageTotal", Integer.toString(mAdapter.getLastPage()));
+            result.put("currentPage", Integer.toString(mAdapter.getPage()));
+            result.put("isLastPage", Boolean.toString(mAdapter.getPage() == mAdapter.getLastPage()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return result.toString();
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
@@ -648,11 +657,27 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         }
 
         public void onPreviousPageClick() {
-            mAdapter.goToPage(mAdapter.getPage() - 1);
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    mAdapter.goToPage(mAdapter.getPage() - 1);
+                }
+            });
         }
 
         public void onNextPageClick() {
-            mAdapter.goToPage(mAdapter.getPage() - 1);
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    mAdapter.goToPage(mAdapter.getPage() + 1);
+                }
+            });
+        }
+
+        public void onRefreshPageClick() {
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    refresh();
+                }
+            });
         }
     }
 }

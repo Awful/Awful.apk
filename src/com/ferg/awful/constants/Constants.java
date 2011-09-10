@@ -101,5 +101,5 @@ public class Constants {
     //or reduce to speed processing time once auto-load is in
     public static final int ITEMS_PER_PAGE = 40;
 
-    
+    public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";    
 }

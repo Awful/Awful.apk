@@ -111,14 +111,14 @@ table {
 
 .footer {
     width: 100%;
-    height: 100px;
+    height: 50px;
     background: url("page_indicator_background.png") repeat-x;
     text-align: center;
 }
 
 .number {
-    top: 20px;
-    font: bold 40px Verdana, Arial, sans-serif;
+    top: 1px;
+    font: bold 36px Verdana, Arial, sans-serif;
     text-shadow: 1px 1px 1px #444;
     color: #eee;
     position: relative;
@@ -127,11 +127,11 @@ table {
 #previous-page {
     float: left;
     margin-left: 20px;
-    margin-top: 35px;
+    margin-top: 13px;
 }
 
 #next-page {
     float: right;
     margin-right: 20px;
-    margin-top: 35px;
+    margin-top: 13px;
 }
