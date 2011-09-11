@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <ViewStub
-        android:id="@+id/actionbar" 
-        android:inflatedId="@+id/actionbar_inflated"
-        android:layout="@layout/actionbar_thread"
-        android:layout_width="fill_parent"
-        android:layout_height="45dip"
-        />
-    <WebView
-        android:background="#ffffff"
-        android:id="@+id/thread"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/actionbar"
+        android:orientation="vertical"
         android:layout_above="@+id/footer"
-        />
+        >
+        <ViewStub
+            android:id="@+id/actionbar" 
+            android:inflatedId="@+id/actionbar_inflated"
+            android:layout="@layout/actionbar_thread"
+            android:layout_width="fill_parent"
+            android:layout_height="45dip"
+            />
+        <WebView
+            android:background="#ffffff"
+            android:id="@+id/thread"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/actionbar"
+            />
+    </LinearLayout>
     <LinearLayout
         android:id="@id/footer"
         android:layout_width="fill_parent"
@@ -56,7 +61,7 @@
                  android:visibility="invisible"
                  android:layout_alignParentLeft="true"/>
             <ImageButton
-                 android:id="@+id/next_page"
+                 android:id="@+id/next"
                  android:layout_height="wrap_content"
                  android:src="@drawable/r_arrow"
                  android:layout_width="wrap_content"

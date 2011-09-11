@@ -110,7 +110,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		mNextPage      = (ImageButton) result.findViewById(R.id.next_page);
+		mNextPage      = (ImageButton) result.findViewById(R.id.next);
 		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
         mThreadView    = (WebView) result.findViewById(R.id.thread);
 
