@@ -388,6 +388,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.next_page:
+                case R.id.next:
                     showNextPage();
                     break;
                 case R.id.reply:
