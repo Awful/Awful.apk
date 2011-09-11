@@ -139,11 +139,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
             }
         });
-		
+    }
+
+    private void initPageCountCallbacks() {
 		mPrevPage.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-                mThreadView.loadUrl(null);
+                mThreadView.loadData("", "text/html", "utf-8");
 				mAdapter.goToPage(mAdapter.getPage() - 1);
 			}
 		});
@@ -159,7 +161,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			mNextPage.setOnClickListener(new View.OnClickListener(){
 				@Override
 				public void onClick(View v) {
-                    mThreadView.loadUrl(null);
+                    mThreadView.loadData("", "text/html", "utf-8");
 					mAdapter.refresh();
 				}
 			});
@@ -167,6 +169,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			mNextPage.setImageResource(R.drawable.r_arrow);
             mNextPage.setOnClickListener(onButtonClick);
 		}
+
+        mNextPage.setVisibility(View.VISIBLE);
     }
 
     private boolean isHoneycomb() {
@@ -398,7 +402,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void showNextPage() {
         if (mAdapter.getPage() < mAdapter.getLastPage()) {
-            mThreadView.loadUrl(null);
+            mThreadView.loadData("", "text/html", "utf-8");
             mAdapter.goToPage(mAdapter.getPage()+1);
         }
     }
@@ -570,7 +574,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void populateThreadView() {
-		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		initPageCountCallbacks();
+        
+        mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 
         mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");

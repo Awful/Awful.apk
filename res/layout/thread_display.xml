@@ -53,12 +53,14 @@
                  android:layout_height="wrap_content"
                  android:src="@drawable/l_arrow"
                  android:layout_width="wrap_content"
+                 android:visibility="invisible"
                  android:layout_alignParentLeft="true"/>
             <ImageButton
                  android:id="@+id/next_page"
                  android:layout_height="wrap_content"
                  android:src="@drawable/r_arrow"
                  android:layout_width="wrap_content"
+                 android:visibility="invisible"
                  android:layout_alignParentRight="true"/>
         </RelativeLayout>
     </LinearLayout>
