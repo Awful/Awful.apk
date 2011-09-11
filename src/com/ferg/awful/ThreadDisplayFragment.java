@@ -121,8 +121,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        Log.i(TAG, "onActivityCreated: Adapter is null: " + Boolean.toString(mAdapter == null));
-
         if (!isHoneycomb()) {
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
@@ -141,12 +139,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
             }
         });
-
-		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 		
 		mPrevPage.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+                mThreadView.loadUrl(null);
 				mAdapter.goToPage(mAdapter.getPage() - 1);
 			}
 		});
@@ -162,6 +159,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			mNextPage.setOnClickListener(new View.OnClickListener(){
 				@Override
 				public void onClick(View v) {
+                    mThreadView.loadUrl(null);
 					mAdapter.refresh();
 				}
 			});
@@ -400,6 +398,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void showNextPage() {
         if (mAdapter.getPage() < mAdapter.getLastPage()) {
+            mThreadView.loadUrl(null);
             mAdapter.goToPage(mAdapter.getPage()+1);
         }
     }
@@ -571,9 +570,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void populateThreadView() {
-        Log.i(TAG, "Populating thread view!");
+		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+
         mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
-        Log.i(TAG, "Children: " + mAdapter.getSerializedChildren().toString());
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
         mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
