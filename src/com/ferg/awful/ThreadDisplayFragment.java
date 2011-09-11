@@ -30,10 +30,8 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.os.*;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -54,7 +52,7 @@ import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenceChangeListener, AwfulUpdateCallback {
+public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
     private ThreadListAdapter mAdapter;
@@ -62,11 +60,13 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private ParseEditPostTask mEditPostTask;
 
     private ImageButton mNext;
+    private ImageButton mNextPage;
+    private ImageButton mPrevPage;
     private ImageButton mReply;
     private ImageButton mRefresh;
+    private TextView mPageCountText;
     private TextView mTitle;
     private ProgressDialog mDialog;
-    private SharedPreferences mPrefs;
 
     private WebView mThreadView;
 
@@ -87,18 +87,11 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     private int savedPage = 0;
     private int savedPos = 0;
 
-
-
-    // These just store values from shared preferences. This way, we only have to do redraws
-    // and the like if the preferences defining drawing have actually changed since we last
-    // saw them
-    private int mDefaultPostBackgroundColor;
-    private int mReadPostBackgroundColor;
-
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
     }
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -116,24 +109,19 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
 
-        mThreadView = (WebView) result.findViewById(R.id.thread);
-        
+		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mNextPage      = (ImageButton) result.findViewById(R.id.next_page);
+		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
+        mThreadView    = (WebView) result.findViewById(R.id.thread);
+
         return result;
     }
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        setRetainInstance(true);
-        
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        // TODO: Swap this to the javascript interface
-        // getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        // getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        
-        mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
+        Log.i(TAG, "onActivityCreated: Adapter is null: " + Boolean.toString(mAdapter == null));
 
         if (!isHoneycomb()) {
             mNext.setOnClickListener(onButtonClick);
@@ -153,6 +141,34 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
                 Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
             }
         });
+
+		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		
+		mPrevPage.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mAdapter.goToPage(mAdapter.getPage() - 1);
+			}
+		});
+
+		if (mAdapter.getPage() <= 1) {
+			mPrevPage.setVisibility(View.INVISIBLE);
+		} else {
+			mPrevPage.setVisibility(View.VISIBLE);
+		}
+
+		if (mAdapter.getPage() == mAdapter.getLastPage()) {
+			mNextPage.setImageResource(android.R.drawable.stat_notify_sync);
+			mNextPage.setOnClickListener(new View.OnClickListener(){
+				@Override
+				public void onClick(View v) {
+					mAdapter.refresh();
+				}
+			});
+		} else {
+			mNextPage.setImageResource(R.drawable.r_arrow);
+            mNextPage.setOnClickListener(onButtonClick);
+		}
     }
 
     private boolean isHoneycomb() {
@@ -175,24 +191,12 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     }
     
     public void setListAdapter(ListAdapter adapter){
-        mAdapter = (ThreadListAdapter) adapter;
-    }
-    
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if("default_post_background_color".equals(key)) {
-            int newBackground = prefs.getInt(key, R.color.background);
-            if(newBackground != mDefaultPostBackgroundColor) {
-                mDefaultPostBackgroundColor = newBackground;
-                Log.d(TAG, "invalidating (color)");
-                // TODO: Invalidate views
-            }               
-        } else if("read_post_background_color".equals(key)) {
-            int newReadBG = prefs.getInt(key, R.color.background_read);
-            if(newReadBG != mReadPostBackgroundColor) {
-                mReadPostBackgroundColor = newReadBG;
-                // TODO: Invalidate views
-            }
+        if (mAdapter == null) {
+            mAdapter = (ThreadListAdapter) adapter;
+        }
+
+        if (mAdapter.getChildCount() > 0) {
+            loadingSucceeded();
         }
     }
     
@@ -200,7 +204,14 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     public void onPause() {
         super.onPause();
 
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        try {
+            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
+                .invoke(mThreadView, (Object[]) null);
+            mThreadView.pauseTimers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         cleanupTasks();
     }
         
@@ -238,9 +249,16 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
     public void onResume() {
         super.onResume();
         
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
-        if(queueDataUpdate){
+        if (queueDataUpdate){
             dataUpdate(false);
+        }
+
+        try {
+            Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
+                .invoke(mThreadView, (Object[]) null);
+            mThreadView.resumeTimers();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
@@ -362,7 +380,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     public void refresh() {
         mAdapter.refresh();
-        populateThreadView();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -485,10 +502,10 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
 
     @Override
     public void dataUpdate(boolean pageChange) {
-        if(!this.isResumed()){
+        if (!this.isResumed()) {
             queueDataUpdate = true;
             return;
-        }else{
+        } else {
             queueDataUpdate = false;
             handler.post(new RunDataUpdate(pageChange));
         }
@@ -503,6 +520,7 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
             } else {
                 mNext.setVisibility(View.VISIBLE);
             }
+
             if(mAdapter.getThreadClosed()){
                 mReply.setVisibility(View.GONE);
             } else {
@@ -548,15 +566,16 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
-
+        
         populateThreadView();
     }
 
     private void populateThreadView() {
+        Log.i(TAG, "Populating thread view!");
         mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
+        Log.i(TAG, "Children: " + mAdapter.getSerializedChildren().toString());
         mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
         mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-        mThreadView.addJavascriptInterface(getSerializedPager(), "pager");
 
         if (isTablet()) {
             mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
@@ -576,20 +595,6 @@ public class ThreadDisplayFragment extends Fragment implements OnSharedPreferenc
         }
 
         return false;
-    }
-
-    private String getSerializedPager() {
-        JSONObject result = new JSONObject();
-
-        try {
-            result.put("pageTotal", Integer.toString(mAdapter.getLastPage()));
-            result.put("currentPage", Integer.toString(mAdapter.getPage()));
-            result.put("isLastPage", Boolean.toString(mAdapter.getPage() == mAdapter.getLastPage()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return result.toString();
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {

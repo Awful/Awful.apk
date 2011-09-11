@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -17,5 +17,49 @@
         android:id="@+id/thread"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_below="@id/actionbar"
+        android:layout_above="@+id/footer"
         />
-</LinearLayout>
+    <LinearLayout
+        android:id="@id/footer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+        <RelativeLayout
+            android:id="@+id/page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:padding="6dip"
+            android:background="@drawable/page_bottom_bg"
+            >
+            <TextView
+                android:id="@+id/page_count"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="#eeeeee"
+                android:textSize="22dip"
+                android:textStyle="bold"
+                android:shadowColor="#070707"
+                android:shadowDx="0"
+                android:shadowDy="-1"
+                android:shadowRadius="0.2"
+                android:layout_centerVertical="true"/>
+            <ImageButton
+                 android:id="@+id/prev_page"
+                 android:layout_height="wrap_content"
+                 android:src="@drawable/l_arrow"
+                 android:layout_width="wrap_content"
+                 android:layout_alignParentLeft="true"/>
+            <ImageButton
+                 android:id="@+id/next_page"
+                 android:layout_height="wrap_content"
+                 android:src="@drawable/r_arrow"
+                 android:layout_width="wrap_content"
+                 android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>
