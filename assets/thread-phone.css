@@ -1,20 +1,11 @@
 .avatar {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 5px;
-    margin-top: 0px;
-    text-align: left;
+    padding: 0px;
+    margin: 0px;
     float: left;
-}
-
-.avatar img {
-    max-width: 100px;
+    max-height: 100px;
 }
 
 .post-content {
-    vertical-align: top;
-    border-width: 1px;
-    border-collapse: collapse;
     padding: 6px;
     margin-right: 0px;
 }
@@ -39,13 +30,15 @@
 .action-button {
     float: right;
     vertical-align: middle;
-    margin-right: 18px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .userinfo-row {
     background: #006699;
+    width:100%;
+    overflow: auto;
 }
 
 .postdate {
@@ -60,3 +53,4 @@
     font-style: italic;
     color: #555;
 }
+

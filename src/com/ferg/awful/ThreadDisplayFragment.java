@@ -113,6 +113,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mNextPage      = (ImageButton) result.findViewById(R.id.next);
 		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
         mThreadView    = (WebView) result.findViewById(R.id.thread);
+        mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 
         return result;
     }
