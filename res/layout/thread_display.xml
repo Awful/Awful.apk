@@ -17,13 +17,24 @@
             android:layout_width="fill_parent"
             android:layout_height="45dip"
             />
-        <WebView
-            android:background="#ffffff"
-            android:id="@+id/thread"
+        <FrameLayout 
+            android:id="@+id/thread_window"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@id/actionbar"
-            />
+            >
+            <ImageView
+                android:id="@+id/snapshot"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                />
+            <com.ferg.awful.widget.SnapshotWebView
+                android:background="#ffffff"
+                android:id="@+id/thread"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_below="@id/actionbar"
+                />
+        </FrameLayout>
     </LinearLayout>
     <LinearLayout
         android:id="@id/footer"

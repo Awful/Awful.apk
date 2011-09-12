@@ -51,6 +51,7 @@ import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
+import com.ferg.awful.widget.SnapshotWebView;
 
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
@@ -64,11 +65,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ImageButton mPrevPage;
     private ImageButton mReply;
     private ImageButton mRefresh;
+    private ImageView mSnapshotView;
     private TextView mPageCountText;
     private TextView mTitle;
     private ProgressDialog mDialog;
+    private ViewGroup mThreadWindow;
 
-    private WebView mThreadView;
+    private SnapshotWebView mThreadView;
 
     private boolean queueDataUpdate;
     private Handler handler = new Handler();
@@ -112,7 +115,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		mNextPage      = (ImageButton) result.findViewById(R.id.next);
 		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
-        mThreadView    = (WebView) result.findViewById(R.id.thread);
+        mThreadView    = (SnapshotWebView) result.findViewById(R.id.thread);
+        mSnapshotView  = (ImageView) result.findViewById(R.id.snapshot);
+        mThreadWindow  = (FrameLayout) result.findViewById(R.id.thread_window);
 
         return result;
     }
@@ -126,6 +131,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mReply.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
+
+        mThreadView.resumeTimers();
+
+        mThreadView.setSnapshotView(mSnapshotView);
 
         mThreadView.getSettings().setJavaScriptEnabled(true);
 
@@ -206,10 +215,21 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onPause() {
         super.onPause();
 
+        Log.i(TAG, "PAUSING WEBVIEW");
         try {
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
             mThreadView.pauseTimers();
+            Log.i(TAG, "PAUSED WEBVIEW");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "DESTROYING WEBVIEW");
+        try {
+            mThreadWindow.removeView(mThreadView);
+            mThreadView.destroy();
+            Log.i(TAG, "DESTROYED WEBVIEW");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,6 +248,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onDetach();
         savedPage = mAdapter.getPage(); // saves page for orientation change.
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -255,13 +276,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             dataUpdate(false);
         }
 
+        /*
         try {
+            Log.i(TAG, "RESUMING WEBVIEW");
             Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
             mThreadView.resumeTimers();
+            Log.i(TAG, "RESUMED WEBVIEW");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
     }
     
     @Override
