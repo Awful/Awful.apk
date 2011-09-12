@@ -18,9 +18,7 @@ $(document).ready(function() {
 
         var background;
 
-        if (current.isOp == "true") {
-            background = prefs.OPColor;
-        } else if (current.previouslyRead == "true") {
+        if (current.previouslyRead == "true") {
             background = light ? prefs.readBackgroundColor : prefs.readBackgroundColor2;
         } else {
             background = light ? prefs.backgroundColor : prefs.backgroundColor2;
@@ -40,6 +38,7 @@ $(document).ready(function() {
             editable: (current.editable == "true") ? "editable" : "noneditable",
             fontColor: prefs.fontColor,
             fontSize: prefs.fontSize,
+            opColor: (current.isOp == "true") ? prefs.OPColor : "",
         };
 
         thread.append(ich.post(post_data));
