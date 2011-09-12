@@ -132,10 +132,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mRefresh.setOnClickListener(onButtonClick);
         }
 
+        initThreadViewProperties();
+    }
+
+    private void initThreadViewProperties() {
         mThreadView.resumeTimers();
-
         mThreadView.setSnapshotView(mSnapshotView);
-
         mThreadView.getSettings().setJavaScriptEnabled(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -276,17 +278,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             dataUpdate(false);
         }
 
-        /*
-        try {
-            Log.i(TAG, "RESUMING WEBVIEW");
-            Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-                .invoke(mThreadView, (Object[]) null);
-            mThreadView.resumeTimers();
-            Log.i(TAG, "RESUMED WEBVIEW");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (mThreadWindow.getChildCount() < 2) {
+            mThreadView = new SnapshotWebView(getActivity().getApplicationContext());
+
+            initThreadViewProperties();
+
+            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+
+            populateThreadView();
         }
-        */
     }
     
     @Override
