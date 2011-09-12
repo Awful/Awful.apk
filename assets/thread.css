@@ -136,3 +136,7 @@ table {
     margin-right: 20px;
     margin-top: 13px;
 }
+
+.editedby {
+    font-style: italic;
+}
