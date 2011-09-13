@@ -158,7 +158,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 
 		if (mAdapter.getPage() == mAdapter.getLastPage()) {
-			mNextPage.setImageResource(android.R.drawable.stat_notify_sync);
+			mNextPage.setImageResource(R.drawable.stat_notify_sync);
 			mNextPage.setOnClickListener(new View.OnClickListener(){
 				@Override
 				public void onClick(View v) {
