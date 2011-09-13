@@ -382,6 +382,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
 
         return result;

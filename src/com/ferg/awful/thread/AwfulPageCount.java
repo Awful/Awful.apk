@@ -25,9 +25,10 @@ public class AwfulPageCount implements AwfulDisplayItem {
 			 current = inf.inflate(R.layout.page_count, null, false);
 		}
 		TextView pageCountText = (TextView) current.findViewById(R.id.page_count);
-		pageCountText.setText("Page "+adapter.getPage()+"/"+adapter.getLastPage());
 		ImageButton next = (ImageButton) current.findViewById(R.id.next_page);
 		ImageButton prev = (ImageButton) current.findViewById(R.id.prev_page);
+
+		pageCountText.setText("Page "+adapter.getPage()+"/"+adapter.getLastPage());
 		
 		prev.setOnClickListener(new OnClickListener(){
 			@Override

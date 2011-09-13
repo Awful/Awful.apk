@@ -12,7 +12,7 @@
     <tr class="{{ lastread }}">
         <td class="usercolumn" style="background: {{ background }};">
             <div class="userinfo">
-                <div class="username">
+                <div class="username" style="color: {{ opColor }};">
                     <h4>{{ username }}</h4>
                 </div>
                 <div class="postdate">
@@ -32,20 +32,6 @@
             </div>
         </td>
     </tr>
-</script>
-
-<script id="pagefooter" type="text/html">
-    <div class="footer">
-        <div id="previous-page">
-            <img src="l_arrow.png" />
-        </div>
-        <span class="number">
-            Page {{ currentPage }} | {{ pageTotal }}
-        </span>
-        <div id="next-page">
-            <img src="{{ nextPageButton }}" />
-        </div>
-    </div>
 </script>
 <div class="content">
     <table id="thread-body">

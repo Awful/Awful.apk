@@ -66,7 +66,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
       	postBackgroundColor      = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
        	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", parent.getResources().getColor(R.color.alt_background));
     	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
-    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background));
+    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background_read));
     	postOPColor              = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);

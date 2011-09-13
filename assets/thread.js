@@ -1,8 +1,4 @@
 $(document).ready(function() {
-    var clear = function() {
-        $("#thread-body").html("");
-    };
-
     $('.action-button').live('click', function(event) {
         if ($(this).hasClass("editable")) {
             listener.onEditablePostClick($(this).attr('id'), $(this).attr('lastreadurl'));
@@ -13,7 +9,6 @@ $(document).ready(function() {
 
     var posts = JSON.parse(post_list);
     var prefs = JSON.parse(preferences);
-    var page = JSON.parse(pager);
 
     var thread = $("#thread-body");
     var light = true;
@@ -23,9 +18,7 @@ $(document).ready(function() {
 
         var background;
 
-        if (current.isOp == "true") {
-            background = prefs.OPColor;
-        } else if (current.previouslyRead == "true") {
+        if (current.previouslyRead == "true") {
             background = light ? prefs.readBackgroundColor : prefs.readBackgroundColor2;
         } else {
             background = light ? prefs.backgroundColor : prefs.backgroundColor2;
@@ -45,32 +38,10 @@ $(document).ready(function() {
             editable: (current.editable == "true") ? "editable" : "noneditable",
             fontColor: prefs.fontColor,
             fontSize: prefs.fontSize,
+            opColor: (current.isOp == "true") ? prefs.OPColor : "",
         };
 
         thread.append(ich.post(post_data));
-    }
-
-    $('.content').append(ich.pagefooter({
-        currentPage: page.currentPage,
-        pageTotal: page.pageTotal,
-        nextPageButton: (page.isLastPage == "true") ? "stat_notify_sync.png" : "r_arrow.png",
-    }));
-
-    $('#previous-page').bind('click', function(event) {
-        clear();
-        listener.onPreviousPageClick();
-    });
-
-    if (page.isLastPage == "false") {
-        $('#next-page').bind('click', function(event) {
-            clear();
-            listener.onNextPageClick();
-        });
-    } else {
-        $('#next-page').bind('click', function(event) {
-            clear();
-            listener.onRefreshPageClick();
-        });
     }
 
     var salr = new SALR(prefs);

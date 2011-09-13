@@ -384,6 +384,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
         }
 
         public JSONArray getSerializedChildren() {
+            if (state == null) {
+                return new JSONArray();
+            }
+
             return state.getSerializedChildren(currentPage);
         }
 
@@ -394,6 +398,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			return state.getChildrenCount(currentPage)+(state.isPaged()?1:0);
 		}
+
+        public int getChildCount() {
+			if(state == null) {
+				return 0;
+			}
+
+			return state.getChildrenCount(currentPage)+(state.isPaged()?1:0);
+        }
 
 		@Override
 		public Object getItem(int ix) {
