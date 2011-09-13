@@ -115,9 +115,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		mNextPage      = (ImageButton) result.findViewById(R.id.next);
 		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
-        mThreadView    = (SnapshotWebView) result.findViewById(R.id.thread);
-        mSnapshotView  = (ImageView) result.findViewById(R.id.snapshot);
-        mThreadWindow  = (FrameLayout) result.findViewById(R.id.thread_window);
+                mThreadView    = (SnapshotWebView) result.findViewById(R.id.thread);
+                mSnapshotView  = (ImageView) result.findViewById(R.id.snapshot);
+                mThreadWindow  = (FrameLayout) result.findViewById(R.id.thread_window);
+                mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 
         return result;
     }
@@ -168,7 +169,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 
 		if (mAdapter.getPage() == mAdapter.getLastPage()) {
-			mNextPage.setImageResource(android.R.drawable.stat_notify_sync);
+			mNextPage.setImageResource(R.drawable.stat_notify_sync);
 			mNextPage.setOnClickListener(new View.OnClickListener(){
 				@Override
 				public void onClick(View v) {

@@ -47,7 +47,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:padding="6dip"
             android:background="@drawable/page_bottom_bg"
             >
             <TextView
@@ -70,14 +69,20 @@
                  android:src="@drawable/l_arrow"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
-                 android:layout_alignParentLeft="true"/>
+                 android:layout_alignParentLeft="true"
+                 android:layout_centerVertical="true"
+                 android:padding="5dp"
+                 style="@style/ActionBarButton"/>
             <ImageButton
                  android:id="@+id/next"
                  android:layout_height="wrap_content"
                  android:src="@drawable/r_arrow"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
-                 android:layout_alignParentRight="true"/>
+                 android:layout_alignParentRight="true"
+                 android:layout_centerVertical="true"
+                 android:padding="5dp"
+                 style="@style/ActionBarButton"/>
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>
