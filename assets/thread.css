@@ -4,6 +4,11 @@ body {
     font: 16px Verdana, Arial, sans-serif
 }
 
+td {
+    border: 1px solid #c1c1c1;
+    overflow: auto;
+}
+
 img {
     max-width: 400px;
 }
@@ -13,20 +18,24 @@ h4 {
     margin: 0px;
 }
 
-#thread-body {
+table {
+    table-layout: fixed;
+    border-width: 1px;
+    border-collapse: collapse;
     width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
+}
+
+.content {
+    width: 100%;
+}
+
+#thread-body {
+    border: 1px solid #dddddd;
 }
 
 .bbc-block {
     margin: 12px 32px;
     border-bottom: 1px #999999 solid;
-}
-
-.bbc-block.code {
-    overflow: auto;
 }
 
 .bbc-block h4 {
@@ -43,7 +52,10 @@ h4 {
 }
 
 .post-content {
-    padding: 5px 5px 1px;
+    vertical-align: top;
+    border-width: 1px;
+    border-collapse: collapse;
+    margin-right: 110px;
 }
 
 .username {
@@ -56,6 +68,10 @@ h4 {
     vertical-align: top;
 }
 
+.post-content {
+    padding: 5px 5px 1px;
+}
+
 .postdate {
     color: black;
     font: normal normal normal 13px Verdana, Arial, sans-serif;
@@ -65,12 +81,18 @@ h4 {
     float: right;
     vertical-align: middle;
     margin-right: 12px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 12px;
+    margin-bottom: 20px;
 }
 
 .userinfo {
     padding: 5px;
+}
+
+.avatar {
+    text-align: center;
+    margin-top: 15px;
+    padding-bottom: 5px;
 }
 
 .usercolumn {
