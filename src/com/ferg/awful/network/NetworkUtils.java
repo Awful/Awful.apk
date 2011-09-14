@@ -176,19 +176,10 @@ public class NetworkUtils {
     }
     
     public static TagNode get(String aUrl) throws Exception {
-        return get(aUrl, null, null);
+        return get(aUrl, null);
     }
 
 	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
-        return get(aUrl, aParams, null);
-	}
-	
-	public static TagNode get(String aUrl, List<URI> redirects) throws Exception {
-	    return get(aUrl, null, redirects);
-	}
-
-	public synchronized static TagNode get(String aUrl, HashMap<String, String> aParams,
-			List<URI> redirects) throws Exception {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
         URI location = new URI(aUrl + parameters);
@@ -198,24 +189,8 @@ public class NetworkUtils {
         HttpGet httpGet;
         HttpResponse httpResponse;
 
-        if (redirects == null) {
-            httpGet = new HttpGet(location);
-            httpResponse = sHttpClient.execute(httpGet);
-        } else {
-            do {
-                httpGet = new HttpGet(location);
-                redirects.add(location);
-                HttpClientParams.setRedirecting(httpGet.getParams(), false);
-
-                httpResponse = sHttpClient.execute(httpGet);
-
-                if (httpResponse.containsHeader("location")) {
-                    location = location.resolve(httpResponse.getFirstHeader(
-                            "location").getValue());
-                    Log.i(TAG, "Redirecting to " + location);
-                }
-            } while (httpResponse.containsHeader("location"));
-        }
+        httpGet = new HttpGet(location);
+        httpResponse = sHttpClient.execute(httpGet);
 
         HttpEntity entity = httpResponse.getEntity();
 
@@ -226,48 +201,6 @@ public class NetworkUtils {
         Log.i(TAG, "Fetched " + location);
         return response;
     }
-
-	public static TagNode getWithRedirects(String aUrl, List<URI> redirects)
-			throws Exception {
-		return getWithRedirects(aUrl, null, redirects);
-	}
-
-	public static TagNode getWithRedirects(String aUrl, HashMap<String, String> aParams,
-			List<URI> redirects) throws Exception {
-        TagNode response = null;
-        String parameters = getQueryStringParameters(aParams);
-
-        Log.i(TAG, "Fetching " + aUrl + parameters);
-
-        URI location = new URI(aUrl + parameters);
-
-        HttpGet httpGet;
-        HttpResponse httpResponse;
-
-        do {
-            httpGet = new HttpGet(location);
-            redirects.add(location);
-            HttpClientParams.setRedirecting(httpGet.getParams(), false);
-
-            httpResponse = sHttpClient.execute(httpGet);
-
-            if (httpResponse.containsHeader("location")) {
-                location = location.resolve(httpResponse.getFirstHeader(
-                        "location").getValue());
-                Log.i(TAG, "Redirecting to " + location.toString());
-            }
-        } while (httpResponse.containsHeader("location"));
-
-        HttpEntity entity = httpResponse.getEntity();
-
-        if (entity != null) {
-            response = sCleaner
-                    .clean(new InputStreamReader(entity.getContent(), CHARSET));
-        }
-
-        Log.i(TAG, "Fetched " + location.toString());
-        return response;
-	}
 
 	public static TagNode post(String aUrl, HashMap<String, String> aParams) throws Exception {
         TagNode response = null;
