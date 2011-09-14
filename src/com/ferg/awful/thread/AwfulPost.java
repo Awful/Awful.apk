@@ -245,17 +245,19 @@ public class AwfulPost implements AwfulDisplayItem {
 
     public void markLastRead() {
         try {
-            List<URI> redirects = new LinkedList<URI>();
             if(mLastReadUrl != null){
-            	NetworkUtils.get(Constants.BASE_URL+ mLastReadUrl, redirects);
+            	NetworkUtils.get(Constants.BASE_URL+ mLastReadUrl);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int pti, AwfulThread aThreadObject){
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject){
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+        
+        int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
+        int lastReadPost = aThreadObject.getLastReadPost(postPerPage);
 
 		boolean lastReadFound = false;
 		boolean even = false;
@@ -322,7 +324,7 @@ public class AwfulPost implements AwfulDisplayItem {
 			                }
 						}
 					}
-					if((pti != -1 && index < pti) ||
+					if(aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
 					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}
@@ -356,13 +358,6 @@ public class AwfulPost implements AwfulDisplayItem {
                 index++;
             }
 
-            // if there are zero unread posts the pti points to what the next post
-            // would be. a thread with 6 posts would have a pti of 7 
-            if (index == pti) {
-                result.get(result.size() - 1).setLastRead(true);
-                lastReadFound = true;
-            }
-            
             Log.i(TAG, Integer.toString(postNodes.length));
         } catch (Exception e) {
             e.printStackTrace();
