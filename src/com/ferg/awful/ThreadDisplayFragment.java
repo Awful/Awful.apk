@@ -118,7 +118,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mThreadView    = (SnapshotWebView) result.findViewById(R.id.thread);
         mSnapshotView  = (ImageView) result.findViewById(R.id.snapshot);
         mThreadWindow  = (FrameLayout) result.findViewById(R.id.thread_window);
-        mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 
         return result;
     }
@@ -140,6 +139,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mThreadView.resumeTimers();
         mThreadView.setSnapshotView(mSnapshotView);
         mThreadView.getSettings().setJavaScriptEnabled(true);
+        mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -605,14 +605,20 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         
         mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 
-        mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
-        mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
-        mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
+        try {
+            mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
+            mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
+            mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
-        if (isTablet()) {
-            mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
-        } else {
-            mThreadView.loadUrl("file:///android_asset/thread-phone.html");
+            if (isTablet()) {
+                mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
+            } else {
+                mThreadView.loadUrl("file:///android_asset/thread-phone.html");
+            }
+        } catch (NullPointerException e) {
+            // If we've already left the activity the webview may still be working to populate,
+            // just log it
+            e.printStackTrace();
         }
     }
     
