@@ -15,6 +15,7 @@
     color: black;
     font: normal normal normal 24px Verdana, Arial, sans-serif;
     vertical-align: top;
+    overflow: auto;
 }
 
 .username h4 {
