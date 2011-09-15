@@ -327,8 +327,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	
 	public class GenericListAdapter extends AwfulListAdapter<AwfulPagedItem>{
 		private String mType;
-		public GenericListAdapter(int id, String type) {
+		public GenericListAdapter(String type, int id, AwfulUpdateCallback frag) {
 			super(id);
+			mCallback = frag;
 			mType = type;
 		}
 
@@ -337,11 +338,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mService == null || !boundState){
 				return;
 			}
-			state = mService.getItem(mType+currentId);
+			state = mService.getItem(mType+" "+currentId);
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(false);
+			if(mCallback != null){
+				mCallback.dataUpdate(false);
+			}
 		}
 		
 	}
@@ -578,10 +581,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return ret;
 		}
 		
-		
+		public void fetchPrivateMessages(){
+			if(mService != null){
+				mService.fetchPrivateMessages();
+			}
+		}
 
 		public RotateAnimation getRotateAnimation(){
-			return mLoadingAnimation;
+			return mLoadingAnimation;//this is why we have freaky rotation :)
 		}
 		public AlphaAnimation getBlinkingAnimation(){
 			return mFailedLoadingAnimation;
@@ -622,5 +629,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		ThreadListAdapter ad =  new ThreadListAdapter(threadid, display, page);
 		fragments.add(ad);
 		return ad;
+	}
+	
+	public GenericListAdapter createGenericAdapter(String type, int id, AwfulUpdateCallback fragment){
+		GenericListAdapter gen = new GenericListAdapter(type,id,fragment);
+		fragments.add(gen);
+		return gen;
 	}
 }

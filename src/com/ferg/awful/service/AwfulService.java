@@ -14,8 +14,10 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
+import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailBus;
 import com.ferg.awful.thumbnail.ThumbnailMessage;
@@ -195,6 +197,10 @@ public class AwfulService extends Service {
 	 */
 	public void markThreadUnread(int id) {
 		queueThread(new MarkThreadUnreadTask(id));
+	}
+	
+	public void fetchPrivateMessages() {
+		queueThread(new FetchPrivateMessageList());
 	}
 	
 	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
@@ -456,4 +462,32 @@ public class AwfulService extends Service {
             threadFinished(this);
         }
     }
+	
+	private class FetchPrivateMessageList extends AwfulTask<AwfulPrivateMessages>{
+		private AwfulPrivateMessages pml;
+		public FetchPrivateMessageList(){
+			pml = (AwfulPrivateMessages) db.get("pm 0");
+			if(pml == null){
+				pml = new AwfulPrivateMessages();
+			}
+			db.put("pm 1", pml);
+		}
+
+		@Override
+		protected AwfulPrivateMessages doInBackground(Void... params) {
+			try {
+				TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
+				ArrayList<AwfulMessage> mList = AwfulMessage.processMessageList(pmData);
+				pml.setMessageList(mList);
+			} catch (Exception e) {
+				Log.e(TAG,"PM Load Failure: "+e.getLocalizedMessage());
+			}
+			return null;
+		}
+		
+		public void onPostExecute(AwfulPrivateMessages results){
+			sendUpdate(true);
+		}
+		
+	}
 }

@@ -17,7 +17,6 @@ import com.ferg.awful.preferences.AwfulPreferences;
 /**
  * SA Private Messages.
  * @author Geekner
- *
  */
 public class AwfulMessage implements AwfulDisplayItem {
 	
