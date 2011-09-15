@@ -61,7 +61,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private String mIcon;
     private int mUnreadCount;
 	private int mTotalPosts;
-    private int mPTI;
     private boolean mClosed;
 	private boolean mBookmarked;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
@@ -204,33 +203,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return result;
     }
 
-    public void getThreadPosts(int postPerPage) throws Exception {
-        getThreadPosts(-1, postPerPage);
-    }
-
     public void getThreadPosts(int aPage, int postPerPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
+        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
 
-        if (aPage == -1) {
-            params.put(Constants.PARAM_GOTO, "newpost");
-        } else {
-            params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        }
+        TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
 
-        List<URI> redirects = new LinkedList<URI>();
-        TagNode response = NetworkUtils.get(
-                Constants.FUNCTION_THREAD, params, redirects);
-
-        mPTI = -1;
-        if (redirects.size() > 1) {
-            String fragment = redirects.get(redirects.size() - 1).getFragment();
-            if (fragment.startsWith(Constants.FRAGMENT_PTI)) {
-                mPTI = Integer.parseInt(
-                        fragment.substring(Constants.FRAGMENT_PTI.length()));
-            }
-        }
         if (mTitle == null) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
 
@@ -247,7 +227,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         	String bkSrc = bkButtons[0].getAttributeByName("src");
         	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
-        setPosts(AwfulPost.parsePosts(response, mPTI, this), aPage);
+        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
         parsePageNumbers(response);
     }
 
