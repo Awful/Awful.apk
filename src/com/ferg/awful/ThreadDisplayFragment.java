@@ -279,7 +279,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         if (mThreadWindow.getChildCount() < 2) {
-            mThreadView = new SnapshotWebView(getActivity().getApplicationContext());
+            mThreadView = new SnapshotWebView(getActivity());
 
             initThreadViewProperties();
 
@@ -641,6 +641,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         try {
             result.put("username", aAppPrefs.username);
             result.put("userQuote", "#a2cd5a");
+            result.put("usernameHighlight", "#9933ff");
+            result.put("youtubeHighlight", "#ff00ff");
             result.put("fontSize", Integer.toString(aAppPrefs.postFontSize));
             result.put("fontColor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
             result.put("fontColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor2));
@@ -653,6 +655,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
+            result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
         }

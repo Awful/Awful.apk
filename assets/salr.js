@@ -38,17 +38,36 @@ SALR.prototype.init = function() {
     if (this.preferences.highlightUserQuote == "true") {
         this.highlightOwnQuotes();
     }
-    
-	if (this.preferences.imagesEnabled == "false") {
-        this.replaceImagesWithLinks();
-	}
+
+    console.log(this.preferences.inlineYoutube);
+    if (this.preferences.inlineYoutube == "true") {
+        this.inlineYoutubes();
+    }
+
+    this.imagesAsLinks();
 
 	// this.modifyImages();
-    // this.inlineYoutubes();
     // this.highlightFriendPosts();    
     // this.highlightOPPosts();    
     // this.highlightOwnPosts();
     // this.highlightModAdminShowThread();
+};
+
+SALR.prototype.imagesAsLinks = function() {
+    var that = this;
+
+    $('.post-content').each(function() {
+        $('img', this).each(function() {
+            var url = $(this).attr('src');
+            var imgHtml = '<img src="' + url + '" />';
+
+            if (that.preferences.imagesEnabled == "true") {
+                $(this).replaceWith('<a href="' + url + '">' + imgHtml + '</a>');
+            } else {
+                $(this).replaceWith('<a href="' + url + '">' + url + '</a>');
+            }
+        });
+    });
 };
 
 SALR.prototype.modifyImages = function() {
@@ -128,29 +147,21 @@ SALR.prototype.inlineYoutubes = function() {
     var that = this;
 
 	//sort out youtube links
-	$('.postbody a[href*="youtube.com"]').each(function() {
-			$(this).css("background-color", that.preferences.youtubeHighlight).addClass("salr-video");
-	});
+	$('.post-content a[href*="youtube.com"]').each(function() {
+        $(this).css("background-color", that.preferences.youtubeHighlight).addClass("salr-video");
 	
-	$(".salr-video").toggle(function(){ 
-			var match = $(this).attr('href').match(/^http\:\/\/((?:www|[a-z]{2})\.)?youtube\.com\/watch\?v=([-_0-9a-zA-Z]+)/); //get youtube video id
-			var videoId = match[2];
+        var match = $(this).attr('href').match(/^http\:\/\/((?:www|[a-z]{2})\.)?youtube\.com\/watch\?v=([-_0-9a-zA-Z]+)/); //get youtube video id
+        var videoId = match[2];
 
-            $(this).after('<iframe class="salr-player youtube-player"></iframe>');
-			$(".salr-player").attr("src", "http://www.youtube.com/embed/" + videoId);
-			$(".salr-player").attr("width","640");
-			$(".salr-player").attr("height","385");
-			$(".salr-player").attr("type","text/html");
-			$(".salr-player").attr("frameborder","0");
+        $(this).append('<iframe class="salr-player youtube-player"></iframe>');
+        $(".salr-player").attr("src", "http://www.youtube.com/embed/" + videoId);
+        $(".salr-player").attr("width","640");
+        $(".salr-player").attr("height","385");
+        $(".salr-player").attr("type","text/html");
+        $(".salr-player").attr("frameborder","0");
+	});
 
-			return false;
-		},
-		function() {
-			// second state of toggle destroys player. should add a check for player existing before 
-            // destroying it but seing as it's the second state of a toggle i'll leave it for now. 
-			$(this).next().remove();
-		}
-	);
+    return false;
 };
 
 /**
@@ -268,7 +279,7 @@ SALR.prototype.highlightOwnUsername = function() {
 
     var that = this;
 
-    var selector = 'div.post-content:contains("' + this.preferences.username + '")';
+    var selector = '.post-content:contains("' + this.preferences.username + '")';
     
     var re = new RegExp(this.preferences.username, 'g');
     var styled = '<span class="usernameHighlight" style="font-weight: bold; color: ' + that.preferences.usernameHighlight + ';">' + that.preferences.username + '</span>';
