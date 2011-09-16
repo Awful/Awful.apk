@@ -55,6 +55,7 @@ import com.ferg.awful.widget.SnapshotWebView;
 
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
+    private static final String Y_POSITION = "y_pos";
 
     private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
@@ -87,6 +88,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             delayedDataUpdate(pageChange);
         }
     };
+
+    private int mYPosition = -1;
+
     private int savedPage = 0;
     private int savedPos = 0;
 
@@ -95,7 +99,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+
+        mYPosition = -1;
     }
+
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -345,6 +352,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle aOutState) {
+        super.onSaveInstanceState(aOutState);
+        mYPosition = mThreadView.getScrollY();
     }
 
     private void displayUserCP() {
@@ -655,7 +668,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
-            result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
+            result.put("yPos", Integer.toString(mYPosition));
+            // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
         }

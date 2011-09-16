@@ -39,10 +39,9 @@ SALR.prototype.init = function() {
         this.highlightOwnQuotes();
     }
 
-    console.log(this.preferences.inlineYoutube);
-    if (this.preferences.inlineYoutube == "true") {
-        this.inlineYoutubes();
-    }
+    // if (this.preferences.inlineYoutube == "true") {
+    //     this.inlineYoutubes();
+    // }
 
     this.imagesAsLinks();
 

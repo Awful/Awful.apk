@@ -55,11 +55,11 @@
 			android:summary="@string/load_images_summary"
 			android:defaultValue="true"
 			/>
-		<CheckBoxPreference 
+		<!-- <CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
-			/>
+			/> -->
     </PreferenceCategory>
 </PreferenceScreen>

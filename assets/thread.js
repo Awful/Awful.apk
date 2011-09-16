@@ -46,9 +46,19 @@ $(document).ready(function() {
 
     var salr = new SALR(prefs);
 
-    $(window).scrollTop($('.unread').first().offset().top);
+    setYPosition(prefs.yPos);
 });
 
 $(window).load(function() {
-    $(window).scrollTop($('.unread').first().offset().top);
+    setYPosition(preferences.yPos);
 });
+
+function setYPosition(position) {
+    try {
+        $(window).scrollTop($('.unread').first().offset().top);
+    } catch (error) {
+        if (position != "-1") {
+            $(window).scrollTop(position);
+        }
+    }
+}
