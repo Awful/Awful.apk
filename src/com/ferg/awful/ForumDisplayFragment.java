@@ -376,4 +376,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             }
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

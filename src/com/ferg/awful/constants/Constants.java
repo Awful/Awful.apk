@@ -59,6 +59,7 @@ public class Constants {
     public static final String PARAM_PER_PAGE  = "perpage";
     public static final String PARAM_INDEX     = "index";
     public static final String PARAM_BOOKMARK  = "bookmark";
+	public static final String PARAM_PRIVATE_MESSAGE_ID = "privatemessageid";
     
     public static final String FRAGMENT_PTI    = "pti";
 
@@ -73,6 +74,7 @@ public class Constants {
     public static final String EDITING   = "editing";
     public static final String MODAL     = "modal";
     public static final String SHORTCUT  = "shortcut";
+	public static final String PRIVATE_MESSAGE = "private";    
 
     public static final String FORM_KEY = "form_key";
 
@@ -97,9 +99,14 @@ public class Constants {
 	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";
 	public static final String DATA_UPDATE_STATUS_EXTRA = "updateStatus";
     
-    //TODO: make this user configurable, 
+    //default per-page, user configurable, 
     //or reduce to speed processing time once auto-load is in
     public static final int ITEMS_PER_PAGE = 40;
 
-    public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";    
+    public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
+    
+    //asynctasks are managed by ID number, but PM page has no id
+	public static final int PRIVATE_MESSAGE_THREAD = -30;
+
+
 }

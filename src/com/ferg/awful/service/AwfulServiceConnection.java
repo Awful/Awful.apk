@@ -327,6 +327,16 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	
 	public class GenericListAdapter extends AwfulListAdapter<AwfulPagedItem>{
 		private String mType;
+		
+		@Override
+		public void connected(){
+			super.connected();
+		}
+		@Override
+		public void disconnected(){
+			super.disconnected();
+		}
+		
 		public GenericListAdapter(String type, int id, AwfulUpdateCallback frag) {
 			super(id);
 			mCallback = frag;
@@ -338,7 +348,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mService == null || !boundState){
 				return;
 			}
-			state = mService.getItem(mType+" "+currentId);
+			state = mService.getItem(mType+currentId);
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
@@ -363,6 +373,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
 			Log.e(TAG, "connected(): "+currentId);
+			if(mCallback != null){
+				mCallback.onServiceConnected();
+			}
 			loadPage(false);
 		}
 		public void disconnected() {
@@ -584,7 +597,27 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void fetchPrivateMessages(){
 			if(mService != null){
 				mService.fetchPrivateMessages();
+				if(mCallback != null){
+					mCallback.loadingStarted();
+				}
 			}
+		}
+		
+		public void fetchPrivateMessage(int id){
+			Log.e(TAG,"Fetching msg:" +id);
+			if(mService != null){
+				mService.fetchPrivateMessage(id);
+				if(mCallback != null){
+					mCallback.loadingStarted();
+				}
+			}
+		}
+		
+		public AwfulMessage getMessage(int pmId) {
+			if(mService != null){
+				return mService.getMessage(pmId);
+			}
+			return null;
 		}
 
 		public RotateAnimation getRotateAnimation(){

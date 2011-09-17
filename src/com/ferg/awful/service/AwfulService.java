@@ -161,7 +161,11 @@ public class AwfulService extends Service {
 	
 	public AwfulPagedItem getItem(String string) {
 		Log.e(TAG, "getItem "+string);
-		return (AwfulForum) db.get(string);
+		return db.get(string);
+	}
+	
+	public AwfulMessage getMessage(int pmId) {
+		return (AwfulMessage) db.get(Constants.PRIVATE_MESSAGE+pmId);
 	}
 	
 	/**
@@ -201,6 +205,11 @@ public class AwfulService extends Service {
 	
 	public void fetchPrivateMessages() {
 		queueThread(new FetchPrivateMessageList());
+	}
+	
+	public void fetchPrivateMessage(int id){
+		Log.e(TAG,"queued fetch msg:"+id);
+		queueThread(new FetchPrivateMessageTask(id));
 	}
 	
 	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
@@ -463,30 +472,95 @@ public class AwfulService extends Service {
         }
     }
 	
-	private class FetchPrivateMessageList extends AwfulTask<AwfulPrivateMessages>{
+	private class FetchPrivateMessageList extends AwfulTask<ArrayList<AwfulMessage>>{
 		private AwfulPrivateMessages pml;
 		public FetchPrivateMessageList(){
-			pml = (AwfulPrivateMessages) db.get("pm 0");
+			mId = Constants.PRIVATE_MESSAGE_THREAD;
+			pml = (AwfulPrivateMessages) db.get(Constants.PRIVATE_MESSAGE);
 			if(pml == null){
 				pml = new AwfulPrivateMessages();
 			}
-			db.put("pm 1", pml);
 		}
 
 		@Override
-		protected AwfulPrivateMessages doInBackground(Void... params) {
+		protected ArrayList<AwfulMessage> doInBackground(Void... params) {
+			ArrayList<AwfulMessage> pmList = null;
 			try {
 				TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
-				ArrayList<AwfulMessage> mList = AwfulMessage.processMessageList(pmData);
-				pml.setMessageList(mList);
+				pmList = AwfulMessage.processMessageList(pmData);
 			} catch (Exception e) {
-				Log.e(TAG,"PM Load Failure: "+e.getLocalizedMessage());
+				pmList = null;
+				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
 			}
-			return null;
+			return pmList;
 		}
 		
-		public void onPostExecute(AwfulPrivateMessages results){
-			sendUpdate(true);
+		public void onPostExecute(ArrayList<AwfulMessage> results){
+			if(results != null){
+				for(AwfulMessage m : results){
+					db.put(Constants.PRIVATE_MESSAGE+m.getID(), m);
+				}
+				pml.setMessageList(results);
+				db.put(Constants.PRIVATE_MESSAGE+Constants.PRIVATE_MESSAGE_THREAD, pml);
+				
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+            threadFinished(this);
+		}
+		
+	}
+	
+	private class FetchPrivateMessageTask extends AwfulTask<AwfulMessage>{
+		private AwfulMessage pm;
+		public FetchPrivateMessageTask(int id){
+			mId = id;
+			pm = (AwfulMessage) db.get(Constants.PRIVATE_MESSAGE+mId);
+			if(pm == null){
+				pm = new AwfulMessage(mId);
+				db.put(Constants.PRIVATE_MESSAGE+pm.getID(), pm);
+			}
+		}
+
+		@Override
+		protected AwfulMessage doInBackground(Void... params) {
+			try {
+				HashMap<String, String> para = new HashMap<String, String>();
+                para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
+                para.put(Constants.PARAM_ACTION, "show");
+				TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+				AwfulMessage.processMessage(pmData, pm);
+				//finished loading display message, notify UI
+				publishProgress((Void[]) null);
+				//after notifying, we can preload reply window text
+                para.put(Constants.PARAM_ACTION, "newmessage");
+				TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+				AwfulMessage.processReplyMessage(pmReplyData, pm);
+				Log.e(TAG,"Fetched msg: "+mId);
+			} catch (Exception e) {
+				pm = null;
+				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
+			}
+			return pm;
+		}
+		
+		protected void onProgressUpdate(Void... progress) {
+			//message loaded, update UI and return to preload reply section.
+			if(pm != null){
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+	     }
+		
+		public void onPostExecute(AwfulMessage results){
+			if(results != null){
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+            threadFinished(this);
 		}
 		
 	}

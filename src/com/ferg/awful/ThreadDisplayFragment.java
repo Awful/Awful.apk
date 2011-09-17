@@ -723,4 +723,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             });
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

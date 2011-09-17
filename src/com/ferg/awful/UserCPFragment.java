@@ -63,6 +63,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private static final String TAG = "UserCPActivity";
 
     private ImageButton mHome;
+    private ImageButton mPrivateMessage;
     private ListView mBookmarkList;
     private TextView mTitle;
     private ForumListAdapter adapt;
@@ -102,11 +103,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
 
         if (isHoneycomb()) {
+        	//TODO ferg: could you add a private message button for tablets?
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         } else {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
+            mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
@@ -125,6 +128,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         if (!isHoneycomb()) {
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
+            mPrivateMessage.setOnClickListener(onButtonClick);
         }
 
         mBookmarkList.setOnItemClickListener(onThreadSelected);
@@ -246,6 +250,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 case R.id.home:
                     startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
                     break;
+                case R.id.pm_button:
+                    startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+                    break;
                 case R.id.refresh:
                     adapt.refresh();
                     break;
@@ -301,4 +308,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mRefresh.setVisibility(View.GONE);
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

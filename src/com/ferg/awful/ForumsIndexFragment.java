@@ -292,4 +292,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

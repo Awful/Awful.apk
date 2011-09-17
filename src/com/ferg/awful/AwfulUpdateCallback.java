@@ -21,4 +21,8 @@ public interface AwfulUpdateCallback {
 	 * This does not supplement/replace dataUpdate(), it is only used for displaying loading status.
 	 */
 	public void loadingSucceeded();
+	/**
+	 * Called when the service connects but before any auto-loading or other service activities.
+	 */
+	public void onServiceConnected();
 }
