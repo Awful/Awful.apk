@@ -55,6 +55,7 @@ import com.ferg.awful.widget.SnapshotWebView;
 
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
+    private static final String Y_POSITION = "y_pos";
 
     private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
@@ -87,6 +88,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             delayedDataUpdate(pageChange);
         }
     };
+
+    private int mYPosition = -1;
+
     private int savedPage = 0;
     private int savedPos = 0;
 
@@ -95,7 +99,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+
+        mYPosition = -1;
     }
+
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -279,7 +286,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         if (mThreadWindow.getChildCount() < 2) {
-            mThreadView = new SnapshotWebView(getActivity().getApplicationContext());
+            mThreadView = new SnapshotWebView(getActivity());
 
             initThreadViewProperties();
 
@@ -345,6 +352,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle aOutState) {
+        super.onSaveInstanceState(aOutState);
+        mYPosition = mThreadView.getScrollY();
     }
 
     private void displayUserCP() {
@@ -641,6 +654,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         try {
             result.put("username", aAppPrefs.username);
             result.put("userQuote", "#a2cd5a");
+            result.put("usernameHighlight", "#9933ff");
+            result.put("youtubeHighlight", "#ff00ff");
             result.put("fontSize", Integer.toString(aAppPrefs.postFontSize));
             result.put("fontColor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
             result.put("fontColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor2));
@@ -653,6 +668,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
+            result.put("yPos", Integer.toString(mYPosition));
+            // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -32,6 +32,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postPerPage;
     public boolean highlightUserQuote;
     public boolean highlightUsername;
+    public boolean inlineYoutube;
 
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
@@ -74,6 +75,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
+        inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
        	 //TODO: I have never seen this before oh god
 	}
 }

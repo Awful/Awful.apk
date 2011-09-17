@@ -9,13 +9,13 @@
     padding: 6px;
     margin-right: 0px;
     border: 0px;
+    overflow: scroll;
 }
 
 .userinfo, .post-content {
     color: black;
     font: normal normal normal 24px Verdana, Arial, sans-serif;
     vertical-align: top;
-    overflow: auto;
 }
 
 .username h4 {
@@ -58,7 +58,7 @@
 }
 
 .bbc-block.code {
-    overflow: auto;
+    overflow: scroll;
 }
 
 #thread-body {
