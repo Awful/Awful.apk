@@ -33,7 +33,6 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 
 	public AwfulMessage(int id) {
 		mId = id;
-		mReplyText = "Loading...";
 		mDate = "";
 	}
 
@@ -62,6 +61,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		author.setText(mAuthor +" - "+mDate);
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		unread.setVisibility(View.GONE);
+		if(aPref != null){
+			title.setTextColor(aPref.postFontColor);
+			author.setTextColor(aPref.postFontColor2);
+		}
 		return current;
 	}
 

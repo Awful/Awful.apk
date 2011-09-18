@@ -108,5 +108,12 @@ public class Constants {
     //asynctasks are managed by ID number, but PM page has no id
 	public static final int PRIVATE_MESSAGE_THREAD = -30;
 
+	public static final String ACTION_DOSEND = "dosend";
+	public static final String DESTINATION_TOUSER = "touser";
+	public static final String PARAM_TITLE = "title";
+	public static final String PARAM_MESSAGE = "message";
+
+	public static final String EXTRA_BUNDLE = "extras";
+
 
 }

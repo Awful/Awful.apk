@@ -12,7 +12,7 @@ import com.ferg.awful.constants.Constants;
  *
  * @author brosmike
  */
-@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
+@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=aa9457c2", formKey = "")//Constants.ACRA_FORMKEY) 
 public class AwfulApplication extends Application {
 	private static String TAG="AwfulApplication";
 

@@ -61,6 +61,33 @@
 			android:padding="6dip"
 			android:textColor="@color/default_post_font"
 			/>
+			
+	<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+	<TextView android:text="Subject: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+	
+	<EditText
+			android:id="@+id/message_subject"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="6dip"
+			android:textColor="@color/default_post_font"
+			/>
+			</LinearLayout>
+	<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+	<TextView android:text="Recipient: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+	<EditText
+			android:id="@+id/message_user"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="6dip"
+			android:textColor="@color/default_post_font"
+			/>
+	</LinearLayout>
+	<TextView android:text="Message:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 	<EditText android:id="@+id/edit_reply_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine">
 	</EditText>
 	<Button android:id="@+id/message_reply_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send Reply"></Button>

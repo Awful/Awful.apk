@@ -152,31 +152,43 @@ public class PrivateMessageListFragment extends Fragment implements
             AwfulMessage message = (AwfulMessage) adapt.getItem(aPosition);
             
             Intent viewPM = new Intent().setClass(getActivity(), MessageDisplayActivity.class);
-            viewPM.putExtra(Constants.PRIVATE_MESSAGE, message.getID());
+            viewPM.putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, message.getID());
 
             startActivity(viewPM);
         }
     };
 
 	@Override
-	public void dataUpdate(boolean pageChange) {
-		Toast.makeText(getActivity(), "Data Update.", Toast.LENGTH_SHORT).show();
+	public void dataUpdate(boolean pageChange, Bundle extras) {
 	}
 
 	@Override
-	public void loadingFailed() {
-		Toast.makeText(getActivity(), "Message Load Failed.", Toast.LENGTH_SHORT).show();
-	}
+    public void loadingFailed() {
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setAnimation(null);
+            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
+            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+        }
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+    }
 
-	@Override
-	public void loadingStarted() {
-		Toast.makeText(getActivity(), "Message Load Started.", Toast.LENGTH_SHORT).show();
-	}
+    @Override
+    public void loadingStarted() {
+        if (!isHoneycomb()) {
+            mRefresh.setVisibility(View.VISIBLE);
+            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
+            mRefresh.startAnimation(adapt.getRotateAnimation());
+        }
+    }
 
-	@Override
-	public void loadingSucceeded() {
-		Toast.makeText(getActivity(), "Message Load Succeeded.", Toast.LENGTH_SHORT).show();
-	}
+    @Override
+    public void loadingSucceeded() {
+        if (!isHoneycomb()) {
+            mRefresh.setAnimation(null);
+            mRefresh.setVisibility(View.GONE);
+        }
+    }
 	
 	private boolean isHoneycomb() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
