@@ -32,6 +32,7 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.res.Configuration;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -60,6 +61,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
+    private SharedPreferences mPrefs;
 
     private ImageButton mNext;
     private ImageButton mNextPage;
@@ -143,10 +145,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void initThreadViewProperties() {
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    	
         mThreadView.resumeTimers();
         mThreadView.setSnapshotView(mSnapshotView);
         mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        mThreadView.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -657,6 +662,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
             result.put("fontSize", Integer.toString(aAppPrefs.postFontSize));
+            result.put("alternateColors",Boolean.toString(aAppPrefs.alternateBackground));
             result.put("fontColor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
             result.put("fontColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor2));
             result.put("backgroundColor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));

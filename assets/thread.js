@@ -23,9 +23,9 @@ $(document).ready(function() {
         } else {
             background = light ? prefs.backgroundColor : prefs.backgroundColor2;
         }
-
+		if(prefs.alternateColors == "true"){
         light = !light;
-
+		}
         var post_data = {
             postId: current.id,
             username: current.username,
