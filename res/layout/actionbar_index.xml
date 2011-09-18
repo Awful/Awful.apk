@@ -41,6 +41,14 @@
             style="@style/ActionBarSeparator" 
             />
         <ImageButton 
+            android:id="@+id/pm_button"
+            style="@style/ActionBarButton"
+            android:src="@android:drawable/ic_dialog_email"
+            />
+        <ImageView 
+            style="@style/ActionBarSeparator" 
+            />
+        <ImageButton 
             android:id="@+id/user_cp"
             style="@style/ActionBarButton"
             android:src="@drawable/gear"

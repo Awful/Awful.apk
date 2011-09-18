@@ -57,6 +57,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private static final String TAG = "ForumsIndex";
 
     private ImageButton mUserCp;
+    private ImageButton mPM;
     private ListView mForumList;
     private TextView mTitle;
     private int mDefaultPostFontColor;
@@ -84,6 +85,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
+            mPM        = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
         
@@ -115,6 +117,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (!isHoneycomb()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
+            mPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
     }
@@ -186,6 +189,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 case R.id.user_cp:
                     displayUserCP();
                     break;
+                case R.id.pm_button:
+                    startActivity(new Intent(getActivity(), PrivateMessageActivity.class));
+                    break;
                 case R.id.refresh:
                     adapt.refresh();
                     break;
@@ -229,7 +235,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         
     }
 
@@ -292,4 +298,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

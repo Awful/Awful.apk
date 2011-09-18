@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.DataSetObserver;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -83,7 +84,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			Log.e(TAG, "Broadcast Received: id "+id);
 			for(AwfulListAdapter la : fragments){
 				if(la.currentId == id){
-					la.dataUpdate(status, page);
+					la.dataUpdate(status, page, intent.getBundleExtra(Constants.EXTRA_BUNDLE));
 					Log.e(TAG, "Broadcast ack: id "+la.currentId);
 				}
 			}
@@ -125,10 +126,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		@Override
 		public void connected(){
-			loadPage(true);
+			loadPage(true, null);
 		}
 		@Override
-		public void loadPage(boolean forceRefresh){
+		public void loadPage(boolean forceRefresh, Bundle extras){
 			if(mService == null || !boundState){
 				return;
 			}
@@ -140,7 +141,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(forceRefresh || state == null || !state.isPageCached(currentPage));
+			mCallback.dataUpdate(forceRefresh || state == null || !state.isPageCached(currentPage), extras);
 		}
 		
 		public void toggleBookmark(int id) {
@@ -208,10 +209,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void loadLastReadPage(){
 			lastReadLoaded = false;//recalculate and jump to the last read page
 			pageHasChanged = false;//navigating between pages causes the view to jump to top of page, this'll reset that
-			loadPage(false);
+			loadPage(false, null);
 		}
 		
-		public void loadPage(boolean forceRefresh){
+		public void loadPage(boolean forceRefresh, Bundle extras){
 			if(mService == null || !boundState){
 				return;
 			}
@@ -236,7 +237,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				mObserver.onChanged();
 			}
-			mCallback.dataUpdate(pageHasChanged);
+			mCallback.dataUpdate(pageHasChanged, extras);
 		}
 
 		public boolean getThreadClosed(){
@@ -324,6 +325,40 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		};
 		
 	}
+	
+	public class GenericListAdapter extends AwfulListAdapter<AwfulPagedItem>{
+		private String mType;
+		
+		@Override
+		public void connected(){
+			super.connected();
+		}
+		@Override
+		public void disconnected(){
+			super.disconnected();
+		}
+		
+		public GenericListAdapter(String type, int id, AwfulUpdateCallback frag) {
+			super(id);
+			mCallback = frag;
+			mType = type;
+		}
+
+		@Override
+		protected void loadPage(boolean forceRefresh, Bundle extras) {
+			if(mService == null || !boundState){
+				return;
+			}
+			state = mService.getItem(mType+currentId);
+			if(mObserver != null){
+				mObserver.onChanged();
+			}
+			if(mCallback != null){
+				mCallback.dataUpdate(false, extras);
+			}
+		}
+		
+	}
 
 	public abstract class AwfulListAdapter<T extends AwfulPagedItem> extends BaseAdapter implements SectionIndexer {
 		protected int currentId;
@@ -339,7 +374,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
 			Log.e(TAG, "connected(): "+currentId);
-			loadPage(false);
+			if(mCallback != null){
+				mCallback.onServiceConnected();
+			}
+			loadPage(false, null);
 		}
 		public void disconnected() {
 			Log.e(TAG, "disconnected(): "+currentId);
@@ -347,10 +385,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				mObserver.onInvalidated();
 			}
 		}
-		public void dataUpdate(boolean status, int page) {
+		public void dataUpdate(boolean status, int page, Bundle extras) {
 			if(page == currentPage && mCallback != null){
 				if(status){
-					loadPage(false);
+					loadPage(false, extras);
 					mCallback.loadingSucceeded();
 				}else{
 					mCallback.loadingFailed();
@@ -499,7 +537,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 
 		public void refresh() {
-			loadPage(true);
+			loadPage(true, null);
 		}
 		public void goToPage(int page){
 			goToPage(page, true, false);
@@ -515,9 +553,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				pageInt = getLastPage();
 			}
 			currentPage = pageInt;
-			loadPage(refresh);
+			loadPage(refresh, null);
 		}
-		protected abstract void loadPage(boolean forceRefresh);
+		protected abstract void loadPage(boolean forceRefresh, Bundle extras);
 
 		public int getPage() {
 			return currentPage;
@@ -557,10 +595,40 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return ret;
 		}
 		
+		public void fetchPrivateMessages(){
+			if(mService != null){
+				mService.fetchPrivateMessages();
+				if(mCallback != null){
+					mCallback.loadingStarted();
+				}
+			}
+		}
 		
+		public void fetchPrivateMessage(int id){
+			Log.e(TAG,"Fetching msg:" +id);
+			if(mService != null){
+				mService.fetchPrivateMessage(id);
+				if(mCallback != null){
+					mCallback.loadingStarted();
+				}
+			}
+		}
+		
+		public AwfulMessage getMessage(int pmId) {
+			if(mService != null){
+				return mService.getMessage(pmId);
+			}
+			return null;
+		}
+		
+		public void sendPM(String recipient, int prevMsgId, String subject, String content){
+			if(mService != null){
+				mService.sendPM(recipient, prevMsgId, subject, content);
+			}
+		}
 
 		public RotateAnimation getRotateAnimation(){
-			return mLoadingAnimation;
+			return mLoadingAnimation;//this is why we have freaky rotation :)
 		}
 		public AlphaAnimation getBlinkingAnimation(){
 			return mFailedLoadingAnimation;
@@ -601,5 +669,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		ThreadListAdapter ad =  new ThreadListAdapter(threadid, display, page);
 		fragments.add(ad);
 		return ad;
+	}
+	
+	public GenericListAdapter createGenericAdapter(String type, int id, AwfulUpdateCallback fragment){
+		GenericListAdapter gen = new GenericListAdapter(type,id,fragment);
+		fragments.add(gen);
+		return gen;
 	}
 }
