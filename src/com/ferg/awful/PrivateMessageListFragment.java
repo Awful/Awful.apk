@@ -93,7 +93,7 @@ public class PrivateMessageListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        adapt.refresh();
+		adapt.fetchPrivateMessages();
     }
     
     @Override
