@@ -14,8 +14,10 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
+import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thumbnail.ThumbnailBus;
 import com.ferg.awful.thumbnail.ThumbnailMessage;
@@ -24,9 +26,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
@@ -156,6 +160,16 @@ public class AwfulService extends Service {
 	public void MarkLastRead(String aLastReadUrl){
 		queueThread(new MarkLastReadTask(aLastReadUrl));
 	}
+	
+	public AwfulPagedItem getItem(String string) {
+		Log.e(TAG, "getItem "+string);
+		return db.get(string);
+	}
+	
+	public AwfulMessage getMessage(int pmId) {
+		return (AwfulMessage) db.get(Constants.PRIVATE_MESSAGE+pmId);
+	}
+	
 	/**
 	 * Pulls an AwfulForum instance for the ID specified, or null if none exist yet.
 	 * The forum's threads may not have been populated yet.
@@ -191,6 +205,19 @@ public class AwfulService extends Service {
 		queueThread(new MarkThreadUnreadTask(id));
 	}
 	
+	public void fetchPrivateMessages() {
+		queueThread(new FetchPrivateMessageList());
+	}
+	
+	public void fetchPrivateMessage(int id){
+		Log.e(TAG,"queued fetch msg:"+id);
+		queueThread(new FetchPrivateMessageTask(id));
+	}
+	
+	public void sendPM(String recipient, int prevMsgId, String subject, String content){
+		queueThread(new SendMessageTask(recipient, prevMsgId, subject, content));
+	}
+	
 	private abstract class AwfulTask<T> extends AsyncTask<Void, Void, T>{
 		protected int mId = 0;
 		protected int mPage = 1;
@@ -200,12 +227,17 @@ public class AwfulService extends Service {
 		public int getPage(){
 			return mPage;
 		}
-		protected void sendUpdate(boolean success){
-        	sendBroadcast(new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(
+		protected void sendUpdate(boolean success, Bundle extras){
+			Intent bcast = new Intent(Constants.DATA_UPDATE_BROADCAST).putExtra(
         			Constants.DATA_UPDATE_ID_EXTRA, mId).putExtra(
         					Constants.DATA_UPDATE_PAGE_EXTRA, mPage).putExtra(
-        							Constants.DATA_UPDATE_STATUS_EXTRA, success));
+        							Constants.DATA_UPDATE_STATUS_EXTRA, success).putExtra(Constants.EXTRA_BUNDLE, extras);
+        	sendBroadcast(bcast);
 		}
+		protected void sendUpdate(boolean success){
+        	sendUpdate(success, null);
+		}
+		
 	}
 	
 	private class FetchThreadTask extends AwfulTask<Boolean> {
@@ -450,4 +482,145 @@ public class AwfulService extends Service {
             threadFinished(this);
         }
     }
+	
+	private class FetchPrivateMessageList extends AwfulTask<ArrayList<AwfulMessage>>{
+		private AwfulPrivateMessages pml;
+		public FetchPrivateMessageList(){
+			mId = Constants.PRIVATE_MESSAGE_THREAD;
+			pml = (AwfulPrivateMessages) db.get(Constants.PRIVATE_MESSAGE);
+			if(pml == null){
+				pml = new AwfulPrivateMessages();
+			}
+		}
+
+		@Override
+		protected ArrayList<AwfulMessage> doInBackground(Void... params) {
+			ArrayList<AwfulMessage> pmList = null;
+			try {
+				TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
+				pmList = AwfulMessage.processMessageList(pmData);
+			} catch (Exception e) {
+				pmList = null;
+				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
+			}
+			return pmList;
+		}
+		
+		public void onPostExecute(ArrayList<AwfulMessage> results){
+			if(results != null){
+				for(AwfulMessage m : results){
+					db.put(Constants.PRIVATE_MESSAGE+m.getID(), m);
+				}
+				pml.setMessageList(results);
+				db.put(Constants.PRIVATE_MESSAGE+Constants.PRIVATE_MESSAGE_THREAD, pml);
+				
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+            threadFinished(this);
+		}
+		
+	}
+	
+	private class FetchPrivateMessageTask extends AwfulTask<AwfulMessage>{
+		private AwfulMessage pm;
+		public FetchPrivateMessageTask(int id){
+			mId = id;
+			pm = (AwfulMessage) db.get(Constants.PRIVATE_MESSAGE+mId);
+			if(pm == null){
+				pm = new AwfulMessage(mId);
+				db.put(Constants.PRIVATE_MESSAGE+pm.getID(), pm);
+			}
+		}
+
+		@Override
+		protected AwfulMessage doInBackground(Void... params) {
+			try {
+				HashMap<String, String> para = new HashMap<String, String>();
+                para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
+                para.put(Constants.PARAM_ACTION, "show");
+				TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+				AwfulMessage.processMessage(pmData, pm);
+				//finished loading display message, notify UI
+				publishProgress((Void[]) null);
+				//after notifying, we can preload reply window text
+                para.put(Constants.PARAM_ACTION, "newmessage");
+				TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+				AwfulMessage.processReplyMessage(pmReplyData, pm);
+				Log.e(TAG,"Fetched msg: "+mId);
+			} catch (Exception e) {
+				pm = null;
+				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
+			}
+			return pm;
+		}
+		
+		protected void onProgressUpdate(Void... progress) {
+			//message loaded, update UI and return to preload reply section.
+			if(pm != null){
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+	     }
+		
+		public void onPostExecute(AwfulMessage results){
+			if(results != null){
+				sendUpdate(true);
+			}else{
+				sendUpdate(false);
+			}
+            threadFinished(this);
+		}
+		
+	}
+	
+	private class SendMessageTask extends AwfulTask<Boolean>{
+		private String mRecipient;
+		private String mTitle;
+		private String mContent;
+		public SendMessageTask(String recipient, int prevMsgId, String title, String content){
+			mId = prevMsgId;
+			mContent = content;
+			mRecipient = recipient;
+			mTitle = title;
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			try {
+				HashMap<String, String> para = new HashMap<String, String>();
+                para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
+                para.put(Constants.PARAM_ACTION, Constants.ACTION_DOSEND);
+                para.put(Constants.DESTINATION_TOUSER, mRecipient);
+                para.put(Constants.PARAM_TITLE, mTitle);
+                //TODO move to constants
+                if(mId>0){
+                	para.put("prevmessageid", Integer.toString(mId));
+                }
+                para.put("parseurl", "yes");
+                para.put("savecopy", "yes");
+                para.put("iconid", "0");
+                para.put(Constants.PARAM_MESSAGE, mContent);
+				TagNode result = NetworkUtils.post(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+			} catch (Exception e) {
+				Log.e(TAG,"PM Send Failure: "+Log.getStackTraceString(e));
+				return false;
+			}
+			return true;
+		}
+		
+		public void onPostExecute(Boolean results){
+			if(results.booleanValue()){
+				Bundle b = new Bundle();
+				b.putBoolean(Constants.PARAM_MESSAGE, true);
+				sendUpdate(true, b);
+			}else{
+				sendUpdate(false);
+			}
+            threadFinished(this);
+		}
+		
+	}
 }

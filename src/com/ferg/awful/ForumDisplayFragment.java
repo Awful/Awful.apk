@@ -323,7 +323,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         if(!this.isResumed()){
             return;
         }
@@ -376,4 +376,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             }
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

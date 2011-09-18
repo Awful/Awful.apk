@@ -76,4 +76,5 @@
 	<string name="goto_lastpage">Last Page</string>
 	<string name="toggle_bookmark">Toggle Bookmark</string>
 	<string name="mark_unread">Mark Thread Unread</string>
+	<string name="private_message">Private Messages</string>
 </resources>

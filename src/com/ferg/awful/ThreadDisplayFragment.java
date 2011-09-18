@@ -282,7 +282,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onResume();
         
         if (queueDataUpdate){
-            dataUpdate(false);
+            dataUpdate(false, null);
         }
 
         if (mThreadWindow.getChildCount() < 2) {
@@ -544,7 +544,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         if (!this.isResumed()) {
             queueDataUpdate = true;
             return;
@@ -740,4 +740,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             });
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
 }

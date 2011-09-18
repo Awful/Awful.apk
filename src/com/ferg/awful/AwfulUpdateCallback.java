@@ -1,12 +1,14 @@
 package com.ferg.awful;
 
+import android.os.Bundle;
+
 public interface AwfulUpdateCallback {
 	/**
 	 * This callback triggers when the data underlying this fragment has changed in some way.
 	 * This does not guarantee that the data has completely loaded, this callback is also triggered by failed loads or when a service connects.
 	 * @param pageChange Specifies if the current page number has changed since the last dataUpdate(), useful for resetting List position.
 	 */
-	public void dataUpdate(boolean pageChange);
+	public void dataUpdate(boolean pageChange, Bundle extras);
 	/**
 	 * Called when the loading process for this view has failed.
 	 * Keep in mind, the user may still have cached data.
@@ -21,4 +23,8 @@ public interface AwfulUpdateCallback {
 	 * This does not supplement/replace dataUpdate(), it is only used for displaying loading status.
 	 */
 	public void loadingSucceeded();
+	/**
+	 * Called when the service connects but before any auto-loading or other service activities.
+	 */
+	public void onServiceConnected();
 }
