@@ -6,6 +6,7 @@ import com.ferg.awful.service.AwfulServiceConnection.GenericListAdapter;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,6 +44,8 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	private Editable saved_reply;
 
 	private boolean sending;
+
+	private ProgressDialog mDialog;
 	
 	public MessageFragment() {
 	}
@@ -121,11 +124,19 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 		super.onDetach();
 		saved_reply = mEditReply.getText();
 		mPrefs.unRegisterListener();
+		if(mDialog!= null){
+			mDialog.dismiss();
+			mDialog = null;
+		}
 	}
 
 	@Override
 	public void dataUpdate(boolean pageChange, Bundle extras) {
 		if(extras != null && extras.getBoolean(Constants.PARAM_MESSAGE)){
+			if(mDialog!= null){
+				mDialog.dismiss();
+				mDialog = null;
+			}
 			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
 			getActivity().finish();
 		}
@@ -177,6 +188,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	@Override
 	public void onClick(View v) {
 		mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
+		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 	}
 
 	@Override
