@@ -46,6 +46,11 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	
 	public MessageFragment() {
 	}
+	/**
+	 * Creates a new Message Display/Reply fragment.
+	 * @param user User ID to send message to. Optional: will not be used if replying to message.
+	 * @param id PM Id number to reply to. Will fetch message data from service automatically. Set to 0 for a blank message.
+	 */
 	public MessageFragment(String user, int id) {
 		pmId = id;
 		recipient = user;

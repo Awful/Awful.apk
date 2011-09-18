@@ -31,7 +31,7 @@ public class PrivateMessageListFragment extends Fragment implements
     private static final String TAG = "PrivateMessageList";
 
     private ImageButton mHome;
-    private ImageButton mCP;
+    private ImageButton mNewPM;
     private ListView mPMList;
     private TextView mTitle;
     private GenericListAdapter adapt;
@@ -60,7 +60,7 @@ public class PrivateMessageListFragment extends Fragment implements
         } else {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
-            mCP          = (ImageButton) actionbar.findViewById(R.id.user_cp);
+            mNewPM          = (ImageButton) actionbar.findViewById(R.id.new_pm);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
@@ -78,7 +78,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
         if (!isHoneycomb()) {
             mHome.setOnClickListener(onButtonClick);
-            mCP.setOnClickListener(onButtonClick);
+            mNewPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
 
@@ -137,8 +137,8 @@ public class PrivateMessageListFragment extends Fragment implements
                 case R.id.home:
                     startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
                     break;
-                case R.id.user_cp:
-                    startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+                case R.id.new_pm:
+                    startActivity(new Intent().setClass(getActivity(), MessageDisplayActivity.class));
                     break;
                 case R.id.refresh:
                     adapt.fetchPrivateMessages();

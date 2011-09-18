@@ -41,17 +41,17 @@
             style="@style/ActionBarSeparator" 
             />
         <ImageButton 
-            android:id="@+id/user_cp"
-            style="@style/ActionBarButton"
-            android:src="@drawable/gear"
-            />
-        <ImageView 
-            style="@style/ActionBarSeparator" 
-            />
-        <ImageButton 
             android:id="@+id/home"
             style="@style/ActionBarButton"
             android:src="@drawable/home"
+            />
+            <ImageView 
+            style="@style/ActionBarSeparator" 
+            />
+            <ImageButton 
+            android:id="@+id/new_pm"
+            style="@style/ActionBarButton"
+            android:src="@drawable/action_bar_send_submit"
             />
     </LinearLayout>
 </RelativeLayout>

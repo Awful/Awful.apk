@@ -32,7 +32,6 @@
                 android:shadowDx="0"
                 android:shadowDy="-1"
                 android:shadowRadius="0.2"
-                android:text="Message Title"
 				/>
 			<TextView
 				android:id="@+id/username"
@@ -41,7 +40,6 @@
 				android:layout_below="@id/message_title"
 				android:textSize="16dip"
 				android:textColor="#ffffff"
-                android:text="Username"
 				/>
 				<TextView
 				android:id="@+id/post_date"
@@ -50,7 +48,6 @@
 				android:layout_below="@id/message_title"
 				android:textSize="16dip"
 				android:textColor="#ffffff"
-                android:text="Post Date"
 				android:layout_alignParentRight="true"/>
 		</RelativeLayout>
 	</RelativeLayout>
