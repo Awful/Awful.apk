@@ -63,7 +63,9 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
         
         setRetainInstance(true);
         
-        View result = aInflater.inflate(R.layout.message_view, aContainer, false);;
+        View result = aInflater.inflate(R.layout.message_view, aContainer, false);
+        mPrefs = new AwfulPreferences(getActivity());
+        
         
         mDisplayText = (TextView) result.findViewById(R.id.messagebody);
         mEditReply = (EditText) result.findViewById(R.id.edit_reply_text);
@@ -74,6 +76,10 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
         mUsername = (TextView) result.findViewById(R.id.username);
         mPostdate = (TextView) result.findViewById(R.id.post_date);
         mTitle = (TextView) result.findViewById(R.id.message_title);
+
+        result.setBackgroundColor(mPrefs.postBackgroundColor);
+        mDisplayText.setBackgroundColor(mPrefs.postBackgroundColor);
+        mDisplayText.setTextColor(mPrefs.postFontColor);
         
         mServConn = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, pmId, this);
 
@@ -109,6 +115,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	public void onDetach(){
 		super.onDetach();
 		saved_reply = mEditReply.getText();
+		mPrefs.unRegisterListener();
 	}
 
 	@Override
