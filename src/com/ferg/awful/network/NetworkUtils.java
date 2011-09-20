@@ -38,7 +38,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -59,6 +62,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.CleanerTransformations;
 import org.htmlcleaner.HtmlCleaner;
@@ -77,6 +81,9 @@ import com.ferg.awful.constants.Constants;
 public class NetworkUtils {
     private static final String TAG = "NetworkUtils";
     private static final String CHARSET = "windows-1252";
+    
+    private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
+    private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
 
     private static DefaultHttpClient sHttpClient;
     private static HtmlCleaner sCleaner;
@@ -337,5 +344,37 @@ public class NetworkUtils {
 
 	public static String getAsString(TagNode pc) {
 		return sCleaner.getInnerHtml(pc);
+	}
+	
+	/**
+	 * Parses all html-escaped characters to a regular Java string. Does not handle html tags.
+	 * @param html
+	 * @return unencoded text.
+	 */
+	public static String unencodeHtml(String html){
+		String processed = StringEscapeUtils.unescapeHtml4(html);
+		StringBuffer unencodedContent = new StringBuffer(processed.length());
+		Matcher fixCharMatch = unencodeCharactersPattern.matcher(processed);
+		while(fixCharMatch.find()){
+			fixCharMatch.appendReplacement(unencodedContent, Character.toString((char) Integer.parseInt(fixCharMatch.group(1))));
+			}
+		fixCharMatch.appendTail(unencodedContent);
+		return unencodedContent.toString();
+	}
+	
+	/**
+	 * Parses a Java string into html-escaped characters. Does not handle html tags.
+	 * @param html
+	 * @return unencoded text.
+	 */
+	public static String encodeHtml(String str){
+		String processed = StringEscapeUtils.escapeHtml4(str);
+		StringBuffer unencodedContent = new StringBuffer(processed.length());
+		Matcher fixCharMatch = encodeCharactersPattern.matcher(processed);
+		while(fixCharMatch.find()){
+			fixCharMatch.appendReplacement(unencodedContent, "&#"+fixCharMatch.group(1).codePointAt(0)+";");
+			}
+		fixCharMatch.appendTail(unencodedContent);
+		return unencodedContent.toString();
 	}
 }
