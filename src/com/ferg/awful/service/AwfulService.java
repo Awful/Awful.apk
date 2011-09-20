@@ -342,7 +342,7 @@ public class AwfulService extends Service {
         				if(other != null){//was the same forum already in the DB?
         					boolean found = false;
         					for(AwfulForum gg : mForum.getSubforums()){
-        						if(other == gg){//ok, it was, let's see if it matches one already on the local forum list
+        						if(other.getID() == gg.getID()){//ok, it was, let's see if it matches one already on the local forum list
         							found = true;
         							gg.setSubtext(af.getSubtext());//since forum index doesn't have subforum subtexts
         						}
