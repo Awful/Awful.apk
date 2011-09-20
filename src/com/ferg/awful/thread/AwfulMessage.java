@@ -2,7 +2,7 @@ package com.ferg.awful.thread;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.TagNode;
 
 import android.util.Log;
@@ -163,7 +163,7 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	public static void processReplyMessage(TagNode pmReplyData, AwfulMessage pm) {
 		TagNode[] message = pmReplyData.getElementsByAttValue("name", "message", true, false);
 		if(message.length >0){
-			String quoteText = StringEscapeUtils.unescapeHtml(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
+			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
 			pm.setReplyText(quoteText);
 		}
 	}
