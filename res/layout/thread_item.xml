@@ -39,7 +39,6 @@
 			android:layout_below="@id/title"
 			android:textSize="16dip"
 			android:textColor="@color/background"
-			android:text="Author"
 			/>
         <TextView
             android:id="@id/unread_count"
