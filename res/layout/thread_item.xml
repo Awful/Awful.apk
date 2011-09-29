@@ -29,8 +29,6 @@
 			android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/unread_count"
             android:layout_alignParentLeft="true"
-            android:singleLine="true"
-            android:ellipsize="marquee"
 			android:textSize="18dip"
 			android:textColor="@color/default_post_font"
 			/>
@@ -41,6 +39,7 @@
 			android:layout_below="@id/title"
 			android:textSize="16dip"
 			android:textColor="@color/background"
+			android:text="Author"
 			/>
         <TextView
             android:id="@id/unread_count"
