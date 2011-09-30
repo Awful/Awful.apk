@@ -55,6 +55,12 @@
 			android:summary="@string/load_images_summary"
 			android:defaultValue="true"
 			/>
+		<CheckBoxPreference 
+            android:key="wrap_thread_titles" 
+			android:title="@string/wrap_titles"
+			android:summary="@string/wrap_titles_summary"
+			android:defaultValue="true"
+			/>
 		<!-- <CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"

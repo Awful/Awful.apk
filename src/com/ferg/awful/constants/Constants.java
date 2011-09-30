@@ -115,5 +115,9 @@ public class Constants {
 
 	public static final String EXTRA_BUNDLE = "extras";
 
+	public static final String PARAM_PARSEURL = "parseurl";
+
+	public static final String YES = "yes";//heh
+
 
 }

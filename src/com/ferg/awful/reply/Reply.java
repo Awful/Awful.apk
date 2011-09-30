@@ -69,6 +69,7 @@ public class Reply {
         params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
         params.put(PARAM_BOOKMARK, "yes");
+        params.put(Constants.PARAM_PARSEURL, Constants.YES);
 
         return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
     }
@@ -83,6 +84,7 @@ public class Reply {
         params.put(PARAM_FORMKEY, aFormKey);
         params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
+        params.put(Constants.PARAM_PARSEURL, Constants.YES);
 
         return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
     }
@@ -97,6 +99,7 @@ public class Reply {
         params.put(PARAM_FORMKEY, aFormKey);
         params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
+        params.put(Constants.PARAM_PARSEURL, Constants.YES);
 
         return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
     }

@@ -599,7 +599,7 @@ public class AwfulService extends Service {
                 if(mId>0){
                 	para.put("prevmessageid", Integer.toString(mId));
                 }
-                para.put("parseurl", "yes");
+                para.put(Constants.PARAM_PARSEURL, Constants.YES);
                 para.put("savecopy", "yes");
                 para.put("iconid", "0");
                 para.put(Constants.PARAM_MESSAGE, mContent);
