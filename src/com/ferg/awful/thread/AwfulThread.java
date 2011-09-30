@@ -36,6 +36,7 @@ import java.util.List;
 import org.htmlcleaner.TagNode;
 
 import android.text.Html;
+import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -332,6 +333,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
 			author.setTextColor(prefs.postFontColor2);
+			title.setSingleLine(!prefs.wrapThreadTitles);
+			if(!prefs.wrapThreadTitles){
+				title.setEllipsize(TruncateAt.END);
+			}else{
+				title.setEllipsize(null);
+			}
 		}
 		return tmp;
 	}
