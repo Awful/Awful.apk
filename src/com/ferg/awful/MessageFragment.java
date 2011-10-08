@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,8 +49,11 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	private AwfulPreferences mPrefs;
 
 	private Editable saved_reply;
+	private Editable saved_title;
+	private Editable saved_recipient;
 
 	private ProgressDialog mDialog;
+
 	
 	public MessageFragment() {
 	}
@@ -177,8 +181,10 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	
 	public void onDetach(){
 		super.onDetach();
-		if(mEditReply != null){
+		if(mEditReply != null && mSubject != null && mRecipient != null && ((message != null && message.isLoaded()) || pmId == 0)){
 			saved_reply = mEditReply.getText();
+			saved_title = mSubject.getText();
+			saved_recipient = mRecipient.getText();
 		}
 		if(mPrefs != null){
 			mPrefs.unRegisterListener();
@@ -211,6 +217,9 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	private void newMessage(){
 		pmId = 0;
 		recipient = null;
+		saved_reply = null;
+		saved_title = null;
+		saved_recipient = null;
 		mEditReply.setText("");
 		mUsername.setText("");
 		mRecipient.setText("");
@@ -236,9 +245,6 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 				mSubject.setText(message.getReplyTitle());
 				replyLoaded = true;
 			}
-			if(saved_reply != null){
-				mEditReply.setText(saved_reply);
-			}
 			if(message.getAuthor() != null){
 				mUsername.setText(message.getAuthor());
 				mRecipient.setText(message.getAuthor());
@@ -249,6 +255,11 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 			}else{
 				mTitle.setText("New Message");
 			}
+		}
+		if(saved_reply != null && saved_title != null && saved_recipient != null){
+			mEditReply.setText(saved_reply);
+			mSubject.setText(saved_title);
+			mRecipient.setText(saved_recipient);
 		}
 	}
 
