@@ -28,11 +28,14 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	private String mDate;
 	private String mReplyText;
 	private boolean unread;
+	private boolean mLoaded;
 	private int mId;
+	private String mReplyTitle;
 
 	public AwfulMessage(int id) {
 		mId = id;
 		mDate = "";
+		mLoaded = false;
 	}
 
 	@Override
@@ -166,7 +169,21 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
 			pm.setReplyText(quoteText);
 		}
+		TagNode[] title = pmReplyData.getElementsByAttValue("name", "title", true, false);
+		if(title.length >0){
+			String quoteTitle = StringEscapeUtils.unescapeHtml4(title[0].getAttributeByName("value"));
+			pm.setReplyTitle(quoteTitle);
+		}
 	}
+
+	private void setReplyTitle(String quoteTitle) {
+		mReplyTitle = quoteTitle;
+	}
+	
+	public String getReplyTitle() {
+		return mReplyTitle;
+	}
+
 
 	private synchronized void setReplyText(String string) {
 		mReplyText = string;
@@ -208,6 +225,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		this.mDate = mDate;
 	}
 	
+	public void setLoaded(boolean loaded){
+		mLoaded = loaded;
+	}
+	
 	//extended awfulpageditem so messages can be put in the DB, I really need to rewrite the DB.
 	//ignore the methods here, they'll never be used.
 	@Override
@@ -228,6 +249,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	@Override
 	public boolean isPageCached(int page) {
 		return false;
+	}
+
+	public boolean isLoaded() {
+		return mLoaded;
 	}
 
 }

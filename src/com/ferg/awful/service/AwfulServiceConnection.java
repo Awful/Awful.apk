@@ -92,6 +92,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	}
 	public void connect(Context parent){
         mPrefs = new AwfulPreferences(parent);
+        mPrefs.registerCallback(this);
 		if(mService == null && !boundState){
 			Log.e(TAG, "connect()");
 			parent.bindService(new Intent(parent, AwfulService.class), this, Context.BIND_AUTO_CREATE);
@@ -115,6 +116,17 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void fetchForum(int id, int page){
 		if(boundState){
 			mService.fetchForum(id, page);
+		}
+	}
+	
+	public void sharedPreferenceChange() {
+		for(AwfulListAdapter la : fragments){
+			if(la.mCallback != null){
+				la.mCallback.onPreferenceChange(mPrefs);
+			}
+			if(la.mObserver != null){
+				la.mObserver.onInvalidated();
+			}
 		}
 	}
 	
@@ -676,4 +688,5 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		fragments.add(gen);
 		return gen;
 	}
+
 }

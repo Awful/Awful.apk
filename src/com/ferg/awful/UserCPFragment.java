@@ -54,6 +54,7 @@ import android.support.v4.app.DialogFragment;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulDisplayItem;
 import com.ferg.awful.thread.AwfulThread;
@@ -103,7 +104,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
 
         if (isHoneycomb()) {
-        	//TODO ferg: could you add a private message button for tablets?
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         } else {
@@ -313,5 +313,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	public void onServiceConnected() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		if(mBookmarkList != null){
+			mBookmarkList.setBackgroundColor(prefs.postBackgroundColor);
+	        mBookmarkList.setCacheColorHint(prefs.postBackgroundColor);
+		}
 	}
 }

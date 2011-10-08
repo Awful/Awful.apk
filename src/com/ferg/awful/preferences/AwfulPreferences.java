@@ -2,6 +2,7 @@ package com.ferg.awful.preferences;
 
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.service.AwfulServiceConnection;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.preference.PreferenceManager;
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private SharedPreferences mPrefs;
 	private Context parent;
+	private AwfulServiceConnection mPrefChangeCallback;
 	
     public String username;
 	public int postFontSize;
@@ -41,6 +43,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 */
 	public AwfulPreferences(Context context) {
 		parent = context;
+		mPrefChangeCallback = null;
 		PreferenceManager.setDefaultValues(parent, R.xml.settings, false);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(parent);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -48,16 +51,24 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
 	public void unRegisterListener(){
+		mPrefChangeCallback = null;
 		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	public SharedPreferences getPrefs(){
 		return mPrefs;
 	}
+	
+	public void registerCallback(AwfulServiceConnection asc){
+		mPrefChangeCallback = asc;
+	}
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
+		if(mPrefChangeCallback != null){
+			mPrefChangeCallback.sharedPreferenceChange();
+		}
 	}
 
 	private void updateValues(SharedPreferences prefs) {

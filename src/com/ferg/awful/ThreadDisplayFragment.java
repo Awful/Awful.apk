@@ -752,4 +752,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences mPrefs) {
+		// don't need this, threadview is automatically refreshed on resume.
+		
+	}
 }
