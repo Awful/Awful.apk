@@ -100,8 +100,10 @@ public class PrivateMessageListFragment extends Fragment implements
     }
     
     private void updateColors(){
-    	mPMList.setBackgroundColor(mPrefs.postBackgroundColor);
-        mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
+    	if(mPMList != null){
+    		mPMList.setBackgroundColor(mPrefs.postBackgroundColor);
+            mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
+    	}
     }
     
     @Override

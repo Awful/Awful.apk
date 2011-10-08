@@ -177,8 +177,12 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	
 	public void onDetach(){
 		super.onDetach();
-		saved_reply = mEditReply.getText();
-		mPrefs.unRegisterListener();
+		if(mEditReply != null){
+			saved_reply = mEditReply.getText();
+		}
+		if(mPrefs != null){
+			mPrefs.unRegisterListener();
+		}
 		if(mDialog!= null){
 			mDialog.dismiss();
 			mDialog = null;
@@ -283,7 +287,9 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 
 	@Override
 	public void onServiceConnected() {
-		
+		if(pmId >0){
+    		mServConn.fetchPrivateMessage(pmId);
+    	}
 	}
 
 	private boolean isHoneycomb() {
