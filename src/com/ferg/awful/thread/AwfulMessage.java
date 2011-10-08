@@ -30,6 +30,7 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	private boolean unread;
 	private boolean mLoaded;
 	private int mId;
+	private String mReplyTitle;
 
 	public AwfulMessage(int id) {
 		mId = id;
@@ -168,7 +169,21 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
 			pm.setReplyText(quoteText);
 		}
+		TagNode[] title = pmReplyData.getElementsByAttValue("name", "title", true, false);
+		if(title.length >0){
+			String quoteTitle = StringEscapeUtils.unescapeHtml4(title[0].getAttributeByName("value"));
+			pm.setReplyTitle(quoteTitle);
+		}
 	}
+
+	private void setReplyTitle(String quoteTitle) {
+		mReplyTitle = quoteTitle;
+	}
+	
+	public String getReplyTitle() {
+		return mReplyTitle;
+	}
+
 
 	private synchronized void setReplyText(String string) {
 		mReplyText = string;

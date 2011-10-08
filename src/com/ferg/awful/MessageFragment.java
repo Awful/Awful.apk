@@ -233,6 +233,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 			}
 			if(message.getReplyText() != null && !replyLoaded && saved_reply == null){
 				mEditReply.setText(message.getReplyText());
+				mSubject.setText(message.getReplyTitle());
 				replyLoaded = true;
 			}
 			if(saved_reply != null){
