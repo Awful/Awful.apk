@@ -28,11 +28,13 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	private String mDate;
 	private String mReplyText;
 	private boolean unread;
+	private boolean mLoaded;
 	private int mId;
 
 	public AwfulMessage(int id) {
 		mId = id;
 		mDate = "";
+		mLoaded = false;
 	}
 
 	@Override
@@ -208,6 +210,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		this.mDate = mDate;
 	}
 	
+	public void setLoaded(boolean loaded){
+		mLoaded = loaded;
+	}
+	
 	//extended awfulpageditem so messages can be put in the DB, I really need to rewrite the DB.
 	//ignore the methods here, they'll never be used.
 	@Override
@@ -228,6 +234,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	@Override
 	public boolean isPageCached(int page) {
 		return false;
+	}
+
+	public boolean isLoaded() {
+		return mLoaded;
 	}
 
 }

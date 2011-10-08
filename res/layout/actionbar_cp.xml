@@ -43,7 +43,7 @@
         <ImageButton 
             android:id="@+id/pm_button"
             style="@style/ActionBarButton"
-            android:src="@android:drawable/ic_dialog_email"
+            android:src="@android:drawable/sym_action_email"
             />
         <ImageView 
             style="@style/ActionBarSeparator" 

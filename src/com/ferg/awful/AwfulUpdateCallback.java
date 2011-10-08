@@ -1,5 +1,7 @@
 package com.ferg.awful;
 
+import com.ferg.awful.preferences.AwfulPreferences;
+
 import android.os.Bundle;
 
 public interface AwfulUpdateCallback {
@@ -25,6 +27,12 @@ public interface AwfulUpdateCallback {
 	public void loadingSucceeded();
 	/**
 	 * Called when the service connects but before any auto-loading or other service activities.
+	 * WILL NOT BE CALLED IF SERVICE CONNECTS BEFORE AN ADAPTER IS MADE.
 	 */
 	public void onServiceConnected();
+	/**
+	 * Called when any preference changes. Use this callback to update text/background color, font sizes, ect.
+	 * @param mPrefs 
+	 */
+	public void onPreferenceChange(AwfulPreferences prefs);
 }

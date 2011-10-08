@@ -1,18 +1,23 @@
 package com.ferg.awful;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.GenericListAdapter;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -38,12 +43,11 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	private TextView mTitle;
 	private EditText mRecipient;
 	private EditText mSubject;
+	private View mBackground;
 
 	private AwfulPreferences mPrefs;
 
 	private Editable saved_reply;
-
-	private boolean sending;
 
 	private ProgressDialog mDialog;
 	
@@ -67,12 +71,11 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        mPrefs = new AwfulPreferences(this.getActivity());
+        mPrefs = new AwfulPreferences(getActivity());
         
         setRetainInstance(true);
         
         View result = aInflater.inflate(R.layout.message_view, aContainer, false);
-        mPrefs = new AwfulPreferences(getActivity());
         
         
         mDisplayText = (TextView) result.findViewById(R.id.messagebody);
@@ -84,20 +87,69 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
         mUsername = (TextView) result.findViewById(R.id.username);
         mPostdate = (TextView) result.findViewById(R.id.post_date);
         mTitle = (TextView) result.findViewById(R.id.message_title);
-
-        result.setBackgroundColor(mPrefs.postBackgroundColor);
-        mDisplayText.setBackgroundColor(mPrefs.postBackgroundColor);
-        mDisplayText.setTextColor(mPrefs.postFontColor);
+        mBackground = result;
+        updateColors(result, mPrefs);
         
         mServConn = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, pmId, this);
 
         return result;
     }
 	
+	private void updateColors(View v, AwfulPreferences prefs){
+        mEditReply.setBackgroundColor(prefs.postBackgroundColor2);
+        mRecipient.setBackgroundColor(prefs.postBackgroundColor2);
+        mSubject.setBackgroundColor(prefs.postBackgroundColor2);
+        mDisplayText.setBackgroundColor(prefs.postBackgroundColor);
+        mDisplayText.setTextColor(prefs.postFontColor);
+        mEditReply.setTextColor(prefs.postFontColor);
+        mRecipient.setTextColor(prefs.postFontColor);
+        mSubject.setTextColor(prefs.postFontColor);
+		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
+        TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
+        TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
+        miscSubject.setBackgroundColor(prefs.postBackgroundColor);
+        miscRecip.setBackgroundColor(prefs.postBackgroundColor);
+        miscMess.setBackgroundColor(prefs.postBackgroundColor);
+        miscSubject.setTextColor(prefs.postFontColor2);
+        miscRecip.setTextColor(prefs.postFontColor2);
+        miscMess.setTextColor(prefs.postFontColor2);
+        v.setBackgroundColor(prefs.postBackgroundColor);
+        
+	}
+	
 	private void setActionBar() {
         ActionBar action = getActivity().getActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
+    }
+	
+	@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if(menu.size() == 0){
+            inflater.inflate(R.menu.private_message_menu, menu);
+        }
+    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.send_pm:
+                sendPM();
+                return true;
+            case R.id.new_pm:
+            	newMessage();
+            	return true;
+            case R.id.refresh:
+            	if(pmId >0){
+            		mServConn.fetchPrivateMessage(pmId);
+            	}
+            	return true;
+            case R.id.settings:
+            	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            	return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 	
 	@Override
@@ -112,6 +164,9 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	public void onResume(){
 		super.onResume();
 		message = mServConn.getMessage(pmId);
+		if(pmId > 0 && (message == null || !message.isLoaded())){
+			mServConn.fetchPrivateMessage(pmId);
+		}
 		updateUI();
 	}
 	
@@ -137,11 +192,29 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 				mDialog.dismiss();
 				mDialog = null;
 			}
-			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-			getActivity().finish();
+			if(getActivity() != null){
+				Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
+				if(getActivity() instanceof MessageDisplayActivity){
+					getActivity().finish();
+				}
+			}
+			
 		}
 		message = mServConn.getMessage(pmId);
 		updateUI();
+	}
+	
+	private void newMessage(){
+		pmId = 0;
+		recipient = null;
+		mEditReply.setText("");
+		mUsername.setText("");
+		mRecipient.setText("");
+		mPostdate.setText("");
+		mEditReply.setText("");
+		mDisplayText.setText("");
+		mTitle.setText("New Message");
+		mSubject.setText("");
 	}
 	
 	private void updateUI(){
@@ -154,7 +227,6 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 				mDisplayText.setText(Html.fromHtml(message.getContent()));
 				mPostdate.setText(message.getDate());
 			}
-			//TODO This isn't rotation-safe, but I'm going to refactor into a fragment next.
 			if(message.getReplyText() != null && !replyLoaded && saved_reply == null){
 				mEditReply.setText(message.getReplyText());
 				replyLoaded = true;
@@ -167,38 +239,64 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 				mRecipient.setText(message.getAuthor());
 			}
 		}else{
-			if(mRecipient != null){
+			if(recipient != null){
 				mRecipient.setText(recipient);
+			}else{
+				mTitle.setText("New Message");
 			}
 		}
 	}
 
 	@Override
 	public void loadingFailed() {
+		if(getActivity() != null){
+			if (isHoneycomb()) {
+				getActivity().setProgressBarIndeterminateVisibility(false);
+			}
+		    Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override
 	public void loadingStarted() {
+		if (isHoneycomb() && getActivity() != null) {
+			getActivity().setProgressBarIndeterminateVisibility(true);
+		}
 	}
 
 	@Override
 	public void loadingSucceeded() {
+		if (isHoneycomb() && getActivity() != null) {
+			getActivity().setProgressBarIndeterminateVisibility(false);
+		}
 	}
 
 	@Override
 	public void onClick(View v) {
+		sendPM();
+	}
+	
+	public void sendPM(){
 		mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 	}
 
 	@Override
 	public void onServiceConnected() {
-		if(pmId >0){
-			mServConn.fetchPrivateMessage(pmId);
-		}
+		
 	}
 
 	private boolean isHoneycomb() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		if(getView() != null){
+			updateColors(getView(), prefs);
+		}else{
+			if(mBackground != null){
+				updateColors(mBackground, prefs);
+			}
+		}
+	}
 }

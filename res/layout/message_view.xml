@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/message_view" android:layout_height="match_parent" android:layout_width="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/message_view" android:layout_height="match_parent" android:layout_width="match_parent" android:fillViewport="true">
 	<LinearLayout 
 	android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -48,7 +48,9 @@
 				android:layout_below="@id/message_title"
 				android:textSize="16dip"
 				android:textColor="#ffffff"
-				android:layout_alignParentRight="true"/>
+				android:layout_toLeftOf="@+id/message_reply_button"/>
+				
+			<Button android:id="@+id/message_reply_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send" android:layout_alignParentRight="true"></Button>
 		</RelativeLayout>
 	</RelativeLayout>
 	<TextView
@@ -61,8 +63,9 @@
 			
 	<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-	<TextView android:text="Subject: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content"
+			android:padding="6dip">
+	<TextView android:id="@+id/misc_text_subject" android:text="Subject: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 	
 	<EditText
 			android:id="@+id/message_subject"
@@ -70,23 +73,31 @@
 			android:layout_height="wrap_content"
 			android:padding="6dip"
 			android:textColor="@color/default_post_font"
+			android:singleLine="true"
 			/>
 			</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-	<TextView android:text="Recipient: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content"
+			android:padding="6dip">
+	<TextView android:id="@+id/misc_text_recipient" android:text="Recipient: " android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 	<EditText
 			android:id="@+id/message_user"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:padding="6dip"
 			android:textColor="@color/default_post_font"
+			android:singleLine="true"
 			/>
 	</LinearLayout>
-	<TextView android:text="Message:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-	<EditText android:id="@+id/edit_reply_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine">
-	</EditText>
-	<Button android:id="@+id/message_reply_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send Reply"></Button>
+	<TextView android:id="@+id/misc_text_message" android:text="Message:" android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:padding="6dip"/>
+	<EditText android:id="@+id/edit_reply_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine"
+			android:scrollbars="vertical"
+			android:scrollbarStyle="insideOverlay"
+			android:scrollbarFadeDuration="500"
+			android:scrollbarDefaultDelayBeforeFade="1000"
+			android:scrollbarAlwaysDrawVerticalTrack="true"
+			android:minLines="5" android:paddingLeft="10dip" android:paddingRight="10dip"></EditText>
 	</LinearLayout>
 </ScrollView>
