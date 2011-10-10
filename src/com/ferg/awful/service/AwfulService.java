@@ -548,6 +548,7 @@ public class AwfulService extends Service {
                 para.put(Constants.PARAM_ACTION, "newmessage");
 				TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 				AwfulMessage.processReplyMessage(pmReplyData, pm);
+				pm.setLoaded(true);
 				Log.e(TAG,"Fetched msg: "+mId);
 			} catch (Exception e) {
 				pm = null;
