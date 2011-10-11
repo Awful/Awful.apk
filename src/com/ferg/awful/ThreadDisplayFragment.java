@@ -96,7 +96,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private int savedPage = 0;
     private int savedPos = 0;
     
-	private String mPostJump;
+	private String mPostJump = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -633,7 +633,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-
             if (isTablet()) {
                 mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
             } else {
@@ -681,6 +680,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
             result.put("yPos", Integer.toString(mYPosition));
+            result.put("postjumpid", mPostJump);
             // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();

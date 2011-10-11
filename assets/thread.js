@@ -1,3 +1,5 @@
+var prefs = JSON.parse(preferences);
+
 $(document).ready(function() {
     $('.action-button').live('click', function(event) {
         if ($(this).hasClass("editable")) {
@@ -8,7 +10,6 @@ $(document).ready(function() {
     });
 
     var posts = JSON.parse(post_list);
-    var prefs = JSON.parse(preferences);
 
     var thread = $("#thread-body");
     var light = true;
@@ -50,7 +51,11 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-    setYPosition(preferences.yPos);
+	if(prefs.postjumpid == ""){
+    	setYPosition(prefs.yPos);
+    }else{
+		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+    }
 });
 
 function setYPosition(position) {
