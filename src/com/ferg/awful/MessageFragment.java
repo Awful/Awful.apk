@@ -168,7 +168,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 	public void onResume(){
 		super.onResume();
 		message = mServConn.getMessage(pmId);
-		if(pmId > 0 && (message == null || !message.isLoaded())){
+		if(pmId > 0){
 			mServConn.fetchPrivateMessage(pmId);
 		}
 		updateUI();

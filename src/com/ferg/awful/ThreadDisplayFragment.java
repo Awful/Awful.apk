@@ -95,6 +95,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private int savedPage = 0;
     private int savedPos = 0;
+    
+	private String mPostJump;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -757,5 +759,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		// don't need this, threadview is automatically refreshed on resume.
 		
+	}
+
+	public void setPostJump(String postID) {
+		mPostJump = postID;
 	}
 }
