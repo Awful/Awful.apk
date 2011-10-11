@@ -194,7 +194,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (!isHoneycomb()) {
             startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
         } else {
-            UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
+        	((ForumsTabletActivity) getActivity()).setContentPane(-1);
         }
     }
     
