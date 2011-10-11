@@ -148,10 +148,9 @@ public class ThreadDisplayActivity extends AwfulActivity {
             		}
             	}
             	if(c2pURLFragment != null && c2pURLFragment.startsWith("post")){
-            		display.setPostJump(c2pURLFragment);
-            	}else{
-            		adapt = getServiceConnection().createThreadAdapter(threadid, display, page);
+            		display.setPostJump(c2pURLFragment.replaceAll("\\D", ""));
             	}
+            	adapt = getServiceConnection().createThreadAdapter(threadid, display, page);
             }else{
             	if(loadPage >0){
             		adapt = getServiceConnection().createThreadAdapter(threadid, display, loadPage);
