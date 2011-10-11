@@ -398,11 +398,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             .show();
     }
 
-    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl) {
+    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl, String aUsername) {
         switch (aItem) {
             case ClickInterface.EDIT:
-                mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(aPostId);
+            	if(aUsername != null){
+            		startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+            	}else{
+                    mEditPostTask = new ParseEditPostTask();
+                    mEditPostTask.execute(aPostId);
+            	}
                 return true;
             case ClickInterface.QUOTE:
                 mPostQuoteTask = new ParsePostQuoteTask();
@@ -697,16 +701,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         };
         final CharSequence[] mPostItems = {
             "Quote", 
-            "Mark last read"
+            "Mark last read",
+            "Send Private Message"
         };
 
         // Post ID is the item tapped
-        public void onPostClick(final String aPostId, final String aLastReadUrl) {
+        public void onPostClick(final String aPostId, final String aLastReadUrl, final String aUsername) {
             new AlertDialog.Builder(getActivity())
                 .setTitle("Select an Action")
                 .setItems(mPostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, aUsername);
                     }
                 })
                 .show();
@@ -718,7 +723,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 .setTitle("Select an Action")
                 .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, null);
                     }
                 })
                 .show();

@@ -3,7 +3,7 @@ $(document).ready(function() {
         if ($(this).hasClass("editable")) {
             listener.onEditablePostClick($(this).attr('id'), $(this).attr('lastreadurl'));
         } else {
-            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'));
+            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'), $(this).attr('username'));
         }
     });
 

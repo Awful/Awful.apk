@@ -252,9 +252,8 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 		}else{
 			if(recipient != null){
 				mRecipient.setText(recipient);
-			}else{
-				mTitle.setText("New Message");
 			}
+			mTitle.setText("New Message");
 		}
 		if(saved_reply != null && saved_title != null && saved_recipient != null){
 			mEditReply.setText(saved_reply);
