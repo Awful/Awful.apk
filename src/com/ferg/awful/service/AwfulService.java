@@ -509,7 +509,12 @@ public class AwfulService extends Service {
 		public void onPostExecute(ArrayList<AwfulMessage> results){
 			if(results != null){
 				for(AwfulMessage m : results){
-					db.put(Constants.PRIVATE_MESSAGE+m.getID(), m);
+					AwfulMessage old = (AwfulMessage) db.get(Constants.PRIVATE_MESSAGE+m.getID());
+					if(old == null){
+						db.put(Constants.PRIVATE_MESSAGE+m.getID(), m);
+					}else{
+						old.setTitle(m.getTitle());
+					}
 				}
 				pml.setMessageList(results);
 				db.put(Constants.PRIVATE_MESSAGE+Constants.PRIVATE_MESSAGE_THREAD, pml);

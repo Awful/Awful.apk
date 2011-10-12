@@ -1,14 +1,15 @@
+var prefs = JSON.parse(preferences);
+
 $(document).ready(function() {
     $('.action-button').live('click', function(event) {
         if ($(this).hasClass("editable")) {
             listener.onEditablePostClick($(this).attr('id'), $(this).attr('lastreadurl'));
         } else {
-            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'));
+            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'), $(this).attr('username'));
         }
     });
 
     var posts = JSON.parse(post_list);
-    var prefs = JSON.parse(preferences);
 
     var thread = $("#thread-body");
     var light = true;
@@ -50,7 +51,11 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-    setYPosition(preferences.yPos);
+	if(prefs.postjumpid == ""){
+    	setYPosition(prefs.yPos);
+    }else{
+		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+    }
 });
 
 function setYPosition(position) {

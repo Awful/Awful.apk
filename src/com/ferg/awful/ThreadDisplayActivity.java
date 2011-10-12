@@ -37,13 +37,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
     private int threadid;//thread id for this activity, since we will only use this activity with a single thread
     private ThreadDisplayFragment display;//no need to juggle fragments here
-    private String c2pPage;
     private ThreadListAdapter adapt;
     
     @Override
@@ -110,12 +110,16 @@ public class ThreadDisplayActivity extends AwfulActivity {
     protected void configureAdapter(Bundle aSavedState) {
         display = getFragment();
         String c2pThreadID = null;
-        c2pPage = null;
+        String c2pPostPerPage = null;
+        String c2pPage = null;
+        String c2pURLFragment = null;
 
         // We may be getting thread info from ChromeToPhone so handle that here
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
             c2pThreadID = getIntent().getData().getQueryParameter("threadid");
+            c2pPostPerPage = getIntent().getData().getQueryParameter("perpage");
             c2pPage = getIntent().getData().getQueryParameter("pagenumber");
+            c2pURLFragment = getIntent().getData().getEncodedFragment();
         }
 
         threadid = getIntent().getIntExtra(Constants.THREAD, 0);
@@ -129,7 +133,24 @@ public class ThreadDisplayActivity extends AwfulActivity {
         } else {
 
             if (c2pPage != null) {
-                adapt = getServiceConnection().createThreadAdapter(threadid, display, Integer.parseInt(c2pPage));
+            	int page = Integer.parseInt(c2pPage);
+        		AwfulPreferences pref = new AwfulPreferences(this);
+            	if(c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")){
+            		int ppp = Integer.parseInt(c2pPostPerPage);
+            		if(pref.postPerPage != ppp){
+            			page = (int) Math.ceil((double)(page*ppp)/pref.postPerPage);
+            			Log.e("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
+            		}
+            	}else{
+            		if(pref.postPerPage != Constants.ITEMS_PER_PAGE){
+            			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)pref.postPerPage);
+            			Log.e("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
+            		}
+            	}
+            	if(c2pURLFragment != null && c2pURLFragment.startsWith("post")){
+            		display.setPostJump(c2pURLFragment.replaceAll("\\D", ""));
+            	}
+            	adapt = getServiceConnection().createThreadAdapter(threadid, display, page);
             }else{
             	if(loadPage >0){
             		adapt = getServiceConnection().createThreadAdapter(threadid, display, loadPage);
