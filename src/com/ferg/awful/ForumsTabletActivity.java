@@ -33,7 +33,6 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Window;
@@ -73,23 +72,23 @@ public class ForumsTabletActivity extends AwfulActivity {
                     (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
                 fragment.displayUserCP();
             }
-        }else{
-        	if(getSupportFragmentManager().findFragmentByTag("forum")==null){
-            	setContentPane(-1);
-        	}
         }
     }
 
     public void onResume(){
         super.onResume();
+        Log.e(TAG, "onResume()");
+        //service.connect(this);
     }
 
     public void onPause(){
         super.onPause();
+        Log.e(TAG, "onPause()");
     }
 
     public void onDestroy(){
         super.onDestroy();
+        Log.e(TAG, "onDestroy()");
     }
 
     public boolean isDualPane() {
@@ -97,19 +96,11 @@ public class ForumsTabletActivity extends AwfulActivity {
     }
 
     public void setContentPane(int aForumId) {
-    	Fragment frag;
-    	if(aForumId == -1){
-    		UserCPFragment fragment = UserCPFragment.newInstance(false);
-    		fragment.setShowsDialog(false);
-    		frag = fragment;
-    	}else{
-    		ForumDisplayFragment fragment = 
-                ForumDisplayFragment.newInstance(aForumId);
-    		frag = fragment;
-    	}
-        
+        ForumDisplayFragment fragment = 
+            ForumDisplayFragment.newInstance(aForumId);
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, frag, "forum");
+        transaction.replace(R.id.content, fragment);
         transaction.commit();
     }
 }
