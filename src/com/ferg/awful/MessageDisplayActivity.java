@@ -16,11 +16,10 @@ public class MessageDisplayActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         if (isHoneycomb()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
-        setContentView(R.layout.fragment_pane);
+        setContentView(R.layout.user_cp_activity);
         setContentPane();
     }
 
@@ -29,7 +28,7 @@ public class MessageDisplayActivity extends AwfulActivity {
 	        MessageFragment fragment = new MessageFragment(getIntent().getStringExtra(Constants.PARAM_USERNAME),getIntent().getIntExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, 0));
 	
 	        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-	        transaction.replace(R.id.fragment_pane, fragment);
+	        transaction.replace(R.id.ucpcontent, fragment);
 	        transaction.commit();
     	}
     }

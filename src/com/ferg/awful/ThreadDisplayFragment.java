@@ -95,6 +95,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private int savedPage = 0;
     private int savedPos = 0;
+    
+	private String mPostJump = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -396,11 +398,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             .show();
     }
 
-    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl) {
+    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl, String aUsername) {
         switch (aItem) {
             case ClickInterface.EDIT:
-                mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(aPostId);
+            	if(aUsername != null){
+            		startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+            	}else{
+                    mEditPostTask = new ParseEditPostTask();
+                    mEditPostTask.execute(aPostId);
+            	}
                 return true;
             case ClickInterface.QUOTE:
                 mPostQuoteTask = new ParsePostQuoteTask();
@@ -627,7 +633,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-
             if (isTablet()) {
                 mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
             } else {
@@ -675,6 +680,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
             result.put("yPos", Integer.toString(mYPosition));
+            result.put("postjumpid", mPostJump);
             // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -695,16 +701,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         };
         final CharSequence[] mPostItems = {
             "Quote", 
-            "Mark last read"
+            "Mark last read",
+            "Send Private Message"
         };
 
         // Post ID is the item tapped
-        public void onPostClick(final String aPostId, final String aLastReadUrl) {
+        public void onPostClick(final String aPostId, final String aLastReadUrl, final String aUsername) {
             new AlertDialog.Builder(getActivity())
                 .setTitle("Select an Action")
                 .setItems(mPostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, aUsername);
                     }
                 })
                 .show();
@@ -716,7 +723,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 .setTitle("Select an Action")
                 .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, null);
                     }
                 })
                 .show();
@@ -757,5 +764,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		// don't need this, threadview is automatically refreshed on resume.
 		
+	}
+
+	public void setPostJump(String postID) {
+		mPostJump = postID;
 	}
 }

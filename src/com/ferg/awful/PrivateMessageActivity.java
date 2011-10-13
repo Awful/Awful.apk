@@ -10,6 +10,7 @@ import android.view.Window;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
+    private String pmIntentID;
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -21,7 +22,9 @@ public class PrivateMessageActivity extends AwfulActivity {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
         setContentView(R.layout.fragment_pane);
-
+        if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
+        	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
+        }
         pane_two = findViewById(R.id.fragment_pane_two);
         setContentPane();
     }
@@ -32,8 +35,16 @@ public class PrivateMessageActivity extends AwfulActivity {
 	
 	        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 	        transaction.replace(R.id.fragment_pane, fragment);
+	        int pmid = 0;
+	        if(pmIntentID != null && pmIntentID.matches("\\d+")){
+        		pmid = Integer.parseInt(pmIntentID);
+        	}
 	        if(pane_two != null){
-	        	transaction.replace(R.id.fragment_pane_two, new MessageFragment(null,0));
+		        transaction.replace(R.id.fragment_pane_two, new MessageFragment(null,pmid));
+	        }else{
+	        	if(pmid > 0){//this should only trigger if we intercept 'private.php?pmid=XXXXX' and we are not on a tablet.
+	        		startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, pmid));
+	        	}
 	        }
 	        transaction.commit();
     	}
