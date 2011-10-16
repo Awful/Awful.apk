@@ -375,6 +375,6 @@ public class NetworkUtils {
 			fixCharMatch.appendReplacement(unencodedContent, "&#"+fixCharMatch.group(1).codePointAt(0)+";");
 			}
 		fixCharMatch.appendTail(unencodedContent);
-		return unencodedContent.toString();
+		return unencodedContent.toString().replaceAll("&quot;", "\"");//SA can't handle &quot, for shame.
 	}
 }
