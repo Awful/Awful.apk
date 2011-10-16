@@ -37,7 +37,14 @@
         android:layout_alignParentRight="true"
         android:orientation="horizontal"
         >
-        
+        <ImageView 
+            style="@style/ActionBarSeparator" 
+            />
+        <ImageButton 
+            android:id="@+id/pm_button"
+            style="@style/ActionBarButton"
+            android:src="@android:drawable/sym_action_email"
+            />
         <ImageView 
             style="@style/ActionBarSeparator" 
             />

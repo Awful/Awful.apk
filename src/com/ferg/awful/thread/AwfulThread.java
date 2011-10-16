@@ -36,6 +36,7 @@ import java.util.List;
 import org.htmlcleaner.TagNode;
 
 import android.text.Html;
+import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -290,7 +291,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%'>");
             buffer.append("        <div class='avatar'>");
-            buffer.append("            <img src='" + post.getAvatar() + "' />");
+
+            if (post.getAvatar() != null) {
+                buffer.append("            <img src='" + post.getAvatar() + "' />");
+            }
+
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
@@ -346,7 +351,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("            </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='avatar'>");
-            buffer.append("            <img src='" + post.getAvatar() + "' />");
+
+            if (post.getAvatar() != null) {
+                buffer.append("            <img src='" + post.getAvatar() + "' />");
+            }
+
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
@@ -464,6 +473,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
 			author.setTextColor(prefs.postFontColor2);
+			title.setSingleLine(!prefs.wrapThreadTitles);
+			if(!prefs.wrapThreadTitles){
+				title.setEllipsize(TruncateAt.END);
+			}else{
+				title.setEllipsize(null);
+			}
 		}
 		return tmp;
 	}

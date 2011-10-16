@@ -76,4 +76,9 @@
 	<string name="goto_lastpage">Last Page</string>
 	<string name="toggle_bookmark">Toggle Bookmark</string>
 	<string name="mark_unread">Mark Thread Unread</string>
+	<string name="private_message">Private Messages</string>
+	<string name="wrap_titles">Wrap Thread Titles</string>
+	<string name="wrap_titles_summary">Allows thread titles to be more than one line long.</string>
+	<string name="send_pm">Send PM</string>
+	<string name="new_pm">New Private Message</string>
 </resources>

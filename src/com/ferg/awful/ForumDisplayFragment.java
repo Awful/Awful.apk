@@ -54,6 +54,7 @@ import android.support.v4.app.ListFragment;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulDisplayItem;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
@@ -323,7 +324,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         if(!this.isResumed()){
             return;
         }
@@ -376,4 +377,18 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             }
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		if(getListView()!=null){
+	        getListView().setBackgroundColor(prefs.postBackgroundColor);
+	        getListView().setCacheColorHint(prefs.postBackgroundColor);
+		}
+	}
 }

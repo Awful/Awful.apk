@@ -28,10 +28,7 @@
 package com.ferg.awful;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,21 +48,21 @@ import android.support.v4.app.Fragment;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 
-public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback, OnSharedPreferenceChangeListener {
+public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
 
     private ImageButton mUserCp;
+    private ImageButton mPM;
     private ListView mForumList;
     private TextView mTitle;
-    private int mDefaultPostFontColor;
-    private int mDefaultPostBackgroundColor;
+    private ImageButton mRefresh;
 
     private ForumListAdapter adapt;
 
-    private SharedPreferences mPrefs;
-    private ImageButton mRefresh;
+    private AwfulPreferences mPrefs;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -84,16 +81,14 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
+            mPM        = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
         
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity());
         
-        mDefaultPostFontColor = mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font));
-        mDefaultPostBackgroundColor = mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background));
-        mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
-        mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
+        mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
+        mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
         if(((AwfulActivity) getActivity()).getServiceConnection() != null){
             adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
             mForumList.setAdapter(adapt);
@@ -115,6 +110,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (!isHoneycomb()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
+            mPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
     }
@@ -134,12 +130,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void onPause() {
         super.onPause();
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
     @Override
     public void onResume() {
         super.onResume();
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
         
     @Override
@@ -186,6 +180,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 case R.id.user_cp:
                     displayUserCP();
                     break;
+                case R.id.pm_button:
+                    startActivity(new Intent(getActivity(), PrivateMessageActivity.class));
+                    break;
                 case R.id.refresh:
                     adapt.refresh();
                     break;
@@ -214,6 +211,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             case R.id.user_cp:
                 displayUserCP();
                 break;
+            case R.id.pm:
+            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+                break;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
                 break;
@@ -229,31 +229,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences prefs,
-            String key) {
-        if("default_post_font_color".equals(key)) {
-            int newColor = prefs.getInt(key, R.color.default_post_font);
-            if(newColor != mDefaultPostFontColor) {
-                mDefaultPostFontColor = newColor;
-                Log.d(TAG, "invalidating (color)");
-                mForumList.invalidateViews();               
-            }
-        } else if("default_post_background_color".equals(key)) {
-            int newBackground = prefs.getInt(key, R.color.background);
-            if(newBackground != mDefaultPostBackgroundColor) {
-                mDefaultPostBackgroundColor = newBackground;
-                mForumList.setBackgroundColor(mDefaultPostBackgroundColor);
-                mForumList.setCacheColorHint(mDefaultPostBackgroundColor);
-                Log.d(TAG, "invalidating (color)");
-                mForumList.invalidateViews();
-                mForumList.invalidate();
-            }               
-        }
     }
 
     @Override
@@ -292,4 +269,17 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onPreferenceChange(AwfulPreferences mPrefs) {
+		if(mForumList != null){
+			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
+	        mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
+	        mForumList.invalidate();
+		}
+	}
 }

@@ -103,6 +103,15 @@
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" 
             />
+        <activity android:name="MessageDisplayActivity"></activity>
+        <activity android:name="PrivateMessageActivity">
+        	<intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/private.php"/>
+        	</intent-filter>
+        </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

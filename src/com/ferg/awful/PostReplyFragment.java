@@ -27,7 +27,7 @@
 
 package com.ferg.awful;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -35,6 +35,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +47,7 @@ import android.widget.TextView;
 import android.support.v4.app.DialogFragment;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.reply.Reply;
 
 public class PostReplyFragment extends DialogFragment {
@@ -126,8 +129,8 @@ public class PostReplyFragment extends DialogFragment {
 		} else {
             //If we're quoting a post, add it to the message box
 			if (mExtras.containsKey(Constants.QUOTE)) {
-				String quoteText = StringEscapeUtils.unescapeHtml(mExtras
-						.getString(Constants.QUOTE)).replaceAll("[\\r\\f]", "");
+				//String quoteText = StringEscapeUtils.unescapeHtml4(mExtras.getString(Constants.QUOTE)).replaceAll("[\\r\\f]", "");
+				String quoteText = NetworkUtils.unencodeHtml(mExtras.getString(Constants.QUOTE));
 				mMessage.setText(quoteText);
 				mMessage.setSelection(quoteText.length());
 			}
@@ -214,10 +217,10 @@ public class PostReplyFragment extends DialogFragment {
             mSubmitTask = new SubmitReplyTask(editing);
 
             if (editing) {
-                mSubmitTask.execute(mMessage.getText().toString(), mFormKey, mFormCookie, 
+                mSubmitTask.execute(NetworkUtils.encodeHtml(mMessage.getText().toString()), mFormKey, mFormCookie, 
                         mThreadId, mExtras.getString(Constants.POST_ID));
             } else {
-                mSubmitTask.execute(mMessage.getText().toString(), 
+                mSubmitTask.execute(NetworkUtils.encodeHtml(mMessage.getText().toString()), 
                         mFormKey, mFormCookie, mThreadId);
             }
         }

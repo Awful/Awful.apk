@@ -32,6 +32,7 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.res.Configuration;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -62,6 +63,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
+    private SharedPreferences mPrefs;
 
     private ImageButton mNext;
     private ImageButton mNextPage;
@@ -95,6 +97,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private int savedPage = 0;
     private int savedPos = 0;
+    
+	private String mPostJump = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -145,10 +149,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void initThreadViewProperties() {
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    	
         mThreadView.resumeTimers();
         mThreadView.setSnapshotView(mSnapshotView);
         mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        mThreadView.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -284,7 +291,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onResume();
         
         if (queueDataUpdate){
-            dataUpdate(false);
+            dataUpdate(false, null);
         }
 
         if (mThreadWindow.getChildCount() < 2) {
@@ -393,11 +400,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             .show();
     }
 
-    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl) {
+    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl, String aUsername) {
         switch (aItem) {
             case ClickInterface.EDIT:
-                mEditPostTask = new ParseEditPostTask();
-                mEditPostTask.execute(aPostId);
+            	if(aUsername != null){
+            		startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+            	}else{
+                    mEditPostTask = new ParseEditPostTask();
+                    mEditPostTask.execute(aPostId);
+            	}
                 return true;
             case ClickInterface.QUOTE:
                 mPostQuoteTask = new ParsePostQuoteTask();
@@ -546,7 +557,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     @Override
-    public void dataUpdate(boolean pageChange) {
+    public void dataUpdate(boolean pageChange, Bundle extras) {
         if (!this.isResumed()) {
             queueDataUpdate = true;
             return;
@@ -660,6 +671,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
             result.put("yPos", Integer.toString(mYPosition));
+            result.put("postjumpid", mPostJump);
             // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -680,16 +692,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         };
         final CharSequence[] mPostItems = {
             "Quote", 
-            "Mark last read"
+            "Mark last read",
+            "Send Private Message"
         };
 
         // Post ID is the item tapped
-        public void onPostClick(final String aPostId, final String aLastReadUrl) {
+        public void onPostClick(final String aPostId, final String aLastReadUrl, final String aUsername) {
             new AlertDialog.Builder(getActivity())
                 .setTitle("Select an Action")
                 .setItems(mPostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, aUsername);
                     }
                 })
                 .show();
@@ -701,7 +714,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 .setTitle("Select an Action")
                 .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl);
+                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, null);
                     }
                 })
                 .show();
@@ -731,4 +744,20 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             });
         }
     }
+
+	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences mPrefs) {
+		// don't need this, threadview is automatically refreshed on resume.
+		
+	}
+
+	public void setPostJump(String postID) {
+		mPostJump = postID;
+	}
 }
