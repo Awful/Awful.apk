@@ -49,6 +49,7 @@ import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.preferences.ColorPickerPreference;
 
 public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
@@ -229,6 +230,137 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         }
         setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
         parsePageNumbers(response);
+    }
+
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {
+        StringBuffer buffer = new StringBuffer("<html><head>");
+        buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />");
+        buffer.append("<link rel='stylesheet' href='file:///android_asset/thread.css'>");
+        
+        if (!isTablet) {
+            buffer.append("<link rel='stylesheet' href='file:///android_asset/thread-phone.css'>");
+            buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:1.5)' href='file:///android_asset/thread-hdpi.css' />");
+            buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:1)' href='file:///android_asset/thread-mdpi.css' />");
+            buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:.75)' href='file:///android_asset/thread-mdpi.css' />");
+        }
+
+        buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>");
+        buffer.append("<script type='text/javascript'>");
+        buffer.append("  window.JSON = null;");
+        buffer.append("</script>");
+        buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>");
+        buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>");
+        buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>");
+        buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>");
+        buffer.append("</head><body>");
+        buffer.append("<div class='content'>");
+        buffer.append("    <table id='thread-body'>");
+
+        if (isTablet) {
+            buffer.append(AwfulThread.getPostsHtmlForTablet(aPosts, aPrefs));
+        } else {
+            buffer.append(AwfulThread.getPostsHtmlForPhone(aPosts, aPrefs));
+        }
+
+        buffer.append("    </table>");
+        buffer.append("</div>");
+        buffer.append("</body></html>");
+
+        return buffer.toString();
+    }
+
+    public static String getPostsHtmlForPhone(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs) {
+        StringBuffer buffer = new StringBuffer();
+
+        boolean light = true;
+        String background = null;
+
+        for (AwfulPost post : aPosts) {
+        
+            if (post.isPreviouslyRead()) {
+                background = 
+                    ColorPickerPreference.convertToARGB(light ? aPrefs.postReadBackgroundColor : aPrefs.postReadBackgroundColor2);
+            } else {
+                background = 
+                    ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
+            }
+
+            light = !light;
+
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
+            buffer.append("    <td class='userinfo-row' style='width: 100%'>");
+            buffer.append("        <div class='avatar'>");
+            buffer.append("            <img src='" + post.getAvatar() + "' />");
+            buffer.append("        </div>");
+            buffer.append("        <div class='userinfo'>");
+            buffer.append("            <div class='username'>");
+            buffer.append("                <h4>" + post.getUsername() + "</h4>");
+            buffer.append("            </div>");
+            buffer.append("            <div class='postdate'>");
+            buffer.append("                " + post.getDate());
+            buffer.append("            </div>");
+            buffer.append("        </div>");
+            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "'>");
+            buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
+            buffer.append("        </div>");
+            buffer.append("    </td>");
+            buffer.append("</tr>");
+            buffer.append("<tr>");
+            buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>");
+            buffer.append("        <div class='post-content' style='color: " + aPrefs.postFontColor + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("            " + post.getContent());
+            buffer.append("        </div>");
+            buffer.append("    </td>");
+            buffer.append("</tr>");
+        }
+
+        return buffer.toString();
+    }
+
+    public static String getPostsHtmlForTablet(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs) {
+        StringBuffer buffer = new StringBuffer();
+
+        boolean light = true;
+        String background = null;
+
+        for (AwfulPost post : aPosts) {
+        
+            if (post.isPreviouslyRead()) {
+                background = 
+                    ColorPickerPreference.convertToARGB(light ? aPrefs.postReadBackgroundColor : aPrefs.postReadBackgroundColor2);
+            } else {
+                background = 
+                    ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
+            }
+
+            light = !light;
+
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
+            buffer.append("    <td class='usercolumn' style='background: " + background + ";'>");
+            buffer.append("        <div class='userinfo'>");
+            buffer.append("            <div class='username' style='color: " + aPrefs.postOPColor + ";'>");
+            buffer.append("                <h4>" + post.getUsername() + "</h4>");
+            buffer.append("            </div>");
+            buffer.append("            <div class='postdate'>");
+            buffer.append("                " + post.getDate());
+            buffer.append("            </div>");
+            buffer.append("        </div>");
+            buffer.append("        <div class='avatar'>");
+            buffer.append("            <img src='" + post.getAvatar() + "' />");
+            buffer.append("        </div>");
+            buffer.append("    </td>");
+            buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
+            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "'>");
+            buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
+            buffer.append("        </div>");
+            buffer.append("        <div class='post-content' style='color: " + aPrefs.postFontColor + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("            " + post.getContent());
+            buffer.append("        </div>");
+            buffer.append("    </td>");
+            buffer.append("</tr>");
+        }
+
+        return buffer.toString();
     }
 
     public String getThreadId() {

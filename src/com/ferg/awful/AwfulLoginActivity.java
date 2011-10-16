@@ -44,6 +44,7 @@ import android.widget.Toast;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -156,6 +157,10 @@ public class AwfulLoginActivity extends AwfulActivity {
                 try {
                     NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
                     result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
+
+                    // Write username to preferences for SALR features
+                    AwfulPreferences prefs = new AwfulPreferences(AwfulLoginActivity.this);
+                    prefs.setUsername(aParams[0]);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());

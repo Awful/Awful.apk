@@ -41,6 +41,8 @@ import android.webkit.WebView;
 import android.widget.*;
 import android.support.v4.app.Fragment;
 
+import java.util.ArrayList;
+
 import org.json.*;
 
 import com.ferg.awful.constants.Constants;
@@ -619,15 +621,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 
         try {
-            mThreadView.addJavascriptInterface(mAdapter.getSerializedChildren().toString(), "post_list");
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
-            if (isTablet()) {
-                mThreadView.loadUrl("file:///android_asset/thread-tablet.html");
-            } else {
-                mThreadView.loadUrl("file:///android_asset/thread-phone.html");
-            }
+            mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
+                    AwfulThread.getHtml((ArrayList<AwfulPost>) mAdapter.getChildren(), 
+                        new AwfulPreferences(getActivity()), isTablet()), "text/html", "utf-8", null);
         } catch (NullPointerException e) {
             // If we've already left the activity the webview may still be working to populate,
             // just log it
@@ -656,14 +655,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("userQuote", "#a2cd5a");
             result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
-            result.put("fontSize", Integer.toString(aAppPrefs.postFontSize));
-            result.put("fontColor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
-            result.put("fontColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor2));
-            result.put("backgroundColor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
-            result.put("backgroundColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor2));
-            result.put("readBackgroundColor", ColorPickerPreference.convertToARGB(aAppPrefs.postReadBackgroundColor));
-            result.put("readBackgroundColor2", ColorPickerPreference.convertToARGB(aAppPrefs.postReadBackgroundColor2));
-            result.put("OPColor", ColorPickerPreference.convertToARGB(aAppPrefs.postOPColor));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));

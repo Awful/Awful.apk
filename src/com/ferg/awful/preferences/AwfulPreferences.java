@@ -59,6 +59,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		updateValues(prefs);
 	}
 
+    public void setUsername(String aUsername) {
+        // TODO: Lol stub
+    }
+
 	private void updateValues(SharedPreferences prefs) {
         username                 = mPrefs.getString("username", "Username");
 		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
