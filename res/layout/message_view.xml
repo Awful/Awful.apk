@@ -135,6 +135,7 @@
                 android:scrollbarFadeDuration="500"
                 android:scrollbarDefaultDelayBeforeFade="1000"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:gravity="top"
                 android:minLines="5" 
                 android:paddingLeft="10dip" 
                 android:paddingRight="10dip"
