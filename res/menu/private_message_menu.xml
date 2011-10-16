@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/new_pm" android:id="@+id/new_pm" android:showAsAction="ifRoom" android:icon="@android:drawable/sym_action_email"></item><item android:title="@string/refresh" android:id="@+id/refresh" android:icon="@drawable/ic_menu_refresh" android:showAsAction="ifRoom"></item>
+    <item android:title="@string/new_pm" android:id="@+id/new_pm" android:showAsAction="ifRoom" android:icon="@android:drawable/sym_action_email"></item>
+    <item android:title="@string/refresh" android:id="@+id/refresh" android:icon="@drawable/ic_menu_refresh" android:showAsAction="never"></item>
     <item android:title="Send PM" android:id="@+id/send_pm" android:showAsAction="never"></item>
     <item android:id="@+id/settings" android:title="@string/settings" android:showAsAction="never" android:icon="@drawable/ic_menu_preferences"></item>
     

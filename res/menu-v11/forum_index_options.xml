@@ -4,7 +4,11 @@
 	<item
 		android:id="@+id/user_cp"
 		android:icon="@drawable/gear"
-		android:showAsAction="ifRoom" /><item android:id="@+id/pm" android:showAsAction="ifRoom" android:icon="@android:drawable/sym_action_email"></item>
+		android:showAsAction="ifRoom" />
+    <item 
+        android:id="@+id/pm" 
+        android:showAsAction="ifRoom" 
+        android:icon="@android:drawable/sym_action_email" />
 	<item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_refresh"
