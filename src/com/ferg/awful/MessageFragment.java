@@ -238,7 +238,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 			}
 			if(message.getContent() != null){
 				mDisplayText.setText(Html.fromHtml(message.getContent()));
-				mPostdate.setText(message.getDate());
+				mPostdate.setText(" on " + message.getDate());
 			}
 			if(message.getReplyText() != null && !replyLoaded && saved_reply == null){
 				mEditReply.setText(message.getReplyText());
@@ -246,7 +246,7 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 				replyLoaded = true;
 			}
 			if(message.getAuthor() != null){
-				mUsername.setText(message.getAuthor());
+				mUsername.setText("Posted by " + message.getAuthor());
 				mRecipient.setText(message.getAuthor());
 			}
 		}else{

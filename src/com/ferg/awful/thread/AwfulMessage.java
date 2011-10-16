@@ -59,24 +59,24 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	public View getView(LayoutInflater inf, View current, ViewGroup parent,
 			AwfulPreferences aPref) {
 		if(current == null || current.getId() != R.layout.thread_item){
-			current = inf.inflate(R.layout.thread_item, parent, false);
+			current = inf.inflate(R.layout.forum_item, parent, false);
 		}
 		TextView title = (TextView) current.findViewById(R.id.title);
 		title.setText(mTitle);
-		TextView author = (TextView) current.findViewById(R.id.author);
+		TextView author = (TextView) current.findViewById(R.id.subtext);
 		author.setText(mAuthor +" - "+mDate);
-		TextView unreadCount = (TextView) current.findViewById(R.id.unread_count);
-		unreadCount.setVisibility(View.GONE);
-		ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
-		if(unread){
-			unreadPM.setVisibility(View.VISIBLE);
+
+		if (unread){
+			// unreadPM.setVisibility(View.VISIBLE);
 		}else{
-			unreadPM.setVisibility(View.GONE);
+			// unreadPM.setVisibility(View.GONE);
 		}
+
 		if(aPref != null){
 			title.setTextColor(aPref.postFontColor);
 			author.setTextColor(aPref.postFontColor2);
 		}
+
 		return current;
 	}
 
