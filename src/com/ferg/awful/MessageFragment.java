@@ -210,11 +210,14 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 				mDialog.dismiss();
 				mDialog = null;
 			}
-			if(getActivity() != null){
+			if (getActivity() != null){
 				Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-				if(getActivity() instanceof MessageDisplayActivity){
-					getActivity().finish();
-				}
+
+                if (getActivity() instanceof ThreadDisplayActivity) {
+                    dismiss();
+                } else if (getActivity() instanceof MessageDisplayActivity){
+                    getActivity().finish();
+                }
 			}
 			
 		}
