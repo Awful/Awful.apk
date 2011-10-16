@@ -131,7 +131,6 @@
                 android:id="@+id/edit_reply_text" 
                 android:layout_width="match_parent" 
                 android:layout_height="wrap_content" 
-                android:inputType="textMultiLine"
                 android:scrollbars="vertical"
                 android:scrollbarStyle="insideOverlay"
                 android:scrollbarFadeDuration="500"
