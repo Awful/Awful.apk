@@ -71,6 +71,7 @@
 	<string name="load_images_summary">If disabled, images are replaced with links.</string>
 	<string name="read_post_background2_color">Read Post Alternate Color</string>
 	<string name="select_forum">Select a forum</string>
+	<string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
 	<string name="setting_posts_per_page">Posts Per Page</string>
 	<string name="goto_firstpage">First Page</string>
 	<string name="goto_lastpage">Last Page</string>

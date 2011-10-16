@@ -275,7 +275,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void cleanupTasks() {
         if (mDialog != null) {
-            mDialog.dismiss();
         }
         if (mEditPostTask != null) {
             mEditPostTask.cancel(true);
@@ -370,7 +369,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void displayUserCP() {
-        startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+        if (!isHoneycomb()) {
+            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+        } else {
+            UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
+        }
     }
 
     private void displayPagePicker() {
@@ -403,8 +406,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl, String aUsername) {
         switch (aItem) {
             case ClickInterface.EDIT:
-            	if(aUsername != null){
-            		startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+            	if (aUsername != null){
+                    if (!isHoneycomb()) {
+                        startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+                    } else {
+                        MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
+                    }
             	}else{
                     mEditPostTask = new ParseEditPostTask();
                     mEditPostTask.execute(aPostId);
@@ -672,7 +679,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
             result.put("yPos", Integer.toString(mYPosition));
             result.put("postjumpid", mPostJump);
-            // result.put("inlineYoutube", Boolean.toString(aAppPrefs.inlineYoutube));
         } catch (JSONException e) {
             e.printStackTrace();
         }

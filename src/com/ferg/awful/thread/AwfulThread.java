@@ -288,7 +288,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
             light = !light;
 
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%'>");
             buffer.append("        <div class='avatar'>");
 
@@ -305,7 +305,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("                " + post.getDate());
             buffer.append("            </div>");
             buffer.append("        </div>");
-            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "'>");
+            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "' username='" + post.getUsername() + "'>");
             buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
             buffer.append("        </div>");
             buffer.append("    </td>");
@@ -359,7 +359,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
-            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "'>");
+            buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "' username='" + post.getUsername() + "'>");
             buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
             buffer.append("        </div>");
             buffer.append("        <div class='post-content' style='color: " + aPrefs.postFontColor + "; font-size: " + aPrefs.postFontSize + ";'>");

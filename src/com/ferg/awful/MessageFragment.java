@@ -11,7 +11,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.text.Editable;
 import android.text.Html;
 import android.util.Log;
@@ -27,7 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MessageFragment extends Fragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends DialogFragment implements AwfulUpdateCallback, OnClickListener {
 
 	private GenericListAdapter mServConn;
 	
@@ -54,9 +54,17 @@ public class MessageFragment extends Fragment implements AwfulUpdateCallback, On
 
 	private ProgressDialog mDialog;
 
+    public static MessageFragment newInstance(String aUser, int aId) {
+        MessageFragment fragment = new MessageFragment(aUser, aId);
+
+        fragment.setShowsDialog(false);
+        fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+
+        return fragment;
+    }
 	
-	public MessageFragment() {
-	}
+	public MessageFragment() {}
+
 	/**
 	 * Creates a new Message Display/Reply fragment.
 	 * @param user User ID to send message to. Optional: will not be used if replying to message.

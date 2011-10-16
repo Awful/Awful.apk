@@ -15,7 +15,11 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-    setYPosition(preferences.yPos);
+    if (prefs.postjumpid == "") {
+        setYPosition(prefs.yPos);
+    } else {
+        $(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+    }
 });
 
 function setYPosition(position) {

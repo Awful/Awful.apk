@@ -38,13 +38,12 @@ public class PrivateMessageActivity extends AwfulActivity {
 	        if(pmIntentID != null && pmIntentID.matches("\\d+")){
         		pmid = Integer.parseInt(pmIntentID);
         	}
-	        if(pane_two != null){
-		        transaction.replace(R.id.fragment_pane_two, new MessageFragment(null,pmid));
-	        }else{
+	        if (pane_two == null) {
 	        	if(pmid > 0){//this should only trigger if we intercept 'private.php?pmid=XXXXX' and we are not on a tablet.
 	        		startActivity(new Intent().setClass(this, MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, pmid));
 	        	}
 	        }
+
 	        transaction.commit();
     	}
     }

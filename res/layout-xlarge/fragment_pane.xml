@@ -12,16 +12,24 @@
     android:layout_height="fill_parent"
     android:layout_weight="1"/>
     <RelativeLayout
-        android:id="@+id/content"
         android:layout_width="0dip"
         android:layout_height="fill_parent"
         android:layout_weight="2"
         >
-        <FrameLayout
-        android:id="@+id/fragment_pane_two"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        />
+        <RelativeLayout
+            android:id="@+id/fragment_pane_two"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/select_message"
+                android:textSize="16dip"
+                android:textStyle="bold"
+                />
+        </RelativeLayout>
         <ImageView
             style="@style/VerticalGradient"
             />
