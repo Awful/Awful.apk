@@ -66,10 +66,10 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		TextView author = (TextView) current.findViewById(R.id.subtext);
 		author.setText(mAuthor +" - "+mDate);
 
-		if (unread){
-			// unreadPM.setVisibility(View.VISIBLE);
-		}else{
-			// unreadPM.setVisibility(View.GONE);
+        ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
+
+		if (unread) {
+			unreadPM.setVisibility(View.VISIBLE);
 		}
 
 		if(aPref != null){

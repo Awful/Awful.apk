@@ -6,10 +6,20 @@
     android:layout_height="fill_parent"
     android:padding="8dip"
     >
+    <ImageView
+        android:id="@+id/sticky_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dip"
+        android:layout_marginRight="4dip"
+        android:src="@drawable/sticky"
+        android:visibility="gone"
+        />
 	<RelativeLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/sticky_icon"
 		>
 		<TextView
 			android:id="@+id/title"
