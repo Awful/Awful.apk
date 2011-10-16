@@ -87,6 +87,7 @@
                 android:layout_height="wrap_content"
                 android:padding="8dip"
                 android:textColor="@color/default_post_font"
+                android:inputType="text|textAutoCorrect|textCapSentences"
                 android:singleLine="true"
                 />
         </LinearLayout>
@@ -109,6 +110,7 @@
                 android:layout_height="wrap_content"
                 android:padding="8dip"
                 android:textColor="@color/default_post_font"
+                android:inputType="text|textAutoCorrect|textCapSentences"
                 android:singleLine="true"
                 />
         </LinearLayout>
@@ -135,6 +137,7 @@
                 android:scrollbarFadeDuration="500"
                 android:scrollbarDefaultDelayBeforeFade="1000"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
                 android:gravity="top"
                 android:minLines="5" 
                 android:paddingLeft="10dip" 
