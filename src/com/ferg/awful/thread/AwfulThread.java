@@ -286,7 +286,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                     ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
             }
 
-            light = !light;
+            if(aPrefs.alternateBackground == true){
+            	light = !light;
+            }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%'>");
@@ -338,7 +340,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                     ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
             }
 
-            light = !light;
+            if(aPrefs.alternateBackground == true){
+            	light = !light;
+            }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
             buffer.append("    <td class='usercolumn' style='background: " + background + ";'>");
