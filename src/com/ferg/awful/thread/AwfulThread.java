@@ -314,7 +314,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("</tr>");
             buffer.append("<tr>");
             buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>");
-            buffer.append("        <div class='post-content' style='color: " + aPrefs.postFontColor + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
             buffer.append("            " + post.getContent());
             buffer.append("        </div>");
             buffer.append("    </td>");
@@ -347,7 +347,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
             buffer.append("    <td class='usercolumn' style='background: " + background + ";'>");
             buffer.append("        <div class='userinfo'>");
-            buffer.append("            <div class='username' style='color: " + aPrefs.postOPColor + ";'>");
+            buffer.append("            <div class='username' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'>");
             buffer.append("                <h4>" + post.getUsername() + "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate'>");
@@ -366,7 +366,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "' username='" + post.getUsername() + "'>");
             buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
             buffer.append("        </div>");
-            buffer.append("        <div class='post-content' style='color: " + aPrefs.postFontColor + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
             buffer.append("            " + post.getContent());
             buffer.append("        </div>");
             buffer.append("    </td>");
