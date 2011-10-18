@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
@@ -429,13 +431,42 @@ public class AwfulService extends Service {
             threadFinished(this);
         }
     }
-	
+	/**
+	 * Parses forum index and returns list of visible forums.
+	 * Sends the following extra data bundle (if successfully parsed): username (string), unread_pm (int, unread PM count, -1 indicates failed parse)
+	 * @author Matt
+	 *
+	 */
 	private class LoadForumsTask extends AwfulTask<ArrayList<AwfulForum>> {
+		private Bundle parsedExtras = null;
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = null;
             if (!isCancelled()) {
                 try {
-                    result = AwfulForum.getForumsFromRemote();
+                    TagNode response = NetworkUtils.get(Constants.BASE_URL);
+                    result = AwfulForum.getForumsFromRemote(response);
+                    TagNode[] pmBlock = response.getElementsByAttValue("id", "pm", true, true);
+                    try{
+	                    if(pmBlock.length >0){
+	                    	TagNode[] bolded = pmBlock[0].getElementsByName("b", true);
+	                    	if(bolded.length > 1){
+	                    		String name = bolded[0].getText().toString().split("'")[0];
+	                    		String unread = bolded[1].getText().toString();
+	                    		Pattern findUnread = Pattern.compile("(\\d+)\\s+unread");
+	                    		Matcher matchUnread = findUnread.matcher(unread);
+	                    		int unreadCount = -1;
+	                    		if(matchUnread.find()){
+	                    			unreadCount = Integer.parseInt(matchUnread.group(1));
+	                    		}
+	                        	Log.e(TAG,"text: "+name+" - "+unreadCount);
+	                        	parsedExtras = new Bundle();
+	                        	parsedExtras.putString("username", name);
+	                        	parsedExtras.putInt("unread_pm", unreadCount);
+	                    	}
+	                    }
+                    }catch(Exception e){
+                    	//this chunk is optional, no need to fail everything if it doens't work out.
+                    }
                 } catch (Exception e) {
                 	result = null;
                     e.printStackTrace();
@@ -452,7 +483,7 @@ public class AwfulService extends Service {
             			db.put("forumid="+af.getForumId(), af);
             		}
             	}
-            	sendUpdate(true);
+            	sendUpdate(true, parsedExtras);
             }else{
             	sendUpdate(false);
             }
