@@ -27,6 +27,7 @@
 
 package com.ferg.awful;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,9 +57,12 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
     private ImageButton mUserCp;
     private ImageButton mPM;
+    private TextView mPMcount;
     private ListView mForumList;
     private TextView mTitle;
     private ImageButton mRefresh;
+    
+    private int unreadPMCount;
 
     private ForumListAdapter adapt;
 
@@ -82,6 +86,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
             mPM        = (ImageButton) actionbar.findViewById(R.id.pm_button);
+            mPMcount        = (TextView) actionbar.findViewById(R.id.pm_count);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         }
         
@@ -205,6 +210,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         }
     }
     
+    /*@Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        menu.findItem(R.id.pm).setTitle(title) = unreadPMCount;
+    }*/
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -230,7 +240,22 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
     @Override
     public void dataUpdate(boolean pageChange, Bundle extras) {
-        
+        //we might be receiving a bundle with unread pm count
+    	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
+    		ActionBar ab = getActivity().getActionBar();
+    		if(ab != null){
+    			for(int x = 0; x<ab.getTabCount();x++){
+        			if(ab.getTabAt(x).getTag() != null){
+        				ab.getTabAt(x).setText(Integer.toString(extras.getInt("unread_pm")));
+        			}
+    			}
+    		}else{
+    			if(mPMcount != null){
+    				mPMcount.setText(extras.getInt("unread_pm"));
+    				mPMcount.setVisibility(View.VISIBLE);
+    			}
+    		}
+    	}
     }
 
     @Override
