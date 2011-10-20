@@ -57,7 +57,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void onServiceConnected(ComponentName cName, IBinder bind) {
 		if(bind != null && bind instanceof AwfulService.AwfulBinder){
 			boundState = true;
-			Log.e(TAG, "service connected!");
+			Log.v(TAG, "service connected!");
 			mService = ((AwfulService.AwfulBinder) bind).getService();
 			for(AwfulListAdapter la : fragments){
 				la.connected();
@@ -69,7 +69,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void onServiceDisconnected(ComponentName arg0) {
 		boundState = false;
 		mService = null;
-		Log.e(TAG, "service disconnected!");
+		Log.v(TAG, "service disconnected!");
 		for(AwfulListAdapter la : fragments){
 			la.disconnected();
 		}
@@ -81,11 +81,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			int id = intent.getIntExtra(Constants.DATA_UPDATE_ID_EXTRA, -99);
 			int page = intent.getIntExtra(Constants.DATA_UPDATE_PAGE_EXTRA, -99);
 			boolean status = intent.getBooleanExtra(Constants.DATA_UPDATE_STATUS_EXTRA, false);
-			Log.e(TAG, "Broadcast Received: id "+id);
+			Log.v(TAG, "Broadcast Received: id "+id);
 			for(AwfulListAdapter la : fragments){
 				if(la.currentId == id){
 					la.dataUpdate(status, page, intent.getBundleExtra(Constants.EXTRA_BUNDLE));
-					Log.e(TAG, "Broadcast ack: id "+la.currentId);
+					Log.v(TAG, "Broadcast ack: id "+la.currentId);
 				}
 			}
 		}
@@ -94,14 +94,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
         mPrefs = new AwfulPreferences(parent);
         mPrefs.registerCallback(this);
 		if(mService == null && !boundState){
-			Log.e(TAG, "connect()");
+			Log.v(TAG, "connect()");
 			parent.bindService(new Intent(parent, AwfulService.class), this, Context.BIND_AUTO_CREATE);
 			parent.registerReceiver(this, new IntentFilter(Constants.DATA_UPDATE_BROADCAST));
 			inf = LayoutInflater.from(parent);
 		}
 	}
 	public void disconnect(Context parent){
-		Log.e(TAG, "disconnect()");
+		Log.v(TAG, "disconnect()");
 		parent.unbindService(this);
 		parent.unregisterReceiver(this);
 		boundState = false;
@@ -233,7 +233,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 				this.threadClosed = state.isClosed();
 
 				if (!lastReadLoaded) {
-					Log.e(TAG,
+					Log.v(TAG,
 							"loading lastread id: " + currentId + " page: "
 									+ state.getLastReadPage(mPrefs.postPerPage));
 					currentPage = state.getLastReadPage(mPrefs.postPerPage);
@@ -385,14 +385,14 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		public void connected() {
 			//this exists to allow graceful caching and reconnection.
-			Log.e(TAG, "connected(): "+currentId);
+			Log.v(TAG, "connected(): "+currentId);
 			if(mCallback != null){
 				mCallback.onServiceConnected();
 			}
 			loadPage(false, null);
 		}
 		public void disconnected() {
-			Log.e(TAG, "disconnected(): "+currentId);
+			Log.v(TAG, "disconnected(): "+currentId);
 			if(mObserver != null){
 				mObserver.onInvalidated();
 			}
@@ -519,13 +519,11 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			if(mObserver != null){
 				Log.e(TAG, "dataSetObserver overidden!");
 			}
-			Log.e(TAG, "dataSetObserver set!");
 			mObserver = ob;
 		}
 
 		@Override
 		public void unregisterDataSetObserver(DataSetObserver observer) {
-			Log.e(TAG, "dataSetObserver unregister!");
 			mObserver = null;
 		}
 
@@ -617,7 +615,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		
 		public void fetchPrivateMessage(int id){
-			Log.e(TAG,"Fetching msg:" +id);
+			Log.v(TAG,"Fetching msg:" +id);
 			if(mService != null){
 				mService.fetchPrivateMessage(id);
 				if(mCallback != null){

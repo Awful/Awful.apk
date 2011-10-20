@@ -27,14 +27,9 @@
 
 package com.ferg.awful;
 
-import com.ferg.awful.service.AwfulServiceConnection;
-
 import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
@@ -77,18 +72,14 @@ public class ForumsTabletActivity extends AwfulActivity {
 
     public void onResume(){
         super.onResume();
-        Log.e(TAG, "onResume()");
-        //service.connect(this);
     }
 
     public void onPause(){
         super.onPause();
-        Log.e(TAG, "onPause()");
     }
 
     public void onDestroy(){
         super.onDestroy();
-        Log.e(TAG, "onDestroy()");
     }
 
     public boolean isDualPane() {
