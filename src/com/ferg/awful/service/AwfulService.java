@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
@@ -46,11 +48,11 @@ public class AwfulService extends Service {
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
         mPrefs = new AwfulPreferences(this);
-		Log.e(TAG, "Service started.");
+		Log.v(TAG, "Service started.");
 	}
 
 	public void onDestroy(){
-		Log.e(TAG, "Service onDestroy.");
+		Log.v(TAG, "Service onDestroy.");
 		if(currentTask != null){
 			currentTask.cancel(true);
 		}
@@ -127,10 +129,10 @@ public class AwfulService extends Service {
      */
 	public void fetchThread(int id, int page) {
 		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchThread "+id);
+			Log.w(TAG, "dupe fetchThread "+id);
 			return;
 		}
-		Log.e(TAG, "fetchThread "+id);
+		Log.v(TAG, "fetchThread "+id);
 		queueThread(new FetchThreadTask(id, page));
 	}
 	/**
@@ -141,10 +143,10 @@ public class AwfulService extends Service {
      */
 	public void fetchForum(int id, int page) {
 		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchForum "+id);
+			Log.w(TAG, "dupe fetchForum "+id);
 			return;
 		}
-		Log.e(TAG, "fetchForum "+id);
+		Log.v(TAG, "fetchForum "+id);
 		if(id == 0){
 			queueThread(new LoadForumsTask());
 		}else{
@@ -162,7 +164,6 @@ public class AwfulService extends Service {
 	}
 	
 	public AwfulPagedItem getItem(String string) {
-		Log.e(TAG, "getItem "+string);
 		return db.get(string);
 	}
 	
@@ -177,7 +178,7 @@ public class AwfulService extends Service {
 	 * @return Forum or null if none exist.
 	 */
 	public AwfulForum getForum(int currentId) {
-		Log.e(TAG, "getForum "+currentId);
+		Log.v(TAG, "getForum "+currentId);
 		return (AwfulForum) db.get("forumid="+currentId);
 	}
 	/**
@@ -186,7 +187,7 @@ public class AwfulService extends Service {
 	 * @return Thread or null if none exist.
 	 */
 	public AwfulThread getThread(int currentId) {
-		Log.e(TAG, "getThread "+currentId);
+		Log.v(TAG, "getThread "+currentId);
 		return (AwfulThread) db.get("threadid="+currentId);
 	}
 	/**
@@ -210,7 +211,6 @@ public class AwfulService extends Service {
 	}
 	
 	public void fetchPrivateMessage(int id){
-		Log.e(TAG,"queued fetch msg:"+id);
 		queueThread(new FetchPrivateMessageTask(id));
 	}
 	
@@ -280,11 +280,6 @@ public class AwfulService extends Service {
     private class FetchForumThreadsTask extends AwfulTask<ArrayList<AwfulThread>> {
 		private AwfulForum mForum;
 		private ArrayList<AwfulForum> newSubforums;
-		@Override
-		public String toString(){
-			Log.e(TAG, "forumtask ToString?");
-			return mId+" "+mPage;
-		}
 		
 		public FetchForumThreadsTask(int forumID, int aPage) {
 			mPage = aPage;
@@ -429,13 +424,45 @@ public class AwfulService extends Service {
             threadFinished(this);
         }
     }
-	
+	/**
+	 * Parses forum index and returns list of visible forums.
+	 * Sends the following extra data bundle (if successfully parsed): username (string), unread_pm (int, unread PM count, -1 indicates failed parse)
+	 * @author Matt
+	 *
+	 */
 	private class LoadForumsTask extends AwfulTask<ArrayList<AwfulForum>> {
+		private Bundle parsedExtras = null;
         public ArrayList<AwfulForum> doInBackground(Void... aParams) {
             ArrayList<AwfulForum> result = null;
             if (!isCancelled()) {
                 try {
-                    result = AwfulForum.getForumsFromRemote();
+                    TagNode response = NetworkUtils.get(Constants.BASE_URL);
+                    result = AwfulForum.getForumsFromRemote(response);
+                    TagNode[] pmBlock = response.getElementsByAttValue("id", "pm", true, true);
+                    try{
+	                    if(pmBlock.length >0){
+	                    	TagNode[] bolded = pmBlock[0].getElementsByName("b", true);
+	                    	if(bolded.length > 1){
+	                    		String name = bolded[0].getText().toString().split("'")[0];
+	                    		String unread = bolded[1].getText().toString();
+	                    		Pattern findUnread = Pattern.compile("(\\d+)\\s+unread");
+	                    		Matcher matchUnread = findUnread.matcher(unread);
+	                    		int unreadCount = -1;
+	                    		if(matchUnread.find()){
+	                    			unreadCount = Integer.parseInt(matchUnread.group(1));
+	                    		}
+	                        	Log.v(TAG,"text: "+name+" - "+unreadCount);
+	                        	parsedExtras = new Bundle();
+	                        	parsedExtras.putString("username", name);
+	                        	parsedExtras.putInt("unread_pm", unreadCount);
+	                        	if(name != null && !name.isEmpty()){
+	                        		mPrefs.setUsername(name);
+	                        	}
+	                    	}
+	                    }
+                    }catch(Exception e){
+                    	//this chunk is optional, no need to fail everything if it doens't work out.
+                    }
                 } catch (Exception e) {
                 	result = null;
                     e.printStackTrace();
@@ -452,7 +479,7 @@ public class AwfulService extends Service {
             			db.put("forumid="+af.getForumId(), af);
             		}
             	}
-            	sendUpdate(true);
+            	sendUpdate(true, parsedExtras);
             }else{
             	sendUpdate(false);
             }
@@ -554,7 +581,7 @@ public class AwfulService extends Service {
 				TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 				AwfulMessage.processReplyMessage(pmReplyData, pm);
 				pm.setLoaded(true);
-				Log.e(TAG,"Fetched msg: "+mId);
+				Log.v(TAG,"Fetched msg: "+mId);
 			} catch (Exception e) {
 				pm = null;
 				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));

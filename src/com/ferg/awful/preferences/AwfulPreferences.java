@@ -72,7 +72,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
     public void setUsername(String aUsername) {
-        // TODO: Lol stub
+    	//TODO: last time I tried this, username highlighting was case sensitive, but login names were almost always typed lowercase.
+        mPrefs.edit().putString("username", aUsername).commit();
     }
 
 	private void updateValues(SharedPreferences prefs) {

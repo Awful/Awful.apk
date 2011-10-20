@@ -72,12 +72,11 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		setForumId(mForumID2);
 	}
 
-	public static ArrayList<AwfulForum> getForumsFromRemote() throws Exception {
+	public static ArrayList<AwfulForum> getForumsFromRemote(TagNode response) throws Exception {
 		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
 		AwfulForum index = new AwfulForum();
 		index.setForumId(0);
 		index.setTitle("Something Awful Forums");
-        TagNode response = NetworkUtils.get(Constants.BASE_URL);
 
 		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
 
