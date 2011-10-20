@@ -462,6 +462,9 @@ public class AwfulService extends Service {
 	                        	parsedExtras = new Bundle();
 	                        	parsedExtras.putString("username", name);
 	                        	parsedExtras.putInt("unread_pm", unreadCount);
+	                        	if(name != null && !name.isEmpty()){
+	                        		mPrefs.setUsername(name);
+	                        	}
 	                    	}
 	                    }
                     }catch(Exception e){
