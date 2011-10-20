@@ -48,11 +48,11 @@ public class AwfulService extends Service {
 	public void onCreate(){
 		loggedIn = NetworkUtils.restoreLoginCookies(this);
         mPrefs = new AwfulPreferences(this);
-		Log.e(TAG, "Service started.");
+		Log.v(TAG, "Service started.");
 	}
 
 	public void onDestroy(){
-		Log.e(TAG, "Service onDestroy.");
+		Log.v(TAG, "Service onDestroy.");
 		if(currentTask != null){
 			currentTask.cancel(true);
 		}
@@ -129,10 +129,10 @@ public class AwfulService extends Service {
      */
 	public void fetchThread(int id, int page) {
 		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchThread "+id);
+			Log.w(TAG, "dupe fetchThread "+id);
 			return;
 		}
-		Log.e(TAG, "fetchThread "+id);
+		Log.v(TAG, "fetchThread "+id);
 		queueThread(new FetchThreadTask(id, page));
 	}
 	/**
@@ -143,10 +143,10 @@ public class AwfulService extends Service {
      */
 	public void fetchForum(int id, int page) {
 		if(isThreadQueued(id,page)){
-			Log.e(TAG, "dupe fetchForum "+id);
+			Log.w(TAG, "dupe fetchForum "+id);
 			return;
 		}
-		Log.e(TAG, "fetchForum "+id);
+		Log.v(TAG, "fetchForum "+id);
 		if(id == 0){
 			queueThread(new LoadForumsTask());
 		}else{
@@ -164,7 +164,6 @@ public class AwfulService extends Service {
 	}
 	
 	public AwfulPagedItem getItem(String string) {
-		Log.e(TAG, "getItem "+string);
 		return db.get(string);
 	}
 	
@@ -179,7 +178,7 @@ public class AwfulService extends Service {
 	 * @return Forum or null if none exist.
 	 */
 	public AwfulForum getForum(int currentId) {
-		Log.e(TAG, "getForum "+currentId);
+		Log.v(TAG, "getForum "+currentId);
 		return (AwfulForum) db.get("forumid="+currentId);
 	}
 	/**
@@ -188,7 +187,7 @@ public class AwfulService extends Service {
 	 * @return Thread or null if none exist.
 	 */
 	public AwfulThread getThread(int currentId) {
-		Log.e(TAG, "getThread "+currentId);
+		Log.v(TAG, "getThread "+currentId);
 		return (AwfulThread) db.get("threadid="+currentId);
 	}
 	/**
@@ -212,7 +211,6 @@ public class AwfulService extends Service {
 	}
 	
 	public void fetchPrivateMessage(int id){
-		Log.e(TAG,"queued fetch msg:"+id);
 		queueThread(new FetchPrivateMessageTask(id));
 	}
 	
@@ -282,11 +280,6 @@ public class AwfulService extends Service {
     private class FetchForumThreadsTask extends AwfulTask<ArrayList<AwfulThread>> {
 		private AwfulForum mForum;
 		private ArrayList<AwfulForum> newSubforums;
-		@Override
-		public String toString(){
-			Log.e(TAG, "forumtask ToString?");
-			return mId+" "+mPage;
-		}
 		
 		public FetchForumThreadsTask(int forumID, int aPage) {
 			mPage = aPage;
@@ -458,7 +451,7 @@ public class AwfulService extends Service {
 	                    		if(matchUnread.find()){
 	                    			unreadCount = Integer.parseInt(matchUnread.group(1));
 	                    		}
-	                        	Log.e(TAG,"text: "+name+" - "+unreadCount);
+	                        	Log.v(TAG,"text: "+name+" - "+unreadCount);
 	                        	parsedExtras = new Bundle();
 	                        	parsedExtras.putString("username", name);
 	                        	parsedExtras.putInt("unread_pm", unreadCount);
@@ -588,7 +581,7 @@ public class AwfulService extends Service {
 				TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 				AwfulMessage.processReplyMessage(pmReplyData, pm);
 				pm.setLoaded(true);
-				Log.e(TAG,"Fetched msg: "+mId);
+				Log.v(TAG,"Fetched msg: "+mId);
 			} catch (Exception e) {
 				pm = null;
 				Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
