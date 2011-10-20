@@ -210,10 +210,22 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         }
     }
     
-    /*@Override
-    public boolean onPrepareOptionsMenu(Menu menu){
-        menu.findItem(R.id.pm).setTitle(title) = unreadPMCount;
-    }*/
+    @Override
+    public void onPrepareOptionsMenu(Menu menu){
+		MenuItem pm = menu.findItem(R.id.pm);
+    	if(unreadPMCount >0){
+            pm.setTitle(Integer.toString(unreadPMCount)+" Unread PM(s)");
+            if(isHoneycomb()){
+            	pm.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            }
+    	}else{
+            if(isHoneycomb()){
+                pm.setTitle("");
+            }else{
+                pm.setTitle("Private Messages");
+            }
+    	}
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -242,16 +254,12 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void dataUpdate(boolean pageChange, Bundle extras) {
         //we might be receiving a bundle with unread pm count
     	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
-    		ActionBar ab = getActivity().getActionBar();
-    		if(ab != null){
-    			for(int x = 0; x<ab.getTabCount();x++){
-        			if(ab.getTabAt(x).getTag() != null){
-        				ab.getTabAt(x).setText(Integer.toString(extras.getInt("unread_pm")));
-        			}
-    			}
+    		unreadPMCount = extras.getInt("unread_pm");
+    		if(isHoneycomb()){
+    			getActivity().invalidateOptionsMenu();
     		}else{
     			if(mPMcount != null){
-    				mPMcount.setText(extras.getInt("unread_pm"));
+    				mPMcount.setText(Integer.toString(unreadPMCount));
     				mPMcount.setVisibility(View.VISIBLE);
     			}
     		}
