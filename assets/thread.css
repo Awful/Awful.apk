@@ -55,6 +55,7 @@ table {
 }
 
 .username {
+    vertical-align: top;
     font-style: bold !important;
 }
 
@@ -82,16 +83,19 @@ table {
 }
 
 .userinfo {
+    vertical-align: top;
     padding: 5px;
 }
 
 .avatar {
+    vertical-align: top;
     text-align: center;
     margin-top: 15px;
     padding-bottom: 5px;
 }
 
 .usercolumn {
+    vertical-align: top;
     width: 13em;
 }
 

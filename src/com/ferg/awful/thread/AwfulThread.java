@@ -355,7 +355,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("            <div class='username' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'>");
             buffer.append("                <h4>" + post.getUsername() + "</h4>");
             buffer.append("            </div>");
-            buffer.append("            <div class='postdate'>");
+            buffer.append("            <div class='postdate' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'>");
             buffer.append("                " + post.getDate());
             buffer.append("            </div>");
             buffer.append("        </div>");
