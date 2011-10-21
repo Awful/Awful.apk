@@ -324,7 +324,7 @@ public class AwfulPost implements AwfulDisplayItem {
 			                }
 						}
 					}
-					if(aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
+					if(aPage < lastReadPage || (aPage == lastReadPage && index < lastReadPost) ||
 					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}

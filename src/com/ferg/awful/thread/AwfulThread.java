@@ -229,8 +229,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         	String bkSrc = bkButtons[0].getAttributeByName("src");
         	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
-        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
+        int oldLastPage = getLastPage();
         parsePageNumbers(response);
+        if(oldLastPage < getLastPage()){
+			setTotalCount((getLastPage()-1)*postPerPage+1, postPerPage);
+			setUnreadCount(getTotalCount()-(aPage-1)*postPerPage);
+		}
+        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {
