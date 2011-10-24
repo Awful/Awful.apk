@@ -230,10 +230,11 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
         int oldLastPage = getLastPage();
+        int oldTotalCount = getTotalCount();
         parsePageNumbers(response);
         if(oldLastPage < getLastPage()){
-			setTotalCount((getLastPage()-1)*postPerPage+1, postPerPage);
-			setUnreadCount(getTotalCount()-(aPage-1)*postPerPage);
+			setTotalCount((getLastPage()-1)*postPerPage, postPerPage);
+			setUnreadCount(getUnreadCount()+(getTotalCount()-oldTotalCount));
 		}
         setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
     }
@@ -557,11 +558,17 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(getUnreadCount()==-1){
 			return 1;
 		}
+		if(mUnreadCount <= 0){
+			return (mTotalPosts-mUnreadCount)/postPerPage+1;
+		}
 		return (mTotalPosts-mUnreadCount+1)/postPerPage+1;
 	}
 	public int getLastReadPost(int postPerPage) {
 		if(getUnreadCount()==-1){
 			return 0;
+		}
+		if(getUnreadCount()<=0){
+			return postPerPage;
 		}
 		return (mTotalPosts-mUnreadCount+1)%postPerPage;
 	}

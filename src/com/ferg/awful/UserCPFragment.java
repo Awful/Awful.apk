@@ -287,7 +287,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
             mRefresh.startAnimation(adapt.getBlinkingAnimation());
         }
-        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        if(getActivity() != null){
+        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

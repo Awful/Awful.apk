@@ -265,7 +265,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		
 		public void goToPage(int page){
 			if(currentPage < page && state != null){
-				state.setUnreadCount(state.getTotalCount()-(page-1)*mPrefs.postPerPage);
+				state.setUnreadCount(state.getTotalCount()-((page-1)*mPrefs.postPerPage-1));
 			}
 			lastReadLoaded = true;
 			pageHasChanged = true;
