@@ -106,9 +106,13 @@ public class AwfulPost implements AwfulDisplayItem {
         result.put("previouslyRead", Boolean.toString(mPreviouslyRead));
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
-        result.put("isOp", Boolean.toString(mUserId.equals(mThread.getAuthorID())));
+        result.put("isOp", Boolean.toString(isOp()));
 
         return result;
+    }
+
+    public boolean isOp() {
+        return mUserId.equals(mThread.getAuthorID());
     }
 
     public void setThread(AwfulThread aThread) {
