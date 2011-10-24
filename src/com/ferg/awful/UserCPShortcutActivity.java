@@ -49,8 +49,4 @@ public class UserCPShortcutActivity extends Activity {
         // Now, return the result to the launcher
         setResult(RESULT_OK, intent);
     }
-
-    public boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
 }

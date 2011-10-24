@@ -56,15 +56,15 @@ public class PrivateMessageListFragment extends Fragment implements
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
-        if (isHoneycomb()) {
-            setActionBar();
-        } else {
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mNewPM          = (ImageButton) actionbar.findViewById(R.id.new_pm);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mTitle.setText(getString(R.string.private_message));
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+        } else {
+            setActionBar();
         }
         
         return result;
@@ -84,7 +84,7 @@ public class PrivateMessageListFragment extends Fragment implements
         setRetainInstance(true);
 
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mHome.setOnClickListener(onButtonClick);
             mNewPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
@@ -186,7 +186,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
 	@Override
     public void loadingFailed() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -203,7 +203,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
     @Override
     public void loadingStarted() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -214,16 +214,16 @@ public class PrivateMessageListFragment extends Fragment implements
 
     @Override
     public void loadingSucceeded() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         }else{
         	getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
-	
-	private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
 
 	@Override

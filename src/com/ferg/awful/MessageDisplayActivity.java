@@ -14,11 +14,13 @@ public class MessageDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (isHoneycomb()) {
+
+        if (isTablet()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
+
         setContentView(R.layout.user_cp_activity);
         setContentPane();
     }

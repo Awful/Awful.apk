@@ -259,7 +259,7 @@ public class PostReplyFragment extends DialogFragment {
             if (!isCancelled()) {
                 mDialog.dismiss();
 			mReply = null;
-                if (((AwfulActivity) getActivity()).isHoneycomb()) {
+                if (((AwfulActivity) getActivity()).isTablet()) {
                     ((ThreadDisplayActivity) getActivity()).refreshThread();
                     dismiss();
                 } else {

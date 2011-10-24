@@ -114,7 +114,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onCreateView(aInflater, aContainer, aSavedState);
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
-        if (!isHoneycomb()) {
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
             mTitle    = (TextView) actionbar.findViewById(R.id.title);
@@ -139,7 +139,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
@@ -200,12 +200,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mNextPage.setVisibility(View.VISIBLE);
     }
 
-    private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
 
     private void setActionbarTitle(String aTitle) {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mTitle.setText(Html.fromHtml(aTitle));
         } else {
             ((ThreadDisplayActivity) getActivity()).setThreadTitle(aTitle);
@@ -314,7 +314,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if(menu == null || isHoneycomb()){
+        if(menu == null || isTablet()){
             return;
         }
 
@@ -369,7 +369,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void displayUserCP() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
         } else {
             UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
@@ -407,7 +407,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         switch (aItem) {
             case ClickInterface.EDIT:
             	if (aUsername != null){
-                    if (!isHoneycomb()) {
+                    if (!isTablet()) {
                         startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
                     } else {
                         MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
@@ -475,7 +475,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void displayPostReplyDialog(Bundle aArgs) {
-        if (isHoneycomb()) {
+        if (isTablet()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.setTargetFragment(this, 0);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
@@ -577,7 +577,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void delayedDataUpdate(boolean pageChange) {
         setActionbarTitle(mAdapter.getTitle());
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             if (mAdapter.getPage() == mAdapter.getLastPage()) {
                 mNext.setVisibility(View.GONE);
             } else {
@@ -598,7 +598,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingFailed() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -612,7 +612,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingStarted() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(mAdapter.getRotateAnimation());
@@ -623,7 +623,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingSucceeded() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         } else {
@@ -650,19 +650,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             // just log it
             e.printStackTrace();
         }
-    }
-    
-    private boolean isTablet() {
-        if (isHoneycomb()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                Configuration config = getActivity().getResources().getConfiguration();
-                return config.smallestScreenWidthDp >= 600;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {

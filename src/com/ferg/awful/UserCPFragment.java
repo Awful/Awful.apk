@@ -103,15 +103,15 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
 
-        if (isHoneycomb()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
-        } else {
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+        } else {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
         
         return result;
@@ -125,7 +125,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         mTitle.setText(getString(R.string.user_cp));
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
             mPrivateMessage.setOnClickListener(onButtonClick);
@@ -240,8 +240,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         return true;
     }
 
-    private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -281,7 +281,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -295,7 +295,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -305,7 +305,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         }

@@ -45,7 +45,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
 
-        if (isHoneycomb()) {
+        if (isTablet()) {
             startTabletActivity();
         } else {
             startPhoneActivity();

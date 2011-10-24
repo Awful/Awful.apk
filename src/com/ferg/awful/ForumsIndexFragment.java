@@ -81,7 +81,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         mForumList = (ListView) result.findViewById(R.id.forum_list);
 
-        if (!isHoneycomb()) {
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
@@ -102,8 +102,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         return result;
     }
 
-    private boolean isHoneycomb() {
-        return (getActivity() instanceof ForumsTabletActivity);
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         setRetainInstance(true);
         
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
             mPM.setOnClickListener(onButtonClick);
@@ -196,7 +196,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     };
 
     public void displayUserCP() {
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
         } else {
             UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
@@ -215,11 +215,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		MenuItem pm = menu.findItem(R.id.pm);
     	if(unreadPMCount >0){
             pm.setTitle(Integer.toString(unreadPMCount)+" Unread PM(s)");
-            if(isHoneycomb()){
+            if(isTablet()){
             	pm.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
     	}else{
-            if(isHoneycomb()){
+            if(isTablet()){
                 pm.setTitle("");
             }else{
                 pm.setTitle("Private Messages");
@@ -255,7 +255,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         //we might be receiving a bundle with unread pm count
     	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
     		unreadPMCount = extras.getInt("unread_pm");
-    		if(isHoneycomb()){
+    		if(isTablet()){
     			getActivity().invalidateOptionsMenu();
     		}else{
     			if(mPMcount != null){
@@ -269,7 +269,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -284,7 +284,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -295,7 +295,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         } else {

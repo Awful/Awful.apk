@@ -168,7 +168,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
     public void onStart() {
         super.onStart();
 
-        if (isHoneycomb()) {
+        if (isTablet()) {
             setActionBar();
         }
     }
@@ -276,7 +276,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	@Override
 	public void loadingFailed() {
 		if(getActivity() != null){
-			if (isHoneycomb()) {
+			if (isTablet()) {
 				getActivity().setProgressBarIndeterminateVisibility(false);
 			}
 		    Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -285,14 +285,14 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 
 	@Override
 	public void loadingStarted() {
-		if (isHoneycomb() && getActivity() != null) {
+		if (isTablet() && getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(true);
 		}
 	}
 
 	@Override
 	public void loadingSucceeded() {
-		if (isHoneycomb() && getActivity() != null) {
+		if (isTablet() && getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 	}
@@ -314,9 +314,10 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
     	}
 	}
 
-	private boolean isHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
+
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(getView() != null){

@@ -51,7 +51,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         
-        if (isHoneycomb()) {
+        if (isTablet()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         } else {
@@ -73,7 +73,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     protected void onStart() {
         super.onStart();
 
-        if (isHoneycomb()) {
+        if (isTablet()) {
             setActionBar();
         }
     }
@@ -97,7 +97,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void setThreadTitle(String aTitle) {
-        if (isHoneycomb()) {
+        if (isTablet()) {
             ActionBar action = getActionBar();
             action.setTitle(Html.fromHtml(aTitle).toString());
         }

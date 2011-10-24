@@ -94,7 +94,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-        if (!isHoneycomb()) {
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
@@ -137,7 +137,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             if(adapt.getTitle() != null) {
                 mTitle.setText(Html.fromHtml(adapt.getTitle()));
             }
@@ -148,8 +148,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         registerForContextMenu(getListView());
     }
 
-    private boolean isHoneycomb() {
-        return ((AwfulActivity) getActivity()).isHoneycomb();
+    private boolean isTablet() {
+        return ((AwfulActivity) getActivity()).isTablet();
     }
 
     @Override
@@ -329,7 +329,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             return;
         }
 
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mTitle.setText(Html.fromHtml(adapt.getTitle()));
         }
 
@@ -341,7 +341,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -356,7 +356,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isHoneycomb()) {
+        if (!isTablet()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -369,7 +369,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
         if (isAdded()) {
-            if (!isHoneycomb()) {
+            if (!isTablet()) {
                 mRefresh.setAnimation(null);
                 mRefresh.setVisibility(View.GONE);
             } else {
