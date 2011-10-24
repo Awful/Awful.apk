@@ -479,7 +479,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			unread.setVisibility(View.GONE);
 		}
 		TextView title = (TextView) tmp.findViewById(R.id.title);
-		title.setText(Html.fromHtml(mTitle));
+		if(mTitle != null){
+			title.setText(Html.fromHtml(mTitle));
+		}
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
 			author.setTextColor(prefs.postFontColor2);

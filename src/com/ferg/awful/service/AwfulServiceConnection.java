@@ -530,7 +530,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		@Override
 		public boolean isEnabled(int ix) {
-			if(state == null || isPageCount(ix)){
+			if(state == null || isPageCount(ix) || ix >= state.getChildrenCount(currentPage)){
 				return false;
 			}
 			return state.getChild(currentPage,ix).isEnabled();
