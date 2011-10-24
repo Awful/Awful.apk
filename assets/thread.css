@@ -21,6 +21,10 @@ table {
     width: 100%;
 }
 
+.post-cell {
+    vertical-align: top;
+}
+
 .content {
     width: 100%;
 }
