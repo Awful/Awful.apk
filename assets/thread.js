@@ -15,7 +15,7 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-    if (prefs.postjumpid == "") {
+    if (prefs.postjumpid == "" || prefs.yPos != "-1") {
         setYPosition(prefs.yPos);
     } else {
         $(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
@@ -23,11 +23,11 @@ $(window).load(function() {
 });
 
 function setYPosition(position) {
-    try {
-        $(window).scrollTop($('.unread').first().offset().top);
-    } catch (error) {
-        if (position != "-1") {
-            $(window).scrollTop(position);
-        }
+    if (position == "-1") {
+        try {
+            $(window).scrollTop($('.unread').first().offset().top);
+        } catch (error) {}
+    } else {
+        $(window).scrollTop(position * 1);
     }
 }

@@ -37,8 +37,7 @@ import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
+import android.webkit.*;
 import android.widget.*;
 import android.support.v4.app.Fragment;
 
@@ -233,21 +232,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onPause() {
         super.onPause();
 
-        Log.i(TAG, "PAUSING WEBVIEW");
         try {
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
             mThreadView.pauseTimers();
-            Log.i(TAG, "PAUSED WEBVIEW");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Log.i(TAG, "DESTROYING WEBVIEW");
-        try {
-            mThreadWindow.removeView(mThreadView);
-            mThreadView.destroy();
-            Log.i(TAG, "DESTROYED WEBVIEW");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -265,6 +253,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onDetach() {
         super.onDetach();
         savedPage = mAdapter.getPage(); // saves page for orientation change.
+
+        try {
+            mThreadWindow.removeView(mThreadView);
+            mThreadView.destroy();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
