@@ -8,7 +8,7 @@
     <item 
         android:id="@+id/pm" 
         android:showAsAction="ifRoom" 
-        android:icon="@android:drawable/sym_action_email" />
+        android:icon="@drawable/sym_action_email" />
 	<item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_refresh"
