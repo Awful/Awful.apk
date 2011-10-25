@@ -150,7 +150,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
+        if (getActivity() != null) {
+            return ((AwfulActivity) getActivity()).isTablet();
+        }
+
+        return false;
     }
 
     @Override

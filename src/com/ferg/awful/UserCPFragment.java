@@ -241,7 +241,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     }
 
     private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
+        if (getActivity() != null) {
+            return ((AwfulActivity) getActivity()).isTablet();
+        }
+
+        return false;
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
