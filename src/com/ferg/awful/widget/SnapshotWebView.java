@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 public class SnapshotWebView extends WebView {
     private Bitmap mSnapshot;
@@ -48,6 +49,7 @@ public class SnapshotWebView extends WebView {
         if (visibility != VISIBLE && mSnapshot != null) {
             mSnapshot.recycle();
             mSnapshot = null;
+            mSnapshotView.setImageDrawable(null);
         }
     }
 
@@ -55,10 +57,11 @@ public class SnapshotWebView extends WebView {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mSnapshotView.setImageDrawable(null);
-
+        
         if (mSnapshot != null) {
             mSnapshot.recycle();
             mSnapshot = null;
+            mSnapshotView.setImageDrawable(null);
         }
     } 
 }

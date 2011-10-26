@@ -239,6 +239,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(getActivity() != null && getActivity().getIntent() != null){
+        	getActivity().setIntent(getActivity().getIntent().putExtra(Constants.PAGE, mAdapter.getPage()));
+        }
 
         cleanupTasks();
     }
@@ -297,6 +300,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                         ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 
             populateThreadView();
+        }else{
+        	if(mThreadView != null){
+	        	try {
+	                Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
+	                    .invoke(mThreadView, (Object[]) null);
+	                mThreadView.resumeTimers();
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+        	}
         }
     }
     
