@@ -27,29 +27,18 @@
 
 package com.ferg.awful.thread;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
-import android.content.SharedPreferences;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -59,17 +48,9 @@ public class AwfulPost implements AwfulDisplayItem {
 
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
     
-	private static final String USERINFO_PREFIX = "userinfo userid-";
-
-    private static final String ELEMENT_POSTBODY     = "<td class=\"postbody\">";
-    private static final String ELEMENT_END_TD       = "</td>";
-    private static final String REPLACEMENT_POSTBODY = "<div class=\"postbody\">";
-    private static final String REPLACEMENT_END_TD   = "</div>";
-    
     private static final String LINK_PROFILE      = "Profile";
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
-    private static final String LINK_RAP_SHEET    = "Rap Sheet";
 
     private String mId;
     private String mDate;
@@ -78,8 +59,7 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mAvatar;
     private String mContent;
     private String mEdited;
-    private AwfulThread mThread;
-
+    
 	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;
 	private boolean mEven = false;
@@ -89,10 +69,7 @@ public class AwfulPost implements AwfulDisplayItem {
 	private boolean mHasRapSheetLink = false;
     private String mLastReadUrl;
     private boolean mEditable;
-
-    public AwfulThread getThread() {
-        return mThread;
-    }
+    private boolean isOp = false;
 
     public JSONObject toJSON() throws JSONException {
         JSONObject result = new JSONObject();
@@ -112,13 +89,9 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
     public boolean isOp() {
-        return mUserId.equals(mThread.getAuthorID());
+    	return isOp;
     }
-
-    public void setThread(AwfulThread aThread) {
-        mThread = aThread;
-    }
-
+    
     public String getId() {
         return mId;
     }
@@ -271,8 +244,7 @@ public class AwfulPost implements AwfulDisplayItem {
 			boolean fyad = false;
             for (TagNode node : postNodes) {
             	//fyad status, to prevent processing postbody twice if we are in fyad
-                AwfulPost post = new AwfulPost();
-			post.setThread(aThreadObject);
+                AwfulPost post = new AwfulPost();                
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
                 String id = node.getAttributeByName("id");
@@ -282,6 +254,9 @@ public class AwfulPost implements AwfulDisplayItem {
                 for(TagNode pc : postContent){
 					if(pc.getAttributeByName("class").contains("author")){
 						post.setUsername(pc.getText().toString().trim());
+						if(aThreadObject != null && aThreadObject.getAuthor() != null && aThreadObject.getAuthor().equals(post.getUsername())){
+							post.isOp = true;
+						}
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
 						TagNode[] avatar = pc.getElementsByName("img", true);
@@ -332,12 +307,10 @@ public class AwfulPost implements AwfulDisplayItem {
 					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
 						post.setPreviouslyRead(true);
 					}
-
                     if (!post.isPreviouslyRead()) {
                         post.setLastRead(true);
                         lastReadFound = true;
                     }
-
 					if(pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length >0){
 						post.setEdited("<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
