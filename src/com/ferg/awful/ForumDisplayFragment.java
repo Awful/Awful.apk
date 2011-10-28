@@ -95,7 +95,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
@@ -138,13 +138,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         getListView().setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         getListView().setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             if(adapt.getTitle() != null) {
                 mTitle.setText(Html.fromHtml(adapt.getTitle()));
             }
         
             mUserCp.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
+        }else{
+        	if(adapt.getTitle() != null) {
+                getActivity().getActionBar().setTitle(Html.fromHtml(adapt.getTitle()));
+            }
         }
         registerForContextMenu(getListView());
     }
@@ -193,6 +197,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+	        case R.id.user_cp:
+	            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+	            return true;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
                 return true;
@@ -334,8 +341,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             return;
         }
 
-        if (!isTablet()) {
-            mTitle.setText(Html.fromHtml(adapt.getTitle()));
+        if (AwfulActivity.useLegacyActionbar()) {
+            if(adapt.getTitle() != null) {
+                mTitle.setText(Html.fromHtml(adapt.getTitle()));
+            }
+        }else{
+        	if(getActivity() != null && adapt.getTitle() != null) {
+                getActivity().getActionBar().setTitle(Html.fromHtml(adapt.getTitle()));
+            }
         }
 
         if(pageChange && getListView().getChildCount() >0){//this will only reset the position if the user selects next/prev page
@@ -346,7 +359,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -361,7 +374,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -374,7 +387,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
         if (isAdded()) {
-            if (!isTablet()) {
+            if (AwfulActivity.useLegacyActionbar()) {
                 mRefresh.setAnimation(null);
                 mRefresh.setVisibility(View.GONE);
             } else {
@@ -393,7 +406,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(getListView()!=null){
 	        getListView().setBackgroundColor(prefs.postBackgroundColor);
-	        getListView().setCacheColorHint(prefs.postBackgroundColor);
 		}
 	}
 }

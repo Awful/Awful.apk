@@ -15,7 +15,7 @@ public class MessageDisplayActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
 
-        if (isTablet()) {
+        if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);

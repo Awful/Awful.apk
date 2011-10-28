@@ -105,7 +105,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse, int postPerPage) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
-        if(threads.length >1){
+        if(threads.length >1 || threads.length < 1){
         	return result;
         }
         TagNode[] tbody = threads[0].getElementsByName("tbody", false);
