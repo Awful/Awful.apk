@@ -311,8 +311,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		if(mForumList != null){
 			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-	        mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-	        mForumList.invalidate();
 		}
 	}
 }

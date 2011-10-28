@@ -393,7 +393,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(getListView()!=null){
 	        getListView().setBackgroundColor(prefs.postBackgroundColor);
-	        getListView().setCacheColorHint(prefs.postBackgroundColor);
 		}
 	}
 }

@@ -325,7 +325,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(mBookmarkList != null){
 			mBookmarkList.setBackgroundColor(prefs.postBackgroundColor);
-	        mBookmarkList.setCacheColorHint(prefs.postBackgroundColor);
 		}
 	}
 }

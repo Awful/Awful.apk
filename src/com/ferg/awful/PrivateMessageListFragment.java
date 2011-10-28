@@ -91,6 +91,7 @@ public class PrivateMessageListFragment extends Fragment implements
         }
         
         updateColors();
+        mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
 
         mPMList.setOnItemClickListener(onPMSelected);
         
@@ -102,7 +103,6 @@ public class PrivateMessageListFragment extends Fragment implements
     private void updateColors(){
     	if(mPMList != null){
     		mPMList.setBackgroundColor(mPrefs.postBackgroundColor);
-            mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
     	}
     }
     
