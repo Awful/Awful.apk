@@ -42,8 +42,7 @@
             android:exported="true"
             />
         <activity 
-            android:name="ForumsPhoneActivity" 
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:name="ForumsPhoneActivity"
             />
         <activity
                 android:name="AwfulLoginActivity"
@@ -62,7 +61,6 @@
         </activity>
         <activity 
             android:name="ForumDisplayActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
             >
         	<intent-filter>
             	<action android:name="android.intent.action.VIEW" />

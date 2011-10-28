@@ -81,7 +81,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         mForumList = (ListView) result.findViewById(R.id.forum_list);
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
@@ -165,7 +165,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity) {
+            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) arg3);
             } else {
                 startForumActivity((int) arg3);
