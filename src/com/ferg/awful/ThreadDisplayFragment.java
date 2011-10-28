@@ -138,7 +138,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mNext.setOnClickListener(onButtonClick);
             mReply.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
@@ -204,7 +204,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void setActionbarTitle(String aTitle) {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mTitle.setText(Html.fromHtml(aTitle));
         } else {
             ((ThreadDisplayActivity) getActivity()).setThreadTitle(aTitle);
@@ -322,7 +322,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if(menu == null || isTablet()){
+        if(menu == null || !AwfulActivity.useLegacyActionbar()){
             return;
         }
 
@@ -585,7 +585,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void delayedDataUpdate(boolean pageChange) {
         setActionbarTitle(mAdapter.getTitle());
 
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             if (mAdapter.getPage() == mAdapter.getLastPage()) {
                 mNext.setVisibility(View.GONE);
             } else {
@@ -606,7 +606,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingFailed() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -620,7 +620,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingStarted() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(mAdapter.getRotateAnimation());
@@ -631,7 +631,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingSucceeded() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         } else {

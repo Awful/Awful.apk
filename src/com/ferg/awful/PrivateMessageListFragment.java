@@ -84,7 +84,7 @@ public class PrivateMessageListFragment extends Fragment implements
         setRetainInstance(true);
 
 
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mHome.setOnClickListener(onButtonClick);
             mNewPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
@@ -186,7 +186,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
 	@Override
     public void loadingFailed() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -203,7 +203,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
     @Override
     public void loadingStarted() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -214,7 +214,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
     @Override
     public void loadingSucceeded() {
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         }else{

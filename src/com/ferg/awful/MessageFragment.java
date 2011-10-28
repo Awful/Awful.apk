@@ -168,7 +168,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
     public void onStart() {
         super.onStart();
 
-        if (isTablet()) {
+        if (!AwfulActivity.useLegacyActionbar()) {
             setActionBar();
         }
     }
@@ -276,7 +276,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	@Override
 	public void loadingFailed() {
 		if(getActivity() != null){
-			if (isTablet()) {
+			if (!AwfulActivity.useLegacyActionbar()) {
 				getActivity().setProgressBarIndeterminateVisibility(false);
 			}
 		    Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -285,14 +285,14 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 
 	@Override
 	public void loadingStarted() {
-		if (isTablet() && getActivity() != null) {
+		if (!AwfulActivity.useLegacyActionbar() && getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(true);
 		}
 	}
 
 	@Override
 	public void loadingSucceeded() {
-		if (isTablet() && getActivity() != null) {
+		if (!AwfulActivity.useLegacyActionbar() && getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 	}
