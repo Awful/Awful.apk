@@ -27,7 +27,9 @@
 
 package com.ferg.awful;
 
+import android.app.ActionBar;
 import android.os.Bundle;
+import android.view.Window;
 
 public class ForumsPhoneActivity extends AwfulActivity {
 
@@ -37,7 +39,15 @@ public class ForumsPhoneActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
+        if(!AwfulActivity.useLegacyActionbar()){
+            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        }
         setContentView(R.layout.forum_index_activity);
+        if(!AwfulActivity.useLegacyActionbar()){
+	        ActionBar action = getActionBar();
+	        if(action != null){
+	        	action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+	        }
+        }
     }
 }

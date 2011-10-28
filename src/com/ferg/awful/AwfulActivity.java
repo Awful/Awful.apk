@@ -82,7 +82,7 @@ public class AwfulActivity extends FragmentActivity {
         return false;
     }
 
-    public boolean useLegacyActionbar() {
+    public static boolean useLegacyActionbar() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
     }
 }
