@@ -91,11 +91,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             delayedDataUpdate(pageChange);
         }
     };
-
+    
+    //We don't use this as originally intended, it's just to inform the javascript to not jump-to-last.
     private int mYPosition = -1;
 
     private int savedPage = 0;
-    private int savedPos = 0;
     
 	private String mPostJump = "";
 
@@ -172,7 +172,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			@Override
 			public void onClick(View v) {
                 mThreadView.loadData("", "text/html", "utf-8");
-				mAdapter.goToPage(mAdapter.getPage() - 1);
+				goToPage(mAdapter.getPage() - 1);
 			}
 		});
 
@@ -346,7 +346,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 displayPostReplyDialog();
                 break;
             case R.id.go_back:
-                mAdapter.goToPage(mAdapter.getPage()-1);
+                goToPage(mAdapter.getPage()-1);
                 break;
             case R.id.usercp:
                 displayUserCP();
@@ -397,7 +397,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                         try {
                             int pageInt = jumpToText.getCurrent();
                             if (pageInt > 0 && pageInt <= mAdapter.getLastPage()) {
-                                mAdapter.goToPage(pageInt);
+                                goToPage(pageInt);
                             }
                         } catch (NumberFormatException e) {
                             Toast.makeText(getActivity(),
@@ -471,7 +471,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private void showNextPage() {
         if (mAdapter.getPage() < mAdapter.getLastPage()) {
             mThreadView.loadData("", "text/html", "utf-8");
-            mAdapter.goToPage(mAdapter.getPage()+1);
+            goToPage(mAdapter.getPage()+1);
         }
     }
 
@@ -724,7 +724,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onPreviousPageClick() {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    mAdapter.goToPage(mAdapter.getPage() - 1);
+                    goToPage(mAdapter.getPage() - 1);
                 }
             });
         }
@@ -732,7 +732,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onNextPageClick() {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    mAdapter.goToPage(mAdapter.getPage() + 1);
+                    goToPage(mAdapter.getPage() + 1);
                 }
             });
         }
@@ -760,5 +760,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
 	public void setPostJump(String postID) {
 		mPostJump = postID;
+	}
+	
+	public void goToPage(int aPage){
+		mAdapter.goToPage(aPage);
+		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		mYPosition = -1;
+		mPostJump = "";
 	}
 }
