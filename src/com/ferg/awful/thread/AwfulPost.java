@@ -254,9 +254,6 @@ public class AwfulPost implements AwfulDisplayItem {
                 for(TagNode pc : postContent){
 					if(pc.getAttributeByName("class").contains("author")){
 						post.setUsername(pc.getText().toString().trim());
-						if(aThreadObject != null && aThreadObject.getAuthor() != null && aThreadObject.getAuthor().equals(post.getUsername())){
-							post.isOp = true;
-						}
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
 						TagNode[] avatar = pc.getElementsByName("img", true);
@@ -294,6 +291,9 @@ public class AwfulPost implements AwfulDisplayItem {
 						if(links.length >0){
 							String href = links[0].getAttributeByName("href").trim();
 							post.setUserId(href.substring(href.lastIndexOf("rid=")+4));
+							if(aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(post.getUserId())){
+								post.isOp = true;
+							}
 							for (TagNode linkNode : links) {
 			                	String link = linkNode.getText().toString();
 			                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
