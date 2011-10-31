@@ -105,7 +105,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse, int postPerPage) throws Exception {
         ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
-        if(threads.length >1){
+        if(threads.length >1 || threads.length < 1){
         	return result;
         }
         TagNode[] tbody = threads[0].getElementsByName("tbody", false);
@@ -297,13 +297,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
-            buffer.append("    <td class='userinfo-row' style='width: 100%;"+((post.getThread().getAuthorID().equals(post.getUserId()))?"background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postOPColor):"")+"'>");
-            buffer.append("        <div class='avatar'>");
-
-            if (post.getAvatar() != null) {
-                buffer.append("            <img src='" + post.getAvatar() + "' />");
-            }
-
+            buffer.append("    <td class='userinfo-row' style='width: 100%;"+(post.isOp()?"background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postOPColor):"")+"'>");
+            buffer.append("        <div class='avatar' "+((post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");

@@ -125,7 +125,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         mTitle.setText(getString(R.string.user_cp));
 
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
             mPrivateMessage.setOnClickListener(onButtonClick);
@@ -285,7 +285,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -299,7 +299,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -309,7 +309,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         }
@@ -325,7 +325,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(mBookmarkList != null){
 			mBookmarkList.setBackgroundColor(prefs.postBackgroundColor);
-	        mBookmarkList.setCacheColorHint(prefs.postBackgroundColor);
 		}
 	}
 }
