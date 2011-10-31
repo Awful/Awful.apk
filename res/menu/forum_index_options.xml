@@ -7,7 +7,8 @@
 		android:title="@string/refresh" />
     <item 
         android:id="@+id/pm" 
-        android:icon="@android:drawable/sym_action_email" />
+        android:icon="@android:drawable/sym_action_email"
+        android:title="@string/private_message"/>
 	<item
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_menu_preferences"
