@@ -2,7 +2,13 @@
     padding: 0px;
     margin: 0px;
     float: left;
-    max-height: 100px;
+	background-size:contain;
+	background-repeat:no-repeat;
+	background-position:center; 
+}
+
+td {
+    border: 0px solid #c0ffee;
 }
 
 .post-content {
