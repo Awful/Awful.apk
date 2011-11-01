@@ -259,6 +259,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>");
+        buffer.append("<style type='text/css'>");   
+        buffer.append("a:link {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+" }");
+        buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}");
+        buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}");
+        buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}");
+        buffer.append("</style>");
         buffer.append("</head><body>");
         buffer.append("<div class='content'>");
         buffer.append("    <table id='thread-body'>");
