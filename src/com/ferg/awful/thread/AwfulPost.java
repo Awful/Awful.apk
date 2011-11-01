@@ -27,10 +27,14 @@
 
 package com.ferg.awful.thread;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
@@ -147,10 +151,64 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
     public void setContent(String aContent) {
-        mContent = aContent;
+        mContent = this.convertVideos(aContent);
     }
 
-    public String getEdited() {
+    private String convertVideos(String aContent) {
+		
+		HtmlCleaner cleaner = new HtmlCleaner();
+		TagNode contentNode = cleaner.clean(aContent);
+		
+		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
+		
+		for(TagNode node : videoNodes){
+			boolean youtube = cleaner.getInnerHtml(node).contains("youtube");
+			boolean vimeo = cleaner.getInnerHtml(node).contains("vimeo");
+			if(youtube || vimeo){
+				TagNode object = node.getChildTags()[0];
+				int height = Integer.parseInt(object.getAttributeByName("height"));
+				int width = Integer.parseInt(object.getAttributeByName("width"));
+				TagNode embed = object.getElementsHavingAttribute("src", true)[0];
+				String src = embed.getAttributeByName("src");
+				String link = null, image = null;
+				if(youtube){
+					int startId = src.indexOf("/v/")+3;
+					int endId = src.indexOf('&', startId);
+					String videoId = src.substring(startId, endId);
+					link = "http://www.youtube.com/watch?v=" + videoId;
+					image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+				}else if(vimeo){
+					int startId = src.indexOf("clip_id=")+8;
+					int endId = src.indexOf('&', startId);
+					String videoId = src.substring(startId, endId);
+					TagNode vimeoXML;
+					try {
+						vimeoXML = cleaner.clean(new URL("http://vimeo.com/api/v2/video/"+videoId+".xml"));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						continue;
+					}
+					link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+					image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
+				}else{
+					cleaner.setInnerHtml(node, "<a href='"+src+"'>"+src+"</a>");
+					continue;
+				}
+				
+				StringBuffer buffer = new StringBuffer("<a href='"+link+"'>");
+				buffer.append("<div style='background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height + "'>");
+				buffer.append("<img src='file:///android_res/drawable/play.png' style='position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;' />");
+				buffer.append("</div></a>");
+				System.out.println(buffer.toString());
+				cleaner.setInnerHtml(node, buffer.toString());
+			}
+		}
+		
+		return cleaner.getInnerHtml(contentNode);
+	}
+
+	public String getEdited() {
         return mEdited;
     }
 
