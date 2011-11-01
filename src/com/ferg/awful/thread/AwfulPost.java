@@ -70,6 +70,8 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mLastReadUrl;
     private boolean mEditable;
     private boolean isOp = false;
+    private boolean isAdmin = false;
+    private boolean isMod = false;
 
     public JSONObject toJSON() throws JSONException {
         JSONObject result = new JSONObject();
@@ -90,6 +92,14 @@ public class AwfulPost implements AwfulDisplayItem {
 
     public boolean isOp() {
     	return isOp;
+    }
+    
+    public boolean isAdmin() {
+    	return isAdmin;
+    }
+    
+    public boolean isMod() {
+    	return isMod;
     }
     
     public String getId() {
@@ -255,6 +265,12 @@ public class AwfulPost implements AwfulDisplayItem {
 					if(pc.getAttributeByName("class").contains("author")){
 						post.setUsername(pc.getText().toString().trim());
 					}
+					if(pc.getAttributeByName("class").contains("role-mod")){
+						post.isMod = true;
+					}
+					if(pc.getAttributeByName("class").contains("role-admin")){
+						post.isAdmin = true;
+					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
 						TagNode[] avatar = pc.getElementsByName("img", true);
 						if(avatar.length >0){
@@ -286,6 +302,7 @@ public class AwfulPost implements AwfulDisplayItem {
 						}
 						post.setDate(pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
 					}
+					
 					if(pc.getAttributeByName("class").equalsIgnoreCase("profilelinks")){
 						TagNode[] links = pc.getElementsHavingAttribute("href", true);
 						if(links.length >0){
