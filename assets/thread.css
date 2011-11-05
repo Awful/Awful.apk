@@ -63,6 +63,10 @@ table {
     font-style: bold !important;
 }
 
+.username img{
+	margin-left: 5px;
+}
+
 .userinfo, .post-content {
     color: black;
     font: normal normal normal 16px Verdana, Arial, sans-serif;

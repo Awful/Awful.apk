@@ -81,7 +81,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         mForumList = (ListView) result.findViewById(R.id.forum_list);
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
@@ -112,7 +112,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         setRetainInstance(true);
         
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
             mPM.setOnClickListener(onButtonClick);
@@ -165,7 +165,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity) {
+            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) arg3);
             } else {
                 startForumActivity((int) arg3);
@@ -215,11 +215,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		MenuItem pm = menu.findItem(R.id.pm);
     	if(unreadPMCount >0){
             pm.setTitle(Integer.toString(unreadPMCount)+" Unread PM(s)");
-            if(isTablet()){
+            if(!AwfulActivity.useLegacyActionbar()){
             	pm.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
     	}else{
-            if(isTablet()){
+            if(!AwfulActivity.useLegacyActionbar()){
                 pm.setTitle("");
             }else{
                 pm.setTitle("Private Messages");
@@ -255,7 +255,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         //we might be receiving a bundle with unread pm count
     	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
     		unreadPMCount = extras.getInt("unread_pm");
-    		if(isTablet()){
+    		if(!AwfulActivity.useLegacyActionbar()){
     			getActivity().invalidateOptionsMenu();
     		}else{
     			if(mPMcount != null){
@@ -269,7 +269,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
@@ -284,7 +284,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingStarted() {
         Log.e(TAG, "Loading started.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
             mRefresh.startAnimation(adapt.getRotateAnimation());
@@ -295,7 +295,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingSucceeded() {
         Log.e(TAG, "Loading succeeded.");
-        if (!isTablet()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         } else {
@@ -311,8 +311,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		if(mForumList != null){
 			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-	        mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-	        mForumList.invalidate();
 		}
 	}
 }

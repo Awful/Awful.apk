@@ -18,7 +18,7 @@ public class PrivateMessageActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
 
-        if (isTablet()) {
+        if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         } else {

@@ -29,8 +29,10 @@ package com.ferg.awful;
 
 import com.ferg.awful.service.AwfulServiceConnection;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -41,7 +43,19 @@ public class ForumDisplayActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
+        if (!AwfulActivity.useLegacyActionbar()) {
+            requestWindowFeature(Window.FEATURE_ACTION_BAR);
+            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        }else{
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
         setContentView(R.layout.forum_display_activity);
+        if (!AwfulActivity.useLegacyActionbar()) {
+        	ActionBar action = getActionBar();
+        	if(action != null){
+        		action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        	}
+        }
     }
     public void onResume(){
         super.onResume();

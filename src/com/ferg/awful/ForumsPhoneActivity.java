@@ -27,7 +27,9 @@
 
 package com.ferg.awful;
 
+import android.app.ActionBar;
 import android.os.Bundle;
+import android.view.Window;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -40,7 +42,17 @@ public class ForumsPhoneActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
-
+        if(!AwfulActivity.useLegacyActionbar()){
+            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        }else{
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
         setContentView(R.layout.forum_index_activity);
+        if(!AwfulActivity.useLegacyActionbar()){
+	        ActionBar action = getActionBar();
+	        if(action != null){
+	        	action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+	        }
+        }
     }
 }
