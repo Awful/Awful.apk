@@ -254,5 +254,14 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	public boolean isLoaded() {
 		return mLoaded;
 	}
-
+	
+	public String getMessageHtml(){
+		if(mContent!=null){
+			StringBuffer buff = new StringBuffer(mContent.length());
+			buff.append("");
+			buff.append(mContent);
+			buff.append("");
+		}
+		return "";
+	}
 }

@@ -56,12 +56,11 @@
                     />
             </RelativeLayout>
         </RelativeLayout>
-        <TextView
+        <WebView
             android:id="@+id/messagebody"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="8dip"
-            android:textColor="@color/default_post_font"
             android:focusable="true" android:focusableInTouchMode="true"
             />
         <ImageView 
