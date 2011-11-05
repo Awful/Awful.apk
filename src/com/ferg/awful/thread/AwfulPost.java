@@ -151,16 +151,14 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
     public void setContent(String aContent) {
-        mContent = this.convertVideos(aContent);
+        mContent = aContent;
     }
 
-    private String convertVideos(String aContent) {
+    private static TagNode convertVideos(TagNode contentNode) {
 		
-		HtmlCleaner cleaner = new HtmlCleaner();
-		TagNode contentNode = cleaner.clean(aContent);
 		
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
-		
+		HtmlCleaner cleaner = new HtmlCleaner();
 		for(TagNode node : videoNodes){
 			boolean youtube = cleaner.getInnerHtml(node).contains("youtube");
 			boolean vimeo = cleaner.getInnerHtml(node).contains("vimeo");
@@ -204,7 +202,7 @@ public class AwfulPost implements AwfulDisplayItem {
 			}
 		}
 		
-		return cleaner.getInnerHtml(contentNode);
+		return contentNode;
 	}
 
 	public String getEdited() {
@@ -306,6 +304,7 @@ public class AwfulPost implements AwfulDisplayItem {
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
+        	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
 			boolean fyad = false;
@@ -389,7 +388,6 @@ public class AwfulPost implements AwfulDisplayItem {
 						post.setEdited("<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
 				}
-                
 				post.setEven(even); // even/uneven post for alternating colors
 				even = !even;
 				
