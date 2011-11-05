@@ -30,7 +30,6 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
-import android.content.res.Configuration;
 import android.os.*;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -57,7 +56,6 @@ import com.ferg.awful.widget.SnapshotWebView;
 
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
-    private static final String Y_POSITION = "y_pos";
 
     private ThreadListAdapter mAdapter;
     private ParsePostQuoteTask mPostQuoteTask;
@@ -78,34 +76,33 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private SnapshotWebView mThreadView;
 
     private boolean queueDataUpdate;
-    private Handler handler = new Handler();
-    private class RunDataUpdate implements Runnable{
-        boolean pageChange;
-
-        public RunDataUpdate(boolean hasPageChanged){
-            pageChange = hasPageChanged;
-        }
-
-        @Override
-        public void run() {
-            delayedDataUpdate(pageChange);
-        }
-    };
-    
-    //We don't use this as originally intended, it's just to inform the javascript to not jump-to-last.
-    private int mYPosition = -1;
+    private Bundle queueDataExtras;
 
     private int savedPage = 0;
     
 	private String mPostJump = "";
+	
+	private WebViewClient callback = new WebViewClient(){
+		@Override
+		public void onPageFinished(WebView view, String url){
+			if(!isResumed()){
+				Log.d(TAG,"onPageFinished() called while activity was paused.");
+				try {
+		            mThreadView.pauseTimers();
+		            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
+		                .invoke(mThreadView, (Object[]) null);
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+			}
+		}
+	};
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
-
-        mYPosition = -1;
     }
 
     @Override
@@ -113,7 +110,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onCreateView(aInflater, aContainer, aSavedState);
         View result = aInflater.inflate(R.layout.thread_display, aContainer, true);
         
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
             mTitle    = (TextView) actionbar.findViewById(R.id.title);
@@ -151,6 +148,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     	
         mThreadView.resumeTimers();
+        mThreadView.setWebViewClient(callback);
         mThreadView.setSnapshotView(mSnapshotView);
         mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -231,16 +229,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onPause() {
         super.onPause();
-
         try {
+            mThreadView.pauseTimers();
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
-            mThreadView.pauseTimers();
         } catch (Exception e) {
             e.printStackTrace();
         }
         if(getActivity() != null && getActivity().getIntent() != null){
-        	getActivity().setIntent(getActivity().getIntent().putExtra(Constants.PAGE, mAdapter.getPage()));
+        	getActivity().getIntent().putExtra(Constants.PAGE, mAdapter.getPage());
         }
 
         cleanupTasks();
@@ -249,6 +246,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStop() {
         super.onStop();
+        mThreadView.stopLoading();
         cleanupTasks();
     }
 
@@ -256,7 +254,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onDetach() {
         super.onDetach();
         savedPage = mAdapter.getPage(); // saves page for orientation change.
-
+    }
+    
+    @Override
+    public void onDestroyView(){
+    	super.onDestroyView();
         try {
             mThreadWindow.removeView(mThreadView);
             mThreadView.destroy();
@@ -287,10 +289,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onResume() {
         super.onResume();
         
-        if (queueDataUpdate){
-            dataUpdate(false, null);
-        }
-
         if (mThreadWindow.getChildCount() < 2) {
             mThreadView = new SnapshotWebView(getActivity());
 
@@ -311,6 +309,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	            }
         	}
         }
+
+        if (queueDataUpdate){
+            delayedDataUpdate(queueDataExtras);
+            queueDataUpdate = false;
+            queueDataExtras = null;
+        }
+
     }
     
     @Override
@@ -373,7 +378,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onSaveInstanceState(Bundle aOutState) {
         super.onSaveInstanceState(aOutState);
-        mYPosition = mThreadView.getScrollY();
     }
 
     private void displayUserCP() {
@@ -575,14 +579,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void dataUpdate(boolean pageChange, Bundle extras) {
         if (!this.isResumed()) {
             queueDataUpdate = true;
-            return;
+            queueDataExtras = extras;
         } else {
             queueDataUpdate = false;
-            handler.post(new RunDataUpdate(pageChange));
+            queueDataExtras = null;
+            delayedDataUpdate(extras);
         }
     }
 
-    public void delayedDataUpdate(boolean pageChange) {
+    public void delayedDataUpdate(Bundle extras) {
         setActionbarTitle(mAdapter.getTitle());
 
         if (AwfulActivity.useLegacyActionbar()) {
@@ -598,6 +603,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 mReply.setVisibility(View.VISIBLE);
             }
         }
+        populateThreadView();
     }
 
     public int getSavedPage() {
@@ -637,8 +643,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
-        
-        populateThreadView();
     }
 
     private void populateThreadView() {
@@ -656,7 +660,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } catch (NullPointerException e) {
             // If we've already left the activity the webview may still be working to populate,
             // just log it
-            e.printStackTrace();
         }
     }
 
@@ -672,7 +675,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
-            result.put("yPos", Integer.toString(mYPosition));
             result.put("postjumpid", mPostJump);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -765,7 +767,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	public void goToPage(int aPage){
 		mAdapter.goToPage(aPage);
 		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
-		mYPosition = -1;
 		mPostJump = "";
 	}
 }

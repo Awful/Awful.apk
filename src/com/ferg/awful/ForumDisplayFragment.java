@@ -406,6 +406,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(getListView()!=null){
 	        getListView().setBackgroundColor(prefs.postBackgroundColor);
+	        if(getListView().getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
+	        	getListView().setCacheColorHint(prefs.postBackgroundColor);
+	        }
 		}
 	}
 }
