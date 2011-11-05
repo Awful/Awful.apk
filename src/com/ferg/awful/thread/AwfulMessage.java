@@ -260,7 +260,7 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		if(mContent!=null){
 			StringBuffer buff = new StringBuffer(mContent.length());
 			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSize + ";'>");
-			buff.append(mContent);//TODO get rid of blockquotes and replace with proper styling
+			buff.append(mContent.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
 			buff.append("</div>");
 			return buff.toString();
 		}
