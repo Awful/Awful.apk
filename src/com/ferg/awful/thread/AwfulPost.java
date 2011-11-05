@@ -196,11 +196,10 @@ public class AwfulPost implements AwfulDisplayItem {
 					continue;
 				}
 				
-				StringBuffer buffer = new StringBuffer("<a href='"+link+"'>");
-				buffer.append("<div style='background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height + "'>");
-				buffer.append("<img src='file:///android_res/drawable/play.png' style='position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;' />");
-				buffer.append("</div></a>");
-				System.out.println(buffer.toString());
+
+				StringBuffer buffer = new StringBuffer("<div onclick='location.href=\""+link+"\"' style='background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height + "'>");
+				buffer.append("<img class='noLink' src='file:///android_res/drawable/play.png' style='position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;' />");
+				buffer.append("</div>");
 				cleaner.setInnerHtml(node, buffer.toString());
 			}
 		}

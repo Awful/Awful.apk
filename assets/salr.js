@@ -57,13 +57,15 @@ SALR.prototype.imagesAsLinks = function() {
 
     $('.post-content').each(function() {
         $('img', this).each(function() {
-            var url = $(this).attr('src');
-            var imgHtml = '<img src="' + url + '" />';
-
-            if (that.preferences.imagesEnabled == "true") {
-                $(this).replaceWith('<a href="' + url + '">' + imgHtml + '</a>');
-            } else {
-                $(this).replaceWith('<a href="' + url + '">' + url + '</a>');
+        if( false == $(this).hasClass("noLink")){
+	            var url = $(this).attr('src');
+	            var imgHtml = '<img src="' + url + '" />';
+	
+	            if (that.preferences.imagesEnabled == "true") {
+	                $(this).replaceWith('<a href="' + url + '">' + imgHtml + '</a>');
+	            } else {
+	                $(this).replaceWith('<a href="' + url + '">' + url + '</a>');
+	            }
             }
         });
     });
