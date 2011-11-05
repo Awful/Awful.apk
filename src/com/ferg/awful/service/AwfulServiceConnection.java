@@ -21,12 +21,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.SectionIndexer;
 
-import com.commonsware.cwac.cache.SimpleWebImageCache;
 import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.ThreadDisplayFragment;
@@ -34,11 +32,10 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.*;
-import com.ferg.awful.thumbnail.ThumbnailBus;
-import com.ferg.awful.thumbnail.ThumbnailMessage;
 
 import org.json.*;
 
+@SuppressWarnings("unchecked")
 public class AwfulServiceConnection extends BroadcastReceiver implements
 		ServiceConnection {
 
@@ -191,7 +188,6 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		protected boolean lastReadLoaded;
 		protected boolean threadClosed;
 		protected boolean pageHasChanged;//if true, we have already navigated to a new page
-		private Handler imgHandler = new Handler();
 
 		public ThreadListAdapter(int id, AwfulUpdateCallback frag) {
 			super(id);
@@ -207,12 +203,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		@Override
 		public void connected(){
 			super.connected();
-			mService.registerForAvatarCache(Integer.toString(currentId), onCache);
 		}
 		@Override
 		public void disconnected(){
 			super.disconnected();
-			mService.unregisterForAvatarCache(onCache);
 		}
 		/**
 		 * This function jumps to the last-read-page and post.
@@ -295,42 +289,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		@Override
 		public View getView(int ix, View current, ViewGroup parent) {
 			View tmp = super.getView(ix, current, parent);
-			ImageView image=(ImageView)tmp.findViewById(R.id.avatar);
-			if (image!=null){
-				if(image.getTag()!=null && mService != null && mPrefs.imagesEnabled) {
-					image.setImageResource(android.R.drawable.ic_menu_rotate);
-					ThumbnailMessage msg=mService.getAvatarCache().getBus().createMessage(currentId+"");
-					image.startAnimation(mLoadingAnimation);
-					msg.setImageView(image);
-					msg.setUrl(image.getTag().toString());
-					try {
-						mService.getAvatarCache().notify(msg.getUrl(), msg);
-					}
-					catch (Throwable t) {
-						Log.e(TAG, "Exception trying to fetch image", t);
-					}
-				}else{
-					image.setImageResource(0);
-					image.setVisibility(View.GONE);
-				}
-			}
 			return tmp;
 		}
 		
-		private ThumbnailBus.Receiver<ThumbnailMessage> onCache= new ThumbnailBus.Receiver<ThumbnailMessage>() {
-			public void onReceive(final ThumbnailMessage message) {
-				final ImageView image=message.getImageView();
-
-				imgHandler.post(new Runnable() {
-					public void run() {
-						if (image.getTag()!=null && mService != null && image.getTag().toString().equals(message.getUrl())) {
-							image.setAnimation(null);
-							image.setImageDrawable(mService.getAvatarCache().get(message.getUrl()));
-						}
-					}
-				});
-			}
-		};
+		
 		
 	}
 	
@@ -375,6 +337,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		protected DataSetObserver mObserver;
 		protected AwfulUpdateCallback mCallback;
 		protected AwfulPageCount pageCount;
+		
 		public AwfulListAdapter(int id){
 			currentId = id;
 			currentPage = 1;

@@ -2,27 +2,20 @@ package com.ferg.awful.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
-import com.commonsware.cwac.bus.AbstractBus.Receiver;
-import com.commonsware.cwac.cache.SimpleWebImageCache;
-import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
-import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
-import com.ferg.awful.thumbnail.ThumbnailBus;
-import com.ferg.awful.thumbnail.ThumbnailMessage;
 
 import android.app.Service;
 import android.content.Intent;
@@ -30,9 +23,7 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
@@ -40,9 +31,6 @@ public class AwfulService extends Service {
 	private boolean loggedIn;
 	private AwfulTask<?> currentTask;
 	private Stack<AwfulTask<?>> threadPool = new Stack<AwfulTask<?>>();
-	private ThumbnailBus avatarBus=new ThumbnailBus();
-	private SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> avatarCache=new SimpleWebImageCache<ThumbnailBus, ThumbnailMessage>(null, null, 101, avatarBus);
-	private LinkedList<Receiver<ThumbnailMessage>> registeredAvatarClients = new LinkedList<Receiver<ThumbnailMessage>>();
 	private AwfulPreferences mPrefs;
 	
 	public void onCreate(){
@@ -57,9 +45,6 @@ public class AwfulService extends Service {
 			currentTask.cancel(true);
 		}
 		threadPool.clear();
-		while(registeredAvatarClients.peek() != null){
-			avatarCache.getBus().unregister(registeredAvatarClients.poll());
-		}
 		mPrefs.unRegisterListener();
 	}
 	private void queueThread(AwfulTask<?> threadTask) {
@@ -91,21 +76,6 @@ public class AwfulService extends Service {
 	
 	public boolean isLoggedIn(){
 		return loggedIn;
-	}
-	
-
-	public void registerForAvatarCache(String filter, Receiver<ThumbnailMessage> receiver) {
-		avatarCache.getBus().register(filter, receiver);
-		registeredAvatarClients.add(receiver);
-	}
-
-	public void unregisterForAvatarCache(Receiver<ThumbnailMessage> receiver) {
-		avatarCache.getBus().unregister(receiver);
-		registeredAvatarClients.remove(receiver);
-	}
-	
-	public SimpleWebImageCache<ThumbnailBus, ThumbnailMessage> getAvatarCache() {
-		return avatarCache;
 	}
 	
 	//basic local-binding stuff.
@@ -409,7 +379,7 @@ public class AwfulService extends Service {
                 params.put(Constants.PARAM_ACTION, "resetseen");
 
                 try {
-                    NetworkUtils.post(Constants.FUNCTION_THREAD, params);
+                    NetworkUtils.post(Constants.FUNCTION_THREAD, params);//TODO parse resulting posts to update unread status
                     status = true;
                 } catch (Exception e) {
                 	status = false;
