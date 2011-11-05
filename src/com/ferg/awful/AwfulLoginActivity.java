@@ -42,6 +42,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -61,6 +63,7 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         setContentView(R.layout.login);
 
         mLogin = (Button) findViewById(R.id.login);

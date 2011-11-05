@@ -29,6 +29,8 @@ package com.ferg.awful;
 
 import android.os.Bundle;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 public class ForumsPhoneActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsPhoneActivity";
@@ -37,6 +39,7 @@ public class ForumsPhoneActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
 
         setContentView(R.layout.forum_index_activity);
     }

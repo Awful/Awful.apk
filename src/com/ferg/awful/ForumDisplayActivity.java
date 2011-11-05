@@ -32,12 +32,15 @@ import com.ferg.awful.service.AwfulServiceConnection;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 public class ForumDisplayActivity extends AwfulActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         setContentView(R.layout.forum_display_activity);
     }
     public void onResume(){

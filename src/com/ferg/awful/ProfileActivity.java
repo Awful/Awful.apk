@@ -33,6 +33,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.webkit.WebView;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.user.Profile;
 
@@ -46,6 +48,7 @@ public class ProfileActivity extends AwfulActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         setContentView(R.layout.profile);
 
         mFetchTask = new FetchProfileTask();

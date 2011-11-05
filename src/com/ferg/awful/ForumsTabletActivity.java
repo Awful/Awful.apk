@@ -33,6 +33,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 import com.ferg.awful.constants.Constants;
 
 public class ForumsTabletActivity extends AwfulActivity {
@@ -46,6 +48,7 @@ public class ForumsTabletActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         setContentView(R.layout.forum_index_activity);
 
         mContent = (RelativeLayout) findViewById(R.id.content);

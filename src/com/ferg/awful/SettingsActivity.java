@@ -42,6 +42,8 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 /**
  * Simple, purely xml driven preferences. Access using
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
@@ -62,6 +64,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();
 		

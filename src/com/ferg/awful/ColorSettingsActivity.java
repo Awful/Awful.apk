@@ -8,6 +8,8 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 public class ColorSettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	
 	SharedPreferences mPrefs;
@@ -17,6 +19,8 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
+
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate(); 
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -24,8 +28,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		addPreferencesFromResource(R.xml.themesettings);
 		ListPreference p = (ListPreference) findPreference("themes");
 		p.setSummary(p.getEntry());
+
 		if(mPrefs.getString("themes","default").equals("custom")){
-		addPreferencesFromResource(R.xml.colorsettings);
+            addPreferencesFromResource(R.xml.colorsettings);
 		}
 	}
 
