@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.ferg.awful.R;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.preferences.ColorPickerPreference;
 /**
  * SA Private Messages.
  * @author Geekner
@@ -255,12 +256,13 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		return mLoaded;
 	}
 	
-	public String getMessageHtml(){
+	public String getMessageHtml(AwfulPreferences pref){
 		if(mContent!=null){
 			StringBuffer buff = new StringBuffer(mContent.length());
-			buff.append("");
-			buff.append(mContent);
-			buff.append("");
+			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSize + ";'>");
+			buff.append(mContent);//TODO get rid of blockquotes and replace with proper styling
+			buff.append("</div>");
+			return buff.toString();
 		}
 		return "";
 	}

@@ -181,9 +181,9 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			if(paused){
 				Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
                 .invoke(mDisplayText, (Object[]) null);
+	            mDisplayText.resumeTimers();
 				paused = false;
 			}
-            mDisplayText.pauseTimers();
         } catch (Exception e) {
         }
 		message = mServConn.getMessage(pmId);
@@ -270,7 +270,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			}
 			if(message.getContent() != null){
 				if(!paused){
-					mDisplayText.loadData(message.getContent(),"text/html", "utf-8");
+					mDisplayText.loadData(message.getMessageHtml(mPrefs),"text/html", "utf-8");
 				}
 				mPostdate.setText(" on " + message.getDate());
 			}
