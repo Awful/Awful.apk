@@ -81,6 +81,22 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private int savedPage = 0;
     
 	private String mPostJump = "";
+	
+	private WebViewClient callback = new WebViewClient(){
+		@Override
+		public void onPageFinished(WebView view, String url){
+			if(!isResumed()){
+				Log.d(TAG,"onPageFinished() called while activity was paused.");
+				try {
+		            mThreadView.pauseTimers();
+		            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
+		                .invoke(mThreadView, (Object[]) null);
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+			}
+		}
+	};
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -132,6 +148,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     	
         mThreadView.resumeTimers();
+        mThreadView.setWebViewClient(callback);
         mThreadView.setSnapshotView(mSnapshotView);
         mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -212,11 +229,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onPause() {
         super.onPause();
-
         try {
+            mThreadView.pauseTimers();
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
-            mThreadView.pauseTimers();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -230,6 +246,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStop() {
         super.onStop();
+        mThreadView.stopLoading();
         cleanupTasks();
     }
 
