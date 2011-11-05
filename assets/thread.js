@@ -34,8 +34,5 @@ function scrollLastRead(){
 	try{
         $(window).scrollTop($('.unread').first().offset().top);
     }catch(error){
-    	try{
-    		$(window).scrollTop($('.read').last().offset().top);
-		}catch(error){}
     }
 }
