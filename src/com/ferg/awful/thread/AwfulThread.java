@@ -308,7 +308,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
-            buffer.append("                <h4>" + post.getUsername() + "</h4>");
+            buffer.append("                <h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/red_star.png' />":"")  +  "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate'>");
             buffer.append("                " + post.getDate());
@@ -355,7 +355,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("    <td class='usercolumn' style='background: " + background + ";'>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "") + "'>");
-            buffer.append("                <h4>" + post.getUsername() + "</h4>");
+            buffer.append("                <h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/red_star.png' />":"")  + "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "") + "'>");
             buffer.append("                " + post.getDate());

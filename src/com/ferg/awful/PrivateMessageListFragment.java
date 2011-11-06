@@ -90,7 +90,7 @@ public class PrivateMessageListFragment extends Fragment implements
             mRefresh.setOnClickListener(onButtonClick);
         }
         
-        updateColors();
+        updateColors(mPrefs);
         mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
 
         mPMList.setOnItemClickListener(onPMSelected);
@@ -100,9 +100,12 @@ public class PrivateMessageListFragment extends Fragment implements
         mPMList.setAdapter(adapt);
     }
     
-    private void updateColors(){
+    private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(mPrefs.postBackgroundColor);
+    		mPMList.setBackgroundColor(pref.postBackgroundColor);
+    		if(mPMList.getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
+    			mPMList.setCacheColorHint(pref.postBackgroundColor);
+	        }
     	}
     }
     
@@ -233,7 +236,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		updateColors();
+		updateColors(mPrefs);
 	}
 
 }

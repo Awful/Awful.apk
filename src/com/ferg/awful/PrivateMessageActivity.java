@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.*;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
@@ -14,16 +16,21 @@ public class PrivateMessageActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().trackPageView("/PrivateMessageActivity");
+
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
+
         setContentView(R.layout.fragment_pane);
+
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
         	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
         }
+
         pane_two = findViewById(R.id.fragment_pane_two);
         setContentPane();
     }

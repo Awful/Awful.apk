@@ -51,6 +51,8 @@ import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.support.v4.app.DialogFragment;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
@@ -89,6 +91,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPFragment");
         setHasOptionsMenu(true);
     }
         
@@ -325,6 +328,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(mBookmarkList != null){
 			mBookmarkList.setBackgroundColor(prefs.postBackgroundColor);
+			if(mBookmarkList.getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
+				mBookmarkList.setCacheColorHint(prefs.postBackgroundColor);
+	        }
 		}
 	}
 }

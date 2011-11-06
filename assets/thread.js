@@ -11,23 +11,28 @@ $(document).ready(function() {
 
     var salr = new SALR(prefs);
 
-    setYPosition();
+    scrollPost();
 });
 
 $(window).load(function() {
-    setYPosition();
+    scrollPost();
 });
 
-function setYPosition() {
-	if(prefs.yPos == "-1"){
-	    if (prefs.postjumpid != "") {
-	    	try{
-	    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
-	    	}catch(error){}
-	    } else {
-		    try{
-		        $(window).scrollTop($('.unread').first().offset().top);
-		    }catch(error){}
-	    }
+function scrollPost() {
+    if (prefs.postjumpid != "") {
+    	try{
+    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+    	}catch(error){
+    		scrollLastRead();
+    	}
+    } else {
+	    scrollLastRead();
+    }
+}
+
+function scrollLastRead(){
+	try{
+        $(window).scrollTop($('.unread').first().offset().top);
+    }catch(error){
     }
 }
