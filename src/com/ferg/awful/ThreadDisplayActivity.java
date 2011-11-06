@@ -37,8 +37,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 
@@ -52,7 +50,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ThreadDisplayActivity");
         
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);

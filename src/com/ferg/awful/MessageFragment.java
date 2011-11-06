@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,7 +36,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	private boolean replyLoaded = false;
 	private AwfulMessage message;
 	
-	private WebView mDisplayText;
+	private TextView mDisplayText;
 	private EditText mEditReply;
 	private Button mReplyButton;
 	private TextView mUsername;
@@ -54,8 +53,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	private Editable saved_recipient;
 
 	private ProgressDialog mDialog;
-
-	private boolean paused = false;
 
     public static MessageFragment newInstance(String aUser, int aId) {
         MessageFragment fragment = new MessageFragment(aUser, aId);
@@ -93,7 +90,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         View result = aInflater.inflate(R.layout.message_view, aContainer, false);
         
         
-        mDisplayText = (WebView) result.findViewById(R.id.messagebody);
+        mDisplayText = (TextView) result.findViewById(R.id.messagebody);
         mEditReply = (EditText) result.findViewById(R.id.edit_reply_text);
         mReplyButton = (Button) result.findViewById(R.id.message_reply_button);
         mReplyButton.setOnClickListener(this);
@@ -115,6 +112,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         mRecipient.setBackgroundColor(prefs.postBackgroundColor2);
         mSubject.setBackgroundColor(prefs.postBackgroundColor2);
         mDisplayText.setBackgroundColor(prefs.postBackgroundColor);
+        mDisplayText.setTextColor(prefs.postFontColor);
         mEditReply.setTextColor(prefs.postFontColor);
         mRecipient.setTextColor(prefs.postFontColor);
         mSubject.setTextColor(prefs.postFontColor);
@@ -177,30 +175,11 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	
 	public void onResume(){
 		super.onResume();
-		try {
-			if(paused){
-				Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-	            mDisplayText.resumeTimers();
-				paused = false;
-			}
-        } catch (Exception e) {
-        }
 		message = mServConn.getMessage(pmId);
 		if(pmId > 0){
 			mServConn.fetchPrivateMessage(pmId);
 		}
 		updateUI();
-	}
-	public void onPause(){
-		super.onPause();
-		try {
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-            paused = true;
-            mDisplayText.pauseTimers();
-        } catch (Exception e) {
-        }
 	}
 	
 	public void onStop(){
@@ -257,7 +236,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 		mRecipient.setText("");
 		mPostdate.setText("");
 		mEditReply.setText("");
-		mDisplayText.loadData("", "text/html", "utf-8");
+		mDisplayText.setText("");
 		mTitle.setText("New Message");
 		mSubject.setText("");
 	}
@@ -269,9 +248,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 				mSubject.setText(message.getTitle());
 			}
 			if(message.getContent() != null){
-				if(!paused){
-					mDisplayText.loadData(message.getMessageHtml(mPrefs),"text/html", "utf-8");
-				}
+				mDisplayText.setText(Html.fromHtml(message.getContent()));
 				mPostdate.setText(" on " + message.getDate());
 			}
 			if(message.getReplyText() != null && !replyLoaded && saved_reply == null){

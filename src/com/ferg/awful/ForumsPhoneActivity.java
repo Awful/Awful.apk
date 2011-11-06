@@ -31,8 +31,6 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 public class ForumsPhoneActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsPhoneActivity";
@@ -41,14 +39,11 @@ public class ForumsPhoneActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsPhoneActivity");
-
         if(!AwfulActivity.useLegacyActionbar()){
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         }else{
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
-
         setContentView(R.layout.forum_index_activity);
         if(!AwfulActivity.useLegacyActionbar()){
 	        ActionBar action = getActionBar();

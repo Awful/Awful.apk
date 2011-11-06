@@ -311,9 +311,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		if(mForumList != null){
 			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-			if(mForumList.getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
-				mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-	        }
 		}
 	}
 }

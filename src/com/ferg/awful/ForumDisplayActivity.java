@@ -34,16 +34,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 public class ForumDisplayActivity extends AwfulActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsDisplayActivity");
-
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

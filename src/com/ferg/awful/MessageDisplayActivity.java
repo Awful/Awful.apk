@@ -1,5 +1,6 @@
 package com.ferg.awful;
 
+
 import com.ferg.awful.constants.Constants;
 
 import android.os.Bundle;
@@ -8,14 +9,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 public class MessageDisplayActivity extends AwfulActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/MessageDisplayActivity");
 
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
