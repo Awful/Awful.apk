@@ -46,6 +46,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.support.v4.app.DialogFragment;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.reply.Reply;
@@ -87,6 +89,7 @@ public class PostReplyFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyFragment");
     }
     
         
