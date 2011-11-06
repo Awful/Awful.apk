@@ -30,6 +30,7 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.net.Uri;
 import android.os.*;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -96,6 +97,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		        }
 			}
 		}
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
+            aView.getContext().startActivity(browserIntent);
+
+            return true;
+        }
 	};
 
     @Override
