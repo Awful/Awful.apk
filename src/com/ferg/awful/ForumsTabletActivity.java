@@ -48,6 +48,7 @@ public class ForumsTabletActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsTabletActivity");
         setContentView(R.layout.forum_index_activity);
 

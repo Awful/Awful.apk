@@ -89,6 +89,7 @@ public class PostReplyFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", getActivity());
         GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyFragment");
     }
     
