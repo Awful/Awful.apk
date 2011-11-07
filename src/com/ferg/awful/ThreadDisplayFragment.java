@@ -668,6 +668,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("userQuote", "#a2cd5a");
             result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
+            result.put("showSpoilers", aAppPrefs.showAllSpoilers);
+            result.put("postcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
+            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
