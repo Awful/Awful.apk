@@ -30,6 +30,7 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
 import android.preference.PreferenceManager;
@@ -62,6 +63,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private SharedPreferences mPrefs;
+    
+    private Handler mHandler = new Handler();
 
     private ImageButton mNext;
     private ImageButton mNextPage;
@@ -78,6 +81,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private boolean queueDataUpdate;
     private Bundle queueDataExtras;
+    private boolean imagesLoadingState;
 
     private int savedPage = 0;
     
@@ -86,15 +90,25 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	private WebViewClient callback = new WebViewClient(){
 		@Override
 		public void onPageFinished(WebView view, String url){
+			if(imagesLoadingState){
+				imagesLoadingState = false;
+				imageLoadingFinished();
+			}
 			if(!isResumed()){
-				Log.d(TAG,"onPageFinished() called while activity was paused.");
-				try {
-		            mThreadView.pauseTimers();
-		            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-		                .invoke(mThreadView, (Object[]) null);
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
+				Log.d(TAG,view.toString()+" pageFinished: "+url);
+				mHandler.postDelayed(new Runnable(){
+					@Override
+					public void run() {
+						pauseWebView();
+					}
+				}, 500);//this seems to be a race condition. if we call the pause code too soon, it might ignore the message.
+			}
+		}
+		
+		public void onLoadResource (WebView view, String url){
+			if(!imagesLoadingState){
+				imagesLoadingState = true;
+				imageLoadingStarted();
 			}
 		}
 
@@ -240,6 +254,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onPause();
         try {
             mThreadView.pauseTimers();
+            mThreadView.stopLoading();
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mThreadView, (Object[]) null);
         } catch (Exception e) {
@@ -250,6 +265,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         cleanupTasks();
+    }
+    
+    public void pauseWebView(){
+    	try {
+            mThreadView.pauseTimers();
+            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
+                .invoke(mThreadView, (Object[]) null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
         
     @Override
@@ -475,7 +500,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                     displayPostReplyDialog();
                     break;
                 case R.id.refresh:
-                    refresh();
+                	if(imagesLoadingState && mThreadView != null){
+                		mThreadView.stopLoading();
+                		imagesLoadingState = false;
+                		imageLoadingFinished();
+                	}else{
+                		refresh();
+                	}
                     break;
             }
         }
@@ -649,6 +680,29 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(false);
+        }
+    }
+    
+    public void imageLoadingStarted() {
+        if (AwfulActivity.useLegacyActionbar()) {
+        	if(mRefresh != null){
+	            mRefresh.setVisibility(View.VISIBLE);
+	            mRefresh.setImageResource(android.R.drawable.ic_menu_mapmode);
+	            mRefresh.startAnimation(mAdapter.getBlinkingAnimation());
+        	}
+        } else {
+            getActivity().setProgressBarIndeterminateVisibility(true);
+        }
+    }
+    
+    public void imageLoadingFinished() {
+        if (AwfulActivity.useLegacyActionbar()) {
+        	if(mRefresh != null){
+        		mRefresh.setAnimation(null);
+        		mRefresh.setVisibility(View.GONE);
+        	}
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
