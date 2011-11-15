@@ -305,7 +305,9 @@ public class AwfulPost implements AwfulDisplayItem {
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
-        	aThread = convertVideos(aThread);
+        	if(prefs.inlineYoutube){
+        		aThread = convertVideos(aThread);
+        	}
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
 			boolean fyad = false;
