@@ -368,13 +368,12 @@ public class NetworkUtils {
 	 * @return unencoded text.
 	 */
 	public static String encodeHtml(String str){
-		String processed = StringEscapeUtils.escapeHtml4(str);
-		StringBuffer unencodedContent = new StringBuffer(processed.length());
-		Matcher fixCharMatch = encodeCharactersPattern.matcher(processed);
+		StringBuffer unencodedContent = new StringBuffer(str.length());
+		Matcher fixCharMatch = encodeCharactersPattern.matcher(str);
 		while(fixCharMatch.find()){
 			fixCharMatch.appendReplacement(unencodedContent, "&#"+fixCharMatch.group(1).codePointAt(0)+";");
 			}
 		fixCharMatch.appendTail(unencodedContent);
-		return unencodedContent.toString().replaceAll("&quot;", "\"");//SA can't handle &quot, for shame.
+		return unencodedContent.toString();
 	}
 }
