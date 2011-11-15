@@ -77,6 +77,10 @@ table {
     padding: 5px 5px 1px;
 }
 
+.post-content img{
+	max-width: 100% !important;
+}
+
 .postdate {
     color: black;
     font: normal normal normal 13px Verdana, Arial, sans-serif;

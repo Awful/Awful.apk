@@ -345,31 +345,37 @@ public class AwfulPost implements AwfulDisplayItem {
 	                    fyad = true;
 					}
 					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){
-						if(((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages) || !prefs.showSmilies || !prefs.imagesEnabled){
-							TagNode[] images = pc.getElementsByName("img", true);
-							for(TagNode img : images){
-								boolean dontLink = false;
-								TagNode parent = img.getParent();
-								String src = img.getAttributeByName("src");
-								if(parent != null && parent.getName().equals("a")){//image is linked, don't override
-									dontLink = true;
+						TagNode[] images = pc.getElementsByName("img", true);
+						for(TagNode img : images){
+							boolean dontLink = false;
+							TagNode parent = img.getParent();
+							String src = img.getAttributeByName("src");
+							if(parent != null && parent.getName().equals("a")){//image is linked, don't override
+								dontLink = true;
+							}
+							if(img.hasAttribute("title")){
+								if(!prefs.showSmilies){//kill all emotes
+									String name = img.getAttributeByName("title");
+									img.setName("p");
+									img.addChild(new ContentNode(name));
 								}
-								if(img.hasAttribute("title")){
-									if(!prefs.showSmilies){//kill all emotes
-										String name = img.getAttributeByName("title");
+							}else{
+								if((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages || !prefs.imagesEnabled){
+									if(!dontLink){
+										img.setName("a");
+										img.setAttribute("href", src);
+										img.addChild(new ContentNode(src));
+									}else{
 										img.setName("p");
-										img.addChild(new ContentNode(name));
+										img.addChild(new ContentNode(src));
 									}
 								}else{
-									if((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages || !prefs.imagesEnabled){
-										if(!dontLink){
-											img.setName("a");
-											img.setAttribute("href", src);
-											img.addChild(new ContentNode(src));
-										}else{
-											img.setName("p");
-											img.addChild(new ContentNode(src));
-										}
+									if(!dontLink){
+										img.setName("a");
+										img.setAttribute("href", src);
+										TagNode newimg = new TagNode("img");
+										newimg.setAttribute("src", src);
+										img.addChild(newimg);
 									}
 								}
 							}
