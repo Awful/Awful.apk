@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
@@ -295,7 +296,7 @@ public class AwfulPost implements AwfulDisplayItem {
         }
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject){
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         
         int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
@@ -343,7 +344,36 @@ public class AwfulPost implements AwfulDisplayItem {
 	                    post.setContent(fixedContent.toString());
 	                    fyad = true;
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){ 
+					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){
+						if(((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages) || !prefs.showSmilies || !prefs.imagesEnabled){
+							TagNode[] images = pc.getElementsByName("img", true);
+							for(TagNode img : images){
+								boolean dontLink = false;
+								TagNode parent = img.getParent();
+								String src = img.getAttributeByName("src");
+								if(parent != null && parent.getName().equals("a")){//image is linked, don't override
+									dontLink = true;
+								}
+								if(img.hasAttribute("title")){
+									if(!prefs.showSmilies){//kill all emotes
+										String name = img.getAttributeByName("title");
+										img.setName("p");
+										img.addChild(new ContentNode(name));
+									}
+								}else{
+									if((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages || !prefs.imagesEnabled){
+										if(!dontLink){
+											img.setName("a");
+											img.setAttribute("href", src);
+											img.addChild(new ContentNode(src));
+										}else{
+											img.setName("p");
+											img.addChild(new ContentNode(src));
+										}
+									}
+								}
+							}
+						}
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
 						while(fixCharMatch.find()){

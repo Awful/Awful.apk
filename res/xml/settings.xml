@@ -49,10 +49,23 @@
             android:summary="@string/user_highlight_summary"
 			android:defaultValue="true"
 			/>
+			<!-- TODO: Move these to a submenu or something, it's getting crowded. -->
 		<CheckBoxPreference 
             android:key="images_enabled" 
 			android:title="@string/load_images"
 			android:summary="@string/load_images_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="hide_read_images" 
+			android:title="@string/hide_read_images"
+			android:summary="@string/hide_read_images_summary"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="show_smilies" 
+			android:title="@string/show_smilies"
+			android:summary="@string/show_smilies_summary"
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 

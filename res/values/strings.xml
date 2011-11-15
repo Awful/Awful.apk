@@ -84,4 +84,8 @@
 	<string name="show_spoilers_summary">Spoilers are displayed as normal text.</string>
 	<string name="send_pm">Send PM</string>
 	<string name="new_pm">New Private Message</string>
+	<string name="hide_read_images">Hide Old Images</string>
+	<string name="hide_read_images_summary">Hide images in previously viewed posts.</string>
+	<string name="show_smilies">Show Emotes</string>
+	<string name="show_smilies_summary">Show emotes or replace with :text: version.</string>
 </resources>
