@@ -319,6 +319,8 @@ public class NetworkUtils {
         if (sHttpClient == null) {
         	HttpParams httpPar = new BasicHttpParams();
         	HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
+        	HttpConnectionParams.setSoTimeout(httpPar, 10000);//timeout to wait if no data transfer occurs
+        	HttpConnectionParams.setSocketBufferSize(httpPar, 32768);
             sHttpClient = new DefaultHttpClient(httpPar);
         }
 
