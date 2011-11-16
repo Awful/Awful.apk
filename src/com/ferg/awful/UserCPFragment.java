@@ -256,7 +256,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.home:
-                    startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
+                    startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     break;
                 case R.id.pm_button:
                     startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));

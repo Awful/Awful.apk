@@ -416,7 +416,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void displayUserCP() {
         if (!isTablet()) {
-            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } else {
             UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
         }
