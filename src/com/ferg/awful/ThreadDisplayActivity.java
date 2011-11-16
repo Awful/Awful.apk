@@ -132,8 +132,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
             threadid = Integer.parseInt(c2pThreadID);
         }
 
-        if (aSavedState != null) {
-            adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getSavedPage());
+        if (aSavedState != null && aSavedState.getInt(Constants.PAGE) != 0) {
+            adapt = getServiceConnection().createThreadAdapter(aSavedState.getInt(Constants.THREAD_ID), display, aSavedState.getInt(Constants.PAGE));
         } else {
 
             if (c2pPage != null) {
@@ -169,5 +169,12 @@ public class ThreadDisplayActivity extends AwfulActivity {
 
     private ThreadDisplayFragment getFragment() {
         return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+    	super.onSaveInstanceState(outState);
+    	outState.putInt(Constants.PAGE, display.getPage());
+    	outState.putInt(Constants.THREAD_ID, display.getThreadId());
     }
 }

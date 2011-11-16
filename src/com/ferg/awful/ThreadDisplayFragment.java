@@ -833,4 +833,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 		mPostJump = "";
 	}
+
+	public int getPage() {
+		return mAdapter.getPage();
+	}
+
+	public int getThreadId() {
+		return mAdapter.getCurrentId();
+	}
 }
