@@ -143,12 +143,12 @@ public class ThreadDisplayActivity extends AwfulActivity {
             		int ppp = Integer.parseInt(c2pPostPerPage);
             		if(pref.postPerPage != ppp){
             			page = (int) Math.ceil((double)(page*ppp)/pref.postPerPage);
-            			Log.e("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
+            			Log.d("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
             		}
             	}else{
             		if(pref.postPerPage != Constants.ITEMS_PER_PAGE){
             			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)pref.postPerPage);
-            			Log.e("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
+            			Log.d("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
             		}
             	}
             	if(c2pURLFragment != null && c2pURLFragment.startsWith("post")){

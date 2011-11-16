@@ -283,7 +283,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
     @Override
     public void loadingStarted() {
-        Log.e(TAG, "Loading started.");
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
@@ -294,7 +293,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
     @Override
     public void loadingSucceeded() {
-        Log.e(TAG, "Loading succeeded.");
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
