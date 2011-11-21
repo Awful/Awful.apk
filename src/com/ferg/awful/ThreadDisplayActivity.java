@@ -132,8 +132,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
             threadid = Integer.parseInt(c2pThreadID);
         }
 
-        if (aSavedState != null && aSavedState.getInt(Constants.PAGE) != 0) {
-            adapt = getServiceConnection().createThreadAdapter(aSavedState.getInt(Constants.THREAD_ID), display, aSavedState.getInt(Constants.PAGE));
+        if (aSavedState != null) {
+            adapt = getServiceConnection().createThreadAdapter(aSavedState.getInt(Constants.THREAD_ID, threadid), display, aSavedState.getInt(Constants.PAGE, display.getSavedPage()));
         } else {
 
             if (c2pPage != null) {
@@ -163,7 +163,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
             	}
             }
         }
-
+        Log.v(TAG,"Created thread adapter, P:"+adapt.getPage()+" ID:"+adapt.getCurrentId());
         display.setListAdapter(adapt);
     }
 

@@ -473,8 +473,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			return (state != null && state.getChildrenCount(currentPage) == 0);
 		}
 		public int getId() {
-			// TODO Auto-generated method stub
-			return 0;
+			return currentId;
 		}
 
 		@Override

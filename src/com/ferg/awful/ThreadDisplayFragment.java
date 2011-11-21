@@ -106,7 +106,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 		
 		public void onLoadResource (WebView view, String url){
-			if(!imagesLoadingState){
+			if(!imagesLoadingState && url != null && url.startsWith("http")){
 				imagesLoadingState = true;
 				imageLoadingStarted();
 			}
@@ -239,13 +239,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         setActionbarTitle(mAdapter.getTitle());
     }
     
-    public void setListAdapter(ListAdapter adapter){
-        if (mAdapter == null) {
-            mAdapter = (ThreadListAdapter) adapter;
-        }
+    public void setListAdapter(ThreadListAdapter adapter){
+        mAdapter = (ThreadListAdapter) adapter;
 
         if (mAdapter.getChildCount() > 0) {
-            loadingSucceeded();
+            dataUpdate(false,null);
         }
     }
     
