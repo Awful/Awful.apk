@@ -30,6 +30,8 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
@@ -43,6 +45,7 @@ import android.widget.*;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.*;
 
@@ -115,8 +118,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
-            aView.getContext().startActivity(browserIntent);
-
+            PackageManager pacman = aView.getContext().getPackageManager();
+            List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
+            if(res.size() >0){
+            	aView.getContext().startActivity(browserIntent);
+            }else{
+            	String[] split = aUrl.split(":");
+            	Toast.makeText(aView.getContext(), "No application found for protocol"+(split.length > 0 ? ": "+split[0] : ".") ,Toast.LENGTH_LONG).show();
+            }
             return true;
         }
 	};
