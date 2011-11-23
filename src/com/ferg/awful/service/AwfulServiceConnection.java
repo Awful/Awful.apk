@@ -472,6 +472,9 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			//this may be too much of a hack, so I might revisit the idea.
 			return (state != null && state.getChildrenCount(currentPage) == 0);
 		}
+		public int getId() {
+			return currentId;
+		}
 
 		@Override
 		public void registerDataSetObserver(DataSetObserver ob) {
@@ -528,6 +531,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		public int getPage() {
 			return currentPage;
+		}
+
+		public int getCurrentId() {
+			return currentId;
 		}
 
 		public int getLastPage() {

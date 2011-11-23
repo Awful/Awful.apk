@@ -133,7 +133,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
 
         if (aSavedState != null) {
-            adapt = getServiceConnection().createThreadAdapter(threadid, display, display.getSavedPage());
+            adapt = getServiceConnection().createThreadAdapter(aSavedState.getInt(Constants.THREAD_ID, threadid), display, aSavedState.getInt(Constants.PAGE, display.getSavedPage()));
         } else {
 
             if (c2pPage != null) {
@@ -143,12 +143,12 @@ public class ThreadDisplayActivity extends AwfulActivity {
             		int ppp = Integer.parseInt(c2pPostPerPage);
             		if(pref.postPerPage != ppp){
             			page = (int) Math.ceil((double)(page*ppp)/pref.postPerPage);
-            			Log.e("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
+            			Log.d("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
             		}
             	}else{
             		if(pref.postPerPage != Constants.ITEMS_PER_PAGE){
             			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)pref.postPerPage);
-            			Log.e("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
+            			Log.d("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
             		}
             	}
             	if(c2pURLFragment != null && c2pURLFragment.startsWith("post")){
@@ -163,11 +163,18 @@ public class ThreadDisplayActivity extends AwfulActivity {
             	}
             }
         }
-
+        Log.v(TAG,"Created thread adapter, P:"+adapt.getPage()+" ID:"+adapt.getCurrentId());
         display.setListAdapter(adapt);
     }
 
     private ThreadDisplayFragment getFragment() {
         return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+    	super.onSaveInstanceState(outState);
+    	outState.putInt(Constants.PAGE, display.getPage());
+    	outState.putInt(Constants.THREAD_ID, display.getThreadId());
     }
 }

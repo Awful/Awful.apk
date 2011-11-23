@@ -319,6 +319,8 @@ public class NetworkUtils {
         if (sHttpClient == null) {
         	HttpParams httpPar = new BasicHttpParams();
         	HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
+        	HttpConnectionParams.setSoTimeout(httpPar, 10000);//timeout to wait if no data transfer occurs
+        	HttpConnectionParams.setSocketBufferSize(httpPar, 32768);
             sHttpClient = new DefaultHttpClient(httpPar);
         }
 
@@ -368,13 +370,12 @@ public class NetworkUtils {
 	 * @return unencoded text.
 	 */
 	public static String encodeHtml(String str){
-		String processed = StringEscapeUtils.escapeHtml4(str);
-		StringBuffer unencodedContent = new StringBuffer(processed.length());
-		Matcher fixCharMatch = encodeCharactersPattern.matcher(processed);
+		StringBuffer unencodedContent = new StringBuffer(str.length());
+		Matcher fixCharMatch = encodeCharactersPattern.matcher(str);
 		while(fixCharMatch.find()){
 			fixCharMatch.appendReplacement(unencodedContent, "&#"+fixCharMatch.group(1).codePointAt(0)+";");
 			}
 		fixCharMatch.appendTail(unencodedContent);
-		return unencodedContent.toString().replaceAll("&quot;", "\"");//SA can't handle &quot, for shame.
+		return unencodedContent.toString();
 	}
 }
