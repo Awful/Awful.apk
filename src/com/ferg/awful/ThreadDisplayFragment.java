@@ -30,6 +30,8 @@ package com.ferg.awful;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
@@ -43,6 +45,7 @@ import android.widget.*;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.*;
 
@@ -106,7 +109,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 		
 		public void onLoadResource (WebView view, String url){
-			if(!imagesLoadingState){
+			if(!imagesLoadingState && url != null && url.startsWith("http")){
 				imagesLoadingState = true;
 				imageLoadingStarted();
 			}
@@ -115,8 +118,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
-            aView.getContext().startActivity(browserIntent);
-
+            PackageManager pacman = aView.getContext().getPackageManager();
+            List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
+            if(res.size() >0){
+            	aView.getContext().startActivity(browserIntent);
+            }else{
+            	String[] split = aUrl.split(":");
+            	Toast.makeText(aView.getContext(), "No application found for protocol"+(split.length > 0 ? ": "+split[0] : ".") ,Toast.LENGTH_LONG).show();
+            }
             return true;
         }
 	};
@@ -239,13 +248,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         setActionbarTitle(mAdapter.getTitle());
     }
     
-    public void setListAdapter(ListAdapter adapter){
-        if (mAdapter == null) {
-            mAdapter = (ThreadListAdapter) adapter;
-        }
+    public void setListAdapter(ThreadListAdapter adapter){
+        mAdapter = (ThreadListAdapter) adapter;
 
         if (mAdapter.getChildCount() > 0) {
-            loadingSucceeded();
+            dataUpdate(false,null);
         }
     }
     
@@ -416,7 +423,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void displayUserCP() {
         if (!isTablet()) {
-            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } else {
             UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
         }
@@ -740,10 +747,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
-            result.put("imagesEnabled", Boolean.toString(aAppPrefs.imagesEnabled));
             result.put("postjumpid", mPostJump);
         } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         return result.toString();
@@ -834,5 +839,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mAdapter.goToPage(aPage);
 		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
 		mPostJump = "";
+	}
+
+	public int getPage() {
+		return mAdapter.getPage();
+	}
+
+	public int getThreadId() {
+		return mAdapter.getCurrentId();
 	}
 }

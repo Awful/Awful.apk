@@ -205,7 +205,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return result;
     }
 
-    public void getThreadPosts(int aPage, int postPerPage) throws Exception {
+    public void getThreadPosts(int aPage, int postPerPage, AwfulPreferences prefs) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, mThreadId);
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
@@ -236,7 +236,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			setTotalCount((getLastPage()-1)*postPerPage, postPerPage);
 			setUnreadCount(getUnreadCount()+(getTotalCount()-oldTotalCount));
 		}
-        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this), aPage);
+        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this, prefs), aPage);
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {

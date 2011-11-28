@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
@@ -51,6 +52,8 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
+	private static final Pattern youtubeId = Pattern.compile("/v/([\\w_-]+)&?");
+	private static final Pattern vimeoId = Pattern.compile("clip_id=(\\d+)&?");
     
     private static final String LINK_PROFILE      = "Profile";
     private static final String LINK_MESSAGE      = "Message";
@@ -158,47 +161,53 @@ public class AwfulPost implements AwfulDisplayItem {
 		
 		
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
-		HtmlCleaner cleaner = new HtmlCleaner();
 		for(TagNode node : videoNodes){
-			boolean youtube = cleaner.getInnerHtml(node).contains("youtube");
-			boolean vimeo = cleaner.getInnerHtml(node).contains("vimeo");
-			if(youtube || vimeo){
-				TagNode object = node.getChildTags()[0];
-				int height = Integer.parseInt(object.getAttributeByName("height"));
-				int width = Integer.parseInt(object.getAttributeByName("width"));
-				TagNode embed = object.getElementsHavingAttribute("src", true)[0];
-				String src = embed.getAttributeByName("src");
+			String src = null;
+			int height = 0;
+			int width = 0;
+			TagNode[] object = node.getElementsByName("object", false);
+			if(object.length > 0){
+				height = Integer.parseInt(object[0].getAttributeByName("height"));
+				width = Integer.parseInt(object[0].getAttributeByName("width"));
+				TagNode[] emb = object[0].getElementsByName("embed", true);
+				if(emb.length >0){
+					src = emb[0].getAttributeByName("src");
+				}
+			}
+			if(src != null && height != 0 && width != 0){
 				String link = null, image = null;
-				if(youtube){
-					int startId = src.indexOf("/v/")+3;
-					int endId = src.indexOf('&', startId);
-					String videoId = src.substring(startId, endId);
+				Matcher youtube = youtubeId.matcher(src);
+				Matcher vimeo = vimeoId.matcher(src);
+				if(youtube.find()){
+					String videoId = youtube.group(1);
 					link = "http://www.youtube.com/watch?v=" + videoId;
 					image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-				}else if(vimeo){
-					int startId = src.indexOf("clip_id=")+8;
-					int endId = src.indexOf('&', startId);
-					String videoId = src.substring(startId, endId);
+				}else if(vimeo.find()){
+					String videoId = vimeo.group(1);
 					TagNode vimeoXML;
 					try {
-						vimeoXML = cleaner.clean(new URL("http://vimeo.com/api/v2/video/"+videoId+".xml"));
+						vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 						continue;
 					}
 					link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
 					image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
 				}else{
-					cleaner.setInnerHtml(node, "<a href='"+src+"'>"+src+"</a>");
+					node.removeAllChildren();
+					TagNode ln = new TagNode("a");
+					ln.setAttribute("href", src);
+					ln.addChild(new ContentNode(src));
+					node.addChild(ln);
 					continue;
 				}
-				
-
-				StringBuffer buffer = new StringBuffer("<div onclick='location.href=\""+link+"\"' style='background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height + "'>");
-				buffer.append("<img class='noLink' src='file:///android_res/drawable/play.png' style='position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;' />");
-				buffer.append("</div>");
-				cleaner.setInnerHtml(node, buffer.toString());
+				node.removeAllChildren();
+				node.setAttribute("style", "background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height);
+				node.setAttribute("onclick", "location.href=\""+link+"\"");
+				TagNode img = new TagNode("img");
+				img.setAttribute("class", "nolink");
+				img.setAttribute("src", "file:///android_res/drawable/play.png");
+				img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
+				node.addChild(img);
 			}
 		}
 		
@@ -295,7 +304,7 @@ public class AwfulPost implements AwfulDisplayItem {
         }
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject){
+    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
         ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
         
         int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
@@ -343,7 +352,42 @@ public class AwfulPost implements AwfulDisplayItem {
 	                    post.setContent(fixedContent.toString());
 	                    fyad = true;
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){ 
+					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){
+						TagNode[] images = pc.getElementsByName("img", true);
+						for(TagNode img : images){
+							boolean dontLink = false;
+							TagNode parent = img.getParent();
+							String src = img.getAttributeByName("src");
+							if((parent != null && parent.getName().equals("a")) || (img.hasAttribute("class") && img.getAttributeByName("class").contains("nolink"))){//image is linked, don't override
+								dontLink = true;
+							}
+							if(img.hasAttribute("title")){
+								if(!prefs.showSmilies){//kill all emotes
+									String name = img.getAttributeByName("title");
+									img.setName("p");
+									img.addChild(new ContentNode(name));
+								}
+							}else{
+								if((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages || !prefs.imagesEnabled){
+									if(!dontLink){
+										img.setName("a");
+										img.setAttribute("href", src);
+										img.addChild(new ContentNode(src));
+									}else{
+										img.setName("p");
+										img.addChild(new ContentNode(src));
+									}
+								}else{
+									if(!dontLink){
+										img.setName("a");
+										img.setAttribute("href", src);
+										TagNode newimg = new TagNode("img");
+										newimg.setAttribute("src", src);
+										img.addChild(newimg);
+									}
+								}
+							}
+						}
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
 						while(fixCharMatch.find()){

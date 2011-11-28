@@ -43,7 +43,7 @@ SALR.prototype.init = function() {
     //     this.inlineYoutubes();
     // }
 
-    this.imagesAsLinks();
+    //this.imagesAsLinks();
 
 	// this.modifyImages();
     // this.highlightFriendPosts();    

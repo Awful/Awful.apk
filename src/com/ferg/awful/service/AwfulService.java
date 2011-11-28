@@ -229,7 +229,7 @@ public class AwfulService extends Service {
         	boolean status = false;
             if (!isCancelled() && thread != null) {
                 try {
-                	thread.getThreadPosts(mPage, mPrefs.postPerPage);
+                	thread.getThreadPosts(mPage, mPrefs.postPerPage, mPrefs);
                 	status = true;
                 } catch (Exception e) {
                 	status = false;

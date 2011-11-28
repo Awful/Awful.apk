@@ -30,6 +30,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postOPColor;
 	public int postLinkQuoteColor;
 	public boolean imagesEnabled;
+	public boolean showSmilies;
+	public boolean hideOldImages;
 	public boolean alternateBackground;
 	public int postPerPage;
     public boolean highlightUserQuote;
@@ -73,8 +75,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
     public void setUsername(String aUsername) {
-    	//TODO: last time I tried this, username highlighting was case sensitive, but login names were almost always typed lowercase.
-        mPrefs.edit().putString("username", aUsername).commit();
+    	mPrefs.edit().putString("username", aUsername).commit();
     }
 
 	private void updateValues(SharedPreferences prefs) {
@@ -89,6 +90,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     	postOPColor              = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
+        hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
+        showSmilies              = mPrefs.getBoolean("show_smilies", true);
         postPerPage              = mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE);
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);

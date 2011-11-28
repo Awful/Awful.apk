@@ -373,7 +373,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     @Override
     public void loadingStarted() {
-        Log.e(TAG, "Loading started.");
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
@@ -385,7 +384,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     @Override
     public void loadingSucceeded() {
-        Log.e(TAG, "Loading succeeded.");
         if (isAdded()) {
             if (AwfulActivity.useLegacyActionbar()) {
                 mRefresh.setAnimation(null);
