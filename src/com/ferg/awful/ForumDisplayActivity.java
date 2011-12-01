@@ -42,8 +42,8 @@ public class ForumDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsDisplayActivity");
+        GoogleAnalyticsTracker.getInstance().dispatch();
 
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);

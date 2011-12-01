@@ -49,6 +49,7 @@ public class ProfileActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GoogleAnalyticsTracker.getInstance().trackPageView("/ProfileActivity");
+        GoogleAnalyticsTracker.getInstance().dispatch();
         setContentView(R.layout.profile);
 
         mFetchTask = new FetchProfileTask();

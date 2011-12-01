@@ -39,8 +39,8 @@ public class PostReplyActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyActivity");
+        GoogleAnalyticsTracker.getInstance().dispatch();
         setContentView(R.layout.post_reply_activity);
 
         setContentPane();

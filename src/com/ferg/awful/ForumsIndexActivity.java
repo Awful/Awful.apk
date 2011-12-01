@@ -46,8 +46,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsIndexActivity");
+        GoogleAnalyticsTracker.getInstance().dispatch();
 
         if (isTablet()) {
             startTabletActivity();

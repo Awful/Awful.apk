@@ -13,11 +13,10 @@ public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
 	@Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
         GoogleAnalyticsTracker.getInstance().trackPageView("/PrivateMessageActivity");
+        GoogleAnalyticsTracker.getInstance().dispatch();
 
         if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
