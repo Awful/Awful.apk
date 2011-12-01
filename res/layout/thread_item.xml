@@ -1,56 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="8dip"
+    android:orientation="vertical"
     android:paddingBottom="8dip"
-    android:paddingRight="8dip"
     android:paddingLeft="@dimen/forum_item_margin"
-    >
-    <ImageView
-        android:id="@+id/sticky_icon"
+    android:paddingRight="8dip"
+    android:paddingTop="8dip" >
+
+    <RelativeLayout
+        android:id="@+id/icon_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
-        android:layout_marginRight="4dip"
-        android:src="@drawable/sticky"
-        />
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+        android:layout_centerVertical="false">
+
+        <ImageView
+            android:id="@+id/sticky_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dip"
+            android:layout_marginTop="6dip"
+            android:src="@drawable/sticky" />
+
+        <ImageView
+            android:id="@+id/bookmark_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sticky_icon"
+            android:layout_marginRight="4dip"
+            android:paddingTop="10dip"
+
+            android:src="@drawable/blue_star" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/thread_box"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/sticky_icon"
-		>
-		<TextView
-			android:id="@+id/title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/unread_count"
+        android:layout_toRightOf="@+id/icon_box" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-			android:textSize="18dip"
-			android:textColor="@color/default_post_font"
-			/>
-		<TextView
-			android:id="@+id/author"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/title"
-			android:textSize="16dip"
-			android:textColor="@color/background"
-			/>
+            android:layout_toLeftOf="@+id/unread_count"
+            android:textColor="@color/default_post_font"
+            android:textSize="18dip" />
+
+        <TextView
+            android:id="@+id/threadinfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:textColor="@color/background"
+            android:textSize="16dip" />
+
         <TextView
             android:id="@id/unread_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="12dip"
             android:layout_centerVertical="true"
-            android:textStyle="bold"
-            android:textSize="14dip"
-            android:textColor="#ffffff"
+            android:layout_marginLeft="12dip"
             android:background="@drawable/unread_background"
-            />
-	</RelativeLayout>
+            android:textColor="#ffffff"
+            android:textSize="14dip"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
 </RelativeLayout>

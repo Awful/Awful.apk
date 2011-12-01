@@ -42,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.*;
@@ -65,6 +66,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	private int mTotalPosts;
     private boolean mClosed;
 	private boolean mBookmarked;
+	private String mKilledBy;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
 
     public AwfulThread() {
@@ -130,6 +132,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                     thread.setTitle(tarThread[0].getText().toString().trim());
                 }
 
+                TagNode[] killedBy = node.getElementsByAttValue("class", "lastpost", true, true);
+                thread.setKilledBy(killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
                 TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
                 if (tarSticky.length > 0) {
                     thread.setSticky(true);
@@ -411,8 +415,16 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     public void setAuthorID(String aAuthorID) {
         mAuthorID = aAuthorID;
     }
+    
+    public String getKilledBy() {
+		return mKilledBy;
+	}
 
-    public String getIcon() {
+	public void setKilledBy(String mKilledBy) {
+		this.mKilledBy = mKilledBy;
+	}
+
+	public String getIcon() {
         return mIcon;
     }
 
@@ -459,20 +471,36 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			tmp = inf.inflate(R.layout.thread_item, parent, false);
 			tmp.setTag(this);
 		}
-		TextView author = (TextView) tmp.findViewById(R.id.author);
+		TextView info = (TextView) tmp.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) tmp.findViewById(R.id.sticky_icon);
+		ImageView bookmark = (ImageView) tmp.findViewById(R.id.bookmark_icon);
 		if(mSticky){
 			sticky.setImageResource(R.drawable.sticky);
 			sticky.setVisibility(View.VISIBLE);
-		}
-		if(mBookmarked){
-			sticky.setImageResource(R.drawable.blue_star);
-			sticky.setVisibility(View.VISIBLE);
-		}
-		if(!mSticky && !mBookmarked){
+		}else{
 			sticky.setVisibility(View.GONE);
 		}
-		author.setText(mAuthor);
+		if(mBookmarked && !(((ListView)parent).getId() == R.id.bookmark_list)){
+			bookmark.setImageResource(R.drawable.blue_star);
+			bookmark.setVisibility(View.VISIBLE);
+			if(!mSticky){
+				bookmark.setPadding(0, 5, 4, 0);
+			}
+		}else{
+			if(!mSticky){
+				bookmark.setVisibility(View.GONE);
+			}else{
+				bookmark.setVisibility(View.INVISIBLE);
+			}
+			
+		}
+		if(prefs.threadInfo.equals("threadpages")){
+			info.setText((int)(Math.ceil(mTotalPosts/prefs.postPerPage)+1)+" pages");	
+		}else if(prefs.threadInfo.equals("killedby")){
+			info.setText("Killed By: "+mKilledBy);
+		}else{
+			info.setText("Author: "+mAuthor);
+		}
 		TextView unread = (TextView) tmp.findViewById(R.id.unread_count);
 		if(mUnreadCount >=0){
 			unread.setVisibility(View.VISIBLE);
@@ -489,7 +517,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		}
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
-			author.setTextColor(prefs.postFontColor2);
+			info.setTextColor(prefs.postFontColor2);
 			title.setSingleLine(!prefs.wrapThreadTitles);
 			if(!prefs.wrapThreadTitles){
 				title.setEllipsize(TruncateAt.END);
