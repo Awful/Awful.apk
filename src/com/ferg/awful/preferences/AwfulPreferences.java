@@ -39,6 +39,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineYoutube;
     public boolean wrapThreadTitles;
 	public boolean showAllSpoilers;
+	public String threadInfo;
 
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
@@ -99,6 +100,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
+        threadInfo				 = mPrefs.getString("threadinfo", "author");
        	 //TODO: I have never seen this before oh god
 	}
 }

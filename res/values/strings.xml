@@ -59,11 +59,16 @@
 		<item>Portrait</item>
 		<item>Landscape</item>
 	</string-array>
-		<string-array name="themes">
+	<string-array name="themes">
 		<item>Default</item>
 		<item>Dark</item>
 		<item>yospos</item>
 		<item>Custom</item>
+	</string-array>
+	<string-array name="threadinfo">
+		<item>Author</item>
+		<item>Killed By</item>
+		<item>Number of Pages</item>
 	</string-array>
 	<string name="bookmark">Bookmark</string>
 	<string name="unbookmark">Unbookmark</string>
@@ -88,4 +93,5 @@
 	<string name="hide_read_images_summary">Hide images in previously viewed posts.</string>
 	<string name="show_smilies">Show Emotes</string>
 	<string name="show_smilies_summary">Show emotes or replace with :text: version.</string>
+	<string name="threadinfo">Thread info</string>
 </resources>
