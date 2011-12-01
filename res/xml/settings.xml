@@ -30,6 +30,13 @@
 			android:key="colors" 
 			android:title="@string/colors"
 			/>
+        <ListPreference
+            android:key="threadinfo"
+            android:title="@string/threadinfo"
+            android:entries="@array/threadinfo"
+            android:entryValues="@array/threadinfo_values"
+			android:defaultValue="author"
+            />
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_salr">
         <EditTextPreference
