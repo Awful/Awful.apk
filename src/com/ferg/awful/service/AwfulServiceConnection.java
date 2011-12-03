@@ -107,7 +107,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	}
 	public void fetchThread(int id, int page){
 		if(boundState){
-			mService.fetchThread(id, page);
+			// mService.fetchThread(id, page);
 		}
 	}
 	public void fetchForum(int id, int page){

@@ -39,6 +39,7 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,9 @@ import com.ferg.awful.preferences.AwfulPreferences;
 public class AwfulPost implements AwfulDisplayItem {
     private static final String TAG = "AwfulPost";
 
+    public static final String PATH     = "/post";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern vimeoId = Pattern.compile("clip_id=(\\d+)&?");
@@ -59,7 +63,19 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
 
+    public static final String ID        = "_id";
+    public static final String THREAD_ID = "thread_id";
+    public static final String PAGE      = "page";
+    public static final String DATE      = "date";
+    public static final String USER_ID   = "user_id";
+    public static final String USERNAME  = "username";
+    public static final String AVATAR    = "avatar";
+    public static final String CONTENT   = "content";
+    public static final String EDITED    = "edited";
+
     private String mId;
+    private int mThreadId;
+    private int mPage;
     private String mDate;
     private String mUserId;
     private String mUsername;
@@ -158,9 +174,8 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
     private static TagNode convertVideos(TagNode contentNode) {
-		
-		
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
+
 		for(TagNode node : videoNodes){
 			String src = null;
 			int height = 0;

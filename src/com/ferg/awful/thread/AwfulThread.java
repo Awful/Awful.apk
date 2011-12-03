@@ -55,6 +55,9 @@ import com.ferg.awful.preferences.ColorPickerPreference;
 public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
 
+    private static final String ID = "_id";
+    private static final String PAGE = "page";
+
     private String mThreadId;
     private int threadId;
     private String mAuthor;
@@ -205,38 +208,51 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return result;
     }
 
-    public void getThreadPosts(int aPage, int postPerPage, AwfulPreferences prefs) throws Exception {
+    public static void getThreadPosts(int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_THREAD_ID, mThreadId);
-        params.put(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
+        Log.i(TAG, "Setting thread id");
+        params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
+        Log.i(TAG, "Setting per page");
+        params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
+        Log.i(TAG, "Setting page number");
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
 
+        Log.i(TAG, "Getting response");
         TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
+        Log.i(TAG, "Got response");
 
-        if (mTitle == null) {
+        if (true /* mTitle == null */) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
 
             if (tarTitle.length > 0) {
-                mTitle = tarTitle[0].getText().toString().trim();
+                // TODO: mTitle = tarTitle[0].getText().toString().trim();
             }
         }
+
         TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
-        if(replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")){
-        	this.mClosed=true;
+        if (replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")) {
+        	// TODO: this.mClosed = true;
         }
+
         TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
-        if(bkButtons.length >0){
+        if (bkButtons.length >0) {
         	String bkSrc = bkButtons[0].getAttributeByName("src");
-        	setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
+        	// TODO: setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
         }
+
+        /* TODO: 
         int oldLastPage = getLastPage();
         int oldTotalCount = getTotalCount();
+
         parsePageNumbers(response);
-        if(oldLastPage < getLastPage()){
-			setTotalCount((getLastPage()-1)*postPerPage, postPerPage);
-			setUnreadCount(getUnreadCount()+(getTotalCount()-oldTotalCount));
+
+        if (oldLastPage < getLastPage()) {
+			setTotalCount((getLastPage() - 1) * postPerPage, postPerPage);
+			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
 		}
-        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this, prefs), aPage);
+
+        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this, aPrefs), aPage);
+        */
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {

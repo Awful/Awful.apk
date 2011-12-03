@@ -308,16 +308,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             
             switch(adapt.getItemType(aPosition)) {
-            case THREAD:
-                AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
-                Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-                viewThread.putExtra(Constants.THREAD, thread.getID());
-                startActivity(viewThread);
-                break;
-                
-            case FORUM:
-                displayForumContents(aPosition);
-                break;
+                case THREAD:
+                    AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
+                    Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
+                    Log.i(TAG, "Thread ID: " + Integer.toString(thread.getID()));
+                    viewThread.putExtra(Constants.THREAD_ID, thread.getID());
+                    startActivity(viewThread);
+                    break;
+                    
+                case FORUM:
+                    displayForumContents(aPosition);
+                    break;
             }
             
         }

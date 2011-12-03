@@ -1,3 +1,30 @@
+/********************************************************************************
+ * Copyright (c) 2011, Scott Ferguson
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the software nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL SCOTT FERGUSON BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
+
 package com.ferg.awful.provider;
 
 import android.content.ContentProvider;
@@ -15,7 +42,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,19 +51,19 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     private static final String TABLE_FORUM    = "forum";
-    private static final String TABLE_SUBFORUM = "subforum";
+    private static final String TABLE_POSTS    = "posts";
 
-    private static final int FORUM       = 0;
-    private static final int FORUM_ID    = 1;
-    private static final int SUBFORUM    = 2;
-    private static final int SUBFORUM_ID = 3;
+    private static final int FORUM    = 0;
+    private static final int FORUM_ID = 1;
+    private static final int POST     = 2;
+    private static final int POST_ID  = 3;
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
-	private static HashMap<String, String> sSubforumProjectionMap;
+	private static HashMap<String, String> sPostProjectionMap;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
@@ -50,16 +77,22 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR);");
 
-            //aDb.execSQL("CREATE TABLE " + TABLE_SUBFORUM + " (" +
-                //AwfulSubforum.ID        + " INTEGER UNIQUE," + 
-               // AwfulSubforum.TITLE     + " VARCHAR,"        + 
-               // AwfulSubforum.PARENT_ID + " INTEGER);");
+            aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
+                AwfulPost.ID        + " INTEGER UNIQUE," + 
+                AwfulPost.THREAD_ID + " INTEGER,"        + 
+                AwfulPost.PAGE      + " INTEGER,"        + 
+                AwfulPost.DATE      + " VARCHAR,"        + 
+                AwfulPost.USER_ID   + " VARCHAR,"        + 
+                AwfulPost.USERNAME  + " VARCHAR,"        + 
+                AwfulPost.AVATAR    + " VARCHAR,"        + 
+                AwfulPost.CONTENT   + " VARCHAR,"        + 
+                AwfulPost.EDITED    + " VARCHAR);");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_SUBFORUM);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
 
             onCreate(aDb);
         }
@@ -92,6 +125,9 @@ public class AwfulProvider extends ContentProvider {
             case FORUM:
                 table = TABLE_FORUM;
                 break;
+            case POST:
+                table = TABLE_POSTS;
+                break;
             default:
                 break;
         }
@@ -112,8 +148,11 @@ public class AwfulProvider extends ContentProvider {
             case FORUM:
                 table = TABLE_FORUM;
                 break;
-            case SUBFORUM:
-                table = TABLE_SUBFORUM;
+            case POST_ID:
+                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
+                aWhere = AwfulPost.ID + "=?";
+            case POST:
+                table = TABLE_POSTS;
                 break;
         }
 
@@ -136,8 +175,8 @@ public class AwfulProvider extends ContentProvider {
             case FORUM:
                 table = TABLE_FORUM;
                 break;
-            case SUBFORUM:
-                table = TABLE_SUBFORUM;
+            case POST:
+                table = TABLE_POSTS;
                 break;
         }
 
@@ -173,8 +212,8 @@ public class AwfulProvider extends ContentProvider {
 			case FORUM:
 				table = TABLE_FORUM;
 				break;
-			case SUBFORUM:
-				table = TABLE_SUBFORUM;
+			case POST:
+				table = TABLE_POSTS;
 				break;
         }
 
@@ -207,12 +246,12 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_FORUM);
 				builder.setProjectionMap(sForumProjectionMap);
 				break;
-			case SUBFORUM_ID:
+			case POST_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                //builder.appendWhere(AwfulSubforum.ID + "=?");
-			case SUBFORUM:
-				builder.setTables(TABLE_SUBFORUM);
-				builder.setProjectionMap(sSubforumProjectionMap);
+                builder.appendWhere(AwfulPost.ID + "=?");
+			case POST:
+				builder.setTables(TABLE_POSTS);
+				builder.setProjectionMap(sPostProjectionMap);
 				break;
         }
 
@@ -254,19 +293,23 @@ public class AwfulProvider extends ContentProvider {
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		sForumProjectionMap = new HashMap<String, String>();
-		sSubforumProjectionMap = new HashMap<String, String>();
+        sPostProjectionMap = new HashMap<String, String>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "subforum", SUBFORUM);
-		sUriMatcher.addURI(Constants.AUTHORITY, "subforum/#", SUBFORUM_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "post", POST);
+		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 
-		//sSubforumProjectionMap.put(AwfulSubforum.ID, AwfulSubforum.ID);
-		//sSubforumProjectionMap.put(AwfulSubforum.TITLE, AwfulSubforum.TITLE);
-		//sSubforumProjectionMap.put(AwfulSubforum.PARENT_ID, AwfulSubforum.PARENT_ID);
+		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
+		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
+		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
+		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
+		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
+		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
+		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
     }
 }

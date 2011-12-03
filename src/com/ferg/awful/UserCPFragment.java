@@ -272,8 +272,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             AwfulThread thread = (AwfulThread) mBookmarkList.getAdapter().getItem(aPosition);
 
+            Log.i(TAG, "Thread ID: " + Integer.toString(thread.getID()));
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD, thread.getID());
+            viewThread.putExtra(Constants.THREAD_ID, thread.getID());
 
             startActivity(viewThread);
         }

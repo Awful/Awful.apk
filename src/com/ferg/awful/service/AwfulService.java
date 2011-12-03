@@ -90,21 +90,6 @@ public class AwfulService extends Service {
 		return bindServ;
 	}
 	
-	
-    /**
-     * Starts an asynchronous process that loads a thread's data for the specified page.
-     * A broadcast will be sent once the data is processed. It will use Constants.DATA_UPDATE_BROADCAST and an integer extra DATA_UPDATE_ID_EXTRA.
-     * @param id Thread ID number
-     * @param page Page number
-     */
-	public void fetchThread(int id, int page) {
-		if(isThreadQueued(id,page)){
-			Log.w(TAG, "dupe fetchThread "+id);
-			return;
-		}
-		Log.v(TAG, "fetchThread "+id);
-		queueThread(new FetchThreadTask(id, page));
-	}
 	/**
      * Starts an asynchronous process that loads a forum's data (threads/subforums) for the specified page.
      * A broadcast will be sent once the data is processed. It will use Constants.DATA_UPDATE_BROADCAST and an integer extra DATA_UPDATE_ID_EXTRA.
@@ -209,43 +194,6 @@ public class AwfulService extends Service {
 		}
 		
 	}
-	
-	private class FetchThreadTask extends AwfulTask<Boolean> {
-		private AwfulThread thread;
-		public FetchThreadTask(int id, int page) {
-			mId = id;
-			mPage = page;
-			thread = (AwfulThread) db.get("threadid="+mId);
-			if(thread == null){
-				thread = new AwfulThread(mId);
-				db.put("threadid="+mId, thread);
-			}
-		}
-
-        public void onPreExecute() {
-        }
-
-        public Boolean doInBackground(Void... vParams) {
-        	boolean status = false;
-            if (!isCancelled() && thread != null) {
-                try {
-                	thread.getThreadPosts(mPage, mPrefs.postPerPage, mPrefs);
-                	status = true;
-                } catch (Exception e) {
-                	status = false;
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return status;
-        }
-
-        public void onPostExecute(Boolean aResult) {
-        	sendUpdate(aResult);
-           	threadFinished(this);
-        }
-    }
 
     private class FetchForumThreadsTask extends AwfulTask<ArrayList<AwfulThread>> {
 		private AwfulForum mForum;
