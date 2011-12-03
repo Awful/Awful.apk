@@ -19,8 +19,14 @@ public class AwfulApplication extends Application {
         ACRA.init(this);
         super.onCreate();
 
-        Log.i(TAG, "Starting instance");
         GoogleAnalyticsTracker.getInstance().startNewSession("UA-26815058-1", this);
+
+        try {
+            GoogleAnalyticsTracker.getInstance().setCustomVar(1, "App Version", getPackageManager().getPackageInfo(getPackageName(), 0).versionName, 0);
+        } catch (Exception e) {
+            GoogleAnalyticsTracker.getInstance().setCustomVar(2, "Version Failure", "Failed to retrieve", 0);
+        }
+
         GoogleAnalyticsTracker.getInstance().dispatch();
     }
 }
