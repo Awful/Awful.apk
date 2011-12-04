@@ -51,7 +51,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_POSTS    = "posts";
@@ -78,15 +78,27 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.SUBTEXT + " VARCHAR);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
-                AwfulPost.ID        + " INTEGER UNIQUE," + 
-                AwfulPost.THREAD_ID + " INTEGER,"        + 
-                AwfulPost.PAGE      + " INTEGER,"        + 
-                AwfulPost.DATE      + " VARCHAR,"        + 
-                AwfulPost.USER_ID   + " VARCHAR,"        + 
-                AwfulPost.USERNAME  + " VARCHAR,"        + 
-                AwfulPost.AVATAR    + " VARCHAR,"        + 
-                AwfulPost.CONTENT   + " VARCHAR,"        + 
-                AwfulPost.EDITED    + " VARCHAR);");
+                AwfulPost.ID                    + " VARCHAR UNIQUE," + 
+                AwfulPost.THREAD_ID             + " INTEGER,"        + 
+                AwfulPost.PAGE                  + " INTEGER,"        + 
+                AwfulPost.DATE                  + " VARCHAR,"        + 
+                AwfulPost.USER_ID               + " VARCHAR,"        + 
+                AwfulPost.USERNAME              + " VARCHAR,"        + 
+                AwfulPost.LAST_READ             + " INTEGER,"        +
+                AwfulPost.EVEN                  + " INTEGER,"        +
+                AwfulPost.PREVIOUSLY_READ       + " INTEGER,"        +
+                AwfulPost.HAS_PROFILE_LINK      + " INTEGER,"        +
+                AwfulPost.HAS_MESSAGE_LINK      + " INTEGER,"        +
+                AwfulPost.HAS_POST_HISTORY_LINK + " INTEGER,"        +
+                AwfulPost.HAS_RAP_SHEET_LINK    + " INTEGER,"        +
+                AwfulPost.LAST_READ_URL         + " VARCHAR,"        +
+                AwfulPost.EDITABLE              + " INTEGER,"        +
+                AwfulPost.IS_OP                 + " INTEGER,"        +
+                AwfulPost.IS_ADMIN              + " INTEGER,"        +
+                AwfulPost.IS_MOD                + " INTEGER,"        +
+                AwfulPost.AVATAR                + " VARCHAR,"        + 
+                AwfulPost.CONTENT               + " VARCHAR,"        + 
+                AwfulPost.EDITED                + " VARCHAR);");
         }
 
         @Override
@@ -184,7 +196,7 @@ public class AwfulProvider extends ContentProvider {
 
 		try {
 			for (ContentValues value : aValues) {
-				db.insert(table, "", value);
+                db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
 				result++;
 			}
 
@@ -305,9 +317,23 @@ public class AwfulProvider extends ContentProvider {
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 
 		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
+		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
+		sPostProjectionMap.put(AwfulPost.PAGE, AwfulPost.PAGE);
 		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
 		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
 		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
+		sPostProjectionMap.put(AwfulPost.LAST_READ, AwfulPost.LAST_READ);
+		sPostProjectionMap.put(AwfulPost.EVEN, AwfulPost.EVEN);
+		sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
+		sPostProjectionMap.put(AwfulPost.HAS_PROFILE_LINK, AwfulPost.HAS_PROFILE_LINK);
+		sPostProjectionMap.put(AwfulPost.HAS_MESSAGE_LINK, AwfulPost.HAS_MESSAGE_LINK);
+		sPostProjectionMap.put(AwfulPost.HAS_POST_HISTORY_LINK, AwfulPost.HAS_POST_HISTORY_LINK);
+		sPostProjectionMap.put(AwfulPost.HAS_RAP_SHEET_LINK, AwfulPost.HAS_RAP_SHEET_LINK);
+		sPostProjectionMap.put(AwfulPost.LAST_READ_URL, AwfulPost.LAST_READ_URL);
+		sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
+		sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
+		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
+		sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
 		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);

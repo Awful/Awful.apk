@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.htmlcleaner.TagNode;
 
+import android.content.Context;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
@@ -208,18 +209,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return result;
     }
 
-    public static void getThreadPosts(int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs) throws Exception {
+    public static void getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
-        Log.i(TAG, "Setting thread id");
         params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
-        Log.i(TAG, "Setting per page");
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
-        Log.i(TAG, "Setting page number");
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
 
-        Log.i(TAG, "Getting response");
         TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
-        Log.i(TAG, "Got response");
 
         if (true /* mTitle == null */) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
@@ -250,9 +246,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			setTotalCount((getLastPage() - 1) * postPerPage, postPerPage);
 			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
 		}
-
-        setPosts(AwfulPost.parsePosts(response, aPage, postPerPage, this, aPrefs), aPage);
         */
+
+        AwfulPost.syncPosts(aContext, response, aPage, aPageSize, new AwfulThread(aThreadId), aPrefs);
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {
@@ -458,14 +454,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
     public void setUnreadCount(int aUnreadCount) {
         mUnreadCount = aUnreadCount;
-    }
-
-    public ArrayList<AwfulPost> getPosts(int page) {
-        return mPosts.get(page);
-    }
-
-    public void setPosts(ArrayList<AwfulPost> aPosts, int page) {
-   		mPosts.put(page, aPosts);
     }
 
 	@Override

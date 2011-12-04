@@ -60,13 +60,13 @@ public class ThreadSyncService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        mPrefs = new AwfulPreferences(this);
+
         return mMessenger.getBinder();
     }
 
     @Override
     public int onStartCommand(Intent aIntent, int aFlags, int aStartId) {
-        mPrefs = new AwfulPreferences(this);
-
         return Service.START_STICKY;
     }
 
@@ -113,7 +113,8 @@ public class ThreadSyncService extends Service {
         new Thread() {
             public void run() {
                 try {
-                	AwfulThread.getThreadPosts(aThreadId, aPage, mPrefs.postPerPage, mPrefs);
+                    AwfulThread.getThreadPosts(ThreadSyncService.this, 
+                            aThreadId, aPage, mPrefs.postPerPage, mPrefs);
                     Log.i(TAG, "Sync complete");
                     updateStatus(Status.OKAY);
                 } catch (Exception e) {

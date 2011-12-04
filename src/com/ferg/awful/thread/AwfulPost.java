@@ -39,6 +39,9 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,15 +66,27 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final String LINK_MESSAGE      = "Message";
     private static final String LINK_POST_HISTORY = "Post History";
 
-    public static final String ID        = "_id";
-    public static final String THREAD_ID = "thread_id";
-    public static final String PAGE      = "page";
-    public static final String DATE      = "date";
-    public static final String USER_ID   = "user_id";
-    public static final String USERNAME  = "username";
-    public static final String AVATAR    = "avatar";
-    public static final String CONTENT   = "content";
-    public static final String EDITED    = "edited";
+    public static final String ID                    = "_id";
+    public static final String THREAD_ID             = "thread_id";
+    public static final String PAGE                  = "page";
+    public static final String DATE                  = "date";
+    public static final String USER_ID               = "user_id";
+    public static final String USERNAME              = "username";
+    public static final String LAST_READ             = "last_read";
+    public static final String EVEN                  = "even";
+    public static final String PREVIOUSLY_READ       = "previously_read";
+    public static final String HAS_PROFILE_LINK      = "has_profile_link";
+    public static final String HAS_MESSAGE_LINK      = "has_message_link";
+    public static final String HAS_POST_HISTORY_LINK = "has_post_history_link";
+    public static final String HAS_RAP_SHEET_LINK    = "has_rap_sheet_link";
+    public static final String LAST_READ_URL         = "last_read_url";
+    public static final String EDITABLE              = "editable";
+    public static final String IS_OP                 = "is_op";
+    public static final String IS_ADMIN              = "is_admin";
+    public static final String IS_MOD                = "is_mod";
+    public static final String AVATAR                = "avatar";
+    public static final String CONTENT               = "content";
+    public static final String EDITED                = "edited";
 
     private String mId;
     private int mThreadId;
@@ -157,6 +172,26 @@ public class AwfulPost implements AwfulDisplayItem {
         mUsername = aUsername;
     }
 
+    public void setThreadId(int aThreadId) {
+        mThreadId = aThreadId;
+    }
+
+    public void setPage(int aPage) {
+        mPage = aPage;
+    }
+
+    public void setIsOp(boolean aIsOp) {
+        isOp = aIsOp;
+    }
+
+    public void setIsAdmin(boolean aIsAdmin) {
+        isAdmin = aIsAdmin;
+    }
+
+    public void setIsMod(boolean aIsMod) {
+        isMod = aIsMod;
+    }
+
     public String getAvatar() {
         return mAvatar;
     }
@@ -171,6 +206,67 @@ public class AwfulPost implements AwfulDisplayItem {
 
     public void setContent(String aContent) {
         mContent = aContent;
+    }
+
+    public static ArrayList<AwfulPost> fromCursor(Context aContext, Cursor aCursor) {
+        ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+
+        if (aCursor.moveToFirst()) {
+            int idIndex = aCursor.getColumnIndex(ID);
+            int threadIdIndex = aCursor.getColumnIndex(THREAD_ID);
+            int pageIndex = aCursor.getColumnIndex(PAGE);
+            int dateIndex = aCursor.getColumnIndex(DATE);
+            int userIdIndex = aCursor.getColumnIndex(USER_ID);
+            int usernameIndex = aCursor.getColumnIndex(USERNAME);
+            int lastReadIndex = aCursor.getColumnIndex(LAST_READ);
+            int evenIndex = aCursor.getColumnIndex(EVEN);
+            int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
+            int hasProfileLinkIndex = aCursor.getColumnIndex(HAS_PROFILE_LINK);
+            int hasMessageLinkIndex = aCursor.getColumnIndex(HAS_MESSAGE_LINK);
+            int hasPostHistoryLinkIndex = aCursor.getColumnIndex(HAS_POST_HISTORY_LINK);
+            int hasRapSheetLinkIndex = aCursor.getColumnIndex(HAS_RAP_SHEET_LINK);
+            int lastReadUrlIndex = aCursor.getColumnIndex(LAST_READ_URL);
+            int editableIndex = aCursor.getColumnIndex(EDITABLE);
+            int isOpIndex = aCursor.getColumnIndex(IS_OP);
+            int isAdminIndex = aCursor.getColumnIndex(IS_ADMIN);
+            int isModIndex = aCursor.getColumnIndex(IS_MOD);
+            int avatarIndex = aCursor.getColumnIndex(AVATAR);
+            int contentIndex = aCursor.getColumnIndex(CONTENT);
+            int editedIndex = aCursor.getColumnIndex(EDITED);
+
+            AwfulPost current;
+
+            do {
+                current = new AwfulPost();
+                current.setId(aCursor.getString(idIndex));
+                current.setThreadId(aCursor.getInt(threadIdIndex));
+                current.setPage(aCursor.getInt(pageIndex));
+                current.setDate(aCursor.getString(dateIndex));
+                current.setUserId(aCursor.getString(userIdIndex));
+                current.setUsername(aCursor.getString(usernameIndex));
+                current.setLastRead(aCursor.getInt(lastReadIndex) == 1 ? true : false);
+                current.setEven(aCursor.getInt(evenIndex) == 1 ? true : false);
+                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) == 1 ? true : false);
+                current.setHasProfileLink(aCursor.getInt(hasProfileLinkIndex) == 1 ? true : false);
+                current.setHasMessageLink(aCursor.getInt(hasMessageLinkIndex) == 1 ? true : false);
+                current.setHasPostHistoryLink(aCursor.getInt(hasPostHistoryLinkIndex) == 1 ? true : false);
+                current.setHasRapSheetLink(aCursor.getInt(hasRapSheetLinkIndex) == 1 ? true : false);
+                current.setLastReadUrl(aCursor.getString(lastReadUrlIndex));
+                current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
+                current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
+                current.setIsAdmin(aCursor.getInt(isAdminIndex) == 1 ? true : false);
+                current.setIsMod(aCursor.getInt(isModIndex) == 1 ? true : false);
+                current.setAvatar(aCursor.getString(avatarIndex));
+                current.setContent(aCursor.getString(contentIndex));
+                current.setEdited(aCursor.getString(editedIndex));
+
+                result.add(current);
+            } while (aCursor.moveToNext());
+        }
+
+        aCursor.close();
+
+        return result;
     }
 
     private static TagNode convertVideos(TagNode contentNode) {
@@ -319,81 +415,108 @@ public class AwfulPost implements AwfulDisplayItem {
         }
     }
 
-    public static ArrayList<AwfulPost> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
-        ArrayList<AwfulPost> result = new ArrayList<AwfulPost>();
+    public static void syncPosts(Context aContext, TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aPage, postPerPage, aThreadObject, prefs);
+
+        aContext.getContentResolver().bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+    }
+
+    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
+        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         
         int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
         int lastReadPost = aThreadObject.getLastReadPost(postPerPage);
 
 		boolean lastReadFound = false;
 		boolean even = false;
+
         try {
-        	aThread = convertVideos(aThread);
+        	aThread = AwfulPost.convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
+
             int index = 1;
 			boolean fyad = false;
+
             for (TagNode node : postNodes) {
             	//fyad status, to prevent processing postbody twice if we are in fyad
-                AwfulPost post = new AwfulPost();                
+                ContentValues post = new ContentValues();                
+                post.put(THREAD_ID, aThreadObject.getThreadId());
+                post.put(PAGE, aPage);
+
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
                 String id = node.getAttributeByName("id");
-                post.setId(id.replaceAll("post", ""));
+                post.put(ID, id.replaceAll("post", ""));
                 
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
-					if(pc.getAttributeByName("class").contains("author")){
-						post.setUsername(pc.getText().toString().trim());
+					if (pc.getAttributeByName("class").contains("author")) {
+						post.put(USERNAME, pc.getText().toString().trim());
 					}
-					if(pc.getAttributeByName("class").contains("role-mod")){
-						post.isMod = true;
-					}
-					if(pc.getAttributeByName("class").contains("role-admin")){
-						post.isAdmin = true;
-					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length >0){
+
+					if (pc.getAttributeByName("class").contains("role-mod")) {
+						post.put(IS_MOD, 1);
+					} else {
+						post.put(IS_MOD, 0);
+                    }
+
+					if (pc.getAttributeByName("class").contains("role-admin")) {
+                        post.put(IS_ADMIN, 1);
+					} else {
+                        post.put(IS_ADMIN, 0);
+                    }
+
+					if (pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length > 0) {
 						TagNode[] avatar = pc.getElementsByName("img", true);
-						if(avatar.length >0){
-							post.setAvatar(avatar[0].getAttributeByName("src"));
+
+						if (avatar.length > 0) {
+							post.put(AVATAR, avatar[0].getAttributeByName("src"));
 						}
 					}
-					if(pc.getAttributeByName("class").contains("complete_shit")){
+
+					if (pc.getAttributeByName("class").contains("complete_shit")) {
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
-						while(fixCharMatch.find()){
-							fixCharMatch.appendReplacement(fixedContent, "");
-							}
+
+                        while (fixCharMatch.find()) {
+                            fixCharMatch.appendReplacement(fixedContent, "");
+                        }
+
 						fixCharMatch.appendTail(fixedContent);
-	                    post.setContent(fixedContent.toString());
+	                    post.put(CONTENT, fixedContent.toString());
 	                    fyad = true;
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad){
+
+					if (pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad) {
 						TagNode[] images = pc.getElementsByName("img", true);
+
 						for(TagNode img : images){
 							boolean dontLink = false;
 							TagNode parent = img.getParent();
 							String src = img.getAttributeByName("src");
-							if((parent != null && parent.getName().equals("a")) || (img.hasAttribute("class") && img.getAttributeByName("class").contains("nolink"))){//image is linked, don't override
+
+							if ((parent != null && parent.getName().equals("a")) || (img.hasAttribute("class") && img.getAttributeByName("class").contains("nolink"))) { //image is linked, don't override
 								dontLink = true;
 							}
-							if(img.hasAttribute("title")){
-								if(!prefs.showSmilies){//kill all emotes
+
+							if (img.hasAttribute("title")) {
+								if (!prefs.showSmilies) { //kill all emotes
 									String name = img.getAttributeByName("title");
 									img.setName("p");
 									img.addChild(new ContentNode(name));
 								}
-							}else{
-								if((post.mPreviouslyRead || !lastReadFound) && prefs.hideOldImages || !prefs.imagesEnabled){
-									if(!dontLink){
+							} else {
+								if (!lastReadFound && prefs.hideOldImages || !prefs.imagesEnabled) {
+									if (!dontLink) {
 										img.setName("a");
 										img.setAttribute("href", src);
 										img.addChild(new ContentNode(src));
-									}else{
+									} else {
 										img.setName("p");
 										img.addChild(new ContentNode(src));
 									}
-								}else{
-									if(!dontLink){
+								} else {
+									if (!dontLink) {
 										img.setName("a");
 										img.setAttribute("href", src);
 										TagNode newimg = new TagNode("img");
@@ -403,65 +526,81 @@ public class AwfulPost implements AwfulDisplayItem {
 								}
 							}
 						}
+
 						StringBuffer fixedContent = new StringBuffer();
 						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
-						while(fixCharMatch.find()){
-							fixCharMatch.appendReplacement(fixedContent, "");
-							}
+
+                        while (fixCharMatch.find()) {
+                            fixCharMatch.appendReplacement(fixedContent, "");
+                        }
+
 						fixCharMatch.appendTail(fixedContent);
-	                    post.setContent(fixedContent.toString());
+	                    post.put(CONTENT, fixedContent.toString());
 					}
-					if(pc.getAttributeByName("class").equalsIgnoreCase("postdate")){//done
-						if(pc.getChildTags().length>0){
-							post.setLastReadUrl(pc.getChildTags()[0].getAttributeByName("href").replaceAll("&amp;", "&"));
+
+					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
+						if (pc.getChildTags().length > 0) {
+                            post.put(LAST_READ_URL, 
+                                    pc.getChildTags()[0].getAttributeByName("href").replaceAll("&amp;", "&"));
 						}
-						post.setDate(pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
+
+						post.put(DATE, pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
 					}
 					
-					if(pc.getAttributeByName("class").equalsIgnoreCase("profilelinks")){
+					if (pc.getAttributeByName("class").equalsIgnoreCase("profilelinks")) {
 						TagNode[] links = pc.getElementsHavingAttribute("href", true);
-						if(links.length >0){
+
+						if (links.length > 0) {
 							String href = links[0].getAttributeByName("href").trim();
-							post.setUserId(href.substring(href.lastIndexOf("rid=")+4));
-							if(aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(post.getUserId())){
-								post.isOp = true;
-							}
+                            String userId = href.substring(href.lastIndexOf("rid=") + 4);
+
+							post.put(USER_ID, userId);
+
+							if (aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(userId)) {
+                                post.put(IS_OP, 1);
+							} else {
+                                post.put(IS_OP, 0);
+                            }
+
 							for (TagNode linkNode : links) {
 			                	String link = linkNode.getText().toString();
-			                	if     (link.equals(LINK_PROFILE))      post.setHasProfileLink(true);
-			                	else if(link.equals(LINK_MESSAGE))      post.setHasMessageLink(true);
-			                	else if(link.equals(LINK_POST_HISTORY)) post.setHasPostHistoryLink(true);
+			                	if     (link.equals(LINK_PROFILE))      post.put(HAS_PROFILE_LINK, 1);
+			                	else if(link.equals(LINK_MESSAGE))      post.put(HAS_MESSAGE_LINK, 1);
+			                	else if(link.equals(LINK_POST_HISTORY)) post.put(HAS_POST_HISTORY_LINK, 1);
 			                	// Rap sheet is actually filled in by javascript for some stupid reason
 			                }
 						}
 					}
-					if(aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
-					   (pc.getAttributeByName("class").contains("seen") && !lastReadFound)){
-						post.setPreviouslyRead(true);
-					}
-                    if (!post.isPreviouslyRead()) {
-                        post.setLastRead(true);
+
+                    if (aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
+                            (pc.getAttributeByName("class").contains("seen") && !lastReadFound)) {
+						post.put(PREVIOUSLY_READ, 1);
+                        post.put(LAST_READ, 0);
+					} else {
+						post.put(PREVIOUSLY_READ, 0);
+                        post.put(LAST_READ, 1);
                         lastReadFound = true;
                     }
-					if(pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length >0){
-						post.setEdited("<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
+
+					if (pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length > 0) {
+						post.put(EDITED, "<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
 				}
-				post.setEven(even); // even/uneven post for alternating colors
+
+				post.put(EVEN, even ? 1 : 0); // even/uneven post for alternating colors
 				even = !even;
-				
-				
                 
 				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
+
                 if (editImgs.length > 0) {
-                    Log.i(TAG, "Editable!");
-                    post.setEditable(true);
+                    post.put(EDITABLE, 1);
                 } else {
-                    post.setEditable(false);
+                    post.put(EDITABLE, 0);
                 }
 
                 //it's always there though, so we can set it true without an explicit check
-                post.setHasRapSheetLink(true);
+                post.put(HAS_RAP_SHEET_LINK, 1);
+
                 result.add(post);
                 index++;
             }

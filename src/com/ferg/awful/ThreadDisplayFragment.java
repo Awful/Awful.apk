@@ -413,8 +413,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
             mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-
-            populateThreadView();
         }else{
         	if(mThreadView != null){
 	        	try {
@@ -774,8 +772,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             }
         }
         */
-
-        populateThreadView();
     }
 
     public int getSavedPage() {
@@ -854,24 +850,23 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
     }
 
-    private void populateThreadView() {
+    private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		initPageCountCallbacks();
         
         /* TODO: 
         mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+        */
 
         try {
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-                    AwfulThread.getHtml((ArrayList<AwfulPost>) mAdapter.getChildren(), 
-                        new AwfulPreferences(getActivity()), isTablet()), "text/html", "utf-8", null);
+                    AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), isTablet()), "text/html", "utf-8", null);
         } catch (NullPointerException e) {
             // If we've already left the activity the webview may still be working to populate,
             // just log it
         }
-        */
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
@@ -1000,16 +995,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             String sortOrder = AwfulPost.DATE + " ASC" + " LIMIT 40";
 
             String selection = AwfulPost.THREAD_ID + "='" 
-                + Integer.toString(ThreadDisplayFragment.this.getArguments().getInt(Constants.THREAD_ID, -1));
+                + Integer.toString(ThreadDisplayFragment.this.getArguments().getInt(Constants.THREAD_ID, -1)) + "'";
 
             mLoading = true;
 
             return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, 
-                    null, null, null, sortOrder);
+                    null, selection, null, null);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-            // TODO: ((PostAdapter) mResultsView.getAdapter()).swapCursor(mData);
+            populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             mLoading = false;
         }
 
