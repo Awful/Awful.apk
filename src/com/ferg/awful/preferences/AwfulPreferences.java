@@ -40,6 +40,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean wrapThreadTitles;
 	public boolean showAllSpoilers;
 	public String threadInfo;
+	public String imgurThumbnails;
 
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
@@ -101,6 +102,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo				 = mPrefs.getString("threadinfo", "author");
+        imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
        	 //TODO: I have never seen this before oh god
 	}
 }

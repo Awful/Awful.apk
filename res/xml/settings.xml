@@ -87,6 +87,13 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
+		<ListPreference
+            android:key="imgur_thumbnails"
+            android:title="@string/imgur_thumbnails"
+            android:entries="@array/imgur_thumbnails"
+            android:entryValues="@array/imgur_thumbnails_values"
+			android:defaultValue="d"
+            />
 		<!--<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
