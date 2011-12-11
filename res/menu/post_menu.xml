@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu 
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	>
+	><!-- 
 	<item
 		android:id="@+id/go_back"
 		android:icon="@drawable/ic_menu_back"
 		android:title="@string/back"
-		/>
+		/> -->
 	<item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_goto"
@@ -30,5 +30,10 @@
         android:id="@+id/bookmark"
         android:title="@string/bookmark"
         android:icon="@drawable/ic_menu_star"
+        />
+	<item
+        android:id="@+id/rate_thread"
+        android:title="@string/rate_thread"
+        android:icon="@drawable/ic_menu_rate_thread"
         />
 </menu>

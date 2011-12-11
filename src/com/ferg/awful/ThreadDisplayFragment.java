@@ -45,11 +45,13 @@ import android.widget.*;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.*;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.reply.Reply;
@@ -391,9 +393,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             case R.id.reply:
                 displayPostReplyDialog();
                 break;
-            case R.id.go_back:
-                goToPage(mAdapter.getPage()-1);
-                break;
+//            case R.id.go_back:
+//                goToPage(mAdapter.getPage()-1);
+//                break;
             case R.id.usercp:
                 displayUserCP();
                 break;
@@ -409,6 +411,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             case R.id.bookmark:
                 mAdapter.toggleBookmark();
                 break;
+            case R.id.rate_thread:
+                rateThread();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -416,7 +421,32 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         return true;
     }
 
-    @Override
+    private void rateThread() {
+    	
+    	final CharSequence[] items = {"1", "2", "3", "4", "5"};
+
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+    	builder.setTitle("Rate this thread");
+    	builder.setItems(items, new DialogInterface.OnClickListener() {
+    	    public void onClick(DialogInterface dialog, int item) {
+    	    	HashMap<String, String> params = new HashMap<String, String>();
+    	    	params.put(Constants.PARAM_THREAD_ID, String.valueOf(mAdapter.getId()));
+    	    	params.put(Constants.PARAM_VOTE, String.valueOf(item));
+    	        try {
+					NetworkUtils.post(Constants.FUNCTION_RATE_THREAD, params );
+				} catch (Exception e) {
+					Toast errorToast = new Toast(getActivity());
+					errorToast.setText(R.string.vote_failed);
+					errorToast.show();
+					e.printStackTrace();
+				}
+    	    }
+    	});
+    	AlertDialog alert = builder.create();
+    	alert.show();
+	}
+
+	@Override
     public void onSaveInstanceState(Bundle aOutState) {
         super.onSaveInstanceState(aOutState);
     }
