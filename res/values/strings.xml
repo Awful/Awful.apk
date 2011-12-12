@@ -104,4 +104,5 @@
 	<string name="threadinfo">Thread info</string>
 	<string name="imgur_thumbnails">Imgur Thumbnails</string>
 	<string name="vote_failed">An error occured while voting, please try again</string>
+	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
 </resources>
