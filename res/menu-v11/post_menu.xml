@@ -41,4 +41,9 @@
         android:title="@string/bookmark"
         android:icon="@drawable/ic_menu_star"
         />
+	<item
+        android:id="@+id/rate_thread"
+        android:title="@string/rate_thread"
+        android:icon="@drawable/ic_menu_rate_thread"
+        />
 </menu>

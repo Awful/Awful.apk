@@ -272,6 +272,13 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 			}
 			mService.toggleBookmark(state.getID());
 		}
+		
+		public void rateThread(int vote) {
+			if(state == null || !boundState){
+				return;
+			}
+			mService.rateThread(vote, state.getID());
+		}
 
 		public void markLastRead(String aLastReadUrl) {
 			if(mService != null && boundState){
