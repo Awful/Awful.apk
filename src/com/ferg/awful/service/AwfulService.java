@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -24,6 +25,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
@@ -166,6 +168,10 @@ public class AwfulService extends Service {
 	 */
 	public void toggleBookmark(int threadId){
 		queueThread(new BookmarkToggleTask(threadId));
+	}
+	
+	public void rateThread(int vote, int threadId){
+		queueThread(new VotingTask(vote, threadId));
 	}
 	
 	/**
@@ -360,6 +366,44 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Boolean aResult) {
+            sendUpdate(aResult);
+            threadFinished(this);
+        }
+    }
+	
+	private class VotingTask extends AwfulTask<Boolean> {
+		private int mRating;
+        public VotingTask(int rating, int threadId) {
+        	mRating = rating;
+        	mId = threadId;
+		}
+		public Boolean doInBackground(Void... aParams) {
+			boolean status = false;
+            if (!isCancelled()) {
+            	
+				HashMap<String, String> params = new HashMap<String, String>();
+				params.put(Constants.PARAM_THREAD_ID, String.valueOf(mId));
+				params.put(Constants.PARAM_VOTE, String.valueOf(mRating+1));
+
+                try {
+                	NetworkUtils.post(Constants.FUNCTION_RATE_THREAD, params);
+                    status = true;
+                } catch (Exception e) {
+                	status = false;
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return status;
+        }
+
+        public void onPostExecute(Boolean aResult) {
+        	if(aResult){
+				Toast successToast = Toast.makeText(getApplicationContext(), String.format(getString(R.string.vote_succeeded), mRating+1),  Toast.LENGTH_LONG);
+				successToast.show();
+        	}else{
+				Toast errorToast = Toast.makeText(getApplicationContext(), R.string.vote_failed, Toast.LENGTH_LONG);
+				errorToast.show();
+        	}
             sendUpdate(aResult);
             threadFinished(this);
         }

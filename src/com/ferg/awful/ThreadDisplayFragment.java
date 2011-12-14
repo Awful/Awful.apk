@@ -55,6 +55,7 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.reply.Reply;
+import com.ferg.awful.service.AwfulService;
 import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -437,19 +438,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		builder.setTitle("Rate this thread");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				HashMap<String, String> params = new HashMap<String, String>();
-				params.put(Constants.PARAM_THREAD_ID, String.valueOf(mAdapter.getId()));
-				params.put(Constants.PARAM_VOTE, String.valueOf(item+1));
-				try {
-					NetworkUtils.post(Constants.FUNCTION_RATE_THREAD, params);
-				} catch (Exception e) {
-					Toast errorToast = Toast.makeText(getActivity(), R.string.vote_failed, Toast.LENGTH_LONG);
-					errorToast.show();
-					e.printStackTrace();
-					return;
-				}
-				Toast successToast = Toast.makeText(getActivity(), String.format(getString(R.string.vote_succeeded), item+1),  Toast.LENGTH_LONG);
-				successToast.show();
+				mAdapter.rateThread(item);
 			}
 		});
 		AlertDialog alert = builder.create();
