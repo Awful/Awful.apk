@@ -446,6 +446,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 					Toast errorToast = Toast.makeText(getActivity(), R.string.vote_failed, Toast.LENGTH_LONG);
 					errorToast.show();
 					e.printStackTrace();
+					return;
 				}
 				Toast successToast = Toast.makeText(getActivity(), String.format(getString(R.string.vote_succeeded), item+1),  Toast.LENGTH_LONG);
 				successToast.show();
