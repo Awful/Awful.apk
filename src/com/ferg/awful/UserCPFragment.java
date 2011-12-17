@@ -114,7 +114,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
         } else if (((AwfulActivity) getActivity()).isTablet()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
         
