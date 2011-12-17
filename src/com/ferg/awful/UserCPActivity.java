@@ -27,18 +27,26 @@
 
 package com.ferg.awful;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.MenuItem;
 import android.view.Window;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class UserCPActivity extends AwfulActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        if (!AwfulActivity.useLegacyActionbar()) {
+            requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        } else {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
+
         GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPActivity");
         GoogleAnalyticsTracker.getInstance().dispatch();
 
@@ -47,14 +55,48 @@ public class UserCPActivity extends AwfulActivity {
         setContentPane();
     }
 
+    private void setActionBar() {
+        ActionBar action = getActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setDisplayHomeAsUpEnabled(true);
+        action.setTitle(R.string.user_cp);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!AwfulActivity.useLegacyActionbar()) {
+            setActionBar();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                returnHome();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void returnHome() {
+        finish();
+        Intent i = new Intent(this, ForumsIndexActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
+
     public void setContentPane() {
     	if (getSupportFragmentManager().findFragmentById(R.id.ucpcontent) == null) {
-        UserCPFragment fragment = 
-            UserCPFragment.newInstance(false);
+            UserCPFragment fragment = 
+                UserCPFragment.newInstance(false);
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.ucpcontent, fragment);
-        transaction.commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.ucpcontent, fragment);
+            transaction.commit();
     	}
     }
 }

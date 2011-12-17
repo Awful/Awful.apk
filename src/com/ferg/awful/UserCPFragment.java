@@ -113,9 +113,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
-        } else {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
         
         return result;
@@ -127,9 +124,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         setRetainInstance(true);
 
-        mTitle.setText(getString(R.string.user_cp));
-
         if (AwfulActivity.useLegacyActionbar()) {
+            mTitle.setText(getString(R.string.user_cp));
+
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
             mPrivateMessage.setOnClickListener(onButtonClick);
@@ -221,21 +218,21 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(menu.size() == 0){
-            inflater.inflate(R.menu.forum_index_options, menu);
+            inflater.inflate(R.menu.user_cp_menu, menu);
         }
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case R.id.pm:
+            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+                break;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
                 return true;
             case R.id.logout:
                 new LogOutDialog(getActivity()).show();
-                break;
-            case R.id.refresh:
-                adapt.refresh();
                 break;
             default:
                 return super.onOptionsItemSelected(item);

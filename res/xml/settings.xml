@@ -24,7 +24,7 @@
 		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="default_post_font_size"
 			android:title="@string/default_post_font_size"
-			android:defaultValue="15"
+			android:defaultValue="22"
 			/>
 		<Preference 
 			android:key="colors" 
