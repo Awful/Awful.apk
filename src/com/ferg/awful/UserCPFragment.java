@@ -113,6 +113,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+        } else if (((AwfulActivity) getActivity()).isTablet()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+            mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
         
         return result;
@@ -130,6 +133,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
             mPrivateMessage.setOnClickListener(onButtonClick);
+        } else if (((AwfulActivity) getActivity()).isTablet()) {
+            mTitle.setText(getString(R.string.user_cp));
         }
 
         mBookmarkList.setOnItemClickListener(onThreadSelected);
