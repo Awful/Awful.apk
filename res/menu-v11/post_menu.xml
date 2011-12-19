@@ -46,4 +46,9 @@
         android:title="@string/rate_thread"
         android:icon="@drawable/ic_menu_rate_thread"
         />
+	<item
+		android:id="@+id/copy_url"
+		android:icon="@drawable/ic_menu_copy"
+		android:title="@string/copy_url"
+        />
 </menu>
