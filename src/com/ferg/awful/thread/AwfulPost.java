@@ -188,9 +188,14 @@ public class AwfulPost implements AwfulDisplayItem {
 					try {
 						vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
 					} catch (Exception e) {
+						e.printStackTrace();
 						continue;
 					}
-					link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+					if(vimeoXML.findElementByName("mobile_url", true) != null){
+						link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+					}else{
+						link = vimeoXML.findElementByName("url", true).getText().toString();
+					}
 					image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
 				}else{
 					node.removeAllChildren();
