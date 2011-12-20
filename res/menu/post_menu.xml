@@ -37,4 +37,9 @@
 		android:icon="@drawable/ic_menu_preferences"
 		android:title="@string/settings"
         />
+	<item
+		android:id="@+id/copy_url"
+		android:icon="@drawable/ic_menu_copy"
+		android:title="@string/copy_url"
+        />
 </menu>

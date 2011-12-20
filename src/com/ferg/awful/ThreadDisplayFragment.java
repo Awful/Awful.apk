@@ -423,11 +423,39 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		case R.id.rate_thread:
 			rateThread();
 			break;
+		case R.id.copy_url:
+			copyThreadURL();
+			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 
 		return true;
+	}
+
+	private void copyThreadURL() {
+
+		StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_THREAD_ID);
+		url.append("=");
+		url.append(mAdapter.getId());
+		url.append("&");
+		url.append(Constants.PARAM_PAGE);
+		url.append("=");
+		url.append(mAdapter.getPage());
+		url.append("&");
+		url.append(Constants.PARAM_PER_PAGE);
+		url.append("=");
+		url.append(mPrefs.getInt("post_per_page", 40));
+		
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(this.mAdapter.getTitle() ,url.toString());
+		clipboard.setPrimaryClip(clip);
+		
+		Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+		successToast.show();
 	}
 
 	private void rateThread() {
