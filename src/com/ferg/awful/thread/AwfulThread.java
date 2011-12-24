@@ -67,6 +67,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private boolean mClosed;
 	private boolean mBookmarked;
 	private String mKilledBy;
+	private int forumId;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
 
     public AwfulThread() {
@@ -456,7 +457,15 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         mUnreadCount = aUnreadCount;
     }
 
-    public ArrayList<AwfulPost> getPosts(int page) {
+    public int getForumId() {
+		return forumId;
+	}
+
+	public void setForumId(int forumId) {
+		this.forumId = forumId;
+	}
+
+	public ArrayList<AwfulPost> getPosts(int page) {
         return mPosts.get(page);
     }
 
