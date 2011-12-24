@@ -106,5 +106,5 @@
 	<string name="vote_failed">An error occured while voting, please try again</string>
 	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
 	<string name="copy_url">Copy Thread Url</string>
-	<string name="copy_url_success">Thread Url has been copied to the clipboard.</string>
+	<string name="copy_url_success">Url has been copied to the clipboard.</string>
 </resources>

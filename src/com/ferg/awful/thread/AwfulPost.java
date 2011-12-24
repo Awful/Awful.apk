@@ -318,6 +318,11 @@ public class AwfulPost implements AwfulDisplayItem {
 		boolean lastReadFound = false;
 		boolean even = false;
         try {
+        	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
+        	TagNode[] forumlinks = breadcrumbs.getElementsByName("a", true);
+        	TagNode forumlink = forumlinks[forumlinks.length-2];
+        	String forumurl = forumlink.getAttributeByName("href").toString();
+        	aThreadObject.setForumId(Integer.parseInt(forumurl.substring("showthread.php?threadid=".length()+1)));
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
