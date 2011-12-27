@@ -28,6 +28,9 @@
 package com.ferg.awful;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -257,12 +260,33 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             	adapt.markThreadUnread(thread.getID());
             	adapt.refresh();
                 return true;
+            case R.id.copy_url_thread:
+            	copyUrl(thread.getID());
+                return true;
         }
 
         return false;
     }
 
-    private void displayPagePicker() {
+    private void copyUrl(int id) {
+		StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_THREAD_ID);
+		url.append("=");
+		url.append(id);
+
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+		clipboard.setPrimaryClip(clip);
+
+		Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+				getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+		successToast.show();
+	}
+
+	private void displayPagePicker() {
         final NumberPicker jumpToText = new NumberPicker(getActivity());
         jumpToText.setRange(1, adapt.getLastPage());
         jumpToText.setCurrent(adapt.getPage());

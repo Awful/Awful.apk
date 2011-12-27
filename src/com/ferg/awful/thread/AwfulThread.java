@@ -67,6 +67,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private boolean mClosed;
 	private boolean mBookmarked;
 	private String mKilledBy;
+	private int forumId;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
 
     public AwfulThread() {
@@ -312,7 +313,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%;"+(post.isOp()?"background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postOPColor):"")+"'>");
-            buffer.append("        <div class='avatar' "+((post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
+            buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
@@ -371,7 +372,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("        </div>");
             buffer.append("        <div class='avatar'>");
 
-            if (post.getAvatar() != null) {
+            if (aPrefs.imagesEnabled != false && post.getAvatar() != null) {
                 buffer.append("            <img src='" + post.getAvatar() + "' />");
             }
 
@@ -456,7 +457,15 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         mUnreadCount = aUnreadCount;
     }
 
-    public ArrayList<AwfulPost> getPosts(int page) {
+    public int getForumId() {
+		return forumId;
+	}
+
+	public void setForumId(int forumId) {
+		this.forumId = forumId;
+	}
+
+	public ArrayList<AwfulPost> getPosts(int page) {
         return mPosts.get(page);
     }
 

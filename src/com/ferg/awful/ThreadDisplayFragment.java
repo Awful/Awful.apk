@@ -402,9 +402,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		case R.id.reply:
 			displayPostReplyDialog();
 			break;
-		 case R.id.go_back:
-		 goToPage(mAdapter.getPage()-1);
-		 break;
+		case R.id.go_back:
+			goToPage(mAdapter.getPage() - 1);
+			break;
 		case R.id.usercp:
 			displayUserCP();
 			break;
@@ -424,7 +424,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			rateThread();
 			break;
 		case R.id.copy_url:
-			copyThreadURL();
+			copyThreadURL(null);
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -433,7 +433,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		return true;
 	}
 
-	private void copyThreadURL() {
+	private void copyThreadURL(String postId) {
 
 		StringBuffer url = new StringBuffer();
 		url.append(Constants.FUNCTION_THREAD);
@@ -449,12 +449,19 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		url.append(Constants.PARAM_PER_PAGE);
 		url.append("=");
 		url.append(mPrefs.getInt("post_per_page", 40));
-		
-		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText(this.mAdapter.getTitle() ,url.toString());
+		if (postId != null) {
+			url.append("#");
+			url.append("post");
+			url.append(postId);
+		}
+
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(this.mAdapter.getTitle(), url.toString());
 		clipboard.setPrimaryClip(clip);
-		
-		Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+
+		Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+				getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
 		successToast.show();
 	}
 
@@ -534,6 +541,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		case ClickInterface.LAST_READ:
 			mAdapter.markLastRead(aLastReadUrl);
 			return true;
+
+		case ClickInterface.COPY_URL:
+			copyThreadURL(aPostId);
+			break;
 		}
 
 		return false;
@@ -817,9 +828,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		public static final int QUOTE = 0;
 		public static final int LAST_READ = 1;
 		public static final int EDIT = 2;
+		public static final int COPY_URL = 3;
 
-		final CharSequence[] mEditablePostItems = { "Quote", "Mark last read", "Edit Post" };
-		final CharSequence[] mPostItems = { "Quote", "Mark last read", "Send Private Message" };
+		final CharSequence[] mEditablePostItems = { "Quote", "Mark last read", "Edit Post",
+				"Copy Post URL" };
+		final CharSequence[] mPostItems = { "Quote", "Mark last read", "Send Private Message",
+				"Copy Post URL" };
 
 		// Post ID is the item tapped
 		public void onPostClick(final String aPostId, final String aLastReadUrl,
