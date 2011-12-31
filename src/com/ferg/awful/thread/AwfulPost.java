@@ -392,7 +392,7 @@ public class AwfulPost implements AwfulDisplayItem {
 										img.setName("a");
 										img.setAttribute("href", src);
 										TagNode newimg = new TagNode("img");
-										if(!prefs.imgurThumbnails.equals('d') && src.contains("i.imgur.com")){
+										if(!prefs.imgurThumbnails.equals("d") && src.contains("i.imgur.com")){
 											int pos = src.length() - 4;
 											src = src.substring(0, pos) + prefs.imgurThumbnails + src.substring(pos);
 										}
