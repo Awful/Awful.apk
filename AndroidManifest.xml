@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awful"
-      android:versionCode="28"
-      android:versionName="2.1.4"
+      android:versionCode="29"
+      android:versionName="2.1.5"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -76,7 +76,6 @@
             android:name="UserCPActivity" 
             android:exported="true"
             android:clearTaskOnLaunch="true" 
-            android:theme="@style/ThemeDialogWhenLarge"
             />
         <activity 
             android:name="PostReplyActivity"
