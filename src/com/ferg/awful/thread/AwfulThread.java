@@ -363,7 +363,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>");
             buffer.append("    <td class='usercolumn' style='background: " + background + ";'>");
             buffer.append("        <div class='userinfo'>");
-            buffer.append("            <div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "") + "'>");
+            buffer.append("            <div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";") + "'>");
             buffer.append("                <h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/red_star.png' />":"")  + "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "") + "'>");

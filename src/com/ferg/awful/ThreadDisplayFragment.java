@@ -702,7 +702,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
 	public void delayedDataUpdate(Bundle extras) {
 		setActionbarTitle(mAdapter.getTitle());
-
+		if(extras != null && extras.getBoolean("marklastread")){
+			Toast.makeText(getActivity(), "Marked Last Read", Toast.LENGTH_SHORT).show();
+		}
 		if (AwfulActivity.useLegacyActionbar()) {
 			if (mAdapter.getPage() == mAdapter.getLastPage()) {
 				mNext.setVisibility(View.GONE);
@@ -783,8 +785,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
 	private void populateThreadView() {
 		initPageCountCallbacks();
-
-		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		
+		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + (mAdapter.isAvailable()?mAdapter.getLastPage():"?"));
 
 		try {
 			mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
@@ -899,7 +901,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
 	public void goToPage(int aPage) {
 		mAdapter.goToPage(aPage);
-		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		mPageCountText.setText("Page " + mAdapter.getPage() + "/" + (mAdapter.isAvailable()?mAdapter.getLastPage():"?"));
 		mPostJump = "";
 	}
 

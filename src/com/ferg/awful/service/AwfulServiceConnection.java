@@ -282,7 +282,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 
 		public void markLastRead(String aLastReadUrl) {
 			if(mService != null && boundState){
-				mService.MarkLastRead(aLastReadUrl); 
+				mService.MarkLastRead(aLastReadUrl, currentId, currentPage); 
 			}
 		}
 		
@@ -615,6 +615,10 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 		}
 		public AlphaAnimation getBlinkingAnimation(){
 			return mFailedLoadingAnimation;
+		}
+		
+		public boolean isAvailable(){
+			return state != null;
 		}
 	}
 	/**
