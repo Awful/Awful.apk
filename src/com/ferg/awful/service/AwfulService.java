@@ -8,12 +8,14 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -24,6 +26,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class AwfulService extends Service {
 	private static final String TAG = "AwfulService";
@@ -114,8 +117,8 @@ public class AwfulService extends Service {
 	 * Do not refresh immediately after calling this, or the changes will be lost.
 	 * @param post The selected post.
 	 */
-	public void MarkLastRead(String aLastReadUrl){
-		queueThread(new MarkLastReadTask(aLastReadUrl));
+	public void MarkLastRead(String aLastReadUrl, int id, int page){
+		queueThread(new MarkLastReadTask(aLastReadUrl, id, page));
 	}
 	
 	public AwfulPagedItem getItem(String string) {
@@ -151,6 +154,10 @@ public class AwfulService extends Service {
 	 */
 	public void toggleBookmark(int threadId){
 		queueThread(new BookmarkToggleTask(threadId));
+	}
+	
+	public void rateThread(int vote, int threadId){
+		queueThread(new VotingTask(vote, threadId));
 	}
 	
 	/**
@@ -313,6 +320,44 @@ public class AwfulService extends Service {
         }
     }
 	
+	private class VotingTask extends AwfulTask<Boolean> {
+		private int mRating;
+        public VotingTask(int rating, int threadId) {
+        	mRating = rating;
+        	mId = threadId;
+		}
+		public Boolean doInBackground(Void... aParams) {
+			boolean status = false;
+            if (!isCancelled()) {
+            	
+				HashMap<String, String> params = new HashMap<String, String>();
+				params.put(Constants.PARAM_THREAD_ID, String.valueOf(mId));
+				params.put(Constants.PARAM_VOTE, String.valueOf(mRating+1));
+
+                try {
+                	NetworkUtils.post(Constants.FUNCTION_RATE_THREAD, params);
+                    status = true;
+                } catch (Exception e) {
+                	status = false;
+                    Log.i(TAG, e.toString());
+                }
+            }
+            return status;
+        }
+
+        public void onPostExecute(Boolean aResult) {
+        	if(aResult){
+				Toast successToast = Toast.makeText(getApplicationContext(), String.format(getString(R.string.vote_succeeded), mRating+1),  Toast.LENGTH_LONG);
+				successToast.show();
+        	}else{
+				Toast errorToast = Toast.makeText(getApplicationContext(), R.string.vote_failed, Toast.LENGTH_LONG);
+				errorToast.show();
+        	}
+            sendUpdate(aResult);
+            threadFinished(this);
+        }
+    }
+	
 	private class MarkThreadUnreadTask extends AwfulTask<Boolean> {
         public MarkThreadUnreadTask(int threadId) {
         	mId = threadId;
@@ -406,9 +451,10 @@ public class AwfulService extends Service {
     }
 	private class MarkLastReadTask extends AwfulTask<Void> {
 		private String lrUrl;
-        public MarkLastReadTask(String lastReadUrl){
+        public MarkLastReadTask(String lastReadUrl, int threadid, int page){
         	lrUrl = lastReadUrl;
-        	mId = -99;
+        	mId = threadid;
+        	mPage = page;
         }
 
         public Void doInBackground(Void... aParams) {
@@ -424,6 +470,19 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Void aResult) {
+        	try{
+                ArrayList<AwfulPost> page = getThread(mId).getPosts(mPage);
+                for(AwfulPost post : page){
+                	if(post.getLastReadUrl() != null && post.getLastReadUrl().compareTo(lrUrl)>0){
+                		post.setPreviouslyRead(false);
+                	}
+                }
+        	}catch(NullPointerException e){
+        		//nothing to do, page isn't loaded yet.
+        	}
+        	Bundle bund = new Bundle();
+        	bund.putBoolean("marklastread", true);
+			sendUpdate(true, bund);
             threadFinished(this);
         }
     }

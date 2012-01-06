@@ -299,9 +299,14 @@ public class AwfulPost implements AwfulDisplayItem {
 					try {
 						vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
 					} catch (Exception e) {
+						e.printStackTrace();
 						continue;
 					}
-					link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+					if(vimeoXML.findElementByName("mobile_url", true) != null){
+						link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+					}else{
+						link = vimeoXML.findElementByName("url", true).getText().toString();
+					}
 					image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
 				}else{
 					node.removeAllChildren();
@@ -431,7 +436,12 @@ public class AwfulPost implements AwfulDisplayItem {
 		boolean even = false;
 
         try {
-        	aThread = AwfulPost.convertVideos(aThread);
+        	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
+        	TagNode[] forumlinks = breadcrumbs.getElementsByName("a", true);
+        	TagNode forumlink = forumlinks[forumlinks.length-2];
+        	String forumurl = forumlink.getAttributeByName("href").toString();
+        	aThreadObject.setForumId(Integer.parseInt(forumurl.substring("showthread.php?threadid=".length()+1)));
+        	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
 
             int index = 1;
@@ -520,6 +530,10 @@ public class AwfulPost implements AwfulDisplayItem {
 										img.setName("a");
 										img.setAttribute("href", src);
 										TagNode newimg = new TagNode("img");
+										if(!prefs.imgurThumbnails.equals("d") && src.contains("i.imgur.com")){
+											int pos = src.length() - 4;
+											src = src.substring(0, pos) + prefs.imgurThumbnails + src.substring(pos);
+										}
 										newimg.setAttribute("src", src);
 										img.addChild(newimg);
 									}

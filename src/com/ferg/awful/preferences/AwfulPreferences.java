@@ -39,6 +39,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineYoutube;
     public boolean wrapThreadTitles;
 	public boolean showAllSpoilers;
+	public String threadInfo;
+	public String imgurThumbnails;
 
 	/**
 	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
@@ -92,13 +94,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
-        postPerPage              = mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE);
+        postPerPage              = Math.min(mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE), Constants.ITEMS_PER_PAGE);//can't make the preference page honor a max value
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
+        threadInfo				 = mPrefs.getString("threadinfo", "author");
+        imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
        	 //TODO: I have never seen this before oh god
 	}
 }

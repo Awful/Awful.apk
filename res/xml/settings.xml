@@ -19,17 +19,25 @@
 		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="post_per_page"
 			android:title="@string/setting_posts_per_page"
+            android:summary="@string/setting_posts_per_page_summary"
 			android:defaultValue="40"
 			/>
 		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="default_post_font_size"
 			android:title="@string/default_post_font_size"
-			android:defaultValue="15"
+			android:defaultValue="22"
 			/>
 		<Preference 
 			android:key="colors" 
 			android:title="@string/colors"
 			/>
+        <ListPreference
+            android:key="threadinfo"
+            android:title="@string/threadinfo"
+            android:entries="@array/threadinfo"
+            android:entryValues="@array/threadinfo_values"
+			android:defaultValue="author"
+            />
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_salr">
         <EditTextPreference
@@ -80,6 +88,13 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
+		<ListPreference
+            android:key="imgur_thumbnails"
+            android:title="@string/imgur_thumbnails"
+            android:entries="@array/imgur_thumbnails"
+            android:entryValues="@array/imgur_thumbnails_values"
+			android:defaultValue="d"
+            />
 		<!--<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"

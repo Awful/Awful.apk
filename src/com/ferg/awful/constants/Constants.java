@@ -43,6 +43,7 @@ public class Constants {
     public static final String FUNCTION_SEARCH          = BASE_URL + "/search.php";
     public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "/private.php";
     public static final String FUNCTION_BANLIST         = BASE_URL + "/banlist.php";
+    public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
 
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
@@ -60,6 +61,7 @@ public class Constants {
     public static final String PARAM_INDEX     = "index";
     public static final String PARAM_BOOKMARK  = "bookmark";
 	public static final String PARAM_PRIVATE_MESSAGE_ID = "privatemessageid";
+	public static final String PARAM_VOTE 	   = "vote";
     
     public static final String FRAGMENT_PTI    = "pti";
 

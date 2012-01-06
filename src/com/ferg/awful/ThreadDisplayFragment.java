@@ -48,11 +48,13 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.*;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.reply.Reply;
@@ -161,42 +163,48 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	
 	private WebViewClient callback = new WebViewClient(){
 		@Override
-		public void onPageFinished(WebView view, String url){
-			if(imagesLoadingState){
+		public void onPageFinished(WebView view, String url) {
+			if (imagesLoadingState) {
 				imagesLoadingState = false;
 				imageLoadingFinished();
 			}
-			if(!isResumed()){
-				Log.d(TAG,view.toString()+" pageFinished: "+url);
-				mHandler.postDelayed(new Runnable(){
+			if (!isResumed()) {
+				Log.d(TAG, view.toString() + " pageFinished: " + url);
+				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						pauseWebView();
 					}
-				}, 500);//this seems to be a race condition. if we call the pause code too soon, it might ignore the message.
+				}, 500);// this seems to be a race condition. if we call the
+						// pause code too soon, it might ignore the message.
 			}
 		}
-		
-		public void onLoadResource (WebView view, String url){
-			if(!imagesLoadingState && url != null && url.startsWith("http")){
+
+		public void onLoadResource(WebView view, String url) {
+			if (!imagesLoadingState && url != null && url.startsWith("http")) {
 				imagesLoadingState = true;
 				imageLoadingStarted();
 			}
 		}
 
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
-            PackageManager pacman = aView.getContext().getPackageManager();
-            List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
-            if(res.size() >0){
-            	aView.getContext().startActivity(browserIntent);
-            }else{
-            	String[] split = aUrl.split(":");
-            	Toast.makeText(aView.getContext(), "No application found for protocol"+(split.length > 0 ? ": "+split[0] : ".") ,Toast.LENGTH_LONG).show();
-            }
-            return true;
-        }
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
+			PackageManager pacman = aView.getContext().getPackageManager();
+			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (res.size() > 0) {
+				aView.getContext().startActivity(browserIntent);
+			} else {
+				String[] split = aUrl.split(":");
+				Toast.makeText(
+						aView.getContext(),
+						"No application found for protocol"
+								+ (split.length > 0 ? ": " + split[0] : "."), Toast.LENGTH_LONG)
+						.show();
+			}
+			return true;
+		}
 	};
 
     @Override
@@ -225,50 +233,51 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		mNextPage      = (ImageButton) result.findViewById(R.id.next);
-		mPrevPage      = (ImageButton) result.findViewById(R.id.prev_page);
-        mThreadView    = (SnapshotWebView) result.findViewById(R.id.thread);
-        mSnapshotView  = (ImageView) result.findViewById(R.id.snapshot);
-        mThreadWindow  = (FrameLayout) result.findViewById(R.id.thread_window);
+		mNextPage = (ImageButton) result.findViewById(R.id.next);
+		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+		mThreadView = (SnapshotWebView) result.findViewById(R.id.thread);
+		mSnapshotView = (ImageView) result.findViewById(R.id.snapshot);
+		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 
-        return result;
-    }
+		return result;
+	}
 
-    @Override
-    public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
+	@Override
+	public void onActivityCreated(Bundle aSavedState) {
+		super.onActivityCreated(aSavedState);
 
-        if (AwfulActivity.useLegacyActionbar()) {
-            mNext.setOnClickListener(onButtonClick);
-            mReply.setOnClickListener(onButtonClick);
-            mRefresh.setOnClickListener(onButtonClick);
-        }
+		if (AwfulActivity.useLegacyActionbar()) {
+			mNext.setOnClickListener(onButtonClick);
+			mReply.setOnClickListener(onButtonClick);
+			mRefresh.setOnClickListener(onButtonClick);
+		}
 
-        initThreadViewProperties();
-    }
+		initThreadViewProperties();
+	}
 
-    private void initThreadViewProperties() {
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    	
-        mThreadView.resumeTimers();
-        mThreadView.setWebViewClient(callback);
-        mThreadView.setSnapshotView(mSnapshotView);
-        mThreadView.getSettings().setJavaScriptEnabled(true);
-        mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        mThreadView.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
+	private void initThreadViewProperties() {
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mThreadView.getSettings().setEnableSmoothTransition(true);
-        }
-        
-        mThreadView.setWebChromeClient(new WebChromeClient() {
-            public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-                Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
-            }
-        });
-    }
+		mThreadView.resumeTimers();
+		mThreadView.setWebViewClient(callback);
+		mThreadView.setSnapshotView(mSnapshotView);
+		mThreadView.getSettings().setJavaScriptEnabled(true);
+		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+		mThreadView.setBackgroundColor(mPrefs.getInt("default_post_background_color",
+				getResources().getColor(R.color.background)));
 
-    private void initPageCountCallbacks() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			mThreadView.getSettings().setEnableSmoothTransition(true);
+		}
+
+		mThreadView.setWebChromeClient(new WebChromeClient() {
+			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+				Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
+			}
+		});
+	}
+
+	private void initPageCountCallbacks() {
 		mPrevPage.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -286,10 +295,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
 		if (mAdapter.getPage() == mAdapter.getLastPage()) {
 			mNextPage.setImageResource(R.drawable.stat_notify_sync);
-			mNextPage.setOnClickListener(new View.OnClickListener(){
+			mNextPage.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-                    mThreadView.loadData("", "text/html", "utf-8");
+					mThreadView.loadData("", "text/html", "utf-8");
 					mAdapter.refresh();
 				}
 			});
@@ -958,13 +967,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	@Override
 	public void onServiceConnected() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		// don't need this, threadview is automatically refreshed on resume.
-		
+
 	}
 
 	public void setPostJump(String postID) {
