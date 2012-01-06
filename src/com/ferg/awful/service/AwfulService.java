@@ -15,6 +15,7 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -521,6 +522,16 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Void aResult) {
+        	try{
+                ArrayList<AwfulPost> page = getThread(mId).getPosts(mPage);
+                for(AwfulPost post : page){
+                	if(post.getLastReadUrl() != null && post.getLastReadUrl().compareTo(lrUrl)>0){
+                		post.setPreviouslyRead(false);
+                	}
+                }
+        	}catch(NullPointerException e){
+        		//nothing to do, page isn't loaded yet.
+        	}
         	Bundle bund = new Bundle();
         	bund.putBoolean("marklastread", true);
 			sendUpdate(true, bund);
