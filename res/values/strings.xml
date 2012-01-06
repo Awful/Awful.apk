@@ -86,6 +86,7 @@
 	<string name="select_forum">Select a forum</string>
 	<string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
 	<string name="setting_posts_per_page">Posts Per Page</string>
+	<string name="setting_posts_per_page_summary">Maximum: 40</string>
 	<string name="goto_firstpage">First Page</string>
 	<string name="goto_lastpage">Last Page</string>
 	<string name="toggle_bookmark">Toggle Bookmark</string>
