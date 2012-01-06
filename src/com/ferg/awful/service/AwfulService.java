@@ -15,6 +15,7 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -131,8 +132,8 @@ public class AwfulService extends Service {
 	 * Do not refresh immediately after calling this, or the changes will be lost.
 	 * @param post The selected post.
 	 */
-	public void MarkLastRead(String aLastReadUrl){
-		queueThread(new MarkLastReadTask(aLastReadUrl));
+	public void MarkLastRead(String aLastReadUrl, int id, int page){
+		queueThread(new MarkLastReadTask(aLastReadUrl, id, page));
 	}
 	
 	public AwfulPagedItem getItem(String string) {
@@ -502,9 +503,10 @@ public class AwfulService extends Service {
     }
 	private class MarkLastReadTask extends AwfulTask<Void> {
 		private String lrUrl;
-        public MarkLastReadTask(String lastReadUrl){
+        public MarkLastReadTask(String lastReadUrl, int threadid, int page){
         	lrUrl = lastReadUrl;
-        	mId = -99;
+        	mId = threadid;
+        	mPage = page;
         }
 
         public Void doInBackground(Void... aParams) {
@@ -520,6 +522,19 @@ public class AwfulService extends Service {
         }
 
         public void onPostExecute(Void aResult) {
+        	try{
+                ArrayList<AwfulPost> page = getThread(mId).getPosts(mPage);
+                for(AwfulPost post : page){
+                	if(post.getLastReadUrl() != null && post.getLastReadUrl().compareTo(lrUrl)>0){
+                		post.setPreviouslyRead(false);
+                	}
+                }
+        	}catch(NullPointerException e){
+        		//nothing to do, page isn't loaded yet.
+        	}
+        	Bundle bund = new Bundle();
+        	bund.putBoolean("marklastread", true);
+			sendUpdate(true, bund);
             threadFinished(this);
         }
     }
