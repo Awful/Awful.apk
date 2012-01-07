@@ -96,7 +96,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private Bundle queueDataExtras;
     private boolean imagesLoadingState;
 
-    private int mPage = 0;
+    private int mPage = 1;
     private int mThreadId = 0;
     private int mLastPage = 0;
     
@@ -104,26 +104,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     public static ThreadDisplayFragment newInstance(int aThreadId) {
         ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-
-        // Supply num input as an argument.
-        Bundle args = new Bundle();
         fragment.setThreadId(aThreadId);
-
-        fragment.setArguments(args);
-
+        fragment.setPage(1);
         return fragment;
     }
 
     public static ThreadDisplayFragment newInstance(int aThreadId, int aPage) {
         ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-
-        // Supply num input as an argument.
-        Bundle args = new Bundle();
-        args.putInt(Constants.THREAD_ID, aThreadId);
-        args.putInt(Constants.PAGE, aPage);
-
-        fragment.setArguments(args);
-
+        fragment.setThreadId(aThreadId);
+        fragment.setPage(aPage);
         return fragment;
     }
 
@@ -282,7 +271,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			@Override
 			public void onClick(View v) {
                 mThreadView.loadData("", "text/html", "utf-8");
-				// TODO: goToPage(mAdapter.getPage() - 1);
+				goToPage(getPage() - 1);
 			}
 		});
 
@@ -473,7 +462,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 displayPostReplyDialog();
                 break;
             case R.id.go_back:
-                // TODO: goToPage(mAdapter.getPage()-1);
+                goToPage(getPage()-1);
                 break;
             case R.id.usercp:
                 displayUserCP();
@@ -644,12 +633,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     };
 
     private void showNextPage() {
-        /* TODO: 
-        if (mAdapter.getPage() < mAdapter.getLastPage()) {
+        if (getPage() < getLastPage()) {
             mThreadView.loadData("", "text/html", "utf-8");
-            goToPage(mAdapter.getPage()+1);
+            goToPage(getPage()+1);
         }
-        */
     }
 
     private void displayPostReplyDialog() {
@@ -932,7 +919,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onPreviousPageClick() {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    // TODO: goToPage(mAdapter.getPage() - 1);
+                    goToPage(getPage() - 1);
                 }
             });
         }
@@ -940,7 +927,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onNextPageClick() {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    // TODO: goToPage(mAdapter.getPage() + 1);
+                    goToPage(getPage() + 1);
                 }
             });
         }
@@ -1007,8 +994,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
             String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + " > ?";
             mLoading = true;
-            String[] args = new String[]{Integer.toString(aId), Integer.toString(AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0))};
-
+            int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
+            String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index)};
+            Log.v(TAG,"Displaying thread: "+getThreadId()+" index: "+index+" page: "+getPage()+" perpage: "+mPrefs.postPerPage);
             return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, 
                     null, selection, args, sortOrder);
         }
