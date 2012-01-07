@@ -65,6 +65,7 @@ public class AwfulProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
+	private static HashMap<String, String> sThreadProjectionMap;
 	private static HashMap<String, String> sPostProjectionMap;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -293,7 +294,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case THREAD:
 				builder.setTables(TABLE_THREADS);
-				builder.setProjectionMap(sPostProjectionMap);
+				builder.setProjectionMap(sThreadProjectionMap);
 				break;
         }
 
@@ -336,6 +337,7 @@ public class AwfulProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		sForumProjectionMap = new HashMap<String, String>();
         sPostProjectionMap = new HashMap<String, String>();
+        sThreadProjectionMap = new HashMap<String, String>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
@@ -364,5 +366,14 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
+		
+		sForumProjectionMap.put(AwfulThread.ID, AwfulThread.ID);
+		sForumProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+		sForumProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
+		sForumProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
+		sForumProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+		sForumProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+		sForumProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
+		sForumProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
     }
 }

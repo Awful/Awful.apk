@@ -28,6 +28,8 @@
 package com.ferg.awful.thread;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.util.Log;
 
@@ -42,7 +44,9 @@ public abstract class AwfulPagedItem {
 
 	protected int mLastPage;
     protected String mTitle;
-	
+
+	private static final Pattern pageNumber_regex = Pattern.compile("Pages \\((\\d+)\\)");
+    
 	public abstract ArrayList<? extends AwfulDisplayItem> getChildren(int page);
 	public abstract int getChildrenCount(int page);
 	public abstract AwfulDisplayItem getChild(int page, int ix);
@@ -50,6 +54,23 @@ public abstract class AwfulPagedItem {
 
     public JSONArray getSerializedChildren(int aPage) {
         return new JSONArray();
+    }
+    
+    public static int parseLastPage(TagNode pagedItem){
+    	TagNode pages = pagedItem.findElementByAttValue("class", "pages", true, true);
+    	TagNode pages2 = pagedItem.findElementByAttValue("class", "pages top", true, true);
+    	Matcher lastPageMatch = null;
+    	if(pages != null){
+    		lastPageMatch = pageNumber_regex.matcher(pages.getText().toString());
+    	}else{
+    		if(pages2 != null){
+	    		lastPageMatch = pageNumber_regex.matcher(pages2.getText().toString());
+	    	}
+    	}
+    	if(lastPageMatch != null && lastPageMatch.find()){
+    		return Integer.parseInt(lastPageMatch.group(1));
+    	}
+		return 1;
     }
 
 	public int parsePageNumbers(TagNode aForum) throws Exception {

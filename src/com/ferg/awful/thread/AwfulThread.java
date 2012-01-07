@@ -40,6 +40,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -279,6 +280,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
 		}
         */
+    	int lastPage = AwfulPagedItem.parseLastPage(response);
+    	int replycount = AwfulPagedItem.pageToIndex(lastPage, aPrefs.postPerPage, 0);
+    	Log.v(TAG, "Parsed lastPage:"+lastPage+" total:"+replycount);
+    	thread.put(AwfulThread.POSTCOUNT, replycount);
     	if(aContext.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		aContext.getContentResolver().insert(CONTENT_URI, thread);
     	}
