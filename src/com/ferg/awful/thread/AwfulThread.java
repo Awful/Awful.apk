@@ -279,7 +279,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
 		}
         */
-    	//TODO: Cover cases where the row might not exist beforehand (direct links, ect).
     	if(aContext.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		aContext.getContentResolver().insert(CONTENT_URI, thread);
     	}

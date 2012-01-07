@@ -148,6 +148,9 @@ public class AwfulProvider extends ContentProvider {
             case POST:
                 table = TABLE_POSTS;
                 break;
+            case THREAD:
+                table = TABLE_THREADS;
+                break;
             default:
                 break;
         }
@@ -204,6 +207,9 @@ public class AwfulProvider extends ContentProvider {
             case POST:
                 table = TABLE_POSTS;
                 break;
+            case THREAD:
+                table = TABLE_THREADS;
+                break;
         }
 
 		db.beginTransaction();
@@ -241,6 +247,9 @@ public class AwfulProvider extends ContentProvider {
 			case POST:
 				table = TABLE_POSTS;
 				break;
+			case THREAD:
+				table = TABLE_THREADS;
+				break;
         }
 
         long rowId = db.insert(table, "", aValues); 
@@ -277,6 +286,13 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulPost.ID + "=?");
 			case POST:
 				builder.setTables(TABLE_POSTS);
+				builder.setProjectionMap(sPostProjectionMap);
+				break;
+			case THREAD_ID:
+                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
+                builder.appendWhere(AwfulThread.ID + "=?");
+			case THREAD:
+				builder.setTables(TABLE_THREADS);
 				builder.setProjectionMap(sPostProjectionMap);
 				break;
         }

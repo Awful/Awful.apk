@@ -275,7 +275,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		url.append(Constants.PARAM_THREAD_ID);
 		url.append("=");
 		url.append(id);
-
+		//this never existed before honeycomb. need to block this from pre3.0 phones.
 		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
 				Context.CLIPBOARD_SERVICE);
 		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
