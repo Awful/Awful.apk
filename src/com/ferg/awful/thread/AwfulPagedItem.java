@@ -121,4 +121,11 @@ public abstract class AwfulPagedItem {
 	public boolean isPaged(){
 		return (getLastPage() > 1);
 	}
+	
+	public static int indexToPage(int index, int perPage){
+		return (index+1)/perPage+1;
+	}
+	public static int pageToIndex(int page, int perPage, int offset){
+		return Math.max(1, (page-1)*perPage+1+offset);
+	}
 }

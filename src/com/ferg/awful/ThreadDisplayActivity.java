@@ -138,7 +138,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
 
         if (aSavedState != null) {
             setContentPane(aSavedState.getInt(Constants.THREAD_ID, threadId), 
-                    aSavedState.getInt(Constants.PAGE, getFragment().getSavedPage()));
+            		aSavedState.getInt(Constants.PAGE, getFragment().getPage()));
         } else {
 
             if (c2pPage != null) {
@@ -157,11 +157,11 @@ public class ThreadDisplayActivity extends AwfulActivity {
             		}
             	}
 
-            	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
-            		// TODO: getFragment().setPostJump(c2pURLFragment.replaceAll("\\D", ""));
-            	}
-
             	setContentPane(threadId, page);
+            	
+            	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
+            		getFragment().setPostJump(c2pURLFragment.replaceAll("\\D", ""));
+            	}
             } else {
             	if (loadPage > 0) {
             		setContentPane(threadId, loadPage);

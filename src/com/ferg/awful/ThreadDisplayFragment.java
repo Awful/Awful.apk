@@ -59,6 +59,7 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.ThreadSyncService;
+import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
@@ -71,7 +72,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
-    private SharedPreferences mPrefs;
+    private AwfulPreferences mPrefs;
     
     private boolean mBound = false;
     private Messenger mService = null;
@@ -95,7 +96,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private Bundle queueDataExtras;
     private boolean imagesLoadingState;
 
-    private int savedPage = 0;
+    private int mPage = 0;
+    private int mThreadId = 0;
+    private int mLastPage = 0;
     
 	private String mPostJump = "";
 
@@ -104,7 +107,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
-        args.putInt(Constants.THREAD_ID, aThreadId);
+        fragment.setThreadId(aThreadId);
 
         fragment.setArguments(args);
 
@@ -132,7 +135,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                     handleStatusUpdate(aMsg.arg1);
                     break;
                 default:
-                    getActivity().getSupportLoaderManager().initLoader(LOADER_POSTS, null, mLoaderManager);
+                    getActivity().getSupportLoaderManager().initLoader(getThreadId(), null, mLoaderManager);
                     super.handleMessage(aMsg);
             }
         }
@@ -251,20 +254,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			mReply.setOnClickListener(onButtonClick);
 			mRefresh.setOnClickListener(onButtonClick);
 		}
-
+		mPrefs = new AwfulPreferences(getActivity());
 		initThreadViewProperties();
 	}
 
 	private void initThreadViewProperties() {
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setSnapshotView(mSnapshotView);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		mThreadView.setBackgroundColor(mPrefs.getInt("default_post_background_color",
-				getResources().getColor(R.color.background)));
+		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -526,14 +526,15 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void syncThread(int aPage) {
-
+    	setPage(aPage);
+    	syncThread();
     }
 
     private void syncThread() {
         try {
             Message msg = Message.obtain(null, ThreadSyncService.MSG_SYNC_THREAD);
-            msg.arg1 = getArguments().getInt(Constants.THREAD_ID, -1);
-            msg.arg2 = 1;
+            msg.arg1 = getThreadId();
+            msg.arg2 = getPage();
 
             mService.send(msg);
         } catch (RemoteException e) {
@@ -779,10 +780,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         */
     }
 
-    public int getSavedPage() {
-        return savedPage;
-    }
-
     private void handleStatusUpdate(int aStatus) {
         switch (aStatus) {
             case ThreadSyncService.Status.WORKING:
@@ -857,10 +854,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		initPageCountCallbacks();
-        
-        /* TODO: 
-        mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
-        */
+		updatePageBar();
 
         try {
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
@@ -969,7 +963,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		// don't need this, threadview is automatically refreshed on resume.
-
+		//actually, it's not anymore, but it doesn't matter much
 	}
 
 	public void setPostJump(String postID) {
@@ -977,19 +971,31 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 	
 	public void goToPage(int aPage){
-		// TODO: mAdapter.goToPage(aPage);
-		// TODO: mPageCountText.setText("Page " + mAdapter.getPage() + "/" + mAdapter.getLastPage());
+		setPage(aPage);
+		updatePageBar();
 		mPostJump = "";
+		getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mLoaderManager);
 	}
-
+	
+	public void updatePageBar(){
+		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+	}
+	
 	public int getPage() {
-        return 1;
-		// TODO: return mAdapter.getPage();
+        return mPage;
+	}
+	public void setPage(int aPage){
+		mPage = aPage;
+	}
+	public void setThreadId(int aThreadId){
+		mThreadId = aThreadId;
+	}
+	public int getLastPage() {
+        return mLastPage;
 	}
 
 	public int getThreadId() {
-        return 12345678;
-		// TODO: return mAdapter.getCurrentId();
+        return mThreadId;
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -997,18 +1003,18 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         private Cursor mData;
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            String sortOrder = AwfulPost.DATE + " ASC" + " LIMIT 40";
+            String sortOrder = AwfulPost.POST_INDEX + " ASC LIMIT "+mPrefs.postPerPage;
 
-            String selection = AwfulPost.THREAD_ID + "='" 
-                + Integer.toString(ThreadDisplayFragment.this.getArguments().getInt(Constants.THREAD_ID, -1)) + "'";
-
+            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + " > ?";
             mLoading = true;
+            String[] args = new String[]{Integer.toString(aId), Integer.toString(AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0))};
 
             return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, 
-                    null, selection, null, null);
+                    null, selection, args, sortOrder);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Load finished, populating.");
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             mLoading = false;
         }
