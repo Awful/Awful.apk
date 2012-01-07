@@ -27,18 +27,18 @@
 
 package com.ferg.awful.thread;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,9 +57,19 @@ import com.ferg.awful.preferences.ColorPickerPreference;
 public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
 
-    private static final String ID = "_id";
-    private static final String PAGE = "page";
-
+    public static final String PATH     = "/thread";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+    
+    public static final String ID 		="_id";
+    public static final String FORUM_ID 	="forum_id";
+    public static final String TITLE 		="title";
+    public static final String POSTCOUNT 	="post_count";
+    public static final String UNREADCOUNT ="unread_count";
+    public static final String AUTHOR 	="author";
+	public static final String LOCKED = "locked";
+	public static final String BOOKMARKED = "bookmarked";
+	
+	
     private String mThreadId;
     private int threadId;
     private String mAuthor;
@@ -73,6 +83,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	private String mKilledBy;
 	private int forumId;
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
+    
+	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+
+
 
     public AwfulThread() {
     	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
@@ -221,26 +235,38 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
 
         TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
-
+        ContentValues thread = new ContentValues();
+        thread.put(ID, aThreadId);
         if (true /* mTitle == null */) {
         	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
 
             if (tarTitle.length > 0) {
-                // TODO: mTitle = tarTitle[0].getText().toString().trim();
+            	thread.put(TITLE, tarTitle[0].getText().toString().trim());
             }
         }
 
         TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
         if (replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")) {
-        	// TODO: this.mClosed = true;
+        	thread.put(LOCKED, 1);
+        }else{
+        	thread.put(LOCKED, 0);
         }
 
         TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
         if (bkButtons.length >0) {
         	String bkSrc = bkButtons[0].getAttributeByName("src");
-        	// TODO: setBookmarked(bkSrc != null && bkSrc.contains("unbookmark"));
+        	thread.put(BOOKMARKED, bkSrc != null && bkSrc.contains("unbookmark"));
         }
-
+        TagNode breadcrumbs = response.findElementByAttValue("class", "breadcrumbs", true, true);
+    	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
+    	int forumId = -1;
+    	for(TagNode fl : forumlinks){
+    		Matcher matchForumId = forumId_regex.matcher(fl.getAttributeByName("href"));
+    		if(matchForumId.find()){//switched this to a regex
+    			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
+    		}
+    	}
+    	thread.put(FORUM_ID, forumId);
         /* TODO: 
         int oldLastPage = getLastPage();
         int oldTotalCount = getTotalCount();
@@ -252,8 +278,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
 		}
         */
+    	//TODO: Cover cases where the row might not exist beforehand (direct links, ect).
+    	aContext.getContentResolver().update(CONTENT_URI, thread, ID+" = "+aThreadId, null);
 
-        AwfulPost.syncPosts(aContext, response, aPage, aPageSize, new AwfulThread(aThreadId), aPrefs);
+        AwfulPost.syncPosts(aContext, response, aThreadId, aPrefs);
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {

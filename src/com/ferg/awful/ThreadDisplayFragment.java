@@ -347,10 +347,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (getActivity() != null && getActivity().getIntent() != null){
-        	// TODO: getActivity().getIntent().putExtra(Constants.PAGE, mAdapter.getPage());
-        }
-
         cleanupTasks();
     }
     

@@ -50,9 +50,10 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     private static final String TABLE_FORUM    = "forum";
+    private static final String TABLE_THREADS    = "threads";
     private static final String TABLE_POSTS    = "posts";
 
     private static final int FORUM    = 0;
@@ -76,11 +77,21 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index), index/ucp has none
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR);");
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
+                AwfulThread.ID      + " INTEGER UNIQUE,"  + 
+                AwfulThread.FORUM_ID      + " INTEGER,"   + 
+                AwfulThread.TITLE   + " VARCHAR,"         + 
+                AwfulThread.POSTCOUNT   + " INTEGER,"     + 
+                AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
+                AwfulThread.LOCKED   + " INTEGER,"   	  + 
+                AwfulThread.BOOKMARKED   + " INTEGER,"    + 
+                AwfulThread.AUTHOR + " VARCHAR);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
-                AwfulPost.ID                    + " VARCHAR UNIQUE," + 
+                AwfulPost.ID                    + " INTEGER UNIQUE," + 
                 AwfulPost.THREAD_ID             + " INTEGER,"        + 
-                AwfulPost.PAGE                  + " INTEGER,"        + 
+                AwfulPost.POST_INDEX            + " INTEGER,"        + 
                 AwfulPost.DATE                  + " VARCHAR,"        + 
                 AwfulPost.USER_ID               + " VARCHAR,"        + 
                 AwfulPost.USERNAME              + " VARCHAR,"        +
@@ -313,7 +324,7 @@ public class AwfulProvider extends ContentProvider {
 
 		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
 		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
-		sPostProjectionMap.put(AwfulPost.PAGE, AwfulPost.PAGE);
+		sPostProjectionMap.put(AwfulPost.POST_INDEX, AwfulPost.POST_INDEX);
 		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
 		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
 		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);

@@ -57,11 +57,11 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
-	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+	private static final Pattern postIndex_regex = Pattern.compile("index=(\\d+)");
 
     public static final String ID                    = "_id";
+    public static final String POST_INDEX                    = "post_index";
     public static final String THREAD_ID             = "thread_id";
-    public static final String PAGE                  = "page";
     public static final String DATE                  = "date";
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
@@ -339,42 +339,29 @@ public class AwfulPost implements AwfulDisplayItem {
         }
     }
 
-    public static void syncPosts(Context aContext, TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aPage, postPerPage, aThreadObject, prefs);
+    public static void syncPosts(Context aContext, TagNode aThread, int aThreadId, AwfulPreferences prefs){
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, prefs);
 
         aContext.getContentResolver().bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
     }
 
-    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aPage, int postPerPage, AwfulThread aThreadObject, AwfulPreferences prefs){
+    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, AwfulPreferences prefs){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         
-        int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
-        int lastReadPost = aThreadObject.getLastReadPost(postPerPage);
+        //int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
+        //int lastReadPost = aThreadObject.getLastReadPost(postPerPage);//I don't think we need this anymore
 
 		boolean lastReadFound = false;
 
         try {
-        	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
-        	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
-        	int forumId = 0;
-        	for(TagNode fl : forumlinks){
-        		Matcher matchForumId = forumId_regex.matcher(fl.getAttributeByName("href"));
-        		if(matchForumId.find()){//switched this to a regex
-        			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
-        		}
-        	}
-        	aThreadObject.setForumId(forumId);
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
-
-            int index = 1;
 			boolean fyad = false;
 
             for (TagNode node : postNodes) {
             	//fyad status, to prevent processing postbody twice if we are in fyad
                 ContentValues post = new ContentValues();                
-                post.put(THREAD_ID, aThreadObject.getThreadId());
-                post.put(PAGE, aPage);
+                post.put(THREAD_ID, aThreadId);
 
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
@@ -476,10 +463,14 @@ public class AwfulPost implements AwfulDisplayItem {
 					}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
-						if (pc.getChildTags().length > 0) {
-                            post.put(LAST_READ_URL, 
-                                    pc.getChildTags()[0].getAttributeByName("href").replaceAll("&amp;", "&"));
-						}
+						TagNode[] postDateUrls = pc.getElementsHavingAttribute("href", true);
+			        	for(TagNode pdu : postDateUrls){
+			        		Matcher matchPostIndex = postIndex_regex.matcher(pdu.getAttributeByName("href"));
+			        		if(matchPostIndex.find()){
+			        			post.put(POST_INDEX, Integer.parseInt(matchPostIndex.group(1)));
+			        			post.put(LAST_READ_URL, pdu.getAttributeByName("href").replaceAll("&amp;", "&"));
+			        		}
+			        	}
 
 						post.put(DATE, pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
 					}
@@ -493,21 +484,21 @@ public class AwfulPost implements AwfulDisplayItem {
 
 							post.put(USER_ID, userId);
 
-							if (aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(userId)) {
-                                post.put(IS_OP, 1);
-							} else {
+							//if (aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(userId)) {
+                            //    post.put(IS_OP, 1);
+							//} else {
                                 post.put(IS_OP, 0);
-                            }
+                            //}//TODO:fix dis
 						}
 					}
 
-                    if (aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
-                            (pc.getAttributeByName("class").contains("seen") && !lastReadFound)) {
-						post.put(PREVIOUSLY_READ, 1);
-					} else {
+                    //if (aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
+                    //        (pc.getAttributeByName("class").contains("seen") && !lastReadFound)) {
+					//	post.put(PREVIOUSLY_READ, 1);
+					//} else {//TODO: maybe fix this? we might not need to, unreadcount is more reliable.
 						post.put(PREVIOUSLY_READ, 0);
-                        lastReadFound = true;
-                    }
+                    //    lastReadFound = true;
+                    //}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length > 0) {
 						post.put(EDITED, "<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
@@ -521,7 +512,6 @@ public class AwfulPost implements AwfulDisplayItem {
                     post.put(EDITABLE, 0);
                 }
                 result.add(post);
-                index++;
             }
 
             Log.i(TAG, Integer.toString(postNodes.length));
