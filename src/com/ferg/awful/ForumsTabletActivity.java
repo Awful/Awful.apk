@@ -48,8 +48,14 @@ public class ForumsTabletActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsTabletActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsTabletActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
+
         setContentView(R.layout.forum_index_activity);
 
         mContent = (RelativeLayout) findViewById(R.id.content);

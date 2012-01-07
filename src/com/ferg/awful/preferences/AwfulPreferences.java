@@ -7,6 +7,7 @@ import com.ferg.awful.service.AwfulServiceConnection;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 /**
@@ -16,7 +17,7 @@ import android.preference.PreferenceManager;
  */
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private SharedPreferences mPrefs;
-	private Context parent;
+	private Context mContext;
 	private AwfulServiceConnection mPrefChangeCallback;
 	
     public String username;
@@ -47,10 +48,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 * @param context
 	 */
 	public AwfulPreferences(Context context) {
-		parent = context;
+		mContext = context;
 		mPrefChangeCallback = null;
-		PreferenceManager.setDefaultValues(parent, R.xml.settings, false);
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(parent);
+
+		PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 	}
@@ -77,20 +79,24 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
     public void setUsername(String aUsername) {
-    	mPrefs.edit().putString("username", aUsername).commit();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            mPrefs.edit().putString("username", aUsername).apply();
+        } else {
+            mPrefs.edit().putString("username", aUsername).commit();
+        }
     }
 
 	private void updateValues(SharedPreferences prefs) {
         username                 = mPrefs.getString("username", "Username");
 		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
-		postFontColor            = mPrefs.getInt("default_post_font_color", parent.getResources().getColor(R.color.default_post_font));
-		postFontColor2           = mPrefs.getInt("secondary_post_font_color", parent.getResources().getColor(R.color.secondary_post_font));
-      	postBackgroundColor      = mPrefs.getInt("default_post_background_color", parent.getResources().getColor(R.color.background));
-       	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", parent.getResources().getColor(R.color.alt_background));
-    	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", parent.getResources().getColor(R.color.background_read));
-    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", parent.getResources().getColor(R.color.alt_background_read));
-    	postOPColor              = mPrefs.getInt("op_post_color", parent.getResources().getColor(R.color.op_post));
-    	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", parent.getResources().getColor(R.color.link_quote));
+		postFontColor            = mPrefs.getInt("default_post_font_color", mContext.getResources().getColor(R.color.default_post_font));
+		postFontColor2           = mPrefs.getInt("secondary_post_font_color", mContext.getResources().getColor(R.color.secondary_post_font));
+      	postBackgroundColor      = mPrefs.getInt("default_post_background_color", mContext.getResources().getColor(R.color.background));
+       	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", mContext.getResources().getColor(R.color.alt_background));
+    	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", mContext.getResources().getColor(R.color.background_read));
+    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", mContext.getResources().getColor(R.color.alt_background_read));
+    	postOPColor              = mPrefs.getInt("op_post_color", mContext.getResources().getColor(R.color.op_post));
+    	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);

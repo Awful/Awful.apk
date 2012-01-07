@@ -91,8 +91,14 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPFragment");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPFragment");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
+
         setHasOptionsMenu(true);
     }
         

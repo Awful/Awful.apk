@@ -64,8 +64,13 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/SettingsActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/SettingsActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();

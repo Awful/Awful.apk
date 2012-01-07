@@ -90,6 +90,7 @@ public class AwfulServiceConnection extends BroadcastReceiver implements
 	public void connect(Context parent){
         mPrefs = new AwfulPreferences(parent);
         mPrefs.registerCallback(this);
+
 		if(mService == null && !boundState){
 			Log.v(TAG, "connect()");
 			parent.bindService(new Intent(parent, AwfulService.class), this, Context.BIND_AUTO_CREATE);
