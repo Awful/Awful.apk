@@ -32,6 +32,7 @@ import com.ferg.awful.service.AwfulServiceConnection;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.RelativeLayout;
@@ -40,14 +41,33 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsIndexActivity extends AwfulActivity {
 
+    private boolean DEVELOPER_MODE = false;
     private static final String TAG = "ForumsIndexActivity";
     
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        if (DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
+        
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsIndexActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsIndexActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
 
         if (isTablet()) {
             startTabletActivity();

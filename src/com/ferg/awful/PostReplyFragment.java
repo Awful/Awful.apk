@@ -33,6 +33,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -89,11 +90,15 @@ public class PostReplyFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyFragment");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyFragment");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
     }
     
-        
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -301,7 +306,12 @@ public class PostReplyFragment extends DialogFragment {
 
                     		SharedPreferences.Editor editor = mPrefs.edit();
                     		editor.putString(Constants.FORM_KEY, mFormKey);
-                    		editor.commit();
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                                editor.apply();
+                            } else {
+                                editor.commit();
+                            }
 
                     		mFetchCookieTask = new FetchFormCookieTask();
                     		mFetchCookieTask.execute(mThreadId);

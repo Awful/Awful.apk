@@ -30,7 +30,7 @@ public class AwfulActivity extends FragmentActivity {
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mService = new AwfulServiceConnection();
-        mService.connect(this);
+        mService.connect(AwfulActivity.this);
     }
 
     public AwfulServiceConnection getServiceConnection(){

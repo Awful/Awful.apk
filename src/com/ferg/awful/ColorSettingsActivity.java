@@ -3,6 +3,7 @@ package com.ferg.awful;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
@@ -19,8 +20,13 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ColorSettingsActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/ColorSettingsActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate(); 
@@ -92,7 +98,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
-						prefEdit.commit();
+                        savePreferences(prefEdit);
 						p.setSummary("Dark");
 						lastTheme = "dark";
 						this.finish();
@@ -110,7 +116,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read));
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.link_quote));
-						prefEdit.commit();
+                        savePreferences(prefEdit);
 						p.setSummary("Default");
 						lastTheme = "default";
 						this.finish();
@@ -128,7 +134,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.yospos_alt_background_read));
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.yospos_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.yospos_link_quote));
-						prefEdit.commit();
+                        savePreferences(prefEdit);
 						p.setSummary("yospos, bitch");
 						lastTheme = "yospos";
 						this.finish();
@@ -143,7 +149,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 							prefEdit.putInt("alternative_read_post_background_color", mPrefs.getInt("custom_alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
 							prefEdit.putInt("op_post_color", mPrefs.getInt("custom_op_post_color", getResources().getColor(R.color.op_post)));
 							prefEdit.putInt("link_quote_color", mPrefs.getInt("custom_link_quote_color", getResources().getColor(R.color.link_quote)));
-							prefEdit.commit();
+                            savePreferences(prefEdit);
 							addPreferencesFromResource(R.xml.colorsettings);
 							p.setSummary("Custom");
 							lastTheme = "custom";
@@ -164,6 +170,14 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		prefEdit.putInt("custom_alternative_read_post_background_color", mPrefs.getInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
 		prefEdit.putInt("custom_op_post_color", mPrefs.getInt("op_post_color", getResources().getColor(R.color.op_post)));
 		prefEdit.putInt("custom_link_quote_color", mPrefs.getInt("link_quote_color", getResources().getColor(R.color.link_quote)));
-		prefEdit.commit();
+        savePreferences(prefEdit);
 	}
+
+    private void savePreferences(Editor aPrefs) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            aPrefs.apply();
+        } else {
+            aPrefs.commit();
+        }
+    }
 }

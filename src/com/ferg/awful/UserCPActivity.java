@@ -47,8 +47,12 @@ public class UserCPActivity extends AwfulActivity {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
 
-        GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/UserCPActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
 
         setContentView(R.layout.user_cp_activity);
 

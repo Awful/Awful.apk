@@ -63,8 +63,14 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/LoginActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
+
+        new Thread(new Runnable() {
+            public void run() {
+                GoogleAnalyticsTracker.getInstance().trackPageView("/LoginActivity");
+                GoogleAnalyticsTracker.getInstance().dispatch();
+            }
+        }).start();
+
         setContentView(R.layout.login);
 
         mLogin = (Button) findViewById(R.id.login);

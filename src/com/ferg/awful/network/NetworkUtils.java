@@ -27,24 +27,15 @@
 
 package com.ferg.awful.network;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -59,21 +50,15 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.CleanerTransformations;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagTransformation;
+import org.apache.http.params.*;
+import org.htmlcleaner.*;
 
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
@@ -136,7 +121,12 @@ public class NetworkUtils {
     	SharedPreferences prefs = ctx.getSharedPreferences(
     			Constants.COOKIE_PREFERENCE, 
     			Context.MODE_PRIVATE);
-    	prefs.edit().clear().commit();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            prefs.edit().clear().apply();
+        } else {
+            prefs.edit().clear().commit();
+        }
     	
     	// Then the memory store
     	sHttpClient.getCookieStore().clear();
@@ -176,7 +166,14 @@ public class NetworkUtils {
     		edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
     		edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
     		edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
-    		return edit.commit();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                edit.apply();
+            } else {
+                edit.commit();
+            }
+
+            return true;
     	}
     	
     	return false;
