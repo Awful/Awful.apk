@@ -48,6 +48,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulForum";
 
 	public static final String ID      = "forum_id";
+	public static final String PARENT_ID      = "parent_forum_id";
 	public static final String TITLE   = "title";
 	public static final String SUBTEXT = "subtext";
 

@@ -73,6 +73,7 @@ public class AwfulProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_FORUM + " (" +
                 AwfulForum.ID      + " INTEGER UNIQUE," + 
+                AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index), index/ucp has none
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR);");
 
@@ -306,6 +307,7 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
+		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 

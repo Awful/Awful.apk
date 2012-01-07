@@ -54,9 +54,10 @@ public class AwfulPost implements AwfulDisplayItem {
     public static final String PATH     = "/post";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
-    private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
-	private static final Pattern youtubeId = Pattern.compile("/v/([\\w_-]+)&?");
-	private static final Pattern vimeoId = Pattern.compile("clip_id=(\\d+)&?");
+    private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
+	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
+	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
+	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 
     public static final String ID                    = "_id";
     public static final String THREAD_ID             = "thread_id";
@@ -83,13 +84,7 @@ public class AwfulPost implements AwfulDisplayItem {
     private String mContent;
     private String mEdited;
     
-	private boolean mLastRead = false;
 	private boolean mPreviouslyRead = false;
-	private boolean mEven = false;
-	private boolean mHasProfileLink = false;
-	private boolean mHasMessageLink = false;
-	private boolean mHasPostHistoryLink = false;
-	private boolean mHasRapSheetLink = false;
     private String mLastReadUrl;
     private boolean mEditable;
     private boolean isOp = false;
@@ -259,8 +254,8 @@ public class AwfulPost implements AwfulDisplayItem {
 			}
 			if(src != null && height != 0 && width != 0){
 				String link = null, image = null;
-				Matcher youtube = youtubeId.matcher(src);
-				Matcher vimeo = vimeoId.matcher(src);
+				Matcher youtube = youtubeId_regex.matcher(src);
+				Matcher vimeo = vimeoId_regex.matcher(src);
 				if(youtube.find()){
 					String videoId = youtube.group(1);
 					link = "http://www.youtube.com/watch?v=" + videoId;
@@ -317,14 +312,6 @@ public class AwfulPost implements AwfulDisplayItem {
     public void setLastReadUrl(String aLastReadUrl) {
         mLastReadUrl = aLastReadUrl;
     }
-
-	public boolean isLastRead() {
-		return mLastRead;
-	}
-
-	public void setLastRead(boolean aLastRead) {
-		mLastRead = aLastRead;
-	}
 	
 	public boolean isPreviouslyRead() {
 		return mPreviouslyRead;
@@ -334,52 +321,12 @@ public class AwfulPost implements AwfulDisplayItem {
 		mPreviouslyRead = aPreviouslyRead;
 	}
 	
-	public void setEven(boolean mEven) {
-		this.mEven = mEven;
-	}
-
-	public boolean isEven() {
-		return mEven;
-	}
-	
-	public void setHasProfileLink(boolean aHasProfileLink) {
-		mHasProfileLink = aHasProfileLink;
-	}
-	
-	public boolean hasProfileLink() {
-		return mHasProfileLink;
-	}
-	
-	public void setHasMessageLink(boolean aHasMessageLink) {
-		mHasMessageLink = aHasMessageLink;
-	}
-	
-	public boolean hasMessageLink() {
-		return mHasMessageLink;
-	}
-	
-	public void setHasPostHistoryLink(boolean aHasPostHistoryLink) {
-		mHasPostHistoryLink = aHasPostHistoryLink;
-	}
-	
-	public boolean hasPostHistoryLink() {
-		return mHasPostHistoryLink;
-	}
-	
-	public void setHasRapSheetLink(boolean aHasRapSheetLink) {
-		mHasRapSheetLink = aHasRapSheetLink;
-	}
-
 	public boolean isEditable() {
 		return mEditable;
 	}
 	
 	public void setEditable(boolean aEditable) {
 		mEditable = aEditable;
-	}
-	
-	public boolean hasRapSheetLink() {
-		return mHasRapSheetLink;
 	}
 
     public void markLastRead() {
@@ -408,10 +355,15 @@ public class AwfulPost implements AwfulDisplayItem {
 
         try {
         	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
-        	TagNode[] forumlinks = breadcrumbs.getElementsByName("a", true);
-        	TagNode forumlink = forumlinks[forumlinks.length-2];
-        	String forumurl = forumlink.getAttributeByName("href").toString();
-        	aThreadObject.setForumId(Integer.parseInt(forumurl.substring("showthread.php?threadid=".length()+1)));
+        	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
+        	int forumId = 0;
+        	for(TagNode fl : forumlinks){
+        		Matcher matchForumId = forumId_regex.matcher(fl.getAttributeByName("href"));
+        		if(matchForumId.find()){//switched this to a regex
+        			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
+        		}
+        	}
+        	aThreadObject.setForumId(forumId);
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
 
@@ -457,7 +409,7 @@ public class AwfulPost implements AwfulDisplayItem {
 
 					if (pc.getAttributeByName("class").contains("complete_shit")) {
 						StringBuffer fixedContent = new StringBuffer();
-						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						Matcher fixCharMatch = fixCharacters_regex.matcher(NetworkUtils.getAsString(pc));
 
                         while (fixCharMatch.find()) {
                             fixCharMatch.appendReplacement(fixedContent, "");
@@ -513,7 +465,7 @@ public class AwfulPost implements AwfulDisplayItem {
 						}
 
 						StringBuffer fixedContent = new StringBuffer();
-						Matcher fixCharMatch = fixCharacters.matcher(NetworkUtils.getAsString(pc));
+						Matcher fixCharMatch = fixCharacters_regex.matcher(NetworkUtils.getAsString(pc));
 
                         while (fixCharMatch.find()) {
                             fixCharMatch.appendReplacement(fixedContent, "");
