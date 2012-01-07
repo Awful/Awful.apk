@@ -86,8 +86,8 @@ public class ColorPickerDialog
 		);	
 
 		mColorEditCode.setOnKeyListener(this);
-		mColorEditCode.setText(Integer.toHexString(color));
-		mOldColorEditCode.setText(Integer.toHexString(color));
+		mColorEditCode.setText(Integer.toHexString(color).substring(2));
+		mOldColorEditCode.setText(Integer.toHexString(color).substring(2));
 		mOldColor.setOnClickListener(this);
 		mNewColor.setOnClickListener(this);
 		mColorPicker.setOnColorChangedListener(this);
@@ -100,7 +100,8 @@ public class ColorPickerDialog
 	public void onColorChanged(int color) {
 
 		mNewColor.setColor(color);
-		mColorEditCode.setText(Integer.toHexString(color));
+		//using substring instead of bit arithmetic because toHexString will cut off leading digits otherwise.
+		mColorEditCode.setText(Integer.toHexString(color).substring(2));
 
 		/*
 		if (mListener != null) {
@@ -146,7 +147,7 @@ public class ColorPickerDialog
 		if(arg0.getId() == mColorEditCode.getId()){
 			String code = mColorEditCode.getText().toString();
 			if(code.length() == 8 && !code.matches("[^0-9a-fA-F]")){
-				mNewColor.setColor((int) (Long.parseLong(code, 16) & 0xFFFFFFFF));
+				mNewColor.setColor((int) (Long.parseLong(code, 16) & 0x00FFFFFF) | 0xFF000000);
 			}
 		}
 		return false;
