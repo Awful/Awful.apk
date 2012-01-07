@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -279,7 +280,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		}
         */
     	//TODO: Cover cases where the row might not exist beforehand (direct links, ect).
-    	aContext.getContentResolver().update(CONTENT_URI, thread, ID+" = "+aThreadId, null);
+    	if(aContext.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
+    		aContext.getContentResolver().insert(CONTENT_URI, thread);
+    	}
 
         AwfulPost.syncPosts(aContext, response, aThreadId, aPrefs);
     }

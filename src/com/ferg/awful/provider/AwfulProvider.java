@@ -56,10 +56,12 @@ public class AwfulProvider extends ContentProvider {
     private static final String TABLE_THREADS    = "threads";
     private static final String TABLE_POSTS    = "posts";
 
-    private static final int FORUM    = 0;
-    private static final int FORUM_ID = 1;
-    private static final int POST     = 2;
-    private static final int POST_ID  = 3;
+    private static final int FORUM     = 0;
+    private static final int FORUM_ID  = 1;
+    private static final int POST      = 2;
+    private static final int POST_ID   = 3;
+    private static final int THREAD    = 4;
+    private static final int THREAD_ID = 5;
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
@@ -109,6 +111,7 @@ public class AwfulProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
 
             onCreate(aDb);
@@ -170,6 +173,12 @@ public class AwfulProvider extends ContentProvider {
                 aWhere = AwfulPost.ID + "=?";
             case POST:
                 table = TABLE_POSTS;
+                break;
+            case THREAD_ID:
+                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
+                aWhere = AwfulThread.ID + "=?";
+            case THREAD:
+                table = TABLE_THREADS;
                 break;
         }
 
@@ -314,6 +323,8 @@ public class AwfulProvider extends ContentProvider {
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "thread", THREAD);
+		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", THREAD_ID);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post", POST);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
 
