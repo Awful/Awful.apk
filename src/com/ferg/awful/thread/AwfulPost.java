@@ -27,15 +27,11 @@
 
 package com.ferg.awful.thread;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.ContentNode;
-import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
@@ -61,10 +57,6 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern vimeoId = Pattern.compile("clip_id=(\\d+)&?");
-    
-    private static final String LINK_PROFILE      = "Profile";
-    private static final String LINK_MESSAGE      = "Message";
-    private static final String LINK_POST_HISTORY = "Post History";
 
     public static final String ID                    = "_id";
     public static final String THREAD_ID             = "thread_id";
@@ -72,13 +64,7 @@ public class AwfulPost implements AwfulDisplayItem {
     public static final String DATE                  = "date";
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
-    public static final String LAST_READ             = "last_read";
-    public static final String EVEN                  = "even";
     public static final String PREVIOUSLY_READ       = "previously_read";
-    public static final String HAS_PROFILE_LINK      = "has_profile_link";
-    public static final String HAS_MESSAGE_LINK      = "has_message_link";
-    public static final String HAS_POST_HISTORY_LINK = "has_post_history_link";
-    public static final String HAS_RAP_SHEET_LINK    = "has_rap_sheet_link";
     public static final String LAST_READ_URL         = "last_read_url";
     public static final String EDITABLE              = "editable";
     public static final String IS_OP                 = "is_op";
@@ -88,9 +74,8 @@ public class AwfulPost implements AwfulDisplayItem {
     public static final String CONTENT               = "content";
     public static final String EDITED                = "edited";
 
+	private int mThreadId;
     private String mId;
-    private int mThreadId;
-    private int mPage;
     private String mDate;
     private String mUserId;
     private String mUsername;
@@ -110,6 +95,7 @@ public class AwfulPost implements AwfulDisplayItem {
     private boolean isOp = false;
     private boolean isAdmin = false;
     private boolean isMod = false;
+
 
     public JSONObject toJSON() throws JSONException {
         JSONObject result = new JSONObject();
@@ -176,8 +162,8 @@ public class AwfulPost implements AwfulDisplayItem {
         mThreadId = aThreadId;
     }
 
-    public void setPage(int aPage) {
-        mPage = aPage;
+    public int getThreadId() {
+        return mThreadId;
     }
 
     public void setIsOp(boolean aIsOp) {
@@ -214,17 +200,10 @@ public class AwfulPost implements AwfulDisplayItem {
         if (aCursor.moveToFirst()) {
             int idIndex = aCursor.getColumnIndex(ID);
             int threadIdIndex = aCursor.getColumnIndex(THREAD_ID);
-            int pageIndex = aCursor.getColumnIndex(PAGE);
             int dateIndex = aCursor.getColumnIndex(DATE);
             int userIdIndex = aCursor.getColumnIndex(USER_ID);
             int usernameIndex = aCursor.getColumnIndex(USERNAME);
-            int lastReadIndex = aCursor.getColumnIndex(LAST_READ);
-            int evenIndex = aCursor.getColumnIndex(EVEN);
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
-            int hasProfileLinkIndex = aCursor.getColumnIndex(HAS_PROFILE_LINK);
-            int hasMessageLinkIndex = aCursor.getColumnIndex(HAS_MESSAGE_LINK);
-            int hasPostHistoryLinkIndex = aCursor.getColumnIndex(HAS_POST_HISTORY_LINK);
-            int hasRapSheetLinkIndex = aCursor.getColumnIndex(HAS_RAP_SHEET_LINK);
             int lastReadUrlIndex = aCursor.getColumnIndex(LAST_READ_URL);
             int editableIndex = aCursor.getColumnIndex(EDITABLE);
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
@@ -240,17 +219,10 @@ public class AwfulPost implements AwfulDisplayItem {
                 current = new AwfulPost();
                 current.setId(aCursor.getString(idIndex));
                 current.setThreadId(aCursor.getInt(threadIdIndex));
-                current.setPage(aCursor.getInt(pageIndex));
                 current.setDate(aCursor.getString(dateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
-                current.setLastRead(aCursor.getInt(lastReadIndex) == 1 ? true : false);
-                current.setEven(aCursor.getInt(evenIndex) == 1 ? true : false);
                 current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) == 1 ? true : false);
-                current.setHasProfileLink(aCursor.getInt(hasProfileLinkIndex) == 1 ? true : false);
-                current.setHasMessageLink(aCursor.getInt(hasMessageLinkIndex) == 1 ? true : false);
-                current.setHasPostHistoryLink(aCursor.getInt(hasPostHistoryLinkIndex) == 1 ? true : false);
-                current.setHasRapSheetLink(aCursor.getInt(hasRapSheetLinkIndex) == 1 ? true : false);
                 current.setLastReadUrl(aCursor.getString(lastReadUrlIndex));
                 current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
@@ -433,7 +405,6 @@ public class AwfulPost implements AwfulDisplayItem {
         int lastReadPost = aThreadObject.getLastReadPost(postPerPage);
 
 		boolean lastReadFound = false;
-		boolean even = false;
 
         try {
         	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
@@ -575,24 +546,14 @@ public class AwfulPost implements AwfulDisplayItem {
 							} else {
                                 post.put(IS_OP, 0);
                             }
-
-							for (TagNode linkNode : links) {
-			                	String link = linkNode.getText().toString();
-			                	if     (link.equals(LINK_PROFILE))      post.put(HAS_PROFILE_LINK, 1);
-			                	else if(link.equals(LINK_MESSAGE))      post.put(HAS_MESSAGE_LINK, 1);
-			                	else if(link.equals(LINK_POST_HISTORY)) post.put(HAS_POST_HISTORY_LINK, 1);
-			                	// Rap sheet is actually filled in by javascript for some stupid reason
-			                }
 						}
 					}
 
                     if (aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
                             (pc.getAttributeByName("class").contains("seen") && !lastReadFound)) {
 						post.put(PREVIOUSLY_READ, 1);
-                        post.put(LAST_READ, 0);
 					} else {
 						post.put(PREVIOUSLY_READ, 0);
-                        post.put(LAST_READ, 1);
                         lastReadFound = true;
                     }
 
@@ -600,10 +561,6 @@ public class AwfulPost implements AwfulDisplayItem {
 						post.put(EDITED, "<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
 				}
-
-				post.put(EVEN, even ? 1 : 0); // even/uneven post for alternating colors
-				even = !even;
-                
 				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
 
                 if (editImgs.length > 0) {
@@ -611,10 +568,6 @@ public class AwfulPost implements AwfulDisplayItem {
                 } else {
                     post.put(EDITABLE, 0);
                 }
-
-                //it's always there though, so we can set it true without an explicit check
-                post.put(HAS_RAP_SHEET_LINK, 1);
-
                 result.add(post);
                 index++;
             }

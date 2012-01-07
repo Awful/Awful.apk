@@ -44,7 +44,6 @@ import android.util.Log;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AwfulProvider extends ContentProvider {
@@ -83,14 +82,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.PAGE                  + " INTEGER,"        + 
                 AwfulPost.DATE                  + " VARCHAR,"        + 
                 AwfulPost.USER_ID               + " VARCHAR,"        + 
-                AwfulPost.USERNAME              + " VARCHAR,"        + 
-                AwfulPost.LAST_READ             + " INTEGER,"        +
-                AwfulPost.EVEN                  + " INTEGER,"        +
+                AwfulPost.USERNAME              + " VARCHAR,"        +
                 AwfulPost.PREVIOUSLY_READ       + " INTEGER,"        +
-                AwfulPost.HAS_PROFILE_LINK      + " INTEGER,"        +
-                AwfulPost.HAS_MESSAGE_LINK      + " INTEGER,"        +
-                AwfulPost.HAS_POST_HISTORY_LINK + " INTEGER,"        +
-                AwfulPost.HAS_RAP_SHEET_LINK    + " INTEGER,"        +
                 AwfulPost.LAST_READ_URL         + " VARCHAR,"        +
                 AwfulPost.EDITABLE              + " INTEGER,"        +
                 AwfulPost.IS_OP                 + " INTEGER,"        +
@@ -322,13 +315,7 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
 		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
 		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
-		sPostProjectionMap.put(AwfulPost.LAST_READ, AwfulPost.LAST_READ);
-		sPostProjectionMap.put(AwfulPost.EVEN, AwfulPost.EVEN);
 		sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
-		sPostProjectionMap.put(AwfulPost.HAS_PROFILE_LINK, AwfulPost.HAS_PROFILE_LINK);
-		sPostProjectionMap.put(AwfulPost.HAS_MESSAGE_LINK, AwfulPost.HAS_MESSAGE_LINK);
-		sPostProjectionMap.put(AwfulPost.HAS_POST_HISTORY_LINK, AwfulPost.HAS_POST_HISTORY_LINK);
-		sPostProjectionMap.put(AwfulPost.HAS_RAP_SHEET_LINK, AwfulPost.HAS_RAP_SHEET_LINK);
 		sPostProjectionMap.put(AwfulPost.LAST_READ_URL, AwfulPost.LAST_READ_URL);
 		sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
 		sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
