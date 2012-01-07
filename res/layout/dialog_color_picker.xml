@@ -73,5 +73,38 @@
 		/>
 	
 	</LinearLayout>
-	
+	<LinearLayout
+			android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:layout_marginBottom="10dp">	
+
+		<EditText
+		    android:id="@+id/old_color_code"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+		    android:layout_marginRight="10dp"
+		    android:layout_weight="1"
+		    android:capitalize="characters"
+		    android:editable="false"
+		    android:focusable="false"
+		    android:focusableInTouchMode="false"
+		    android:inputType="textCapCharacters"
+		    android:singleLine="true" />
+
+		<EditText
+		    android:id="@+id/new_color_code"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+		    android:layout_marginRight="10dp"
+		    android:layout_weight="1"
+		    android:capitalize="characters"
+		    android:inputType="textCapCharacters"
+		    android:maxLength="8"
+		    android:singleLine="true" />
+
+	</LinearLayout>
+
 </LinearLayout>

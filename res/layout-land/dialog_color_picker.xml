@@ -52,16 +52,29 @@
 			android:layout_width="fill_parent"
 			android:layout_height="40dp"
 			android:layout_weight="0.5"
+			android:layout_marginBottom="5dp"
 		/>
-	
+		<EditText
+		    android:id="@+id/old_color_code"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+		    android:layout_marginRight="10dp"
+		    android:capitalize="characters"
+		    android:editable="false"
+		    android:focusable="false"
+		    android:focusableInTouchMode="false"
+		    android:inputType="textCapCharacters"
+		    android:singleLine="true" />
 		<TextView
-			android:layout_width="fill_parent"
+			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"	
-			android:text="↓"
-			android:textSize="20sp"
+			android:text="New Color:"
 			android:gravity="center"
-			android:layout_marginTop="10dp"
-			android:layout_marginBottom="10dp"
+			android:layout_marginLeft="6dp"
+			android:layout_marginRight="6dp"
+			android:layout_marginBottom="5dp"
+			android:textAppearance="?android:attr/textAppearanceSmall"
 		/>
 	
 		<com.ferg.awful.preferences.ColorPickerPanelView
@@ -69,8 +82,19 @@
 			android:layout_width="fill_parent"
 			android:layout_height="40dp"
 			android:layout_weight="0.5"
+			android:layout_marginBottom="5dp"
 		/>
+
+		<EditText
+		    android:id="@+id/new_color_code"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+		    android:layout_marginRight="10dp"
+		    android:capitalize="characters"
+		    android:inputType="textCapCharacters"
+		    android:maxLength="8"
+		    android:singleLine="true" />
 	
 	</LinearLayout>
-	
 </LinearLayout>
