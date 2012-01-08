@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -41,6 +42,12 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -52,7 +59,10 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
 	Preference mColorsPreference;
+	Preference mFontSizePreference;
 	Context mThis = this;
+	Dialog mFontSizeDialog;
+	TextView mFontSizeText;
 	
 	SharedPreferences mPrefs;
 	ActivityConfigurator mConf;
@@ -77,6 +87,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
 		mColorsPreference = getPreferenceScreen().findPreference("colors");
 		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
+		mColorsPreference = getPreferenceScreen().findPreference("default_post_font_size");
+		mColorsPreference.setOnPreferenceClickListener(onFontSizeListener);
 	}
 	
 	@Override
@@ -149,6 +161,54 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			startActivity(new Intent().setClass(mThis, ColorSettingsActivity.class));
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onFontSizeListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			mFontSizeDialog = new Dialog(mThis);
+
+			mFontSizeDialog.setContentView(R.layout.font_size);
+			mFontSizeDialog.setTitle("Set Default Font Size");
+
+			mFontSizeText = (TextView) mFontSizeDialog.findViewById(R.id.fontSizeText);
+			SeekBar bar = (SeekBar) mFontSizeDialog.findViewById(R.id.fontSizeBar);
+			Button click = (Button) mFontSizeDialog.findViewById(R.id.fontSizeButton);
+			
+			click.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					mFontSizeDialog.dismiss();
+				}
+			});
+			
+	        bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+				
+				@Override
+				public void onStopTrackingTouch(SeekBar seekBar) {
+					Editor sizeEdit = mPrefs.edit();
+					sizeEdit.putInt("default_post_font_size", seekBar.getProgress()+10);
+					sizeEdit.commit();
+				}
+				
+				@Override
+				public void onStartTrackingTouch(SeekBar seekBar) {
+				}
+				
+				@Override
+				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+					mFontSizeText.setText((progress+10)+ "  Get out");
+			        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (progress+10));
+				}
+			});
+	        bar.setProgress(mPrefs.getInt("default_post_font_size", 22)-10);
+	        mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
+	        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (bar.getProgress()+10));
+	        mFontSizeDialog.show();
 			return true;
 		}
 	};

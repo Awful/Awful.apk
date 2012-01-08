@@ -454,15 +454,32 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			url.append("post");
 			url.append(postId);
 		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+					Context.CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText(this.mAdapter.getTitle(), url.toString());
+			clipboard.setPrimaryClip(clip);
 
-		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-				Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText(this.mAdapter.getTitle(), url.toString());
-		clipboard.setPrimaryClip(clip);
+			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+			successToast.show();
+		} else {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
 
-		Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
-				getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
-		successToast.show();
+			alert.setTitle("URL");
+
+			final EditText input = new EditText(this.getActivity());
+			input.setText(url.toString());
+			alert.setView(input);
+
+			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.dismiss();
+				}
+			});
+
+			alert.show();
+		}
 	}
 
 	private void rateThread() {
