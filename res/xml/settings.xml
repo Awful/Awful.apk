@@ -22,8 +22,8 @@
             android:summary="@string/setting_posts_per_page_summary"
 			android:defaultValue="40"
 			/>
-		<com.ferg.awful.preferences.NumericEditTextPreference
-			android:key="default_post_font_size"
+		<Preference 
+			android:key="default_post_font_size" 
 			android:title="@string/default_post_font_size"
 			android:defaultValue="22"
 			/>
