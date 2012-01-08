@@ -50,7 +50,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
