@@ -54,6 +54,7 @@ public class AwfulPost implements AwfulDisplayItem {
     private static final Pattern fixCharacters = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern vimeoId = Pattern.compile("clip_id=(\\d+)&?");
+	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
     
     private static final String LINK_PROFILE      = "Profile";
     private static final String LINK_MESSAGE      = "Message";
@@ -319,10 +320,15 @@ public class AwfulPost implements AwfulDisplayItem {
 		boolean even = false;
         try {
         	TagNode breadcrumbs = aThread.findElementByAttValue("class", "breadcrumbs", true, true);
-        	TagNode[] forumlinks = breadcrumbs.getElementsByName("a", true);
-        	TagNode forumlink = forumlinks[forumlinks.length-2];
-        	String forumurl = forumlink.getAttributeByName("href").toString();
-        	aThreadObject.setForumId(Integer.parseInt(forumurl.substring("showthread.php?threadid=".length()+1)));
+	    	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
+	    	int forumId = -1;
+	    	for(TagNode fl : forumlinks){
+	    		Matcher matchForumId = forumId_regex.matcher(fl.getAttributeByName("href"));
+	    		if(matchForumId.find()){//switched this to a regex
+	    			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
+	    		}
+	    	}
+	    	aThreadObject.setForumId(forumId);
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
             int index = 1;
