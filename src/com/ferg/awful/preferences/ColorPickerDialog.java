@@ -21,8 +21,10 @@ import com.ferg.awful.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 public class ColorPickerDialog 
@@ -30,7 +32,7 @@ public class ColorPickerDialog
 		Dialog 
 	implements
 		ColorPickerView.OnColorChangedListener,
-		View.OnClickListener {
+		View.OnClickListener, android.view.View.OnKeyListener {
 
 	private ColorPickerView mColorPicker;
 
@@ -38,6 +40,9 @@ public class ColorPickerDialog
 	private ColorPickerPanelView mNewColor;
 
 	private OnColorChangedListener mListener;
+	
+	private EditText mColorEditCode;
+	private EditText mOldColorEditCode;
 
 	public interface OnColorChangedListener {
 		public void onColorChanged(int color);
@@ -70,6 +75,8 @@ public class ColorPickerDialog
 		mColorPicker = (ColorPickerView) layout.findViewById(R.id.color_picker_view);
 		mOldColor = (ColorPickerPanelView) layout.findViewById(R.id.old_color_panel);
 		mNewColor = (ColorPickerPanelView) layout.findViewById(R.id.new_color_panel);
+		mColorEditCode = (EditText) layout.findViewById(R.id.new_color_code);
+		mOldColorEditCode = (EditText) layout.findViewById(R.id.old_color_code);
 		
 		((LinearLayout) mOldColor.getParent()).setPadding(
 			Math.round(mColorPicker.getDrawingOffset()), 
@@ -77,7 +84,10 @@ public class ColorPickerDialog
 			Math.round(mColorPicker.getDrawingOffset()), 
 			0
 		);	
-		
+
+		mColorEditCode.setOnKeyListener(this);
+		mColorEditCode.setText(Integer.toHexString(color).substring(2));
+		mOldColorEditCode.setText(Integer.toHexString(color).substring(2));
 		mOldColor.setOnClickListener(this);
 		mNewColor.setOnClickListener(this);
 		mColorPicker.setOnColorChangedListener(this);
@@ -90,6 +100,8 @@ public class ColorPickerDialog
 	public void onColorChanged(int color) {
 
 		mNewColor.setColor(color);
+		//using substring instead of bit arithmetic because toHexString will cut off leading digits otherwise.
+		mColorEditCode.setText(Integer.toHexString(color).substring(2));
 
 		/*
 		if (mListener != null) {
@@ -128,6 +140,17 @@ public class ColorPickerDialog
 				break;
 		}
 		dismiss();
+	}
+
+	@Override
+	public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
+		if(arg0.getId() == mColorEditCode.getId()){
+			String code = mColorEditCode.getText().toString();
+			if(code.length() == 8 && !code.matches("[^0-9a-fA-F]")){
+				mNewColor.setColor((int) (Long.parseLong(code, 16) & 0x00FFFFFF) | 0xFF000000);
+			}
+		}
+		return false;
 	}
 	
 }

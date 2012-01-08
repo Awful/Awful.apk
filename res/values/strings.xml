@@ -21,6 +21,7 @@
     <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
+    <string name="confirm">OK</string>
     <string name="username_pref">Username</string>
     <string name="user_quote">Highlight your quotes</string>
     <string name="user_highlight">Highlight username</string>
@@ -69,6 +70,7 @@
 		<item>Author</item>
 		<item>Killed By</item>
 		<item>Number of Pages</item>
+		<item>Disabled</item>
 	</string-array>
 	<string-array name="imgur_thumbnails">
 		<item>Don\'t replace pictures</item>
