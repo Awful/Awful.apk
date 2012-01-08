@@ -503,7 +503,10 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			}
 			
 		}
-		if(prefs.threadInfo.equals("threadpages")){
+		info.setVisibility(View.VISIBLE);
+		if(prefs.threadInfo.equals("disabled")){
+			info.setVisibility(View.GONE);
+		}else if(prefs.threadInfo.equals("threadpages")){
 			info.setText((int)(Math.ceil(mTotalPosts/prefs.postPerPage)+1)+" pages");	
 		}else if(prefs.threadInfo.equals("killedby")){
 			info.setText("Killed By: "+mKilledBy);
