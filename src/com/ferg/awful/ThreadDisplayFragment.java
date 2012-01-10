@@ -57,6 +57,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
+import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.ThreadSyncService;
 import com.ferg.awful.thread.AwfulPagedItem;
@@ -68,8 +69,6 @@ import com.ferg.awful.widget.SnapshotWebView;
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
-    private static final int LOADER_POSTS = 0;
-
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private AwfulPreferences mPrefs;
@@ -77,8 +76,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private boolean mBound = false;
     private Messenger mService = null;
 
-    private PostLoaderManager mLoaderManager;
-    private ThreadDataCallback mThreadData;
+    private PostLoaderManager mPostLoaderCallback;
+    private ThreadDataCallback mThreadLoaderCallback;
 
     private ImageButton mNext;
     private ImageButton mNextPage;
@@ -132,6 +131,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private Messenger mMessenger = new Messenger(mHandler);
     private PostContentObserver mObserver = new PostContentObserver(mHandler);
+    private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName aName, IBinder aBinder) {
@@ -205,12 +205,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         setHasOptionsMenu(true);
         setRetainInstance(true);
 
-        mLoaderManager = new PostLoaderManager();
-        mThreadData = new ThreadDataCallback();
+        mPostLoaderCallback = new PostLoaderManager();
+        mThreadLoaderCallback = new ThreadDataCallback();
 		mPrefs = new AwfulPreferences(getActivity());
-
-        getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mLoaderManager);
-        getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mThreadData);
     }
 
     @Override
@@ -322,11 +319,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         // TODO: setActionbarTitle(mAdapter.getTitle());
 
-        getLoaderManager().initLoader(LOADER_POSTS, null, mLoaderManager);
+        getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
+        getLoaderManager().initLoader(getThreadId(), null, mThreadLoaderCallback);
         doBind();
 
         getActivity().getContentResolver().registerContentObserver(
                 AwfulPost.CONTENT_URI, true, mObserver);
+        getActivity().getContentResolver().registerContentObserver(
+                AwfulThread.CONTENT_URI, true, mThreadObserver);
     }
     
     @Override
@@ -363,6 +363,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         doUnbind();
 
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
+        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
     }
 
     @Override
@@ -631,6 +632,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
     };
 
+
     private void showNextPage() {
         if (getPage() < getLastPage()) {
             mThreadView.loadData("", "text/html", "utf-8");
@@ -807,7 +809,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingSucceeded() {
-		getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mLoaderManager);
+		getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
 
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
@@ -962,8 +964,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		setPage(aPage);
 		updatePageBar();
 		mPostJump = "";
-		getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mLoaderManager);
-
         syncThread();
 	}
 	
@@ -989,16 +989,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
-        private boolean mLoading;
         private Cursor mData;
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
             String sortOrder = AwfulPost.POST_INDEX + " ASC LIMIT " + mPrefs.postPerPage;
 
-            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + " > ?";
-            mLoading = true;
+            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + " >= ? AND " + AwfulPost.POST_INDEX + " < ?";
             int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
-            String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index)};
+            String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index), Integer.toString(index+mPrefs.postPerPage)};
             Log.v(TAG,"Displaying thread: "+getThreadId()+" index: "+index+" page: "+getPage()+" perpage: "+mPrefs.postPerPage);
 
             return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, 
@@ -1008,17 +1006,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, populating.");
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
-            getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mThreadData);
-            mLoading = false;
-        }
-
-        public boolean isLoading() {
-            return mLoading;
+    		aData.close();
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-            // TODO: mAdapter.swapCursor(null);
         }
     }
 
@@ -1026,35 +1018,43 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public PostContentObserver(Handler aHandler) {
             super(aHandler);
         }
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.e(TAG,"Post Data update.");
+        	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+        }
     }
     
     //I'll probably break this out into a separate object.
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulThread.CONTENT_URI, aId), 
-                    null, null, null, null);
+            return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulThread.CONTENT_URI, getThreadId()), 
+            		AwfulProvider.ThreadProjection, null, null, null);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Thread title finished, populating.");
         	if(aData.moveToFirst()){
-                String title = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
-
-                if (AwfulActivity.useLegacyActionbar()) {
-                    mTitle.setText(title);
-                } else {
-                    ((ThreadDisplayActivity) getActivity()).setThreadTitle(title);
-                }
-
+                setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
+        		updatePageBar();
+        		aData.close();
         	}
-        	aData.close();
         }
         
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-            // TODO: mAdapter.swapCursor(null);
+        }
+    }
+    private class ThreadContentObserver extends ContentObserver {
+        public ThreadContentObserver(Handler aHandler) {
+            super(aHandler);
+        }
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.e(TAG,"Thread Data update.");
+        	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mThreadLoaderCallback);
         }
     }
 }

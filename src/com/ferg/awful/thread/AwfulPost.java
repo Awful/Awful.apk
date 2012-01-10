@@ -230,9 +230,6 @@ public class AwfulPost implements AwfulDisplayItem {
                 result.add(current);
             } while (aCursor.moveToNext());
         }
-
-        aCursor.close();
-
         return result;
     }
 

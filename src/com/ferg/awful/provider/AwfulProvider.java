@@ -50,7 +50,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
@@ -67,6 +67,15 @@ public class AwfulProvider extends ContentProvider {
 	private static HashMap<String, String> sForumProjectionMap;
 	private static HashMap<String, String> sThreadProjectionMap;
 	private static HashMap<String, String> sPostProjectionMap;
+	
+	public static final String[] ThreadProjection = new String[]{AwfulThread.ID,
+		AwfulThread.FORUM_ID,
+		AwfulThread.TITLE,
+		AwfulThread.POSTCOUNT,
+		AwfulThread.UNREADCOUNT,
+		AwfulThread.LOCKED,
+		AwfulThread.BOOKMARKED,
+		AwfulThread.AUTHOR };
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
@@ -367,13 +376,13 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
 		
-		sForumProjectionMap.put(AwfulThread.ID, AwfulThread.ID);
-		sForumProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
-		sForumProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
-		sForumProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
-		sForumProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
-		sForumProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
-		sForumProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
-		sForumProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+		sThreadProjectionMap.put(AwfulThread.ID, AwfulThread.ID);
+		sThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+		sThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
+		sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
+		sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+		sThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+		sThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
+		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
     }
 }
