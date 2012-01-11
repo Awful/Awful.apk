@@ -1035,7 +1035,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Thread title finished, populating.");
-        	if(aData.moveToFirst()){
+        	if(aData.moveToFirst() && aData.getColumnIndex(AwfulThread.TITLE) >= 0 && aData.getColumnIndex(AwfulThread.POSTCOUNT) >= 0){
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		updatePageBar();

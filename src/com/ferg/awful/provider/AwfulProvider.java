@@ -50,11 +50,12 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
     private static final String TABLE_POSTS    = "posts";
+    private static final String TABLE_EMOTES    = "emotes";
 
     private static final int FORUM     = 0;
     private static final int FORUM_ID  = 1;
@@ -116,13 +117,23 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.AVATAR                + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
                 AwfulPost.EDITED                + " VARCHAR);");
-        }
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
+                AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
+                AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
+                AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
+                AwfulEmote.URL   	 + " VARCHAR,"     + 
+                AwfulEmote.CACHEFILE + " VARCHAR);");
 
+        }
+        
+        
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
 
             onCreate(aDb);
         }
