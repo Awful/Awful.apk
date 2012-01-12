@@ -17,7 +17,7 @@ public class BookmarkTask extends AwfulTask {
 	 * @param aPrefs
 	 */
 	public BookmarkTask(AwfulSyncService sync, int id, int arg1) {
-		super(sync, id, arg1, null);
+		super(sync, id, arg1, null, AwfulSyncService.MSG_SET_BOOKMARK);
 	}
 
 	@Override

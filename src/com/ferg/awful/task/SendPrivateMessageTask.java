@@ -15,7 +15,7 @@ public class SendPrivateMessageTask extends AwfulTask {
 	private String mContent;
 	private String mTitle;
 	public SendPrivateMessageTask(AwfulSyncService sync, int id, String recipient, String title, String content) {
-		super(sync, id, 0, null);
+		super(sync, id, 0, null, AwfulSyncService.MSG_SEND_PM);
 		mRecipient = recipient;
 		mContent = content;
 		mTitle = title;

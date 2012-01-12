@@ -14,7 +14,7 @@ import com.ferg.awful.thread.AwfulPost;
 public class MarkLastReadTask extends AwfulTask {
 
 	public MarkLastReadTask(AwfulSyncService sync, int id, int index) {
-		super(sync, id, index, null);
+		super(sync, id, index, null, AwfulSyncService.MSG_MARK_LASTREAD);
 	}
 
 	@Override

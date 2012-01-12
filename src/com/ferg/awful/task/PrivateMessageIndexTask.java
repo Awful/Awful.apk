@@ -12,7 +12,7 @@ import com.ferg.awful.thread.AwfulMessage;
 public class PrivateMessageIndexTask extends AwfulTask {
 
 	public PrivateMessageIndexTask(AwfulSyncService sync, int id, int page) {
-		super(sync, id, page, null);
+		super(sync, id, page, null, AwfulSyncService.MSG_FETCH_PM_INDEX);
 	}
 
 	@Override

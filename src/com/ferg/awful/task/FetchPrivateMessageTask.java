@@ -16,7 +16,7 @@ public class FetchPrivateMessageTask extends AwfulTask {
 
 	public FetchPrivateMessageTask(AwfulSyncService sync, int id, int arg1,
 			AwfulPreferences aPrefs) {
-		super(sync, id, arg1, aPrefs);
+		super(sync, id, arg1, aPrefs, AwfulSyncService.MSG_FETCH_PM);
 		// TODO Auto-generated constructor stub
 	}
 

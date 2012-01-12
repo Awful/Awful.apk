@@ -12,7 +12,7 @@ public class VotingTask extends AwfulTask {
 	 * @param arg1 Vote (1-5)
 	 */
 	public VotingTask(AwfulSyncService sync, int id, int arg1) {
-		super(sync, id, arg1, null);
+		super(sync, id, arg1, null, AwfulSyncService.MSG_VOTE);
 	}
 
 	@Override

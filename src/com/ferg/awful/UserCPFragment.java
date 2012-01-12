@@ -111,7 +111,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);

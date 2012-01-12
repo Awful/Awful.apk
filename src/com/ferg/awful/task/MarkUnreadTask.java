@@ -14,7 +14,7 @@ import com.ferg.awful.thread.AwfulThread;
 public class MarkUnreadTask extends AwfulTask {
 
 	public MarkUnreadTask(AwfulSyncService sync, int id, int arg1) {
-		super(sync, id, arg1, null);
+		super(sync, id, arg1, null, AwfulSyncService.MSG_MARK_UNREAD);
 	}
 
 	@Override

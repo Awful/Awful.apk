@@ -63,6 +63,12 @@ public class AwfulSyncService extends Service {
     public static final int MSG_SYNC_INDEX       = 5;
     /** arg1 = threadId. Set arg2 = 1 to add bookmark, 0 to remove bookmark. */
     public static final int MSG_SET_BOOKMARK       = 6;
+    public static final int MSG_FETCH_PM       = 7;
+    public static final int MSG_MARK_LASTREAD       = 8;
+    public static final int MSG_MARK_UNREAD       = 9;
+    public static final int MSG_FETCH_PM_INDEX       = 10;
+    public static final int MSG_SEND_PM       = 11;
+    public static final int MSG_VOTE       = 12;
 
     private HashMap<Integer,Messenger> mClients = new HashMap<Integer,Messenger>();
     private MessageHandler mHandler       = new MessageHandler();
@@ -118,10 +124,10 @@ public class AwfulSyncService extends Service {
         mClients.remove(clientId);
     }
 
-    public void updateStatus(int aStatus, int clientId, int arg2) {
+    public void updateStatus(int aMessageType, int aStatus, int clientId, int arg2) {
         Messenger client = mClients.get(clientId);
         try {
-            Message msg = Message.obtain(null, MSG_PROGRESS_STATUS, aStatus, arg2);
+            Message msg = Message.obtain(null, aMessageType, aStatus, arg2);
             client.send(msg);
         } catch (RemoteException e) {
             mClients.remove(client);
@@ -131,7 +137,7 @@ public class AwfulSyncService extends Service {
     private void syncForum(final int aForumId, final int aPage) {
         Log.i(TAG, "Starting Forum sync:"+aForumId);
         //or tasks can be anon inner classes
-        queueUniqueThread(new AwfulTask(this, aForumId, aPage, mPrefs){
+        queueUniqueThread(new AwfulTask(this, aForumId, aPage, mPrefs, MSG_SYNC_FORUM){
 
 			@Override
 			protected Boolean doInBackground(Void... params) {

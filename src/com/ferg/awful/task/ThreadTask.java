@@ -10,7 +10,7 @@ public class ThreadTask extends AwfulTask {
 	public static final String TAG = "ThreadTask";
 
 	public ThreadTask(AwfulSyncService sync, int id, int arg1, AwfulPreferences aPrefs) {
-		super(sync, id, arg1, aPrefs);
+		super(sync, id, arg1, aPrefs, AwfulSyncService.MSG_SYNC_THREAD);
 	}
 
 	@Override

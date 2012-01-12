@@ -13,6 +13,7 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	public static final String TAG = "AwfulTask";
 	protected int mId = 0;
 	protected int mArg1 = 0;
+	protected int TYPE;
 	protected AwfulSyncService mContext;
 	protected AwfulPreferences mPrefs;
 	/**
@@ -22,11 +23,12 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	 * @param arg1 An optional second argument to be used for page numbers, ect. Will be used for purposes of duplicate task avoidance if this value is anything other than 0.
 	 * @param aPrefs Some tasks require access to preferences. Reusing an existing AwfulPreference object reduces processing time.
 	 */
-	public AwfulTask(AwfulSyncService sync, int id, int arg1, AwfulPreferences aPrefs){
+	public AwfulTask(AwfulSyncService sync, int id, int arg1, AwfulPreferences aPrefs, int returnMessage){
 		mPrefs = aPrefs;
 		mContext = sync;
 		mId = id;
 		mArg1 = arg1;
+		TYPE = returnMessage;
 	}
 	public int getId(){
 		return mId;
@@ -37,16 +39,16 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPreExecute(){
 		if(!isCancelled()){
-			mContext.updateStatus(AwfulSyncService.Status.WORKING, mId, mArg1);
+			mContext.updateStatus(TYPE, AwfulSyncService.Status.WORKING, mId, mArg1);
 		}
 	}
 	@Override
 	public void onPostExecute(Boolean success){
 		if(!isCancelled()){
 			if(success){
-				mContext.updateStatus(AwfulSyncService.Status.OKAY, mId, mArg1);
+				mContext.updateStatus(TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
 			}else{
-				mContext.updateStatus(AwfulSyncService.Status.ERROR, mId, mArg1);
+				mContext.updateStatus(TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
 			}
 			mContext.taskFinished(this);
 		}
