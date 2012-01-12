@@ -1,6 +1,9 @@
 local.properties
+
 *.swp
+
 *.keystore
+
 *.DS_Store
 
 *.project
