@@ -37,6 +37,7 @@ import org.htmlcleaner.TagNode;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
@@ -530,7 +531,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences prefs) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences prefs, Cursor data) {
 		View tmp = current;
 		if(tmp == null || tmp.getId() != R.layout.thread_item){
 			tmp = inf.inflate(R.layout.thread_item, parent, false);
@@ -599,11 +600,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 
 	@Override
-	public DISPLAY_TYPE getType() {
-		return DISPLAY_TYPE.THREAD;
-	}
-
-	@Override
 	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
 		return mPosts.get(page);
 	}
@@ -632,11 +628,6 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		if(tmp != null){
 			mPosts.put(save, tmp);
 		}
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
 	}
 
 	@Override

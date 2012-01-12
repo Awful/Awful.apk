@@ -31,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
@@ -201,7 +202,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs, Cursor data) {
 		View tmp = current;
 		if(tmp == null || tmp.getId() != R.layout.forum_item){
 			tmp = inf.inflate(R.layout.forum_item, parent, false);
@@ -223,11 +224,6 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 
 	@Override
-	public DISPLAY_TYPE getType() {
-		return DISPLAY_TYPE.FORUM;
-	}
-
-	@Override
 	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
 		ArrayList<AwfulDisplayItem> tmp = new ArrayList<AwfulDisplayItem>();
 		if(page <2){
@@ -237,11 +233,6 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 			tmp.addAll(threads.get(page));
 		}
 		return tmp;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
 	}
 
 	public void setThreadPage(int mPage, ArrayList<AwfulThread> threadList) {

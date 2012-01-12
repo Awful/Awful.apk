@@ -112,7 +112,7 @@
             />
 		<service 
             android:label="ThreadSyncService" 
-            android:name="com.ferg.awful.service.ThreadSyncService"
+            android:name=".service.AwfulSyncService"
             />
 
         <meta-data 

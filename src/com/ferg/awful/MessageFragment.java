@@ -3,7 +3,6 @@ package com.ferg.awful;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.GenericListAdapter;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
@@ -29,8 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MessageFragment extends DialogFragment implements AwfulUpdateCallback, OnClickListener {
-
-	private GenericListAdapter mServConn;
 	
 	private int pmId;
 	private String recipient;
@@ -105,7 +102,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         mBackground = result;
         updateColors(result, mPrefs);
         
-        mServConn = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, pmId, this);
+      //TODO mServConn = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, pmId, this);
 
         return result;
     }
@@ -155,7 +152,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
             	return true;
             case R.id.refresh:
             	if(pmId >0){
-            		mServConn.fetchPrivateMessage(pmId);
+            		//TODO mServConn.fetchPrivateMessage(pmId);
             	}
             	return true;
             case R.id.settings:
@@ -186,9 +183,9 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			}
         } catch (Exception e) {
         }
-		message = mServConn.getMessage(pmId);
+		//TODO message = mServConn.getMessage(pmId);
 		if(pmId > 0){
-			mServConn.fetchPrivateMessage(pmId);
+			//TODO 	mServConn.fetchPrivateMessage(pmId);
 		}
 		updateUI();
 	}
@@ -242,7 +239,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			}
 			
 		}
-		message = mServConn.getMessage(pmId);
+		//TODO message = mServConn.getMessage(pmId);
 		updateUI();
 	}
 	
@@ -326,14 +323,14 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	}
 	
 	public void sendPM(){
-		mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
+		//TODO mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 	}
 
 	@Override
 	public void onServiceConnected() {
 		if(pmId >0){
-    		mServConn.fetchPrivateMessage(pmId);
+			//TODO mServConn.fetchPrivateMessage(pmId);
     	}
 	}
 

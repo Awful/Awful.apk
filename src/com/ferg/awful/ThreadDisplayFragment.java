@@ -59,7 +59,7 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.reply.Reply;
-import com.ferg.awful.service.ThreadSyncService;
+import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -120,7 +120,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
-                case ThreadSyncService.MSG_PROGRESS_STATUS:
+                case AwfulSyncService.MSG_PROGRESS_STATUS:
                     handleStatusUpdate(aMsg.arg1);
                     break;
                 default:
@@ -138,7 +138,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mService = new Messenger(aBinder);
 
             try {
-                Message msg = Message.obtain(null, ThreadSyncService.MSG_REGISTER_CLIENT);
+                Message msg = Message.obtain(null, AwfulSyncService.MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
 
@@ -497,7 +497,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void doBind() {
-        getActivity().bindService(new Intent(getActivity(), ThreadSyncService.class),
+        getActivity().bindService(new Intent(getActivity(), AwfulSyncService.class),
                 mServiceConnection, getActivity().BIND_AUTO_CREATE);
         mBound = true;
     }
@@ -506,7 +506,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         if (mBound) {
             if (mService != null) {
                 try {
-                    Message msg = Message.obtain(null, ThreadSyncService.MSG_UNREGISTER_CLIENT);
+                    Message msg = Message.obtain(null, AwfulSyncService.MSG_UNREGISTER_CLIENT);
                     msg.replyTo = mMessenger;
                     mService.send(msg);
                 } catch (RemoteException e) {
@@ -521,7 +521,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void syncThread() {
         try {
-            Message msg = Message.obtain(null, ThreadSyncService.MSG_SYNC_THREAD);
+            Message msg = Message.obtain(null, AwfulSyncService.MSG_SYNC_THREAD);
             msg.arg1 = getThreadId();
             msg.arg2 = getPage();
 
@@ -770,13 +770,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void handleStatusUpdate(int aStatus) {
         switch (aStatus) {
-            case ThreadSyncService.Status.WORKING:
+            case AwfulSyncService.Status.WORKING:
                 loadingStarted();
                 break;
-            case ThreadSyncService.Status.OKAY:
+            case AwfulSyncService.Status.OKAY:
                 loadingSucceeded();
                 break;
-            case ThreadSyncService.Status.ERROR:
+            case AwfulSyncService.Status.ERROR:
                 loadingFailed();
                 break;
         };

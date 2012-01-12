@@ -57,7 +57,6 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 import com.ferg.awful.thread.AwfulDisplayItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
@@ -69,7 +68,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private ImageButton mPrivateMessage;
     private ListView mBookmarkList;
     private TextView mTitle;
-    private ForumListAdapter adapt;
     private SharedPreferences mPrefs;
     private ImageButton mRefresh;
 
@@ -147,8 +145,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
         mBookmarkList.setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 
-        adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(-1, this);
-        mBookmarkList.setAdapter(adapt);
+      //TODO mBookmarkList.setAdapter(adapt);
         registerForContextMenu(mBookmarkList);
     }
 
@@ -167,7 +164,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onResume() {
         super.onResume();
-        adapt.refresh();
+      //TODO adapt.refresh();
     }
         
     @Override
@@ -188,38 +185,34 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getActivity().getMenuInflater();
-        AwfulDisplayItem selected = (AwfulDisplayItem) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
+      //TODO AwfulDisplayItem selected = (AwfulDisplayItem) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
         
-        switch(selected.getType()){
-	        case THREAD:
-	            inflater.inflate(R.menu.thread_longpress, aMenu);
-	        	break;
-        }
+        inflater.inflate(R.menu.thread_longpress, aMenu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem aItem) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
-    	AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
-    	if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
-    		return false;
-    	}
+      //TODO AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
+    	//TODO if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
+    	//TODO 	return false;
+    	//TODO }
         switch (aItem.getItemId()) {
             case R.id.first_page:
-                Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, 1);
-                startActivity(viewThread);
+            	//TODO Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, 1);
+            	//TODO startActivity(viewThread);
                 return true;
             case R.id.last_page:
-            	Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, thread.getLastPage());
-            	startActivity(viewThread2);
+            	//TODO Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, thread.getLastPage());
+            	//TODO startActivity(viewThread2);
                 return true;
             case R.id.thread_bookmark:
-            	adapt.toggleBookmark(thread.getID());
-            	adapt.refresh();
+            	//TODO adapt.toggleBookmark(thread.getID());
+            	//TODO adapt.refresh();
                 return true;
             case R.id.mark_thread_unread:
-            	adapt.markThreadUnread(thread.getID());
-            	adapt.refresh();
+            	//TODO adapt.markThreadUnread(thread.getID());
+            	//TODO adapt.refresh();
                 return true;
         }
 
@@ -270,7 +263,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                     startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
                     break;
                 case R.id.refresh:
-                    adapt.refresh();
+                	//TODO adapt.refresh();
                     break;
             }
         }
@@ -302,7 +295,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+          //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         }
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -314,7 +307,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(adapt.getRotateAnimation());
+          //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
         }
     }
 

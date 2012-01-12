@@ -1,15 +1,10 @@
 package com.ferg.awful;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import android.support.v4.app.FragmentActivity;
-
-import com.ferg.awful.service.AwfulServiceConnection;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -22,21 +17,14 @@ import com.ferg.awful.service.AwfulServiceConnection;
  */
 public class AwfulActivity extends FragmentActivity {
     private ActivityConfigurator mConf;
-    private AwfulServiceConnection mService;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mService = new AwfulServiceConnection();
-        mService.connect(AwfulActivity.this);
     }
 
-    public AwfulServiceConnection getServiceConnection(){
-        return mService;
-    }
-    
     @Override
     protected void onStart() {
         super.onStart();
@@ -65,7 +53,6 @@ public class AwfulActivity extends FragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         mConf.onDestroy();
-        mService.disconnect(this);
     }
 
     public boolean isTablet() {

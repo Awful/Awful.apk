@@ -3,7 +3,6 @@ package com.ferg.awful;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.GenericListAdapter;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
@@ -35,7 +34,6 @@ public class PrivateMessageListFragment extends Fragment implements
     private ImageButton mNewPM;
     private ListView mPMList;
     private TextView mTitle;
-    private GenericListAdapter adapt;
     private AwfulPreferences mPrefs;
     private ImageButton mRefresh;
     
@@ -96,8 +94,7 @@ public class PrivateMessageListFragment extends Fragment implements
         mPMList.setOnItemClickListener(onPMSelected);
         
 
-        adapt = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, Constants.PRIVATE_MESSAGE_THREAD, this);
-        mPMList.setAdapter(adapt);
+      //TODO mPMList.setAdapter(adapt);
     }
     
     private void updateColors(AwfulPreferences pref){
@@ -112,7 +109,7 @@ public class PrivateMessageListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-		adapt.fetchPrivateMessages();
+      //TODO adapt.fetchPrivateMessages();
     }
     
     @Override
@@ -145,7 +142,7 @@ public class PrivateMessageListFragment extends Fragment implements
         	}
         	break;
         case R.id.refresh:
-        	adapt.fetchPrivateMessages();
+        	//TODO adapt.fetchPrivateMessages();
         	break;
         case R.id.settings:
         	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -166,7 +163,7 @@ public class PrivateMessageListFragment extends Fragment implements
                     startActivity(new Intent().setClass(getActivity(), MessageDisplayActivity.class));
                     break;
                 case R.id.refresh:
-                    adapt.fetchPrivateMessages();
+                	//TODO adapt.fetchPrivateMessages();
                     break;
             }
         }
@@ -174,11 +171,11 @@ public class PrivateMessageListFragment extends Fragment implements
     
     private AdapterView.OnItemClickListener onPMSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulMessage message = (AwfulMessage) adapt.getItem(aPosition);
+        	//TODO AwfulMessage message = (AwfulMessage) adapt.getItem(aPosition);
             if(getActivity() instanceof PrivateMessageActivity){
-                ((PrivateMessageActivity) getActivity()).showMessage(null, message.getID());
+            	//TODO ((PrivateMessageActivity) getActivity()).showMessage(null, message.getID());
             }else{
-            	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, message.getID()));
+            	//TODO startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, message.getID()));
             }
         }
     };
@@ -193,7 +190,7 @@ public class PrivateMessageListFragment extends Fragment implements
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+          //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         }else{
         	if(getActivity()!= null){
             	getActivity().setProgressBarIndeterminateVisibility(false);
@@ -209,7 +206,7 @@ public class PrivateMessageListFragment extends Fragment implements
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(adapt.getRotateAnimation());
+          //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
         }else{
         	getActivity().setProgressBarIndeterminateVisibility(true);
         }
@@ -231,7 +228,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
 	@Override
 	public void onServiceConnected() {
-		adapt.fetchPrivateMessages();
+		//TODO adapt.fetchPrivateMessages();
 	}
 
 	@Override

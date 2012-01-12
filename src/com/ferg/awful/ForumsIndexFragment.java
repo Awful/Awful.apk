@@ -50,7 +50,6 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.ForumListAdapter;
 
 public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
@@ -63,8 +62,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private ImageButton mRefresh;
     
     private int unreadPMCount;
-
-    private ForumListAdapter adapt;
 
     private AwfulPreferences mPrefs;
     
@@ -94,10 +91,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-        if(((AwfulActivity) getActivity()).getServiceConnection() != null){
-            adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
-            mForumList.setAdapter(adapt);
-        }
         mForumList.setOnItemClickListener(onForumSelected);
         return result;
     }
@@ -157,7 +150,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         // Odds are we want to refresh whether or not it was successful
         
         //refresh
-        adapt.refresh();
+    	//TODO adapt.refresh();
     }
 
     private OnItemClickListener onForumSelected = new OnItemClickListener() {
@@ -189,7 +182,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                     startActivity(new Intent(getActivity(), PrivateMessageActivity.class));
                     break;
                 case R.id.refresh:
-                    adapt.refresh();
+                	//TODO adapt.refresh();
                     break;
             }
         }
@@ -243,7 +236,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 new LogOutDialog(getActivity()).show();
                 break;
             case R.id.refresh:
-                adapt.refresh();
+            	//TODO adapt.refresh();
                 break;
         }
 
@@ -273,7 +266,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(adapt.getBlinkingAnimation());
+          //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
@@ -286,7 +279,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(adapt.getRotateAnimation());
+          //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
         } else {
             getActivity().setProgressBarIndeterminateVisibility(true);
         }

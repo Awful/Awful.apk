@@ -520,23 +520,8 @@ public class AwfulPost implements AwfulDisplayItem {
     }
 
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs, Cursor data) {
         return null;
     }
-
-	@Override
-	public int getID() {
-		return Integer.parseInt(mId);
-	}
-
-	@Override
-	public DISPLAY_TYPE getType() {
-		return DISPLAY_TYPE.POST;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return false;
-	}
 
 }

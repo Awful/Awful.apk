@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.TagNode;
 
+import android.database.Cursor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,11 +44,6 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	public int getID() {
 		return mId;
 	}
-
-	@Override
-	public DISPLAY_TYPE getType() {
-		return DISPLAY_TYPE.THREAD;
-	}
 	
 	public boolean isUnread(){
 		return unread;
@@ -57,8 +53,7 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	 * Generates List view items for PM list.
 	 */
 	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent,
-			AwfulPreferences aPref) {
+	public View getView(LayoutInflater inf, View current, ViewGroup parent,	AwfulPreferences aPref, Cursor data) {
 		if(current == null || current.getId() != R.layout.thread_item){
 			current = inf.inflate(R.layout.forum_item, parent, false);
 		}
@@ -79,11 +74,6 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		}
 
 		return current;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
 	}
 	
 	public static ArrayList<AwfulMessage> processMessageList(TagNode data){
