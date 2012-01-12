@@ -66,10 +66,17 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     public static final String FORUM_ID 	="forum_id";
     public static final String TITLE 		="title";
     public static final String POSTCOUNT 	="post_count";
-    public static final String UNREADCOUNT ="unread_count";
-    public static final String AUTHOR 	="author";
+    public static final String UNREADCOUNT  ="unread_count";
+    public static final String AUTHOR 		="author";
+    public static final String AUTHOR_ID 	="author_id";
 	public static final String LOCKED = "locked";
 	public static final String BOOKMARKED = "bookmarked";
+	public static final String STICKY = "sticky";
+	public static final String CATEGORY = "category";
+	public static final String LASTPOSTER = "killedby";
+	
+    public static final String TAG_URL 		="tag_url";
+    public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
 	
     private String mThreadId;
@@ -104,13 +111,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     }
     
     
-    public static TagNode getForumThreads(String aForumId) throws Exception {
+    public static TagNode getForumThreads(int aForumId) throws Exception {
 		return getForumThreads(aForumId, 1);
 	}
 	
-    public static TagNode getForumThreads(String aForumId, int aPage) throws Exception {
+    public static TagNode getForumThreads(int aForumId, int aPage) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_FORUM_ID, aForumId);
+        params.put(Constants.PARAM_FORUM_ID, Integer.toString(aForumId));
 
 		if (aPage != 0) {
 			params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
@@ -125,77 +132,77 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-	public static ArrayList<AwfulThread> parseForumThreads(TagNode aResponse, int postPerPage) throws Exception {
-        ArrayList<AwfulThread> result = new ArrayList<AwfulThread>();
+	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int forumId) {
+        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1 || threads.length < 1){
-        	return result;
+        	return null;
         }
         TagNode[] tbody = threads[0].getElementsByName("tbody", false);
 		for(TagNode node : tbody[0].getChildTags()){
-            AwfulThread thread = new AwfulThread();
-            
             try {
+    			ContentValues thread = new ContentValues();
                 String threadId = node.getAttributeByName("id");
-                thread.setThreadId(threadId.replaceAll("thread", ""));
-            } catch (NullPointerException e) {
-                // If we can't parse a row, just skip it
-                e.printStackTrace();
-                continue;
-            }
+                thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
             	if (tarPostCount.length > 0) {
-                    thread.setTotalCount(Integer.parseInt(tarPostCount[0].getText().toString().trim()), postPerPage);
+                    thread.put(POSTCOUNT, Integer.parseInt(tarPostCount[0].getText().toString().trim()));
                 }
             	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
                 if (tarThread.length > 0) {
-                    thread.setTitle(tarThread[0].getText().toString().trim());
+                    thread.put(TITLE, tarThread[0].getText().toString().trim());
                 }
 
                 TagNode[] killedBy = node.getElementsByAttValue("class", "lastpost", true, true);
-                thread.setKilledBy(killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
+                thread.put(LASTPOSTER, killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
                 TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
                 if (tarSticky.length > 0) {
-                    thread.setSticky(true);
+                    thread.put(STICKY,true);
                 } else {
-                    thread.setSticky(false);
+                    thread.put(STICKY,false);
                 }
 
-                TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
-                if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
-                    thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
-                }
+                //TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
+                //if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
+                    //TODO thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
+                	//thread tag stuff
+                //}
 
                 if (tarUser.length > 0) {
                     // There's got to be a better way to do this
-                    thread.setAuthor(tarUser[0].getText().toString().trim());
-			    // And probably a much better way to do this
-			    thread.setAuthorID(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").substring(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").indexOf("userid=")+7));
+                    thread.put(AUTHOR, tarUser[0].getText().toString().trim());
+                    // And probably a much better way to do this
+                    thread.put(AUTHOR_ID,((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").substring(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").indexOf("userid=")+7));
                 }
 
                 TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
                 if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
-                    thread.setUnreadCount(Integer.parseInt(tarCount[0].getChildTags()[0].getText().toString().trim()));
+                    thread.put(UNREADCOUNT, Integer.parseInt(tarCount[0].getChildTags()[0].getText().toString().trim()));
                 } else {
                 	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
 					if (tarXCount.length > 0) {
-						thread.setUnreadCount(0);
+						thread.put(UNREADCOUNT, 0);
 					} else {
-						thread.setUnreadCount(-1);
+						thread.put(UNREADCOUNT,-1);
 					} 
                 }
                 TagNode[] tarStar = node.getElementsByAttValue("class", "star", true, true);
                 if(tarStar.length>0){
                 	TagNode[] tarStarImg = tarStar[0].getElementsByName("img", true);
                 	if(tarStarImg.length >0 && !tarStarImg[0].getAttributeByName("src").contains("star-off")){
-                		thread.setBookmarked(true);
+                		thread.put(BOOKMARKED, 1);
                 	}else{
-                		thread.setBookmarked(false);
+                		thread.put(BOOKMARKED, 0);
                 	}
                 }
 
                 result.add(thread);
+            } catch (NullPointerException e) {
+                // If we can't parse a row, just skip it
+                e.printStackTrace();
+                continue;
+            }
         }
         return result;
 	}
@@ -207,8 +214,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		return mBookmarked;
 	}
 
-	public static ArrayList<AwfulForum> parseSubforums(TagNode aResponse){
-        ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
+	public static ArrayList<ContentValues> parseSubforums(TagNode aResponse){
+        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		TagNode[] subforums = aResponse.getElementsByAttValue("class", "subforum", true, false);
         for(TagNode sf : subforums){
         	TagNode[] href = sf.getElementsHavingAttribute("href", true);
@@ -217,12 +224,13 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         	}
         	int id = Integer.parseInt(href[0].getAttributeByName("href").replaceAll("\\D", ""));
         	if(id > 0){
-        		AwfulForum tmp = new AwfulForum(id);
-        		tmp.setTitle(href[0].getText().toString());
+        		ContentValues tmp = new ContentValues();
+        		tmp.put(AwfulForum.ID, id);
+        		tmp.put(AwfulForum.TITLE, href[0].getText().toString());
         		TagNode[] subtext = sf.getElementsByName("dd", true);
         		if(subtext.length >0){
-        			//Log.e(TAG,"parsed subtext: "+subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));
-        			tmp.setSubtext(subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));//ugh
+        			//Log.i(TAG,"parsed subtext: "+subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));
+        			tmp.put(AwfulForum.SUBTEXT, subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));//ugh
         		}
         		result.add(tmp);
         	}
@@ -472,6 +480,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		this.mKilledBy = mKilledBy;
 	}
 
+	//TODO I don't think this does anything
 	public String getIcon() {
         return mIcon;
     }

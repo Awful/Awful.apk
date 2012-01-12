@@ -27,8 +27,13 @@
 
 package com.ferg.awful.thread;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +41,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
@@ -47,14 +55,21 @@ import com.ferg.awful.preferences.AwfulPreferences;
 public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulForum";
 
+    public static final String PATH     = "/forum";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+
 	public static final String ID      = "forum_id";
 	public static final String PARENT_ID      = "parent_forum_id";
 	public static final String TITLE   = "title";
 	public static final String SUBTEXT = "subtext";
+	public static final String PAGE_COUNT = "page_count";
 
 	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
 	//private static final String FORUM_TITLE = "//a[@class='forum']";
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
+
+	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+
 
 	private String mTitle;
 	private String mForumId;
@@ -73,59 +88,74 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		setForumId(mForumID2);
 	}
 
-	public static ArrayList<AwfulForum> getForumsFromRemote(TagNode response) throws Exception {
-		ArrayList<AwfulForum> result = new ArrayList<AwfulForum>();
-		AwfulForum index = new AwfulForum();
-		index.setForumId(0);
-		index.setTitle("Something Awful Forums");
+	public static void getForumsFromRemote(TagNode response, ContentResolver contentInterface) throws XPatherException {
+		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 
 		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
-
 		for (Object current : forumObjects) {
-			AwfulForum forum = new AwfulForum();
-			TagNode node = (TagNode) current;
-
-            // First, grab the parent forum
-			TagNode[] title = node.getElementsByName("a", true);
-            if (title.length > 0) {
-                TagNode parentForum = title[0];
-                forum.setTitle(parentForum.getText().toString());
-
-                // Just nix the part we don't need to get the forum ID
-                String id = parentForum.getAttributeByName("href");
-
-                forum.setForumId(getForumId(id));
-                forum.setSubtext(parentForum.getAttributeByName("title"));
-            }
-
-            // Now grab the subforums
-            // we will see if the prior search found more than one link under the forum row, indicating subforums
-            if (title.length > 1) {
-                for (int x=1;x<title.length;x++) {
-                    AwfulForum subforum = new AwfulForum();
-
-                    TagNode subNode = title[x];
-
-                    String id = subNode.getAttributeByName("href");
-
-                    subforum.setTitle(subNode.getText().toString());
-                    subforum.setForumId(getForumId(id));
-
-                    forum.addSubforum(subforum);
-                    result.add(subforum);
-                }
-            }
-            result.add(forum);
-            index.addSubforum(forum);
+			try{
+				ContentValues forum = new ContentValues();
+				TagNode node = (TagNode) current;
+				int forumId = 0;
+	            // First, grab the parent forum
+				TagNode[] title = node.getElementsByName("a", true);
+	            if (title.length > 0) {
+	                TagNode parentForum = title[0];
+	                forum.put(TITLE,parentForum.getText().toString());
+	                forum.put(PARENT_ID, 0);
+	
+	                // Just nix the part we don't need to get the forum ID
+	                String id = parentForum.getAttributeByName("href");
+	                forumId=getForumId(id);
+	                forum.put(ID,forumId);
+	                forum.put(SUBTEXT,parentForum.getAttributeByName("title"));
+	            }
+	            result.add(forum);
+	
+	            // Now grab the subforums
+	            // we will see if the prior search found more than one link under the forum row, indicating subforums
+	            if (title.length > 1) {
+	                for (int x=1;x<title.length;x++) {
+	                	ContentValues subforum = new ContentValues();
+	
+	                    TagNode subNode = title[x];
+	
+	                    String id = subNode.getAttributeByName("href");
+	
+	                    subforum.put(TITLE,subNode.getText().toString());
+	                    subforum.put(ID,getForumId(id));
+	                    subforum.put(PARENT_ID, forumId);
+	                    result.add(subforum);
+	                }
+	            }
+			}catch(Exception e){
+				e.printStackTrace();
+				continue;
+			}
         }
-		result.add(index);
-		return result;
+        contentInterface.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+	}
+	
+	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface){
+		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, forumId);
+		ContentValues forumData = new ContentValues();
+    	forumData.put(TITLE, AwfulForum.parseTitle(page));
+    	ArrayList<ContentValues> newSubforums = AwfulThread.parseSubforums(page);
+        int lastPage = AwfulPagedItem.parseLastPage(page);
+        Log.i(TAG, "Last Page: " +lastPage);
+    	forumData.put(PAGE_COUNT, lastPage);
+        if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forumData, null, null) <1){
+        	contentInterface.insert(CONTENT_URI, forumData);
+    	}
+        contentInterface.bulkInsert(AwfulThread.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 
-    private static String getForumId(String aHref) {
-        String[] idSplit = aHref.split("=");
-
-        return idSplit[1];
+    private static int getForumId(String aHref) {
+    	Matcher forumIdMatch = forumId_regex.matcher(aHref);
+    	if(forumIdMatch.find()){
+    		return Integer.parseInt(forumIdMatch.group(1));
+    	}
+        return -1;
     }
     
 	public String getTitle() {

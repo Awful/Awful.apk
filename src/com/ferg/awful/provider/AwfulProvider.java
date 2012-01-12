@@ -56,6 +56,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TABLE_THREADS    = "threads";
     private static final String TABLE_POSTS    = "posts";
     private static final String TABLE_EMOTES    = "emotes";
+    private static final String TABLE_CATEGORY    = "threadtags";
 
     private static final int FORUM     = 0;
     private static final int FORUM_ID  = 1;
@@ -74,9 +75,13 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.TITLE,
 		AwfulThread.POSTCOUNT,
 		AwfulThread.UNREADCOUNT,
+		AwfulThread.AUTHOR,
+		AwfulThread.AUTHOR_ID,
 		AwfulThread.LOCKED,
 		AwfulThread.BOOKMARKED,
-		AwfulThread.AUTHOR };
+		AwfulThread.STICKY,
+		AwfulThread.CATEGORY,
+		AwfulThread.LASTPOSTER };
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
@@ -89,7 +94,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.ID      + " INTEGER UNIQUE," + 
                 AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index), index/ucp has none
                 AwfulForum.TITLE   + " VARCHAR,"        + 
-                AwfulForum.SUBTEXT + " VARCHAR);");
+                AwfulForum.SUBTEXT + " VARCHAR,"        + 
+                AwfulForum.PAGE_COUNT + " INTEGER);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
@@ -97,9 +103,13 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.TITLE   + " VARCHAR,"         + 
                 AwfulThread.POSTCOUNT   + " INTEGER,"     + 
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
-                AwfulThread.LOCKED   + " INTEGER,"   	  + 
-                AwfulThread.BOOKMARKED   + " INTEGER,"    + 
-                AwfulThread.AUTHOR + " VARCHAR);");
+                AwfulThread.AUTHOR 		 + " VARCHAR,"    + 
+                AwfulThread.AUTHOR_ID 		+ " INTEGER," +
+                AwfulThread.LOCKED   	+ " INTEGER,"     + 
+                AwfulThread.BOOKMARKED 	    + " INTEGER," +
+                AwfulThread.STICKY   		+ " INTEGER," +
+                AwfulThread.CATEGORY   		+ " INTEGER," +
+            	AwfulThread.LASTPOSTER   + " VARCHAR);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
@@ -119,11 +129,16 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.EDITED                + " VARCHAR);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
-                AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
-                AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
+        		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
+        		AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
                 AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
                 AwfulEmote.URL   	 + " VARCHAR,"     + 
                 AwfulEmote.CACHEFILE + " VARCHAR);");
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_CATEGORY + " ("    +
+                AwfulThread.ID      	 + " INTEGER UNIQUE,"  + 
+                AwfulThread.TAG_URL      + " VARCHAR UNIQUE,"   + 
+                AwfulThread.TAG_CACHEFILE + " VARCHAR);");
 
         }
         
@@ -134,6 +149,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
 
             onCreate(aDb);
         }
@@ -370,6 +386,7 @@ public class AwfulProvider extends ContentProvider {
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
+		sForumProjectionMap.put(AwfulForum.PAGE_COUNT, AwfulForum.PAGE_COUNT);
 
 		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
 		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
@@ -392,8 +409,12 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
 		sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
 		sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+		sThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
 		sThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
 		sThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
-		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
+		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
+		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
     }
 }

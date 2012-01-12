@@ -20,6 +20,8 @@ import com.ferg.awful.thread.AwfulPrivateMessages;
 import com.ferg.awful.thread.AwfulThread;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -202,85 +204,33 @@ public class AwfulService extends Service {
 		
 	}
 
-    private class FetchForumThreadsTask extends AwfulTask<ArrayList<AwfulThread>> {
-		private AwfulForum mForum;
-		private ArrayList<AwfulForum> newSubforums;
+    private class FetchForumThreadsTask extends AwfulTask<Void> {
 		
 		public FetchForumThreadsTask(int forumID, int aPage) {
 			mPage = aPage;
 			mId = forumID;
-			mForum = (AwfulForum) db.get("forumid="+forumID);
-            if(mForum == null){
-            	mForum = new AwfulForum(mId);
-            	db.put("forumid="+mId, mForum);
-            }
 		}
 
-        public ArrayList<AwfulThread> doInBackground(Void... vParams) {
-            ArrayList<AwfulThread> result = null;
-            if (!isCancelled() && !(mForum == null || mForum.getForumId() == null || mForum.getForumId().equals(""))) {
+        public Void doInBackground(Void... vParams) {
+            if (!isCancelled()) {
                 try {
                     TagNode threads = null;
-                    if(mForum.getID()<0){
+                    if(mId<0){
                     	threads = AwfulThread.getUserCPThreads(mPage);
                     }else{
-                    	threads = AwfulThread.getForumThreads(mForum.getForumId(), mPage);
-                        if(mForum.getTitle() == null){
-                        	mForum.setTitle(AwfulForum.parseTitle(threads));
-                        }
-                        newSubforums = AwfulThread.parseSubforums(threads);
+                    	threads = AwfulThread.getForumThreads(mId, mPage);
                     }
-                    result = AwfulThread.parseForumThreads(threads, mPrefs.postPerPage);
-                    mForum.parsePageNumbers(threads);
-                    //Log.i(TAG, "Last Page: " +mForum.getLastPage());
+                    AwfulForum.parseThreads(threads, mId, mPage, getContentResolver());
                 } catch (Exception e) {
-                	result = null;
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
             }
-            return result;
+            return null;
         }
 
-        public void onPostExecute(ArrayList<AwfulThread> aResult) {
-            if (!isCancelled() && aResult != null) {
-            	for(AwfulThread at: aResult){
-            		AwfulThread old = (AwfulThread) db.get("threadid="+at.getThreadId());
-            		if(old==null){
-            			//Log.e(TAG,"Added thread: "+at.getThreadId());
-            			db.put("threadid="+at.getThreadId(), at);
-            		}else{//use this section to copy any data you want to update during a forum refresh. ie: post count, bookmark status, ect
-            			old.setUnreadCount(at.getUnreadCount());
-            			old.setTotalCount(at.getTotalCount(), mPrefs.postPerPage);
-            			old.setBookmarked(at.isBookmarked());
-            		}
-            	}
-            	mForum.setThreadPage(mPage, aResult);
-            	if(newSubforums != null){//k, we have parsed forums
-        			for(AwfulForum af : newSubforums){
-        				AwfulForum other = (AwfulForum) db.get("forumid="+af.getID());
-        				if(other != null){//was the same forum already in the DB?
-        					boolean found = false;
-        					for(AwfulForum gg : mForum.getSubforums()){
-        						if(other.getID() == gg.getID()){//ok, it was, let's see if it matches one already on the local forum list
-        							found = true;
-        							gg.setSubtext(af.getSubtext());//since forum index doesn't have subforum subtexts
-        						}
-        					}
-        					if(!found){//its not? welp, add it.
-        						mForum.addSubforum(af);
-        					}
-        				}else{//not in db? add it
-        					db.put("forumid="+af.getID(), af);
-        					mForum.addSubforum(af);
-        				}
-        			}
-        			
-            	}
-            	sendUpdate(true);
-            }else{
-            	sendUpdate(false);
-            }
+        public void onPostExecute(Void aResult) {
+        	sendUpdate(true);
             threadFinished(this);
         }
     }
@@ -393,14 +343,14 @@ public class AwfulService extends Service {
 	 * @author Matt
 	 *
 	 */
-	private class LoadForumsTask extends AwfulTask<ArrayList<AwfulForum>> {
+	private class LoadForumsTask extends AwfulTask<Boolean> {
 		private Bundle parsedExtras = null;
-        public ArrayList<AwfulForum> doInBackground(Void... aParams) {
-            ArrayList<AwfulForum> result = null;
+        public Boolean doInBackground(Void... aParams) {
+        	Boolean result = true;
             if (!isCancelled()) {
                 try {
                     TagNode response = NetworkUtils.get(Constants.BASE_URL);
-                    result = AwfulForum.getForumsFromRemote(response);
+                    AwfulForum.getForumsFromRemote(response, getContentResolver());
                     TagNode[] pmBlock = response.getElementsByAttValue("id", "pm", true, true);
                     try{
 	                    if(pmBlock.length >0){
@@ -427,7 +377,7 @@ public class AwfulService extends Service {
                     	//this chunk is optional, no need to fail everything if it doens't work out.
                     }
                 } catch (Exception e) {
-                	result = null;
+                	result = false;
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
@@ -435,17 +385,8 @@ public class AwfulService extends Service {
             return result;
         }
 
-        public void onPostExecute(ArrayList<AwfulForum> aResult) {
-            if (!isCancelled() && aResult != null) {
-            	for(AwfulForum af : aResult){
-            		if(db.get("forumid="+af.getForumId()) == null){
-            			db.put("forumid="+af.getForumId(), af);
-            		}
-            	}
-            	sendUpdate(true, parsedExtras);
-            }else{
-            	sendUpdate(false);
-            }
+        public void onPostExecute(Boolean aResult) {
+            sendUpdate(!isCancelled() && aResult != null && aResult.booleanValue());
             threadFinished(this);
         }
     }
