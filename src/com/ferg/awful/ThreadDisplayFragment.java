@@ -72,9 +72,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ParsePostQuoteTask mPostQuoteTask;
     private ParseEditPostTask mEditPostTask;
     private AwfulPreferences mPrefs;
-    
-    private boolean mBound = false;
-    private Messenger mService = null;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -120,7 +117,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
-                case AwfulSyncService.MSG_PROGRESS_STATUS:
+                case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
                     break;
                 default:
@@ -133,25 +130,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private PostContentObserver mObserver = new PostContentObserver(mHandler);
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName aName, IBinder aBinder) {
-            mService = new Messenger(aBinder);
-
-            try {
-                Message msg = Message.obtain(null, AwfulSyncService.MSG_REGISTER_CLIENT);
-                msg.replyTo = mMessenger;
-                mService.send(msg);
-
-                syncThread();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void onServiceDisconnected(ComponentName aName) {
-            mService = null;
-        }
-    };
+    
 	
 	private WebViewClient callback = new WebViewClient(){
 		@Override
@@ -316,12 +295,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStart() {
         super.onStart();
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
 
         // TODO: setActionbarTitle(mAdapter.getTitle());
 
         getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
         getLoaderManager().initLoader(getThreadId(), null, mThreadLoaderCallback);
-        doBind();
 
         getActivity().getContentResolver().registerContentObserver(
                 AwfulPost.CONTENT_URI, true, mObserver);
@@ -360,10 +339,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mThreadView.stopLoading();
         cleanupTasks();
 
-        doUnbind();
-
         getActivity().getContentResolver().unregisterContentObserver(mObserver);
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
@@ -495,40 +473,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onSaveInstanceState(Bundle aOutState) {
         super.onSaveInstanceState(aOutState);
     }
-
-    private void doBind() {
-        getActivity().bindService(new Intent(getActivity(), AwfulSyncService.class),
-                mServiceConnection, getActivity().BIND_AUTO_CREATE);
-        mBound = true;
-    }
-
-    private void doUnbind() {
-        if (mBound) {
-            if (mService != null) {
-                try {
-                    Message msg = Message.obtain(null, AwfulSyncService.MSG_UNREGISTER_CLIENT);
-                    msg.replyTo = mMessenger;
-                    mService.send(msg);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            getActivity().unbindService(mServiceConnection);
-            mBound = false;
-        }
-    }
-
     private void syncThread() {
-        try {
-            Message msg = Message.obtain(null, AwfulSyncService.MSG_SYNC_THREAD);
-            msg.arg1 = getThreadId();
-            msg.arg2 = getPage();
-
-            mService.send(msg);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
     }
 
     private void displayUserCP() {

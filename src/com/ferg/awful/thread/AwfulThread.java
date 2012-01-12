@@ -61,9 +61,12 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private static final String TAG = "AwfulThread";
 
     public static final String PATH     = "/thread";
+    public static final String UCP_PATH     = "/ucpthread";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+	public static final Uri CONTENT_URI_UCP = Uri.parse("content://" + Constants.AUTHORITY + UCP_PATH);
     
     public static final String ID 		="_id";
+    public static final String INDEX 		="thread_index";
     public static final String FORUM_ID 	="forum_id";
     public static final String TITLE 		="title";
     public static final String POSTCOUNT 	="post_count";
@@ -75,7 +78,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 	public static final String STICKY = "sticky";
 	public static final String CATEGORY = "category";
 	public static final String LASTPOSTER = "killedby";
-	
+
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
@@ -95,6 +98,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
     
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+
 
 
 
@@ -133,7 +137,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int forumId) {
+	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse) {
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1 || threads.length < 1){
@@ -215,7 +219,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 		return mBookmarked;
 	}
 
-	public static ArrayList<ContentValues> parseSubforums(TagNode aResponse){
+	public static ArrayList<ContentValues> parseSubforums(TagNode aResponse, int parentForumId){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		TagNode[] subforums = aResponse.getElementsByAttValue("class", "subforum", true, false);
         for(TagNode sf : subforums){
@@ -227,6 +231,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         	if(id > 0){
         		ContentValues tmp = new ContentValues();
         		tmp.put(AwfulForum.ID, id);
+        		tmp.put(AwfulForum.PARENT_ID, parentForumId);
         		tmp.put(AwfulForum.TITLE, href[0].getText().toString());
         		TagNode[] subtext = sf.getElementsByName("dd", true);
         		if(subtext.length >0){

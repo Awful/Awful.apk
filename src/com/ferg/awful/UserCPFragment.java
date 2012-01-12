@@ -27,11 +27,17 @@
 
 package com.ferg.awful;
 
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -50,6 +56,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -57,7 +66,12 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
+import com.ferg.awful.service.AwfulCursorAdapter;
+import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulDisplayItem;
+import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
@@ -70,6 +84,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private TextView mTitle;
     private SharedPreferences mPrefs;
     private ImageButton mRefresh;
+    
+    
+    private AwfulCursorAdapter mCursorAdapter;
 
     public static UserCPFragment newInstance(boolean aModal) {
         UserCPFragment fragment = new UserCPFragment();
@@ -85,6 +102,21 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         return fragment;
     }
+    
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+            switch (aMsg.what) {
+                case AwfulSyncService.MSG_SYNC_FORUM:
+                    break;
+                default:
+                    super.handleMessage(aMsg);
+            }
+        }
+    };
+
+    private Messenger mMessenger = new Messenger(mHandler);
+    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler, Constants.USERCP_ID);
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -155,6 +187,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         
         // When coming from the desktop shortcut we won't have login cookies
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
+        
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
 
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
@@ -334,4 +368,35 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	        }
 		}
 	}
+	
+	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+		private int mId;
+        public ForumContentsCallback(Handler handler, int id) {
+			super(handler);
+			mId = id;
+		}
+
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			mId = aId;
+            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI, AwfulProvider.ThreadProjection, AwfulThread.FORUM_ID+"=?", new String[]{Integer.toString(mId)}, null);
+        }
+
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Thread title finished, populating.");
+        	if(aData.moveToFirst()){
+        		mCursorAdapter.swapCursor(aData);
+        	}
+        }
+        
+        @Override
+        public void onLoaderReset(Loader<Cursor> aLoader) {
+        	mCursorAdapter.swapCursor(null);
+        }
+        
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"Thread Data update: "+mId);
+        	getActivity().getSupportLoaderManager().restartLoader(mId, null, this);
+        }
+    }
 }

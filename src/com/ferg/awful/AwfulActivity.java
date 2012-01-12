@@ -1,8 +1,17 @@
 package com.ferg.awful;
 
+import com.ferg.awful.service.AwfulSyncService;
+
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 
 import android.support.v4.app.FragmentActivity;
 
@@ -15,14 +24,16 @@ import android.support.v4.app.FragmentActivity;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends FragmentActivity {
+public class AwfulActivity extends FragmentActivity implements ServiceConnection {
     private ActivityConfigurator mConf;
+    private Messenger mService = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
+        bindService(new Intent(this, AwfulSyncService.class), mServiceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -53,6 +64,7 @@ public class AwfulActivity extends FragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         mConf.onDestroy();
+        unbindService(mServiceConnection);
     }
 
     public boolean isTablet() {
@@ -72,4 +84,59 @@ public class AwfulActivity extends FragmentActivity {
     public static boolean useLegacyActionbar() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
     }
+    
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName aName, IBinder aBinder) {
+
+            
+        }
+
+        public void onServiceDisconnected(ComponentName aName) {
+            mService = null;
+        }
+    };
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+        mService = new Messenger(service);
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		mService = null;
+	}
+	public boolean registerSyncService(Messenger aMessenger, int aClientId){
+		if(mService == null){
+			return false;
+		}
+		try {
+            Message msg = Message.obtain(null, AwfulSyncService.MSG_REGISTER_CLIENT, aClientId,0);
+            msg.replyTo = aMessenger;
+            mService.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        }
+		return true;
+	}
+
+	public void unregisterSyncService(Messenger aMessenger, int aClientId){
+		if(mService != null){
+			try {
+	            Message msg = Message.obtain(null, AwfulSyncService.MSG_UNREGISTER_CLIENT, aClientId,0);
+	            msg.replyTo = aMessenger;
+	            mService.send(msg);
+	        } catch (RemoteException e) {
+	            e.printStackTrace();
+	        }
+		}
+	}
+	public void sendMessage(int messageType, int id, int arg1){
+		try {
+            Message msg = Message.obtain(null, messageType, id, arg1);
+            mService.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+	}
 }

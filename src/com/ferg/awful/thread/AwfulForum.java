@@ -61,6 +61,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 
 	public static final String ID      = "forum_id";
 	public static final String PARENT_ID      = "parent_forum_id";
+	public static final String INDEX = "forum_index";//for ordering by
 	public static final String TITLE   = "title";
 	public static final String SUBTEXT = "subtext";
 	public static final String PAGE_COUNT = "page_count";
@@ -70,6 +71,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+
 
 
 	private String mTitle;
@@ -138,17 +140,42 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 	
 	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface){
-		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, forumId);
+		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page);
 		ContentValues forumData = new ContentValues();
+    	forumData.put(ID, forumId);
     	forumData.put(TITLE, AwfulForum.parseTitle(page));
-    	ArrayList<ContentValues> newSubforums = AwfulThread.parseSubforums(page);
+		ArrayList<ContentValues> newSubforums = AwfulThread.parseSubforums(page, forumId);
+		contentInterface.bulkInsert(AwfulForum.CONTENT_URI, newSubforums.toArray(new ContentValues[newSubforums.size()]));
         int lastPage = AwfulPagedItem.parseLastPage(page);
         Log.i(TAG, "Last Page: " +lastPage);
     	forumData.put(PAGE_COUNT, lastPage);
-        if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forumData, null, null) <1){
+		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
-    	}
+		}
         contentInterface.bulkInsert(AwfulThread.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+	}
+	
+	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface){
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page);
+		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
+		int start_index = (pageNumber-1)*Constants.ITEMS_PER_PAGE+1;
+		for(ContentValues thread : threads){
+			ContentValues ucp_entry = new ContentValues();
+			ucp_entry.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
+			ucp_entry.put(AwfulThread.INDEX, start_index);
+			start_index++;
+		}
+		ContentValues forumData = new ContentValues();
+    	forumData.put(ID, Constants.USERCP_ID);
+    	forumData.put(TITLE, "Bookmarks");
+        int lastPage = AwfulPagedItem.parseLastPage(page);
+        Log.i(TAG, "Last Page: " +lastPage);
+    	forumData.put(PAGE_COUNT, lastPage);
+		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
+        	contentInterface.insert(CONTENT_URI, forumData);
+		}
+        contentInterface.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
+        contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
 	}
 
     private static int getForumId(String aHref) {

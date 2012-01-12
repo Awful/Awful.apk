@@ -54,6 +54,7 @@ public class AwfulProvider extends ContentProvider {
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
+    private static final String TABLE_UCP_THREADS    = "ucp_thread";
     private static final String TABLE_POSTS    = "posts";
     private static final String TABLE_EMOTES    = "emotes";
     private static final String TABLE_CATEGORY    = "threadtags";
@@ -72,6 +73,7 @@ public class AwfulProvider extends ContentProvider {
 	
 	public static final String[] ThreadProjection = new String[]{AwfulThread.ID,
 		AwfulThread.FORUM_ID,
+		AwfulThread.INDEX,
 		AwfulThread.TITLE,
 		AwfulThread.POSTCOUNT,
 		AwfulThread.UNREADCOUNT,
@@ -92,7 +94,8 @@ public class AwfulProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_FORUM + " (" +
                 AwfulForum.ID      + " INTEGER UNIQUE," + 
-                AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index), index/ucp has none
+                AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index)
+                AwfulForum.INDEX      + " INTEGER,"   	 + 
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR,"        + 
                 AwfulForum.PAGE_COUNT + " INTEGER);");
@@ -100,6 +103,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
+                AwfulThread.INDEX      + " INTEGER,"   	  + 
                 AwfulThread.TITLE   + " VARCHAR,"         + 
                 AwfulThread.POSTCOUNT   + " INTEGER,"     + 
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
@@ -110,6 +114,10 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.STICKY   		+ " INTEGER," +
                 AwfulThread.CATEGORY   		+ " INTEGER," +
             	AwfulThread.LASTPOSTER   + " VARCHAR);");
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
+                AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
+                AwfulThread.INDEX      + " INTEGER);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
@@ -150,6 +158,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
 
             onCreate(aDb);
         }
@@ -253,6 +262,7 @@ public class AwfulProvider extends ContentProvider {
 
 		try {
 			for (ContentValues value : aValues) {
+				
                 db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
 				result++;
 			}
