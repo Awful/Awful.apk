@@ -39,12 +39,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.*;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
@@ -255,6 +258,12 @@ public class AwfulProvider extends ContentProvider {
             case THREAD:
                 table = TABLE_THREADS;
                 break;
+            case UCP_THREAD_ID:
+                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
+                aWhere = AwfulThread.ID + "=?";
+            case UCP_THREAD:
+                table = TABLE_UCP_THREADS;
+                break;
         }
 
         int result = db.update(table, aValues, aWhere, aWhereArgs);
@@ -292,7 +301,21 @@ public class AwfulProvider extends ContentProvider {
 		try {
 			for (ContentValues value : aValues) {
 				
-                db.insert(table, "", value);
+				if(Build.VERSION.SDK_INT>7){
+					db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
+				}else{
+					StringBuilder column = new StringBuilder();
+					StringBuilder valQuestions = new StringBuilder();
+					Set<Entry<String, Object>> valSet = value.valueSet();
+					String[] values = new String[valSet.size()];
+					int ix=0;
+					for(Entry<String, Object> entry : valSet){
+						values[ix] = entry.getValue().toString();
+						column.append(entry.getKey()+", ");
+						valQuestions.append("?,");
+					}
+					db.rawQuery("INSERT OR REPLACE INTO "+table+" ("+column.substring(0, column.length()-2)+")", values);
+				}
 				result++;
 			}
 

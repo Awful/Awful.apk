@@ -189,8 +189,8 @@ public class AwfulForum extends AwfulPagedItem {
 		}
 		for(ContentValues thread : ucp_ids){
 			long id = thread.getAsLong(ID);
-			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, id), thread, null, null)<1){
-				contentInterface.insert(AwfulThread.CONTENT_URI, thread);
+			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI_UCP, id), thread, null, null)<1){
+				contentInterface.insert(AwfulThread.CONTENT_URI_UCP, thread);
 			}
 		}
 	}

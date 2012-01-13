@@ -131,11 +131,14 @@ public class AwfulSyncService extends Service {
     public void updateStatus(int aMessageType, int aStatus, int clientId, int arg2) {
         Log.i(TAG, "Send Message:"+clientId+" "+aStatus+" "+arg2);
         Messenger client = mClients.get(clientId);
-        try {
-            Message msg = Message.obtain(null, aMessageType, aStatus, arg2);
-            client.send(msg);
-        } catch (RemoteException e) {
-            mClients.remove(client);
+        //if the client unregisters before we send, this will be null
+        if(client != null){
+	        try {
+	            Message msg = Message.obtain(null, aMessageType, aStatus, arg2);
+	            client.send(msg);
+	        } catch (RemoteException e) {
+	            mClients.remove(client);
+	        }
         }
     }
     
