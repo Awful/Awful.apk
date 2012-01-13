@@ -399,8 +399,11 @@ public class AwfulPost implements AwfulDisplayItem {
 										img.setAttribute("href", src);
 										TagNode newimg = new TagNode("img");
 										if(!prefs.imgurThumbnails.equals("d") && src.contains("i.imgur.com")){
+											int lastSlash = src.lastIndexOf('/');
+											if(src.length()-lastSlash<=9){
 											int pos = src.length() - 4;
-											src = src.substring(0, pos) + prefs.imgurThumbnails + src.substring(pos);
+												src = src.substring(0, pos) + prefs.imgurThumbnails + src.substring(pos);
+											}
 										}
 										newimg.setAttribute("src", src);
 										img.addChild(newimg);
