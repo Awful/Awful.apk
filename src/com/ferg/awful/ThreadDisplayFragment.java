@@ -306,6 +306,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 AwfulPost.CONTENT_URI, true, mObserver);
         getActivity().getContentResolver().registerContentObserver(
                 AwfulThread.CONTENT_URI, true, mThreadObserver);
+        
+        syncThread();
     }
     
     @Override

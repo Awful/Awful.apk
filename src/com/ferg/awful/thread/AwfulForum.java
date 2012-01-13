@@ -164,7 +164,9 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 			ucp_entry.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
 			ucp_entry.put(AwfulThread.INDEX, start_index);
 			start_index++;
+			ucp_ids.add(ucp_entry);
 		}
+		Log.i(TAG,"Parsed UCP entries:"+ucp_ids.size());
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, Constants.USERCP_ID);
     	forumData.put(TITLE, "Bookmarks");

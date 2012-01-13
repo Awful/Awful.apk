@@ -45,6 +45,7 @@ import java.util.Stack;
 
 import org.htmlcleaner.TagNode;
 
+import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.task.AwfulTask;
 import com.ferg.awful.task.BookmarkTask;
@@ -143,12 +144,13 @@ public class AwfulSyncService extends Service {
 			protected Boolean doInBackground(Void... params) {
 				try {
 					TagNode threads = null;
-                    if(mId<0){
+                    if(mId == Constants.USERCP_ID){
                     	threads = AwfulThread.getUserCPThreads(mArg1);
+                        AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
                     }else{
                     	threads = AwfulThread.getForumThreads(mId, mArg1);
+                        AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
                     }
-                    AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
                 } catch (Exception e) {
                     Log.i(TAG, "Sync error");
                     e.printStackTrace();

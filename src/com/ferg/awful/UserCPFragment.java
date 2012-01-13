@@ -27,14 +27,10 @@
 
 package com.ferg.awful;
 
-import android.content.ContentUris;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -69,11 +65,8 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulCursorAdapter;
 import com.ferg.awful.service.AwfulSyncService;
-import com.ferg.awful.thread.AwfulDisplayItem;
-import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 
 public class UserCPFragment extends DialogFragment implements AwfulUpdateCallback {
     private static final String TAG = "UserCPActivity";
@@ -82,8 +75,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private ImageButton mPrivateMessage;
     private ListView mBookmarkList;
     private TextView mTitle;
-    private SharedPreferences mPrefs;
+    private AwfulPreferences mPrefs;
     private ImageButton mRefresh;
+    
+    private int mPage;
+    private int mId = Constants.USERCP_ID;
     
     
     private AwfulCursorAdapter mCursorAdapter;
@@ -108,6 +104,12 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_FORUM:
+            		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
+            			loadingSucceeded();
+            		}else{
+            			loadingFailed();
+            		}
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -137,7 +139,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onCreateView(aInflater, aContainer, aSavedState);
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity());
         
         View result = aInflater.inflate(R.layout.user_cp, aContainer, false);
 
@@ -174,20 +176,22 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         }
 
         mBookmarkList.setOnItemClickListener(onThreadSelected);
-        mBookmarkList.setBackgroundColor(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-        mBookmarkList.setCacheColorHint(mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
-
-      //TODO mBookmarkList.setAdapter(adapt);
+        mBookmarkList.setBackgroundColor(mPrefs.postBackgroundColor);
+        mBookmarkList.setCacheColorHint(mPrefs.postBackgroundColor);
+        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mBookmarkList.setAdapter(mCursorAdapter);
         registerForContextMenu(mBookmarkList);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        
+
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
         // When coming from the desktop shortcut we won't have login cookies
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-        
+
+		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
 
         if (!loggedIn) {
@@ -198,12 +202,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onResume() {
         super.onResume();
-      //TODO adapt.refresh();
+        syncThreads();
     }
         
     @Override
     public void onStop() {
         super.onStop();
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
     }
     
     @Override
@@ -226,7 +231,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public boolean onContextItemSelected(MenuItem aItem) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+        //AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
       //TODO AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
     	//TODO if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
     	//TODO 	return false;
@@ -242,7 +247,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 return true;
             case R.id.thread_bookmark:
             	//TODO adapt.toggleBookmark(thread.getID());
-            	//TODO adapt.refresh();
+            	//TODO adapt.refresh();//TODO this should trigger off the return from the bookmark event
                 return true;
             case R.id.mark_thread_unread:
             	//TODO adapt.markThreadUnread(thread.getID());
@@ -297,7 +302,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                     startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
                     break;
                 case R.id.refresh:
-                	//TODO adapt.refresh();
+                	syncThreads();
                     break;
             }
         }
@@ -369,6 +374,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 		}
 	}
 	
+
+    private void syncThreads() {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM,mId,mPage);
+    }
+	
 	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 		private int mId;
         public ForumContentsCallback(Handler handler, int id) {
@@ -378,7 +388,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			mId = aId;
-            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI, AwfulProvider.ThreadProjection, AwfulThread.FORUM_ID+"=?", new String[]{Integer.toString(mId)}, null);
+            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulThread.INDEX+">=? && "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {

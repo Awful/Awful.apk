@@ -149,4 +149,13 @@ public abstract class AwfulPagedItem {
 	public static int pageToIndex(int page, int perPage, int offset){
 		return Math.max(1, (page-1)*perPage+1+offset);
 	}
+	/**
+	 * Converts page number to index assuming default item-per-page.
+	 * ONLY USE FOR FORUM/THREADS, posts REQUIRE the dynamic per-page setting.
+	 * @param page
+	 * @return starting index
+	 */
+	public static int pageToIndex(int page) {
+		return Math.max(1, (page-1)*Constants.ITEMS_PER_PAGE+1);
+	}
 }

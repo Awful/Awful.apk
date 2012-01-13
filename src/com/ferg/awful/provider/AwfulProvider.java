@@ -65,11 +65,14 @@ public class AwfulProvider extends ContentProvider {
     private static final int POST_ID   = 3;
     private static final int THREAD    = 4;
     private static final int THREAD_ID = 5;
+    private static final int UCP_THREAD    = 6;
+    private static final int UCP_THREAD_ID = 7;
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
 	private static HashMap<String, String> sThreadProjectionMap;
 	private static HashMap<String, String> sPostProjectionMap;
+	private static HashMap<String, String> sUCPThreadProjectionMap;
 	
 	public static final String[] ThreadProjection = new String[]{AwfulThread.ID,
 		AwfulThread.FORUM_ID,
@@ -342,6 +345,14 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_THREADS);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
+			case UCP_THREAD_ID:
+                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
+                builder.appendWhere(AwfulThread.ID + "=?");
+			case UCP_THREAD:
+				//hopefully this join works
+				builder.setTables(TABLE_UCP_THREADS+" INNER JOIN "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
+				builder.setProjectionMap(sUCPThreadProjectionMap);
+				break;
         }
 
         Cursor result = builder.query(db, aProjection, aSelection, 
@@ -384,6 +395,7 @@ public class AwfulProvider extends ContentProvider {
 		sForumProjectionMap = new HashMap<String, String>();
         sPostProjectionMap = new HashMap<String, String>();
         sThreadProjectionMap = new HashMap<String, String>();
+        sUCPThreadProjectionMap = new HashMap<String, String>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
@@ -416,6 +428,7 @@ public class AwfulProvider extends ContentProvider {
 		
 		sThreadProjectionMap.put(AwfulThread.ID, AwfulThread.ID);
 		sThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+		sThreadProjectionMap.put(AwfulThread.INDEX, AwfulThread.INDEX);
 		sThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
 		sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
 		sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
@@ -426,5 +439,22 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		
+		
+		//hopefully this should let the join happen
+		//but documentation on projection maps is fucking scarce.
+		sUCPThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);//threads._id AS _id
+		sUCPThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+		sUCPThreadProjectionMap.put(AwfulThread.INDEX, TABLE_UCP_THREADS+"."+AwfulThread.INDEX+" AS "+AwfulThread.INDEX);
+		sUCPThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
+		sUCPThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
+		sUCPThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
+		sUCPThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+		sUCPThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
+		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
+		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
+		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
     }
 }
