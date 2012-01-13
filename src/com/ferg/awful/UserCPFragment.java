@@ -310,11 +310,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            AwfulThread thread = (AwfulThread) mBookmarkList.getAdapter().getItem(aPosition);
-
-            Log.i(TAG, "Thread ID: " + Integer.toString(thread.getID()));
+            
+            Log.i(TAG, "Thread ID: " + Long.toString(aId));
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
-            viewThread.putExtra(Constants.THREAD_ID, thread.getID());
+            viewThread.putExtra(Constants.THREAD_ID, (int)aId);
 
             startActivity(viewThread);
         }
@@ -406,7 +405,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"Thread Data update: "+mId);
-        	getActivity().getSupportLoaderManager().restartLoader(mId, null, this);
+        	if(getActivity() != null){
+        		getActivity().getSupportLoaderManager().restartLoader(mId, null, this);
+        	}
         }
     }
 }

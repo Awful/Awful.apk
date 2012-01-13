@@ -48,7 +48,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 
-public class AwfulPost implements AwfulDisplayItem {
+public class AwfulPost {
     private static final String TAG = "AwfulPost";
 
     public static final String PATH     = "/post";
@@ -517,11 +517,6 @@ public class AwfulPost implements AwfulDisplayItem {
         }
 
         return result;
-    }
-
-	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs, Cursor data) {
-        return null;
     }
 
 }

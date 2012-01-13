@@ -57,7 +57,7 @@ import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 
-public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
+public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
 
     public static final String PATH     = "/thread";
@@ -137,7 +137,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse) {
+	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int start_index, int forumId) {
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1 || threads.length < 1){
@@ -149,12 +149,14 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
     			ContentValues thread = new ContentValues();
                 String threadId = node.getAttributeByName("id");
                 thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
+                thread.put(INDEX, start_index);
+                start_index++;
+                thread.put(FORUM_ID, forumId);
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
             	if (tarPostCount.length > 0) {
                     thread.put(POSTCOUNT, Integer.parseInt(tarPostCount[0].getText().toString().trim()));
                 }
-            	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
                 if (tarThread.length > 0) {
                     thread.put(TITLE, tarThread[0].getText().toString().trim());
                 }
@@ -163,17 +165,19 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                 thread.put(LASTPOSTER, killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
                 TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
                 if (tarSticky.length > 0) {
-                    thread.put(STICKY,true);
+                    thread.put(STICKY,1);
                 } else {
-                    thread.put(STICKY,false);
+                    thread.put(STICKY,0);
                 }
 
                 //TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
                 //if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
                     //TODO thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
+                thread.put(CATEGORY, 0);
                 	//thread tag stuff
                 //}
 
+            	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
                 if (tarUser.length > 0) {
                     // There's got to be a better way to do this
                     thread.put(AUTHOR, tarUser[0].getText().toString().trim());
@@ -200,7 +204,9 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
                 	}else{
                 		thread.put(BOOKMARKED, 0);
                 	}
-                }
+                }else{
+            		thread.put(BOOKMARKED, 0);
+            	}
 
                 result.add(thread);
             } catch (NullPointerException e) {
@@ -535,30 +541,25 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
    		mPosts.put(page, aPosts);
     }
 
-	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences prefs, Cursor data) {
-		View tmp = current;
-		if(tmp == null || tmp.getId() != R.layout.thread_item){
-			tmp = inf.inflate(R.layout.thread_item, parent, false);
-			tmp.setTag(this);
-		}
-		TextView info = (TextView) tmp.findViewById(R.id.threadinfo);
-		ImageView sticky = (ImageView) tmp.findViewById(R.id.sticky_icon);
-		ImageView bookmark = (ImageView) tmp.findViewById(R.id.bookmark_icon);
-		if(mSticky){
+	public static void getView(View current, AwfulPreferences prefs, Cursor data) {
+		TextView info = (TextView) current.findViewById(R.id.threadinfo);
+		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
+		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
+		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
+		if(stuck){
 			sticky.setImageResource(R.drawable.sticky);
 			sticky.setVisibility(View.VISIBLE);
 		}else{
 			sticky.setVisibility(View.GONE);
 		}
-		if(mBookmarked && !(((ListView)parent).getId() == R.id.bookmark_list)){
+		if(data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
 			bookmark.setImageResource(R.drawable.blue_star);
 			bookmark.setVisibility(View.VISIBLE);
-			if(!mSticky){
+			if(!stuck){
 				bookmark.setPadding(0, 5, 4, 0);
 			}
 		}else{
-			if(!mSticky){
+			if(!stuck){
 				bookmark.setVisibility(View.GONE);
 			}else{
 				bookmark.setVisibility(View.INVISIBLE);
@@ -566,25 +567,26 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			
 		}
 		if(prefs.threadInfo.equals("threadpages")){
-			info.setText((int)(Math.ceil(mTotalPosts/prefs.postPerPage)+1)+" pages");	
+			info.setText(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pages");	
 		}else if(prefs.threadInfo.equals("killedby")){
-			info.setText("Killed By: "+mKilledBy);
+			info.setText("Killed By: "+data.getString(data.getColumnIndex(LASTPOSTER)));
 		}else{
-			info.setText("Author: "+mAuthor);
+			info.setText("Author: "+data.getString(data.getColumnIndex(AUTHOR)));
 		}
-		TextView unread = (TextView) tmp.findViewById(R.id.unread_count);
-		if(mUnreadCount >=0){
+		TextView unread = (TextView) current.findViewById(R.id.unread_count);
+		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
+		if(unreadCount >=0){
 			unread.setVisibility(View.VISIBLE);
-			unread.setText(mUnreadCount+"");
-            if (mUnreadCount == 0){
+			unread.setText(unreadCount+"");
+            if (unreadCount == 0){
                 unread.setBackgroundResource(R.drawable.unread_background_dim);
             }
 		}else{
 			unread.setVisibility(View.GONE);
 		}
-		TextView title = (TextView) tmp.findViewById(R.id.title);
-		if(mTitle != null){
-			title.setText(Html.fromHtml(mTitle));
+		TextView title = (TextView) current.findViewById(R.id.title);
+		if(data.getString(data.getColumnIndex(TITLE)) != null){
+			title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);
@@ -596,20 +598,8 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 				title.setEllipsize(null);
 			}
 		}
-		return tmp;
 	}
-
-	@Override
-	public int getID() {
-		return threadId;
-	}
-
-	@Override
-	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		return mPosts.get(page);
-	}
-
-    @Override
+	
     public JSONArray getSerializedChildren(int aPage) {
         JSONArray result = new JSONArray();
         ArrayList<AwfulPost> posts = mPosts.get(aPage);
@@ -634,22 +624,7 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			mPosts.put(save, tmp);
 		}
 	}
-
-	@Override
-	public int getChildrenCount(int page) {
-		if(mPosts.get(page) == null){
-			return 0;
-		}
-		return mPosts.get(page).size();
-	}
-
-	@Override
-	public AwfulDisplayItem getChild(int page, int ix) {
-		if(mPosts.get(page) == null){
-			return null;
-		}
-		return mPosts.get(page).get(ix);
-	}
+	
 	public int getLastReadPage(int postPerPage) {
 		if(getUnreadCount()==-1){
 			return 1;
@@ -667,17 +642,5 @@ public class AwfulThread extends AwfulPagedItem implements AwfulDisplayItem {
 			return postPerPage;
 		}
 		return (mTotalPosts-mUnreadCount+1)%postPerPage;
-	}
-	public void setTotalCount(int postTotal, int perPage) {
-		mTotalPosts = postTotal;
-		setLastPage(postTotal/perPage+1);
-	}
-
-	public int getTotalCount() {
-		return mTotalPosts;
-	}
-
-	public boolean isPageCached(int page) {
-		return mPosts.get(page) != null;
 	}
 }

@@ -21,9 +21,16 @@ import com.ferg.awful.preferences.ColorPickerPreference;
  * SA Private Messages.
  * @author Geekner
  */
-public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
+public class AwfulMessage extends AwfulPagedItem {
 	
 	private static final String TAG = "AwfulMessage";
+	
+	public static final String ID = "_id";
+    public static final String TITLE 		="title";
+    public static final String AUTHOR 		="author";
+    public static final String CONTENT 	="content";
+    public static final String DATE 	="message_date";
+	
 	private String mTitle;
 	private String mAuthor;
 	private String mContent;
@@ -40,33 +47,23 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		mLoaded = false;
 	}
 
-	@Override
-	public int getID() {
-		return mId;
-	}
-	
-	public boolean isUnread(){
-		return unread;
-	}
-
 	/**
 	 * Generates List view items for PM list.
 	 */
-	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent,	AwfulPreferences aPref, Cursor data) {
+	public static View getView(LayoutInflater inf, View current, ViewGroup parent,	AwfulPreferences aPref, Cursor data) {
 		if(current == null || current.getId() != R.layout.thread_item){
 			current = inf.inflate(R.layout.forum_item, parent, false);
 		}
 		TextView title = (TextView) current.findViewById(R.id.title);
-		title.setText(mTitle);
+		//TODO title.setText(mTitle);
 		TextView author = (TextView) current.findViewById(R.id.subtext);
-		author.setText(mAuthor +" - "+mDate);
+		//TODO author.setText(mAuthor +" - "+mDate);
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
 
-		if (unread) {
+		//TODO if (unread) {
 			unreadPM.setVisibility(View.VISIBLE);
-		}
+		//}
 
 		if(aPref != null){
 			title.setTextColor(aPref.postFontColor);
@@ -218,32 +215,6 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 	
 	public void setLoaded(boolean loaded){
 		mLoaded = loaded;
-	}
-	
-	//extended awfulpageditem so messages can be put in the DB, I really need to rewrite the DB.
-	//ignore the methods here, they'll never be used.
-	@Override
-	public AwfulDisplayItem getChild(int page, int ix) {
-		return null;
-	}
-
-	@Override
-	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		return null;
-	}
-
-	@Override
-	public int getChildrenCount(int page) {
-		return 0;
-	}
-
-	@Override
-	public boolean isPageCached(int page) {
-		return false;
-	}
-
-	public boolean isLoaded() {
-		return mLoaded;
 	}
 	
 	public String getMessageHtml(AwfulPreferences pref){

@@ -207,7 +207,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	
 	public void onDetach(){
 		super.onDetach();
-		if(mEditReply != null && mSubject != null && mRecipient != null && ((message != null && message.isLoaded()) || pmId == 0)){
+		if(mEditReply != null && mSubject != null && mRecipient != null && ( pmId == 0)){
 			saved_reply = mEditReply.getText();
 			saved_title = mSubject.getText();
 			saved_recipient = mRecipient.getText();

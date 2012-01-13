@@ -50,7 +50,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
@@ -58,6 +58,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TABLE_POSTS    = "posts";
     private static final String TABLE_EMOTES    = "emotes";
     private static final String TABLE_CATEGORY    = "threadtags";
+    private static final String TABLE_PM    = "private_messages";
 
     private static final int FORUM     = 0;
     private static final int FORUM_ID  = 1;
@@ -67,6 +68,8 @@ public class AwfulProvider extends ContentProvider {
     private static final int THREAD_ID = 5;
     private static final int UCP_THREAD    = 6;
     private static final int UCP_THREAD_ID = 7;
+    private static final int PM    = 8;
+    private static final int PM_ID = 9;
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
@@ -150,6 +153,13 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.ID      	 + " INTEGER UNIQUE,"  + 
                 AwfulThread.TAG_URL      + " VARCHAR UNIQUE,"   + 
                 AwfulThread.TAG_CACHEFILE + " VARCHAR);");
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +
+                    AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
+                    AwfulMessage.TITLE      + " VARCHAR,"   + 
+                    AwfulMessage.AUTHOR      + " VARCHAR,"   + 
+                    AwfulMessage.CONTENT      + " VARCHAR,"   + 
+                    AwfulMessage.DATE + " VARCHAR);");
 
         }
         
@@ -162,6 +172,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
 
             onCreate(aDb);
         }
@@ -199,6 +210,9 @@ public class AwfulProvider extends ContentProvider {
                 break;
             case THREAD:
                 table = TABLE_THREADS;
+                break;
+            case UCP_THREAD:
+                table = TABLE_UCP_THREADS;
                 break;
             default:
                 break;
@@ -353,7 +367,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+" INNER JOIN "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
+				builder.setTables(TABLE_UCP_THREADS+" NATURAL LEFT JOIN "+TABLE_THREADS);//+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
         }
@@ -406,8 +420,8 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", THREAD_ID);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post", POST);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", THREAD);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", THREAD_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", UCP_THREAD);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", UCP_THREAD_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);

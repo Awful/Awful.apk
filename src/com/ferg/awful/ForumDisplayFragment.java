@@ -59,8 +59,6 @@ import android.support.v4.app.ListFragment;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.thread.AwfulDisplayItem;
-import com.ferg.awful.thread.AwfulDisplayItem.DISPLAY_TYPE;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;

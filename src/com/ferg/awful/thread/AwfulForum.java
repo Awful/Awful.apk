@@ -53,13 +53,13 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 
-public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
+public class AwfulForum extends AwfulPagedItem {
     private static final String TAG = "AwfulForum";
 
     public static final String PATH     = "/forum";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
-	public static final String ID      = "forum_id";
+	public static final String ID      = "_id";
 	public static final String PARENT_ID      = "parent_forum_id";
 	public static final String INDEX = "forum_index";//for ordering by
 	public static final String TITLE   = "title";
@@ -140,7 +140,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 	
 	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface){
-		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page);
+		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), forumId);
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, forumId);
     	forumData.put(TITLE, AwfulForum.parseTitle(page));
@@ -156,7 +156,7 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	}
 	
 	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface){
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page);
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
 		int start_index = (pageNumber-1)*Constants.ITEMS_PER_PAGE+1;
 		for(ContentValues thread : threads){
@@ -176,7 +176,10 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
 		}
+		contentInterface.delete(AwfulThread.CONTENT_URI, null, null);
         contentInterface.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
+		//contentInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(pageNumber)),Integer.toString(AwfulPagedItem.pageToIndex(pageNumber+1))});
+        contentInterface.delete(AwfulThread.CONTENT_URI_UCP, null, null);
         contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
 	}
 
@@ -229,69 +232,20 @@ public class AwfulForum extends AwfulPagedItem implements AwfulDisplayItem {
 	public void setSubforum(ArrayList<AwfulForum> aSubforums) {
 		mSubforums = aSubforums;
 	}
-
-	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent, AwfulPreferences mPrefs, Cursor data) {
-		View tmp = current;
-		if(tmp == null || tmp.getId() != R.layout.forum_item){
-			tmp = inf.inflate(R.layout.forum_item, parent, false);
-		}
-		TextView title = (TextView) tmp.findViewById(R.id.title);
-		TextView sub = (TextView) tmp.findViewById(R.id.subtext);
+	
+	public static void getView(View current, AwfulPreferences mPrefs, Cursor data) {
+		TextView title = (TextView) current.findViewById(R.id.title);
+		TextView sub = (TextView) current.findViewById(R.id.subtext);
 		if(mPrefs != null){
 			title.setTextColor(mPrefs.postFontColor);
 			sub.setTextColor(mPrefs.postFontColor2);
 		}
-		title.setText(Html.fromHtml(mTitle));
-		sub.setText(mSubtext);
-		return tmp;
-	}
-
-	@Override
-	public int getID() {
-		return forumId;
-	}
-
-	@Override
-	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		ArrayList<AwfulDisplayItem> tmp = new ArrayList<AwfulDisplayItem>();
-		if(page <2){
-			tmp.addAll(mSubforums);
-		}
-		if(threads.get(page) != null){
-			tmp.addAll(threads.get(page));
-		}
-		return tmp;
-	}
-
-	public void setThreadPage(int mPage, ArrayList<AwfulThread> threadList) {
-		threads.put(mPage, threadList);
-	}
-
-	@Override
-	public int getChildrenCount(int page) {
-		return (page <2 ? mSubforums.size() : 0)+
-		(threads.get(page) == null? 0 : threads.get(page).size());
-	}
-
-	@Override
-	public AwfulDisplayItem getChild(int page, int ix) {
-		if(ix<mSubforums.size() && page < 2){
-			return mSubforums.get(ix);
-		}
-		if(page < 2){
-			return threads.get(page).get(ix-mSubforums.size());
-		}
-		return threads.get(page).get(ix);
+		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
 	}
 
 	public static String parseTitle(TagNode data) {
 		TagNode[] result = data.getElementsByName("title", true);
 		return result[0].getText().toString();
-	}
-
-	@Override
-	public boolean isPageCached(int page) {
-		return threads.get(page) != null || forumId == 0;
 	}
 }
