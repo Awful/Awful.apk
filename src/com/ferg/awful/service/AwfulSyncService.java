@@ -75,14 +75,14 @@ public class AwfulSyncService extends Service {
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
 
-    private AwfulPreferences mPrefs = new AwfulPreferences(this);
+    private AwfulPreferences mPrefs;
     
 	private AwfulTask currentTask;
 	private Stack<AwfulTask> threadStack = new Stack<AwfulTask>();
 
     @Override
     public IBinder onBind(Intent intent) {
-
+    	mPrefs = new AwfulPreferences(this);
         return mMessenger.getBinder();
     }
 
@@ -94,6 +94,7 @@ public class AwfulSyncService extends Service {
     public class MessageHandler extends Handler { 
         @Override
         public void handleMessage(Message aMsg) {
+            Log.i(TAG, "Got message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2+" ");
             switch (aMsg.what) {
                 case MSG_REGISTER_CLIENT:
                     registerClient(aMsg, aMsg.arg1);
@@ -118,14 +119,17 @@ public class AwfulSyncService extends Service {
     }
 
     private void registerClient(Message aMsg, int clientId) {
+        Log.i(TAG, "Registered:"+clientId);
         mClients.put(clientId, aMsg.replyTo);
     }
 
     private void unregisterClient(int clientId) {
+        Log.i(TAG, "Unregistered:"+clientId);
         mClients.remove(clientId);
     }
 
     public void updateStatus(int aMessageType, int aStatus, int clientId, int arg2) {
+        Log.i(TAG, "Send Message:"+clientId+" "+aStatus+" "+arg2);
         Messenger client = mClients.get(clientId);
         try {
             Message msg = Message.obtain(null, aMessageType, aStatus, arg2);

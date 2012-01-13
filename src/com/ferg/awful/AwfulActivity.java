@@ -1,5 +1,7 @@
 package com.ferg.awful;
 
+import java.util.LinkedList;
+
 import com.ferg.awful.service.AwfulSyncService;
 
 import android.content.ComponentName;
@@ -14,6 +16,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -25,15 +28,17 @@ import android.support.v4.app.FragmentActivity;
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
 public class AwfulActivity extends FragmentActivity implements ServiceConnection {
-    private ActivityConfigurator mConf;
+    private static final String TAG = "AwfulActivity";
+	private ActivityConfigurator mConf;
     private Messenger mService = null;
+    private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        bindService(new Intent(this, AwfulSyncService.class), mServiceConnection, BIND_AUTO_CREATE);
+        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -64,7 +69,7 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
     protected void onDestroy() {
         super.onDestroy();
         mConf.onDestroy();
-        unbindService(mServiceConnection);
+        unbindService(this);
     }
 
     public boolean isTablet() {
@@ -84,40 +89,37 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
     public static boolean useLegacyActionbar() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
     }
-    
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName aName, IBinder aBinder) {
-
-            
-        }
-
-        public void onServiceDisconnected(ComponentName aName) {
-            mService = null;
-        }
-    };
 
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.i(TAG, "Service Connected!");
         mService = new Messenger(service);
+        for(Message msg : mMessageQueue){
+        	try {
+				mService.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+        }
 	}
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
+        Log.i(TAG, "Service Disconnected!");
 		mService = null;
 	}
-	public boolean registerSyncService(Messenger aMessenger, int aClientId){
-		if(mService == null){
-			return false;
-		}
+	public void registerSyncService(Messenger aMessenger, int aClientId){
 		try {
             Message msg = Message.obtain(null, AwfulSyncService.MSG_REGISTER_CLIENT, aClientId,0);
             msg.replyTo = aMessenger;
-            mService.send(msg);
+            if(mService != null){
+    			mService.send(msg);
+    		}else{
+    			mMessageQueue.add(msg);
+    		}
         } catch (RemoteException e) {
             e.printStackTrace();
-            return false;
         }
-		return true;
 	}
 
 	public void unregisterSyncService(Messenger aMessenger, int aClientId){
@@ -134,7 +136,12 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
 	public void sendMessage(int messageType, int id, int arg1){
 		try {
             Message msg = Message.obtain(null, messageType, id, arg1);
-            mService.send(msg);
+    		if(mService != null){
+    			mService.send(msg);
+    		}else{
+    			mMessageQueue.add(msg);
+    		}
+    			
         } catch (RemoteException e) {
             e.printStackTrace();
         }

@@ -78,7 +78,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private AwfulPreferences mPrefs;
     private ImageButton mRefresh;
     
-    private int mPage;
+    private int mPage = 1;
     private int mId = Constants.USERCP_ID;
     
     
@@ -192,17 +192,17 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
 		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
 
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
+        syncThreads();
     }
     
     @Override
     public void onResume() {
         super.onResume();
-        syncThreads();
     }
         
     @Override
@@ -388,7 +388,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			mId = aId;
-            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulThread.INDEX+">=? && "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
+            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {

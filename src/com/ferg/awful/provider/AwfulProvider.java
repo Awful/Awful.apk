@@ -50,7 +50,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     private static final String TABLE_FORUM    = "forum";
     private static final String TABLE_THREADS    = "threads";
@@ -259,6 +259,9 @@ public class AwfulProvider extends ContentProvider {
             case THREAD:
                 table = TABLE_THREADS;
                 break;
+            case UCP_THREAD:
+                table = TABLE_UCP_THREADS;
+                break;
         }
 
 		db.beginTransaction();
@@ -266,7 +269,7 @@ public class AwfulProvider extends ContentProvider {
 		try {
 			for (ContentValues value : aValues) {
 				
-                db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
+                db.insert(table, "", value);
 				result++;
 			}
 
@@ -403,6 +406,8 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", THREAD_ID);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post", POST);
 		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", THREAD);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", THREAD_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);

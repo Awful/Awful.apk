@@ -105,14 +105,9 @@
 
 		<provider android:name="com.ferg.awful.provider.AwfulProvider"
 				  android:authorities="com.ferg.awful.provider" />
-
 		<service 
-            android:label="AwfulService" 
-            android:name="com.ferg.awful.service.AwfulService"
-            />
-		<service 
-            android:label="ThreadSyncService" 
-            android:name=".service.AwfulSyncService"
+            android:label="AwfulSyncService" 
+            android:name="com.ferg.awful.service.AwfulSyncService"
             />
 
         <meta-data 
