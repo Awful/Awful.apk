@@ -283,6 +283,19 @@ public class AwfulService extends Service {
                         newSubforums = AwfulThread.parseSubforums(threads);
                     }
                     result = AwfulThread.parseForumThreads(threads, mPrefs.postPerPage);
+                    if(mForum.getID()<0 && mPrefs.newThreadsFirst){
+	                    ArrayList<AwfulThread> tempNew = new ArrayList<AwfulThread>();
+	                    ArrayList<AwfulThread> tempOld = new ArrayList<AwfulThread>();
+						for(AwfulThread thread : result){
+							if(thread.getUnreadCount()>0){
+								tempNew.add(thread);
+							}else{
+								tempOld.add(thread);
+							}
+						}
+						tempNew.addAll(tempOld);
+						result = tempNew;
+                    }
                     mForum.parsePageNumbers(threads);
                     //Log.i(TAG, "Last Page: " +mForum.getLastPage());
                 } catch (Exception e) {

@@ -57,6 +57,11 @@
             android:summary="@string/user_highlight_summary"
 			android:defaultValue="true"
 			/>
+		<CheckBoxPreference 
+            android:key="new_threads_first" 
+			android:title="@string/new_threads_first"
+			android:defaultValue="false"
+			/>
 			<!-- TODO: Move these to a submenu or something, it's getting crowded. -->
 		<CheckBoxPreference 
             android:key="images_enabled" 
