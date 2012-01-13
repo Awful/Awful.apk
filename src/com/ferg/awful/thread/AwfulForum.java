@@ -136,7 +136,12 @@ public class AwfulForum extends AwfulPagedItem {
 				continue;
 			}
         }
-        contentInterface.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+		for(ContentValues forum : result){
+			long id = forum.getAsLong(ID);
+			if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, id), forum, null, null)<1){
+				contentInterface.insert(CONTENT_URI, forum);
+			}
+		}
 	}
 	
 	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface){
@@ -176,11 +181,18 @@ public class AwfulForum extends AwfulPagedItem {
 		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
 		}
-		contentInterface.delete(AwfulThread.CONTENT_URI, null, null);
-        contentInterface.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
-		//contentInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(pageNumber)),Integer.toString(AwfulPagedItem.pageToIndex(pageNumber+1))});
-        contentInterface.delete(AwfulThread.CONTENT_URI_UCP, null, null);
-        contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
+		for(ContentValues thread : threads){
+			long id = thread.getAsLong(ID);
+			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, id), thread, null, null)<1){
+				contentInterface.insert(AwfulThread.CONTENT_URI, thread);
+			}
+		}
+		for(ContentValues thread : ucp_ids){
+			long id = thread.getAsLong(ID);
+			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, id), thread, null, null)<1){
+				contentInterface.insert(AwfulThread.CONTENT_URI, thread);
+			}
+		}
 	}
 
     private static int getForumId(String aHref) {

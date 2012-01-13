@@ -181,10 +181,6 @@ public class PrivateMessageListFragment extends Fragment implements
     };
 
 	@Override
-	public void dataUpdate(boolean pageChange, Bundle extras) {
-	}
-
-	@Override
     public void loadingFailed() {
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
@@ -225,11 +221,6 @@ public class PrivateMessageListFragment extends Fragment implements
     private boolean isTablet() {
         return ((AwfulActivity) getActivity()).isTablet();
     }
-
-	@Override
-	public void onServiceConnected() {
-		//TODO adapt.fetchPrivateMessages();
-	}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {

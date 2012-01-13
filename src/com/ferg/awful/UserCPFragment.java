@@ -104,11 +104,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_FORUM:
-            		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
+                		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
             			loadingSucceeded();
-            		}else{
+            		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			loadingFailed();
+            		}else if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
+            			loadingStarted();
             		}
                     break;
                 default:
@@ -209,6 +211,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     public void onStop() {
         super.onStop();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
+		getActivity().getSupportLoaderManager().destroyLoader(mId);
+        getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
+        
     }
     
     @Override
@@ -318,14 +323,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             startActivity(viewThread);
         }
     };
-
-    @Override
-    public void dataUpdate(boolean pageChange, Bundle extras) {
-        if(pageChange && this.isAdded() && mBookmarkList!= null && mBookmarkList.getCount() >0){
-            mBookmarkList.setSelection(0);
-        }
-    }
-
+    
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
@@ -358,12 +356,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     }
 
 	@Override
-	public void onServiceConnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(mBookmarkList != null){
 			mBookmarkList.setBackgroundColor(prefs.postBackgroundColor);
@@ -386,8 +378,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 		}
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			Log.i(TAG,"Load Cursor.");
 			mId = aId;
-            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
+            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {

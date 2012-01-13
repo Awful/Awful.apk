@@ -29,7 +29,12 @@ package com.ferg.awful;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,11 +50,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
+import com.ferg.awful.service.AwfulCursorAdapter;
+import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulPagedItem;
+import com.ferg.awful.thread.AwfulThread;
 
 public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
@@ -64,6 +78,30 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private int unreadPMCount;
 
     private AwfulPreferences mPrefs;
+    
+    
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+            switch (aMsg.what) {
+                case AwfulSyncService.MSG_SYNC_INDEX:
+            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
+                		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+            			loadingSucceeded();
+            		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
+            			loadingFailed();
+            		}else if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
+            			loadingStarted();
+            		}
+                    break;
+                default:
+                    super.handleMessage(aMsg);
+            }
+        }
+    };
+    private AwfulCursorAdapter mCursorAdapter;
+    private Messenger mMessenger = new Messenger(mHandler);
+    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -111,11 +149,14 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mPM.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
         }
+        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mForumList.setAdapter(mCursorAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
 
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
         if (loggedIn) {
@@ -123,6 +164,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         } else {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
+		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+        syncForums();
     }
     
     @Override
@@ -137,6 +180,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void onStop() {
         super.onStop();
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }
     
     @Override
@@ -150,7 +195,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         // Odds are we want to refresh whether or not it was successful
         
         //refresh
-    	//TODO adapt.refresh();
+    	syncForums();
     }
 
     private OnItemClickListener onForumSelected = new OnItemClickListener() {
@@ -182,7 +227,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                     startActivity(new Intent(getActivity(), PrivateMessageActivity.class));
                     break;
                 case R.id.refresh:
-                	//TODO adapt.refresh();
+                	syncForums();
                     break;
             }
         }
@@ -236,27 +281,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
                 new LogOutDialog(getActivity()).show();
                 break;
             case R.id.refresh:
-            	//TODO adapt.refresh();
+            	syncForums();
                 break;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void dataUpdate(boolean pageChange, Bundle extras) {
-        //we might be receiving a bundle with unread pm count
-    	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
-    		unreadPMCount = extras.getInt("unread_pm");
-    		if(!AwfulActivity.useLegacyActionbar()){
-    			getActivity().invalidateOptionsMenu();
-    		}else{
-    			if(mPMcount != null){
-    				mPMcount.setText(Integer.toString(unreadPMCount));
-    				mPMcount.setVisibility(View.VISIBLE);
-    			}
-    		}
-    	}
     }
 
     @Override
@@ -293,11 +322,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
-	@Override
-	public void onServiceConnected() {
-		// TODO Auto-generated method stub
-		
-	}
+    
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		if(mForumList != null){
@@ -307,4 +332,30 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	        }
 		}
 	}
+	
+	private void syncForums() {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+    }
+	
+	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+
+		@Override
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			Log.i(TAG,"Load Cursor.");
+            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(Constants.FORUM_INDEX_ID)}, AwfulForum.INDEX);
+        }
+
+		@Override
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Thread title finished, populating.");
+        	if(aData.moveToFirst()){
+        		mCursorAdapter.swapCursor(aData);
+        	}
+        }
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> arg0) {
+			mCursorAdapter.swapCursor(null);
+		}
+    }
 }

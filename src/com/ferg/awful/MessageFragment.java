@@ -220,28 +220,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			mDialog = null;
 		}
 	}
-
-	@Override
-	public void dataUpdate(boolean pageChange, Bundle extras) {
-		if(extras != null && extras.getBoolean(Constants.PARAM_MESSAGE)){
-			if(mDialog!= null){
-				mDialog.dismiss();
-				mDialog = null;
-			}
-			if (getActivity() != null){
-				Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-
-                if (getActivity() instanceof ThreadDisplayActivity) {
-                    dismiss();
-                } else if (getActivity() instanceof MessageDisplayActivity){
-                    getActivity().finish();
-                }
-			}
-			
-		}
-		//TODO message = mServConn.getMessage(pmId);
-		updateUI();
-	}
 	
 	private void newMessage(){
 		pmId = 0;
@@ -325,13 +303,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	public void sendPM(){
 		//TODO mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
-	}
-
-	@Override
-	public void onServiceConnected() {
-		if(pmId >0){
-			//TODO mServConn.fetchPrivateMessage(pmId);
-    	}
 	}
 
     private boolean isTablet() {

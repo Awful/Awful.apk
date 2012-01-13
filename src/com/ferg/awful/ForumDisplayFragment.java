@@ -358,28 +358,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     
-  //TODO eliminate this function
-    @Override
-    public void dataUpdate(boolean pageChange, Bundle extras) {
-        if(!this.isResumed()){
-            return;
-        }
-
-        if (AwfulActivity.useLegacyActionbar()) {
-        	//TODO if(adapt.getTitle() != null) {
-            	//TODO mTitle.setText(Html.fromHtml(adapt.getTitle()));
-        	//TODO }
-        }else{
-        	//TODO if(getActivity() != null && adapt.getTitle() != null) {
-        	//TODO     getActivity().getActionBar().setTitle(Html.fromHtml(adapt.getTitle()));
-        	//TODO }
-        }
-
-        if(pageChange && getListView().getChildCount() >0){//this will only reset the position if the user selects next/prev page
-            getListView().setSelection(0);
-        }
-    }
-
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
@@ -417,12 +395,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             }
         }
     }
-
-	@Override
-	public void onServiceConnected() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

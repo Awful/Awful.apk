@@ -52,13 +52,13 @@ public class AwfulProvider extends ContentProvider {
     private static final String DATABASE_NAME = "awful.db";
     private static final int DATABASE_VERSION = 11;
 
-    private static final String TABLE_FORUM    = "forum";
-    private static final String TABLE_THREADS    = "threads";
-    private static final String TABLE_UCP_THREADS    = "ucp_thread";
-    private static final String TABLE_POSTS    = "posts";
-    private static final String TABLE_EMOTES    = "emotes";
-    private static final String TABLE_CATEGORY    = "threadtags";
-    private static final String TABLE_PM    = "private_messages";
+    public static final String TABLE_FORUM    = "forum";
+    public static final String TABLE_THREADS    = "threads";
+    public static final String TABLE_UCP_THREADS    = "ucp_thread";
+    public static final String TABLE_POSTS    = "posts";
+    public static final String TABLE_EMOTES    = "emotes";
+    public static final String TABLE_CATEGORY    = "threadtags";
+    public static final String TABLE_PM    = "private_messages";
 
     private static final int FORUM     = 0;
     private static final int FORUM_ID  = 1;
@@ -90,6 +90,15 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.STICKY,
 		AwfulThread.CATEGORY,
 		AwfulThread.LASTPOSTER };
+
+	public static final String[] ForumProjection = new String[]{
+		AwfulForum.ID,
+		AwfulForum.PARENT_ID,
+		AwfulForum.INDEX,
+		AwfulForum.TITLE,
+		AwfulForum.SUBTEXT,
+		AwfulForum.PAGE_COUNT
+	};
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
@@ -367,7 +376,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+" NATURAL LEFT JOIN "+TABLE_THREADS);//+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID
+				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
         }
@@ -425,6 +434,7 @@ public class AwfulProvider extends ContentProvider {
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
+		sForumProjectionMap.put(AwfulForum.INDEX, AwfulForum.INDEX);
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 		sForumProjectionMap.put(AwfulForum.PAGE_COUNT, AwfulForum.PAGE_COUNT);

@@ -108,8 +108,9 @@ public class Constants {
     public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
     
     //asynctasks are managed by ID number, but PM page has no id
-	public static final int PRIVATE_MESSAGE_THREAD = -30;
-	public static final int USERCP_ID = 0;
+	public static final int PRIVATE_MESSAGE_THREAD = 3;//can't use negative numbers anymore, but #3 does not exist on the forums anymore.
+	public static final int USERCP_ID = 2;//can't use negative numbers anymore, but #2 does not exist on the forums anymore.
+	public static final int FORUM_INDEX_ID = 0;
 
 	public static final String ACTION_DOSEND = "dosend";
 	public static final String DESTINATION_TOUSER = "touser";
@@ -121,6 +122,7 @@ public class Constants {
 	public static final String PARAM_PARSEURL = "parseurl";
 
 	public static final String YES = "yes";//heh
+
 
 
 

@@ -33,10 +33,8 @@ import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.*;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -48,13 +46,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.json.*;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.provider.AwfulProvider;
@@ -88,14 +84,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ViewGroup mThreadWindow;
 
     private SnapshotWebView mThreadView;
-
-    private boolean queueDataUpdate;
-    private Bundle queueDataExtras;
+    
     private boolean imagesLoadingState;
 
     private int mPage = 1;
     private int mThreadId = 0;
     private int mLastPage = 0;
+    private boolean threadClosed = false;
+    private boolean threadBookmarked = false;
     
 	private String mPostJump = "";
 
@@ -119,6 +115,11 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
+                	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+                    break;
+                case AwfulSyncService.MSG_SET_BOOKMARK:
+                    handleStatusUpdate(aMsg.arg1);
+                	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -127,7 +128,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     };
 
     private Messenger mMessenger = new Messenger(mHandler);
-    private PostContentObserver mObserver = new PostContentObserver(mHandler);
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
     
@@ -297,13 +297,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         super.onStart();
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
 
-        // TODO: setActionbarTitle(mAdapter.getTitle());
-
         getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
         getLoaderManager().initLoader(getThreadId(), null, mThreadLoaderCallback);
 
-        getActivity().getContentResolver().registerContentObserver(
-                AwfulPost.CONTENT_URI, true, mObserver);
         getActivity().getContentResolver().registerContentObserver(
                 AwfulThread.CONTENT_URI, true, mThreadObserver);
         
@@ -341,7 +337,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mThreadView.stopLoading();
         cleanupTasks();
 
-        getActivity().getContentResolver().unregisterContentObserver(mObserver);
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
     }
@@ -349,7 +344,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onDetach() {
         super.onDetach();
-        // TODO: savedPage = mAdapter.getPage(); // saves page for orientation change.
     }
     
     @Override
@@ -404,12 +398,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         	}
         }
 
-        if (queueDataUpdate){
-            delayedDataUpdate(queueDataExtras);
-            queueDataUpdate = false;
-            queueDataExtras = null;
-        }
-
     }
     
     @Override
@@ -426,15 +414,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
 
         MenuItem bk = menu.findItem(R.id.bookmark);
-
-        /* TODO: 
-        if(bk != null){
-            AwfulThread th = (AwfulThread) mAdapter.getState();
-            if(th != null){
-                bk.setTitle((th.isBookmarked()? getString(R.string.unbookmark):getString(R.string.bookmark)));
-            }
-        }
-        */
+        bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
     }
     
     @Override
@@ -462,7 +442,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
                 break;
             case R.id.bookmark:
-                // TODO: mAdapter.toggleBookmark();
+            	toggleThreadBookmark();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -475,8 +455,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onSaveInstanceState(Bundle aOutState) {
         super.onSaveInstanceState(aOutState);
     }
+    
     private void syncThread() {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
+    }
+    
+    private void markLastRead() {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
+    }
+
+    private void toggleThreadBookmark() {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
     }
 
     private void displayUserCP() {
@@ -536,7 +525,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 mPostQuoteTask.execute(aPostId);
                 return true;
             case ClickInterface.LAST_READ:
-                // TODO: mAdapter.markLastRead(aLastReadUrl);
+                // TODO: mAdapter.markLastRead(aLastReadUrl);//TODO this needs to change to post index
                 return true;
         }
 
@@ -554,7 +543,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     public void refresh() {
-        // TODO: mAdapter.refresh();
+        syncThread();
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
@@ -590,7 +579,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void displayPostReplyDialog() {
         Bundle args = new Bundle();
-        // TODO: args.putString(Constants.THREAD, mAdapter.getState().getID() + "");
+        args.putString(Constants.THREAD, getId() + "");
 
         displayPostReplyDialog(args);
     }
@@ -640,7 +629,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
                 Bundle args = new Bundle();
 
-                // TODO: args.putString(Constants.THREAD, mAdapter.getState().getID() + "");
+                args.putString(Constants.THREAD, getId() + "");
                 args.putString(Constants.QUOTE, aResult);
                 args.putBoolean(Constants.EDITING, true);
                 args.putString(Constants.POST_ID, mPostId);
@@ -676,44 +665,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 }
 
                 Bundle args = new Bundle();
-                // TODO: args.putString(Constants.THREAD, Integer.toString(mAdapter.getState().getID()));
+                args.putString(Constants.THREAD, Integer.toString(getId()));
                 args.putString(Constants.QUOTE, aResult);
 
                 displayPostReplyDialog(args);
             }
         }
-    }
-
-    @Override
-    public void dataUpdate(boolean pageChange, Bundle extras) {
-        if (!this.isResumed()) {
-            queueDataUpdate = true;
-            queueDataExtras = extras;
-        } else {
-            queueDataUpdate = false;
-            queueDataExtras = null;
-            delayedDataUpdate(extras);
-        }
-    }
-
-    public void delayedDataUpdate(Bundle extras) {
-        // TODO: setActionbarTitle(mAdapter.getTitle());
-
-        /* TODO: 
-        if (AwfulActivity.useLegacyActionbar()) {
-            if (mAdapter.getPage() == mAdapter.getLastPage()) {
-                mNext.setVisibility(View.GONE);
-            } else {
-                mNext.setVisibility(View.VISIBLE);
-            }
-
-            if(mAdapter.getThreadClosed()){
-                mReply.setVisibility(View.GONE);
-            } else {
-                mReply.setVisibility(View.VISIBLE);
-            }
-        }
-        */
     }
 
     private void handleStatusUpdate(int aStatus) {
@@ -893,12 +850,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
 	@Override
-	public void onServiceConnected() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		// don't need this, threadview is automatically refreshed on resume.
 		//actually, it's not anymore, but it doesn't matter much
@@ -917,6 +868,19 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	
 	public void updatePageBar(){
 		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+        if (AwfulActivity.useLegacyActionbar()) {
+            if (getPage() == getLastPage()) {
+                mNext.setVisibility(View.GONE);
+            } else {
+                mNext.setVisibility(View.VISIBLE);
+            }
+
+            if(threadClosed){
+                mReply.setVisibility(View.GONE);
+            } else {
+                mReply.setVisibility(View.VISIBLE);
+            }
+        }
 	}
 	
 	public int getPage() {
@@ -961,18 +925,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onLoaderReset(Loader<Cursor> aLoader) {
         }
     }
-
-    private class PostContentObserver extends ContentObserver {
-        public PostContentObserver(Handler aHandler) {
-            super(aHandler);
-        }
-        @Override
-        public void onChange (boolean selfChange){
-        	Log.e(TAG,"Post Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
-        }
-    }
-    
     //I'll probably break this out into a separate object.
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -986,6 +938,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         	if(aData.moveToFirst() && aData.getColumnIndex(AwfulThread.TITLE) >= 0 && aData.getColumnIndex(AwfulThread.POSTCOUNT) >= 0){
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
+        		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		updatePageBar();
         		aData.close();
         	}

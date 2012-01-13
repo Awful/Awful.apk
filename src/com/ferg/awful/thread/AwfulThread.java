@@ -580,6 +580,8 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread.setText(unreadCount+"");
             if (unreadCount == 0){
                 unread.setBackgroundResource(R.drawable.unread_background_dim);
+            }else{
+                unread.setBackgroundResource(R.drawable.unread_background);
             }
 		}else{
 			unread.setVisibility(View.GONE);
