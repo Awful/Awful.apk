@@ -229,34 +229,29 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
         MenuInflater inflater = getActivity().getMenuInflater();
-      //TODO AwfulDisplayItem selected = (AwfulDisplayItem) adapt.getItem(((AdapterContextMenuInfo) aMenuInfo).position);
         
         inflater.inflate(R.menu.thread_longpress, aMenu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem aItem) {
-        //AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
-      //TODO AwfulThread thread = (AwfulThread) adapt.getItem(info.position);
-    	//TODO if(thread == null || thread.getType() != DISPLAY_TYPE.THREAD){
-    	//TODO 	return false;
-    	//TODO }
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	//TODO Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, 1);
-            	//TODO startActivity(viewThread);
+            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, (int)info.id).putExtra(Constants.PAGE, 1);
+            	startActivity(viewThread);
                 return true;
             case R.id.last_page:
-            	//TODO Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, thread.getID()).putExtra(Constants.PAGE, thread.getLastPage());
-            	//TODO startActivity(viewThread2);
+            	Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
+            									 .putExtra(Constants.THREAD, (int)info.id)
+            									 .putExtra(Constants.PAGE, AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage));
+            	startActivity(viewThread2);
                 return true;
             case R.id.thread_bookmark:
-            	//TODO adapt.toggleBookmark(thread.getID());
-            	//TODO adapt.refresh();//TODO this should trigger off the return from the bookmark event
+            	toggleThreadBookmark((int)info.id,(mCursorAdapter.getInt(info.position, AwfulThread.BOOKMARKED)+1)%2);
                 return true;
             case R.id.mark_thread_unread:
-            	//TODO adapt.markThreadUnread(thread.getID());
-            	//TODO adapt.refresh();
+            	markUnread((int)info.id);
                 return true;
         }
 
@@ -372,6 +367,18 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     private void syncThreads() {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM,mId,mPage);
+    }
+	
+	private void markUnread(int id) {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
+    }
+	
+	/** Set Bookmark status.
+	 * @param id Thread ID
+	 * @param addRemove 1 to add bookmark, 0 to remove.
+	 */
+    private void toggleThreadBookmark(int id, int addRemove) {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
     }
 	
 	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
