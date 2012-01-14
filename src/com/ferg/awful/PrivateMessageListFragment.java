@@ -288,11 +288,11 @@ public class PrivateMessageListFragment extends Fragment implements
             						AwfulProvider.PMProjection, 
             						null, 
             						null,
-            						AwfulMessage.ID);
+            						AwfulMessage.ID+" DESC");
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"PM load finished, populating.");
+        	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	mCursorAdapter.swapCursor(aData);
         }
         

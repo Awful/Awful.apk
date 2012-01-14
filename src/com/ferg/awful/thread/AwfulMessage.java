@@ -42,6 +42,16 @@ public class AwfulMessage extends AwfulPagedItem {
     public static final String DATE 	="message_date";
 	public static final String TYPE = "message_type";
 	public static final String UNREAD = "unread_message";
+	public static final String RECIPIENT = "recipient";
+	public static final String REPLY_CONTENT = "reply_content";
+	public static final String REPLY_TITLE = "reply_title";
+
+	public static final int TYPE_PM = 1;
+	public static final int TYPE_POST = 2;
+	public static final int TYPE_THREAD = 3;//I don't think we'll ever support creating threads though.
+
+
+
 	
 	private String mTitle;
 	private String mAuthor;
@@ -64,13 +74,20 @@ public class AwfulMessage extends AwfulPagedItem {
 	 */
 	public static View getView(View current, AwfulPreferences aPref, Cursor data) {
 		TextView title = (TextView) current.findViewById(R.id.title);
-		title.setText(data.getString(data.getColumnIndex(TITLE)));
+		String t = data.getString(data.getColumnIndex(TITLE));
+		if(t != null){
+			title.setText(t);
+		}
 		TextView author = (TextView) current.findViewById(R.id.subtext);
-		author.setText(data.getString(data.getColumnIndex(AUTHOR)) +" - "+data.getString(data.getColumnIndex(DATE)));
+		String auth = data.getString(data.getColumnIndex(AUTHOR));
+		String date = data.getString(data.getColumnIndex(AUTHOR));
+		if(auth != null && date != null){
+			author.setText(auth +" - "+date);
+		}
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
 
-		if (data.getInt(data.getColumnIndex(TITLE))>0) {
+		if (data.getInt(data.getColumnIndex(UNREAD))>0) {
 			unreadPM.setVisibility(View.VISIBLE);
 		}else{
 			unreadPM.setVisibility(View.GONE);
@@ -127,6 +144,7 @@ public class AwfulMessage extends AwfulPagedItem {
 					pm.put(TITLE, href.getText().toString());
 					pm.put(AUTHOR, row[3].getText().toString());
 					pm.put(DATE, row[4].getText().toString());
+					pm.put(CONTENT, " ");
 					if(row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif")){
 						pm.put(UNREAD, 1);
 					}else{
@@ -141,102 +159,54 @@ public class AwfulMessage extends AwfulPagedItem {
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
-	public static AwfulMessage processMessage(TagNode data, AwfulMessage msg){
+	public static ContentValues processMessage(TagNode data, int id) throws Exception{
+		ContentValues message = new ContentValues();
+		message.put(ID, id);
 		TagNode[] auth = data.getElementsByAttValue("class", "author", true, true);
 		if(auth.length > 0){
-			msg.mAuthor = auth[0].getText().toString();
+			message.put(AUTHOR, auth[0].getText().toString());
 		}else{
-			Log.e(TAG, "Failed parse: author.");
-			return null;//we'll use this to show that the load failed. i am lazy.
+			throw new Exception("Failed parse: author.");
 		}
 		TagNode[] content = data.getElementsByAttValue("class", "postbody", true, true);
 		if(content.length > 0){
-			msg.mContent = NetworkUtils.getAsString(content[0]);
+			message.put(CONTENT, NetworkUtils.getAsString(content[0]));
 		}else{
-			Log.e(TAG, "Failed parse: content.");
-			return null;//i should probably put an exception throw here.
+			throw new Exception("Failed parse: content.");
 		}
 		TagNode[] date = data.getElementsByAttValue("class", "postdate", true, true);
 		if(date.length > 0){
-			msg.mDate = date[0].getText().toString().replaceAll("\"", "").trim();
+			message.put(DATE, date[0].getText().toString().replaceAll("\"", "").trim());
 		}else{
-			Log.e(TAG, "Failed parse: date.");
-			return null;
+			throw new Exception("Failed parse: date.");
 		}
-		return msg;
+		return message;
 	}
 
-	public static void processReplyMessage(TagNode pmReplyData, AwfulMessage pm) {
+	public static ContentValues processReplyMessage(TagNode pmReplyData, int id, String recipient) {
+		ContentValues reply = new ContentValues();
+		reply.put(ID, id);
+		reply.put(TYPE, TYPE_PM);
+		reply.put(RECIPIENT, recipient);
 		TagNode[] message = pmReplyData.getElementsByAttValue("name", "message", true, false);
 		if(message.length >0){
 			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
-			pm.setReplyText(quoteText);
+			reply.put(REPLY_CONTENT, quoteText);
 		}
 		TagNode[] title = pmReplyData.getElementsByAttValue("name", "title", true, false);
 		if(title.length >0){
 			String quoteTitle = StringEscapeUtils.unescapeHtml4(title[0].getAttributeByName("value"));
-			pm.setReplyTitle(quoteTitle);
+			reply.put(TITLE, quoteTitle);
 		}
-	}
-
-	private void setReplyTitle(String quoteTitle) {
-		mReplyTitle = quoteTitle;
+		return reply;
 	}
 	
-	public String getReplyTitle() {
-		return mReplyTitle;
-	}
-
-
-	private synchronized void setReplyText(String string) {
-		mReplyText = string;
-	}
-	
-	public synchronized String getReplyText(){
-		return mReplyText;
-	}
-	
-	public String getTitle() {
-		return mTitle;
-	}
-
-	public void setTitle(String mTitle) {
-		this.mTitle = mTitle;
-	}
-
-	public String getAuthor() {
-		return mAuthor;
-	}
-
-	public void setAuthor(String mAuthor) {
-		this.mAuthor = mAuthor;
-	}
-
-	public String getContent() {
-		return mContent;
-	}
-
-	public void setContent(String mContent) {
-		this.mContent = mContent;
-	}
-
-	public String getDate() {
-		return mDate;
-	}
-
-	public void setDate(String mDate) {
-		this.mDate = mDate;
-	}
-	
-	public void setLoaded(boolean loaded){
-		mLoaded = loaded;
-	}
-	
-	public String getMessageHtml(AwfulPreferences pref){
-		if(mContent!=null){
-			StringBuffer buff = new StringBuffer(mContent.length());
+	public static String getMessageHtml(String content, AwfulPreferences pref){
+		//String content = data.getString(data.getColumnIndex(CONTENT));
+		if(content!=null){
+			StringBuffer buff = new StringBuffer(content.length());
 			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSize + ";'>");
-			buff.append(mContent.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
+			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
 			buff.append("</div>");
 			return buff.toString();
 		}

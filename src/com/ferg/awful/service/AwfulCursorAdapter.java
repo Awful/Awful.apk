@@ -43,8 +43,8 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, data);
-		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
-			row = inf.inflate(R.layout.thread_item, parent, false);
+		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
+			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data);
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);

@@ -28,6 +28,7 @@
 package com.ferg.awful.service;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
@@ -47,10 +48,17 @@ import org.htmlcleaner.TagNode;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.task.AwfulTask;
 import com.ferg.awful.task.BookmarkTask;
+import com.ferg.awful.task.FetchPrivateMessageTask;
 import com.ferg.awful.task.IndexTask;
+import com.ferg.awful.task.MarkLastReadTask;
+import com.ferg.awful.task.MarkUnreadTask;
+import com.ferg.awful.task.PrivateMessageIndexTask;
+import com.ferg.awful.task.SendPrivateMessageTask;
 import com.ferg.awful.task.ThreadTask;
+import com.ferg.awful.task.VotingTask;
 import com.ferg.awful.thread.*;
 
 public class AwfulSyncService extends Service {
@@ -114,6 +122,24 @@ public class AwfulSyncService extends Service {
                 case MSG_SET_BOOKMARK:
                 	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
                     break;
+                case MSG_FETCH_PM_INDEX:
+                	queueUniqueThread(new PrivateMessageIndexTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_FETCH_PM:
+                	queueUniqueThread(new FetchPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
+                    break;
+                case MSG_MARK_LASTREAD:
+                	queueUniqueThread(new MarkLastReadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_MARK_UNREAD:
+                	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_VOTE:
+                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_SEND_PM:
+                	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
             }
         }
     }
@@ -172,6 +198,13 @@ public class AwfulSyncService extends Service {
         public static final int WORKING       = 0;
         public static final int OKAY          = 1;
         public static final int ERROR = 2;
+    }
+    
+    public void trimDB(){
+    	ContentResolver dbInterface = getContentResolver();
+    	dbInterface.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
+    	dbInterface.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
+    	dbInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
     }
 
     //////THREAD QUEUING STUFF//////

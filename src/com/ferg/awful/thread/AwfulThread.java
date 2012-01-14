@@ -289,17 +289,6 @@ public class AwfulThread extends AwfulPagedItem  {
     		}
     	}
     	thread.put(FORUM_ID, forumId);
-        /* TODO: 
-        int oldLastPage = getLastPage();
-        int oldTotalCount = getTotalCount();
-
-        parsePageNumbers(response);
-
-        if (oldLastPage < getLastPage()) {
-			setTotalCount((getLastPage() - 1) * postPerPage, postPerPage);
-			setUnreadCount(getUnreadCount() + (getTotalCount() - oldTotalCount));
-		}
-        */
     	int lastPage = AwfulPagedItem.parseLastPage(response);
     	int replycount = AwfulPagedItem.pageToIndex(lastPage, aPrefs.postPerPage, 0);
     	Log.v(TAG, "Parsed lastPage:"+lastPage+" total:"+replycount);

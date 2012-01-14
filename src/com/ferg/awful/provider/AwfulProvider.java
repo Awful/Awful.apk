@@ -51,7 +51,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -83,6 +83,8 @@ public class AwfulProvider extends ContentProvider {
 	private static HashMap<String, String> sPostProjectionMap;
 	private static HashMap<String, String> sUCPThreadProjectionMap;
 	private static HashMap<String, String> sPMProjectionMap;
+	private static HashMap<String, String> sDraftProjectionMap;
+	private static HashMap<String, String> sPMReplyProjectionMap;
 	
 	public static final String[] ThreadProjection = new String[]{AwfulThread.ID,
 		AwfulThread.FORUM_ID,
@@ -114,6 +116,26 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.CONTENT,
 		AwfulMessage.UNREAD,
 		AwfulMessage.DATE
+	};
+	public static final String[] DraftProjection = new String[]{
+		AwfulMessage.ID,
+		AwfulMessage.TYPE,
+		AwfulMessage.RECIPIENT,
+		AwfulMessage.TITLE,
+		AwfulMessage.REPLY_CONTENT
+	};
+
+	public static final String[] PMReplyProjection = new String[]{
+		AwfulMessage.ID,
+		AwfulMessage.AUTHOR,
+		AwfulMessage.TITLE,
+		AwfulMessage.CONTENT,
+		AwfulMessage.UNREAD,
+		AwfulMessage.DATE,
+		AwfulMessage.TYPE,
+		AwfulMessage.RECIPIENT,
+		AwfulMessage.REPLY_TITLE,
+		AwfulMessage.REPLY_CONTENT
 	};
 	
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -196,8 +218,9 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
                 AwfulMessage.TYPE      	 + " INTEGER,"  + 
                 AwfulMessage.TITLE      + " VARCHAR,"   + 
-                AwfulMessage.AUTHOR      + " VARCHAR,"   + 
-                AwfulMessage.CONTENT      + " VARCHAR);");
+                AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
+                AwfulMessage.REPLY_CONTENT      + " VARCHAR);");
+            
 
         }
         
@@ -265,6 +288,9 @@ public class AwfulProvider extends ContentProvider {
 			case PM:
 				table = TABLE_PM;
 				break;
+			case DRAFT:
+				table = TABLE_DRAFTS;
+				break;
             default:
                 break;
         }
@@ -310,6 +336,12 @@ public class AwfulProvider extends ContentProvider {
 			case PM:
 				table = TABLE_PM;
 				break;
+			case DRAFT_ID:
+                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
+                aWhere = AwfulMessage.ID + "=?";
+			case DRAFT:
+				table = TABLE_DRAFTS;
+				break;
         }
 
         int result = db.update(table, aValues, aWhere, aWhereArgs);
@@ -347,6 +379,10 @@ public class AwfulProvider extends ContentProvider {
                 break;
 			case PM:
 				table = TABLE_PM;
+                id_row = AwfulMessage.ID;
+				break;
+			case DRAFT:
+				table = TABLE_DRAFTS;
                 id_row = AwfulMessage.ID;
 				break;
         }
@@ -406,6 +442,9 @@ public class AwfulProvider extends ContentProvider {
 			case PM:
 				table = TABLE_PM;
 				break;
+			case DRAFT:
+				table = TABLE_DRAFTS;
+				break;
         }
 
         long rowId = db.insert(table, "", aValues); 
@@ -461,10 +500,10 @@ public class AwfulProvider extends ContentProvider {
 				break;
 			case PM_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulMessage.ID + "=?");
+                builder.appendWhere(TABLE_PM+"."+AwfulMessage.ID + "=?");
 			case PM:
-				builder.setTables(TABLE_PM);
-				builder.setProjectionMap(sPMProjectionMap);
+				builder.setTables(TABLE_PM+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_PM+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setProjectionMap(sPMReplyProjectionMap);
 				break;
         }
 
@@ -527,6 +566,8 @@ public class AwfulProvider extends ContentProvider {
         sThreadProjectionMap = new HashMap<String, String>();
         sUCPThreadProjectionMap = new HashMap<String, String>();
         sPMProjectionMap = new HashMap<String, String>();
+        sDraftProjectionMap = new HashMap<String, String>();
+        sPMReplyProjectionMap = new HashMap<String, String>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
@@ -601,5 +642,22 @@ public class AwfulProvider extends ContentProvider {
 		sPMProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
 		sPMProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
 		sPMProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
+		
+		sDraftProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
+		sDraftProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
+		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
+		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
+		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+		
+		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);
+		sPMReplyProjectionMap.put(AwfulMessage.TITLE, TABLE_PM+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.TITLE);
+		sPMReplyProjectionMap.put(AwfulMessage.CONTENT, AwfulMessage.CONTENT);
+		sPMReplyProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
+		sPMReplyProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
+		sPMReplyProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
+		sPMReplyProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
+		sPMReplyProjectionMap.put(AwfulMessage.REPLY_TITLE, TABLE_DRAFTS+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.REPLY_TITLE);
+		sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
+		sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
     }
 }
