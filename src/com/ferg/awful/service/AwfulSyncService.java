@@ -129,7 +129,7 @@ public class AwfulSyncService extends Service {
     }
 
     public void updateStatus(int aMessageType, int aStatus, int clientId, int arg2) {
-        Log.i(TAG, "Send Message:"+clientId+" "+aStatus+" "+arg2);
+        Log.i(TAG, "Send Message - id: "+clientId+" type: "+aMessageType+" status: "+aStatus+" arg2: "+arg2);
         Messenger client = mClients.get(clientId);
         //if the client unregisters before we send, this will be null
         if(client != null){

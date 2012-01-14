@@ -15,9 +15,11 @@ import android.view.ViewGroup;
 
 public class AwfulCursorAdapter extends CursorAdapter {
 	private AwfulPreferences mPrefs;
+	LayoutInflater inf;
 	public AwfulCursorAdapter(Context context, Cursor c) {
 		super(context, c, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 		mPrefs = new AwfulPreferences(context);
+		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
@@ -31,7 +33,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
-		LayoutInflater inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);

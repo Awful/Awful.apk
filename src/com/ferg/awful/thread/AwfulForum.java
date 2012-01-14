@@ -128,6 +128,7 @@ public class AwfulForum extends AwfulPagedItem {
 	                    subforum.put(TITLE,subNode.getText().toString());
 	                    subforum.put(ID,getForumId(id));
 	                    subforum.put(PARENT_ID, forumId);
+	                    //subforum.put(SUBTEXT,"");
 	                    result.add(subforum);
 	                }
 	            }

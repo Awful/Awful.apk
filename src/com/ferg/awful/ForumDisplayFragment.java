@@ -100,6 +100,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
+        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
@@ -488,6 +489,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+        	Log.v(TAG,"Creating forum cursor: "+aId);
             return new CursorLoader(getActivity(), 
             						AwfulThread.CONTENT_URI, 
             						AwfulProvider.ThreadProjection, 
@@ -498,10 +500,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Forum contents finished, populating.");
-        	if(aData.moveToFirst()){
-        		mCursorAdapter.swapCursor(aData);
-        	}
+        	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
+    		mCursorAdapter.swapCursor(aData);
         }
 
 		@Override
@@ -522,7 +522,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Forum title finished, populating.");
+        	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(aData.moveToFirst()){
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulForum.TITLE)));
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));

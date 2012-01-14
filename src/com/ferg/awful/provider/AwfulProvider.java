@@ -38,6 +38,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -277,6 +278,7 @@ public class AwfulProvider extends ContentProvider {
 	public int bulkInsert(Uri aUri, ContentValues[] aValues) {
         String table = null;
 		int result = 0;
+		String id_row = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -284,17 +286,22 @@ public class AwfulProvider extends ContentProvider {
         switch(match) {
             case FORUM:
                 table = TABLE_FORUM;
+                id_row = AwfulForum.ID;
                 break;
             case POST:
                 table = TABLE_POSTS;
+                id_row = AwfulPost.ID;
                 break;
             case THREAD:
                 table = TABLE_THREADS;
+                id_row = AwfulThread.ID;
                 break;
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
+                id_row = AwfulThread.ID;
                 break;
         }
+        assert(id_row != null && table != null);//TODO remove this once DB structure is settled.
 
 		db.beginTransaction();
 
@@ -304,20 +311,11 @@ public class AwfulProvider extends ContentProvider {
 				if(Build.VERSION.SDK_INT>7){
 					db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
 				}else{
-					StringBuilder column = new StringBuilder();
-					StringBuilder valQuestions = new StringBuilder();
-					Set<Entry<String, Object>> valSet = value.valueSet();
-					String[] values = new String[valSet.size()];
-					int ix=0;
-					for(Entry<String, Object> entry : valSet){
-						values[ix] = entry.getValue().toString();
-						column.append(entry.getKey()+", ");
-						valQuestions.append("?,");
-					}
-					if(valSet.size() >0){
-						String query = "INSERT OR REPLACE INTO "+table+" ("+column.substring(0, column.length()-2)+") VALUES ("+valQuestions.substring(0, valQuestions.length()-1)+")";
-						Log.i(TAG,query);
-						db.rawQuery(query, values);
+					try{
+						db.insertOrThrow(table, "", value);
+					}catch(SQLException sqle){
+						db.delete(table, table+"."+id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
+						db.insert(table, "", value);
 					}
 				}
 				result++;
