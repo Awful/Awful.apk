@@ -137,7 +137,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params);
 	}
 
-	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int start_index, int forumId) {
+	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int start_index, int forumId) throws Exception{
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
         if(threads.length >1 || threads.length < 1){
@@ -627,22 +627,4 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 	}
 	
-	public int getLastReadPage(int postPerPage) {
-		if(getUnreadCount()==-1){
-			return 1;
-		}
-		if(mUnreadCount <= 0){
-			return (mTotalPosts-mUnreadCount)/postPerPage+1;
-		}
-		return (mTotalPosts-mUnreadCount+1)/postPerPage+1;
-	}
-	public int getLastReadPost(int postPerPage) {
-		if(getUnreadCount()==-1){
-			return 0;
-		}
-		if(getUnreadCount()<=0){
-			return postPerPage;
-		}
-		return (mTotalPosts-mUnreadCount+1)%postPerPage;
-	}
 }

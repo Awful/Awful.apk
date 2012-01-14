@@ -29,7 +29,6 @@ package com.ferg.awful;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,8 +61,6 @@ import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulCursorAdapter;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
-import com.ferg.awful.thread.AwfulPagedItem;
-import com.ferg.awful.thread.AwfulThread;
 
 public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";

@@ -314,7 +314,11 @@ public class AwfulProvider extends ContentProvider {
 						column.append(entry.getKey()+", ");
 						valQuestions.append("?,");
 					}
-					db.rawQuery("INSERT OR REPLACE INTO "+table+" ("+column.substring(0, column.length()-2)+")", values);
+					if(valSet.size() >0){
+						String query = "INSERT OR REPLACE INTO "+table+" ("+column.substring(0, column.length()-2)+") VALUES ("+valQuestions.substring(0, valQuestions.length()-1)+")";
+						Log.i(TAG,query);
+						db.rawQuery(query, values);
+					}
 				}
 				result++;
 			}
@@ -437,6 +441,23 @@ public class AwfulProvider extends ContentProvider {
         }
 
         return aWhere + " AND " + aAppend;
+    }
+    
+    //the leaning pyramid of boilerplate
+    public static String[] int2StrArray(int arg1){
+    	return new String[]{Integer.toString(arg1)};
+    }
+    
+    public static String[] int2StrArray(int arg1, int arg2){
+    	return new String[]{Integer.toString(arg1), Integer.toString(arg2)};
+    }
+    
+    public static String[] int2StrArray(int arg1, int arg2, int arg3){
+    	return new String[]{Integer.toString(arg1),Integer.toString(arg2),Integer.toString(arg3)};
+    }
+    
+    public static String[] int2StrArray(int arg1, int arg2, int arg3, int arg4){
+    	return new String[]{Integer.toString(arg1),Integer.toString(arg2),Integer.toString(arg3),Integer.toString(arg4)};
     }
 
     static {

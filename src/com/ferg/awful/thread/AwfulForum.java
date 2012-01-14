@@ -136,15 +136,10 @@ public class AwfulForum extends AwfulPagedItem {
 				continue;
 			}
         }
-		for(ContentValues forum : result){
-			long id = forum.getAsLong(ID);
-			if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, id), forum, null, null)<1){
-				contentInterface.insert(CONTENT_URI, forum);
-			}
-		}
+        contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 	
-	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface){
+	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
 		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), forumId);
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, forumId);
@@ -160,7 +155,7 @@ public class AwfulForum extends AwfulPagedItem {
         contentInterface.bulkInsert(AwfulThread.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 	
-	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface){
+	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface) throws Exception{
 		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
 		int start_index = (pageNumber-1)*Constants.ITEMS_PER_PAGE+1;
@@ -181,18 +176,8 @@ public class AwfulForum extends AwfulPagedItem {
 		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
 		}
-		for(ContentValues thread : threads){
-			long id = thread.getAsLong(ID);
-			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, id), thread, null, null)<1){
-				contentInterface.insert(AwfulThread.CONTENT_URI, thread);
-			}
-		}
-		for(ContentValues thread : ucp_ids){
-			long id = thread.getAsLong(ID);
-			if(contentInterface.update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI_UCP, id), thread, null, null)<1){
-				contentInterface.insert(AwfulThread.CONTENT_URI_UCP, thread);
-			}
-		}
+		contentInterface.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
+		contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
 	}
 
     private static int getForumId(String aHref) {

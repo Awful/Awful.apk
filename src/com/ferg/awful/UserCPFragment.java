@@ -319,6 +319,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             Log.i(TAG, "Thread ID: " + Long.toString(aId));
             Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
             viewThread.putExtra(Constants.THREAD_ID, (int)aId);
+            int unreadPage = AwfulPagedItem.getLastReadPage(mCursorAdapter.getInt(aPosition, AwfulThread.UNREADCOUNT),
+															mCursorAdapter.getInt(aPosition, AwfulThread.POSTCOUNT),
+															mPrefs.postPerPage);
+            viewThread.putExtra(Constants.PAGE, unreadPage);
 
             startActivity(viewThread);
         }

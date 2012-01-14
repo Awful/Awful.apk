@@ -71,4 +71,24 @@ public abstract class AwfulPagedItem {
 	public static int pageToIndex(int page) {
 		return Math.max(1, (page-1)*Constants.ITEMS_PER_PAGE+1);
 	}
+	
+
+	public static int getLastReadPage(int unread, int total, int postPerPage) {
+		if(unread==-1){
+			return 1;
+		}
+		if(unread <= 0){
+			return indexToPage(total,postPerPage);
+		}
+		return (total-unread+1)/postPerPage+1;
+	}
+	public static int getLastReadPost(int unread, int total, int postPerPage) {
+		if(unread==-1){
+			return 0;
+		}
+		if(unread<=0){
+			return postPerPage;
+		}
+		return (total-unread+1)%postPerPage;
+	}
 }

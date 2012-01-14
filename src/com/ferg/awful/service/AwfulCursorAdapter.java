@@ -43,4 +43,22 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}
 		return row;
 	}
+	
+	public int getInt(int position, String column){
+    	Cursor tmpcursor = getCursor();
+    	int col = tmpcursor.getColumnIndex(column);
+    	if(tmpcursor.moveToPosition(position) && col >=0){
+    		return tmpcursor.getInt(col);
+    	}
+		return 0;
+	}
+
+	public String getString(int position, String column){
+    	Cursor tmpcursor = getCursor();
+    	int col = tmpcursor.getColumnIndex(column);
+    	if(tmpcursor.moveToPosition(position) && col >=0){
+    		return tmpcursor.getString(col);
+    	}
+		return null;
+	}
 }
