@@ -18,9 +18,8 @@ public class PrivateMessageIndexTask extends AwfulTask {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		try {
-			//TODO this doesn't actually save data into the provider yet.
 			TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
-			AwfulMessage.processMessageList(pmData);
+			AwfulMessage.processMessageList(mContext.getContentResolver(), pmData);
 		} catch (Exception e) {
 			Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
 			return false;

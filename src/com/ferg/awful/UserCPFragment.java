@@ -391,7 +391,12 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load Cursor.");
 			mId = aId;
-            return new CursorLoader(getActivity(), AwfulThread.CONTENT_URI_UCP, AwfulProvider.ThreadProjection, AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", new String[]{Integer.toString(AwfulPagedItem.pageToIndex(mPage)),Integer.toString(AwfulPagedItem.pageToIndex(mPage+1))}, AwfulThread.INDEX);
+            return new CursorLoader(getActivity(), 
+            						AwfulThread.CONTENT_URI_UCP, 
+            						AwfulProvider.ThreadProjection, 
+            						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
+            						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(mPage),AwfulPagedItem.pageToIndex(mPage+1)), 
+            						AwfulThread.INDEX);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {

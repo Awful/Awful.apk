@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.TagNode;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ferg.awful.R;
+import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
@@ -25,11 +30,18 @@ public class AwfulMessage extends AwfulPagedItem {
 	
 	private static final String TAG = "AwfulMessage";
 	
+    public static final String PATH     = "/privatemessages";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+    public static final String PATH_REPLY     = "/draftreplies";
+    public static final Uri CONTENT_URI_REPLY = Uri.parse("content://" + Constants.AUTHORITY + PATH_REPLY);
+	
 	public static final String ID = "_id";
     public static final String TITLE 		="title";
     public static final String AUTHOR 		="author";
     public static final String CONTENT 	="content";
     public static final String DATE 	="message_date";
+	public static final String TYPE = "message_type";
+	public static final String UNREAD = "unread_message";
 	
 	private String mTitle;
 	private String mAuthor;
@@ -50,20 +62,19 @@ public class AwfulMessage extends AwfulPagedItem {
 	/**
 	 * Generates List view items for PM list.
 	 */
-	public static View getView(LayoutInflater inf, View current, ViewGroup parent,	AwfulPreferences aPref, Cursor data) {
-		if(current == null || current.getId() != R.layout.thread_item){
-			current = inf.inflate(R.layout.forum_item, parent, false);
-		}
+	public static View getView(View current, AwfulPreferences aPref, Cursor data) {
 		TextView title = (TextView) current.findViewById(R.id.title);
-		//TODO title.setText(mTitle);
+		title.setText(data.getString(data.getColumnIndex(TITLE)));
 		TextView author = (TextView) current.findViewById(R.id.subtext);
-		//TODO author.setText(mAuthor +" - "+mDate);
+		author.setText(data.getString(data.getColumnIndex(AUTHOR)) +" - "+data.getString(data.getColumnIndex(DATE)));
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
 
-		//TODO if (unread) {
+		if (data.getInt(data.getColumnIndex(TITLE))>0) {
 			unreadPM.setVisibility(View.VISIBLE);
-		//}
+		}else{
+			unreadPM.setVisibility(View.GONE);
+		}
 
 		if(aPref != null){
 			title.setTextColor(aPref.postFontColor);
@@ -73,8 +84,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static ArrayList<AwfulMessage> processMessageList(TagNode data){
-		ArrayList<AwfulMessage> msgList = new ArrayList<AwfulMessage>();
+	public static void processMessageList(ContentResolver contentInterface, TagNode data) throws Exception{
+		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
 		/*TagNode[] messagesParent = data.getElementsByAttValue("name", "form", true, true);
@@ -99,6 +110,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		if(messagesParent.length > 0){
 			TagNode[] messages = messagesParent[0].getElementsByName("tr", true);
 			for(TagNode msg : messages){
+				ContentValues pm = new ContentValues();
 				//fuck i hate scraping shit.
 				//no usable identifiers on the PM list, no easy method to find author/post date.
 				//this will break if they change the display structure.
@@ -111,19 +123,22 @@ public class AwfulMessage extends AwfulPagedItem {
 					//row[3] - sender
 					//row[4] - date
 					TagNode href = row[2].getChildTags()[0];
-					AwfulMessage pm = new AwfulMessage(Integer.parseInt(href.getAttributeByName("href").replaceAll("\\D", "")));
-					pm.mTitle = href.getText().toString();
-					pm.mAuthor = row[3].getText().toString();
-					pm.mDate = row[4].getText().toString();
-					pm.unread = row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif");
+					pm.put(ID, Integer.parseInt(href.getAttributeByName("href").replaceAll("\\D", "")));
+					pm.put(TITLE, href.getText().toString());
+					pm.put(AUTHOR, row[3].getText().toString());
+					pm.put(DATE, row[4].getText().toString());
+					if(row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif")){
+						pm.put(UNREAD, 1);
+					}else{
+						pm.put(UNREAD, 0);
+					}
 					msgList.add(pm);
 				}
 			}
 		}else{
-			Log.e("AwfulMessage","Failed to parse message parent");
-			return null;//we'll use this to show that the load failed. i am still lazy.
+			throw new Exception("Failed to parse message parent");
 		}
-		return msgList;
+		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
 	public static AwfulMessage processMessage(TagNode data, AwfulMessage msg){

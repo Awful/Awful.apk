@@ -1,16 +1,26 @@
 package com.ferg.awful;
 
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
+import com.ferg.awful.service.AwfulCursorAdapter;
+import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +46,33 @@ public class PrivateMessageListFragment extends Fragment implements
     private TextView mTitle;
     private AwfulPreferences mPrefs;
     private ImageButton mRefresh;
-    
+
+	private AwfulCursorAdapter mCursorAdapter;
+
+	private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+            switch (aMsg.arg1) {
+                case AwfulSyncService.Status.OKAY:
+                	loadingSucceeded();
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX){
+                		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                	}
+                    break;
+                case AwfulSyncService.Status.WORKING:
+                	loadingStarted();
+                    break;
+                case AwfulSyncService.Status.ERROR:
+                	loadingFailed();
+                    break;
+                default:
+                    super.handleMessage(aMsg);
+            }
+        }
+    };
+    private Messenger mMessenger = new Messenger(mHandler);
+    private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
     
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -54,7 +90,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mNewPM          = (ImageButton) actionbar.findViewById(R.id.new_pm);
@@ -93,31 +129,46 @@ public class PrivateMessageListFragment extends Fragment implements
 
         mPMList.setOnItemClickListener(onPMSelected);
         
-
-      //TODO mPMList.setAdapter(adapt);
+        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mPMList.setAdapter(mCursorAdapter);
     }
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
     		mPMList.setBackgroundColor(pref.postBackgroundColor);
-    		if(mPMList.getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
-    			mPMList.setCacheColorHint(pref.postBackgroundColor);
-	        }
+    		mPMList.setCacheColorHint(pref.postBackgroundColor);
     	}
     }
     
     @Override
+    public void onStart(){
+    	super.onStart();
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.PRIVATE_MESSAGE_THREAD);
+		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
+        syncPMs();
+    }
+    
+    private void syncPMs() {
+    	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+	}
+
+	@Override
     public void onResume() {
         super.onResume();
-      //TODO adapt.fetchPrivateMessages();
     }
+	
+	@Override
+	public void onStop(){
+		super.onStop();
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.PRIVATE_MESSAGE_THREAD);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.PRIVATE_MESSAGE_THREAD);
+		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
+	}
     
     @Override
     public void onDetach() {
         super.onDetach();
-        if(mPMList != null){
-        	mPMList.setAdapter(null);
-        }
         mPrefs.unRegisterListener();
     }
     
@@ -142,7 +193,7 @@ public class PrivateMessageListFragment extends Fragment implements
         	}
         	break;
         case R.id.refresh:
-        	//TODO adapt.fetchPrivateMessages();
+        	syncPMs();
         	break;
         case R.id.settings:
         	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -163,7 +214,7 @@ public class PrivateMessageListFragment extends Fragment implements
                     startActivity(new Intent().setClass(getActivity(), MessageDisplayActivity.class));
                     break;
                 case R.id.refresh:
-                	//TODO adapt.fetchPrivateMessages();
+                	syncPMs();
                     break;
             }
         }
@@ -171,11 +222,10 @@ public class PrivateMessageListFragment extends Fragment implements
     
     private AdapterView.OnItemClickListener onPMSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-        	//TODO AwfulMessage message = (AwfulMessage) adapt.getItem(aPosition);
             if(getActivity() instanceof PrivateMessageActivity){
-            	//TODO ((PrivateMessageActivity) getActivity()).showMessage(null, message.getID());
+            	((PrivateMessageActivity) getActivity()).showMessage(null, (int)aId);
             }else{
-            	//TODO startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, message.getID()));
+            	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, (int) aId));
             }
         }
     };
@@ -226,5 +276,37 @@ public class PrivateMessageListFragment extends Fragment implements
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		updateColors(mPrefs);
 	}
+	private class PMIndexCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+        public PMIndexCallback(Handler handler) {
+			super(handler);
+		}
 
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			Log.i(TAG,"Load PM Cursor.");
+            return new CursorLoader(getActivity(), 
+            						AwfulMessage.CONTENT_URI, 
+            						AwfulProvider.PMProjection, 
+            						null, 
+            						null,
+            						AwfulMessage.ID);
+        }
+
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"PM load finished, populating.");
+        	mCursorAdapter.swapCursor(aData);
+        }
+        
+        @Override
+        public void onLoaderReset(Loader<Cursor> aLoader) {
+        	mCursorAdapter.swapCursor(null);
+        }
+        
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"PM Data update.");
+        	if(getActivity() != null){
+        		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
+        	}
+        }
+    }
 }

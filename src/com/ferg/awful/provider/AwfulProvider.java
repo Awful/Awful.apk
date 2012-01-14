@@ -38,7 +38,6 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -47,14 +46,12 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.thread.*;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 1;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -63,6 +60,9 @@ public class AwfulProvider extends ContentProvider {
     public static final String TABLE_EMOTES    = "emotes";
     public static final String TABLE_CATEGORY    = "threadtags";
     public static final String TABLE_PM    = "private_messages";
+    public static final String TABLE_DRAFTS    = "draft_messages";
+    
+    public static final String UPDATED_TIMESTAMP    = "timestamp_row_update";
 
     private static final int FORUM     = 0;
     private static final int FORUM_ID  = 1;
@@ -74,12 +74,15 @@ public class AwfulProvider extends ContentProvider {
     private static final int UCP_THREAD_ID = 7;
     private static final int PM    = 8;
     private static final int PM_ID = 9;
+    private static final int DRAFT    = 10;
+    private static final int DRAFT_ID = 11;
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
 	private static HashMap<String, String> sThreadProjectionMap;
 	private static HashMap<String, String> sPostProjectionMap;
 	private static HashMap<String, String> sUCPThreadProjectionMap;
+	private static HashMap<String, String> sPMProjectionMap;
 	
 	public static final String[] ThreadProjection = new String[]{AwfulThread.ID,
 		AwfulThread.FORUM_ID,
@@ -103,7 +106,16 @@ public class AwfulProvider extends ContentProvider {
 		AwfulForum.SUBTEXT,
 		AwfulForum.PAGE_COUNT
 	};
-
+	
+	public static final String[] PMProjection = new String[]{
+		AwfulMessage.ID,
+		AwfulMessage.AUTHOR,
+		AwfulMessage.TITLE,
+		AwfulMessage.CONTENT,
+		AwfulMessage.UNREAD,
+		AwfulMessage.DATE
+	};
+	
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
             super(aContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -132,11 +144,13 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.BOOKMARKED 	    + " INTEGER," +
                 AwfulThread.STICKY   		+ " INTEGER," +
                 AwfulThread.CATEGORY   		+ " INTEGER," +
-            	AwfulThread.LASTPOSTER   + " VARCHAR);");
+                AwfulThread.LASTPOSTER   	+ " VARCHAR," +
+            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
-                AwfulThread.INDEX      + " INTEGER);");
+                AwfulThread.INDEX      + " INTEGER UNIQUE," +
+            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
@@ -153,7 +167,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.IS_MOD                + " INTEGER,"        +
                 AwfulPost.AVATAR                + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
-                AwfulPost.EDITED                + " VARCHAR);");
+                AwfulPost.EDITED                + " VARCHAR," +
+            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
@@ -168,17 +183,38 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.TAG_CACHEFILE + " VARCHAR);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +
-                    AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
-                    AwfulMessage.TITLE      + " VARCHAR,"   + 
-                    AwfulMessage.AUTHOR      + " VARCHAR,"   + 
-                    AwfulMessage.CONTENT      + " VARCHAR,"   + 
-                    AwfulMessage.DATE + " VARCHAR);");
+                AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
+                AwfulMessage.TITLE      + " VARCHAR,"   + 
+                AwfulMessage.AUTHOR      + " VARCHAR,"   + 
+                AwfulMessage.CONTENT      + " VARCHAR,"   + 
+                AwfulMessage.UNREAD      + " INTEGER,"   + 
+                AwfulMessage.DATE + " VARCHAR," +
+            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            
+            
+            aDb.execSQL("CREATE TABLE " + TABLE_DRAFTS + " ("    +
+                AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
+                AwfulMessage.TYPE      	 + " INTEGER,"  + 
+                AwfulMessage.TITLE      + " VARCHAR,"   + 
+                AwfulMessage.AUTHOR      + " VARCHAR,"   + 
+                AwfulMessage.CONTENT      + " VARCHAR);");
 
         }
         
         
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
+        	dropAllTables(aDb);
+            onCreate(aDb);
+        }
+        
+        @Override
+        public void onDowngrade(SQLiteDatabase aDb, int oldVersion, int newVersion){
+        	dropAllTables(aDb);
+            onCreate(aDb);
+        }
+        
+        private void dropAllTables(SQLiteDatabase aDb){
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
@@ -186,8 +222,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-
-            onCreate(aDb);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
         }
     }
 
@@ -227,9 +262,13 @@ public class AwfulProvider extends ContentProvider {
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
                 break;
+			case PM:
+				table = TABLE_PM;
+				break;
             default:
                 break;
         }
+        assert(table != null);
 
         return db.delete(table, aWhere, aWhereArgs);
     }
@@ -265,6 +304,12 @@ public class AwfulProvider extends ContentProvider {
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
                 break;
+			case PM_ID:
+                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
+                aWhere = AwfulMessage.ID + "=?";
+			case PM:
+				table = TABLE_PM;
+				break;
         }
 
         int result = db.update(table, aValues, aWhere, aWhereArgs);
@@ -300,6 +345,10 @@ public class AwfulProvider extends ContentProvider {
                 table = TABLE_UCP_THREADS;
                 id_row = AwfulThread.ID;
                 break;
+			case PM:
+				table = TABLE_PM;
+                id_row = AwfulMessage.ID;
+				break;
         }
         assert(id_row != null && table != null);//TODO remove this once DB structure is settled.
 
@@ -350,6 +399,12 @@ public class AwfulProvider extends ContentProvider {
 				break;
 			case THREAD:
 				table = TABLE_THREADS;
+				break;
+			case UCP_THREAD:
+				table = TABLE_UCP_THREADS;
+				break;
+			case PM:
+				table = TABLE_PM;
 				break;
         }
 
@@ -403,6 +458,13 @@ public class AwfulProvider extends ContentProvider {
 				//hopefully this join works
 				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
+				break;
+			case PM_ID:
+                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
+                builder.appendWhere(AwfulMessage.ID + "=?");
+			case PM:
+				builder.setTables(TABLE_PM);
+				builder.setProjectionMap(sPMProjectionMap);
 				break;
         }
 
@@ -464,6 +526,7 @@ public class AwfulProvider extends ContentProvider {
         sPostProjectionMap = new HashMap<String, String>();
         sThreadProjectionMap = new HashMap<String, String>();
         sUCPThreadProjectionMap = new HashMap<String, String>();
+        sPMProjectionMap = new HashMap<String, String>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
@@ -473,6 +536,10 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
 		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", UCP_THREAD);
 		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", UCP_THREAD_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages", PM);
+		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", PM_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", DRAFT);
+		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", DRAFT_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
@@ -527,5 +594,12 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		
+		sPMProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
+		sPMProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
+		sPMProjectionMap.put(AwfulMessage.CONTENT, AwfulMessage.CONTENT);
+		sPMProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
+		sPMProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
+		sPMProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
     }
 }
