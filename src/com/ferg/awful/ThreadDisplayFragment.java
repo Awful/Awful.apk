@@ -460,8 +460,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
     }
     
-    private void markLastRead() {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
+    private void markLastRead(int index) {
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
     }
 
     private void toggleThreadBookmark() {
@@ -506,7 +506,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         
     }
 
-    private boolean onPostActionItemSelected(int aItem, String aPostId, String aLastReadUrl, String aUsername) {
+    private boolean onPostActionItemSelected(int aItem, String aPostId, int aLastReadIndex, String aUsername) {
         switch (aItem) {
             case ClickInterface.EDIT:
             	if (aUsername != null){
@@ -525,7 +525,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 mPostQuoteTask.execute(aPostId);
                 return true;
             case ClickInterface.LAST_READ:
-                // TODO: mAdapter.markLastRead(aLastReadUrl);//TODO this needs to change to post index
+            	markLastRead(aLastReadIndex);
                 return true;
         }
 
@@ -806,7 +806,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 .setTitle("Select an Action")
                 .setItems(mPostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, aUsername);
+                        onPostActionItemSelected(aItem, aPostId, Integer.parseInt(aLastReadUrl), aUsername);
                     }
                 })
                 .show();
@@ -818,7 +818,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 .setTitle("Select an Action")
                 .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, aLastReadUrl, null);
+                        onPostActionItemSelected(aItem, aPostId, Integer.parseInt(aLastReadUrl), null);
                     }
                 })
                 .show();
@@ -939,6 +939,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+        		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
         		updatePageBar();
         		aData.close();
         	}

@@ -195,6 +195,7 @@ public class AwfulPost {
         if (aCursor.moveToFirst()) {
             int idIndex = aCursor.getColumnIndex(ID);
             int threadIdIndex = aCursor.getColumnIndex(THREAD_ID);
+            int postIndexIndex = aCursor.getColumnIndex(POST_INDEX);//ooh, meta
             int dateIndex = aCursor.getColumnIndex(DATE);
             int userIdIndex = aCursor.getColumnIndex(USER_ID);
             int usernameIndex = aCursor.getColumnIndex(USERNAME);
@@ -218,7 +219,7 @@ public class AwfulPost {
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
                 current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) == 1 ? true : false);
-                current.setLastReadUrl(aCursor.getString(lastReadUrlIndex));
+                current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
                 current.setIsAdmin(aCursor.getInt(isAdminIndex) == 1 ? true : false);

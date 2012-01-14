@@ -3,6 +3,7 @@ package com.ferg.awful.service;
 import com.ferg.awful.R;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.thread.AwfulForum;
+import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 
 import android.content.Context;
@@ -60,5 +61,18 @@ public class AwfulCursorAdapter extends CursorAdapter {
     		return tmpcursor.getString(col);
     	}
 		return null;
+	}
+	public int getType(int position){
+    	Cursor tmpcursor = getCursor();
+    	if(tmpcursor.moveToPosition(position)){
+    		if(tmpcursor.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
+    			return R.layout.thread_item;
+    		}else if(tmpcursor.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
+    			return R.layout.forum_item;
+    		}else if(tmpcursor.getColumnIndex(AwfulPost.AVATAR) >= 0){//unique to posts
+    			return R.layout.post_item;
+    		}
+    	}
+    	return -1;
 	}
 }
