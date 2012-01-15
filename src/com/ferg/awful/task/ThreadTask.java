@@ -1,5 +1,6 @@
 package com.ferg.awful.task;
 
+import android.content.ContentUris;
 import android.util.Log;
 
 import com.ferg.awful.preferences.AwfulPreferences;

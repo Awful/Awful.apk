@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -56,6 +57,7 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
+import com.ferg.awful.provider.AwfulProvider;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -290,14 +292,32 @@ public class AwfulThread extends AwfulPagedItem  {
     	}
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
-    	int replycount = AwfulPagedItem.pageToIndex(lastPage, aPrefs.postPerPage, 0);
+    	int replycount = AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0);
     	Log.v(TAG, "Parsed lastPage:"+lastPage+" total:"+replycount);
-    	thread.put(AwfulThread.POSTCOUNT, replycount);
-    	if(aContext.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
-    		aContext.getContentResolver().insert(CONTENT_URI, thread);
-    	}
+    	
 
-        AwfulPost.syncPosts(aContext, response, aThreadId, aPrefs);
+    	ContentResolver contentResolv = aContext.getContentResolver();
+		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
+		int totalReplies = 0, unread = -1, opId = 0;
+		if(threadData.moveToFirst()){
+			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
+			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
+			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
+		}
+    	
+    	thread.put(AwfulThread.POSTCOUNT, Math.max(replycount,totalReplies));
+    	thread.put(AwfulThread.UNREADCOUNT, Math.min(Math.max(replycount,totalReplies)-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1), 0));//ugh.
+    	
+        AwfulPost.syncPosts(contentResolv, 
+        					response, 
+        					aThreadId, 
+        					(unread < 0 ? 0 : totalReplies+1-unread), 
+        					opId, 
+        					aPrefs);
+        
+    	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
+    		contentResolv.insert(CONTENT_URI, thread);
+    	}
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {

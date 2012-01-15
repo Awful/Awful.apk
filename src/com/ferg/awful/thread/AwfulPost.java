@@ -35,6 +35,7 @@ import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 import org.json.*;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -218,7 +219,7 @@ public class AwfulPost {
                 current.setDate(aCursor.getString(dateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
-                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) == 1 ? true : false);
+                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0 ? true : false);
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
@@ -337,18 +338,14 @@ public class AwfulPost {
         }
     }
 
-    public static void syncPosts(Context aContext, TagNode aThread, int aThreadId, AwfulPreferences prefs){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, prefs);
+    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs);
 
-        aContext.getContentResolver().bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+        content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
     }
 
-    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, AwfulPreferences prefs){
+    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-        
-        //int lastReadPage = aThreadObject.getLastReadPage(postPerPage);
-        //int lastReadPost = aThreadObject.getLastReadPost(postPerPage);//I don't think we need this anymore
-
 		boolean lastReadFound = false;
 
         try {
@@ -363,8 +360,8 @@ public class AwfulPost {
 
                 // We'll just reuse the array of objects rather than create 
                 // a ton of them
-                String id = node.getAttributeByName("id");
-                post.put(ID, id.replaceAll("post", ""));
+                int id = Integer.parseInt(node.getAttributeByName("id").replaceAll("post", ""));
+                post.put(ID, id);
                 
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
@@ -465,7 +462,14 @@ public class AwfulPost {
 			        	for(TagNode pdu : postDateUrls){
 			        		Matcher matchPostIndex = postIndex_regex.matcher(pdu.getAttributeByName("href"));
 			        		if(matchPostIndex.find()){
-			        			post.put(POST_INDEX, Integer.parseInt(matchPostIndex.group(1)));
+			        			int index = Integer.parseInt(matchPostIndex.group(1));
+			        			post.put(POST_INDEX, index);
+			                    if(index > unreadIndex){
+			                    	post.put(PREVIOUSLY_READ, 0);
+			                    	lastReadFound = true;
+			                    }else{
+			                    	post.put(PREVIOUSLY_READ, 1);
+			                    }
 			        			post.put(LAST_READ_URL, pdu.getAttributeByName("href").replaceAll("&amp;", "&"));
 			        		}
 			        	}
@@ -482,22 +486,13 @@ public class AwfulPost {
 
 							post.put(USER_ID, userId);
 
-							//if (aThreadObject != null && aThreadObject.getAuthorID() != null && aThreadObject.getAuthorID().equals(userId)) {
-                            //    post.put(IS_OP, 1);
-							//} else {
+							if (Integer.toString(opId).equals(userId)) {//ugh
+                                post.put(IS_OP, 1);
+							} else {
                                 post.put(IS_OP, 0);
-                            //}//TODO:fix dis
+                            }
 						}
 					}
-
-                    //if (aPage < lastReadPage || (aPage == lastReadPage && index <= lastReadPost) ||
-                    //        (pc.getAttributeByName("class").contains("seen") && !lastReadFound)) {
-					//	post.put(PREVIOUSLY_READ, 1);
-					//} else {//TODO: maybe fix this? we might not need to, unreadcount is more reliable.
-						post.put(PREVIOUSLY_READ, 0);
-                    //    lastReadFound = true;
-                    //}
-
 					if (pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length > 0) {
 						post.put(EDITED, "<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
 					}
