@@ -46,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
@@ -135,6 +136,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
         mForumList.setOnChildClickListener(onForumSelected);
         mForumList.setOnGroupClickListener(onParentForumSelected);
+        mForumList.setOnItemLongClickListener(onForumLongclick);
         return result;
     }
 
@@ -229,6 +231,27 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             }
             return true;
         }
+    };
+    
+    private OnItemLongClickListener onForumLongclick = new OnItemLongClickListener(){
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View v,
+				int position, long id) {
+			Log.e(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id) );
+			if(ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP){
+				int gId = ExpandableListView.getPackedPositionGroup(id);
+				int gPos = mCursorAdapter.getGroupPosition(gId);
+				if(mForumList.isGroupExpanded(gPos)){
+					mForumList.collapseGroup(gPos);
+				}else{
+					mForumList.expandGroup(gPos);
+				}
+				return true;
+			}
+			return false;
+		}
+    	
     };
 
     private void startForumActivity(int aForumId) {
@@ -396,7 +419,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		
 		public int getGroupPosition(int parent) {
 			Cursor groupCursor = getCursor();
-			if(groupCursor.moveToFirst()){
+			if(groupCursor!=null && groupCursor.moveToFirst()){
 				int column = groupCursor.getColumnIndex(AwfulForum.ID);
 				do{
 					if(groupCursor.getInt(column) == parent){

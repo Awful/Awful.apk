@@ -57,10 +57,10 @@ public abstract class AwfulPagedItem {
     }
     
 	public static int indexToPage(int index, int perPage){
-		return (index+1)/perPage+1;
+		return (index-1)/perPage+1;//easier than using math.ceil.
 	}
 	public static int pageToIndex(int page, int perPage, int offset){
-		return Math.max(1, (page-1)*perPage+1+offset);
+		return (page-1)*perPage+1+offset;
 	}
 	/**
 	 * Converts page number to index assuming default item-per-page.
@@ -74,21 +74,12 @@ public abstract class AwfulPagedItem {
 	
 
 	public static int getLastReadPage(int unread, int total, int postPerPage) {
-		if(unread==-1){
+		if(unread<0 || total < 1){
 			return 1;
 		}
-		if(unread <= 0){
+		if(unread == 0){
 			return indexToPage(total,postPerPage);
 		}
-		return (total-unread+1)/postPerPage+1;
-	}
-	public static int getLastReadPost(int unread, int total, int postPerPage) {
-		if(unread==-1){
-			return 0;
-		}
-		if(unread<=0){
-			return postPerPage;
-		}
-		return (total-unread+1)%postPerPage;
+		return indexToPage(total-unread+1,postPerPage);
 	}
 }

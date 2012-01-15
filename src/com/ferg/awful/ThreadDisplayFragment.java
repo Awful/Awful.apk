@@ -77,6 +77,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private ImageButton mPrevPage;
     private ImageButton mReply;
     private ImageButton mRefresh;
+    private ImageButton mRefreshBar;
     private ImageView mSnapshotView;
     private TextView mPageCountText;
     private TextView mTitle;
@@ -119,7 +120,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
                     handleStatusUpdate(aMsg.arg1);
-                	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+                	getActivity().getSupportLoaderManager().restartLoader(0, null, mThreadLoaderCallback);
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -198,19 +199,25 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
             mTitle    = (TextView) actionbar.findViewById(R.id.title);
-            mNext     = (ImageButton) actionbar.findViewById(R.id.next_page);
+            mNext     = (ImageButton) actionbar.findViewById(R.id.next_page_top);
             mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
-            mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh);
+            mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh_top);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		mNextPage = (ImageButton) result.findViewById(R.id.next);
+		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mThreadView = (SnapshotWebView) result.findViewById(R.id.thread);
 		mSnapshotView = (ImageView) result.findViewById(R.id.snapshot);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
+		
+		mNextPage.setOnClickListener(onButtonClick);
+		mPrevPage.setOnClickListener(onButtonClick);
+		mRefreshBar.setOnClickListener(onButtonClick);
+		updatePageBar();
 
 		return result;
 	}
@@ -246,16 +253,22 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			}
 		});
 	}
+	
+	public void updatePageBar(){
+		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+        if (AwfulActivity.useLegacyActionbar()) {
+            if (getPage() == getLastPage()) {
+                mNext.setVisibility(View.GONE);
+            } else {
+                mNext.setVisibility(View.VISIBLE);
+            }
 
-	private void initPageCountCallbacks() {
-		mPrevPage.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-                mThreadView.loadData("", "text/html", "utf-8");
-				goToPage(getPage() - 1);
-			}
-		});
-
+            if(threadClosed){
+                mReply.setVisibility(View.GONE);
+            } else {
+                mReply.setVisibility(View.VISIBLE);
+            }
+        }
 		if (getPage() <= 1) {
 			mPrevPage.setVisibility(View.INVISIBLE);
 		} else {
@@ -263,22 +276,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 
 		if (getPage() == getLastPage()) {
-			mNextPage.setImageResource(R.drawable.stat_notify_sync);
-			mNextPage.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mThreadView.loadData("", "text/html", "utf-8");
-					refresh();
-				}
-			});
+            mNextPage.setVisibility(View.GONE);
+            mRefreshBar.setVisibility(View.VISIBLE);
 		} else {
-        
-			mNextPage.setImageResource(R.drawable.r_arrow);
-            mNextPage.setOnClickListener(onButtonClick);
+            mNextPage.setVisibility(View.VISIBLE);
+            mRefreshBar.setVisibility(View.GONE);
 		}
-
-        mNextPage.setVisibility(View.VISIBLE);
-    }
+	}
 
     private boolean isTablet() {
         return ((AwfulActivity) getActivity()).isTablet();
@@ -298,7 +302,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
 
         getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
-        getLoaderManager().initLoader(getThreadId(), null, mThreadLoaderCallback);
+        getLoaderManager().initLoader(0, null, mThreadLoaderCallback);
 
         getActivity().getContentResolver().registerContentObserver(
                 AwfulThread.CONTENT_URI, true, mThreadObserver);
@@ -421,7 +425,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.next_page:
-                showNextPage();
+            	goToPage(getPage() + 1);
                 break;
             case R.id.reply:
                 displayPostReplyDialog();
@@ -543,6 +547,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     public void refresh() {
+		mThreadView.loadData("", "text/html", "utf-8");
         syncThread();
     }
 
@@ -550,12 +555,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.next_page:
-                case R.id.next:
-                    showNextPage();
+                case R.id.next_page_top:
+                	goToPage(getPage() + 1);
+                    break;
+                case R.id.prev_page:
+                	goToPage(getPage() - 1);
                     break;
                 case R.id.reply:
                     displayPostReplyDialog();
                     break;
+                case R.id.refresh_top:
                 case R.id.refresh:
                 	if(imagesLoadingState && mThreadView != null){
                 		mThreadView.stopLoading();
@@ -568,14 +577,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             }
         }
     };
-
-
-    private void showNextPage() {
-        if (getPage() < getLastPage()) {
-            mThreadView.loadData("", "text/html", "utf-8");
-            goToPage(getPage() + 1);
-        }
-    }
 
     private void displayPostReplyDialog() {
         Bundle args = new Bundle();
@@ -714,7 +715,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingSucceeded() {
-		getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
 
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
@@ -748,7 +748,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {
-		initPageCountCallbacks();
 		updatePageBar();
 
         try {
@@ -860,27 +859,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 	
 	public void goToPage(int aPage){
-		setPage(aPage);
-		updatePageBar();
-		mPostJump = "";
-        syncThread();
-	}
-	
-	public void updatePageBar(){
-		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
-        if (AwfulActivity.useLegacyActionbar()) {
-            if (getPage() == getLastPage()) {
-                mNext.setVisibility(View.GONE);
-            } else {
-                mNext.setVisibility(View.VISIBLE);
-            }
-
-            if(threadClosed){
-                mReply.setVisibility(View.GONE);
-            } else {
-                mReply.setVisibility(View.VISIBLE);
-            }
-        }
+		if(aPage > 0 && aPage <= getLastPage()){
+			setPage(aPage);
+			updatePageBar();
+			mPostJump = "";
+            mThreadView.loadData("", "text/html", "utf-8");
+	        syncThread();
+		}
 	}
 	
 	public int getPage() {
@@ -901,7 +886,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
-        private Cursor mData;
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
             String sortOrder = AwfulPost.POST_INDEX + " ASC LIMIT " + mPrefs.postPerPage;
@@ -918,7 +902,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, populating.");
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
-    		aData.close();
         }
 
         @Override
@@ -941,7 +924,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
         		updatePageBar();
-        		aData.close();
         	}
         }
         
@@ -956,7 +938,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(getThreadId(), null, mThreadLoaderCallback);
+        	getActivity().getSupportLoaderManager().restartLoader(0, null, mThreadLoaderCallback);
         }
     }
 }

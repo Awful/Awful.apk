@@ -16,7 +16,7 @@
         android:orientation="horizontal"
         >
 	<ImageButton 
-            android:id="@+id/refresh"
+            android:id="@+id/refresh_top"
             style="@style/ActionBarButton"
             android:src="@drawable/ic_menu_refresh"
         	android:visibility="gone"

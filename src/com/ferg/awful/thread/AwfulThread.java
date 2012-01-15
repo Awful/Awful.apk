@@ -84,39 +84,7 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
-	
-    private String mThreadId;
-    private int threadId;
-    private String mAuthor;
-    private String mAuthorID;
-    private boolean mSticky;
-    private String mIcon;
-    private int mUnreadCount;
-	private int mTotalPosts;
-    private boolean mClosed;
-	private boolean mBookmarked;
-	private String mKilledBy;
-	private int forumId;
-    private HashMap<Integer, ArrayList<AwfulPost>> mPosts;
-    
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
-
-
-
-
-    public AwfulThread() {
-    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
-    }
-
-    public AwfulThread(String aThreadId) {
-    	setThreadId(aThreadId);
-    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
-    }
-    public AwfulThread(int aThreadId) {
-    	setThreadId(aThreadId+"");
-    	mPosts = new HashMap<Integer, ArrayList<AwfulPost>>();
-    }
-    
     
     public static TagNode getForumThreads(int aForumId) throws Exception {
 		return getForumThreads(aForumId, 1);
@@ -157,7 +125,7 @@ public class AwfulThread extends AwfulPagedItem  {
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
             	if (tarPostCount.length > 0) {
-                    thread.put(POSTCOUNT, Integer.parseInt(tarPostCount[0].getText().toString().trim()));
+                    thread.put(POSTCOUNT, Integer.parseInt(tarPostCount[0].getText().toString().trim())+1);//this represents the number of replies, but the actual postcount includes OP
                 }
                 if (tarThread.length > 0) {
                     thread.put(TITLE, tarThread[0].getText().toString().trim());
@@ -219,14 +187,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         return result;
 	}
-
-	public void setBookmarked(boolean b) {
-		mBookmarked = b;
-	}
-	public boolean isBookmarked() {
-		return mBookmarked;
-	}
-
+	
 	public static ArrayList<ContentValues> parseSubforums(TagNode aResponse, int parentForumId){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		TagNode[] subforums = aResponse.getElementsByAttValue("class", "subforum", true, false);
@@ -292,8 +253,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	}
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
-    	int replycount = AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0);
-    	Log.v(TAG, "Parsed lastPage:"+lastPage+" total:"+replycount);
     	
 
     	ContentResolver contentResolv = aContext.getContentResolver();
@@ -304,14 +263,18 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
 			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
 		}
+    	int replycount = Math.max(totalReplies, AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0));
+    	Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
     	
-    	thread.put(AwfulThread.POSTCOUNT, Math.max(replycount,totalReplies));
-    	thread.put(AwfulThread.UNREADCOUNT, Math.min(Math.max(replycount,totalReplies)-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1), 0));//ugh.
+    	thread.put(AwfulThread.POSTCOUNT, replycount);
+    	int newUnread = Math.max(0, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1));
+    	thread.put(AwfulThread.UNREADCOUNT, newUnread);
+    	Log.e(TAG, "Old unread: "+unread+" new unread: "+newUnread);
     	
         AwfulPost.syncPosts(contentResolv, 
         					response, 
         					aThreadId, 
-        					(unread < 0 ? 0 : totalReplies+1-unread), 
+        					(unread < 0 ? 0 : totalReplies-unread),
         					opId, 
         					aPrefs);
         
@@ -468,88 +431,6 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public String getThreadId() {
-        return mThreadId;
-    }
-
-    public void setThreadId(String aThreadId) {
-        mThreadId = aThreadId;
-        threadId = Integer.parseInt(aThreadId);
-    }
-
-    public String getAuthor() {
-        return mAuthor;
-    }
-
-    public void setAuthor(String aAuthor) {
-        mAuthor = aAuthor;
-    }
-
-    public String getAuthorID() {
-        return mAuthorID;
-    }
-
-    public void setAuthorID(String aAuthorID) {
-        mAuthorID = aAuthorID;
-    }
-    
-    public String getKilledBy() {
-		return mKilledBy;
-	}
-
-	public void setKilledBy(String mKilledBy) {
-		this.mKilledBy = mKilledBy;
-	}
-
-	//TODO I don't think this does anything
-	public String getIcon() {
-        return mIcon;
-    }
-
-    public void setIcon(String aIcon) {
-        mIcon = aIcon;
-    }
-
-    public boolean isClosed(){
-    	return mClosed;
-    }
-    
-    public void setClosed(boolean aClosed) {
-        mClosed = aClosed;
-    }
-
-    public boolean isSticky() {
-        return mSticky;
-    }
-
-    public void setSticky(boolean aSticky) {
-        mSticky = aSticky;
-    }
-
-    public int getUnreadCount() {
-        return mUnreadCount;
-    }
-
-    public void setUnreadCount(int aUnreadCount) {
-        mUnreadCount = aUnreadCount;
-    }
-
-    public int getForumId() {
-		return forumId;
-	}
-
-	public void setForumId(int forumId) {
-		this.forumId = forumId;
-	}
-
-	public ArrayList<AwfulPost> getPosts(int page) {
-        return mPosts.get(page);
-    }
-
-    public void setPosts(ArrayList<AwfulPost> aPosts, int page) {
-   		mPosts.put(page, aPosts);
-    }
-
 	public static void getView(View current, AwfulPreferences prefs, Cursor data) {
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
@@ -608,31 +489,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			}else{
 				title.setEllipsize(null);
 			}
-		}
-	}
-	
-    public JSONArray getSerializedChildren(int aPage) {
-        JSONArray result = new JSONArray();
-        ArrayList<AwfulPost> posts = mPosts.get(aPage);
-
-        try {
-            for (AwfulPost post : posts) {
-                result.put(post.toJSON().toString());
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-	public void prunePages(int save){
-		ArrayList<AwfulPost> tmp = mPosts.get(save);
-		mPosts.clear();
-		if(tmp != null){
-			mPosts.put(save, tmp);
 		}
 	}
 	

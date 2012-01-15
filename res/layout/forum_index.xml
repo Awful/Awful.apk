@@ -18,6 +18,7 @@
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
         android:dividerHeight="1px"
+        android:groupIndicator="@null"
 		android:drawSelectorOnTop="false"
 		android:cacheColorHint="@color/background"
 		/>

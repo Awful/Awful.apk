@@ -55,7 +55,9 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -74,6 +76,7 @@ import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
+import com.ferg.awful.widget.SnapshotWebView;
 
 public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
@@ -81,6 +84,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private ImageButton mUserCp;
     private TextView mTitle;
     private ImageButton mRefresh;
+    private ImageButton mRefreshBar;
+    private ImageButton mNextPage;
+    private ImageButton mPrevPage;
+    private TextView mPageCountText;
 
     private AwfulPreferences mPrefs;
     
@@ -137,12 +144,21 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh_top);
 
             mTitle.setMovementMethod(new ScrollingMovementMethod());
         }
 
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
+		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
+		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		
+		mNextPage.setOnClickListener(onButtonClick);
+		mPrevPage.setOnClickListener(onButtonClick);
+		mRefreshBar.setOnClickListener(onButtonClick);
+		updatePageBar();
+		
         mPrefs = new AwfulPreferences(getActivity());
         return result;
     }
@@ -190,6 +206,23 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         }
     }
 
+	public void updatePageBar(){
+		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+		if (getPage() <= 1) {
+			mPrevPage.setVisibility(View.INVISIBLE);
+		} else {
+			mPrevPage.setVisibility(View.VISIBLE);
+		}
+
+		if (getPage() == getLastPage()) {
+            mNextPage.setVisibility(View.GONE);
+            mRefreshBar.setVisibility(View.VISIBLE);
+		} else {
+            mNextPage.setVisibility(View.VISIBLE);
+            mRefreshBar.setVisibility(View.GONE);
+		}
+	}
+
     private boolean isTablet() {
         if (getActivity() != null) {
             return ((AwfulActivity) getActivity()).isTablet();
@@ -204,7 +237,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
-        syncForum();
     }
     
     @Override
@@ -358,8 +390,15 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 case R.id.user_cp:
                     startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
                     break;
+                case R.id.refresh_top:
                 case R.id.refresh:
                 	syncForum();
+                    break;
+                case R.id.next_page:
+                	goToPage(getPage()+1);
+                    break;
+                case R.id.prev_page:
+                	goToPage(getPage()-1);
                     break;
             }
         }
@@ -461,8 +500,11 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     
 
 	protected void goToPage(int pageInt) {
-		mPage = pageInt;
-		syncForum();
+		if(pageInt > 0 && pageInt <= mLastPage){
+			mPage = pageInt;
+			updatePageBar();
+			syncForum();
+		}
 	}
 	
     private void setForumId(int aForum) {
@@ -526,8 +568,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	if(aData.moveToFirst()){
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulForum.TITLE)));
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
-        		//TODO updatePageBar();
-        		aData.close();
+        		updatePageBar();
         	}
         }
         
@@ -541,4 +582,5 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumDataCallback);
         }
     }
+
 }

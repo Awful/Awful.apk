@@ -30,18 +30,14 @@ package com.ferg.awful.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +46,6 @@ import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
-import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 
 public class AwfulForum extends AwfulPagedItem {
@@ -71,25 +66,7 @@ public class AwfulForum extends AwfulPagedItem {
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
-
-
-
-	private String mTitle;
-	private String mForumId;
-	private int forumId;
-	private String mSubtext;
-    private ArrayList<AwfulForum> mSubforums;
-	private HashMap<Integer, ArrayList<AwfulThread>> threads;
-	
-	public AwfulForum() {
-        mSubforums = new ArrayList<AwfulForum>();
-        threads = new HashMap<Integer, ArrayList<AwfulThread>>();
-    }
-
-	public AwfulForum(int mForumID2) {
-		this();
-		setForumId(mForumID2);
-	}
+	private static final Pattern forumTitle_regex = Pattern.compile("(.+)-{1}.+$");
 
 	public static void getForumsFromRemote(TagNode response, ContentResolver contentInterface) throws XPatherException {
 		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
@@ -189,48 +166,6 @@ public class AwfulForum extends AwfulPagedItem {
         return -1;
     }
     
-	public String getTitle() {
-		return mTitle;
-	}
-
-	public void setTitle(String aTitle) {
-		mTitle = aTitle;
-	}
-
-	public String getForumId() {
-		return mForumId;
-	}
-
-	public void setForumId(String aForumId) {
-		mForumId = aForumId;
-		forumId = Integer.parseInt(mForumId);
-	}
-
-	public void setForumId(int aForumId) {
-		mForumId = Integer.toString(aForumId);
-		forumId = aForumId;
-	}
-
-	public String getSubtext() {
-		return mSubtext;
-	}
-
-	public void setSubtext(String aSubtext) {
-		mSubtext = aSubtext;
-	}
-
-	public ArrayList<AwfulForum> getSubforums() {
-		return mSubforums;
-	}
-
-    public void addSubforum(AwfulForum aSubforum) {
-        mSubforums.add(aSubforum);
-    }
-
-	public void setSubforum(ArrayList<AwfulForum> aSubforums) {
-		mSubforums = aSubforums;
-	}
-	
 	public static void getView(View current, AwfulPreferences mPrefs, Cursor data) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.subtext);
@@ -244,6 +179,11 @@ public class AwfulForum extends AwfulPagedItem {
 
 	public static String parseTitle(TagNode data) {
 		TagNode[] result = data.getElementsByName("title", true);
-		return result[0].getText().toString();
+		String title = result[0].getText().toString();
+		Matcher m = forumTitle_regex.matcher(title);
+		if(m.find()){
+			return m.group(1).trim();
+		}
+		return title;
 	}
 }
