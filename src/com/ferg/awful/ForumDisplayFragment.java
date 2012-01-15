@@ -236,6 +236,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onStart();
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
     
@@ -253,6 +254,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onStop();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().destroyLoader(getForumId());
+		getActivity().getSupportLoaderManager().destroyLoader(0);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -499,7 +501,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	}
     
 
-	protected void goToPage(int pageInt) {
+	private void goToPage(int pageInt) {
 		if(pageInt > 0 && pageInt <= mLastPage){
 			mPage = pageInt;
 			updatePageBar();
@@ -579,7 +581,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumDataCallback);
+        	getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
         }
     }
 

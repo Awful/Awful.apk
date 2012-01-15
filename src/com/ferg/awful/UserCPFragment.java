@@ -27,6 +27,7 @@
 
 package com.ferg.awful;
 
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -65,6 +66,7 @@ import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulCursorAdapter;
 import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 
@@ -77,8 +79,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private TextView mTitle;
     private AwfulPreferences mPrefs;
     private ImageButton mRefresh;
+    private ImageButton mRefreshBar;
+    private ImageButton mNextPage;
+    private ImageButton mPrevPage;
+    private TextView mPageCountText;
     
     private int mPage = 1;
+    private int mLastPage = 0;
     private int mId = Constants.USERCP_ID;
     
     
@@ -121,6 +128,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     private Messenger mMessenger = new Messenger(mHandler);
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler, Constants.USERCP_ID);
+    private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -152,11 +160,20 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh_top);
         } else if (((AwfulActivity) getActivity()).isTablet()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
+		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
+		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		
+		mNextPage.setOnClickListener(onButtonClick);
+		mPrevPage.setOnClickListener(onButtonClick);
+		mRefreshBar.setOnClickListener(onButtonClick);
+		updatePageBar();
         
         return result;
     }
@@ -194,7 +211,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
 		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
 
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
@@ -212,7 +231,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onStop();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
 		getActivity().getSupportLoaderManager().destroyLoader(mId);
+		getActivity().getSupportLoaderManager().destroyLoader(0);
         getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
+		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
         
     }
     
@@ -301,8 +322,15 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 case R.id.pm_button:
                     startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
                     break;
+                case R.id.refresh_top:
                 case R.id.refresh:
                 	syncThreads();
+                    break;
+                case R.id.next_page:
+                	goToPage(mPage+1);
+                    break;
+                case R.id.prev_page:
+                	goToPage(mPage-1);
                     break;
             }
         }
@@ -363,6 +391,31 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	        }
 		}
 	}
+
+	private void goToPage(int pageInt) {
+		if(pageInt > 0 && pageInt <= mLastPage){
+			mPage = pageInt;
+			updatePageBar();
+			syncThreads();
+		}
+	}
+	
+	public void updatePageBar(){
+		mPageCountText.setText("Page " + mPage + "/" + (mLastPage>0?mLastPage:"?"));
+		if (mPage <= 1) {
+			mPrevPage.setVisibility(View.INVISIBLE);
+		} else {
+			mPrevPage.setVisibility(View.VISIBLE);
+		}
+
+		if (mPage == mLastPage) {
+            mNextPage.setVisibility(View.GONE);
+            mRefreshBar.setVisibility(View.VISIBLE);
+		} else {
+            mNextPage.setVisibility(View.VISIBLE);
+            mRefreshBar.setVisibility(View.GONE);
+		}
+	}
 	
 
     private void syncThreads() {
@@ -417,6 +470,38 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         	if(getActivity() != null){
         		getActivity().getSupportLoaderManager().restartLoader(mId, null, this);
         	}
+        }
+    }
+	
+
+	
+	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        public ForumDataCallback(Handler handler) {
+			super(handler);
+		}
+
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+            return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulForum.CONTENT_URI, Constants.USERCP_ID), 
+            		AwfulProvider.ForumProjection, null, null, null);
+        }
+
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
+        	if(aData.moveToFirst()){
+        		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
+        		updatePageBar();
+        	}
+        }
+        
+        @Override
+        public void onLoaderReset(Loader<Cursor> aLoader) {
+        }
+
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.e(TAG,"Thread Data update.");
+        	getActivity().getSupportLoaderManager().restartLoader(0, null, this);
         }
     }
 }
