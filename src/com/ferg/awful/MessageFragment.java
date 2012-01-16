@@ -39,6 +39,7 @@ import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	private WebView mDisplayText;
 	private EditText mEditReply;
 	private Button mReplyButton;
+	private ImageButton mHideButton;
 	private TextView mUsername;
 	private TextView mPostdate;
 	private TextView mTitle;
@@ -161,7 +163,9 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         mDisplayText = (WebView) result.findViewById(R.id.messagebody);
         mEditReply = (EditText) result.findViewById(R.id.edit_reply_text);
         mReplyButton = (Button) result.findViewById(R.id.message_reply_button);
+        mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
         mReplyButton.setOnClickListener(this);
+        mHideButton.setOnClickListener(this);
         mRecipient = (EditText) result.findViewById(R.id.message_user);
         mSubject = (EditText) result.findViewById(R.id.message_subject);
         mUsername = (TextView) result.findViewById(R.id.username);
@@ -348,7 +352,18 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 
 	@Override
 	public void onClick(View v) {
-		sendPM();
+		switch(v.getId()){
+		case R.id.hide_message:
+			if(mDisplayText.getVisibility() == View.VISIBLE){
+				mDisplayText.setVisibility(View.GONE);
+			}else{
+				mDisplayText.setVisibility(View.VISIBLE);
+			}
+			break;
+		case R.id.send_pm:
+			sendPM();
+			break;
+		}
 	}
 	
 
