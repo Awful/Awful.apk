@@ -50,25 +50,6 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final int TYPE_POST = 2;
 	public static final int TYPE_THREAD = 3;//I don't think we'll ever support creating threads though.
 
-
-
-	
-	private String mTitle;
-	private String mAuthor;
-	private String mContent;
-	private String mDate;
-	private String mReplyText;
-	private boolean unread;
-	private boolean mLoaded;
-	private int mId;
-	private String mReplyTitle;
-
-	public AwfulMessage(int id) {
-		mId = id;
-		mDate = "";
-		mLoaded = false;
-	}
-
 	/**
 	 * Generates List view items for PM list.
 	 */
@@ -183,11 +164,10 @@ public class AwfulMessage extends AwfulPagedItem {
 		return message;
 	}
 
-	public static ContentValues processReplyMessage(TagNode pmReplyData, int id, String recipient) {
+	public static ContentValues processReplyMessage(TagNode pmReplyData, int id) {
 		ContentValues reply = new ContentValues();
 		reply.put(ID, id);
 		reply.put(TYPE, TYPE_PM);
-		reply.put(RECIPIENT, recipient);
 		TagNode[] message = pmReplyData.getElementsByAttValue("name", "message", true, false);
 		if(message.length >0){
 			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));

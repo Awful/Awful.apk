@@ -12,6 +12,7 @@ import android.util.Log;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulMessage;
 
@@ -36,8 +37,17 @@ public class FetchPrivateMessageTask extends AwfulTask {
 			}
             para.put(Constants.PARAM_ACTION, "newmessage");
 			TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
-			ContentValues reply = AwfulMessage.processReplyMessage(pmReplyData, mId, message.getAsString(AwfulMessage.AUTHOR));
+			ContentValues reply = AwfulMessage.processReplyMessage(pmReplyData, mId);
+			reply.put(AwfulMessage.RECIPIENT,message.getAsString(AwfulMessage.AUTHOR));
+			//we remove the reply content so as not to override the existing reply.
+			String replyContent = reply.getAsString(AwfulMessage.REPLY_CONTENT);
+			reply.remove(AwfulMessage.REPLY_CONTENT);
+			String replyTitle = reply.getAsString(AwfulMessage.TITLE);
+			reply.remove(AwfulMessage.TITLE);
 			if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), reply, null, null)<1){
+				//but if the reply doesn't already exist, insert it.
+				reply.put(AwfulMessage.REPLY_CONTENT, replyContent);
+				reply.put(AwfulMessage.TITLE, replyTitle);
 				cr.insert(AwfulMessage.CONTENT_URI_REPLY, reply);
 			}
 			Log.v(TAG,"Fetched msg: "+mId);

@@ -201,7 +201,6 @@ public class AwfulPost {
             int userIdIndex = aCursor.getColumnIndex(USER_ID);
             int usernameIndex = aCursor.getColumnIndex(USERNAME);
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
-            int lastReadUrlIndex = aCursor.getColumnIndex(LAST_READ_URL);
             int editableIndex = aCursor.getColumnIndex(EDITABLE);
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
             int isAdminIndex = aCursor.getColumnIndex(IS_ADMIN);

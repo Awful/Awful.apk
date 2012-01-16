@@ -505,6 +505,13 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_PM+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_PM+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sPMReplyProjectionMap);
 				break;
+			case DRAFT_ID:
+                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
+                builder.appendWhere(AwfulMessage.ID + "=?");
+			case DRAFT:
+				builder.setTables(TABLE_DRAFTS);
+				builder.setProjectionMap(sDraftProjectionMap);
+				break;
         }
 
         Cursor result = builder.query(db, aProjection, aSelection, 
