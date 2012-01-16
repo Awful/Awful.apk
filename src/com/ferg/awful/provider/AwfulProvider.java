@@ -43,6 +43,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.reply.Reply;
 import com.ferg.awful.thread.*;
 
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -124,6 +125,15 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TITLE,
 		AwfulMessage.REPLY_CONTENT
 	};
+	
+	public static final String[] DraftPostProjection = new String[]{
+		AwfulMessage.ID,
+		AwfulMessage.TYPE,
+		AwfulPost.FORM_COOKIE,
+		AwfulPost.FORM_KEY,
+		AwfulMessage.REPLY_CONTENT
+	};
+
 
 	public static final String[] PMReplyProjection = new String[]{
 		AwfulMessage.ID,
@@ -218,6 +228,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
                 AwfulMessage.TYPE      	 + " INTEGER,"  + 
                 AwfulMessage.TITLE      + " VARCHAR,"   + 
+                AwfulPost.FORM_KEY      + " VARCHAR,"   + 
+                AwfulPost.FORM_COOKIE      + " VARCHAR,"   + 
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
                 AwfulMessage.REPLY_CONTENT      + " VARCHAR);");
             
@@ -652,6 +664,8 @@ public class AwfulProvider extends ContentProvider {
 		
 		sDraftProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
 		sDraftProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
+		sDraftProjectionMap.put(AwfulPost.FORM_COOKIE, AwfulPost.FORM_COOKIE);
+		sDraftProjectionMap.put(AwfulPost.FORM_KEY, AwfulPost.FORM_KEY);
 		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
 		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);

@@ -76,6 +76,9 @@ public class AwfulPost {
     public static final String CONTENT               = "content";
     public static final String EDITED                = "edited";
 
+	public static final String FORM_KEY = "form_key";
+	public static final String FORM_COOKIE = "form_cookie";
+
 	private int mThreadId;
     private String mId;
     private String mDate;

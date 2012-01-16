@@ -239,7 +239,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, pmId);
 		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mPMDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
         syncPM();
     }
 	
@@ -300,6 +300,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, pmId);
 		getActivity().getSupportLoaderManager().destroyLoader(pmId);
 		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
+		getActivity().getContentResolver().unregisterContentObserver(pmReplyObserver);
 	}
 	
 	public void onDetach(){

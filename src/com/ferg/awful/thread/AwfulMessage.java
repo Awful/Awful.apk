@@ -47,8 +47,9 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String REPLY_TITLE = "reply_title";
 
 	public static final int TYPE_PM = 1;
-	public static final int TYPE_POST = 2;
-	public static final int TYPE_THREAD = 3;//I don't think we'll ever support creating threads though.
+	public static final int TYPE_NEW_REPLY = 2;
+	public static final int TYPE_QUOTE = 3;
+	public static final int TYPE_EDIT = 4;
 
 	/**
 	 * Generates List view items for PM list.

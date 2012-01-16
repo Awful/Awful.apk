@@ -76,8 +76,14 @@ public class AwfulSyncService extends Service {
     public static final int MSG_MARK_LASTREAD       = 8;
     public static final int MSG_MARK_UNREAD       = 9;
     public static final int MSG_FETCH_PM_INDEX       = 10;
+    /** arg1 = pmId. */
     public static final int MSG_SEND_PM       = 11;
+    /** arg1 = threadId, arg2 = vote (1-5) */
     public static final int MSG_VOTE       = 12;
+    /** arg1 = threadId. arg2 = post index (for quote/edit) */
+    public static final int MSG_FETCH_POST_REPLY       = 13;
+    /** arg1 = threadId. */
+    public static final int MSG_SEND_POST       = 14;
 
     private HashMap<Integer,Messenger> mClients = new HashMap<Integer,Messenger>();
     private MessageHandler mHandler       = new MessageHandler();

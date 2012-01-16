@@ -56,6 +56,7 @@ import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
@@ -64,9 +65,6 @@ import com.ferg.awful.widget.SnapshotWebView;
 
 public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
-
-    private ParsePostQuoteTask mPostQuoteTask;
-    private ParseEditPostTask mEditPostTask;
     private AwfulPreferences mPrefs;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -370,13 +368,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private void cleanupTasks() {
         if (mDialog != null) {
         }
-        if (mEditPostTask != null) {
-            mEditPostTask.cancel(true);
-        }
-        
-        if (mPostQuoteTask != null) {
-            mPostQuoteTask.cancel(true);
-        }
     }
     
     @Override
@@ -520,13 +511,21 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                         MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
                     }
             	}else{
-                    mEditPostTask = new ParseEditPostTask();
-                    mEditPostTask.execute(aPostId);
+                    Bundle args = new Bundle();
+
+                    args.putInt(Constants.THREAD_ID, getId());
+                    args.putInt(Constants.EDITING, AwfulMessage.TYPE_EDIT);
+                    args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
+
+                    displayPostReplyDialog(args);
             	}
                 return true;
             case ClickInterface.QUOTE:
-                mPostQuoteTask = new ParsePostQuoteTask();
-                mPostQuoteTask.execute(aPostId);
+                Bundle args = new Bundle();
+                args.putInt(Constants.THREAD_ID, getId());
+                args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
+                args.putInt(Constants.EDITING, AwfulMessage.TYPE_QUOTE);
+                displayPostReplyDialog(args);
                 return true;
             case ClickInterface.LAST_READ:
             	markLastRead(aLastReadIndex);
@@ -580,7 +579,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void displayPostReplyDialog() {
         Bundle args = new Bundle();
-        args.putString(Constants.THREAD, getId() + "");
+        args.putInt(Constants.THREAD_ID, getId());
+        args.putInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
 
         displayPostReplyDialog(args);
     }
@@ -595,82 +595,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                     PostReplyActivity.class);
             postReply.putExtras(aArgs);
             startActivityForResult(postReply, 0);
-        }
-    }
-
-    private class ParseEditPostTask extends AsyncTask<String, Void, String> {
-        private String mPostId = null;
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", 
-                "Hold on...", true);
-        }
-
-        public String doInBackground(String... aParams) {
-            String result = null;
-
-            if (!isCancelled()) {
-                try {
-                    mPostId = aParams[0];
-
-                    result = Reply.getPost(mPostId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return result;
-        }
-
-        public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (mDialog != null) {
-                    mDialog.dismiss();
-                }
-
-                Bundle args = new Bundle();
-
-                args.putString(Constants.THREAD, getId() + "");
-                args.putString(Constants.QUOTE, aResult);
-                args.putBoolean(Constants.EDITING, true);
-                args.putString(Constants.POST_ID, mPostId);
-
-                displayPostReplyDialog(args);
-            }
-        }
-    }
-
-    private class ParsePostQuoteTask extends AsyncTask<String, Void, String> {
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Loading", "Hold on...", true);
-        }
-
-        public String doInBackground(String... aParams) {
-            String result = null;
-
-            if (!isCancelled()) {
-                try {
-                    result = Reply.getQuote(aParams[0]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return result;
-        }
-
-        public void onPostExecute(String aResult) {
-            if (!isCancelled()) {
-                if (mDialog != null) {
-                    mDialog.dismiss();
-                }
-
-                Bundle args = new Bundle();
-                args.putString(Constants.THREAD, Integer.toString(getId()));
-                args.putString(Constants.QUOTE, aResult);
-
-                displayPostReplyDialog(args);
-            }
         }
     }
 
