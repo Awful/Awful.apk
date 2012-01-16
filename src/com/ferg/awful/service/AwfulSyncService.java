@@ -108,7 +108,7 @@ public class AwfulSyncService extends Service {
     public class MessageHandler extends Handler { 
         @Override
         public void handleMessage(Message aMsg) {
-            Log.i(TAG, "Got message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2+" ");
+        	debugLogReceivedMessage(-1,aMsg);
             switch (aMsg.what) {
                 case MSG_REGISTER_CLIENT:
                     registerClient(aMsg, aMsg.arg1);
@@ -252,6 +252,31 @@ public class AwfulSyncService extends Service {
 			return true;
 		}
 		return false;
+	}
+
+	public static void debugLogReceivedMessage(int id, Message aMsg) {
+		String what = aMsg.what+"";
+		switch(aMsg.what){
+		case MSG_REGISTER_CLIENT:
+			what = "MSG_REGISTER_CLIENT";
+			break;
+		case MSG_UNREGISTER_CLIENT:
+			what = "MSG_UNREGISTER_CLIENT";
+			break;
+		case MSG_SYNC_THREAD:
+			what = "MSG_SYNC_THREAD";
+			break;
+		case MSG_SYNC_FORUM:
+			what = "MSG_SYNC_FORUM";
+			break;
+		case MSG_SYNC_INDEX:
+			what = "MSG_SYNC_INDEX";
+			break;
+		case MSG_FETCH_PM_INDEX:
+			what = "MSG_FETCH_PM_INDEX";
+			break;
+		}
+		Log.v(TAG, id+" Received: "+what+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
 	}
 
 }

@@ -107,7 +107,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+        	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
@@ -153,11 +153,12 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		
-		mNextPage.setOnClickListener(onButtonClick);
-		mPrevPage.setOnClickListener(onButtonClick);
-		mRefreshBar.setOnClickListener(onButtonClick);
-		updatePageBar();
+		if(mPrevPage != null){
+			mNextPage.setOnClickListener(onButtonClick);
+			mPrevPage.setOnClickListener(onButtonClick);
+			mRefreshBar.setOnClickListener(onButtonClick);
+			updatePageBar();
+		}
 		
         mPrefs = new AwfulPreferences(getActivity());
         return result;
@@ -207,19 +208,21 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
 	public void updatePageBar(){
-		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
-		if (getPage() <= 1) {
-			mPrevPage.setVisibility(View.INVISIBLE);
-		} else {
-			mPrevPage.setVisibility(View.VISIBLE);
-		}
-
-		if (getPage() == getLastPage()) {
-            mNextPage.setVisibility(View.GONE);
-            mRefreshBar.setVisibility(View.VISIBLE);
-		} else {
-            mNextPage.setVisibility(View.VISIBLE);
-            mRefreshBar.setVisibility(View.GONE);
+		if(mPageCountText != null){
+			mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+			if (getPage() <= 1) {
+				mPrevPage.setVisibility(View.INVISIBLE);
+			} else {
+				mPrevPage.setVisibility(View.VISIBLE);
+			}
+	
+			if (getPage() == getLastPage()) {
+	            mNextPage.setVisibility(View.GONE);
+	            mRefreshBar.setVisibility(View.VISIBLE);
+			} else {
+	            mNextPage.setVisibility(View.VISIBLE);
+	            mRefreshBar.setVisibility(View.GONE);
+			}
 		}
 	}
 

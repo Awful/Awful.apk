@@ -55,7 +55,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -66,7 +65,6 @@ import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.provider.AwfulProvider;
-import com.ferg.awful.service.AwfulCursorAdapter;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
 
@@ -88,6 +86,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
+        	AwfulSyncService.debugLogReceivedMessage(Constants.FORUM_INDEX_ID, aMsg);
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_INDEX:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
@@ -375,6 +374,15 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	        }
 		}
 	}
+
+	@Override
+	public void onHiddenChanged (boolean hidden){
+        if(hidden){
+        	Log.e(TAG, "VIEW HIDDEN");
+        }else{
+        	Log.e(TAG, "VIEW showing");
+        }
+	}
 	
 	private void syncForums() {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
@@ -385,18 +393,17 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load Cursor.");
-            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(aId)}, AwfulForum.INDEX);
+            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(Constants.FORUM_INDEX_ID)}, AwfulForum.INDEX);
         }
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Thread title finished, populating.");
+        	Log.v(TAG,"Index cursor: "+aLoader.getId());
         	if(aData.moveToFirst()){
-        		int parent = aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID));
-        		if(parent == 0){
+        		if(aLoader.getId() == 0){
         			mCursorAdapter.setGroupCursor(aData);
         		}else{
-        			int groupId = mCursorAdapter.getGroupPosition(parent);
+        			int groupId = mCursorAdapter.getGroupPosition(aLoader.getId());
         			if(groupId >0){
         				mCursorAdapter.setChildrenCursor(groupId, aData);
         			}
@@ -406,26 +413,38 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-			mCursorAdapter.setGroupCursor(null);
+			Log.e(TAG,"resetLoader: "+arg0.getId());
+			if(arg0.getId() == 0){
+    			mCursorAdapter.setGroupCursor(null);
+    		}else{
+    			int groupId = mCursorAdapter.getGroupPosition(arg0.getId());
+    			if(groupId >0){
+    				mCursorAdapter.setChildrenCursor(groupId, null);
+    			}
+    		}
 		}
     }
 	
 	private class AwfulTreeAdapter extends CursorTreeAdapter{
 		private LayoutInflater inf;
+		private HashMap<Integer, Cursor> cursorTree;
 		public AwfulTreeAdapter(Context context) {
 			super(null, context, false);
+			cursorTree = new HashMap<Integer, Cursor>();
 			inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 		
 		public int getGroupPosition(int parent) {
 			Cursor groupCursor = getCursor();
-			if(groupCursor!=null && groupCursor.moveToFirst()){
+			if(groupCursor!=null && !groupCursor.isClosed() && groupCursor.moveToFirst()){
 				int column = groupCursor.getColumnIndex(AwfulForum.ID);
 				do{
 					if(groupCursor.getInt(column) == parent){
 						return groupCursor.getPosition();
 					}
 				}while(groupCursor.moveToNext());
+			}else{
+				Log.e(TAG, "CLOSED CURSOR! "+parent);
 			}
 			return -1;
 		}
@@ -444,6 +463,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		@Override
 		protected Cursor getChildrenCursor(Cursor groupCursor) {
 			int parentId = groupCursor.getInt(groupCursor.getColumnIndex(AwfulForum.ID));
+			Log.v(TAG, "getChildrenCursor "+parentId);
 			getActivity().getSupportLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
 			return null;
 		}

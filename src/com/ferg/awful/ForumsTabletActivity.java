@@ -30,8 +30,8 @@ package com.ferg.awful;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Window;
-import android.widget.RelativeLayout;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -41,7 +41,9 @@ public class ForumsTabletActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsTabletActivity";
 
-    private RelativeLayout mContent;
+    private boolean mContent;
+    private ForumsIndexFragment mIndexFragment = null;
+    private ForumDisplayFragment mFragment = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -58,7 +60,8 @@ public class ForumsTabletActivity extends AwfulActivity {
 
         setContentView(R.layout.forum_index_activity);
 
-        mContent = (RelativeLayout) findViewById(R.id.content);
+        mContent = (findViewById(R.id.content)!= null);
+        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
 
         setActionBar();
 
@@ -73,9 +76,7 @@ public class ForumsTabletActivity extends AwfulActivity {
     private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-                ForumsIndexFragment fragment = 
-                    (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
-                fragment.displayUserCP();
+                	mIndexFragment.displayUserCP();
             }
         }
     }
@@ -93,15 +94,20 @@ public class ForumsTabletActivity extends AwfulActivity {
     }
 
     public boolean isDualPane() {
-        return mContent != null;
+        return mContent;
     }
 
     public void setContentPane(int aForumId) {
         ForumDisplayFragment fragment = 
             ForumDisplayFragment.newInstance(aForumId);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, fragment);
+        transaction.setTransition(FragmentTransaction.TRANSIT_NONE);
+        if(mFragment == null){
+        	transaction.add(R.id.content, fragment);
+        }else{
+        	transaction.replace(R.id.content, fragment);
+        }
+    	mFragment = fragment;
         transaction.commit();
     }
 }
