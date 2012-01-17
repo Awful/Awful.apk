@@ -211,7 +211,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
 		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
+		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
 
@@ -231,7 +231,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onStop();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
 		getActivity().getSupportLoaderManager().destroyLoader(mId);
-		getActivity().getSupportLoaderManager().destroyLoader(0);
+		getActivity().getSupportLoaderManager().destroyLoader(-98);
         getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
         
@@ -501,7 +501,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+        	getActivity().getSupportLoaderManager().restartLoader(-98, null, this);
         }
     }
 }
