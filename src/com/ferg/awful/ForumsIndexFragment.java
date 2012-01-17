@@ -157,21 +157,21 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         }
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
+		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+        syncForums();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
 
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
         if (loggedIn) {
-            Log.e(TAG, "Cookie Loaded!");
+            Log.v(TAG, "Cookie Loaded!");
         } else {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
-        syncForums();
     }
     
     @Override
@@ -186,6 +186,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void onStop() {
         super.onStop();
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
 		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }

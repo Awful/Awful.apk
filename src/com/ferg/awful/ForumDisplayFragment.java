@@ -195,6 +195,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setOnClickListener(onButtonClick);
         }
         registerForContextMenu(getListView());
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
+		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(-10, null, mForumDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
     
 
@@ -237,10 +241,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart();
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
-		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
     
     @Override
@@ -255,9 +255,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStop() {
         super.onStop();
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().destroyLoader(getForumId());
-		getActivity().getSupportLoaderManager().destroyLoader(0);
+		getActivity().getSupportLoaderManager().destroyLoader(-10);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -584,7 +588,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(0, null, mForumDataCallback);
+        	getActivity().getSupportLoaderManager().restartLoader(-10, null, mForumDataCallback);
         }
     }
 

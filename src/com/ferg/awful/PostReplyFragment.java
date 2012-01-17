@@ -285,7 +285,7 @@ public class PostReplyFragment extends DialogFragment {
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Reply load finished, populating: "+aData.getCount());
-        	if(aData.getCount() >0 && aData.moveToFirst()){
+        	if(aData.getCount() >0 && aData.moveToFirst() && aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT))!=null){
         		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if (replyData != null) {
     				String quoteText = NetworkUtils.unencodeHtml(replyData);
@@ -305,12 +305,10 @@ public class PostReplyFragment extends DialogFragment {
         	}else{
 		        //We'll enable it once we have a formkey and cookie
 		        mSubmit.setEnabled(false);
-		        saveReply();
 		        if(mReplyType != AwfulMessage.TYPE_NEW_REPLY){
 		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true);
 		        }
-	        	saveReply();
-	    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId);
+	    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
         	}
         	aData.close();
         }

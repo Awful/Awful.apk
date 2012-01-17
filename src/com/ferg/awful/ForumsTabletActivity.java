@@ -101,11 +101,11 @@ public class ForumsTabletActivity extends AwfulActivity {
         ForumDisplayFragment fragment = 
             ForumDisplayFragment.newInstance(aForumId);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setTransition(FragmentTransaction.TRANSIT_NONE);
         if(mFragment == null){
         	transaction.add(R.id.content, fragment);
         }else{
-        	transaction.replace(R.id.content, fragment);
+        	transaction.remove(mFragment);
+        	transaction.add(R.id.content, fragment);
         }
     	mFragment = fragment;
         transaction.commit();

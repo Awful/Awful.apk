@@ -52,10 +52,12 @@ import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.task.AwfulTask;
 import com.ferg.awful.task.BookmarkTask;
 import com.ferg.awful.task.FetchPrivateMessageTask;
+import com.ferg.awful.task.FetchReplyTask;
 import com.ferg.awful.task.IndexTask;
 import com.ferg.awful.task.MarkLastReadTask;
 import com.ferg.awful.task.MarkUnreadTask;
 import com.ferg.awful.task.PrivateMessageIndexTask;
+import com.ferg.awful.task.SendPostTask;
 import com.ferg.awful.task.SendPrivateMessageTask;
 import com.ferg.awful.task.ThreadTask;
 import com.ferg.awful.task.VotingTask;
@@ -145,6 +147,12 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_FETCH_POST_REPLY:
+                	queueUniqueThread(new FetchReplyTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
+                    break;
+                case MSG_SEND_POST:
+                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
                     break;
             }
         }

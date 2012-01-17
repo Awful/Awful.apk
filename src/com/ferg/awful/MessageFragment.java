@@ -361,7 +361,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 				mDisplayText.setVisibility(View.VISIBLE);
 			}
 			break;
-		case R.id.send_pm:
+		case R.id.message_reply_button:
 			sendPM();
 			break;
 		}
