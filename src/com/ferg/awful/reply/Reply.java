@@ -130,6 +130,7 @@ public class Reply {
         TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
         getReplyData(response, quote);
         quote.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
+        quote.put(AwfulPost.REPLY_ORIGINAL_CONTENT, quote.getAsString(AwfulMessage.REPLY_CONTENT));
     	return quote;
     }
     
@@ -142,6 +143,8 @@ public class Reply {
         params.put(PARAM_POSTID, Integer.toString(postId));
         TagNode response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
+        edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
+        edit.put(AwfulPost.EDIT_POST_ID, postId);
     	return edit;
     }
     

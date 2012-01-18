@@ -77,6 +77,7 @@ public class PostReplyFragment extends DialogFragment {
     private int mSelection;
     private int mReplyType;
     private boolean sendSuccessful = false;
+    private String originalReplyData = "";
     
 	private Handler mHandler = new Handler() {
         @Override
@@ -84,22 +85,22 @@ public class PostReplyFragment extends DialogFragment {
         	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
+            		if(mDialog != null){
+            			mDialog.dismiss();
+            			mDialog = null;
+            		}
                 	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
                 		getActivity().getSupportLoaderManager().restartLoader(mThreadId, null, mReplyDataCallback);
-                		if(mDialog != null){
-                			mDialog.dismiss();
-                			mDialog = null;
-                		}
                 	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
-                		if(mDialog != null){
-                			mDialog.dismiss();
-                			mDialog = null;
-                		}
+                		sendSuccessful = true;
                 		if(getActivity() != null){
                 			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
                 			if(getActivity() instanceof MessageDisplayActivity){
                 				getActivity().finish();
+                			}else{
+                				((ThreadDisplayActivity)getActivity()).refreshInfo();
+                				dismiss();
                 			}
                 		}
                 	}
@@ -107,17 +108,18 @@ public class PostReplyFragment extends DialogFragment {
                 case AwfulSyncService.Status.WORKING:
                     break;
                 case AwfulSyncService.Status.ERROR:
+                	if(mDialog != null){
+            			mDialog.dismiss();
+            			mDialog = null;
+            		}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
-	                	if(mDialog != null){
-	            			mDialog.dismiss();
-                			mDialog = null;
-	            		}
+            			saveReply();
 	            		if(getActivity() != null){
-	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
+	            			Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
                 	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
-            			Toast.makeText(getActivity(), "Message Load Failed!", Toast.LENGTH_LONG).show();
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
+            			Toast.makeText(getActivity(), "Reply Load Failed!", Toast.LENGTH_LONG).show();
                 	}
                     break;
                 default:
@@ -212,7 +214,13 @@ public class PostReplyFragment extends DialogFragment {
 		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
 		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
         if(!sendSuccessful){
-        	saveReply();
+        	if(mMessage.getText().toString().trim().equalsIgnoreCase(originalReplyData.trim())){
+        		Log.i(TAG, "Message unchanged, discarding.");
+        		deleteReply();//if the reply is unchanged, throw it out.
+        	}else{
+        		Log.i(TAG, "Message Unsent, saving.");
+        		saveReply();
+        	}
         }
         cleanupTasks();
     }
@@ -221,6 +229,15 @@ public class PostReplyFragment extends DialogFragment {
     public void onDestroy() {
         super.onDestroy();
         cleanupTasks();
+        if(getActivity() != null){
+			if(getActivity() instanceof MessageDisplayActivity){
+				getActivity().setResult(RESULT_POSTED);
+			}else{
+				((ThreadDisplayActivity)getActivity()).refreshInfo();
+				((ThreadDisplayActivity)getActivity()).refreshThread();
+				dismiss();
+			}
+		}
     }
 
 	@Override
@@ -247,9 +264,14 @@ public class PostReplyFragment extends DialogFragment {
         public void onClick(View aView) {
         	mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true);
         	saveReply();
-    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mReplyType);
+    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
         }
     };
+    
+    private void deleteReply(){
+		ContentResolver cr = getActivity().getContentResolver();
+		cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+    }
     
     private void saveReply(){
     	if(getActivity() != null && mThreadId >0){
@@ -285,15 +307,22 @@ public class PostReplyFragment extends DialogFragment {
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Reply load finished, populating: "+aData.getCount());
-        	if(aData.getCount() >0 && aData.moveToFirst() && aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT))!=null){
+        	if(aData.getCount() >0 && aData.moveToFirst()){
+        		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+        		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
         		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if (replyData != null) {
-    				String quoteText = NetworkUtils.unencodeHtml(replyData);
-    				mMessage.setText(quoteText);
-    				mMessage.setSelection(quoteText.length());
-    		        if(mSelection>0 && mMessage.length() >= mSelection){
-    		            mMessage.setSelection(mSelection);
-    		        }
+    				String quoteData = NetworkUtils.unencodeHtml(replyData);
+    				mMessage.setText(quoteData);
+    				mMessage.setSelection(quoteData.length());
+    				originalReplyData = aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT));
+    				if(originalReplyData == null){
+    					originalReplyData = "";
+    				}
+    				//TODO this part might be causing that odd swype bug, but I can't replicate it
+    		        //if(mSelection>0 && mMessage.length() >= mSelection){
+    		        //    mMessage.setSelection(mSelection);
+    		        //}
     			}
         		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
         		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));

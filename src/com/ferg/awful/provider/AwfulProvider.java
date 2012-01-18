@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 9;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -100,7 +100,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.STICKY,
 		AwfulThread.CATEGORY,
 		AwfulThread.LASTPOSTER,
-		AwfulMessage.TYPE };
+		AwfulMessage.TYPE,
+		UPDATED_TIMESTAMP };
 
 	public static final String[] ForumProjection = new String[]{
 		AwfulForum.ID,
@@ -132,6 +133,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TYPE,
 		AwfulPost.FORM_COOKIE,
 		AwfulPost.FORM_KEY,
+		AwfulPost.EDIT_POST_ID,
+		AwfulPost.REPLY_ORIGINAL_CONTENT,
 		AwfulMessage.REPLY_CONTENT,
 		UPDATED_TIMESTAMP
 	};
@@ -232,8 +235,10 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.TITLE      + " VARCHAR,"   + 
                 AwfulPost.FORM_KEY      + " VARCHAR,"   + 
                 AwfulPost.FORM_COOKIE      + " VARCHAR,"   + 
+                AwfulPost.EDIT_POST_ID      + " INTEGER,"   + 
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
                 AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
+                AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
 
@@ -500,9 +505,9 @@ public class AwfulProvider extends ContentProvider {
 				break;
 			case THREAD_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulThread.ID + "=?");
+                builder.appendWhere(TABLE_THREADS+"."+AwfulThread.ID + "=?");
 			case THREAD:
-				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
 			case UCP_THREAD_ID:
@@ -510,7 +515,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
+				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
 			case PM_ID:
@@ -627,10 +632,10 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
 		
-		sThreadProjectionMap.put(AwfulThread.ID, AwfulThread.ID);
+		sThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);
 		sThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
 		sThreadProjectionMap.put(AwfulThread.INDEX, AwfulThread.INDEX);
-		sThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
+		sThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
 		sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
 		sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
 		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
@@ -641,6 +646,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
 		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
+		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_DRAFTS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
 		
 		//hopefully this should let the join happen
@@ -648,7 +654,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);//threads._id AS _id
 		sUCPThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
 		sUCPThreadProjectionMap.put(AwfulThread.INDEX, TABLE_UCP_THREADS+"."+AwfulThread.INDEX+" AS "+AwfulThread.INDEX);
-		sUCPThreadProjectionMap.put(AwfulThread.TITLE, AwfulThread.TITLE);
+		sUCPThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
 		sUCPThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
 		sUCPThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
 		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
@@ -658,7 +664,8 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
-		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, "0");
+		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
+		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
 		sPMProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
 		sPMProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
@@ -674,6 +681,8 @@ public class AwfulProvider extends ContentProvider {
 		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
 		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+		sDraftProjectionMap.put(AwfulPost.EDIT_POST_ID, AwfulPost.EDIT_POST_ID);
+		sDraftProjectionMap.put(AwfulPost.REPLY_ORIGINAL_CONTENT, AwfulPost.REPLY_ORIGINAL_CONTENT);
 		sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
 		
 		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);

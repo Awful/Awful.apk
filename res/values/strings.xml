@@ -108,4 +108,7 @@
 	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
 	<string name="copy_url">Copy Thread Url</string>
 	<string name="copy_url_success">Url has been copied to the clipboard.</string>
+	<string name="draft_alert_keep">Keep Message</string>
+	<string name="draft_alert_discard">Discard Message and Continue</string>
+	<string name="draft_alert_title">Previous Reply Found</string>
 </resources>

@@ -152,7 +152,7 @@ public class AwfulSyncService extends Service {
                 	queueUniqueThread(new FetchReplyTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
                     break;
                 case MSG_SEND_POST:
-                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
                     break;
             }
         }

@@ -39,6 +39,9 @@ import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.webkit.*;
 import android.widget.*;
 import android.support.v4.app.*;
@@ -89,6 +92,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private int mPage = 1;
     private int mThreadId = 0;
     private int mLastPage = 0;
+    private int mReplyDraftSaved = 0;
+    private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
     
@@ -300,10 +305,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
 
         getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
-        getLoaderManager().initLoader(0, null, mThreadLoaderCallback);
+        getLoaderManager().initLoader(-77, null, mThreadLoaderCallback);
 
-        getActivity().getContentResolver().registerContentObserver(
-                AwfulThread.CONTENT_URI, true, mThreadObserver);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         
         syncThread();
     }
@@ -392,7 +396,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	            }
         	}
         }
-
+    	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
     }
     
     @Override
@@ -513,19 +517,29 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             	}else{
                     Bundle args = new Bundle();
 
-                    args.putInt(Constants.THREAD_ID, getId());
+                    args.putInt(Constants.THREAD_ID, mThreadId);
                     args.putInt(Constants.EDITING, AwfulMessage.TYPE_EDIT);
                     args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
 
-                    displayPostReplyDialog(args);
+
+                    if(mReplyDraftSaved >0){
+                    	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+                    }else{
+                        displayPostReplyDialog(args);
+                    }
             	}
                 return true;
             case ClickInterface.QUOTE:
                 Bundle args = new Bundle();
-                args.putInt(Constants.THREAD_ID, getId());
+                args.putInt(Constants.THREAD_ID, mThreadId);
                 args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
                 args.putInt(Constants.EDITING, AwfulMessage.TYPE_QUOTE);
-                displayPostReplyDialog(args);
+
+                if(mReplyDraftSaved >0){
+                	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+                }else{
+                    displayPostReplyDialog(args);
+                }
                 return true;
             case ClickInterface.LAST_READ:
             	markLastRead(aLastReadIndex);
@@ -579,10 +593,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     private void displayPostReplyDialog() {
         Bundle args = new Bundle();
-        args.putInt(Constants.THREAD_ID, getId());
+        args.putInt(Constants.THREAD_ID, mThreadId);
         args.putInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
 
-        displayPostReplyDialog(args);
+        if(mReplyDraftSaved >0){
+        	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+        }else{
+            displayPostReplyDialog(args);
+        }
     }
 
     private void displayPostReplyDialog(Bundle aArgs) {
@@ -596,6 +614,39 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             postReply.putExtras(aArgs);
             startActivityForResult(postReply, 0);
         }
+    }
+    
+    private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
+    	TextView draftAlertMsg = new TextView(getActivity());
+    	switch(replyType){
+    	case AwfulMessage.TYPE_EDIT:
+        	draftAlertMsg.setText("Unsent Edit Found from "+timeStamp);
+    		break;
+    	case AwfulMessage.TYPE_QUOTE:
+        	draftAlertMsg.setText("Unsent Quote Found from "+timeStamp);
+    		break;
+    	case AwfulMessage.TYPE_NEW_REPLY:
+        	draftAlertMsg.setText("Unsent Reply Found from "+timeStamp);
+    		break;
+    	}
+        new AlertDialog.Builder(getActivity())
+            .setTitle("Draft Found")
+            .setView(draftAlertMsg)
+            .setPositiveButton(R.string.draft_alert_keep,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface aDialog, int aWhich) {
+                        displayPostReplyDialog(aArgs);
+                    }
+                })
+            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface aDialog, int aWhich) {
+                    ContentResolver cr = getActivity().getContentResolver();
+                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+                    displayPostReplyDialog(aArgs);
+                }
+            })
+            .show();
+        
     }
 
     private void handleStatusUpdate(int aStatus) {
@@ -842,12 +893,20 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Thread title finished, populating.");
-        	if(aData.moveToFirst() && aData.getColumnIndex(AwfulThread.TITLE) >= 0 && aData.getColumnIndex(AwfulThread.POSTCOUNT) >= 0){
+        	if(aData.getCount() >0 && aData.moveToFirst()){
                 setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
         		updatePageBar();
+        		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+        		if(mReplyDraftSaved > 0){
+            		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
+            		if(mReply != null){
+            			mReply.startAnimation(mFlashingAnimation);
+            		}//TODO add tablet notification
+        			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
+        		}
         	}
         }
         
@@ -862,7 +921,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(0, null, mThreadLoaderCallback);
+        	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
         }
     }
+    
+    private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
+	static {
+		mFlashingAnimation.setInterpolator(new LinearInterpolator());
+		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
+		mFlashingAnimation.setDuration(500);
+	}
+	public void refreshInfo() {
+    	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
+	}
 }

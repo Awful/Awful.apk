@@ -78,6 +78,10 @@ public class AwfulPost {
 
 	public static final String FORM_KEY = "form_key";
 	public static final String FORM_COOKIE = "form_cookie";
+	/** For comparing against replies to see if the user actually typed anything. **/
+	public static final String REPLY_ORIGINAL_CONTENT = "original_reply";
+	public static final String EDIT_POST_ID = "edit_id";
+
 
 	private int mThreadId;
     private String mId;

@@ -46,10 +46,7 @@ public class FetchReplyTask extends AwfulTask {
 				default:
 					return false;
 			}
-			//String content = reply.getAsString(AwfulMessage.REPLY_CONTENT);
-			//reply.remove(AwfulMessage.REPLY_CONTENT);
 			if(contentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), reply, null, null)<1){
-				//reply.put(AwfulMessage.REPLY_CONTENT, content);
 				contentResolver.insert(AwfulMessage.CONTENT_URI_REPLY, reply);
 			}
 			Log.i(TAG, "Reply loaded and saved: "+mId);

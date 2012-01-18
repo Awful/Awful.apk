@@ -110,7 +110,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void refreshThread() {
-        // TODO: getFragment().refresh();
+        getFragment().refresh();
     }
 
     protected void configureFragment(Bundle aSavedState) {
@@ -203,4 +203,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
     	outState.putInt(Constants.THREAD_ID, getFragment().getThreadId());
         */
     }
+
+	public void refreshInfo() {
+		getFragment().refreshInfo();
+	}
 }
