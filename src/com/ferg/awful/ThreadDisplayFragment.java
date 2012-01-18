@@ -123,7 +123,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
                     handleStatusUpdate(aMsg.arg1);
-                	getActivity().getSupportLoaderManager().restartLoader(0, null, mThreadLoaderCallback);
+                	refreshInfo();
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -235,6 +235,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			mRefresh.setOnClickListener(onButtonClick);
 		}
 
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 		initThreadViewProperties();
 	}
 
@@ -302,15 +304,39 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStart() {
         super.onStart();
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
-
         getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
-        getLoaderManager().initLoader(-77, null, mThreadLoaderCallback);
+        getLoaderManager().initLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         
         syncThread();
     }
+    
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        if (mThreadWindow.getChildCount() < 2) {
+            mThreadView = new SnapshotWebView(getActivity());
+
+            initThreadViewProperties();
+
+            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        }else{
+        	if(mThreadView != null){
+	        	try {
+	                Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
+	                    .invoke(mThreadView, (Object[]) null);
+	                mThreadView.resumeTimers();
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+        	}
+        }
+        refreshInfo();
+    }
+    
     
     @Override
     public void onPause() {
@@ -342,9 +368,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         mThreadView.stopLoading();
         cleanupTasks();
-
-        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
@@ -361,6 +384,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } catch (Exception e) {
             e.printStackTrace();
         }
+        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
@@ -372,31 +397,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private void cleanupTasks() {
         if (mDialog != null) {
         }
-    }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-        
-        if (mThreadWindow.getChildCount() < 2) {
-            mThreadView = new SnapshotWebView(getActivity());
-
-            initThreadViewProperties();
-
-            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-        }else{
-        	if(mThreadView != null){
-	        	try {
-	                Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-	                    .invoke(mThreadView, (Object[]) null);
-	                mThreadView.resumeTimers();
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
-        	}
-        }
-    	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
     }
     
     @Override
@@ -921,7 +921,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
+        	refreshInfo();
         }
     }
     
@@ -932,6 +932,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mFlashingAnimation.setDuration(500);
 	}
 	public void refreshInfo() {
-    	getActivity().getSupportLoaderManager().restartLoader(-77, null, mThreadLoaderCallback);
+    	getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 	}
 }

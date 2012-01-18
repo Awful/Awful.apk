@@ -197,7 +197,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(-10, null, mForumDataCallback);
+		refreshInfo();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
     
@@ -588,8 +588,12 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(-10, null, mForumDataCallback);
+        	refreshInfo();
         }
     }
+	
+	private void refreshInfo(){
+    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+	}
 
 }

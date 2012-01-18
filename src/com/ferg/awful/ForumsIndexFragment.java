@@ -379,15 +379,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	        }
 		}
 	}
-
-	@Override
-	public void onHiddenChanged (boolean hidden){
-        if(hidden){
-        	Log.e(TAG, "VIEW HIDDEN");
-        }else{
-        	Log.e(TAG, "VIEW showing");
-        }
-	}
 	
 	private void syncForums() {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
@@ -397,8 +388,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-			Log.i(TAG,"Load Cursor.");
-            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(Constants.FORUM_INDEX_ID)}, AwfulForum.INDEX);
+			Log.i(TAG,"Load Index Cursor: "+aId);
+            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(aId)}, AwfulForum.INDEX);
         }
 
 		@Override
@@ -408,8 +399,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         		if(aLoader.getId() == 0){
         			mCursorAdapter.setGroupCursor(aData);
         		}else{
-        			int groupId = mCursorAdapter.getGroupPosition(aLoader.getId());
-        			if(groupId >0){
+        			int groupId = mCursorAdapter.getGroupPosition(aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID)));
+        			if(groupId >=0){
         				mCursorAdapter.setChildrenCursor(groupId, aData);
         			}
         		}
@@ -423,7 +414,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     			mCursorAdapter.setGroupCursor(null);
     		}else{
     			int groupId = mCursorAdapter.getGroupPosition(arg0.getId());
-    			if(groupId >0){
+    			if(groupId >=0){
+    				if(mForumList.isGroupExpanded(groupId)){
+    					mForumList.collapseGroup(groupId);
+    				}
     				mCursorAdapter.setChildrenCursor(groupId, null);
     			}
     		}
@@ -432,10 +426,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	
 	private class AwfulTreeAdapter extends CursorTreeAdapter{
 		private LayoutInflater inf;
-		private HashMap<Integer, Cursor> cursorTree;
 		public AwfulTreeAdapter(Context context) {
 			super(null, context, false);
-			cursorTree = new HashMap<Integer, Cursor>();
 			inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 		
@@ -469,7 +461,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 		protected Cursor getChildrenCursor(Cursor groupCursor) {
 			int parentId = groupCursor.getInt(groupCursor.getColumnIndex(AwfulForum.ID));
 			Log.v(TAG, "getChildrenCursor "+parentId);
-			getActivity().getSupportLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
+			getLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
 			return null;
 		}
 

@@ -90,13 +90,13 @@ public class PostReplyFragment extends DialogFragment {
             			mDialog = null;
             		}
                 	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
-                		getActivity().getSupportLoaderManager().restartLoader(mThreadId, null, mReplyDataCallback);
+                		refreshLoader();
                 	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
                 		sendSuccessful = true;
                 		if(getActivity() != null){
                 			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-                			if(getActivity() instanceof MessageDisplayActivity){
+                			if(getActivity() instanceof PostReplyActivity){
                 				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
                 			}else{
@@ -188,7 +188,7 @@ public class PostReplyFragment extends DialogFragment {
         }
         
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mThreadId);
-		getActivity().getSupportLoaderManager().restartLoader(mThreadId, null, mReplyDataCallback);
+		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         
         mTitle.setText(getString(R.string.post_reply));
@@ -210,9 +210,6 @@ public class PostReplyFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);
-		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
-		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
         if(!sendSuccessful){
         	if(mMessage.getText().toString().trim().equalsIgnoreCase(originalReplyData.trim())){
         		Log.i(TAG, "Message unchanged, discarding.");
@@ -226,11 +223,19 @@ public class PostReplyFragment extends DialogFragment {
     }
     
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);
+		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
+		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
+    }
+    
+    @Override
     public void onDestroy() {
         super.onDestroy();
         cleanupTasks();
         if(getActivity() != null){
-			if(getActivity() instanceof MessageDisplayActivity){
+			if(getActivity() instanceof PostReplyActivity){
 			}else{
 				((ThreadDisplayActivity)getActivity()).refreshInfo();
 				((ThreadDisplayActivity)getActivity()).refreshThread();
@@ -347,10 +352,14 @@ public class PostReplyFragment extends DialogFragment {
         
         @Override
         public void onChange (boolean selfChange){
-        	Log.i(TAG,"PM Data update.");
+        	Log.i(TAG,"Post Data update.");
         	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(mThreadId, null, this);
+        		refreshLoader();
         	}
         }
     }
+	
+	private void refreshLoader(){
+		getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+	}
 }
