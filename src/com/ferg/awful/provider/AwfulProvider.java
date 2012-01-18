@@ -99,7 +99,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.BOOKMARKED,
 		AwfulThread.STICKY,
 		AwfulThread.CATEGORY,
-		AwfulThread.LASTPOSTER };
+		AwfulThread.LASTPOSTER,
+		AwfulMessage.TYPE };
 
 	public static final String[] ForumProjection = new String[]{
 		AwfulForum.ID,
@@ -131,7 +132,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TYPE,
 		AwfulPost.FORM_COOKIE,
 		AwfulPost.FORM_KEY,
-		AwfulMessage.REPLY_CONTENT
+		AwfulMessage.REPLY_CONTENT,
+		UPDATED_TIMESTAMP
 	};
 
 
@@ -231,7 +233,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.FORM_KEY      + " VARCHAR,"   + 
                 AwfulPost.FORM_COOKIE      + " VARCHAR,"   + 
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
-                AwfulMessage.REPLY_CONTENT      + " VARCHAR);");
+                AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
+            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
 
         }
@@ -499,7 +502,7 @@ public class AwfulProvider extends ContentProvider {
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case THREAD:
-				builder.setTables(TABLE_THREADS);
+				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
 			case UCP_THREAD_ID:
@@ -637,6 +640,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		
 		
 		//hopefully this should let the join happen
@@ -654,6 +658,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, "0");
 		
 		sPMProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
 		sPMProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
@@ -669,6 +674,7 @@ public class AwfulProvider extends ContentProvider {
 		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
 		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+		sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
 		
 		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);
 		sPMReplyProjectionMap.put(AwfulMessage.TITLE, TABLE_PM+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.TITLE);

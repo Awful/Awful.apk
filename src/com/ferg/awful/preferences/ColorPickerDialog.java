@@ -146,7 +146,7 @@ public class ColorPickerDialog
 	public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
 		if(arg0.getId() == mColorEditCode.getId()){
 			String code = mColorEditCode.getText().toString();
-			if(code.length() == 8 && !code.matches("[^0-9a-fA-F]")){
+			if(code.length() == 6 && !code.matches("[^0-9a-fA-F]")){
 				mNewColor.setColor((int) (Long.parseLong(code, 16) & 0x00FFFFFF) | 0xFF000000);
 			}
 		}
