@@ -110,4 +110,5 @@
 	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
 	<string name="copy_url">Copy Thread Url</string>
 	<string name="copy_url_success">Url has been copied to the clipboard.</string>
+	<string name="new_threads_first">Sort UCP by new posts</string>
 </resources>
