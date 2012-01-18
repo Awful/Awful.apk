@@ -97,9 +97,9 @@ public class PostReplyFragment extends DialogFragment {
                 		if(getActivity() != null){
                 			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
                 			if(getActivity() instanceof MessageDisplayActivity){
+                				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
                 			}else{
-                				((ThreadDisplayActivity)getActivity()).refreshInfo();
                 				dismiss();
                 			}
                 		}
@@ -231,11 +231,9 @@ public class PostReplyFragment extends DialogFragment {
         cleanupTasks();
         if(getActivity() != null){
 			if(getActivity() instanceof MessageDisplayActivity){
-				getActivity().setResult(RESULT_POSTED);
 			}else{
 				((ThreadDisplayActivity)getActivity()).refreshInfo();
 				((ThreadDisplayActivity)getActivity()).refreshThread();
-				dismiss();
 			}
 		}
     }
