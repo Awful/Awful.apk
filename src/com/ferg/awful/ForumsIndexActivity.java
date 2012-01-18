@@ -71,6 +71,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         if (isTablet()) {
             startTabletActivity();
+        } else if (isTV()) {
+            startTVActivity();
         } else {
             startPhoneActivity();
         }
@@ -90,6 +92,18 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     private void startTabletActivity() {
         Intent shim = new Intent(this, ForumsTabletActivity.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            shim.putExtras(extras);
+        }
+
+        startActivity(shim);
+        finish();
+    }
+
+    private void startTVActivity() {
+        Intent shim = new Intent(this, ForumsTVActivity.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {

@@ -67,12 +67,18 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     private ForumListAdapter adapt;
 
     private AwfulPreferences mPrefs;
+
+    public static ForumsIndexFragment newInstance() {
+        return new ForumsIndexFragment();
+    }
     
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
     }
+
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
@@ -94,11 +100,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-        if(((AwfulActivity) getActivity()).getServiceConnection() != null){
-            adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
-            mForumList.setAdapter(adapt);
-        }
-        mForumList.setOnItemClickListener(onForumSelected);
+
         return result;
     }
 
@@ -110,8 +112,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setRetainInstance(true);
-        
         if (AwfulActivity.useLegacyActionbar()) {
             mTitle.setText(getString(R.string.forums_title));
             mUserCp.setOnClickListener(onButtonClick);
@@ -126,7 +126,16 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
         if (loggedIn) {
-            Log.e(TAG, "Cookie Loaded!");
+            if(((AwfulActivity) getActivity()).getServiceConnection() == null){
+                ((AwfulActivity) getActivity()).createService();
+            }
+
+            adapt = ((AwfulActivity) getActivity()).getServiceConnection().createForumAdapter(0, this);
+            mForumList.setAdapter(adapt);
+
+            adapt.refresh();
+            
+            mForumList.setOnItemClickListener(onForumSelected);
         } else {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
@@ -150,6 +159,13 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onDestroy() {
         super.onDestroy();
     }
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mForumList.setAdapter(null);
+		adapt = null;
+	}
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -256,7 +272,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     	if(extras != null && extras.containsKey("unread_pm") && extras.getInt("unread_pm") >=0){
     		unreadPMCount = extras.getInt("unread_pm");
     		if(!AwfulActivity.useLegacyActionbar()){
-    			getActivity().invalidateOptionsMenu();
+                if (getActivity() != null) {
+                    getActivity().invalidateOptionsMenu();
+                }
     		}else{
     			if(mPMcount != null){
     				mPMcount.setText(Integer.toString(unreadPMCount));
@@ -297,7 +315,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+            if (getActivity() != null) {
+                getActivity().setProgressBarIndeterminateVisibility(false);
+            }
         }
     }
 	@Override

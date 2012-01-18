@@ -4,10 +4,13 @@
 	<item
 		android:id="@+id/user_cp"
 		android:icon="@drawable/gear"
-		android:showAsAction="ifRoom" />
+		android:showAsAction="always" 
+        android:title="@string/usercp"
+        />
     <item 
         android:id="@+id/pm" 
-        android:showAsAction="ifRoom" 
+        android:showAsAction="always" 
+        android:title="@string/private_message"
         android:icon="@drawable/sym_action_email" />
 	<item
 		android:id="@+id/refresh"

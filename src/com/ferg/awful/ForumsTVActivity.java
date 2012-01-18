@@ -27,11 +27,8 @@
 
 package com.ferg.awful;
 
-import com.ferg.awful.service.AwfulServiceConnection;
-
 import android.app.ActionBar;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
@@ -43,7 +40,9 @@ import com.example.google.tv.leftnavbar.R;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class ForumDisplayActivity extends AwfulActivity {
+public class ForumsTVActivity extends AwfulActivity {
+
+    private static final String TAG = "ForumsTVActivity";
 
     private LeftNavBar mLeftNavBar;
 
@@ -51,46 +50,24 @@ public class ForumDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         new Thread(new Runnable() {
             public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsDisplayActivity");
+                GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsTVActivity");
                 GoogleAnalyticsTracker.getInstance().dispatch();
             }
         }).start();
 
-        if (!AwfulActivity.useLegacyActionbar()) {
-            requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        }else{
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-        }
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.forum_display_activity);
 
-        if (isTV()) {
-            LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
-            bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar_tv));
+        setContentView(R.layout.forum_index_activity);
 
-            setupBar();
-        } else if (!AwfulActivity.useLegacyActionbar()) {
-        	ActionBar action = getActionBar();
+        LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
+        bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar_tv));
 
-        	if(action != null){
-        		action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        	}
-        }
+        setupBar();
     }
-    public void onResume(){
-        super.onResume();
-    }
-    public void onPause(){
-        super.onPause();
-    }
-    public void onDestroy(){
-        super.onDestroy();
-    }
-
+    
     private LeftNavBar getLeftNavBar() {
         if (mLeftNavBar == null) {
             mLeftNavBar = new LeftNavBar(this);
@@ -113,10 +90,9 @@ public class ForumDisplayActivity extends AwfulActivity {
         bar.setTitleBackground(getResources().getDrawable(R.drawable.bar));
         bar.setShowHideAnimationEnabled(true);
         bar.setDisplayOptions(
-            LeftNavBar.DISPLAY_AUTO_EXPAND |
-            ActionBar.DISPLAY_SHOW_HOME |
-            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED |
-            ActionBar.DISPLAY_SHOW_TITLE
+            LeftNavBar.DISPLAY_AUTO_EXPAND|
+            ActionBar.DISPLAY_SHOW_HOME|
+            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED
         );
 
         setupTabs();
@@ -126,7 +102,7 @@ public class ForumDisplayActivity extends AwfulActivity {
         ActionBar bar = getLeftNavBar();
         bar.removeAllTabs();
 
-        ActionBar.Tab threads = bar.newTab().setText(R.string.threads).setIcon(R.drawable.ic_action_threads)
+        ActionBar.Tab home = bar.newTab().setText(R.string.home).setIcon(R.drawable.ic_action_home)
                 .setTabListener(new ActionBar.TabListener() {
 
             @Override
@@ -134,7 +110,7 @@ public class ForumDisplayActivity extends AwfulActivity {
 
             @Override
             public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(0);
+                ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
 
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.content, fragment);
@@ -166,7 +142,25 @@ public class ForumDisplayActivity extends AwfulActivity {
             }
         });
 
-        bar.addTab(threads, true);
+        ActionBar.Tab pm = bar.newTab().setText(R.string.private_message).setIcon(R.drawable.ic_action_private_message)
+                .setTabListener(new ActionBar.TabListener() {
+
+            @Override
+            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
+
+            @Override
+            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
+
+            @Override
+            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
+        });
+
+        bar.addTab(home, true);
         bar.addTab(usercp, false);
+        bar.addTab(pm, false);
+    }
+
+    public void displayUserCP() {
+        UserCPFragment.newInstance(true).show(getSupportFragmentManager(), "user_control_panel_dialog");
     }
 }

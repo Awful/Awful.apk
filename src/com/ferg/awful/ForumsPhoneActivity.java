@@ -31,6 +31,8 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.Window;
 
+import android.support.v4.app.FragmentTransaction;
+
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsPhoneActivity extends AwfulActivity {
@@ -61,5 +63,11 @@ public class ForumsPhoneActivity extends AwfulActivity {
 	        	action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
 	        }
         }
+       
+        ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
     }
 }

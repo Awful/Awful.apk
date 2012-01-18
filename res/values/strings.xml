@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Awful</string>
+    <string name="home">Home</string>
     <string name="logout">All your dreams</string>
     <string name="usercp">User Control Panel</string>
     <string name="back">Previous Page</string>
@@ -22,6 +23,7 @@
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
+    <string name="threads">Threads</string>
     <string name="username_pref">Username</string>
     <string name="user_quote">Highlight your quotes</string>
     <string name="user_highlight">Highlight username</string>

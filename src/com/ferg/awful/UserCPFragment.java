@@ -134,7 +134,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         setRetainInstance(true);
 
         if (AwfulActivity.useLegacyActionbar()) {
-            mTitle.setText(getString(R.string.user_cp));
+            mTitle.setText(getString(R.string.usercp));
 
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);

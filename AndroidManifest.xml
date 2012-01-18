@@ -44,6 +44,9 @@
         <activity 
             android:name="ForumsPhoneActivity"
             />
+        <activity 
+            android:name="ForumsTVActivity"
+            />
         <activity
                 android:name="AwfulLoginActivity"
                 android:theme="@android:style/Theme.NoTitleBar"
@@ -112,4 +115,9 @@
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-library android:name="com.google.android.tv" android:required="false" />
+
+    <uses-feature android:name="com.google.android.tv" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 </manifest>

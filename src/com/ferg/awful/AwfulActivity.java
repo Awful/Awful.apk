@@ -3,6 +3,7 @@ package com.ferg.awful;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,12 +30,17 @@ public class AwfulActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mService = new AwfulServiceConnection();
-        mService.connect(AwfulActivity.this);
+
+        createService();
     }
 
     public AwfulServiceConnection getServiceConnection(){
         return mService;
+    }
+
+    public void createService() {
+        mService = new AwfulServiceConnection();
+        mService.connect(AwfulActivity.this);
     }
     
     @Override
@@ -70,6 +76,24 @@ public class AwfulActivity extends FragmentActivity {
 
     public boolean isTablet() {
         Configuration config = getResources().getConfiguration();
+        PackageManager manager = getPackageManager();
+
+        if (manager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                // If it's a Honeycomb device, it has to be a tablet
+                return true;
+            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) && config.smallestScreenWidthDp >= 600) {
+                // If it's 3.2+ and the smallest screen width is at least a 7" device, it's a tablet
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Differs from isTablet() since sometimes we want to use large screen features for a TV
+    public boolean isLargeScreen() {
+        Configuration config = getResources().getConfiguration();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             // If it's a Honeycomb device, it has to be a tablet
@@ -80,6 +104,10 @@ public class AwfulActivity extends FragmentActivity {
         }
 
         return false;
+    }
+
+    public boolean isTV() {
+        return !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
     }
 
     public static boolean useLegacyActionbar() {

@@ -63,6 +63,12 @@ public class ForumsTabletActivity extends AwfulActivity {
         setActionBar();
 
         checkIntentExtras();
+
+        ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment);
+        transaction.commit();
     }
 
     private void setActionBar() {
