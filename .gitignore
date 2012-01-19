@@ -5,9 +5,7 @@ local.properties
 *.keystore
 
 *.DS_Store
-
-*.project
-/.classpath
-/gen
-/bin
-/.settings
+/bin/*
+/gen/*
+.classpath
+.project
