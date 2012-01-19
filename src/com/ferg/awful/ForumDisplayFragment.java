@@ -37,11 +37,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -71,7 +71,6 @@ import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
-import com.ferg.awful.widget.SnapshotWebView;
 
 public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
@@ -373,74 +372,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 			});
 
 			alert.show();
-		}
-	}
-
-	private void displayPagePicker() {
-		final NumberPicker jumpToText = new NumberPicker(getActivity());
-		jumpToText.setRange(1, adapt.getLastPage());
-		jumpToText.setCurrent(adapt.getPage());
-		new AlertDialog.Builder(getActivity()).setTitle("Jump to Page").setView(jumpToText)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface aDialog, int aWhich) {
-						try {
-							int pageInt = jumpToText.getCurrent();
-							if (pageInt > 0 && pageInt <= adapt.getLastPage()) {
-								adapt.goToPage(pageInt);
-							}
-						} catch (NumberFormatException e) {
-							Log.d(TAG, "Not a valid number: " + e.toString());
-							Toast.makeText(getActivity(), R.string.invalid_page, Toast.LENGTH_SHORT)
-									.show();
-						} catch (Exception e) {
-							Log.d(TAG, e.toString());
-						}
-					}
-				}).setNegativeButton("Cancel", null).show();
-	}
-
-	private View.OnClickListener onButtonClick = new View.OnClickListener() {
-		public void onClick(View aView) {
-			switch (aView.getId()) {
-			case R.id.user_cp:
-				startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
-				break;
-			case R.id.refresh:
-				adapt.refresh();
-				break;
-			}
-		}
-	};
-
-	private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
-		public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-
-			switch (adapt.getItemType(aPosition)) {
-			case THREAD:
-				AwfulThread thread = (AwfulThread) adapt.getItem(aPosition);
-				Intent viewThread = new Intent().setClass(getActivity(),
-						ThreadDisplayActivity.class);
-				viewThread.putExtra(Constants.THREAD, thread.getID());
-				startActivity(viewThread);
-				break;
-
-			case FORUM:
-				displayForumContents(aPosition);
-				break;
-			}
-
-		}
-	};
-
-	private void displayForumContents(int aPosition) {
-		AwfulForum forum = (AwfulForum) adapt.getItem(aPosition);
-
-		if (getActivity() instanceof ForumsTabletActivity) {
-			((ForumsTabletActivity) getActivity()).setContentPane((int) forum.getID());
-		} else {
-			Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-			viewForum.putExtra(Constants.FORUM, forum.getID());
-			startActivity(viewForum);
 		}
 	}
 
