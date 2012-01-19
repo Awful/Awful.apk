@@ -207,8 +207,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		mForumList.setAdapter(null);
-		adapt = null;
 	}
     
     @Override

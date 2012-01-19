@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
@@ -27,8 +26,6 @@
  *******************************************************************************/
 
 package com.ferg.awful;
-
-import com.ferg.awful.service.AwfulServiceConnection;
 
 import android.app.ActionBar;
 import android.os.Bundle;
