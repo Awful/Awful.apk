@@ -27,6 +27,7 @@
 
 package com.ferg.awful.reply;
 
+import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -37,6 +38,8 @@ import org.htmlcleaner.XPatherException;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
+import com.ferg.awful.thread.AwfulMessage;
+import com.ferg.awful.thread.AwfulPost;
 
 public class Reply {
     private static final String TAG = "Reply";
@@ -103,72 +106,58 @@ public class Reply {
 
         return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
     }
-
-    public static final String getFormKey(String aThreadId) throws Exception {
-        String result = null;
-
+    
+    public static final ContentValues fetchPost(int threadId) throws Exception{
+    	ContentValues newReply = new ContentValues();
+    	newReply.put(AwfulMessage.ID, threadId);
+    	newReply.put(AwfulMessage.TYPE, AwfulMessage.TYPE_NEW_REPLY);
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "newreply");
-        params.put(PARAM_THREADID, aThreadId);
-
+        params.put(PARAM_THREADID, Integer.toString(threadId));
         TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
-
-        Object[] formkey = response.evaluateXPath(FORMKEY);
-        if (formkey.length > 0) {
-            result = ((TagNode) formkey[0]).getAttributeByName("value");
-        }
-
-        return result;
+        getReplyData(response, newReply);
+        
+    	return newReply;
     }
-
-    public static final String getFormCookie(String aThreadId) throws Exception {
-        String result = null;
-
+    
+    public static final ContentValues fetchQuote(int threadId, int postId) throws Exception{
+    	ContentValues quote = new ContentValues();
+    	quote.put(AwfulMessage.ID, threadId);
+    	quote.put(AwfulMessage.TYPE, AwfulMessage.TYPE_QUOTE);
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "newreply");
-        params.put(PARAM_THREADID, aThreadId);
-
+        params.put(PARAM_POSTID, Integer.toString(postId));
         TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
-
-        Object[] formCookie = response.evaluateXPath(FORMCOOKIE);
-        if (formCookie.length > 0) {
-            result = ((TagNode) formCookie[0]).getAttributeByName("value");
-        }
-
-        return result;
+        getReplyData(response, quote);
+        quote.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
+        quote.put(AwfulPost.REPLY_ORIGINAL_CONTENT, quote.getAsString(AwfulMessage.REPLY_CONTENT));
+    	return quote;
     }
-
-    public static final String getPost(String aPostId) throws Exception {
-        String result = null;
-
+    
+    public static final ContentValues fetchEdit(int threadId, int postId) throws Exception{
+    	ContentValues edit = new ContentValues();
+    	edit.put(AwfulMessage.ID, threadId);
+    	edit.put(AwfulMessage.TYPE, AwfulMessage.TYPE_EDIT);
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "editpost");
-        params.put(PARAM_POSTID, aPostId);
-
+        params.put(PARAM_POSTID, Integer.toString(postId));
         TagNode response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
-
-        Object[] formkey = response.evaluateXPath(QUOTE);
-        if (formkey.length > 0) {
-            result = ((TagNode) formkey[0]).getText().toString();
-        }
-
-        return result;
+        edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
+        edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
+        edit.put(AwfulPost.EDIT_POST_ID, postId);
+    	return edit;
+    }
+    
+    public static final String getMessageContent(TagNode data) throws Exception{
+    	TagNode formContent = data.findElementByAttValue("name", "message", true, false);
+        return formContent.getText().toString().trim();
     }
 
-    public static final String getQuote(String aPostId) throws Exception {
-        String result = null;
-
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, "newreply");
-        params.put(PARAM_POSTID, aPostId);
-
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
-
-        Object[] formkey = response.evaluateXPath(QUOTE);
-        if (formkey.length > 0) {
-            result = ((TagNode) formkey[0]).getText().toString();
-        }
-
-        return result;
+    public static final ContentValues getReplyData(TagNode data, ContentValues results) throws Exception {
+    	TagNode formKey = data.findElementByAttValue("name", "formkey", true, false);
+    	TagNode formCookie = data.findElementByAttValue("name", "form_cookie", true, false);
+    	results.put(AwfulPost.FORM_KEY, formKey.getAttributeByName("value"));
+    	results.put(AwfulPost.FORM_COOKIE, formCookie.getAttributeByName("value"));
+        return results;
     }
 }

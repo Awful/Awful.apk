@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
@@ -65,9 +66,7 @@ public class ForumDisplayActivity extends AwfulActivity {
         }else{
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
-
         setContentView(R.layout.forum_display_activity);
-
         if (isTV()) {
             LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
             bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar_tv));
@@ -75,7 +74,6 @@ public class ForumDisplayActivity extends AwfulActivity {
             setupBar();
         } else if (!AwfulActivity.useLegacyActionbar()) {
         	ActionBar action = getActionBar();
-
         	if(action != null){
         		action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         	}

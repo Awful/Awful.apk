@@ -27,17 +27,16 @@
 
 package com.ferg.awful;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.Html;
-import android.text.Spanned;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,35 +44,91 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
-import com.ferg.awful.reply.Reply;
+import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
+import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulMessage;
+import com.ferg.awful.thread.AwfulPost;
 
 public class PostReplyFragment extends DialogFragment {
     private static final String TAG = "PostReplyActivity";
 
     public static final int RESULT_POSTED = 1;
 
-    private FetchFormCookieTask mFetchCookieTask;
-    private FetchFormKeyTask mFetchKeyTask;
-    private SubmitReplyTask mSubmitTask;
-
     private Bundle mExtras;
     private ImageButton mSubmit;
     private EditText mMessage;
     private ProgressDialog mDialog;
-    private SharedPreferences mPrefs;
+    private AwfulPreferences mPrefs;
     private TextView mTitle;
 
-    private String mThreadId;
-    private String mFormCookie;
-    private String mFormKey;
-    private String mReply;
+    private int mThreadId;
+    private int mPostId;
     private int mSelection;
+    private int mReplyType;
+    private boolean sendSuccessful = false;
+    private String originalReplyData = "";
+    
+	private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+            switch (aMsg.arg1) {
+                case AwfulSyncService.Status.OKAY:
+            		if(mDialog != null){
+            			mDialog.dismiss();
+            			mDialog = null;
+            		}
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
+                		refreshLoader();
+                	}
+                	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
+                		sendSuccessful = true;
+                		if(getActivity() != null){
+                			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
+                			if(getActivity() instanceof PostReplyActivity){
+                				getActivity().setResult(RESULT_POSTED);
+                				getActivity().finish();
+                			}else{
+                				dismiss();
+                			}
+                		}
+                	}
+                    break;
+                case AwfulSyncService.Status.WORKING:
+                    break;
+                case AwfulSyncService.Status.ERROR:
+                	if(mDialog != null){
+            			mDialog.dismiss();
+            			mDialog = null;
+            		}
+                	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
+            			saveReply();
+	            		if(getActivity() != null){
+	            			Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
+	            		}
+                	}
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
+            			Toast.makeText(getActivity(), "Reply Load Failed!", Toast.LENGTH_LONG).show();
+                	}
+                    break;
+                default:
+                    super.handleMessage(aMsg);
+            }
+        }
+    };
+    private Messenger mMessenger = new Messenger(mHandler);
+    private ReplyCallback mReplyDataCallback = new ReplyCallback(mHandler);
 
     public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
@@ -109,7 +164,7 @@ public class PostReplyFragment extends DialogFragment {
         mTitle   = (TextView) result.findViewById(R.id.title);
         mSubmit  = (ImageButton) result.findViewById(R.id.submit_button);
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity());
 
         return result;
     }
@@ -120,94 +175,83 @@ public class PostReplyFragment extends DialogFragment {
 
         setRetainInstance(true);
 
-        mMessage.setBackgroundColor(mPrefs.getInt("default_post_background_color", 
-                    getResources().getColor(R.color.background)));
-	   mMessage.setTextColor(mPrefs.getInt("default_post_font_color", getResources().getColor(R.color.default_post_font)));
+        mMessage.setBackgroundColor(mPrefs.postBackgroundColor);
+        mMessage.setTextColor(mPrefs.postFontColor);
         
         mExtras = getExtras();
-
-        mThreadId = mExtras.getString(Constants.THREAD);
-        if (mThreadId == null) {
-            mThreadId = getArguments().getString(Constants.THREAD);
+        mReplyType = mExtras.getInt(Constants.EDITING, getArguments().getInt(Constants.EDITING, -1));
+        mPostId = mExtras.getInt(Constants.POST_ID, getArguments().getInt(Constants.POST_ID, -1));
+        mThreadId = mExtras.getInt(Constants.THREAD_ID, getArguments().getInt(Constants.THREAD_ID, -1));
+        if(mReplyType <0 || mThreadId <0 || (mReplyType != AwfulMessage.TYPE_NEW_REPLY && mPostId < 0)){
+        	Log.e(TAG,"MISSING ARGUMENTS!");
+        	getActivity().finish();
         }
         
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mThreadId);
+		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
+        
         mTitle.setText(getString(R.string.post_reply));
-
-	   if (mReply != null) {
-			mMessage.setText(mReply);
-		} else {
-            //If we're quoting a post, add it to the message box
-			if (mExtras.containsKey(Constants.QUOTE)) {
-				//String quoteText = StringEscapeUtils.unescapeHtml4(mExtras.getString(Constants.QUOTE)).replaceAll("[\\r\\f]", "");
-				String quoteText = NetworkUtils.unencodeHtml(mExtras.getString(Constants.QUOTE));
-				mMessage.setText(quoteText);
-				mMessage.setSelection(quoteText.length());
-			}
-		}
         mSubmit.setOnClickListener(onSubmitClick);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        mFormKey = mPrefs.getString(Constants.FORM_KEY, null);
-        if (mFormKey == null) {
-            mFetchKeyTask = new FetchFormKeyTask();
-            mFetchKeyTask.execute(mThreadId);
-        } else {
-            mFetchCookieTask = new FetchFormCookieTask();
-            mFetchCookieTask.execute(mThreadId);
-        }
-       if(mSelection>0 && mMessage != null && mMessage.length() >= mSelection){
-        mMessage.setSelection(mSelection);}
-        // We'll enable it once we have a formkey and cookie
-        mSubmit.setEnabled(false);
     }
     
     @Override
     public void onPause() {
         super.onPause();
-
+        
         cleanupTasks();
     }
         
     @Override
     public void onStop() {
         super.onStop();
-
+        if(!sendSuccessful){
+        	if(mMessage.getText().toString().trim().equalsIgnoreCase(originalReplyData.trim())){
+        		Log.i(TAG, "Message unchanged, discarding.");
+        		deleteReply();//if the reply is unchanged, throw it out.
+        	}else{
+        		Log.i(TAG, "Message Unsent, saving.");
+        		saveReply();
+        	}
+        }
         cleanupTasks();
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);
+		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
+		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         cleanupTasks();
+        if(getActivity() != null){
+			if(getActivity() instanceof PostReplyActivity){
+			}else{
+				((ThreadDisplayActivity)getActivity()).refreshInfo();
+				((ThreadDisplayActivity)getActivity()).refreshThread();
+			}
+		}
     }
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		mReply = mMessage.getText().toString();
 		mSelection = mMessage.getSelectionStart();
 	}
 
     private void cleanupTasks() {
         if (mDialog != null) {
             mDialog.dismiss();
-        }
-
-        if (mFetchCookieTask != null) {
-            mFetchCookieTask.cancel(true);
-        }
-
-        if (mFetchKeyTask != null) {
-            mFetchKeyTask.cancel(true);
-        }
-        
-        if (mSubmitTask != null) {
-            mSubmitTask.cancel(true);
         }
     }
 
@@ -221,146 +265,101 @@ public class PostReplyFragment extends DialogFragment {
 
     private View.OnClickListener onSubmitClick = new View.OnClickListener() {
         public void onClick(View aView) {
-            boolean editing = mExtras.getBoolean(Constants.EDITING, false);
-
-            mSubmitTask = new SubmitReplyTask(editing);
-
-            if (editing) {
-                mSubmitTask.execute(NetworkUtils.encodeHtml(mMessage.getText().toString()), mFormKey, mFormCookie, 
-                        mThreadId, mExtras.getString(Constants.POST_ID));
-            } else {
-                mSubmitTask.execute(NetworkUtils.encodeHtml(mMessage.getText().toString()), 
-                        mFormKey, mFormCookie, mThreadId);
-            }
+        	mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true);
+        	saveReply();
+    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
         }
     };
-
-    private class SubmitReplyTask extends AsyncTask<String, Void, Void> {
-        private boolean mEditing;
-
-        public SubmitReplyTask(boolean aEditing) {
-            mEditing = aEditing;
-        }
-
-        public void onPreExecute() {
-            mDialog = ProgressDialog.show(getActivity(), "Posting", 
-                "Hopefully it didn't suck...", true);
-        }
-
-        public Void doInBackground(String... aParams) {
-            if (!isCancelled()) {
-                try {
-                    if (mEditing) {
-                        Log.i(TAG, "Editing!!");
-                        Reply.edit(aParams[0], aParams[1], aParams[2], aParams[3], aParams[4]);
-                    } else {
-                        Reply.post(aParams[0], aParams[1], aParams[2], aParams[3]);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-            return null;
-        }
-
-        public void onPostExecute(Void aResult) {
-            if (!isCancelled()) {
-                mDialog.dismiss();
-			mReply = null;
-                if (((AwfulActivity) getActivity()).isTablet()) {
-                    ((ThreadDisplayActivity) getActivity()).refreshThread();
-                    dismiss();
-                } else {
-                    getActivity().setResult(RESULT_POSTED);
-                    getActivity().finish();
-                }
-            }
-        }
+    
+    private void deleteReply(){
+		ContentResolver cr = getActivity().getContentResolver();
+		cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+    }
+    
+    private void saveReply(){
+    	if(getActivity() != null && mThreadId >0){
+    		ContentResolver cr = getActivity().getContentResolver();
+	    	ContentValues post = new ContentValues();
+	    	post.put(AwfulMessage.ID, mThreadId);
+	    	post.put(AwfulMessage.TYPE, mReplyType);
+	    	String content = mMessage.getText().toString();
+	    	if(content.length() >0){
+	    		post.put(AwfulMessage.REPLY_CONTENT, content);
+    		}
+	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
+	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
+	    	}
+    	}
     }
 
-    // Fetches the user's Form Key if we haven't already gotten it.  This should
-    // only occur once for any user, and we'll store it in a user preference
-    // after that.
-    private class FetchFormKeyTask extends AsyncTask<String, Void, String> {
-        public String doInBackground(String... aParams) {
-            String result = null;
+	private class ReplyCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
-            if (!isCancelled()) {
-                try {
-                    result = Reply.getFormKey(aParams[0]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return result;
-        }
-
-        public void onPostExecute(String aResult) {
-        	if (!isCancelled()) {
-            	if (aResult != null) {
-            		if (aResult.length() > 0) {
-                		mFormKey = aResult;
-
-                    		SharedPreferences.Editor editor = mPrefs.edit();
-                    		editor.putString(Constants.FORM_KEY, mFormKey);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                                editor.apply();
-                            } else {
-                                editor.commit();
-                            }
-
-                    		mFetchCookieTask = new FetchFormCookieTask();
-                    		mFetchCookieTask.execute(mThreadId);
-            		}
-           	}else{
-            		ProgressDialog.show(getActivity(), getActivity().getString(R.string.reply_invalid_title),
-							getActivity().getString(R.string.reply_invalid_message));
-				getActivity().finish();
-            	}
-            }
-        }
-    }
-    // Fetches the form cookie.  This is necessary every time we post, otherwise
-    // the post will fail silently for roughly 5 minutes after posting one time.
-    private class FetchFormCookieTask extends AsyncTask<String, Void, String> {
-        public String doInBackground(String... aParams) {
-            String result = null;
-
-            if (!isCancelled()) {
-                try {
-                    result = Reply.getFormCookie(aParams[0]);
-                    Log.i(TAG, "Form cookie: " + result);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, e.toString());
-                }
-            }
-
-            return result;
-        }
-
-        public void onPostExecute(String aResult) {
-			if (!isCancelled()) {
-				if (aResult != null) {
-					if (aResult.length() > 0) {
-						Log.i(TAG, aResult);
-
-						mFormCookie = aResult;
-
-						if (mFormKey != null) {
-							mSubmit.setEnabled(true);
-						}
-					}
-				}else{
-					ProgressDialog.show(getActivity(), getActivity().getString(R.string.reply_invalid_title),
-							getActivity().getString(R.string.reply_invalid_message));
-					getActivity().finish();
-				}
-			}
+		public ReplyCallback(Handler handler) {
+			super(handler);
 		}
+
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			Log.i(TAG,"Create Reply Cursor: "+mThreadId);
+            return new CursorLoader(getActivity(), 
+            						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), 
+            						AwfulProvider.DraftPostProjection, 
+            						null,
+            						null,
+            						null);
+        }
+
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Reply load finished, populating: "+aData.getCount());
+        	if(aData.getCount() >0 && aData.moveToFirst()){
+        		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+        		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
+        		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+        		if (replyData != null) {
+    				String quoteData = NetworkUtils.unencodeHtml(replyData);
+    				mMessage.setText(quoteData);
+    				mMessage.setSelection(quoteData.length());
+    				originalReplyData = aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT));
+    				if(originalReplyData == null){
+    					originalReplyData = "";
+    				}
+    				//TODO this part might be causing that odd swype bug, but I can't replicate it
+    		        //if(mSelection>0 && mMessage.length() >= mSelection){
+    		        //    mMessage.setSelection(mSelection);
+    		        //}
+    			}
+        		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
+        		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));
+        		if((formKey != null && formCookie != null && formKey.length()>0 && formCookie.length()>0) || mReplyType == AwfulMessage.TYPE_EDIT){
+			        mSubmit.setEnabled(true);
+        		}else{
+			        mSubmit.setEnabled(false);
+        		}
+        	}else{
+		        //We'll enable it once we have a formkey and cookie
+		        mSubmit.setEnabled(false);
+		        if(mReplyType != AwfulMessage.TYPE_NEW_REPLY){
+		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true);
+		        }
+	    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+        	}
+        	aData.close();
+        }
+        
+        @Override
+        public void onLoaderReset(Loader<Cursor> aLoader) {
+        	
+        }
+        
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"Post Data update.");
+        	if(getActivity() != null){
+        		refreshLoader();
+        	}
+        }
     }
+	
+	private void refreshLoader(){
+		getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+	}
 }

@@ -3,15 +3,29 @@ package com.ferg.awful;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.GenericListAdapter;
+import com.ferg.awful.provider.AwfulProvider;
+import com.ferg.awful.service.AwfulCursorAdapter;
+import com.ferg.awful.service.AwfulSyncService;
+import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.Html;
 import android.util.Log;
@@ -25,21 +39,21 @@ import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MessageFragment extends DialogFragment implements AwfulUpdateCallback, OnClickListener {
 
-	private GenericListAdapter mServConn;
-	
-	private int pmId;
+    private static final String TAG = "MessageFragment";
+    
+	private int pmId = -1;
 	private String recipient;
-	private boolean replyLoaded = false;
-	private AwfulMessage message;
 	
 	private WebView mDisplayText;
 	private EditText mEditReply;
 	private Button mReplyButton;
+	private ImageButton mHideButton;
 	private TextView mUsername;
 	private TextView mPostdate;
 	private TextView mTitle;
@@ -48,14 +62,68 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	private View mBackground;
 
 	private AwfulPreferences mPrefs;
-
-	private Editable saved_reply;
-	private Editable saved_title;
-	private Editable saved_recipient;
-
+	
 	private ProgressDialog mDialog;
 
 	private boolean paused = false;
+
+	private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+            switch (aMsg.arg1) {
+                case AwfulSyncService.Status.OKAY:
+                	loadingSucceeded();
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
+                		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+                	}
+                	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
+                		if(mDialog != null){
+                			mDialog.dismiss();
+                			mDialog = null;
+                		}
+                		if(getActivity() != null){
+                			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
+                			if(getActivity() instanceof MessageDisplayActivity){
+                				getActivity().finish();
+                			}
+                		}
+                	}
+                    break;
+                case AwfulSyncService.Status.WORKING:
+                	loadingStarted();
+                    break;
+                case AwfulSyncService.Status.ERROR:
+                	loadingFailed();
+                	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
+	                	if(mDialog != null){
+	            			mDialog.dismiss();
+                			mDialog = null;
+	            		}
+	            		if(getActivity() != null){
+	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
+	            		}
+                	}
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
+            			Toast.makeText(getActivity(), "Message Load Failed!", Toast.LENGTH_LONG).show();
+                	}
+                    break;
+                default:
+                    super.handleMessage(aMsg);
+            }
+        }
+    };
+    private Messenger mMessenger = new Messenger(mHandler);
+    private PMCallback mPMDataCallback = new PMCallback(mHandler);
+    private ContentObserver pmReplyObserver = new ContentObserver(mHandler){
+    	@Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"PM Data update.");
+        	if(getActivity() != null){
+        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+        	}
+        }
+    };
 
     public static MessageFragment newInstance(String aUser, int aId) {
         MessageFragment fragment = new MessageFragment(aUser, aId);
@@ -92,11 +160,12 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         
         View result = aInflater.inflate(R.layout.message_view, aContainer, false);
         
-        
         mDisplayText = (WebView) result.findViewById(R.id.messagebody);
         mEditReply = (EditText) result.findViewById(R.id.edit_reply_text);
         mReplyButton = (Button) result.findViewById(R.id.message_reply_button);
+        mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
         mReplyButton.setOnClickListener(this);
+        mHideButton.setOnClickListener(this);
         mRecipient = (EditText) result.findViewById(R.id.message_user);
         mSubject = (EditText) result.findViewById(R.id.message_subject);
         mUsername = (TextView) result.findViewById(R.id.username);
@@ -104,8 +173,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         mTitle = (TextView) result.findViewById(R.id.message_title);
         mBackground = result;
         updateColors(result, mPrefs);
-        
-        mServConn = ((AwfulActivity) getActivity()).getServiceConnection().createGenericAdapter(Constants.PRIVATE_MESSAGE, pmId, this);
 
         return result;
     }
@@ -155,7 +222,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
             	return true;
             case R.id.refresh:
             	if(pmId >0){
-            		mServConn.fetchPrivateMessage(pmId);
+            		syncPM();
             	}
             	return true;
             case R.id.settings:
@@ -169,12 +236,36 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	@Override
     public void onStart() {
         super.onStart();
-
-        if (!AwfulActivity.useLegacyActionbar()) {
-            setActionBar();
-        }
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, pmId);
+		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
+        syncPM();
     }
 	
+	private void syncPM() {
+		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM, pmId, 0);
+	}
+	
+	public void sendPM() {
+		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
+		saveReply();
+		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_PM, pmId, AwfulMessage.TYPE_PM);
+	}
+	
+	public void saveReply(){
+		ContentResolver content = getActivity().getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(AwfulMessage.ID, pmId);
+		values.put(AwfulMessage.TITLE, mSubject.getText().toString());
+		values.put(AwfulMessage.TYPE, AwfulMessage.TYPE_PM);
+		values.put(AwfulMessage.RECIPIENT, mRecipient.getText().toString());
+		values.put(AwfulMessage.REPLY_CONTENT, mEditReply.getText().toString());
+		if(content.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY,pmId), values, null, null)<1){
+			content.insert(AwfulMessage.CONTENT_URI_REPLY, values);
+		}
+	}
+
 	public void onResume(){
 		super.onResume();
 		try {
@@ -186,14 +277,15 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			}
         } catch (Exception e) {
         }
-		message = mServConn.getMessage(pmId);
 		if(pmId > 0){
-			mServConn.fetchPrivateMessage(pmId);
+			syncPM();
 		}
-		updateUI();
 	}
 	public void onPause(){
 		super.onPause();
+		if(pmId>0){
+			saveReply();
+		}
 		try {
             Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
                 .invoke(mDisplayText, (Object[]) null);
@@ -205,16 +297,14 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	
 	public void onStop(){
 		super.onStop();
-		
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, pmId);
+		getActivity().getSupportLoaderManager().destroyLoader(pmId);
+		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
+		getActivity().getContentResolver().unregisterContentObserver(pmReplyObserver);
 	}
 	
 	public void onDetach(){
 		super.onDetach();
-		if(mEditReply != null && mSubject != null && mRecipient != null && ((message != null && message.isLoaded()) || pmId == 0)){
-			saved_reply = mEditReply.getText();
-			saved_title = mSubject.getText();
-			saved_recipient = mRecipient.getText();
-		}
 		if(mPrefs != null){
 			mPrefs.unRegisterListener();
 		}
@@ -223,35 +313,11 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			mDialog = null;
 		}
 	}
-
-	@Override
-	public void dataUpdate(boolean pageChange, Bundle extras) {
-		if(extras != null && extras.getBoolean(Constants.PARAM_MESSAGE)){
-			if(mDialog!= null){
-				mDialog.dismiss();
-				mDialog = null;
-			}
-			if (getActivity() != null){
-				Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-
-                if (getActivity() instanceof ThreadDisplayActivity) {
-                    dismiss();
-                } else if (getActivity() instanceof MessageDisplayActivity){
-                    getActivity().finish();
-                }
-			}
-			
-		}
-		message = mServConn.getMessage(pmId);
-		updateUI();
-	}
 	
 	private void newMessage(){
-		pmId = 0;
+		getActivity().getSupportLoaderManager().destroyLoader(pmId);
+		pmId = -1;//TODO getNextId();
 		recipient = null;
-		saved_reply = null;
-		saved_title = null;
-		saved_recipient = null;
 		mEditReply.setText("");
 		mUsername.setText("");
 		mRecipient.setText("");
@@ -261,40 +327,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 		mTitle.setText("New Message");
 		mSubject.setText("");
 	}
-	
-	private void updateUI(){
-		if(message != null){//we are making a reply
-			if(message.getTitle() != null){
-				mTitle.setText(Html.fromHtml(message.getTitle()));
-				mSubject.setText(message.getTitle());
-			}
-			if(message.getContent() != null){
-				if(!paused){
-					mDisplayText.loadData(message.getMessageHtml(mPrefs),"text/html", "utf-8");
-				}
-				mPostdate.setText(" on " + message.getDate());
-			}
-			if(message.getReplyText() != null && !replyLoaded && saved_reply == null){
-				mEditReply.setText(message.getReplyText());
-				mSubject.setText(message.getReplyTitle());
-				replyLoaded = true;
-			}
-			if(message.getAuthor() != null){
-				mUsername.setText("Posted by " + message.getAuthor());
-				mRecipient.setText(message.getAuthor());
-			}
-		}else{
-			if(recipient != null){
-				mRecipient.setText(recipient);
-			}
-			mTitle.setText("New Message");
-		}
-		if(saved_reply != null && saved_title != null && saved_recipient != null){
-			mEditReply.setText(saved_reply);
-			mSubject.setText(saved_title);
-			mRecipient.setText(saved_recipient);
-		}
-	}
 
 	@Override
 	public void loadingFailed() {
@@ -302,7 +334,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			if (!AwfulActivity.useLegacyActionbar()) {
 				getActivity().setProgressBarIndeterminateVisibility(false);
 			}
-		    Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -322,20 +353,20 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 
 	@Override
 	public void onClick(View v) {
-		sendPM();
+		switch(v.getId()){
+		case R.id.hide_message:
+			if(mDisplayText.getVisibility() == View.VISIBLE){
+				mDisplayText.setVisibility(View.GONE);
+			}else{
+				mDisplayText.setVisibility(View.VISIBLE);
+			}
+			break;
+		case R.id.message_reply_button:
+			sendPM();
+			break;
+		}
 	}
 	
-	public void sendPM(){
-		mServConn.sendPM(mRecipient.getText().toString(), pmId, mSubject.getText().toString(), mEditReply.getText().toString());
-		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
-	}
-
-	@Override
-	public void onServiceConnected() {
-		if(pmId >0){
-    		mServConn.fetchPrivateMessage(pmId);
-    	}
-	}
 
     private boolean isTablet() {
         return ((AwfulActivity) getActivity()).isTablet();
@@ -351,4 +382,71 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			}
 		}
 	}
+	
+	
+	private class PMCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+
+		public PMCallback(Handler handler) {
+			super(handler);
+		}
+
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			Log.i(TAG,"Create PM Cursor:"+pmId);
+            return new CursorLoader(getActivity(), 
+            						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI, pmId), 
+            						AwfulProvider.PMReplyProjection, 
+            						null,
+            						null,
+            						null);
+        }
+
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
+        	//TODO retain info if entered into reply window
+        	if(aData.moveToFirst() && pmId >0){
+        		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
+    			mTitle.setText(Html.fromHtml(title));
+        		mDisplayText.loadData(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8");
+				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
+        		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
+        		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+        		if(replyContent != null){
+            		mEditReply.setText(replyContent);
+        		}else{
+        			mEditReply.setText("");
+        		}
+        		if(replyTitle != null){
+        			mSubject.setText(Html.fromHtml(replyTitle));
+        		}else{
+        			mSubject.setText(Html.fromHtml(title));
+        		}
+        		String author = aData.getString(aData.getColumnIndex(AwfulMessage.AUTHOR));
+				mUsername.setText("Sender: " + author);
+        		String recip = aData.getString(aData.getColumnIndex(AwfulMessage.RECIPIENT));
+        		if(recip != null){
+        			mRecipient.setText(recip);
+        		}else{
+        			mRecipient.setText(author);
+        		}
+        	}else{
+        		if(recipient != null){
+        			mRecipient.setText(recipient);
+        		}
+        	}
+        	aData.close();
+        }
+        
+        @Override
+        public void onLoaderReset(Loader<Cursor> aLoader) {
+        	
+        }
+        
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"PM Data update.");
+        	if(getActivity() != null){
+        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, this);
+        	}
+        }
+    }
 }

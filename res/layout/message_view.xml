@@ -1,61 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/message_view" android:layout_height="match_parent" android:layout_width="match_parent" android:fillViewport="true">
-	<LinearLayout 
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        >
-        <RelativeLayout
-            android:id="@+id/messagehead"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bar"
-            android:padding="8dip"
-            >
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                >
-                <TextView
-                    android:id="@+id/message_title"
+
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical" >
+
+	        <LinearLayout 
+	        android:orientation="horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:padding="8dip"
+	        android:background="@drawable/bar"
+	        >
+	        <LinearLayout
+	            android:id="@+id/messagehead"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	    		android:orientation="vertical"
+	            >
+	
+	                <TextView
+	                    android:id="@+id/message_title"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:shadowColor="#070707"
+	                    android:shadowDx="0"
+	                    android:shadowDy="-1"
+	                    android:shadowRadius="0.2"
+	                    android:textColor="#ffffff"
+	                    android:textSize="20dip"
+	                    android:textStyle="bold" />
+	
+	                <TextView
+	                    android:id="@+id/username"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:textColor="#ffffff"
+	                    android:textSize="16dip" />
+	
+	                <TextView
+	                    android:id="@+id/post_date"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginLeft="4dip"
+	                    android:textColor="#ffffff"
+	                    android:textSize="16dip" />
+	
+	        </LinearLayout>
+	        
+			<LinearLayout
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_gravity="right"
+			    android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/message_reply_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20dip"
-                    android:textStyle="bold"
-                    android:textColor="#ffffff"
-                    android:shadowColor="#070707"
-                    android:shadowDx="0"
-                    android:shadowDy="-1"
-                    android:shadowRadius="0.2"
-                    />
-                <TextView
-                    android:id="@+id/username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/message_title"
-                    android:textSize="16dip"
-                    android:textColor="#ffffff"
-                    />
-                <TextView
-                    android:id="@+id/post_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/message_title"
-                    android:layout_toRightOf="@id/username"
-                    android:layout_marginLeft="4dip"
-                    android:textSize="16dip"
-                    android:textColor="#ffffff"
-                    />
-                <Button 
-                    android:id="@+id/message_reply_button" 
-                    android:layout_width="wrap_content" 
-                    android:layout_height="wrap_content" 
-                    android:text="Send" 
                     android:layout_alignParentRight="true"
-                    />
-            </RelativeLayout>
-        </RelativeLayout>
+                    android:layout_alignParentTop="true"
+                    android:text="Send" />
+
+                <ImageButton
+                    android:id="@+id/hide_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_example" />
+        	</LinearLayout>
+        </LinearLayout>
         <WebView
             android:id="@+id/messagebody"
             android:layout_width="fill_parent"

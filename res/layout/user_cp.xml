@@ -22,9 +22,14 @@
 	<ListView
 		android:id="@+id/bookmark_list"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
         android:divider="#8c8c8c"
+        android:layout_weight="1"
         android:dividerHeight="1px"
 		android:cacheColorHint="@color/background"
 		/>
+    <include 
+        android:id="@+id/pagebar"
+        layout="@layout/pagebar"
+        />
 </LinearLayout>

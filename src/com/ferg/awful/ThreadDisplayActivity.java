@@ -32,6 +32,7 @@ import com.ferg.awful.constants.Constants;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
 import android.view.*;
@@ -45,13 +46,10 @@ import com.example.google.tv.leftnavbar.LeftNavBarService;
 import com.example.google.tv.leftnavbar.R;
 
 import com.ferg.awful.preferences.AwfulPreferences;
-import com.ferg.awful.service.AwfulServiceConnection.ThreadListAdapter;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
-    private int threadid;//thread id for this activity, since we will only use this activity with a single thread
-    private ThreadDisplayFragment display;//no need to juggle fragments here
-    private ThreadListAdapter adapt;
+    
     private LeftNavBar mLeftNavBar;
     
     @Override
@@ -82,7 +80,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
             setupBar();
         }
 
-        configureAdapter(savedInstanceState);
+        configureFragment(savedInstanceState);
     }
 
     private void setActionBar() {
@@ -129,8 +127,9 @@ public class ThreadDisplayActivity extends AwfulActivity {
         getFragment().refresh();
     }
 
-    protected void configureAdapter(Bundle aSavedState) {
-        display = getFragment();
+    protected void configureFragment(Bundle aSavedState) {
+        int threadId;
+        
         String c2pThreadID = null;
         String c2pPostPerPage = null;
         String c2pPage = null;
@@ -144,56 +143,79 @@ public class ThreadDisplayActivity extends AwfulActivity {
             c2pURLFragment = getIntent().getData().getEncodedFragment();
         }
 
-        threadid = getIntent().getIntExtra(Constants.THREAD, 0);
+        threadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+
         int loadPage = getIntent().getIntExtra(Constants.PAGE, 0);
         if (c2pThreadID != null) {
-            threadid = Integer.parseInt(c2pThreadID);
+            threadId = Integer.parseInt(c2pThreadID);
         }
 
         if (aSavedState != null) {
-            adapt = getServiceConnection().createThreadAdapter(aSavedState.getInt(Constants.THREAD_ID, threadid), display, aSavedState.getInt(Constants.PAGE, display.getSavedPage()));
+            setContentPane(aSavedState.getInt(Constants.THREAD_ID, threadId), 
+            		aSavedState.getInt(Constants.PAGE, getFragment().getPage()));
         } else {
 
             if (c2pPage != null) {
             	int page = Integer.parseInt(c2pPage);
         		AwfulPreferences pref = new AwfulPreferences(this);
-            	if(c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")){
+
+            	if (c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")) {
             		int ppp = Integer.parseInt(c2pPostPerPage);
-            		if(pref.postPerPage != ppp){
-            			page = (int) Math.ceil((double)(page*ppp)/pref.postPerPage);
-            			Log.d("TDA", "thread request: "+threadid+" ppp:"+ppp+"Loading page: "+page);
+
+            		if (pref.postPerPage != ppp) {
+            			page = (int) Math.ceil((double)(page*ppp) / pref.postPerPage);
             		}
-            	}else{
-            		if(pref.postPerPage != Constants.ITEMS_PER_PAGE){
+            	} else {
+            		if (pref.postPerPage != Constants.ITEMS_PER_PAGE) {
             			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)pref.postPerPage);
-            			Log.d("TDA", "thread request: "+threadid+" ppp:40(default) Loading page: "+page);
             		}
             	}
-            	if(c2pURLFragment != null && c2pURLFragment.startsWith("post")){
-            		display.setPostJump(c2pURLFragment.replaceAll("\\D", ""));
+
+            	setContentPane(threadId, page);
+            	
+            	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
+            		getFragment().setPostJump(c2pURLFragment.replaceAll("\\D", ""));
             	}
-            	adapt = getServiceConnection().createThreadAdapter(threadid, display, page);
-            }else{
-            	if(loadPage >0){
-            		adapt = getServiceConnection().createThreadAdapter(threadid, display, loadPage);
-            	}else{
-            		adapt = getServiceConnection().createThreadAdapter(threadid, display);
+            } else {
+            	if (loadPage > 0) {
+            		setContentPane(threadId, loadPage);
+                    return;
             	}
+
+                setContentPane(threadId);
             }
         }
-        Log.v(TAG,"Created thread adapter, P:"+adapt.getPage()+" ID:"+adapt.getCurrentId());
-        display.setListAdapter(adapt);
     }
 
     private ThreadDisplayFragment getFragment() {
         return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_fragment);
     }
+
+    private void setContentPane(int aThreadId) {
+    	if (getSupportFragmentManager().findFragmentById(R.id.thread_fragment) == null) {
+            startFragmentTransaction(ThreadDisplayFragment.newInstance(aThreadId));
+        }
+    }
+
+    private void setContentPane(int aThreadId, int aPage) {
+    	if (getSupportFragmentManager().findFragmentById(R.id.thread_fragment) == null) {
+            startFragmentTransaction(ThreadDisplayFragment.newInstance(aThreadId, aPage));
+        }
+    }
+
+    private void startFragmentTransaction(ThreadDisplayFragment aFragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.thread_fragment, aFragment);
+        transaction.commit();
+    }
     
     @Override
     protected void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
-    	outState.putInt(Constants.PAGE, display.getPage());
-    	outState.putInt(Constants.THREAD_ID, display.getThreadId());
+    	/* TODO:
+        outState.putInt(Constants.PAGE, getFragment().getPage());
+    	outState.putInt(Constants.THREAD_ID, getFragment().getThreadId());
+        */
     }
     
     private LeftNavBar getLeftNavBar() {
@@ -287,4 +309,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
         bar.addTab(usercp, false);
         bar.addTab(pm, false);
     }
+
+    public void refreshInfo() {
+		getFragment().refreshInfo();
+	}
 }

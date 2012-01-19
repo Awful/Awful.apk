@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.TagNode;
 
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ferg.awful.R;
+import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
@@ -20,57 +22,53 @@ import com.ferg.awful.preferences.ColorPickerPreference;
  * SA Private Messages.
  * @author Geekner
  */
-public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
+public class AwfulMessage extends AwfulPagedItem {
 	
 	private static final String TAG = "AwfulMessage";
-	private String mTitle;
-	private String mAuthor;
-	private String mContent;
-	private String mDate;
-	private String mReplyText;
-	private boolean unread;
-	private boolean mLoaded;
-	private int mId;
-	private String mReplyTitle;
-
-	public AwfulMessage(int id) {
-		mId = id;
-		mDate = "";
-		mLoaded = false;
-	}
-
-	@Override
-	public int getID() {
-		return mId;
-	}
-
-	@Override
-	public DISPLAY_TYPE getType() {
-		return DISPLAY_TYPE.THREAD;
-	}
 	
-	public boolean isUnread(){
-		return unread;
-	}
+    public static final String PATH     = "/privatemessages";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+    public static final String PATH_REPLY     = "/draftreplies";
+    public static final Uri CONTENT_URI_REPLY = Uri.parse("content://" + Constants.AUTHORITY + PATH_REPLY);
+	
+	public static final String ID = "_id";
+    public static final String TITLE 		="title";
+    public static final String AUTHOR 		="author";
+    public static final String CONTENT 	="content";
+    public static final String DATE 	="message_date";
+	public static final String TYPE = "message_type";
+	public static final String UNREAD = "unread_message";
+	public static final String RECIPIENT = "recipient";
+	public static final String REPLY_CONTENT = "reply_content";
+	public static final String REPLY_TITLE = "reply_title";
+
+	public static final int TYPE_PM = 1;
+	public static final int TYPE_NEW_REPLY = 2;
+	public static final int TYPE_QUOTE = 3;
+	public static final int TYPE_EDIT = 4;
 
 	/**
 	 * Generates List view items for PM list.
 	 */
-	@Override
-	public View getView(LayoutInflater inf, View current, ViewGroup parent,
-			AwfulPreferences aPref) {
-		if(current == null || current.getId() != R.layout.thread_item){
-			current = inf.inflate(R.layout.forum_item, parent, false);
-		}
+	public static View getView(View current, AwfulPreferences aPref, Cursor data) {
 		TextView title = (TextView) current.findViewById(R.id.title);
-		title.setText(mTitle);
+		String t = data.getString(data.getColumnIndex(TITLE));
+		if(t != null){
+			title.setText(t);
+		}
 		TextView author = (TextView) current.findViewById(R.id.subtext);
-		author.setText(mAuthor +" - "+mDate);
+		String auth = data.getString(data.getColumnIndex(AUTHOR));
+		String date = data.getString(data.getColumnIndex(AUTHOR));
+		if(auth != null && date != null){
+			author.setText(auth +" - "+date);
+		}
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
 
-		if (unread) {
+		if (data.getInt(data.getColumnIndex(UNREAD))>0) {
 			unreadPM.setVisibility(View.VISIBLE);
+		}else{
+			unreadPM.setVisibility(View.GONE);
 		}
 
 		if(aPref != null){
@@ -80,14 +78,9 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 
 		return current;
 	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
 	
-	public static ArrayList<AwfulMessage> processMessageList(TagNode data){
-		ArrayList<AwfulMessage> msgList = new ArrayList<AwfulMessage>();
+	public static void processMessageList(ContentResolver contentInterface, TagNode data) throws Exception{
+		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
 		/*TagNode[] messagesParent = data.getElementsByAttValue("name", "form", true, true);
@@ -112,6 +105,7 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 		if(messagesParent.length > 0){
 			TagNode[] messages = messagesParent[0].getElementsByName("tr", true);
 			for(TagNode msg : messages){
+				ContentValues pm = new ContentValues();
 				//fuck i hate scraping shit.
 				//no usable identifiers on the PM list, no easy method to find author/post date.
 				//this will break if they change the display structure.
@@ -124,143 +118,72 @@ public class AwfulMessage extends AwfulPagedItem implements AwfulDisplayItem {
 					//row[3] - sender
 					//row[4] - date
 					TagNode href = row[2].getChildTags()[0];
-					AwfulMessage pm = new AwfulMessage(Integer.parseInt(href.getAttributeByName("href").replaceAll("\\D", "")));
-					pm.mTitle = href.getText().toString();
-					pm.mAuthor = row[3].getText().toString();
-					pm.mDate = row[4].getText().toString();
-					pm.unread = row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif");
+					pm.put(ID, Integer.parseInt(href.getAttributeByName("href").replaceAll("\\D", "")));
+					pm.put(TITLE, href.getText().toString());
+					pm.put(AUTHOR, row[3].getText().toString());
+					pm.put(DATE, row[4].getText().toString());
+					pm.put(CONTENT, " ");
+					if(row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif")){
+						pm.put(UNREAD, 1);
+					}else{
+						pm.put(UNREAD, 0);
+					}
 					msgList.add(pm);
 				}
 			}
 		}else{
-			Log.e("AwfulMessage","Failed to parse message parent");
-			return null;//we'll use this to show that the load failed. i am still lazy.
+			throw new Exception("Failed to parse message parent");
 		}
-		return msgList;
+		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
-	public static AwfulMessage processMessage(TagNode data, AwfulMessage msg){
+	public static ContentValues processMessage(TagNode data, int id) throws Exception{
+		ContentValues message = new ContentValues();
+		message.put(ID, id);
 		TagNode[] auth = data.getElementsByAttValue("class", "author", true, true);
 		if(auth.length > 0){
-			msg.mAuthor = auth[0].getText().toString();
+			message.put(AUTHOR, auth[0].getText().toString());
 		}else{
-			Log.e(TAG, "Failed parse: author.");
-			return null;//we'll use this to show that the load failed. i am lazy.
+			throw new Exception("Failed parse: author.");
 		}
 		TagNode[] content = data.getElementsByAttValue("class", "postbody", true, true);
 		if(content.length > 0){
-			msg.mContent = NetworkUtils.getAsString(content[0]);
+			message.put(CONTENT, NetworkUtils.getAsString(content[0]));
 		}else{
-			Log.e(TAG, "Failed parse: content.");
-			return null;//i should probably put an exception throw here.
+			throw new Exception("Failed parse: content.");
 		}
 		TagNode[] date = data.getElementsByAttValue("class", "postdate", true, true);
 		if(date.length > 0){
-			msg.mDate = date[0].getText().toString().replaceAll("\"", "").trim();
+			message.put(DATE, date[0].getText().toString().replaceAll("\"", "").trim());
 		}else{
-			Log.e(TAG, "Failed parse: date.");
-			return null;
+			throw new Exception("Failed parse: date.");
 		}
-		return msg;
+		return message;
 	}
 
-	public static void processReplyMessage(TagNode pmReplyData, AwfulMessage pm) {
+	public static ContentValues processReplyMessage(TagNode pmReplyData, int id) {
+		ContentValues reply = new ContentValues();
+		reply.put(ID, id);
+		reply.put(TYPE, TYPE_PM);
 		TagNode[] message = pmReplyData.getElementsByAttValue("name", "message", true, false);
 		if(message.length >0){
 			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
-			pm.setReplyText(quoteText);
+			reply.put(REPLY_CONTENT, quoteText);
 		}
 		TagNode[] title = pmReplyData.getElementsByAttValue("name", "title", true, false);
 		if(title.length >0){
 			String quoteTitle = StringEscapeUtils.unescapeHtml4(title[0].getAttributeByName("value"));
-			pm.setReplyTitle(quoteTitle);
+			reply.put(TITLE, quoteTitle);
 		}
-	}
-
-	private void setReplyTitle(String quoteTitle) {
-		mReplyTitle = quoteTitle;
+		return reply;
 	}
 	
-	public String getReplyTitle() {
-		return mReplyTitle;
-	}
-
-
-	private synchronized void setReplyText(String string) {
-		mReplyText = string;
-	}
-	
-	public synchronized String getReplyText(){
-		return mReplyText;
-	}
-	
-	public String getTitle() {
-		return mTitle;
-	}
-
-	public void setTitle(String mTitle) {
-		this.mTitle = mTitle;
-	}
-
-	public String getAuthor() {
-		return mAuthor;
-	}
-
-	public void setAuthor(String mAuthor) {
-		this.mAuthor = mAuthor;
-	}
-
-	public String getContent() {
-		return mContent;
-	}
-
-	public void setContent(String mContent) {
-		this.mContent = mContent;
-	}
-
-	public String getDate() {
-		return mDate;
-	}
-
-	public void setDate(String mDate) {
-		this.mDate = mDate;
-	}
-	
-	public void setLoaded(boolean loaded){
-		mLoaded = loaded;
-	}
-	
-	//extended awfulpageditem so messages can be put in the DB, I really need to rewrite the DB.
-	//ignore the methods here, they'll never be used.
-	@Override
-	public AwfulDisplayItem getChild(int page, int ix) {
-		return null;
-	}
-
-	@Override
-	public ArrayList<? extends AwfulDisplayItem> getChildren(int page) {
-		return null;
-	}
-
-	@Override
-	public int getChildrenCount(int page) {
-		return 0;
-	}
-
-	@Override
-	public boolean isPageCached(int page) {
-		return false;
-	}
-
-	public boolean isLoaded() {
-		return mLoaded;
-	}
-	
-	public String getMessageHtml(AwfulPreferences pref){
-		if(mContent!=null){
-			StringBuffer buff = new StringBuffer(mContent.length());
+	public static String getMessageHtml(String content, AwfulPreferences pref){
+		//String content = data.getString(data.getColumnIndex(CONTENT));
+		if(content!=null){
+			StringBuffer buff = new StringBuffer(content.length());
 			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSize + ";'>");
-			buff.append(mContent.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
+			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
 			buff.append("</div>");
 			return buff.toString();
 		}

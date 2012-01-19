@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
 	android:background="@color/background"
     >
     <RelativeLayout
         android:id="@+id/thread_layout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
         >
         <ListView
             android:id="@id/android:list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@+id/pagebar"
             android:divider="#8c8c8c"
             android:dividerHeight="1px"
             android:cacheColorHint="@color/background"
@@ -21,4 +24,8 @@
             style="@style/VerticalGradient"
             />
     </RelativeLayout>
-</RelativeLayout>
+	    <include 
+	        android:id="@+id/pagebar"
+	        layout="@layout/pagebar"
+	        />
+</LinearLayout >
