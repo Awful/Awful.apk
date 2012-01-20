@@ -452,7 +452,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             						AwfulProvider.ThreadProjection, 
             						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
             						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(mPage),AwfulPagedItem.pageToIndex(mPage+1)), 
-            						AwfulThread.INDEX);
+            						(mPrefs.newThreadsFirst? AwfulThread.UNREADCOUNT+" DESC" :AwfulThread.INDEX));
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
