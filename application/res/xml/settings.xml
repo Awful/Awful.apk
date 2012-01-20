@@ -40,6 +40,10 @@
             />
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_salr">
+		<Preference 
+			android:key="image_settings" 
+			android:title="@string/image_settings"
+			/>
         <EditTextPreference
             android:key="username"
             android:title="@string/username_pref"
@@ -64,24 +68,6 @@
 			/>
 			<!-- TODO: Move these to a submenu or something, it's getting crowded. -->
 		<CheckBoxPreference 
-            android:key="images_enabled" 
-			android:title="@string/load_images"
-			android:summary="@string/load_images_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="hide_read_images" 
-			android:title="@string/hide_read_images"
-			android:summary="@string/hide_read_images_summary"
-			android:defaultValue="false"
-			/>
-		<CheckBoxPreference 
-            android:key="show_smilies" 
-			android:title="@string/show_smilies"
-			android:summary="@string/show_smilies_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
             android:key="wrap_thread_titles" 
 			android:title="@string/wrap_titles"
 			android:summary="@string/wrap_titles_summary"
@@ -93,13 +79,6 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
-		<ListPreference
-            android:key="imgur_thumbnails"
-            android:title="@string/imgur_thumbnails"
-            android:entries="@array/imgur_thumbnails"
-            android:entryValues="@array/imgur_thumbnails_values"
-			android:defaultValue="d"
-            />
 		<!--<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"

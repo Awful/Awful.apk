@@ -117,6 +117,7 @@
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" 
             />
+        <activity android:name="ImageSettingsActivity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
