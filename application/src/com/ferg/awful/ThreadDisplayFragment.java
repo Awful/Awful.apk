@@ -560,7 +560,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     public void refresh() {
-		mThreadView.loadData("", "text/html", "utf-8");
+		mThreadView.loadData("", "text/html", "utf-8");//TODO put background here
         syncThread();
     }
 
@@ -669,7 +669,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            // TODO: mRefresh.startAnimation(mAdapter.getBlinkingAnimation());
+            mRefresh.startAnimation(mFlashingAnimation);
         } else {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
@@ -704,7 +704,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         	if(mRefresh != null){
 	            mRefresh.setVisibility(View.VISIBLE);
 	            mRefresh.setImageResource(android.R.drawable.ic_menu_mapmode);
-	            // TODO: mRefresh.startAnimation(mAdapter.getBlinkingAnimation());
+	            mRefresh.startAnimation(mFlashingAnimation);
         	}
         } else {
             getActivity().setProgressBarIndeterminateVisibility(true);
@@ -838,7 +838,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			setPage(aPage);
 			updatePageBar();
 			mPostJump = "";
-            mThreadView.loadData("", "text/html", "utf-8");
+            mThreadView.loadData("", "text/html", "utf-8");//TODO put background here
 	        syncThread();
 		}
 	}
