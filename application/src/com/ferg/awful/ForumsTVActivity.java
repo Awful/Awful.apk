@@ -28,9 +28,9 @@
 package com.ferg.awful;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
+import android.view.*;
 
 import android.support.v4.app.FragmentTransaction;
 
@@ -59,7 +59,6 @@ public class ForumsTVActivity extends AwfulActivity {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-
         setContentView(R.layout.forum_index_activity);
 
         LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
@@ -85,80 +84,37 @@ public class ForumsTVActivity extends AwfulActivity {
 
     private void setupBar() {
         LeftNavBar bar = getLeftNavBar();
+        bar.setCustomView(R.layout.action_options);
         bar.setTitle(R.string.app_name);
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         bar.setTitleBackground(getResources().getDrawable(R.drawable.bar));
         bar.setShowHideAnimationEnabled(true);
         bar.setDisplayOptions(
             LeftNavBar.DISPLAY_AUTO_EXPAND|
             ActionBar.DISPLAY_SHOW_HOME|
-            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED
+            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED|
+            ActionBar.DISPLAY_SHOW_CUSTOM
         );
 
-        setupTabs();
+        ViewGroup optionsContainer = (ViewGroup) bar.getCustomView();
+
+        for (int i = 0; i < optionsContainer.getChildCount(); i++) {
+            optionsContainer.getChildAt(i).setOnClickListener(onActionItemClick);
+        }
     }
 
-    private void setupTabs() {
-        ActionBar bar = getLeftNavBar();
-        bar.removeAllTabs();
-
-        ActionBar.Tab home = bar.newTab().setText(R.string.home).setIcon(R.drawable.ic_action_home)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, fragment);
-                transaction.commit();
+    private View.OnClickListener onActionItemClick = new View.OnClickListener() {
+        public void onClick(View aView) {
+            switch (aView.getId()) {
+                case R.id.user_cp:
+                    displayUserCP();
+                    break;
+                case R.id.pm:
+                    startActivity(new Intent(ForumsTVActivity.this, PrivateMessageActivity.class));
+                    break;
             }
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-        });
-
-        ActionBar.Tab usercp = bar.newTab().setText(R.string.usercp).setIcon(R.drawable.gear)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                UserCPFragment fragment = 
-                    UserCPFragment.newInstance(false);
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, fragment);
-                transaction.commit();
-            }
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-            }
-        });
-
-        ActionBar.Tab pm = bar.newTab().setText(R.string.private_message).setIcon(R.drawable.ic_action_private_message)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-        });
-
-        bar.addTab(home, true);
-        bar.addTab(usercp, false);
-        bar.addTab(pm, false);
-    }
+        }
+    };
 
     public void displayUserCP() {
         UserCPFragment.newInstance(true).show(getSupportFragmentManager(), "user_control_panel_dialog");

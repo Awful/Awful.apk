@@ -83,6 +83,7 @@
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/timepicker_down_btn.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/ic_menu_copy.png \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/play_center.xml \
+/home/scott/Dropbox/Projects/awful_android/application/res/drawable/leftnav_bar_item_background_dark.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/quickaction_slider_btn.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/timepicker_input.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable/logo.xml \
@@ -216,6 +217,7 @@
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/user_cp.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/forum_index.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/user_cp_activity.xml \
+/home/scott/Dropbox/Projects/awful_android/application/res/layout/action_options.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/actionbar_forum.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/forum_index_activity.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/subforum_item.xml \
@@ -245,6 +247,7 @@
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/dialog_color_picker.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/actionbar_pm.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/thread_display.xml \
+/home/scott/Dropbox/Projects/awful_android/application/res/color/leftnav_bar_tab_text_dark.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable-ldpi/ic_menu_star.png \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable-ldpi/ic_action_example.png \
 /home/scott/Dropbox/Projects/awful_android/application/res/drawable-ldpi/ic_menu_logout.png \

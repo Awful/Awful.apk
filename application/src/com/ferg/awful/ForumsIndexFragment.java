@@ -33,28 +33,13 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
+import android.os.*;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AdapterView;
+import android.view.*;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.CursorTreeAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -223,7 +208,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
+            if (((ForumsTabletActivity) getActivity()).isTablet()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
             } else {
                 startForumActivity((int) id);
@@ -237,7 +222,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
+            if (((ForumsTabletActivity) getActivity()).isTablet()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
             } else {
                 startForumActivity((int) id);

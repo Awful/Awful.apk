@@ -23,11 +23,7 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
-import android.view.FocusFinder;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -280,7 +276,12 @@ public class LeftNavView extends LinearLayout {
         mHome.setExpanded(expanded);
         mSpinner.setExpanded(expanded);
         if (hasCustomView()) {
-            getCustomView().setActivated(expanded);
+            ViewGroup optionsContainer = (ViewGroup) getCustomView();
+
+            for (int i = 0; i < optionsContainer.getChildCount(); i++) {
+                ViewGroup optionsLayout = (ViewGroup) optionsContainer.getChildAt(i);
+                optionsLayout.getChildAt(1).setVisibility(expanded ? View.VISIBLE : View.GONE);
+            }
         }
     }
 

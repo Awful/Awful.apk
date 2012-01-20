@@ -63,11 +63,5 @@ public class ForumsPhoneActivity extends AwfulActivity {
 	        	action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
 	        }
         }
-       
-        ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, fragment);
-        transaction.commit();
     }
 }
