@@ -88,6 +88,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private SnapshotWebView mThreadView;
     
     private boolean imagesLoadingState;
+    private boolean threadLoadingState;
 
     private int mPage = 1;
     private int mThreadId = 0;
@@ -156,7 +157,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 
 		public void onLoadResource(WebView view, String url) {
-			if (!imagesLoadingState && url != null && url.startsWith("http")) {
+			if (!threadLoadingState && !imagesLoadingState && url != null && url.startsWith("http")) {
 				imagesLoadingState = true;
 				imageLoadingStarted();
 			}
@@ -679,6 +680,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingStarted() {
+    	threadLoadingState = true;
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
@@ -690,7 +692,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingSucceeded() {
-
+    	threadLoadingState = false;
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
@@ -700,6 +702,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
     
     public void imageLoadingStarted() {
+    	threadLoadingState = false;
         if (AwfulActivity.useLegacyActionbar()) {
         	if(mRefresh != null){
 	            mRefresh.setVisibility(View.VISIBLE);
