@@ -92,8 +92,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
 		mColorsPreference = getPreferenceScreen().findPreference("colors");
 		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
-		mColorsPreference = getPreferenceScreen().findPreference("default_post_font_size");
-		mColorsPreference.setOnPreferenceClickListener(onFontSizeListener);
+		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size");
+		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
 	}
 	
 	@Override
