@@ -27,7 +27,6 @@
 
 package com.ferg.awful;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -193,16 +192,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
 		refreshInfo();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
-    }
-    
-
-    private void setActionbarTitle(String aTitle) {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mTitle.setText(Html.fromHtml(aTitle));
-        } else {
-        	ActionBar action = getActivity().getActionBar();
-            action.setTitle(Html.fromHtml(aTitle).toString());
-        }
     }
 
 	public void updatePageBar(){
@@ -587,7 +576,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(aData.moveToFirst()){
-                setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulForum.TITLE)));
+                String title = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
+
+                if (AwfulActivity.useLegacyActionbar()) {
+                    mTitle.setText(Html.fromHtml(title));
+                } else {
+                    ((AwfulActivity) getActivity()).setActionbarTitle(title);
+                }
+
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();
         	}

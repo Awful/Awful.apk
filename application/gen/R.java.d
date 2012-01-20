@@ -216,6 +216,7 @@
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/forum_display.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/actionbar_thread.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/user_cp.xml \
+/home/scott/Dropbox/Projects/awful_android/application/res/layout/thread_action_items.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/forum_index.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/user_cp_activity.xml \
 /home/scott/Dropbox/Projects/awful_android/application/res/layout/action_options.xml \

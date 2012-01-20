@@ -41,20 +41,13 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import com.example.google.tv.leftnavbar.LeftNavBar;
-import com.example.google.tv.leftnavbar.LeftNavBarService;
-import com.example.google.tv.leftnavbar.R;
-
 import com.ferg.awful.preferences.AwfulPreferences;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
     
-    private LeftNavBar mLeftNavBar;
-    
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         new Thread(new Runnable() {
@@ -64,7 +57,11 @@ public class ThreadDisplayActivity extends AwfulActivity {
             }
         }).start();
         
-        if (!AwfulActivity.useLegacyActionbar()) {
+
+        if (isTV()) {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setupLeftNavBar(R.layout.thread_action_items, true);
+        } else if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         } else {
@@ -72,13 +69,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
 
         setContentView(R.layout.thread_display_activity);
-
-        if (isTV()) {
-            LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
-            bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar_tv));
-
-            setupBar();
-        }
 
         configureFragment(savedInstanceState);
     }
@@ -216,98 +206,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
         outState.putInt(Constants.PAGE, getFragment().getPage());
     	outState.putInt(Constants.THREAD_ID, getFragment().getThreadId());
         */
-    }
-    
-    private LeftNavBar getLeftNavBar() {
-        if (mLeftNavBar == null) {
-            mLeftNavBar = new LeftNavBar(this);
-            mLeftNavBar.setOnClickHomeListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // This is called when the app icon is selected in the left navigation bar
-                    // Doing nothing.
-                }
-            });
-        }
-        
-        return mLeftNavBar;
-    }
-
-    private void setupBar() {
-        LeftNavBar bar = getLeftNavBar();
-        bar.setTitle(R.string.app_name);
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        bar.setTitleBackground(getResources().getDrawable(R.drawable.bar));
-        bar.setShowHideAnimationEnabled(true);
-        bar.setDisplayOptions(
-            LeftNavBar.DISPLAY_AUTO_EXPAND|
-            ActionBar.DISPLAY_SHOW_HOME|
-            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED
-        );
-
-        setupTabs();
-    }
-
-    private void setupTabs() {
-        ActionBar bar = getLeftNavBar();
-        bar.removeAllTabs();
-
-        ActionBar.Tab home = bar.newTab().setText(R.string.home).setIcon(R.drawable.ic_action_home)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                ForumsIndexFragment fragment = ForumsIndexFragment.newInstance();
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, fragment);
-                transaction.commit();
-            }
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-        });
-
-        ActionBar.Tab usercp = bar.newTab().setText(R.string.usercp).setIcon(R.drawable.gear)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                UserCPFragment fragment = 
-                    UserCPFragment.newInstance(false);
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content, fragment);
-                transaction.commit();
-            }
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-            }
-        });
-
-        ActionBar.Tab pm = bar.newTab().setText(R.string.private_message).setIcon(R.drawable.ic_action_private_message)
-                .setTabListener(new ActionBar.TabListener() {
-
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {}
-        });
-
-        bar.addTab(home, true);
-        bar.addTab(usercp, false);
-        bar.addTab(pm, false);
     }
 
     public void refreshInfo() {

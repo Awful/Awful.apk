@@ -34,17 +34,11 @@ import android.view.*;
 
 import android.support.v4.app.FragmentTransaction;
 
-import com.example.google.tv.leftnavbar.LeftNavBar;
-import com.example.google.tv.leftnavbar.LeftNavBarService;
-import com.example.google.tv.leftnavbar.R;
-
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsTVActivity extends AwfulActivity {
 
     private static final String TAG = "ForumsTVActivity";
-
-    private LeftNavBar mLeftNavBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -61,62 +55,6 @@ public class ForumsTVActivity extends AwfulActivity {
 
         setContentView(R.layout.forum_index_activity);
 
-        LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
-        bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar_tv));
-
-        setupBar();
-    }
-    
-    private LeftNavBar getLeftNavBar() {
-        if (mLeftNavBar == null) {
-            mLeftNavBar = new LeftNavBar(this);
-            mLeftNavBar.setOnClickHomeListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // This is called when the app icon is selected in the left navigation bar
-                    // Doing nothing.
-                }
-            });
-        }
-        
-        return mLeftNavBar;
-    }
-
-    private void setupBar() {
-        LeftNavBar bar = getLeftNavBar();
-        bar.setCustomView(R.layout.action_options);
-        bar.setTitle(R.string.app_name);
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        bar.setTitleBackground(getResources().getDrawable(R.drawable.bar));
-        bar.setShowHideAnimationEnabled(true);
-        bar.setDisplayOptions(
-            LeftNavBar.DISPLAY_AUTO_EXPAND|
-            ActionBar.DISPLAY_SHOW_HOME|
-            LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED|
-            ActionBar.DISPLAY_SHOW_CUSTOM
-        );
-
-        ViewGroup optionsContainer = (ViewGroup) bar.getCustomView();
-
-        for (int i = 0; i < optionsContainer.getChildCount(); i++) {
-            optionsContainer.getChildAt(i).setOnClickListener(onActionItemClick);
-        }
-    }
-
-    private View.OnClickListener onActionItemClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            switch (aView.getId()) {
-                case R.id.user_cp:
-                    displayUserCP();
-                    break;
-                case R.id.pm:
-                    startActivity(new Intent(ForumsTVActivity.this, PrivateMessageActivity.class));
-                    break;
-            }
-        }
-    };
-
-    public void displayUserCP() {
-        UserCPFragment.newInstance(true).show(getSupportFragmentManager(), "user_control_panel_dialog");
+        setupLeftNavBar(R.layout.action_options);
     }
 }
