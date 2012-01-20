@@ -376,6 +376,7 @@ public class AwfulProvider extends ContentProvider {
         String table = null;
 		int result = 0;
 		String id_row = null;
+		String extra_constraint = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -396,6 +397,7 @@ public class AwfulProvider extends ContentProvider {
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
                 id_row = AwfulThread.ID;
+                extra_constraint = AwfulThread.INDEX;
                 break;
 			case PM:
 				table = TABLE_PM;
@@ -419,7 +421,11 @@ public class AwfulProvider extends ContentProvider {
 					try{
 						db.insertOrThrow(table, "", value);
 					}catch(SQLException sqle){
-						db.delete(table, table+"."+id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
+						if(extra_constraint != null){
+							db.delete(table, id_row+"=? OR "+extra_constraint+"=?", int2StrArray(value.getAsInteger(id_row),value.getAsInteger(extra_constraint)));
+						}else{
+							db.delete(table, id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
+						}
 						db.insert(table, "", value);
 					}
 				}

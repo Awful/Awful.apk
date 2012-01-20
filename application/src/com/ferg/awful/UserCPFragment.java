@@ -205,19 +205,19 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onStart() {
         super.onStart();
-
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
         // When coming from the desktop shortcut we won't have login cookies
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
-		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
 
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
+
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
+		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         syncThreads();
     }
     
@@ -294,6 +294,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 break;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                return true;
+            case R.id.refresh:
+                syncThreads();
                 return true;
             case R.id.logout:
                 new LogOutDialog(getActivity()).show();
