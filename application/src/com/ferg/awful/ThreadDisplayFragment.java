@@ -561,7 +561,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     public void refresh() {
-		mThreadView.loadData("", "text/html", "utf-8");//TODO put background here
+		mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
         syncThread();
     }
 
@@ -841,9 +841,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			setPage(aPage);
 			updatePageBar();
 			mPostJump = "";
-            mThreadView.loadData("", "text/html", "utf-8");//TODO put background here
+            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 	        syncThread();
 		}
+	}
+	
+	private String getBlankPage(){
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(mPrefs.postBackgroundColor)+";'></body></html>";
 	}
 	
 	public int getPage() {
