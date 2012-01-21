@@ -365,6 +365,8 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        <div class='action-button " + (post.isEditable() ? "editable" : "noneditable") + "' id='" + post.getId() + "' lastreadurl='" + post.getLastReadUrl() + "' username='" + post.getUsername() + "'>");
             buffer.append("            <img src='file:///android_asset/post_action_icon.png' />");
             buffer.append("        </div>");
+            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():""));
+            buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("</tr>");
             buffer.append("<tr>");
@@ -415,6 +417,8 @@ public class AwfulThread extends AwfulPagedItem  {
                 buffer.append("            <img src='" + post.getAvatar() + "' />");
             }
 
+            buffer.append("        </div>");
+            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>"+(post.getAvatarText()!= null?post.getAvatarText():""));
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");

@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -203,6 +203,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.IS_ADMIN              + " INTEGER,"        +
                 AwfulPost.IS_MOD                + " INTEGER,"        +
                 AwfulPost.AVATAR                + " VARCHAR,"        + 
+                AwfulPost.AVATAR_TEXT           + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
                 AwfulPost.EDITED                + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
@@ -635,6 +636,7 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
 		sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
 		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
+		sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
 		

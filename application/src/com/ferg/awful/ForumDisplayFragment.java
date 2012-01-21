@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -81,6 +82,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private TextView mPageCountText;
+    
+    private Cursor[] subforumAndThreadCursors = new Cursor[2];
 
     private AwfulPreferences mPrefs;
     
@@ -120,6 +123,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private AwfulCursorAdapter mCursorAdapter;
     private Messenger mMessenger = new Messenger(mHandler);
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
+    private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
     @Override
@@ -244,7 +248,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().destroyLoader(getForumId());
-		getActivity().getSupportLoaderManager().destroyLoader(-10);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -553,7 +558,50 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-    		mCursorAdapter.swapCursor(aData);
+        	if(subforumAndThreadCursors[1] != null){
+        		subforumAndThreadCursors[1].close();
+        	}
+        	subforumAndThreadCursors[1] = aData;
+        	if(subforumAndThreadCursors[0] !=null && subforumAndThreadCursors[1] != null){
+            	MergeCursor mergedData = new MergeCursor(subforumAndThreadCursors);
+        		mCursorAdapter.swapCursor(mergedData);
+        	}//else{
+        	//	mCursorAdapter.swapCursor(subforumAndThreadCursors[1]);
+        	//}
+        }
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> arg0) {
+			mCursorAdapter.swapCursor(null);
+		}
+    }
+	
+	private class SubforumsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+
+		@Override
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+        	Log.v(TAG,"Creating subforum cursor: "+aId);
+            return new CursorLoader(getActivity(), 
+            						AwfulForum.CONTENT_URI, 
+            						AwfulProvider.ForumProjection, 
+            						AwfulForum.PARENT_ID+"=?", 
+            						AwfulProvider.int2StrArray(getForumId()),
+            						AwfulForum.INDEX);
+        }
+
+		@Override
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
+        	if(subforumAndThreadCursors[0] != null){
+        		subforumAndThreadCursors[0].close();
+        	}
+        	subforumAndThreadCursors[0] = aData;
+        	if(subforumAndThreadCursors[0] !=null && subforumAndThreadCursors[1] != null){
+            	MergeCursor mergedData = new MergeCursor(subforumAndThreadCursors);
+        		mCursorAdapter.swapCursor(mergedData);
+        	}//else{
+        	//	mCursorAdapter.swapCursor(subforumAndThreadCursors[0]);
+        	//}
         }
 
 		@Override
@@ -602,6 +650,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	
 	private void refreshInfo(){
     	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
 	}
 
 }
