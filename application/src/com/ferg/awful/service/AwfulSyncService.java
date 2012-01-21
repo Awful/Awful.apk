@@ -90,6 +90,9 @@ public class AwfulSyncService extends Service {
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
      *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
 	public static final int MSG_TRIM_DB = 15;
+	/** arg1 = category/emote id, arg2 = type, obj = String url **/
+	public static final int MSG_GRAB_IMAGE = 16;
+	public static final int MSG_FETCH_EMOTES = 17;
 
     private HashMap<Integer,Messenger> mClients = new HashMap<Integer,Messenger>();
     private MessageHandler mHandler       = new MessageHandler();
@@ -238,6 +241,10 @@ public class AwfulSyncService extends Service {
 		threadStack.push(threadTask);
 		startNextThread();
 	}
+	private void backQueueThread(AwfulTask threadTask) {
+		threadStack.add(threadTask);
+		startNextThread();
+	}
 	/**
 	 * Queues a thread only if there is no duplicate already in the queue.
 	 * It compares both task's ID and arg1 (if not 0) for equality.
@@ -246,6 +253,15 @@ public class AwfulSyncService extends Service {
 	private void queueUniqueThread(AwfulTask threadTask) {
 		if(!isThreadQueued(threadTask.getId(), threadTask.getArg1())){
 			queueThread(threadTask);
+		}
+	}
+	/**
+	 * Queues a thread to the back of the queue, if there is no duplicate already in the queue.
+	 * @param threadTask
+	 */
+	private void backQueueUniqueThread(AwfulTask threadTask) {
+		if(!isThreadQueued(threadTask.getId(), threadTask.getArg1())){
+			backQueueThread(threadTask);
 		}
 	}
 	private void startNextThread() {

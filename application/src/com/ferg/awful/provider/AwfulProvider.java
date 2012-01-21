@@ -210,14 +210,14 @@ public class AwfulProvider extends ContentProvider {
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
-        		AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
+        		AwfulEmote.TEXT      + " VARCHAR,"   + 
                 AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
                 AwfulEmote.URL   	 + " VARCHAR,"     + 
                 AwfulEmote.CACHEFILE + " VARCHAR);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_CATEGORY + " ("    +
                 AwfulThread.ID      	 + " INTEGER UNIQUE,"  + 
-                AwfulThread.TAG_URL      + " VARCHAR UNIQUE,"   + 
+                AwfulThread.TAG_URL      + " VARCHAR,"   + 
                 AwfulThread.TAG_CACHEFILE + " VARCHAR);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +

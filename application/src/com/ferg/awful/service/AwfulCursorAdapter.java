@@ -2,6 +2,7 @@ package com.ferg.awful.service;
 
 import com.ferg.awful.R;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.thread.AwfulEmote;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPost;
@@ -31,6 +32,8 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulForum.getView(current, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data);
+		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
+			AwfulEmote.getView(current, mPrefs, data);
 		}
 	}
 
@@ -46,6 +49,9 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data);
+		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
+			row = inf.inflate(R.layout.forum_item, parent, false);//TODO add custom emote view
+			AwfulEmote.getView(row, mPrefs, data);
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);
 		}

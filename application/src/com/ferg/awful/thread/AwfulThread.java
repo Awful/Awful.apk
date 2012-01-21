@@ -64,8 +64,10 @@ public class AwfulThread extends AwfulPagedItem  {
 
     public static final String PATH     = "/thread";
     public static final String UCP_PATH     = "/ucpthread";
+    public static final String CATEGORY_PATH     = "/category";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 	public static final Uri CONTENT_URI_UCP = Uri.parse("content://" + Constants.AUTHORITY + UCP_PATH);
+	public static final Uri CONTENT_URI_CATEGORY = Uri.parse("content://" + Constants.AUTHORITY + CATEGORY_PATH);
     
     public static final String ID 		="_id";
     public static final String INDEX 		="thread_index";
