@@ -82,8 +82,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private TextView mPageCountText;
-    
-    private Cursor[] subforumAndThreadCursors = new Cursor[2];
 
     private AwfulPreferences mPrefs;
     
@@ -105,6 +103,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         public void handleMessage(Message aMsg) {
         	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
             switch (aMsg.what) {
+	        	case AwfulSyncService.MSG_GRAB_IMAGE:
+	        		getListView().invalidateViews();
+	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
                 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
@@ -558,16 +559,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	if(subforumAndThreadCursors[1] != null){
-        		subforumAndThreadCursors[1].close();
-        	}
-        	subforumAndThreadCursors[1] = aData;
-        	if(subforumAndThreadCursors[0] !=null && subforumAndThreadCursors[1] != null){
-            	MergeCursor mergedData = new MergeCursor(subforumAndThreadCursors);
-        		mCursorAdapter.swapCursor(mergedData);
-        	}//else{
-        	//	mCursorAdapter.swapCursor(subforumAndThreadCursors[1]);
-        	//}
+        	mCursorAdapter.swapCursor(aData);
         }
 
 		@Override
@@ -592,16 +584,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	if(subforumAndThreadCursors[0] != null){
-        		subforumAndThreadCursors[0].close();
-        	}
-        	subforumAndThreadCursors[0] = aData;
-        	if(subforumAndThreadCursors[0] !=null && subforumAndThreadCursors[1] != null){
-            	MergeCursor mergedData = new MergeCursor(subforumAndThreadCursors);
-        		mCursorAdapter.swapCursor(mergedData);
-        	}//else{
-        	//	mCursorAdapter.swapCursor(subforumAndThreadCursors[0]);
-        	//}
+        	//mCursorAdapter.swapCursor(aData);
         }
 
 		@Override

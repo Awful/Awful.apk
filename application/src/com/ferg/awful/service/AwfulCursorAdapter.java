@@ -28,7 +28,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		this(context, c, 0);
 	}
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id) {
-		super(context, c, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+		super(context, c, 0);
 		mPrefs = new AwfulPreferences(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
