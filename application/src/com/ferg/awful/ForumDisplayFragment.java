@@ -180,7 +180,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	mForumId = Integer.parseInt(c2pForumID);
         }
 
-        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
         setListAdapter(mCursorAdapter);
         getListView().setOnItemClickListener(onThreadSelected);
         getListView().setBackgroundColor(mPrefs.postBackgroundColor);

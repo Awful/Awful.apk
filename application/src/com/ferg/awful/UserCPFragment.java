@@ -110,6 +110,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         @Override
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
+            	case AwfulSyncService.MSG_GRAB_IMAGE:
+            		mBookmarkList.invalidateViews();
+            		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
                 		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
@@ -197,7 +200,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList.setOnItemClickListener(onThreadSelected);
         mBookmarkList.setBackgroundColor(mPrefs.postBackgroundColor);
         mBookmarkList.setCacheColorHint(mPrefs.postBackgroundColor);
-        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, mId);
         mBookmarkList.setAdapter(mCursorAdapter);
         registerForContextMenu(mBookmarkList);
     }

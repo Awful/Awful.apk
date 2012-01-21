@@ -27,6 +27,10 @@
 
 package com.ferg.awful.thread;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -39,7 +43,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
@@ -64,10 +72,8 @@ public class AwfulThread extends AwfulPagedItem  {
 
     public static final String PATH     = "/thread";
     public static final String UCP_PATH     = "/ucpthread";
-    public static final String CATEGORY_PATH     = "/category";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 	public static final Uri CONTENT_URI_UCP = Uri.parse("content://" + Constants.AUTHORITY + UCP_PATH);
-	public static final Uri CONTENT_URI_CATEGORY = Uri.parse("content://" + Constants.AUTHORITY + CATEGORY_PATH);
     
     public static final String ID 		="_id";
     public static final String INDEX 		="thread_index";
@@ -87,6 +93,7 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
     
     public static TagNode getForumThreads(int aForumId) throws Exception {
 		return getForumThreads(aForumId, 1);
@@ -142,12 +149,21 @@ public class AwfulThread extends AwfulPagedItem  {
                     thread.put(STICKY,0);
                 }
 
-                //TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
-                //if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
-                    //TODO thread.setIcon(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
-                thread.put(CATEGORY, 0);
-                	//thread tag stuff
-                //}
+                TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
+                if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
+                    Matcher threadTagMatcher = urlId_regex.matcher(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
+                    if(threadTagMatcher.find()){
+                    	//thread tag stuff
+        				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(threadTagMatcher.group(1));
+        				if(fileNameMatcher.find()){
+        					thread.put(TAG_CACHEFILE,fileNameMatcher.group(1));
+        				}
+                    	thread.put(TAG_URL, threadTagMatcher.group(1));
+                    	thread.put(CATEGORY, threadTagMatcher.group(2));
+                    }else{
+                    	thread.put(CATEGORY, 0);
+                    }
+                }
 
             	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
                 if (tarUser.length > 0) {
@@ -437,7 +453,8 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-	public static void getView(View current, AwfulPreferences prefs, Cursor data) {
+	public static String getView(View current, AwfulPreferences prefs, Cursor data, Context context, boolean hideBookmark) {
+		String tag_url = null;
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
 		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
@@ -448,7 +465,22 @@ public class AwfulThread extends AwfulPagedItem  {
 		}else{
 			sticky.setVisibility(View.GONE);
 		}
-		if(data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
+		ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
+		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+		Bitmap tagImg = null;
+		if(tagFile != null){
+			tagImg = getCategory(context, tagFile);
+			if(tagImg != null){
+				threadTag.setVisibility(View.VISIBLE);
+				threadTag.setImageBitmap(tagImg);
+			}else{
+				threadTag.setVisibility(View.GONE);
+				tag_url = data.getString(data.getColumnIndex(TAG_URL));
+			}
+		}else{
+			threadTag.setVisibility(View.GONE);
+		}
+		if(!hideBookmark && data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
 			bookmark.setImageResource(R.drawable.blue_star);
 			bookmark.setVisibility(View.VISIBLE);
 			if(!stuck){
@@ -496,6 +528,30 @@ public class AwfulThread extends AwfulPagedItem  {
 				title.setEllipsize(null);
 			}
 		}
+		return tag_url;
+	}
+	
+	public static Bitmap getCategory(Context aContext, String fileName){
+		try{
+			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+				File cacheDir;
+				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
+					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awful/cache/category/");
+				}else{
+					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
+				}
+				File cachedImg = new File(cacheDir, fileName);
+				if(cachedImg.exists() && cachedImg.canRead()){
+					FileInputStream is = new FileInputStream(cachedImg);
+					Bitmap data = BitmapFactory.decodeStream(is);
+					is.close();
+					return data;
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 }

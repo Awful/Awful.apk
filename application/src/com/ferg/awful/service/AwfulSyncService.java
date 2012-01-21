@@ -53,6 +53,7 @@ import com.ferg.awful.task.AwfulTask;
 import com.ferg.awful.task.BookmarkTask;
 import com.ferg.awful.task.FetchPrivateMessageTask;
 import com.ferg.awful.task.FetchReplyTask;
+import com.ferg.awful.task.ImageCacheTask;
 import com.ferg.awful.task.IndexTask;
 import com.ferg.awful.task.MarkLastReadTask;
 import com.ferg.awful.task.MarkUnreadTask;
@@ -90,7 +91,7 @@ public class AwfulSyncService extends Service {
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
      *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
 	public static final int MSG_TRIM_DB = 15;
-	/** arg1 = category/emote id, arg2 = type, obj = String url **/
+	/** arg1 = category/emote id, arg2 = url hash for duplicate task prevention, obj = String url **/
 	public static final int MSG_GRAB_IMAGE = 16;
 	public static final int MSG_FETCH_EMOTES = 17;
 
@@ -162,7 +163,10 @@ public class AwfulSyncService extends Service {
                 	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
                     break;
                 case MSG_TRIM_DB:
-                	queueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
+                case MSG_GRAB_IMAGE:
+                	backQueueUniqueThread(new ImageCacheTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (String) aMsg.obj));
                     break;
             }
         }

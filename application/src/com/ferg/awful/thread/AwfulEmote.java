@@ -29,7 +29,7 @@ public class AwfulEmote {
 	public static final String URL = "url";
 	public static final String CACHEFILE = "cachefile";//location of cached file or null if not cached yet.
 	
-	private static Pattern fileName_regex = Pattern.compile("/([^/]+)$");
+	public static Pattern fileName_regex = Pattern.compile("/([^/]+)$");
 	
 	public static void getView(View current, AwfulPreferences aPref, Cursor data) {
 		TextView title = (TextView) current.findViewById(R.id.title);//TODO add proper emote list element
