@@ -60,6 +60,7 @@ import com.ferg.awful.task.PrivateMessageIndexTask;
 import com.ferg.awful.task.SendPostTask;
 import com.ferg.awful.task.SendPrivateMessageTask;
 import com.ferg.awful.task.ThreadTask;
+import com.ferg.awful.task.TrimDBTask;
 import com.ferg.awful.task.VotingTask;
 import com.ferg.awful.thread.*;
 
@@ -86,6 +87,9 @@ public class AwfulSyncService extends Service {
     public static final int MSG_FETCH_POST_REPLY       = 13;
     /** arg1 = threadId. */
     public static final int MSG_SEND_POST       = 14;
+    /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
+     *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
+	public static final int MSG_TRIM_DB = 15;
 
     private HashMap<Integer,Messenger> mClients = new HashMap<Integer,Messenger>();
     private MessageHandler mHandler       = new MessageHandler();
@@ -154,6 +158,9 @@ public class AwfulSyncService extends Service {
                 case MSG_SEND_POST:
                 	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
                     break;
+                case MSG_TRIM_DB:
+                	queueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                    break;
             }
         }
     }
@@ -180,6 +187,17 @@ public class AwfulSyncService extends Service {
 	            mClients.remove(client);
 	        }
         }
+    }
+    /**
+     * Queues a message intended for the AwfulSyncService, which will be processed after the specified delay.
+     * Useful for triggering background processes (such as TrimDBTask).
+     * @param msgId Message ID from AwfulSyncService.MSG_*
+     * @param delayMillis
+     * @param arg1 Arguments to pass into the message.
+     * @param arg2
+     */
+    public void queueDelayedMessage(int msgId, int delayMillis, int arg1, int arg2){
+    	mHandler.sendMessageDelayed(mHandler.obtainMessage(msgId, arg1, arg2), delayMillis);
     }
     
     private void syncForum(final int aForumId, final int aPage) {
@@ -212,13 +230,6 @@ public class AwfulSyncService extends Service {
         public static final int WORKING       = 0;
         public static final int OKAY          = 1;
         public static final int ERROR = 2;
-    }
-    
-    public void trimDB(){
-    	ContentResolver dbInterface = getContentResolver();
-    	dbInterface.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-    	dbInterface.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-    	dbInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
     }
 
     //////THREAD QUEUING STUFF//////

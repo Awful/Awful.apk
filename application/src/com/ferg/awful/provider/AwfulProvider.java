@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -171,7 +171,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
-                AwfulThread.INDEX      + " INTEGER,"   	  + 
+                AwfulThread.INDEX    + " INTEGER UNIQUE," + 
                 AwfulThread.TITLE   + " VARCHAR,"         + 
                 AwfulThread.POSTCOUNT   + " INTEGER,"     + 
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
@@ -394,6 +394,7 @@ public class AwfulProvider extends ContentProvider {
             case THREAD:
                 table = TABLE_THREADS;
                 id_row = AwfulThread.ID;
+                extra_constraint = AwfulThread.INDEX;
                 break;
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
