@@ -129,7 +129,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
         mPMList.setOnItemClickListener(onPMSelected);
         
-        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null);
         mPMList.setAdapter(mCursorAdapter);
     }
     

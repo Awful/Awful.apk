@@ -58,6 +58,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
+	Preference mImagePreference;
 	Preference mColorsPreference;
 	Preference mFontSizePreference;
 	Context mThis = this;
@@ -92,8 +93,10 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
 		mColorsPreference = getPreferenceScreen().findPreference("colors");
 		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
-		mColorsPreference = getPreferenceScreen().findPreference("default_post_font_size");
-		mColorsPreference.setOnPreferenceClickListener(onFontSizeListener);
+		mImagePreference = getPreferenceScreen().findPreference("image_settings");
+		mImagePreference.setOnPreferenceClickListener(onImagesListener);
+		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size");
+		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
 	}
 	
 	@Override
@@ -166,6 +169,14 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			startActivity(new Intent().setClass(mThis, ColorSettingsActivity.class));
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onImagesListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			startActivity(new Intent().setClass(mThis, ImageSettingsActivity.class));
 			return true;
 		}
 	};

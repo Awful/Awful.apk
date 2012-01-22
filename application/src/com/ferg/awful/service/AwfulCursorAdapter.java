@@ -1,7 +1,11 @@
 package com.ferg.awful.service;
 
+import com.ferg.awful.AwfulActivity;
 import com.ferg.awful.R;
+import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.task.ImageCacheTask;
+import com.ferg.awful.thread.AwfulEmote;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPost;
@@ -16,21 +20,34 @@ import android.view.ViewGroup;
 
 public class AwfulCursorAdapter extends CursorAdapter {
 	private AwfulPreferences mPrefs;
-	LayoutInflater inf;
-	public AwfulCursorAdapter(Context context, Cursor c) {
-		super(context, c, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+	private AwfulActivity mParent;
+	private LayoutInflater inf;
+	private int mId;
+	
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
+		this(context, c, 0);
+	}
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id) {
+		super(context, c, 0);
 		mPrefs = new AwfulPreferences(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mParent = context;
+		mId = id;
 	}
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			AwfulThread.getView(current, mPrefs, data);
+			String tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID);
+			if(tagUrl != null){
+				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
+			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			AwfulForum.getView(current, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data);
+		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
+			AwfulEmote.getView(current, mPrefs, data);
 		}
 	}
 
@@ -39,13 +56,19 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulThread.getView(row, mPrefs, data);
+			String tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID);
+			if(tagUrl != null){
+				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
+			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data);
+		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
+			row = inf.inflate(R.layout.forum_item, parent, false);//TODO add custom emote view
+			AwfulEmote.getView(row, mPrefs, data);
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);
 		}

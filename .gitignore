@@ -5,7 +5,16 @@ local.properties
 *.keystore
 
 *.DS_Store
+
 /bin/*
+
 /gen/*
+
 .classpath
+
 .project
+/application/gen
+/application/bin
+/application/bin
+/application/gen
+/libraries/LeftNavBarLibrary/bin
