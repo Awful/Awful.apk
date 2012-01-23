@@ -17,6 +17,13 @@ $(document).ready(function() {
     $('.bbc-spoiler').mouseout ( function(){ this.style.color=this.style.backgroundColor=prefs.postcolor;});
     }
 
+	$('.userinfo').click(function(event) {
+	  $(this).parent().children('.avatar-text').toggle();
+	});
+	$('.avatar').click(function(event) {
+	  $(this).parent().children('.avatar-text').toggle();
+	});
+	
     var salr = new SALR(prefs);
 
     scrollPost();

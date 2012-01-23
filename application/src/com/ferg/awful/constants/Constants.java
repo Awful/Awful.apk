@@ -114,6 +114,8 @@ public class Constants {
 	/** To prevent loader ID collisions. */
 	public static final int REPLY_LOADER_ID = 4;
 	public static final int FORUM_LOADER_ID = 5;
+	public static final int SUBFORUM_LOADER_ID = 6;
+	public static final int EMOTE_LOADER_ID = 7;
 
 	public static final String ACTION_DOSEND = "dosend";
 	public static final String DESTINATION_TOUSER = "touser";
@@ -125,6 +127,8 @@ public class Constants {
 	public static final String PARAM_PARSEURL = "parseurl";
 
 	public static final String YES = "yes";//heh
+
+	public static final String EMOTE_URL = "http://forums.somethingawful.com/misc.php?action=showsmilies";
 
 
 

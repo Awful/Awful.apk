@@ -73,6 +73,7 @@ public class AwfulPost {
     public static final String IS_ADMIN              = "is_admin";
     public static final String IS_MOD                = "is_mod";
     public static final String AVATAR                = "avatar";
+	public static final String AVATAR_TEXT 			 = "avatar_text";
     public static final String CONTENT               = "content";
     public static final String EDITED                = "edited";
 
@@ -83,12 +84,14 @@ public class AwfulPost {
 	public static final String EDIT_POST_ID = "edit_id";
 
 
+
 	private int mThreadId;
     private String mId;
     private String mDate;
     private String mUserId;
     private String mUsername;
     private String mAvatar;
+    private String mAvatarText;
     private String mContent;
     private String mEdited;
     
@@ -213,6 +216,7 @@ public class AwfulPost {
             int isAdminIndex = aCursor.getColumnIndex(IS_ADMIN);
             int isModIndex = aCursor.getColumnIndex(IS_MOD);
             int avatarIndex = aCursor.getColumnIndex(AVATAR);
+            int avatarTextIndex = aCursor.getColumnIndex(AVATAR_TEXT);
             int contentIndex = aCursor.getColumnIndex(CONTENT);
             int editedIndex = aCursor.getColumnIndex(EDITED);
 
@@ -232,6 +236,7 @@ public class AwfulPost {
                 current.setIsAdmin(aCursor.getInt(isAdminIndex) == 1 ? true : false);
                 current.setIsMod(aCursor.getInt(isModIndex) == 1 ? true : false);
                 current.setAvatar(aCursor.getString(avatarIndex));
+                current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
                 current.setEdited(aCursor.getString(editedIndex));
 
@@ -241,61 +246,65 @@ public class AwfulPost {
         return result;
     }
 
-    private static TagNode convertVideos(TagNode contentNode) {
+	private static TagNode convertVideos(TagNode contentNode) {
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
 
 		for(TagNode node : videoNodes){
-			String src = null;
-			int height = 0;
-			int width = 0;
-			TagNode[] object = node.getElementsByName("object", false);
-			if(object.length > 0){
-				height = Integer.parseInt(object[0].getAttributeByName("height"));
-				width = Integer.parseInt(object[0].getAttributeByName("width"));
-				TagNode[] emb = object[0].getElementsByName("embed", true);
-				if(emb.length >0){
-					src = emb[0].getAttributeByName("src");
+			try{
+				String src = null;
+				int height = 0;
+				int width = 0;
+				TagNode[] object = node.getElementsByName("object", false);
+				if(object.length > 0){
+					height = Integer.parseInt(object[0].getAttributeByName("height"));
+					width = Integer.parseInt(object[0].getAttributeByName("width"));
+					TagNode[] emb = object[0].getElementsByName("embed", true);
+					if(emb.length >0){
+						src = emb[0].getAttributeByName("src");
+					}
 				}
-			}
-			if(src != null && height != 0 && width != 0){
-				String link = null, image = null;
-				Matcher youtube = youtubeId_regex.matcher(src);
-				Matcher vimeo = vimeoId_regex.matcher(src);
-				if(youtube.find()){
-					String videoId = youtube.group(1);
-					link = "http://www.youtube.com/watch?v=" + videoId;
-					image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-				}else if(vimeo.find()){
-					String videoId = vimeo.group(1);
-					TagNode vimeoXML;
-					try {
-						vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
-					} catch (Exception e) {
-						e.printStackTrace();
+				if(src != null && height != 0 && width != 0){
+					String link = null, image = null;
+					Matcher youtube = youtubeId_regex.matcher(src);
+					Matcher vimeo = vimeoId_regex.matcher(src);
+					if(youtube.find()){
+						String videoId = youtube.group(1);
+						link = "http://www.youtube.com/watch?v=" + videoId;
+						image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+					}else if(vimeo.find()){
+						String videoId = vimeo.group(1);
+						TagNode vimeoXML;
+						try {
+							vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
+						} catch (Exception e) {
+							e.printStackTrace();
+							continue;
+						}
+						if(vimeoXML.findElementByName("mobile_url", true) != null){
+							link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
+						}else{
+							link = vimeoXML.findElementByName("url", true).getText().toString();
+						}
+						image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
+					}else{
+						node.removeAllChildren();
+						TagNode ln = new TagNode("a");
+						ln.setAttribute("href", src);
+						ln.addChild(new ContentNode(src));
+						node.addChild(ln);
 						continue;
 					}
-					if(vimeoXML.findElementByName("mobile_url", true) != null){
-						link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
-					}else{
-						link = vimeoXML.findElementByName("url", true).getText().toString();
-					}
-					image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
-				}else{
 					node.removeAllChildren();
-					TagNode ln = new TagNode("a");
-					ln.setAttribute("href", src);
-					ln.addChild(new ContentNode(src));
-					node.addChild(ln);
-					continue;
+					node.setAttribute("style", "background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height);
+					node.setAttribute("onclick", "location.href=\""+link+"\"");
+					TagNode img = new TagNode("img");
+					img.setAttribute("class", "nolink");
+					img.setAttribute("src", "file:///android_res/drawable/play.png");
+					img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
+					node.addChild(img);
 				}
-				node.removeAllChildren();
-				node.setAttribute("style", "background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height);
-				node.setAttribute("onclick", "location.href=\""+link+"\"");
-				TagNode img = new TagNode("img");
-				img.setAttribute("class", "nolink");
-				img.setAttribute("src", "file:///android_res/drawable/play.png");
-				img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
-				node.addChild(img);
+			}catch(Exception e){
+				continue;//if we fail to convert the video tag, we can still display the rest.
 			}
 		}
 		
@@ -309,6 +318,15 @@ public class AwfulPost {
     public void setEdited(String aEdited) {
         mEdited = aEdited;
     }
+
+    public String getAvatarText() {
+    	return mAvatarText;
+	}
+
+    public void setAvatarText(String text) {
+    	mAvatarText = text;
+	}
+
 
     public String getLastReadUrl() {
         return mLastReadUrl;
@@ -393,6 +411,7 @@ public class AwfulPost {
 						if (avatar.length > 0) {
 							post.put(AVATAR, avatar[0].getAttributeByName("src"));
 						}
+						post.put(AVATAR_TEXT, pc.getText().toString().trim());
 					}
 
 					if (pc.getAttributeByName("class").contains("complete_shit")) {

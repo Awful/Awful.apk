@@ -24,6 +24,7 @@ public class ThreadTask extends AwfulTask {
             e.printStackTrace();
             return false;
         }
+		mContext.queueDelayedMessage(AwfulSyncService.MSG_TRIM_DB, 1000, 0, 7);
 		return true;
 	}
 
