@@ -9,12 +9,12 @@
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 18px Verdana, Arial, sans-serif;
+    font: normal normal normal 18sp Verdana, Arial, sans-serif;
 }
 
 .postdate {
     color: white;
-    font: normal normal normal 14px Verdana, Arial, sans-serif;
+    font: normal normal normal 14sp Verdana, Arial, sans-serif;
 }
 
 .userinfo {
@@ -23,9 +23,9 @@
 }
 
 .username h4 {
-    font-size: 18px;
+    font-size: 18sp;
 }
 
 .bbc-block h4 {
-    font-size: 14px;
+    font-size: 14sp;
 }

@@ -733,7 +733,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-                    AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), isLargeScreen()), "text/html", "utf-8", null);
+                    AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), ((AwfulActivity) getActivity()).isLargeScreen()), "text/html", "utf-8", null);
         } catch (NullPointerException e) {
             // If we've already left the activity the webview may still be working to populate,
             // just log it
