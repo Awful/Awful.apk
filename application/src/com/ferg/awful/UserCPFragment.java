@@ -193,7 +193,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             mHome.setOnClickListener(onButtonClick);
             mRefresh.setOnClickListener(onButtonClick);
             mPrivateMessage.setOnClickListener(onButtonClick);
-        } else {
+        } else if (((AwfulActivity) getActivity()).isLargeScreen()) {
             mTitle.setText(getString(R.string.user_cp));
         }
 
