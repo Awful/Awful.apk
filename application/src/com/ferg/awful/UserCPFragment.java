@@ -110,6 +110,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         @Override
         public void handleMessage(Message aMsg) {
             switch (aMsg.what) {
+            	case AwfulSyncService.MSG_GRAB_IMAGE:
+            		mBookmarkList.invalidateViews();
+            		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
                 		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
@@ -197,7 +200,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList.setOnItemClickListener(onThreadSelected);
         mBookmarkList.setBackgroundColor(mPrefs.postBackgroundColor);
         mBookmarkList.setCacheColorHint(mPrefs.postBackgroundColor);
-        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, mId);
         mBookmarkList.setAdapter(mCursorAdapter);
         registerForContextMenu(mBookmarkList);
     }
@@ -205,19 +208,19 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onStart() {
         super.onStart();
-
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
         // When coming from the desktop shortcut we won't have login cookies
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
 
-		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
 
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
+
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
+		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         syncThreads();
     }
     
@@ -294,6 +297,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
                 break;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                return true;
+            case R.id.refresh:
+                syncThreads();
                 return true;
             case R.id.logout:
                 new LogOutDialog(getActivity()).show();
@@ -449,7 +455,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             						AwfulProvider.ThreadProjection, 
             						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
             						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(mPage),AwfulPagedItem.pageToIndex(mPage+1)), 
-            						AwfulThread.INDEX);
+            						(mPrefs.newThreadsFirst? AwfulThread.UNREADCOUNT+" DESC" :AwfulThread.INDEX));
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {

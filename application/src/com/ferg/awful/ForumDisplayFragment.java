@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -102,6 +103,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         public void handleMessage(Message aMsg) {
         	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
             switch (aMsg.what) {
+	        	case AwfulSyncService.MSG_GRAB_IMAGE:
+	        		getListView().invalidateViews();
+	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
                 		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
@@ -120,6 +124,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     private AwfulCursorAdapter mCursorAdapter;
     private Messenger mMessenger = new Messenger(mHandler);
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
+    private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
     @Override
@@ -176,7 +181,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	mForumId = Integer.parseInt(c2pForumID);
         }
 
-        mCursorAdapter = new AwfulCursorAdapter(getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
         setListAdapter(mCursorAdapter);
         getListView().setOnItemClickListener(onThreadSelected);
         getListView().setBackgroundColor(mPrefs.postBackgroundColor);
@@ -244,7 +249,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
 		getActivity().getSupportLoaderManager().destroyLoader(getForumId());
-		getActivity().getSupportLoaderManager().destroyLoader(-10);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -553,7 +559,32 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-    		mCursorAdapter.swapCursor(aData);
+        	mCursorAdapter.swapCursor(aData);
+        }
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> arg0) {
+			mCursorAdapter.swapCursor(null);
+		}
+    }
+	
+	private class SubforumsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+
+		@Override
+		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+        	Log.v(TAG,"Creating subforum cursor: "+aId);
+            return new CursorLoader(getActivity(), 
+            						AwfulForum.CONTENT_URI, 
+            						AwfulProvider.ForumProjection, 
+            						AwfulForum.PARENT_ID+"=?", 
+            						AwfulProvider.int2StrArray(getForumId()),
+            						AwfulForum.INDEX);
+        }
+
+		@Override
+        public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
+        	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
+        	//mCursorAdapter.swapCursor(aData);
         }
 
 		@Override
@@ -602,6 +633,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	
 	private void refreshInfo(){
     	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
 	}
 
 }

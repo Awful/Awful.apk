@@ -50,7 +50,7 @@ td {
     overflow: auto;
 }
 
-.postdate {
+.postdate, .avatar-text {
     color: white;
     font: normal normal normal 22px Verdana, Arial, sans-serif;
 }

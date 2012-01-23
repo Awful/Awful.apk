@@ -52,14 +52,13 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 13;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
     public static final String TABLE_UCP_THREADS    = "ucp_thread";
     public static final String TABLE_POSTS    = "posts";
     public static final String TABLE_EMOTES    = "emotes";
-    public static final String TABLE_CATEGORY    = "threadtags";
     public static final String TABLE_PM    = "private_messages";
     public static final String TABLE_DRAFTS    = "draft_messages";
     
@@ -101,6 +100,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.CATEGORY,
 		AwfulThread.LASTPOSTER,
 		AwfulMessage.TYPE,
+		AwfulThread.TAG_URL,
+		AwfulThread.TAG_CACHEFILE,
 		UPDATED_TIMESTAMP };
 
 	public static final String[] ForumProjection = new String[]{
@@ -171,7 +172,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
-                AwfulThread.INDEX      + " INTEGER,"   	  + 
+                AwfulThread.INDEX    + " INTEGER UNIQUE," + 
                 AwfulThread.TITLE   + " VARCHAR,"         + 
                 AwfulThread.POSTCOUNT   + " INTEGER,"     + 
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
@@ -182,6 +183,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.STICKY   		+ " INTEGER," +
                 AwfulThread.CATEGORY   		+ " INTEGER," +
                 AwfulThread.LASTPOSTER   	+ " VARCHAR," +
+                AwfulThread.TAG_URL      + " VARCHAR,"    + 
+                AwfulThread.TAG_CACHEFILE + " VARCHAR,"   +
             	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
@@ -203,21 +206,17 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.IS_ADMIN              + " INTEGER,"        +
                 AwfulPost.IS_MOD                + " INTEGER,"        +
                 AwfulPost.AVATAR                + " VARCHAR,"        + 
+                AwfulPost.AVATAR_TEXT           + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
                 AwfulPost.EDITED                + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
-        		AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
+        		AwfulEmote.TEXT      + " VARCHAR,"   + 
                 AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
                 AwfulEmote.URL   	 + " VARCHAR,"     + 
                 AwfulEmote.CACHEFILE + " VARCHAR);");
-            
-            aDb.execSQL("CREATE TABLE " + TABLE_CATEGORY + " ("    +
-                AwfulThread.ID      	 + " INTEGER UNIQUE,"  + 
-                AwfulThread.TAG_URL      + " VARCHAR UNIQUE,"   + 
-                AwfulThread.TAG_CACHEFILE + " VARCHAR);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +
                 AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
@@ -262,10 +261,9 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);//TODO we probably should not drop this table
         }
     }
 
@@ -376,6 +374,7 @@ public class AwfulProvider extends ContentProvider {
         String table = null;
 		int result = 0;
 		String id_row = null;
+		String extra_constraint = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -392,10 +391,12 @@ public class AwfulProvider extends ContentProvider {
             case THREAD:
                 table = TABLE_THREADS;
                 id_row = AwfulThread.ID;
+                extra_constraint = AwfulThread.INDEX;
                 break;
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
                 id_row = AwfulThread.ID;
+                extra_constraint = AwfulThread.INDEX;
                 break;
 			case PM:
 				table = TABLE_PM;
@@ -419,7 +420,11 @@ public class AwfulProvider extends ContentProvider {
 					try{
 						db.insertOrThrow(table, "", value);
 					}catch(SQLException sqle){
-						db.delete(table, table+"."+id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
+						if(extra_constraint != null){
+							db.delete(table, id_row+"=? OR "+extra_constraint+"=?", int2StrArray(value.getAsInteger(id_row),value.getAsInteger(extra_constraint)));
+						}else{
+							db.delete(table, id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
+						}
 						db.insert(table, "", value);
 					}
 				}
@@ -629,6 +634,7 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
 		sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
 		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
+		sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
 		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
 		
@@ -645,6 +651,8 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		sThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
+		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
 		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_DRAFTS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
@@ -664,6 +672,8 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+		sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
+		sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
 		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		

@@ -13,5 +13,6 @@
 		android:id="@+id/logout"
 		android:icon="@drawable/ic_menu_logout"
 		android:title="@string/logout" />
+    <item android:id="@+id/refresh" android:title="@string/refresh" android:icon="@drawable/ic_menu_refresh"></item>
     
 </menu>

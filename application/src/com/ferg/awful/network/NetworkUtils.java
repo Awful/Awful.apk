@@ -205,6 +205,18 @@ public class NetworkUtils {
         Log.i(TAG, "Fetched " + location);
         return response;
     }
+	
+	public static InputStream getStream(String aUrl) throws Exception{
+		URI location = new URI(aUrl);
+
+        Log.i(TAG, "Fetching " + location);
+
+        HttpGet httpGet;
+        HttpResponse httpResponse;
+        httpGet = new HttpGet(location);
+        httpResponse = sHttpClient.execute(httpGet);
+        return httpResponse.getEntity().getContent();
+	}
 
 	public static TagNode post(String aUrl, HashMap<String, String> aParams) throws Exception {
         TagNode response = null;
