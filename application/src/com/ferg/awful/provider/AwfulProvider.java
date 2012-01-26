@@ -113,6 +113,25 @@ public class AwfulProvider extends ContentProvider {
 		AwfulForum.PAGE_COUNT
 	};
 	
+	public static final String[] PostProjection = new String[]{
+        AwfulPost.ID,
+        AwfulPost.THREAD_ID,
+        AwfulPost.POST_INDEX,
+        AwfulPost.DATE,
+        AwfulPost.USER_ID,
+        AwfulPost.USERNAME,
+        AwfulPost.PREVIOUSLY_READ,
+        AwfulPost.LAST_READ_URL,
+        AwfulPost.EDITABLE,
+        AwfulPost.IS_OP,
+        AwfulPost.IS_ADMIN,
+        AwfulPost.IS_MOD,
+        AwfulPost.AVATAR,
+        AwfulPost.AVATAR_TEXT,
+        AwfulPost.CONTENT,
+        AwfulPost.EDITED
+	};
+	
 	public static final String[] PMProjection = new String[]{
 		AwfulMessage.ID,
 		AwfulMessage.AUTHOR,

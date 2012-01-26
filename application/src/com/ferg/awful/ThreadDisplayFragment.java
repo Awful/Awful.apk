@@ -144,16 +144,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				imagesLoadingState = false;
 				imageLoadingFinished();
 			}
-			if (!isResumed()) {
-				Log.d(TAG, view.toString() + " pageFinished: " + url);
-				mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						pauseWebView();
-					}
-				}, 500);// this seems to be a race condition. if we call the
-						// pause code too soon, it might ignore the message.
-			}
 		}
 
 		public void onLoadResource(WebView view, String url) {
@@ -326,13 +316,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
                         ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         }else{
         	if(mThreadView != null){
-	        	try {
-	                Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-	                    .invoke(mThreadView, (Object[]) null);
-	                mThreadView.resumeTimers();
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
+                mThreadView.onResume();
+                mThreadView.resumeTimers();
         	}
         }
         refreshInfo();
@@ -342,25 +327,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            mThreadView.pauseTimers();
-            mThreadView.stopLoading();
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mThreadView, (Object[]) null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mThreadView.pauseTimers();
+        mThreadView.stopLoading();
+        mThreadView.onPause();
         cleanupTasks();
-    }
-    
-    public void pauseWebView(){
-    	try {
-            mThreadView.pauseTimers();
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mThreadView, (Object[]) null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
         
     @Override
@@ -734,10 +704,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
                     AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), ((AwfulActivity) getActivity()).isLargeScreen()), "text/html", "utf-8", null);
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
+        	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
             // just log it
         }
+        Log.i(TAG,"Finished populateThreadView, posts:"+aPosts.size());
     }
 
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
@@ -870,19 +842,18 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            String sortOrder = AwfulPost.POST_INDEX + " ASC LIMIT " + mPrefs.postPerPage;
+            String sortOrder = AwfulPost.POST_INDEX + " ASC";
 
-            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + " >= ? AND " + AwfulPost.POST_INDEX + " < ?";
+            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
             int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
             String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index), Integer.toString(index+mPrefs.postPerPage)};
             Log.v(TAG,"Displaying thread: "+getThreadId()+" index: "+index+" page: "+getPage()+" perpage: "+mPrefs.postPerPage);
 
-            return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, 
-                    null, selection, args, sortOrder);
+            return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, AwfulProvider.PostProjection, selection, args, sortOrder);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.i(TAG,"Load finished, populating.");
+        	Log.i(TAG,"Load finished, populating: "+aData.getCount());
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         }
 

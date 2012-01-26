@@ -242,6 +242,8 @@ public class AwfulPost {
 
                 result.add(current);
             } while (aCursor.moveToNext());
+        }else{
+        	Log.i(TAG,"No posts to convert.");
         }
         return result;
     }
@@ -365,7 +367,8 @@ public class AwfulPost {
     public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
         ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs);
 
-        content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+        int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+        Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
 
     public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
@@ -535,7 +538,7 @@ public class AwfulPost {
                 result.add(post);
             }
 
-            Log.i(TAG, Integer.toString(postNodes.length));
+            Log.i(TAG, Integer.toString(postNodes.length)+" posts found, "+result.size()+" posts parsed.");
         } catch (Exception e) {
             e.printStackTrace();
         }
