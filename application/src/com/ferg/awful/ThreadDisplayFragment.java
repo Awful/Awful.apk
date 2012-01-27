@@ -265,7 +265,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.setSnapshotView(mSnapshotView);
-		/*mThreadView.getSettings().setJavaScriptEnabled(true);
+		mThreadView.getSettings().setJavaScriptEnabled(true);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -275,7 +275,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
 				Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
 			}
-		});*/
+		});
 	}
 	
 	public void updatePageBar(){
