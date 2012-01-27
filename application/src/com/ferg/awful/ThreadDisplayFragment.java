@@ -100,20 +100,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     
 	private String mPostJump = "";
 
-    public static ThreadDisplayFragment newInstance(int aThreadId) {
-        ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-        fragment.setThreadId(aThreadId);
-        fragment.setPage(1);
-        return fragment;
-    }
-
-    public static ThreadDisplayFragment newInstance(int aThreadId, int aPage) {
-        ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-        fragment.setThreadId(aThreadId);
-        fragment.setPage(aPage);
-        return fragment;
-    }
-
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
@@ -177,11 +163,53 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+        //setRetainInstance(true);
+		mPrefs = new AwfulPreferences(getActivity());
+        
+        String c2pThreadID = null;
+        String c2pPostPerPage = null;
+        String c2pPage = null;
+        String c2pURLFragment = null;
+        Intent data = getActivity().getIntent();
+        // We may be getting thread info from a link or Chrome2Phone so handle that here
+        if (data.getData() != null && data.getScheme().equals("http")) {
+            c2pThreadID = data.getData().getQueryParameter("threadid");
+            c2pPostPerPage = data.getData().getQueryParameter("perpage");
+            c2pPage = data.getData().getQueryParameter("pagenumber");
+            c2pURLFragment = data.getData().getEncodedFragment();
+        }
+        mThreadId = data.getIntExtra(Constants.THREAD_ID, 0);
+        mPage = data.getIntExtra(Constants.PAGE, 0);
+        if (c2pThreadID != null) {
+        	mThreadId = Integer.parseInt(c2pThreadID);
+        }
+        if (savedInstanceState != null) {
+        	Log.e(TAG, "onCreate savedState");
+            mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, mThreadId);
+    		mPage = savedInstanceState.getInt(Constants.PAGE, mPage);
+        }
+        if (c2pPage != null) {
+        	int page = Integer.parseInt(c2pPage);
 
+        	if (c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")) {
+        		int ppp = Integer.parseInt(c2pPostPerPage);
+
+        		if (mPrefs.postPerPage != ppp) {
+        			page = (int) Math.ceil((double)(page*ppp) / mPrefs.postPerPage);
+        		}
+        	} else {
+        		if (mPrefs.postPerPage != Constants.ITEMS_PER_PAGE) {
+        			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)mPrefs.postPerPage);
+        		}
+        	}
+        	mPage = page;
+        	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
+        		setPostJump(c2pURLFragment.replaceAll("\\D", ""));
+        	}
+        }
+        
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
-		mPrefs = new AwfulPreferences(getActivity());
     }
 
     @Override
@@ -207,7 +235,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView = (SnapshotWebView) result.findViewById(R.id.thread);
 		mSnapshotView = (ImageView) result.findViewById(R.id.snapshot);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
-		
+		initThreadViewProperties();
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
@@ -228,16 +256,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
-		initThreadViewProperties();
+		syncThread();
 	}
 
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setSnapshotView(mSnapshotView);
-		mThreadView.getSettings().setJavaScriptEnabled(true);
-		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
+		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+		mThreadView.setSnapshotView(mSnapshotView);
+		/*mThreadView.getSettings().setJavaScriptEnabled(true);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -247,7 +275,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
 				Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
 			}
-		});
+		});*/
 	}
 	
 	public void updatePageBar(){
@@ -299,7 +327,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         getLoaderManager().initLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 
         
-        syncThread();
     }
     
 
@@ -421,9 +448,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         return true;
     }
 
+    
     @Override
-    public void onSaveInstanceState(Bundle aOutState) {
-        super.onSaveInstanceState(aOutState);
+    public void onSaveInstanceState(Bundle outState){
+    	super.onSaveInstanceState(outState);
+    	Log.v(TAG,"onSaveInstanceState");
+        outState.putInt(Constants.PAGE, getPage());
+    	outState.putInt(Constants.THREAD_ID, getThreadId());
     }
     
     private void syncThread() {
