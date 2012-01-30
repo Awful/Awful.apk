@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -204,12 +204,12 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.LASTPOSTER   	+ " VARCHAR," +
                 AwfulThread.TAG_URL      + " VARCHAR,"    + 
                 AwfulThread.TAG_CACHEFILE + " VARCHAR,"   +
-            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            	UPDATED_TIMESTAMP   + " DATETIME);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
                 AwfulThread.INDEX      + " INTEGER UNIQUE," +
-            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            	UPDATED_TIMESTAMP   + " DATETIME);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
@@ -228,7 +228,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.AVATAR_TEXT           + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
                 AwfulPost.EDITED                + " VARCHAR," +
-            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            	UPDATED_TIMESTAMP   + " DATETIME);");
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
@@ -244,7 +244,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.CONTENT      + " VARCHAR,"   + 
                 AwfulMessage.UNREAD      + " INTEGER,"   + 
                 AwfulMessage.DATE + " VARCHAR," +
-            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            	UPDATED_TIMESTAMP   + " DATETIME);");
             
             
             aDb.execSQL("CREATE TABLE " + TABLE_DRAFTS + " ("    +
@@ -257,7 +257,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
                 AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
                 AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
-            	UPDATED_TIMESTAMP   + " DATETIME DEFAULT (datetime('now')) );");
+            	UPDATED_TIMESTAMP   + " DATETIME);");
             
 
         }
@@ -265,12 +265,6 @@ public class AwfulProvider extends ContentProvider {
         
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
-        	dropAllTables(aDb);
-            onCreate(aDb);
-        }
-        
-        @Override
-        public void onDowngrade(SQLiteDatabase aDb, int oldVersion, int newVersion){
         	dropAllTables(aDb);
             onCreate(aDb);
         }
@@ -539,7 +533,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
 			case PM_ID:

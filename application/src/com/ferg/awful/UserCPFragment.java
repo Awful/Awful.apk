@@ -205,6 +205,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, mId);
         mBookmarkList.setAdapter(mCursorAdapter);
         registerForContextMenu(mBookmarkList);
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
+        getLoaderManager().initLoader(mId, null, mForumLoaderCallback);
+        getLoaderManager().initLoader(-98, null, mForumDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
 
     @Override
@@ -218,11 +223,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
 
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
-        getLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-        getLoaderManager().restartLoader(-98, null, mForumDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         syncThreads();
     }
     
@@ -234,12 +234,16 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void onStop() {
         super.onStop();
+        
+    }
+    
+    public void onDestroy(){
+    	super.onDestroy();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
 		getLoaderManager().destroyLoader(mId);
 		getLoaderManager().destroyLoader(-98);
         getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
-        
     }
     
     @Override

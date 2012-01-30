@@ -113,7 +113,10 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void refreshThread() {
-        getFragment().refresh();
+    	ThreadDisplayFragment frag = getFragment();
+    	if(frag != null){
+    		getFragment().refresh();
+    	}
     }
 
     private ThreadDisplayFragment getFragment() {
@@ -121,7 +124,10 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void refreshInfo() {
-		getFragment().refreshInfo();
+    	ThreadDisplayFragment frag = getFragment();
+    	if(frag != null){
+    		getFragment().refreshInfo();
+    	}
 	}
     
     @Override
