@@ -108,7 +108,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-                		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+            			if(getActivity() != null){
+            				getLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+            			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			loadingFailed();
@@ -444,13 +446,15 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     private void displayForumContents(int aId) {
 
-        if (getActivity() instanceof ForumsTabletActivity) {
-        	((ForumsTabletActivity) getActivity()).setContentPane(aId);
-        } else {
-            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, aId);
-            startActivity(viewForum);
-        }
+    	if(getActivity() != null){
+    		if (getActivity() instanceof ForumsTabletActivity) {
+	        	((ForumsTabletActivity) getActivity()).setContentPane(aId);
+	        } else {
+	            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+	            viewForum.putExtra(Constants.FORUM, aId);
+	            startActivity(viewForum);
+	        }
+    	}
     }
 
     
@@ -463,10 +467,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
           //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(false);
+        	}
         }
 
-        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        if(getActivity() != null){
+        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -476,7 +484,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
           //TODO  mRefresh.startAnimation(adapt.getRotateAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(true);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(true);
+        	}
         }
     }
 
@@ -487,7 +497,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 mRefresh.setAnimation(null);
                 mRefresh.setVisibility(View.GONE);
             } else {
-                getActivity().setProgressBarIndeterminateVisibility(false);
+            	if(getActivity() != null){
+            		getActivity().setProgressBarIndeterminateVisibility(false);
+            	}
             }
         }
     }

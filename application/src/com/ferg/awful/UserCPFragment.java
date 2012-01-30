@@ -115,7 +115,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-                		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+            			if(getActivity() != null){
+            				getLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+            			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			loadingFailed();
@@ -217,8 +219,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         }
 
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
-		getActivity().getSupportLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
-		getActivity().getSupportLoaderManager().restartLoader(-98, null, mForumDataCallback);
+        getLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
+        getLoaderManager().restartLoader(-98, null, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         syncThreads();
@@ -233,8 +235,8 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     public void onStop() {
         super.onStop();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mId);
-		getActivity().getSupportLoaderManager().destroyLoader(mId);
-		getActivity().getSupportLoaderManager().destroyLoader(-98);
+		getLoaderManager().destroyLoader(mId);
+		getLoaderManager().destroyLoader(-98);
         getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
         
@@ -425,11 +427,15 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	
 
     private void syncThreads() {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM,mId,mPage);
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM,mId,mPage);
+    	}
     }
 	
 	private void markUnread(int id) {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
+		if(getActivity() != null){
+			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
+		}
     }
 	
 	/** Set Bookmark status.
@@ -437,7 +443,9 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 	 * @param addRemove 1 to add bookmark, 0 to remove.
 	 */
     private void toggleThreadBookmark(int id, int addRemove) {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+    	}
     }
 	
 	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -474,7 +482,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void onChange (boolean selfChange){
         	Log.i(TAG,"Thread Data update: "+mId);
         	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(mId, null, this);
+        		getLoaderManager().restartLoader(mId, null, this);
         	}
         }
     }
@@ -482,7 +490,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
 	
 	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
-
+		private Cursor mData;
         public ForumDataCallback(Handler handler) {
 			super(handler);
 		}
@@ -495,6 +503,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(aData.moveToFirst()){
+        		mData = aData;
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();
         	}
@@ -502,12 +511,16 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
+    		mData.close();
+    		mData = null;
         }
 
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	getActivity().getSupportLoaderManager().restartLoader(-98, null, this);
+        	if(getActivity() != null){
+        		getLoaderManager().restartLoader(-98, null, this);
+        	}
         }
     }
 }
