@@ -104,7 +104,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
             switch (aMsg.what) {
 	        	case AwfulSyncService.MSG_GRAB_IMAGE:
-	        		getListView().invalidateViews();
+	        		if(isResumed() && isVisible()){
+	        			getListView().invalidateViews();
+	        		}
 	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){

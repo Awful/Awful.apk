@@ -100,7 +100,12 @@ public class PostReplyFragment extends DialogFragment {
                 				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
                 			}else{
-                				dismiss();
+                				try{
+                					dismiss();
+                				}catch(Exception e){
+                					e.printStackTrace();
+                					//we get an odd exception here if the thread's webview onLoadFinished triggers as we are sending.
+                				}
                 			}
                 		}
                 	}
@@ -118,7 +123,7 @@ public class PostReplyFragment extends DialogFragment {
 	            			Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
                 	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY && getActivity() != null){
             			Toast.makeText(getActivity(), "Reply Load Failed!", Toast.LENGTH_LONG).show();
                 	}
                     break;
@@ -318,7 +323,7 @@ public class PostReplyFragment extends DialogFragment {
     				String quoteData = NetworkUtils.unencodeHtml(replyData);
     				mMessage.setText(quoteData);
     				mMessage.setSelection(quoteData.length());
-    				originalReplyData = aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT));
+    				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
     				if(originalReplyData == null){
     					originalReplyData = "";
     				}
@@ -360,6 +365,8 @@ public class PostReplyFragment extends DialogFragment {
     }
 	
 	private void refreshLoader(){
-		getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+		if(getActivity() != null){
+			getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+		}
 	}
 }
