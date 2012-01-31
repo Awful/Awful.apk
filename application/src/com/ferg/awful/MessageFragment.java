@@ -234,12 +234,17 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
     }
 	
 	@Override
-    public void onStart() {
-        super.onStart();
+	public void onActivityCreated(Bundle savedState){
+		super.onActivityCreated(savedState);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, pmId);
-		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
+	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
         syncPM();
     }
 	
@@ -266,6 +271,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 		}
 	}
 
+	@Override
 	public void onResume(){
 		super.onResume();
 		try {
@@ -281,6 +287,8 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			syncPM();
 		}
 	}
+	
+	@Override
 	public void onPause(){
 		super.onPause();
 		if(pmId>0){
@@ -294,15 +302,22 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
         } catch (Exception e) {
         }
 	}
-	
+
+	@Override
 	public void onStop(){
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, pmId);
-		getActivity().getSupportLoaderManager().destroyLoader(pmId);
+		getLoaderManager().destroyLoader(pmId);
 		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
 		getActivity().getContentResolver().unregisterContentObserver(pmReplyObserver);
 	}
-	
+
+	@Override
 	public void onDetach(){
 		super.onDetach();
 		if(mPrefs != null){

@@ -27,6 +27,7 @@
 
 package com.ferg.awful.thread;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +49,7 @@ import android.view.ViewGroup;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -67,7 +69,6 @@ public class AwfulPost {
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
     public static final String PREVIOUSLY_READ       = "previously_read";
-    public static final String LAST_READ_URL         = "last_read_url";
     public static final String EDITABLE              = "editable";
     public static final String IS_OP                 = "is_op";
     public static final String IS_ADMIN              = "is_admin";
@@ -242,6 +243,8 @@ public class AwfulPost {
 
                 result.add(current);
             } while (aCursor.moveToNext());
+        }else{
+        	Log.i(TAG,"No posts to convert.");
         }
         return result;
     }
@@ -362,16 +365,19 @@ public class AwfulPost {
         }
     }
 
-    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs);
+    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
 
-        content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+        int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+        Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
 
-    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
+    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		boolean lastReadFound = false;
-
+		int index = startIndex;
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        Log.v(TAG,"Update time: "+update_time);
         try {
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
@@ -386,6 +392,15 @@ public class AwfulPost {
                 // a ton of them
                 int id = Integer.parseInt(node.getAttributeByName("id").replaceAll("post", ""));
                 post.put(ID, id);
+                post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+                post.put(POST_INDEX, index);
+                if(index > unreadIndex){
+                	post.put(PREVIOUSLY_READ, 0);
+                	lastReadFound = true;
+                }else{
+                	post.put(PREVIOUSLY_READ, 1);
+                }
+                index++;
                 
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
@@ -486,22 +501,6 @@ public class AwfulPost {
 					}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
-						TagNode[] postDateUrls = pc.getElementsHavingAttribute("href", true);
-			        	for(TagNode pdu : postDateUrls){
-			        		Matcher matchPostIndex = postIndex_regex.matcher(pdu.getAttributeByName("href"));
-			        		if(matchPostIndex.find()){
-			        			int index = Integer.parseInt(matchPostIndex.group(1));
-			        			post.put(POST_INDEX, index);
-			                    if(index > unreadIndex){
-			                    	post.put(PREVIOUSLY_READ, 0);
-			                    	lastReadFound = true;
-			                    }else{
-			                    	post.put(PREVIOUSLY_READ, 1);
-			                    }
-			        			post.put(LAST_READ_URL, pdu.getAttributeByName("href").replaceAll("&amp;", "&"));
-			        		}
-			        	}
-
 						post.put(DATE, pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
 					}
 					
@@ -535,7 +534,7 @@ public class AwfulPost {
                 result.add(post);
             }
 
-            Log.i(TAG, Integer.toString(postNodes.length));
+            Log.i(TAG, Integer.toString(postNodes.length)+" posts found, "+result.size()+" posts parsed.");
         } catch (Exception e) {
             e.printStackTrace();
         }

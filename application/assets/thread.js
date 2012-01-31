@@ -25,13 +25,15 @@ $(document).ready(function() {
 	});
 	
     var salr = new SALR(prefs);
-
-    scrollPost();
 });
 
 $(window).load(function() {
     scrollPost();
 });
+$(window).ready(function() {
+    scrollPost();
+});
+
 
 function scrollPost() {
     if (prefs.postjumpid != "") {

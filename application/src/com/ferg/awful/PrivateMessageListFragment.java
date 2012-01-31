@@ -56,8 +56,8 @@ public class PrivateMessageListFragment extends Fragment implements
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
                 	loadingSucceeded();
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX){
-                		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX && getActivity() != null){
+                		getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
                 	}
                     break;
                 case AwfulSyncService.Status.WORKING:
@@ -150,7 +150,9 @@ public class PrivateMessageListFragment extends Fragment implements
     }
     
     private void syncPMs() {
-    	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+    	}
 	}
 
 	@Override
@@ -254,7 +256,9 @@ public class PrivateMessageListFragment extends Fragment implements
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
           //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
         }else{
-        	getActivity().setProgressBarIndeterminateVisibility(true);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(true);
+        	}
         }
     }
 
@@ -264,7 +268,9 @@ public class PrivateMessageListFragment extends Fragment implements
             mRefresh.setAnimation(null);
             mRefresh.setVisibility(View.GONE);
         }else{
-        	getActivity().setProgressBarIndeterminateVisibility(false);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(false);
+        	}
         }
     }
 

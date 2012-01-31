@@ -85,6 +85,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     private AwfulPreferences mPrefs;
     
+    private Cursor[] combinedCursors = new Cursor[2];
+    
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
@@ -104,11 +106,15 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
             switch (aMsg.what) {
 	        	case AwfulSyncService.MSG_GRAB_IMAGE:
-	        		getListView().invalidateViews();
+	        		if(isResumed() && isVisible()){
+	        			getListView().invalidateViews();
+	        		}
 	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-                		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+            			if(getActivity() != null){
+            				getLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+            			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			loadingFailed();
@@ -310,13 +316,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, info.id).putExtra(Constants.PAGE, 1);
+            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, info.id).putExtra(Constants.PAGE, 1);
             	startActivity(viewThread);
                 return true;
             case R.id.last_page:
         		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
         		Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
-        										 .putExtra(Constants.THREAD, info.id)
+        										 .putExtra(Constants.THREAD_ID, info.id)
         										 .putExtra(Constants.PAGE, lastPage);
             	startActivity(viewThread2);
                 return true;
@@ -444,13 +450,15 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     private void displayForumContents(int aId) {
 
-        if (getActivity() instanceof ForumsTabletActivity) {
-        	((ForumsTabletActivity) getActivity()).setContentPane(aId);
-        } else {
-            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, aId);
-            startActivity(viewForum);
-        }
+    	if(getActivity() != null){
+    		if (getActivity() instanceof ForumsTabletActivity) {
+	        	((ForumsTabletActivity) getActivity()).setContentPane(aId);
+	        } else {
+	            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+	            viewForum.putExtra(Constants.FORUM, aId);
+	            startActivity(viewForum);
+	        }
+    	}
     }
 
     
@@ -463,10 +471,14 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
           //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(false);
+        	}
         }
 
-        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        if(getActivity() != null){
+        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -476,7 +488,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
           //TODO  mRefresh.startAnimation(adapt.getRotateAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(true);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(true);
+        	}
         }
     }
 
@@ -487,7 +501,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 mRefresh.setAnimation(null);
                 mRefresh.setVisibility(View.GONE);
             } else {
-                getActivity().setProgressBarIndeterminateVisibility(false);
+            	if(getActivity() != null){
+            		getActivity().setProgressBarIndeterminateVisibility(false);
+            	}
             }
         }
     }
@@ -559,12 +575,18 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	mCursorAdapter.swapCursor(aData);
+        	//mCursorAdapter.swapCursor(aData);
+        	combinedCursors[1] = aData;
+        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
+	        	MergeCursor mc = new MergeCursor(combinedCursors);
+	        	mCursorAdapter.swapCursor(mc);
+        	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			mCursorAdapter.swapCursor(null);
+			combinedCursors[1]=null;
 		}
     }
 	
@@ -584,12 +606,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	//mCursorAdapter.swapCursor(aData);
+        	combinedCursors[0] = aData;
+        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
+	        	MergeCursor mc = new MergeCursor(combinedCursors);
+	        	mCursorAdapter.swapCursor(mc);
+        	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			mCursorAdapter.swapCursor(null);
+			combinedCursors[0]=null;
 		}
     }
 	

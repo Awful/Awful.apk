@@ -43,7 +43,11 @@ public class AwfulCursorAdapter extends CursorAdapter {
 				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
 			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getView(current, mPrefs, data);
+			if(data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)) == 0){
+				AwfulForum.getView(current, mPrefs, data);
+			}else{
+				AwfulForum.getSubforumView(current, mPrefs, data);
+			}
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
@@ -61,8 +65,13 @@ public class AwfulCursorAdapter extends CursorAdapter {
 				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
 			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			row = inf.inflate(R.layout.forum_item, parent, false);
-			AwfulForum.getView(row, mPrefs, data);
+			if(data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)) == 0){
+				row = inf.inflate(R.layout.forum_item, parent, false);
+				AwfulForum.getView(row, mPrefs, data);
+			}else{
+				row = inf.inflate(R.layout.thread_item, parent, false);
+				AwfulForum.getSubforumView(row, mPrefs, data);
+			}
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data);

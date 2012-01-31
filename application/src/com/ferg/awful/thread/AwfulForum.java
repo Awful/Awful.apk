@@ -35,8 +35,10 @@ import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,7 @@ import org.htmlcleaner.XPatherException;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 
 public class AwfulForum extends AwfulPagedItem {
     private static final String TAG = "AwfulForum";
@@ -137,10 +140,12 @@ public class AwfulForum extends AwfulPagedItem {
 		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
 		int start_index = (pageNumber-1)*Constants.ITEMS_PER_PAGE+1;
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
 		for(ContentValues thread : threads){
 			ContentValues ucp_entry = new ContentValues();
 			ucp_entry.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
 			ucp_entry.put(AwfulThread.INDEX, start_index);
+			ucp_entry.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
 			start_index++;
 			ucp_ids.add(ucp_entry);
 		}
@@ -185,5 +190,27 @@ public class AwfulForum extends AwfulPagedItem {
 			return m.group(1).trim();
 		}
 		return title;
+	}
+
+	/**
+	 * This function takes a thread list item and reuses it as a subforum item.
+	 * This is a hack to make a single cursor listadapter successfully combine thread and subforum items.
+	 * @param current
+	 * @param mPrefs
+	 * @param data
+	 */
+	public static void getSubforumView(View current, AwfulPreferences mPrefs, Cursor data) {
+		TextView title = (TextView) current.findViewById(R.id.title);
+		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
+		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
+		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
+		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
+		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
+		if(mPrefs != null){
+			title.setTextColor(mPrefs.postFontColor);
+			sub.setTextColor(mPrefs.postFontColor2);
+		}
+		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
 	}
 }

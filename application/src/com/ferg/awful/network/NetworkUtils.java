@@ -363,6 +363,9 @@ public class NetworkUtils {
 	 * @return unencoded text.
 	 */
 	public static String unencodeHtml(String html){
+		if(html == null){
+			return "";
+		}
 		String processed = StringEscapeUtils.unescapeHtml4(html);
 		StringBuffer unencodedContent = new StringBuffer(processed.length());
 		Matcher fixCharMatch = unencodeCharactersPattern.matcher(processed);
