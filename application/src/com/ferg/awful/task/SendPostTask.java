@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.reply.Reply;
 import com.ferg.awful.service.AwfulSyncService;
@@ -22,7 +23,7 @@ public class SendPostTask extends AwfulTask {
 			ContentResolver cr = mContext.getContentResolver();
 			Cursor postInfo = cr.query(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), AwfulProvider.DraftPostProjection, null, null, null);
 			if(postInfo.getCount() >0 && postInfo.moveToFirst()){
-				String message = postInfo.getString(postInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+				String message = NetworkUtils.encodeHtml(postInfo.getString(postInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT)));
 				String formCookie = postInfo.getString(postInfo.getColumnIndex(AwfulPost.FORM_COOKIE));
 				String formKey = postInfo.getString(postInfo.getColumnIndex(AwfulPost.FORM_KEY));
 				int replyType = postInfo.getInt(postInfo.getColumnIndex(AwfulMessage.TYPE));

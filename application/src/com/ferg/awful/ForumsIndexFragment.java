@@ -79,7 +79,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_INDEX:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-                		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+            			if(getActivity() != null){
+            				getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+            			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			loadingFailed();
@@ -111,6 +113,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
         mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
 
+        mPrefs = new AwfulPreferences(getActivity());
+
         if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
@@ -118,9 +122,10 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mPM        = (ImageButton) actionbar.findViewById(R.id.pm_button);
             mPMcount        = (TextView) actionbar.findViewById(R.id.pm_count);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
+            if (!mPrefs.hasPlatinum) {
+                ((ImageButton)actionbar.findViewById(R.id.pm_button)).setVisibility(View.GONE);
+            }
         }
-        
-        mPrefs = new AwfulPreferences(getActivity());
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
@@ -291,7 +296,11 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     
     @Override
     public void onPrepareOptionsMenu(Menu menu){
-		MenuItem pm = menu.findItem(R.id.pm);
+        MenuItem pm = menu.findItem(R.id.pm);
+
+        pm.setEnabled(mPrefs.hasPlatinum);
+        pm.setVisible(mPrefs.hasPlatinum);
+
     	if(unreadPMCount >0){
             pm.setTitle(Integer.toString(unreadPMCount)+" Unread PM(s)");
             if(!AwfulActivity.useLegacyActionbar()){
@@ -338,10 +347,14 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
           //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(false);
+        	}
         }
 
-        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        if(getActivity() != null){
+        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -351,7 +364,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
           //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
         } else {
-            getActivity().setProgressBarIndeterminateVisibility(true);
+        	if(getActivity() != null){
+        		getActivity().setProgressBarIndeterminateVisibility(true);
+        	}
         }
     }
     @Override
@@ -377,7 +392,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	}
 	
 	private void syncForums() {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+		if(getActivity() != null){
+			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+		}
     }
 	
 	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {

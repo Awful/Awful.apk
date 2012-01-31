@@ -117,4 +117,6 @@
 	<string name="draft_alert_title">Previous Reply Found</string>
     <string name="new_threads_first">Sort UCP by new posts</string>
     <string name="image_settings">Image Preferences</string>
+    <string name="platinum">Platinum Account</string>
+    <string name="platinum_summary">Enable platinum features (but they won\'t work without a platinum account)</string>
 </resources>

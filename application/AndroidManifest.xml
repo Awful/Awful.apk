@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awful"
       android:versionCode="31"
-      android:versionName="2.2.0"
+      android:versionName="2.2.0b3"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -55,6 +55,7 @@
         <activity android:name="ThreadDisplayTabletActivity" />
         <activity 
             android:name="ThreadDisplayActivity"
+          	android:configChanges="orientation|keyboardHidden|screenSize"
             >
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
