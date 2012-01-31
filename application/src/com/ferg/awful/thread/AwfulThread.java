@@ -465,20 +465,28 @@ public class AwfulThread extends AwfulPagedItem  {
 		}else{
 			sticky.setVisibility(View.GONE);
 		}
+
 		ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
-		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-		Bitmap tagImg = null;
-		if(tagFile != null){
-			tagImg = getCategory(context, tagFile);
-			if(tagImg != null){
-				threadTag.setVisibility(View.VISIBLE);
-				threadTag.setImageBitmap(tagImg);
+		if(prefs.threadInfo.equals("disabled")){
+			info.setVisibility(View.GONE);
+			threadTag.setVisibility(View.GONE);
+		}else{
+			info.setVisibility(View.VISIBLE);
+		
+			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+			Bitmap tagImg = null;
+			if(tagFile != null){
+				tagImg = getCategory(context, tagFile);
+				if(tagImg != null){
+					threadTag.setVisibility(View.VISIBLE);
+					threadTag.setImageBitmap(tagImg);
+				}else{
+					threadTag.setVisibility(View.GONE);
+					tag_url = data.getString(data.getColumnIndex(TAG_URL));
+				}			
 			}else{
 				threadTag.setVisibility(View.GONE);
-				tag_url = data.getString(data.getColumnIndex(TAG_URL));
 			}
-		}else{
-			threadTag.setVisibility(View.GONE);
 		}
 		if(!hideBookmark && data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
 			bookmark.setImageResource(R.drawable.blue_star);

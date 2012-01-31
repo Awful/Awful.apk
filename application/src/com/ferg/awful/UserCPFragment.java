@@ -162,6 +162,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
             mHome          = (ImageButton) actionbar.findViewById(R.id.home);
             mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
+            if (!mPrefs.hasPlatinum) {
+                mPrivateMessage.setEnabled(false);
+                mPrivateMessage.setVisibility(View.GONE);
+            }
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
             mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh_top);
         } else if (((AwfulActivity) getActivity()).isLargeScreen()) {
@@ -287,6 +291,12 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         if(menu.size() == 0){
             inflater.inflate(R.menu.user_cp_menu, menu);
         }
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.pm).setEnabled(mPrefs.hasPlatinum);
+        menu.findItem(R.id.pm).setVisible(mPrefs.hasPlatinum);
     }
     
     @Override
