@@ -268,12 +268,12 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, (int)info.id).putExtra(Constants.PAGE, 1);
+            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, (int)info.id).putExtra(Constants.PAGE, 1);
             	startActivity(viewThread);
                 return true;
             case R.id.last_page:
             	Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
-            									 .putExtra(Constants.THREAD, (int)info.id)
+            									 .putExtra(Constants.THREAD_ID, (int)info.id)
             									 .putExtra(Constants.PAGE, AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage));
             	startActivity(viewThread2);
                 return true;

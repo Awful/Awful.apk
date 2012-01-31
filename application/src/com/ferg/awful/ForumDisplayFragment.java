@@ -314,13 +314,13 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD, info.id).putExtra(Constants.PAGE, 1);
+            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, info.id).putExtra(Constants.PAGE, 1);
             	startActivity(viewThread);
                 return true;
             case R.id.last_page:
         		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
         		Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
-        										 .putExtra(Constants.THREAD, info.id)
+        										 .putExtra(Constants.THREAD_ID, info.id)
         										 .putExtra(Constants.PAGE, lastPage);
             	startActivity(viewThread2);
                 return true;

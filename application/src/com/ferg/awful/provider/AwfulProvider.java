@@ -533,7 +533,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
+				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
 			case PM_ID:

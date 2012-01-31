@@ -181,7 +181,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             c2pURLFragment = data.getData().getEncodedFragment();
         }
         mThreadId = data.getIntExtra(Constants.THREAD_ID, 0);
-        mPage = data.getIntExtra(Constants.PAGE, 0);
+        mPage = data.getIntExtra(Constants.PAGE, 1);
         if (c2pThreadID != null) {
         	mThreadId = Integer.parseInt(c2pThreadID);
         }
