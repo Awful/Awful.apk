@@ -38,6 +38,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +49,7 @@ import org.htmlcleaner.XPatherException;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 
 public class AwfulForum extends AwfulPagedItem {
     private static final String TAG = "AwfulForum";
@@ -138,10 +140,12 @@ public class AwfulForum extends AwfulPagedItem {
 		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
 		int start_index = (pageNumber-1)*Constants.ITEMS_PER_PAGE+1;
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
 		for(ContentValues thread : threads){
 			ContentValues ucp_entry = new ContentValues();
 			ucp_entry.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
 			ucp_entry.put(AwfulThread.INDEX, start_index);
+			ucp_entry.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
 			start_index++;
 			ucp_ids.add(ucp_entry);
 		}

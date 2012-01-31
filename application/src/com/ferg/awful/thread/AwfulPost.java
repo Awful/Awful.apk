@@ -27,6 +27,7 @@
 
 package com.ferg.awful.thread;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +49,7 @@ import android.view.ViewGroup;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
+import com.ferg.awful.provider.AwfulProvider;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -374,6 +376,8 @@ public class AwfulPost {
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		boolean lastReadFound = false;
 		int index = startIndex;
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        Log.v(TAG,"Update time: "+update_time);
         try {
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
@@ -388,6 +392,7 @@ public class AwfulPost {
                 // a ton of them
                 int id = Integer.parseInt(node.getAttributeByName("id").replaceAll("post", ""));
                 post.put(ID, id);
+                post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
                 post.put(POST_INDEX, index);
                 if(index > unreadIndex){
                 	post.put(PREVIOUSLY_READ, 0);
