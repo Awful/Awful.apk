@@ -85,6 +85,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
     private AwfulPreferences mPrefs;
     
+    private Cursor[] combinedCursors = new Cursor[2];
+    
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
@@ -573,12 +575,18 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	mCursorAdapter.swapCursor(aData);
+        	//mCursorAdapter.swapCursor(aData);
+        	combinedCursors[1] = aData;
+        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
+	        	MergeCursor mc = new MergeCursor(combinedCursors);
+	        	mCursorAdapter.swapCursor(mc);
+        	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			mCursorAdapter.swapCursor(null);
+			combinedCursors[1]=null;
 		}
     }
 	
@@ -598,12 +606,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	//mCursorAdapter.swapCursor(aData);
+        	combinedCursors[0] = aData;
+        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
+	        	MergeCursor mc = new MergeCursor(combinedCursors);
+	        	mCursorAdapter.swapCursor(mc);
+        	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			mCursorAdapter.swapCursor(null);
+			combinedCursors[0]=null;
 		}
     }
 	

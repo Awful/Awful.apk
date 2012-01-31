@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -185,5 +186,27 @@ public class AwfulForum extends AwfulPagedItem {
 			return m.group(1).trim();
 		}
 		return title;
+	}
+
+	/**
+	 * This function takes a thread list item and reuses it as a subforum item.
+	 * This is a hack to make a single cursor listadapter successfully combine thread and subforum items.
+	 * @param current
+	 * @param mPrefs
+	 * @param data
+	 */
+	public static void getSubforumView(View current, AwfulPreferences mPrefs, Cursor data) {
+		TextView title = (TextView) current.findViewById(R.id.title);
+		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
+		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
+		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
+		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
+		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
+		if(mPrefs != null){
+			title.setTextColor(mPrefs.postFontColor);
+			sub.setTextColor(mPrefs.postFontColor2);
+		}
+		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
 	}
 }
