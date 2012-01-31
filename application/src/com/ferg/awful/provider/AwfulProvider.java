@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -121,7 +121,6 @@ public class AwfulProvider extends ContentProvider {
         AwfulPost.USER_ID,
         AwfulPost.USERNAME,
         AwfulPost.PREVIOUSLY_READ,
-        AwfulPost.LAST_READ_URL,
         AwfulPost.EDITABLE,
         AwfulPost.IS_OP,
         AwfulPost.IS_ADMIN,
@@ -219,7 +218,6 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.USER_ID               + " VARCHAR,"        + 
                 AwfulPost.USERNAME              + " VARCHAR,"        +
                 AwfulPost.PREVIOUSLY_READ       + " INTEGER,"        +
-                AwfulPost.LAST_READ_URL         + " VARCHAR,"        +
                 AwfulPost.EDITABLE              + " INTEGER,"        +
                 AwfulPost.IS_OP                 + " INTEGER,"        +
                 AwfulPost.IS_ADMIN              + " INTEGER,"        +
@@ -641,7 +639,6 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
 		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
 		sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
-		sPostProjectionMap.put(AwfulPost.LAST_READ_URL, AwfulPost.LAST_READ_URL);
 		sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
 		sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
 		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);

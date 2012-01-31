@@ -294,14 +294,15 @@ public class AwfulThread extends AwfulPagedItem  {
         					aThreadId, 
         					(unread < 0 ? 0 : totalReplies-unread),
         					opId, 
-        					aPrefs);
+        					aPrefs,
+        					AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
         
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
     	}
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, boolean lastPage) {
         StringBuffer buffer = new StringBuffer("<html><head>");
         buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />");
         buffer.append("<link rel='stylesheet' href='file:///android_asset/thread.css'>");
@@ -342,6 +343,9 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
         buffer.append("    </table>");
+        if(lastPage){
+        	buffer.append("<div class='unread' ></div>");
+        }
         buffer.append("</div>");
         buffer.append("</body></html>");
 

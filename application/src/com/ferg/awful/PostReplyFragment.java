@@ -338,14 +338,19 @@ public class PostReplyFragment extends DialogFragment {
 			        mSubmit.setEnabled(true);
         		}else{
 			        mSubmit.setEnabled(false);
+			        if(getActivity() != null){
+			        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
+			        }
         		}
         	}else{
 		        //We'll enable it once we have a formkey and cookie
 		        mSubmit.setEnabled(false);
-		        if(mReplyType != AwfulMessage.TYPE_NEW_REPLY){
+		        if(getActivity() != null && mReplyType != AwfulMessage.TYPE_NEW_REPLY){
 		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true);
 		        }
-	    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+		        if(getActivity() != null){
+		        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+		        }
         	}
         	aData.close();
         }

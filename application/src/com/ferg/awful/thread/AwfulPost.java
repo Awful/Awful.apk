@@ -67,7 +67,6 @@ public class AwfulPost {
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
     public static final String PREVIOUSLY_READ       = "previously_read";
-    public static final String LAST_READ_URL         = "last_read_url";
     public static final String EDITABLE              = "editable";
     public static final String IS_OP                 = "is_op";
     public static final String IS_ADMIN              = "is_admin";
@@ -364,17 +363,17 @@ public class AwfulPost {
         }
     }
 
-    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs);
+    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
 
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
 
-    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs){
+    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		boolean lastReadFound = false;
-
+		int index = startIndex;
         try {
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
@@ -389,6 +388,14 @@ public class AwfulPost {
                 // a ton of them
                 int id = Integer.parseInt(node.getAttributeByName("id").replaceAll("post", ""));
                 post.put(ID, id);
+                post.put(POST_INDEX, index);
+                if(index > unreadIndex){
+                	post.put(PREVIOUSLY_READ, 0);
+                	lastReadFound = true;
+                }else{
+                	post.put(PREVIOUSLY_READ, 1);
+                }
+                index++;
                 
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
@@ -489,22 +496,6 @@ public class AwfulPost {
 					}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
-						TagNode[] postDateUrls = pc.getElementsHavingAttribute("href", true);
-			        	for(TagNode pdu : postDateUrls){
-			        		Matcher matchPostIndex = postIndex_regex.matcher(pdu.getAttributeByName("href"));
-			        		if(matchPostIndex.find()){
-			        			int index = Integer.parseInt(matchPostIndex.group(1));
-			        			post.put(POST_INDEX, index);
-			                    if(index > unreadIndex){
-			                    	post.put(PREVIOUSLY_READ, 0);
-			                    	lastReadFound = true;
-			                    }else{
-			                    	post.put(PREVIOUSLY_READ, 1);
-			                    }
-			        			post.put(LAST_READ_URL, pdu.getAttributeByName("href").replaceAll("&amp;", "&"));
-			        		}
-			        	}
-
 						post.put(DATE, pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
 					}
 					
