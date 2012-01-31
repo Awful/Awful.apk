@@ -18,7 +18,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private SharedPreferences mPrefs;
 	private Context mContext;
 	
-    public String username;
+	public String username;
+	public boolean hasPlatinum;
 	public int postFontSize;
 	public int postFontColor;
 	public int postFontColor2;
@@ -43,7 +44,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean newThreadsFirst;
 
 	/**
-	 * Constructs a new AwfulPrefernences object, registers preference change listener, and updates values.
+	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
 	 */
 	public AwfulPreferences(Context context) {
@@ -76,7 +77,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     }
 
 	private void updateValues(SharedPreferences prefs) {
-        username                 = mPrefs.getString("username", "Username");
+		username                 = mPrefs.getString("username", "Username");
+		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
 		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
 		postFontColor            = mPrefs.getInt("default_post_font_color", mContext.getResources().getColor(R.color.default_post_font));
 		postFontColor2           = mPrefs.getInt("secondary_post_font_color", mContext.getResources().getColor(R.color.secondary_post_font));

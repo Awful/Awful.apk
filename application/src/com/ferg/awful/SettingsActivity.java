@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -144,7 +145,17 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	protected Dialog onCreateDialog(int dialogId) {
 		switch(dialogId) {
 		case DIALOG_ABOUT:
+			CharSequence app_version = getText(R.string.app_name);
+			try {
+				app_version = app_version + " " +
+					getPackageManager().getPackageInfo(getPackageName(), 0)
+					.versionName;
+			} catch (NameNotFoundException e) {
+				// rather unlikely, just show app_name without version
+			}
+
 			return new AlertDialog.Builder(this)
+				.setTitle(app_version)
 				.setMessage(R.string.about_message)
 				.setNeutralButton(android.R.string.ok, new OnClickListener() {
 					@Override
