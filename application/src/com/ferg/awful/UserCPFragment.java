@@ -168,6 +168,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
+        
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);

@@ -16,6 +16,7 @@
 		android:id="@+id/usercp"
 		android:icon="@drawable/gear"
 		android:title="@string/user_cp"
+        android:showAsAction="ifRoom"
 		/>
 	<item
 		android:id="@+id/go_back"

@@ -38,13 +38,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -161,8 +156,13 @@ public class PostReplyFragment extends DialogFragment {
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-        mTitle   = (TextView) result.findViewById(R.id.title);
-        mSubmit  = (ImageButton) result.findViewById(R.id.submit_button);
+
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+
+            mTitle   = (TextView) actionbar.findViewById(R.id.title);
+            mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
+        }
 
         mPrefs = new AwfulPreferences(getActivity());
 
@@ -191,8 +191,10 @@ public class PostReplyFragment extends DialogFragment {
 		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         
-        mTitle.setText(getString(R.string.post_reply));
-        mSubmit.setOnClickListener(onSubmitClick);
+        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+            mTitle.setText(getString(R.string.post_reply));
+            mSubmit.setOnClickListener(onSubmitClick);
+        }
     }
 
     @Override
@@ -220,6 +222,26 @@ public class PostReplyFragment extends DialogFragment {
         	}
         }
         cleanupTasks();
+    }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!AwfulActivity.useLegacyActionbar()) {
+            inflater.inflate(R.menu.post_reply, menu);
+        }
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.submit_button:
+                postReply();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
     }
     
     @Override
@@ -265,11 +287,15 @@ public class PostReplyFragment extends DialogFragment {
 
     private View.OnClickListener onSubmitClick = new View.OnClickListener() {
         public void onClick(View aView) {
-        	mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true);
-        	saveReply();
-    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+            postReply();
         }
     };
+
+    private void postReply() {
+        mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true);
+        saveReply();
+        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+    }
     
     private void deleteReply(){
 		ContentResolver cr = getActivity().getContentResolver();

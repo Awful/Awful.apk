@@ -4,9 +4,12 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <include
-        layout="@layout/actionbar_post"
-        android:id="@+id/action_bar" 
+    <ViewStub
+        android:id="@+id/actionbar"
+        android:inflatedId="@+id/actionbar_inflated"
+        android:layout="@layout/actionbar_post"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
         />
 	<EditText
 		android:id="@+id/post_message"

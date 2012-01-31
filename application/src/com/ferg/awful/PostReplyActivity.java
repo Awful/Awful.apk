@@ -27,8 +27,11 @@
 
 package com.ferg.awful;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.MenuItem;
 import android.view.Window;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -50,6 +53,40 @@ public class PostReplyActivity extends AwfulActivity {
         setContentView(R.layout.post_reply_activity);
 
         setContentPane();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!AwfulActivity.useLegacyActionbar()) {
+            setActionBar();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                returnHome();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void returnHome() {
+        finish();
+        Intent i = new Intent(this, ForumsIndexActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+    }
+
+    private void setActionBar() {
+        ActionBar action = getActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setDisplayHomeAsUpEnabled(true);
+        action.setTitle(R.string.post_reply);
     }
 
 	public void setContentPane() {

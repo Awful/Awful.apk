@@ -605,7 +605,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void displayPostReplyDialog(Bundle aArgs) {
-        if (isTablet()) {
+        if (((AwfulActivity) getActivity()).isLargeScreen()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.setTargetFragment(this, 0);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
