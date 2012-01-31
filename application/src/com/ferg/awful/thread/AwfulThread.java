@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -122,6 +123,8 @@ public class AwfulThread extends AwfulPagedItem  {
         if(threads.length >1 || threads.length < 1){
         	return null;
         }
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        Log.v(TAG,"Update time: "+update_time);
         TagNode[] tbody = threads[0].getElementsByName("tbody", false);
 		for(TagNode node : tbody[0].getChildTags()){
             try {
@@ -195,7 +198,7 @@ public class AwfulThread extends AwfulPagedItem  {
                 }else{
             		thread.put(BOOKMARKED, 0);
             	}
-
+        		thread.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
                 result.add(thread);
             } catch (NullPointerException e) {
                 // If we can't parse a row, just skip it
@@ -285,7 +288,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
     	
     	thread.put(AwfulThread.POSTCOUNT, replycount);
-    	int newUnread = Math.max(0, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1));
+    	int newUnread = Math.max(0, Math.min(unread, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1)));
     	thread.put(AwfulThread.UNREADCOUNT, newUnread);
     	Log.e(TAG, "Old unread: "+unread+" new unread: "+newUnread);
     	
@@ -294,14 +297,15 @@ public class AwfulThread extends AwfulPagedItem  {
         					aThreadId, 
         					(unread < 0 ? 0 : totalReplies-unread),
         					opId, 
-        					aPrefs);
+        					aPrefs,
+        					AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
         
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
     	}
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, boolean lastPage) {
         StringBuffer buffer = new StringBuffer("<html><head>");
         buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />");
         buffer.append("<link rel='stylesheet' href='file:///android_asset/thread.css'>");
@@ -342,6 +346,9 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
         buffer.append("    </table>");
+        if(lastPage){
+        	buffer.append("<div class='unread' ></div>");
+        }
         buffer.append("</div>");
         buffer.append("</body></html>");
 

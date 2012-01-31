@@ -100,7 +100,12 @@ public class PostReplyFragment extends DialogFragment {
                 				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
                 			}else{
-                				dismiss();
+                				try{
+                					dismiss();
+                				}catch(Exception e){
+                					e.printStackTrace();
+                					//we get an odd exception here if the thread's webview onLoadFinished triggers as we are sending.
+                				}
                 			}
                 		}
                 	}
@@ -118,7 +123,7 @@ public class PostReplyFragment extends DialogFragment {
 	            			Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
                 	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY && getActivity() != null){
             			Toast.makeText(getActivity(), "Reply Load Failed!", Toast.LENGTH_LONG).show();
                 	}
                     break;
@@ -318,7 +323,7 @@ public class PostReplyFragment extends DialogFragment {
     				String quoteData = NetworkUtils.unencodeHtml(replyData);
     				mMessage.setText(quoteData);
     				mMessage.setSelection(quoteData.length());
-    				originalReplyData = aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT));
+    				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
     				if(originalReplyData == null){
     					originalReplyData = "";
     				}
@@ -333,14 +338,19 @@ public class PostReplyFragment extends DialogFragment {
 			        mSubmit.setEnabled(true);
         		}else{
 			        mSubmit.setEnabled(false);
+			        if(getActivity() != null){
+			        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
+			        }
         		}
         	}else{
 		        //We'll enable it once we have a formkey and cookie
 		        mSubmit.setEnabled(false);
-		        if(mReplyType != AwfulMessage.TYPE_NEW_REPLY){
+		        if(getActivity() != null && mReplyType != AwfulMessage.TYPE_NEW_REPLY){
 		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true);
 		        }
-	    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+		        if(getActivity() != null){
+		        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+		        }
         	}
         	aData.close();
         }
@@ -360,6 +370,8 @@ public class PostReplyFragment extends DialogFragment {
     }
 	
 	private void refreshLoader(){
-		getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+		if(getActivity() != null){
+			getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+		}
 	}
 }
