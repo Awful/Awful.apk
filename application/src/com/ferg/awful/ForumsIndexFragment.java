@@ -30,6 +30,7 @@ package com.ferg.awful;
 import java.util.HashMap;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -106,14 +107,20 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
 
     @Override
+    public void onAttach(Activity aActivity) {
+        super.onAttach(aActivity);
+
+        Log.i(TAG, "Activity!!!!");
+        mPrefs = new AwfulPreferences(getActivity());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
         mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
-
-        mPrefs = new AwfulPreferences(getActivity());
 
         if (AwfulActivity.useLegacyActionbar()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
@@ -289,30 +296,18 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(menu.size() == 0){
-            inflater.inflate(R.menu.forum_index_options, menu);
-        }
+        inflater.inflate(R.menu.forum_index_options, menu);
     }
     
     @Override
     public void onPrepareOptionsMenu(Menu menu){
         MenuItem pm = menu.findItem(R.id.pm);
+        Log.i(TAG, "Menu!!!!");
 
-        pm.setEnabled(mPrefs.hasPlatinum);
-        pm.setVisible(mPrefs.hasPlatinum);
-
-    	if(unreadPMCount >0){
-            pm.setTitle(Integer.toString(unreadPMCount)+" Unread PM(s)");
-            if(!AwfulActivity.useLegacyActionbar()){
-            	pm.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM|MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-            }
-    	}else{
-            if(!AwfulActivity.useLegacyActionbar()){
-                pm.setTitle("");
-            }else{
-                pm.setTitle("Private Messages");
-            }
-    	}
+        if (mPrefs.hasPlatinum) {
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
     }
     
     @Override
