@@ -27,6 +27,7 @@
 
 package com.ferg.awful;
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -150,11 +151,18 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     }
         
     @Override
+    public void onAttach(Activity aActivity) {
+        super.onAttach(aActivity);
+
+        Log.i(TAG, "Activity!!!!");
+        mPrefs = new AwfulPreferences(getActivity());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.settings, false);
-        mPrefs = new AwfulPreferences(getActivity());
         
         View result = aInflater.inflate(R.layout.user_cp, aContainer, false);
 
