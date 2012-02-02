@@ -304,10 +304,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         MenuItem pm = menu.findItem(R.id.pm);
         Log.i(TAG, "Menu!!!!");
 
-        if (mPrefs.hasPlatinum) {
-            pm.setEnabled(mPrefs.hasPlatinum);
-            pm.setVisible(mPrefs.hasPlatinum);
-        }
+        pm.setEnabled(mPrefs.hasPlatinum);
+        pm.setVisible(mPrefs.hasPlatinum);
     }
     
     @Override
