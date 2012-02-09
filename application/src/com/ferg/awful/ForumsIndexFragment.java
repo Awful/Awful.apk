@@ -110,7 +110,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity);
 
-        Log.i(TAG, "Activity!!!!");
         mPrefs = new AwfulPreferences(getActivity());
     }
 

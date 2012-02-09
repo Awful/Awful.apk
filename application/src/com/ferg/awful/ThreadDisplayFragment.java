@@ -27,6 +27,7 @@
 
 package com.ferg.awful;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
@@ -162,11 +163,17 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	};
 
     @Override
+    public void onAttach(Activity aActivity) {
+        super.onAttach(aActivity);
+
+        mPrefs = new AwfulPreferences(getActivity());
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         //setRetainInstance(true);
-		mPrefs = new AwfulPreferences(getActivity());
         
         String c2pThreadID = null;
         String c2pPostPerPage = null;
