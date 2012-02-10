@@ -153,6 +153,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
 					PackageManager.MATCH_DEFAULT_ONLY);
 			if (res.size() > 0) {
+				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				aView.getContext().startActivity(browserIntent);
 			} else {
 				String[] split = aUrl.split(":");
