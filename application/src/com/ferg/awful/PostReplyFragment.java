@@ -161,13 +161,10 @@ public class PostReplyFragment extends DialogFragment {
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
+        View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-
-            mTitle   = (TextView) actionbar.findViewById(R.id.title);
-            mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
-        }
+        mTitle   = (TextView) actionbar.findViewById(R.id.title);
+        mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
 
         mPrefs = new AwfulPreferences(getActivity());
 
@@ -297,7 +294,7 @@ public class PostReplyFragment extends DialogFragment {
     };
 
     private void postReply() {
-        mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true);
+        mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
         saveReply();
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
     }
@@ -361,18 +358,24 @@ public class PostReplyFragment extends DialogFragment {
         		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
         		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));
         		if((formKey != null && formCookie != null && formKey.length()>0 && formCookie.length()>0) || mReplyType == AwfulMessage.TYPE_EDIT){
-			        mSubmit.setEnabled(true);
+    		        if(mSubmit != null){
+    		        	mSubmit.setEnabled(true);
+    		        }
         		}else{
-			        mSubmit.setEnabled(false);
+        			if(mSubmit != null){
+        				mSubmit.setEnabled(false);
+        			}
 			        if(getActivity() != null){
 			        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
 			        }
         		}
         	}else{
 		        //We'll enable it once we have a formkey and cookie
-		        mSubmit.setEnabled(false);
+		        if(mSubmit != null){
+		        	mSubmit.setEnabled(false);
+		        }
 		        if(getActivity() != null && mReplyType != AwfulMessage.TYPE_NEW_REPLY){
-		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true);
+		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
 		        }
 		        if(getActivity() != null){
 		        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
