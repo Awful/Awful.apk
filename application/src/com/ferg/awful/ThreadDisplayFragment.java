@@ -43,6 +43,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.webkit.*;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.*;
 import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
@@ -131,6 +132,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			if (imagesLoadingState) {
 				imagesLoadingState = false;
 				imageLoadingFinished();
+			}
+			if(!isResumed()){
+				Log.e(TAG,"PageFinished after pausing. Forcing Webview.onPause");
+				mThreadView.onPause();
 			}
 		}
 
@@ -268,6 +273,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.setSnapshotView(mSnapshotView);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
+		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);

@@ -51,7 +51,7 @@
                  android:visibility="gone"
                  android:layout_alignParentRight="true"
                  android:layout_centerVertical="true"
-                 android:padding="5dp"
+                 android:padding="1dp"
                  style="@style/ActionBarButton"/>
         </RelativeLayout>
     </LinearLayout>
