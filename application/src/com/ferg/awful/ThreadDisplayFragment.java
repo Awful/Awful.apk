@@ -134,8 +134,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				imageLoadingFinished();
 			}
 			if(!isResumed()){
-				Log.e(TAG,"PageFinished after pausing. Forcing Webview.onPause");
-				mThreadView.onPause();
+				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
+				mHandler.postDelayed(new Runnable(){
+					@Override
+					public void run() {
+						mThreadView.onPause();
+						mThreadView.pauseTimers();
+					}
+				}, 500);
 			}
 		}
 
