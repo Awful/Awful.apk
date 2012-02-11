@@ -41,7 +41,12 @@ public class PostReplyActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        if (!AwfulActivity.useLegacyActionbar()) {
+            requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        } else {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
 
         new Thread(new Runnable() {
             public void run() {

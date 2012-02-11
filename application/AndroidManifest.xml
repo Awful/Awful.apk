@@ -85,7 +85,6 @@
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
-            android:theme="@style/ThemeDialogWhenLarge"
             />
         <activity 
             android:name="UserCPShortcutActivity"

@@ -152,6 +152,10 @@ public class PostReplyFragment extends DialogFragment {
                 GoogleAnalyticsTracker.getInstance().dispatch();
             }
         }).start();
+
+        if (!AwfulActivity.useLegacyActionbar() && !((AwfulActivity) getActivity()).isLargeScreen()) {
+            setHasOptionsMenu(true);
+        }
     }
     
     @Override
@@ -161,10 +165,13 @@ public class PostReplyFragment extends DialogFragment {
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-        View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
-        mTitle   = (TextView) actionbar.findViewById(R.id.title);
-        mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
+        if (AwfulActivity.useLegacyActionbar() || ((AwfulActivity) getActivity()).isLargeScreen()) {
+            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
+
+            mTitle   = (TextView) actionbar.findViewById(R.id.title);
+            mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
+        }
 
         mPrefs = new AwfulPreferences(getActivity());
 
@@ -193,7 +200,7 @@ public class PostReplyFragment extends DialogFragment {
 		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         
-        if (((AwfulActivity) getActivity()).useLegacyActionbar()) {
+        if (AwfulActivity.useLegacyActionbar() || ((AwfulActivity) getActivity()).isLargeScreen()) {
             mTitle.setText(getString(R.string.post_reply));
             mSubmit.setOnClickListener(onSubmitClick);
         }

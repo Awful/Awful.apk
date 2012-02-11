@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    font: 16sp Verdana, Arial, sans-serif
+    font: 16pt Verdana, Arial, sans-serif
 }
 
 td {
@@ -41,7 +41,7 @@ table {
 .bbc-block h4 {
     border-top: 1px #999999 solid;
     padding: 8px 0 2px 0;
-    font-size: 16sp;
+    font-size: 16pt;
     font-style: italic;
     color: #555;
 }
@@ -69,7 +69,7 @@ table {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 16sp Verdana, Arial, sans-serif;
+    font: normal normal normal 16pt Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
@@ -83,7 +83,7 @@ table {
 
 .postdate {
     color: black;
-    font: normal normal normal 13sp Verdana, Arial, sans-serif;
+    font: normal normal normal 13pt Verdana, Arial, sans-serif;
 }
 
 .action-button {
@@ -131,7 +131,7 @@ table {
 
 .number {
     top: 1px;
-    font: bold 36sp Verdana, Arial, sans-serif;
+    font: bold 36pt Verdana, Arial, sans-serif;
     text-shadow: 1px 1px 1px #444;
     color: #eee;
     position: relative;

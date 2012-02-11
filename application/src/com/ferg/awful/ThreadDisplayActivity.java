@@ -112,6 +112,10 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }
     }
 
+    public void displayPostReplyDialog() {
+        getFragment().displayPostReplyDialog();
+    }
+
     public void refreshThread() {
     	ThreadDisplayFragment frag = getFragment();
     	if(frag != null){

@@ -156,14 +156,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
         setHasOptionsMenu(true);
     }
-        
-    @Override
-    public void onAttach(Activity aActivity) {
-        super.onAttach(aActivity);
-
-        Log.i(TAG, "Activity!!!!");
-        mPrefs = new AwfulPreferences(getActivity());
-    }
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {

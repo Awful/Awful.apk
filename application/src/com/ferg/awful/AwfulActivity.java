@@ -256,12 +256,19 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
                 case R.id.pm:
                     startActivity(new Intent(AwfulActivity.this, PrivateMessageActivity.class));
                     break;
+                case R.id.reply:
+                    displayPostReplyDialog();
+                    break;
             }
         }
     };
 
     public void displayUserCP() {
         UserCPFragment.newInstance(true).show(getSupportFragmentManager(), "user_control_panel_dialog");
+    }
+
+    public void displayPostReplyDialog() {
+        // TODO: doing this because I don't even
     }
 
     @Override

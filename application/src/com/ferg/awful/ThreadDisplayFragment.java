@@ -288,7 +288,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView.setSnapshotView(mSnapshotView);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
-		        mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -622,7 +622,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
     };
 
-    private void displayPostReplyDialog() {
+    public void displayPostReplyDialog() {
         Bundle args = new Bundle();
         args.putInt(Constants.THREAD_ID, mThreadId);
         args.putInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
@@ -634,7 +634,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         }
     }
 
-    private void displayPostReplyDialog(Bundle aArgs) {
+    public void displayPostReplyDialog(Bundle aArgs) {
         if (((AwfulActivity) getActivity()).isLargeScreen()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.setTargetFragment(this, 0);
