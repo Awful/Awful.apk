@@ -288,6 +288,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView.setSnapshotView(mSnapshotView);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
+		        mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
