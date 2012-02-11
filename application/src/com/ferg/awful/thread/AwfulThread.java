@@ -289,8 +289,11 @@ public class AwfulThread extends AwfulPagedItem  {
     	
     	thread.put(AwfulThread.POSTCOUNT, replycount);
     	int newUnread = Math.max(0, Math.min(unread, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1)));
+    	if(aPage == lastPage){
+    		newUnread = 0;
+    	}
     	thread.put(AwfulThread.UNREADCOUNT, newUnread);
-    	Log.e(TAG, "Old unread: "+unread+" new unread: "+newUnread);
+    	Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
     	
         AwfulPost.syncPosts(contentResolv, 
         					response, 
