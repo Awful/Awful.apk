@@ -114,7 +114,8 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
     }
 
     public boolean isTV() {
-        return !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+        return !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
+            && !useLegacyActionbar();
     }
 
     public static boolean useLegacyActionbar() {
