@@ -56,7 +56,7 @@
         <activity 
             android:name="ThreadDisplayActivity"
           	android:configChanges="orientation|keyboardHidden|screenSize"
-            >
+            android:hardwareAccelerated="false">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />

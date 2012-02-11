@@ -27,7 +27,6 @@ public class SnapshotWebView extends WebView {
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-
         if (!hasWindowFocus) {
             if (mSnapshot == null) {
                 mSnapshot = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);

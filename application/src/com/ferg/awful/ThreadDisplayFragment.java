@@ -43,6 +43,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.webkit.*;
+import android.webkit.WebSettings.RenderPriority;
 import android.widget.*;
 import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
@@ -132,6 +133,16 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				imagesLoadingState = false;
 				imageLoadingFinished();
 			}
+			if(!isResumed()){
+				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
+				mHandler.postDelayed(new Runnable(){
+					@Override
+					public void run() {
+						mThreadView.onPause();
+						mThreadView.pauseTimers();
+					}
+				}, 500);
+			}
 		}
 
 		public void onLoadResource(WebView view, String url) {
@@ -148,6 +159,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
 					PackageManager.MATCH_DEFAULT_ONLY);
 			if (res.size() > 0) {
+				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				aView.getContext().startActivity(browserIntent);
 			} else {
 				String[] split = aUrl.split(":");
@@ -268,6 +280,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.setSnapshotView(mSnapshotView);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
+		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
