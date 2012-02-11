@@ -20,19 +20,19 @@ td {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 24pt Verdana, Arial, sans-serif;
+    font: normal normal normal 21pt Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
 .username h4 {
-    font-size: 24pt;
+    font-size: 21pt;
 }
 
 .userinfo {
-    padding: 5px;
+    padding: 3px;
     float: left;
     color: white;
-    margin-left: 8px;
+    margin-left: 4px;
 }
 
 .action-button {
