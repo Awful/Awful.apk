@@ -139,8 +139,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				mHandler.postDelayed(new Runnable(){
 					@Override
 					public void run() {
-						mThreadView.onPause();
 						mThreadView.pauseTimers();
+						mThreadView.onPause();
 					}
 				}, 500);
 			}
