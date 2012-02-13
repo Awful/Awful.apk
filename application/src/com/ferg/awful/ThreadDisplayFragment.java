@@ -464,12 +464,85 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             case R.id.bookmark:
             	toggleThreadBookmark();
                 break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    		case R.id.rate_thread:
+    			rateThread();
+    			break;
+    		case R.id.copy_url:
+    			copyThreadURL(null);
+    			break;
+    		default:
+    			return super.onOptionsItemSelected(item);
+    		}
 
-        return true;
-    }
+    		return true;
+    	}
+
+    	private void copyThreadURL(String postId) {
+
+    		StringBuffer url = new StringBuffer();
+    		url.append(Constants.FUNCTION_THREAD);
+    		url.append("?");
+    		url.append(Constants.PARAM_THREAD_ID);
+    		url.append("=");
+    		url.append(getThreadId());
+    		url.append("&");
+    		url.append(Constants.PARAM_PAGE);
+    		url.append("=");
+    		url.append(getPage());
+    		url.append("&");
+    		url.append(Constants.PARAM_PER_PAGE);
+    		url.append("=");
+    		url.append(mPrefs.postPerPage);
+    		if (postId != null) {
+    			url.append("#");
+    			url.append("post");
+    			url.append(postId);
+    		}
+    		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+    			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+    					Context.CLIPBOARD_SERVICE);
+    			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
+    			clipboard.setPrimaryClip(clip);
+
+    			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+    					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+    			successToast.show();
+    		} else {
+    			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
+
+    			alert.setTitle("URL");
+
+    			final EditText input = new EditText(this.getActivity());
+    			input.setText(url.toString());
+    			alert.setView(input);
+
+    			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int whichButton) {
+    					dialog.dismiss();
+    				}
+    			});
+
+    			alert.show();
+    		}
+    	}
+
+    	private void rateThread() {
+
+    		final CharSequence[] items = { "1", "2", "3", "4", "5" };
+
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+    		builder.setTitle("Rate this thread");
+    		builder.setItems(items, new DialogInterface.OnClickListener() {
+    			public void onClick(DialogInterface dialog, int item) {
+    				if (getActivity() != null) {
+    					((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_VOTE,
+    							getThreadId(), item);
+    				}
+    			}
+    		});
+    		AlertDialog alert = builder.create();
+    		alert.show();
+    	}
 
     
     @Override
@@ -575,6 +648,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             case ClickInterface.LAST_READ:
             	markLastRead(aLastReadIndex);
                 return true;
+            case ClickInterface.COPY_URL:
+            	copyThreadURL(aPostId);
+            	break;
         }
 
         return false;
@@ -809,16 +885,19 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         public static final int QUOTE     = 0;
         public static final int LAST_READ = 1;
         public static final int EDIT      = 2;
+		public static final int COPY_URL = 3;
 
         final CharSequence[] mEditablePostItems = {
             "Quote", 
             "Mark last read",
-            "Edit Post"
+            "Edit Post",
+            "Copy Post URL"
         };
         final CharSequence[] mPostItems = {
             "Quote", 
             "Mark last read",
-            "Send Private Message"
+            "Send Private Message",
+            "Copy Post URL"
         };
 
         // Post ID is the item tapped

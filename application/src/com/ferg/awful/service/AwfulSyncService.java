@@ -151,7 +151,7 @@ public class AwfulSyncService extends Service {
                 	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
                     break;
                 case MSG_VOTE:
-                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, getApplicationContext()));
                     break;
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));

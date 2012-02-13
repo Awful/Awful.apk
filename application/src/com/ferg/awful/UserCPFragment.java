@@ -28,10 +28,16 @@
 package com.ferg.awful;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -48,6 +54,7 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -295,10 +302,49 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
             case R.id.mark_thread_unread:
             	markUnread((int)info.id);
                 return true;
+            case R.id.copy_url_thread:
+            	copyUrl((int) info.id);
+                return true;
         }
 
         return false;
     }
+
+    private void copyUrl(int id) {
+		StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_THREAD_ID);
+		url.append("=");
+		url.append(id);
+		
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+					Context.CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+			clipboard.setPrimaryClip(clip);
+
+			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+			successToast.show();
+		} else {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
+
+			alert.setTitle("URL");
+
+			final EditText input = new EditText(this.getActivity());
+			input.setText(url.toString());
+			alert.setView(input);
+
+			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.dismiss();
+				}
+			});
+
+			alert.show();
+		}
+	}
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
