@@ -108,13 +108,20 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
-                    if(getActivity() != null){
+                    if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
                     	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
                     }
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
                     handleStatusUpdate(aMsg.arg1);
                 	refreshInfo();
+                    break;
+                case AwfulSyncService.MSG_MARK_LASTREAD:
+                    handleStatusUpdate(aMsg.arg1);
+                	refreshInfo();
+                    if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
+                    	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+                    }
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -278,6 +285,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 		syncThread();
+        getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
 	}
 
 	private void initThreadViewProperties() {
@@ -346,7 +354,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
         getLoaderManager().initLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 
         
