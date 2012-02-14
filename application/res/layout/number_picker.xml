@@ -17,7 +17,21 @@
 */
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+<Button android:id="@+id/min"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:text="min"
+        android:layout_weight="1" />
+        
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="4">
 
     <com.ferg.awful.widget.NumberPickerButton android:id="@+id/increment"
         android:layout_width="fill_parent"
@@ -38,5 +52,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/timepicker_down_btn" />
+</LinearLayout>
 
-</merge>
+<Button android:id="@+id/max"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:text="max"
+        android:layout_weight="1" />
+</LinearLayout>
