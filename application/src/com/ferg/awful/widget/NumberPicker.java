@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.EditText;
@@ -124,6 +125,12 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         mHandler = new Handler();
         InputFilter inputFilter = new NumberPickerInputFilter();
         mNumberInputFilter = new NumberRangeKeyListener();
+        mMinButton = (Button) findViewById(R.id.min);
+        mMinButton.setOnClickListener(this);
+        mMinButton.setOnLongClickListener(this);
+        mMaxButton = (Button) findViewById(R.id.max);
+        mMaxButton.setOnClickListener(this);
+        mMaxButton.setOnLongClickListener(this);
         mIncrementButton = (NumberPickerButton) findViewById(R.id.increment);
         mIncrementButton.setOnClickListener(this);
         mIncrementButton.setOnLongClickListener(this);
@@ -215,6 +222,10 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
             changeCurrent(mCurrent + 1);
         } else if (R.id.decrement == v.getId()) {
             changeCurrent(mCurrent - 1);
+        } else if (R.id.max == v.getId()) {
+            changeCurrent(mEnd);
+        } else if (R.id.min == v.getId()) {
+            changeCurrent(mStart);
         }
     }
 
@@ -256,6 +267,8 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         } else {
             mText.setText(mDisplayedValues[mCurrent - mStart]);
         }
+        mMinButton.setText(Integer.toString(mStart));
+        mMaxButton.setText(Integer.toString(mEnd));
         mText.setSelection(mText.getText().length());
     }
 
@@ -329,6 +342,8 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
 
     private NumberPickerButton mIncrementButton;
     private NumberPickerButton mDecrementButton;
+    private Button mMinButton;
+    private Button mMaxButton;
 
     private class NumberPickerInputFilter implements InputFilter {
         public CharSequence filter(CharSequence source, int start, int end,
