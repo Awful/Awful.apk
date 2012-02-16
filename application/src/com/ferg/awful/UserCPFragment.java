@@ -579,8 +579,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-    		mData.close();
-    		mData = null;
+    		if(mData != null){
+    			mData.close();
+        		mData = null;
+    		}
         }
 
         @Override
