@@ -37,6 +37,7 @@ import android.database.*;
 import android.net.Uri;
 import android.os.*;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
@@ -50,8 +51,13 @@ import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.*;
 
@@ -737,6 +743,19 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
     	TextView draftAlertMsg = new TextView(getActivity());
+    	if(timeStamp != null){
+    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+    	    try {
+				Date d = sdf.parse(timeStamp);
+				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
+				df.setTimeZone(TimeZone.getDefault());
+				timeStamp = df.format(d);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     	switch(replyType){
     	case AwfulMessage.TYPE_EDIT:
         	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));

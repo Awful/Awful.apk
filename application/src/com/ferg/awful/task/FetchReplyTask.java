@@ -1,5 +1,7 @@
 package com.ferg.awful.task;
 
+import java.sql.Timestamp;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -46,6 +48,7 @@ public class FetchReplyTask extends AwfulTask {
 				default:
 					return false;
 			}
+			reply.put(AwfulProvider.UPDATED_TIMESTAMP, new Timestamp(System.currentTimeMillis()).toString());
 			if(contentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), reply, null, null)<1){
 				contentResolver.insert(AwfulMessage.CONTENT_URI_REPLY, reply);
 			}
