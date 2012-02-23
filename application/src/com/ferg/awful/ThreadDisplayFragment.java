@@ -108,7 +108,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
-                    if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
+                    if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
                     	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
                     }
                     break;
@@ -285,7 +285,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 		syncThread();
-        getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
+        //getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
 	}
 
 	private void initThreadViewProperties() {

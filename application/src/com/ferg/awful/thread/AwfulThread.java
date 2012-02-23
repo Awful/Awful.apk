@@ -288,7 +288,10 @@ public class AwfulThread extends AwfulPagedItem  {
     	Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
     	
     	thread.put(AwfulThread.POSTCOUNT, replycount);
-    	int newUnread = Math.max(0, Math.min(unread, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1)));
+    	int newUnread = Math.max(0, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1));
+    	if(unread >= 0){
+        	newUnread = Math.min(unread, newUnread);
+    	}
     	if(aPage == lastPage){
     		newUnread = 0;
     	}
