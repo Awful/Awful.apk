@@ -354,7 +354,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+        getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 
         
     }
@@ -666,9 +666,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
         // If we're here because of a post result, refresh the thread
-        switch (aResultCode) {
+        switch (aRequestCode) {
             case PostReplyFragment.RESULT_POSTED:
-                refresh();
+                ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
+            	if(getPage() < getLastPage()){
+            		goToPage(getLastPage());
+            	}else{
+            		refresh();
+            	}
                 break;
         }
     }
@@ -720,13 +725,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void displayPostReplyDialog(Bundle aArgs) {
         if (((AwfulActivity) getActivity()).isLargeScreen()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
-            fragment.setTargetFragment(this, 0);
+            fragment.setTargetFragment(this, PostReplyFragment.RESULT_POSTED);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
         } else {
             Intent postReply = new Intent().setClass(getActivity(),
                     PostReplyActivity.class);
             postReply.putExtras(aArgs);
-            startActivityForResult(postReply, 0);
+            startActivityForResult(postReply, PostReplyFragment.RESULT_POSTED);
         }
     }
     
@@ -998,20 +1003,21 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
-
+        private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
+        private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            String sortOrder = AwfulPost.POST_INDEX + " ASC";
-
-            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
             int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
-            String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index), Integer.toString(index+mPrefs.postPerPage)};
             Log.v(TAG,"Displaying thread: "+getThreadId()+" index: "+index+" page: "+getPage()+" perpage: "+mPrefs.postPerPage);
-
-            return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, AwfulProvider.PostProjection, selection, args, sortOrder);
+            return new CursorLoader(getActivity(),
+            						AwfulPost.CONTENT_URI,
+            						AwfulProvider.PostProjection,
+            						selection,
+            						AwfulProvider.int2StrArray(getThreadId(), index, index+mPrefs.postPerPage),
+            						sortOrder);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.i(TAG,"Load finished, populating: "+aData.getCount());
+        	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         }
 
