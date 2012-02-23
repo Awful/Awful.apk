@@ -734,13 +734,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     	TextView draftAlertMsg = new TextView(getActivity());
     	switch(replyType){
     	case AwfulMessage.TYPE_EDIT:
-        	draftAlertMsg.setText("Unsent Edit Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	case AwfulMessage.TYPE_QUOTE:
-        	draftAlertMsg.setText("Unsent Quote Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	case AwfulMessage.TYPE_NEW_REPLY:
-        	draftAlertMsg.setText("Unsent Reply Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	}
         new AlertDialog.Builder(getActivity())
