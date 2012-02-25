@@ -52,4 +52,8 @@
 		android:icon="@drawable/ic_menu_copy"
 		android:title="@string/copy_url"
         />
+		<item
+        android:id="@+id/find"
+        android:title="@string/find"
+        />
 </menu>
