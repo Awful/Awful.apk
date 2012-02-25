@@ -477,6 +477,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     		case R.id.copy_url:
     			copyThreadURL(null);
     			break;
+    		case R.id.find:
+    			this.mThreadView.showFindDialog(null, true);
+    			break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
