@@ -225,7 +225,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         mBookmarkList.setAdapter(mCursorAdapter);
         registerForContextMenu(mBookmarkList);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mId);
-        getLoaderManager().initLoader(mId, null, mForumLoaderCallback);
         getLoaderManager().initLoader(-98, null, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI_UCP, true, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
@@ -241,6 +240,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         if (!loggedIn) {
             startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
         }
+        getLoaderManager().restartLoader(mId, null, mForumLoaderCallback);
 
         syncThreads();
     }

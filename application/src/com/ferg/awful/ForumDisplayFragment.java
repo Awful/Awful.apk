@@ -200,7 +200,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         }
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
-		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
 		refreshInfo();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
@@ -235,6 +234,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart();
+		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
     }
     
     @Override
