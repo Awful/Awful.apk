@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+	android:background="@color/background"
+    >
+    <ViewStub
+        android:id="@+id/actionbar"
+        android:inflatedId="@+id/actionbar_inflated"
+        android:layout="@layout/actionbar_post"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        />
+	<EditText
+		android:id="@+id/post_message"
+		android:layout_width="fill_parent"
+		android:layout_height="400dip"
+		android:layout_marginTop="10dip"
+		android:layout_above="@+id/submit_button"
+		android:singleLine="false"
+        android:gravity="top"
+        android:scrollbars="vertical"
+        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
+        android:textColor="@color/default_post_font"
+        android:textCursorDrawable="@null"
+		/>
+</LinearLayout>
