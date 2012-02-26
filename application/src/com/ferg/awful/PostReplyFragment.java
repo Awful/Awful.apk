@@ -222,7 +222,7 @@ public class PostReplyFragment extends DialogFragment {
     public void onStop() {
         super.onStop();
         if(!sendSuccessful){
-        	if(mMessage.getText().toString().trim().equalsIgnoreCase(originalReplyData.trim())){
+        	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", ""))){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
         	}else{
@@ -256,7 +256,7 @@ public class PostReplyFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);
+        //((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);//this is causing the threadview to lose its sync
 		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
 		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
     }
@@ -301,7 +301,9 @@ public class PostReplyFragment extends DialogFragment {
     };
 
     private void postReply() {
-        mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
+    	if(mDialog != null && getActivity() != null){
+    		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
+    	}
         saveReply();
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
     }
@@ -344,7 +346,7 @@ public class PostReplyFragment extends DialogFragment {
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Reply load finished, populating: "+aData.getCount());
+        	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
         	if(aData.getCount() >0 && aData.moveToFirst()){
         		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
@@ -381,7 +383,8 @@ public class PostReplyFragment extends DialogFragment {
 		        if(mSubmit != null){
 		        	mSubmit.setEnabled(false);
 		        }
-		        if(getActivity() != null && mReplyType != AwfulMessage.TYPE_NEW_REPLY){
+		        if(mDialog == null && getActivity() != null && mReplyType != AwfulMessage.TYPE_NEW_REPLY){
+		        	Log.e(TAG, "DISPLAYING DIALOG");
 		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
 		        }
 		        if(getActivity() != null){

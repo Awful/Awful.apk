@@ -23,5 +23,6 @@
         android:scrollbars="vertical"
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
         android:textColor="@color/default_post_font"
+        android:textCursorDrawable="@null"
 		/>
 </LinearLayout>

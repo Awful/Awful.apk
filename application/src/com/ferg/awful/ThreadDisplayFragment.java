@@ -37,6 +37,7 @@ import android.database.*;
 import android.net.Uri;
 import android.os.*;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
@@ -50,8 +51,13 @@ import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.*;
 
@@ -108,7 +114,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
-                    if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
+                    if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
                     	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
                     }
                     break;
@@ -285,7 +291,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 		syncThread();
-        getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
+        //getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
 	}
 
 	private void initThreadViewProperties() {
@@ -354,7 +360,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+        getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 
         
     }
@@ -476,6 +482,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     			break;
     		case R.id.copy_url:
     			copyThreadURL(null);
+    			break;
+    		case R.id.find:
+    			this.mThreadView.showFindDialog(null, true);
     			break;
     		default:
     			return super.onOptionsItemSelected(item);
@@ -666,9 +675,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
         // If we're here because of a post result, refresh the thread
-        switch (aResultCode) {
+        switch (aRequestCode) {
             case PostReplyFragment.RESULT_POSTED:
-                refresh();
+                ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
+            	if(getPage() < getLastPage()){
+            		goToPage(getLastPage());
+            	}else{
+            		refresh();
+            	}
                 break;
         }
     }
@@ -720,27 +734,40 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void displayPostReplyDialog(Bundle aArgs) {
         if (((AwfulActivity) getActivity()).isLargeScreen()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
-            fragment.setTargetFragment(this, 0);
+            fragment.setTargetFragment(this, PostReplyFragment.RESULT_POSTED);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
         } else {
             Intent postReply = new Intent().setClass(getActivity(),
                     PostReplyActivity.class);
             postReply.putExtras(aArgs);
-            startActivityForResult(postReply, 0);
+            startActivityForResult(postReply, PostReplyFragment.RESULT_POSTED);
         }
     }
     
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
     	TextView draftAlertMsg = new TextView(getActivity());
+    	if(timeStamp != null){
+    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+    	    try {
+				Date d = sdf.parse(timeStamp);
+				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
+				df.setTimeZone(TimeZone.getDefault());
+				timeStamp = df.format(d);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     	switch(replyType){
     	case AwfulMessage.TYPE_EDIT:
-        	draftAlertMsg.setText("Unsent Edit Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	case AwfulMessage.TYPE_QUOTE:
-        	draftAlertMsg.setText("Unsent Quote Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	case AwfulMessage.TYPE_NEW_REPLY:
-        	draftAlertMsg.setText("Unsent Reply Found from "+timeStamp);
+        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
     		break;
     	}
         new AlertDialog.Builder(getActivity())
@@ -998,20 +1025,21 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
-
+        private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
+        private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            String sortOrder = AwfulPost.POST_INDEX + " ASC";
-
-            String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
             int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
-            String[] args = new String[]{Integer.toString(getThreadId()), Integer.toString(index), Integer.toString(index+mPrefs.postPerPage)};
             Log.v(TAG,"Displaying thread: "+getThreadId()+" index: "+index+" page: "+getPage()+" perpage: "+mPrefs.postPerPage);
-
-            return new CursorLoader(getActivity(), AwfulPost.CONTENT_URI, AwfulProvider.PostProjection, selection, args, sortOrder);
+            return new CursorLoader(getActivity(),
+            						AwfulPost.CONTENT_URI,
+            						AwfulProvider.PostProjection,
+            						selection,
+            						AwfulProvider.int2StrArray(getThreadId(), index, index+mPrefs.postPerPage),
+            						sortOrder);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.i(TAG,"Load finished, populating: "+aData.getCount());
+        	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         }
 
