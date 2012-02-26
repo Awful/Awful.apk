@@ -131,9 +131,11 @@ public class AwfulThread extends AwfulPagedItem  {
     			ContentValues thread = new ContentValues();
                 String threadId = node.getAttributeByName("id");
                 thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
-                thread.put(INDEX, start_index);
+                if(forumId != Constants.USERCP_ID){//we don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
+                	thread.put(INDEX, start_index);
+                	thread.put(FORUM_ID, forumId);
+                }
                 start_index++;
-                thread.put(FORUM_ID, forumId);
             	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
             	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
             	if (tarPostCount.length > 0) {

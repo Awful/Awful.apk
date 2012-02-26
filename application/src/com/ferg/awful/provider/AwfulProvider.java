@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -190,7 +190,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
-                AwfulThread.INDEX    + " INTEGER UNIQUE," + 
+                AwfulThread.INDEX    + " INTEGER," + 
                 AwfulThread.TITLE   + " VARCHAR,"         + 
                 AwfulThread.POSTCOUNT   + " INTEGER,"     + 
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
@@ -207,7 +207,7 @@ public class AwfulProvider extends ContentProvider {
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
-                AwfulThread.INDEX      + " INTEGER UNIQUE," +
+                AwfulThread.INDEX      + " INTEGER," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
@@ -385,7 +385,6 @@ public class AwfulProvider extends ContentProvider {
         String table = null;
 		int result = 0;
 		String id_row = null;
-		String extra_constraint = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -402,12 +401,10 @@ public class AwfulProvider extends ContentProvider {
             case THREAD:
                 table = TABLE_THREADS;
                 id_row = AwfulThread.ID;
-                extra_constraint = AwfulThread.INDEX;
                 break;
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
                 id_row = AwfulThread.ID;
-                extra_constraint = AwfulThread.INDEX;
                 break;
 			case PM:
 				table = TABLE_PM;
@@ -418,26 +415,15 @@ public class AwfulProvider extends ContentProvider {
                 id_row = AwfulMessage.ID;
 				break;
         }
-        assert(id_row != null && table != null);//TODO remove this once DB structure is settled.
 
 		db.beginTransaction();
 
 		try {
 			for (ContentValues value : aValues) {
-				
-				if(Build.VERSION.SDK_INT>7){
-					db.insertWithOnConflict(table, "", value, SQLiteDatabase.CONFLICT_REPLACE);
-				}else{
-					try{
-						db.insertOrThrow(table, "", value);
-					}catch(SQLException sqle){
-						if(extra_constraint != null){
-							db.delete(table, id_row+"=? OR "+extra_constraint+"=?", int2StrArray(value.getAsInteger(id_row),value.getAsInteger(extra_constraint)));
-						}else{
-							db.delete(table, id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
-						}
-						db.insert(table, "", value);
-					}
+				try{
+					db.insertOrThrow(table, "", value);
+				}catch(SQLException sqle){
+					db.update(table, value, id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
 				}
 				result++;
 			}
