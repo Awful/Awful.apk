@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory android:title="@string/image_settings">
+		<CheckBoxPreference 
+            android:key="threadinfo_author" 
+			android:title="@string/threadinfo_author"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="threadinfo_killed" 
+			android:title="@string/threadinfo_killed"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="threadinfo_pages" 
+			android:title="@string/threadinfo_pages"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="threadinfo_tag" 
+			android:title="@string/threadinfo_tag"
+			android:defaultValue="true"
+			/>
+        </PreferenceCategory>
+</PreferenceScreen>
