@@ -39,7 +39,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineYoutube;
     public boolean wrapThreadTitles;
 	public boolean showAllSpoilers;
-	public String threadInfo;
+	public boolean threadInfo_Author;
+	public boolean threadInfo_Killed;
+	public boolean threadInfo_Page;
+	public boolean threadInfo_Tag;
 	public String imgurThumbnails;
 	public boolean newThreadsFirst;
 
@@ -98,7 +101,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
-        threadInfo				 = mPrefs.getString("threadinfo", "author");
+        threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
+        threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", false);
+        threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
+        threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
        	 //TODO: I have never seen this before oh god
