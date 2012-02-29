@@ -1,2 +1,2 @@
 language: java
-script: sh -c "cd application" && ant debug
+script: sh -c "cd Something-Awful-Android/application" && ant debug
