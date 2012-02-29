@@ -355,8 +355,11 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.pm).setEnabled(mPrefs.hasPlatinum);
-        menu.findItem(R.id.pm).setVisible(mPrefs.hasPlatinum);
+        MenuItem pm = menu.findItem(R.id.pm);
+        if (pm != null) {
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
     }
     
     @Override
