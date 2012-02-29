@@ -68,12 +68,10 @@
 		<item>yospos</item>
 		<item>Custom</item>
 	</string-array>
-	<string-array name="threadinfo">
-		<item>Author</item>
-		<item>Killed By</item>
-		<item>Number of Pages</item>
-		<item>Disabled</item>
-	</string-array>
+	<string name="threadinfo_author">Author</string>
+	<string name="threadinfo_killed">Killed By</string>
+	<string name="threadinfo_pages">Number of Pages</string>
+	<string name="threadinfo_tag">Thread Tag</string>
 	<string-array name="imgur_thumbnails">
 		<item>Don\'t replace pictures</item>
 		<item>Tiny (160px)</item>
