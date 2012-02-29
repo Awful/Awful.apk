@@ -20,12 +20,12 @@ td {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 21pt Verdana, Arial, sans-serif;
+    font: normal normal normal 14pt Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
 .username h4 {
-    font-size: 21pt;
+    font-size: 16pt;
 }
 
 .userinfo {
@@ -52,13 +52,13 @@ td {
 
 .postdate, .avatar-text {
     color: white;
-    font: normal normal normal 24pt Verdana, Arial, sans-serif;
+    font: normal normal normal 16pt Verdana, Arial, sans-serif;
 }
 
 .bbc-block h4 {
     border-top: 1px #999999 solid;
     padding: 8px 0 2px 0;
-    font-size: 24pt;
+    font-size: 16pt;
     font-style: italic;
     color: #555;
 }
