@@ -12,12 +12,6 @@
         <item>yospos</item>
         <item>custom</item>
     </string-array>
-	<string-array name="threadinfo_values">
-		<item>author</item>
-		<item>killedby</item>
-		<item>threadpages</item>
-		<item>disabled</item>
-	</string-array>
 	<string-array name="imgur_thumbnails_values">
 		<item>d</item>
 		<item>t</item>

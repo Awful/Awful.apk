@@ -64,7 +64,6 @@
     <style name="CustomActionBar" parent="android:style/Theme.Holo.Light">
     </style>
     
-    
     <!-- QuickActions -->
     <style name="Animations" />
 

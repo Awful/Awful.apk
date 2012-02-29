@@ -60,6 +60,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
 	Preference mImagePreference;
+	Preference mInfoPreference;
 	Preference mColorsPreference;
 	Preference mFontSizePreference;
 	Context mThis = this;
@@ -96,6 +97,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
 		mImagePreference = getPreferenceScreen().findPreference("image_settings");
 		mImagePreference.setOnPreferenceClickListener(onImagesListener);
+		mInfoPreference = getPreferenceScreen().findPreference("threadinfo");
+		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
 	}
@@ -188,6 +191,14 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			startActivity(new Intent().setClass(mThis, ImageSettingsActivity.class));
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onInfoListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			startActivity(new Intent().setClass(mThis, ThreadInfoSettingsActivity.class));
 			return true;
 		}
 	};

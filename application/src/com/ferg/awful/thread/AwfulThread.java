@@ -482,12 +482,9 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 
 		ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
-		if(prefs.threadInfo.equals("disabled")){
-			info.setVisibility(View.GONE);
+		if(!prefs.threadInfo_Tag){
 			threadTag.setVisibility(View.GONE);
 		}else{
-			info.setVisibility(View.VISIBLE);
-		
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 			Bitmap tagImg = null;
 			if(tagFile != null){
@@ -503,6 +500,29 @@ public class AwfulThread extends AwfulPagedItem  {
 				threadTag.setVisibility(View.GONE);
 			}
 		}
+
+		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page){
+			info.setVisibility(View.GONE);
+		}else{
+			info.setVisibility(View.VISIBLE);
+			StringBuilder tmp = new StringBuilder();
+			if(prefs.threadInfo_Page){
+				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");	
+			}
+			if(prefs.threadInfo_Killed){
+				if(tmp.length()>0){
+					tmp.append(" | ");
+				}
+				tmp.append("Last: "+data.getString(data.getColumnIndex(LASTPOSTER)));
+			}
+			if(prefs.threadInfo_Author){
+				if(tmp.length()>0){
+					tmp.append(" | ");
+				}
+				tmp.append("OP: "+data.getString(data.getColumnIndex(AUTHOR)));
+			}
+			info.setText(tmp.toString().trim());
+		}
 		if(!hideBookmark && data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
 			bookmark.setImageResource(R.drawable.blue_star);
 			bookmark.setVisibility(View.VISIBLE);
@@ -517,13 +537,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 			
 		}
-		if(prefs.threadInfo.equals("threadpages")){
-			info.setText(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pages");	
-		}else if(prefs.threadInfo.equals("killedby")){
-			info.setText("Killed By: "+data.getString(data.getColumnIndex(LASTPOSTER)));
-		}else{
-			info.setText("Author: "+data.getString(data.getColumnIndex(AUTHOR)));
-		}
+		
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		if(unreadCount >=0){
