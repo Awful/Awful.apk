@@ -119,6 +119,7 @@
             android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" 
             />
         <activity android:name="ImageSettingsActivity"></activity>
+        <activity android:name="ThreadInfoSettingsActivity"></activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
