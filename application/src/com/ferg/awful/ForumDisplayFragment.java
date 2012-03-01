@@ -113,7 +113,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
             			if(getActivity() != null){
-            				getLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+            				getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
             			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
@@ -138,7 +138,12 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-    @Override
+    protected int getLoaderId() {
+    	//loader ID conflicts suck.
+    	//this is terrible and I know it.
+		return getForumId()+1000;
+	}
+	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
@@ -200,7 +205,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         }
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
-		refreshInfo();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
 
@@ -234,7 +238,8 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart();
-		getActivity().getSupportLoaderManager().restartLoader(getForumId(), null, mForumLoaderCallback);
+		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+		refreshInfo();
     }
     
     @Override
@@ -254,9 +259,9 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void onDestroyView() {
         super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
-		getActivity().getSupportLoaderManager().destroyLoader(getForumId());
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
+        getLoaderManager().destroyLoader(getLoaderId());
+        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -563,7 +568,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-        	Log.v(TAG,"Creating forum cursor: "+aId);
+        	Log.v(TAG,"Creating forum cursor: "+getForumId());
             return new CursorLoader(getActivity(), 
             						AwfulThread.CONTENT_URI, 
             						AwfulProvider.ThreadProjection, 

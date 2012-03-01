@@ -89,8 +89,8 @@ public class PostReplyFragment extends DialogFragment {
                 	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
                 		sendSuccessful = true;
-                		if(getActivity() != null){
-                			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
+                		if(getActivity() != null){ 
+                			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
                 			if(getActivity() instanceof PostReplyActivity){
                 				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
