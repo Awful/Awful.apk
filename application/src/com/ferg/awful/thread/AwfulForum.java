@@ -31,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
@@ -217,6 +218,7 @@ public class AwfulForum extends AwfulPagedItem {
 			sub.setTextColor(mPrefs.postFontColor2);
 		}
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+		title.setTypeface(null, Typeface.BOLD);
 		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
 	}
 }
