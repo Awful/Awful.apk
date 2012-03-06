@@ -162,7 +162,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
         syncForums();
     }
 
@@ -179,12 +178,15 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     }
     
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-    @Override
     public void onResume() {
         super.onResume();
+		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }
         
     @Override
@@ -196,7 +198,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     public void onDestroyView() {
         super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }
     
     @Override
