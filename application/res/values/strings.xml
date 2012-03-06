@@ -112,7 +112,7 @@
 	<string name="copy_url">Copy Thread Url</string>
 	<string name="copy_url_success">Url has been copied to the clipboard.</string>
 	<string name="draft_alert_keep">Keep Message</string>
-	<string name="draft_alert_discard">Discard Message and Continue</string>
+	<string name="draft_alert_discard">Discard Message</string>
 	<string name="draft_alert_title">Previous Reply Found</string>
     <string name="new_threads_first">Sort UCP by new posts</string>
     <string name="image_settings">Image Preferences</string>

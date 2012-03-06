@@ -352,7 +352,7 @@ public class PostReplyFragment extends DialogFragment {
         		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
         		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if (replyData != null) {
-    				String quoteData = NetworkUtils.unencodeHtml(replyData);
+    				String quoteData = NetworkUtils.unencodeHtml(replyData)+"\n\n";
     				mMessage.setText(quoteData);
     				mMessage.setSelection(quoteData.length());
     				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
