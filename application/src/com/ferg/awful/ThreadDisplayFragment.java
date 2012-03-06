@@ -152,8 +152,10 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				mHandler.postDelayed(new Runnable(){
 					@Override
 					public void run() {
-						mThreadView.pauseTimers();
-						mThreadView.onPause();
+						if(mThreadView != null){
+							mThreadView.pauseTimers();
+							mThreadView.onPause();
+						}
 					}
 				}, 500);
 			}
@@ -289,7 +291,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 		syncThread();
         //getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
 	}
@@ -361,6 +362,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public void onStart() {
         super.onStart();
         getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 
         
     }
@@ -393,15 +395,13 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         mThreadView.pauseTimers();
         mThreadView.stopLoading();
         mThreadView.onPause();
-        cleanupTasks();
     }
         
     @Override
     public void onStop() {
         super.onStop();
-
         mThreadView.stopLoading();
-        cleanupTasks();
+        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
     }
 
     @Override
@@ -418,19 +418,12 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        cleanupTasks();
-    }
-
-    private void cleanupTasks() {
-        if (mDialog != null) {
-        }
     }
     
     @Override
@@ -1096,6 +1089,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		mFlashingAnimation.setDuration(500);
 	}
 	public void refreshInfo() {
-    	getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+		if(getActivity() != null){
+			getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+		}
 	}
 }

@@ -205,7 +205,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         }
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
     }
 
 	public void updatePageBar(){
@@ -239,6 +238,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void onStart() {
         super.onStart();
 		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
 		refreshInfo();
     }
     
@@ -254,15 +254,15 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     @Override
     public void onStop() {
         super.onStop();
+        getLoaderManager().destroyLoader(getLoaderId());
+        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
+		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
-        getLoaderManager().destroyLoader(getLoaderId());
-        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
-		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
     @Override
@@ -614,13 +614,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
         	combinedCursors[0] = aData;
         	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
 	        	MergeCursor mc = new MergeCursor(combinedCursors);
-	        	mCursorAdapter.swapCursor(mc);
+				if(mCursorAdapter != null){
+					mCursorAdapter.swapCursor(mc);
+				}
         	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-			mCursorAdapter.swapCursor(null);
+			if(mCursorAdapter != null){
+					mCursorAdapter.swapCursor(null);
+			}
 			combinedCursors[0]=null;
 		}
     }
@@ -638,13 +642,17 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
-        	if(aData.moveToFirst()){
+        	if(!aData.isClosed() && aData.moveToFirst()){
                 String title = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
 
                 if (AwfulActivity.useLegacyActionbar()) {
-                    mTitle.setText(Html.fromHtml(title));
+                	if(mTitle != null){
+                		mTitle.setText(Html.fromHtml(title));
+                	}
                 } else {
-                    ((AwfulActivity) getActivity()).setActionbarTitle(title);
+                	if(getActivity() != null){
+                		((AwfulActivity) getActivity()).setActionbarTitle(title);
+                	}
                 }
 
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
@@ -664,8 +672,10 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 	
 	private void refreshInfo(){
-    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
-    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
+		if(getActivity() != null){
+	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+	    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
+		}
 	}
 
 }
