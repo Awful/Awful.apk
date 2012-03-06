@@ -44,6 +44,7 @@ import android.view.*;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.webkit.*;
 import android.webkit.WebSettings.RenderPriority;
 import android.widget.*;
@@ -748,7 +749,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 				df.setTimeZone(TimeZone.getDefault());
 				timeStamp = df.format(d);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	}
@@ -821,7 +821,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            // TODO: mRefresh.startAnimation(mAdapter.getRotateAnimation());
+            mRefresh.startAnimation(mLoadingAnimation);
         } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
@@ -1083,10 +1083,18 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
     
     private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
+	private static final RotateAnimation mLoadingAnimation = 
+			new RotateAnimation(
+					0f, 360f,
+					Animation.RELATIVE_TO_SELF, 0.5f,
+					Animation.RELATIVE_TO_SELF, 0.5f);
 	static {
 		mFlashingAnimation.setInterpolator(new LinearInterpolator());
 		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
 		mFlashingAnimation.setDuration(500);
+		mLoadingAnimation.setInterpolator(new LinearInterpolator());
+		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
+		mLoadingAnimation.setDuration(700);
 	}
 	public void refreshInfo() {
 		if(getActivity() != null){

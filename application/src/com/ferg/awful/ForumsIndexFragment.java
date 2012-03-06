@@ -37,6 +37,10 @@ import android.database.Cursor;
 import android.os.*;
 import android.util.Log;
 import android.view.*;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -337,7 +341,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setAnimation(null);
             mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-          //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
+            mRefresh.startAnimation(mFlashingAnimation);
         } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(false);
@@ -354,7 +358,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         if (AwfulActivity.useLegacyActionbar()) {
             mRefresh.setVisibility(View.VISIBLE);
             mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-          //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
+            mRefresh.startAnimation(mLoadingAnimation);
         } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
@@ -372,6 +376,21 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
             }
         }
     }
+    
+    private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
+	private static final RotateAnimation mLoadingAnimation = 
+			new RotateAnimation(
+					0f, 360f,
+					Animation.RELATIVE_TO_SELF, 0.5f,
+					Animation.RELATIVE_TO_SELF, 0.5f);
+	static {
+		mFlashingAnimation.setInterpolator(new LinearInterpolator());
+		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
+		mFlashingAnimation.setDuration(500);
+		mLoadingAnimation.setInterpolator(new LinearInterpolator());
+		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
+		mLoadingAnimation.setDuration(700);
+	}
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
