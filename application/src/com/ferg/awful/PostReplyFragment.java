@@ -301,7 +301,7 @@ public class PostReplyFragment extends DialogFragment {
     };
 
     private void postReply() {
-    	if(mDialog != null && getActivity() != null){
+    	if(mDialog == null && getActivity() != null){
     		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
     	}
         saveReply();
