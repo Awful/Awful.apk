@@ -46,6 +46,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -552,6 +553,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread.setVisibility(View.GONE);
 		}
 		TextView title = (TextView) current.findViewById(R.id.title);
+		title.setTypeface(null, Typeface.NORMAL);
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
 			title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
