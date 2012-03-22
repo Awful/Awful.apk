@@ -224,7 +224,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (((AwfulActivity) getActivity()).isTablet()) {
+            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
             } else {
                 startForumActivity((int) id);
@@ -238,7 +238,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (((AwfulActivity) getActivity()).isTablet()) {
+            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
                 ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
             } else {
                 startForumActivity((int) id);

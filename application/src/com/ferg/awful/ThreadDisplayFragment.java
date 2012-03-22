@@ -416,6 +416,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         try {
             mThreadWindow.removeView(mThreadView);
             mThreadView.destroy();
+            mThreadView = null;
         } catch (Exception e) {
             e.printStackTrace();
         }
