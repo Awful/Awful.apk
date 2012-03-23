@@ -193,6 +193,7 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         getListView().setOnItemClickListener(onThreadSelected);
         getListView().setBackgroundColor(mPrefs.postBackgroundColor);
         getListView().setCacheColorHint(mPrefs.postBackgroundColor);
+        
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
     }

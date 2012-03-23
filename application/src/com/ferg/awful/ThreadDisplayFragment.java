@@ -104,6 +104,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     private int mPage = 1;
     private int mThreadId = 0;
     private int mLastPage = 0;
+    private int mParentForumId = -1;
     private int mReplyDraftSaved = 0;
     private String mDraftTimestamp = null;
     private boolean threadClosed = false;
@@ -417,6 +418,9 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+        	case android.R.id.home:
+        		launchParentForum();
+        		break;
             case R.id.next_page:
             	goToPage(getPage() + 1);
                 break;
@@ -456,6 +460,15 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
     		return true;
     	}
+    
+    private void launchParentForum(){
+    	if(mParentForumId > 0){
+    		startActivity(new Intent(getActivity(), ForumDisplayActivity.class).putExtra(Constants.FORUM_ID, mParentForumId));
+    	}else{
+    		getActivity().finish();
+    	}
+    	
+    }
 
     	private void copyThreadURL(String postId) {
 
@@ -979,6 +992,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
+        		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
         		updatePageBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){

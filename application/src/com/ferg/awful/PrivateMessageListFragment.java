@@ -41,12 +41,8 @@ public class PrivateMessageListFragment extends SherlockFragment implements
 
     private static final String TAG = "PrivateMessageList";
 
-    private ImageButton mHome;
-    private ImageButton mNewPM;
     private ListView mPMList;
-    private TextView mTitle;
     private AwfulPreferences mPrefs;
-    private ImageButton mRefresh;
 
 	private AwfulCursorAdapter mCursorAdapter;
 
