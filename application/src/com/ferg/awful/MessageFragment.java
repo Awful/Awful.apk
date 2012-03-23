@@ -1,5 +1,10 @@
 package com.ferg.awful;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -9,7 +14,6 @@ import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 
-import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -30,9 +34,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -43,7 +44,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MessageFragment extends DialogFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends SherlockDialogFragment implements AwfulUpdateCallback, OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -199,7 +200,7 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	}
 	
 	private void setActionBar() {
-        ActionBar action = getActivity().getActionBar();
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
     }
@@ -346,22 +347,20 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 	@Override
 	public void loadingFailed() {
 		if(getActivity() != null){
-			if (!AwfulActivity.useLegacyActionbar()) {
 				getActivity().setProgressBarIndeterminateVisibility(false);
-			}
 		}
 	}
 
 	@Override
 	public void loadingStarted() {
-		if (!AwfulActivity.useLegacyActionbar() && getActivity() != null) {
+		if (getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(true);
 		}
 	}
 
 	@Override
 	public void loadingSucceeded() {
-		if (!AwfulActivity.useLegacyActionbar() && getActivity() != null) {
+		if (getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 	}
@@ -381,11 +380,6 @@ public class MessageFragment extends DialogFragment implements AwfulUpdateCallba
 			break;
 		}
 	}
-	
-
-    private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
-    }
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

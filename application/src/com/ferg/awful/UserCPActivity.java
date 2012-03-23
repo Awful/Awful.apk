@@ -27,13 +27,13 @@
 
 package com.ferg.awful;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.view.MenuItem;
 import android.view.Window;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class UserCPActivity extends AwfulActivity {
@@ -41,11 +41,8 @@ public class UserCPActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
-        }
 
         new Thread(new Runnable() {
             public void run() {
@@ -60,7 +57,7 @@ public class UserCPActivity extends AwfulActivity {
     }
 
     private void setActionBar() {
-        ActionBar action = getActionBar();
+        ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
         action.setTitle(R.string.user_cp);
@@ -70,9 +67,7 @@ public class UserCPActivity extends AwfulActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!AwfulActivity.useLegacyActionbar()) {
             setActionBar();
-        }
     }
 
     @Override

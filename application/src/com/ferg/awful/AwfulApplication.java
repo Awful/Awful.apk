@@ -10,7 +10,8 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import com.ferg.awful.constants.Constants;
 
-@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
+//@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
+@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
 public class AwfulApplication extends Application {
 	private static String TAG = "AwfulApplication";
 

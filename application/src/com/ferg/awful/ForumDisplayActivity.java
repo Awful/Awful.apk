@@ -27,7 +27,6 @@
 
 package com.ferg.awful;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +34,7 @@ import android.view.Window;
 
 import android.support.v4.app.FragmentTransaction;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumDisplayActivity extends AwfulActivity {
@@ -54,17 +54,16 @@ public class ForumDisplayActivity extends AwfulActivity {
         if (isTV()) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setupLeftNavBar(R.layout.action_options, true);
-        } else if (!AwfulActivity.useLegacyActionbar()) {
+        } else {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        	ActionBar action = getActionBar();
+        	ActionBar action = getSupportActionBar();
 
         	if(action != null){
         		action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         	}
-        } else {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
 
         setContentView(R.layout.forum_display_activity);

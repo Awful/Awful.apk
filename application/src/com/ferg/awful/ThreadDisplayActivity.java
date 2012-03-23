@@ -27,22 +27,16 @@
 
 package com.ferg.awful;
 
-import com.ferg.awful.constants.Constants;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
-import android.view.*;
-
-import android.support.v4.app.FragmentTransaction;
-
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
-import com.ferg.awful.preferences.AwfulPreferences;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
@@ -62,18 +56,18 @@ public class ThreadDisplayActivity extends AwfulActivity {
         if (isTV()) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setupLeftNavBar(R.layout.thread_action_items, true);
-        } else if (!AwfulActivity.useLegacyActionbar()) {
+        } else {
+            //requestWindowFeature(Window.FEATURE_NO_TITLE);
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        } else {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
+        setActionBar();
 
         setContentView(R.layout.thread_display_activity);
     }
 
     private void setActionBar() {
-        ActionBar action = getActionBar();
+        ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
     }
@@ -81,10 +75,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (!AwfulActivity.useLegacyActionbar()) {
-            setActionBar();
-        }
     }
 
     @Override
@@ -106,10 +96,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void setThreadTitle(String aTitle) {
-        if (!AwfulActivity.useLegacyActionbar()) {
-            ActionBar action = getActionBar();
+            ActionBar action = getSupportActionBar();
             action.setTitle(Html.fromHtml(aTitle).toString());
-        }
     }
 
     public void displayPostReplyDialog() {

@@ -23,11 +23,8 @@ public class MessageDisplayActivity extends AwfulActivity {
             }
         }).start();
 
-        if (!AwfulActivity.useLegacyActionbar()) {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
-        }
 
         setContentView(R.layout.user_cp_activity);
         setContentPane();

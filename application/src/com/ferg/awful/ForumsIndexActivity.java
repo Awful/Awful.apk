@@ -87,6 +87,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private void setActionBar() {
         ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setTitle(R.string.forums_title);
     }
 
     private void checkIntentExtras() {
@@ -103,6 +104,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     public boolean isDualPane() {
         return mContent;
+    }
+    
+    public void openForum(int id){
+    	if (isDualPane()) {
+        	setContentPane(id);
+        } else {
+            Intent viewForum = new Intent().setClass(this, ForumDisplayActivity.class);
+            viewForum.putExtra(Constants.FORUM, id);
+            startActivity(viewForum);
+        }
     }
 
     public void setContentPane(int aForumId) {

@@ -38,7 +38,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewStub;
+import android.view.ViewGroup;
 import android.widget.*;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -47,6 +50,10 @@ import android.support.v4.content.Loader;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -55,7 +62,7 @@ import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPost;
 
-public class PostReplyFragment extends DialogFragment {
+public class PostReplyFragment extends SherlockDialogFragment {
     private static final String TAG = "PostReplyActivity";
 
     public static final int RESULT_POSTED = 1;
@@ -153,7 +160,7 @@ public class PostReplyFragment extends DialogFragment {
             }
         }).start();
 
-        if (!AwfulActivity.useLegacyActionbar() && !((AwfulActivity) getActivity()).isLargeScreen()) {
+        if (!((AwfulActivity) getActivity()).isTV()) {
             setHasOptionsMenu(true);
         }
     }
@@ -166,7 +173,7 @@ public class PostReplyFragment extends DialogFragment {
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
 
-        if (AwfulActivity.useLegacyActionbar() || ((AwfulActivity) getActivity()).isLargeScreen()) {
+        if (((AwfulActivity) getActivity()).isTV()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
 
             mTitle   = (TextView) actionbar.findViewById(R.id.title);
@@ -200,7 +207,7 @@ public class PostReplyFragment extends DialogFragment {
 		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         
-        if (AwfulActivity.useLegacyActionbar() || ((AwfulActivity) getActivity()).isLargeScreen()) {
+        if (((AwfulActivity) getActivity()).isTV()) {
             mTitle.setText(getString(R.string.post_reply));
             mSubmit.setOnClickListener(onSubmitClick);
         }
@@ -235,9 +242,7 @@ public class PostReplyFragment extends DialogFragment {
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (!AwfulActivity.useLegacyActionbar()) {
             inflater.inflate(R.menu.post_reply, menu);
-        }
     }
     
     @Override

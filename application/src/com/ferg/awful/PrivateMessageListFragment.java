@@ -1,5 +1,9 @@
 package com.ferg.awful;
 
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.provider.AwfulProvider;
@@ -22,9 +26,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -34,7 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class PrivateMessageListFragment extends Fragment implements
+public class PrivateMessageListFragment extends SherlockFragment implements
 		AwfulUpdateCallback {
 	
 
@@ -90,16 +91,7 @@ public class PrivateMessageListFragment extends Fragment implements
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
-        if (AwfulActivity.useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-            mHome          = (ImageButton) actionbar.findViewById(R.id.home);
-            mNewPM          = (ImageButton) actionbar.findViewById(R.id.new_pm);
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
-            mTitle.setText(getString(R.string.private_message));
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
-        } else {
-            setActionBar();
-        }
+        setActionBar();
         
         return result;
     }
@@ -117,12 +109,6 @@ public class PrivateMessageListFragment extends Fragment implements
 
         setRetainInstance(true);
 
-
-        if (AwfulActivity.useLegacyActionbar()) {
-            mHome.setOnClickListener(onButtonClick);
-            mNewPM.setOnClickListener(onButtonClick);
-            mRefresh.setOnClickListener(onButtonClick);
-        }
         
         updateColors(mPrefs);
         mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
@@ -234,16 +220,9 @@ public class PrivateMessageListFragment extends Fragment implements
 
 	@Override
     public void loadingFailed() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setAnimation(null);
-            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-          //TODO mRefresh.startAnimation(adapt.getBlinkingAnimation());
-        }else{
         	if(getActivity()!= null){
             	getActivity().setProgressBarIndeterminateVisibility(false);
         	}
-        }
         if(getActivity()!= null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
@@ -251,31 +230,16 @@ public class PrivateMessageListFragment extends Fragment implements
 
     @Override
     public void loadingStarted() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-          //TODO mRefresh.startAnimation(adapt.getRotateAnimation());
-        }else{
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
         	}
-        }
     }
 
     @Override
     public void loadingSucceeded() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setAnimation(null);
-            mRefresh.setVisibility(View.GONE);
-        }else{
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(false);
         	}
-        }
-    }
-
-    private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
     }
 
 	@Override

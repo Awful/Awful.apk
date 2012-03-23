@@ -154,15 +154,6 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-        if (AwfulActivity.useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
-            mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh_top);
-
-            mTitle.setMovementMethod(new ScrollingMovementMethod());
-        }
-
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
@@ -202,12 +193,6 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         getListView().setOnItemClickListener(onThreadSelected);
         getListView().setBackgroundColor(mPrefs.postBackgroundColor);
         getListView().setCacheColorHint(mPrefs.postBackgroundColor);
-
-        if (AwfulActivity.useLegacyActionbar()) {
-        
-            mUserCp.setOnClickListener(onButtonClick);
-            mRefresh.setOnClickListener(onButtonClick);
-        }
         registerForContextMenu(getListView());
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
     }
@@ -451,15 +436,14 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
     };
 
     private void displayForumContents(int aId) {
-
     	if(getActivity() != null){
-    		if (getActivity() instanceof ForumsTabletActivity) {
-	        	((ForumsTabletActivity) getActivity()).setContentPane(aId);
-	        } else {
-	            Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
+    		if(getActivity() instanceof ForumsIndexActivity){
+    			((ForumsIndexActivity) getActivity()).openForum(aId);
+	    	}else{
+	    		Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
 	            viewForum.putExtra(Constants.FORUM, aId);
 	            startActivity(viewForum);
-	        }
+	    	}
     	}
     }
 
@@ -467,16 +451,9 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setAnimation(null);
-            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(mFlashingAnimation);
-        } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(false);
         	}
-        }
 
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -485,28 +462,17 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
 
     @Override
     public void loadingStarted() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(mLoadingAnimation);
-        } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
         	}
-        }
     }
 
     @Override
     public void loadingSucceeded() {
         if (isAdded()) {
-            if (AwfulActivity.useLegacyActionbar()) {
-                mRefresh.setAnimation(null);
-                mRefresh.setVisibility(View.GONE);
-            } else {
             	if(getActivity() != null){
             		getActivity().setProgressBarIndeterminateVisibility(false);
             	}
-            }
         }
     }
 
@@ -657,15 +623,9 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         	if(!aData.isClosed() && aData.moveToFirst()){
                 String title = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
 
-                if (AwfulActivity.useLegacyActionbar()) {
-                	if(mTitle != null){
-                		mTitle.setText(Html.fromHtml(title));
-                	}
-                } else {
                 	if(getActivity() != null){
                 		((AwfulActivity) getActivity()).setActionbarTitle(title);
                 	}
-                }
 
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();

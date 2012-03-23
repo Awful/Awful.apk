@@ -83,13 +83,13 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
 
     public boolean isTV() {
-        return !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
-            && !useLegacyActionbar();
+        return false;//!getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
     }
 
+    /*
     public static boolean useLegacyActionbar() {//TODO we'll be eliminating this as we go to sherlock
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
-    }
+    }*/
 
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {

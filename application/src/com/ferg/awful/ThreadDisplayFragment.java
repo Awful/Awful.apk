@@ -40,7 +40,9 @@ import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -62,6 +64,10 @@ import java.util.TimeZone;
 
 import org.json.*;
 
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
@@ -75,22 +81,18 @@ import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 import com.ferg.awful.widget.SnapshotWebView;
 
-public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallback {
+public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
     private AwfulPreferences mPrefs;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
-    private ImageButton mNext;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
-    private ImageButton mReply;
-    private ImageButton mRefresh;
     private ImageButton mRefreshBar;
     private ImageView mSnapshotView;
     private TextView mPageCountText;
-    private TextView mTitle;
     private ProgressDialog mDialog;
     private ViewGroup mThreadWindow;
 
@@ -253,17 +255,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
-        
-        if (AwfulActivity.useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-
-            mTitle    = (TextView) actionbar.findViewById(R.id.title);
-            mNext     = (ImageButton) actionbar.findViewById(R.id.next_page_top);
-            mReply    = (ImageButton) actionbar.findViewById(R.id.reply);
-            mRefresh  = (ImageButton) actionbar.findViewById(R.id.refresh_top);
-
-            mTitle.setMovementMethod(new ScrollingMovementMethod());
-        }
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -284,12 +275,6 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
-
-		if (AwfulActivity.useLegacyActionbar()) {
-			mNext.setOnClickListener(onButtonClick);
-			mReply.setOnClickListener(onButtonClick);
-			mRefresh.setOnClickListener(onButtonClick);
-		}
 
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
 		syncThread();
@@ -319,19 +304,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 	
 	public void updatePageBar(){
 		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
-        if (AwfulActivity.useLegacyActionbar()) {
-            if (getPage() == getLastPage()) {
-                mNext.setVisibility(View.GONE);
-            } else {
-                mNext.setVisibility(View.VISIBLE);
-            }
-
-            if(threadClosed){
-                mReply.setVisibility(View.GONE);
-            } else {
-                mReply.setVisibility(View.VISIBLE);
-            }
-        }
+		if(getActivity() != null){
+			((AwfulActivity)getActivity()).invalidateOptionsMenu();
+		}
 		if (getPage() <= 1) {
 			mPrevPage.setVisibility(View.INVISIBLE);
 		} else {
@@ -347,16 +322,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 		}
 	}
 
-    private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
-    }
-
     private void setActionbarTitle(String aTitle) {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mTitle.setText(Html.fromHtml(aTitle));
-        } else {
-            ((ThreadDisplayActivity) getActivity()).setThreadTitle(aTitle);
-        }
+            ((ThreadDisplayActivity) getActivity()).setActionbarTitle(aTitle);
     }
 
     @Override
@@ -437,12 +404,14 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if(menu == null || !AwfulActivity.useLegacyActionbar()){
+        if(menu == null){
             return;
         }
 
         MenuItem bk = menu.findItem(R.id.bookmark);
-        bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
+        if(bk != null){
+        	bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
+        }
     }
     
     @Override
@@ -583,11 +552,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     private void displayUserCP() {
-        if (!isTablet()) {
-            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        } else {
-            UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
-        }
+    	//TODO update to splitview
+        startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     private void displayPagePicker() {
@@ -624,11 +590,8 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         switch (aItem) {
             case ClickInterface.EDIT:
             	if (aUsername != null){
-                    if (!isTablet()) {
-                        startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
-                    } else {
+            		//TODO update this I guess
                         MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
-                    }
             	}else{
                     Bundle args = new Bundle();
 
@@ -727,16 +690,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     }
 
     public void displayPostReplyDialog(Bundle aArgs) {
-        if (((AwfulActivity) getActivity()).isLargeScreen()) {
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.setTargetFragment(this, PostReplyFragment.RESULT_POSTED);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
-        } else {
-            Intent postReply = new Intent().setClass(getActivity(),
-                    PostReplyActivity.class);
-            postReply.putExtras(aArgs);
-            startActivityForResult(postReply, PostReplyFragment.RESULT_POSTED);
-        }
     }
     
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
@@ -800,16 +756,9 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
 
     @Override
     public void loadingFailed() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setAnimation(null);
-            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(mFlashingAnimation);
-        } else {
             if(getActivity() != null){
             	getActivity().setProgressBarIndeterminateVisibility(false);
             }
-        }
 
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -819,56 +768,30 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
     @Override
     public void loadingStarted() {
     	threadLoadingState = true;
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(mLoadingAnimation);
-        } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
         	}
-        }
     }
 
     @Override
     public void loadingSucceeded() {
     	threadLoadingState = false;
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setAnimation(null);
-            mRefresh.setVisibility(View.GONE);
-        } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(false);
         	}
-        }
     }
     
     public void imageLoadingStarted() {
     	threadLoadingState = false;
-        if (AwfulActivity.useLegacyActionbar()) {
-        	if(mRefresh != null){
-	            mRefresh.setVisibility(View.VISIBLE);
-	            mRefresh.setImageResource(android.R.drawable.ic_menu_mapmode);
-	            mRefresh.startAnimation(mFlashingAnimation);
-        	}
-        } else {
-        	if(getActivity() != null){
+    	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(true);
-        	}
         }
     }
     
     public void imageLoadingFinished() {
-        if (AwfulActivity.useLegacyActionbar()) {
-        	if(mRefresh != null){
-        		mRefresh.setAnimation(null);
-        		mRefresh.setVisibility(View.GONE);
-        	}
-        } else {
         	if(getActivity() != null){
         		getActivity().setProgressBarIndeterminateVisibility(false);
         	}
-        }
     }
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {
@@ -879,7 +802,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), ((AwfulActivity) getActivity()).isTablet(), mPage == mLastPage), "text/html", "utf-8", null);
+            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), false, mPage == mLastPage), "text/html", "utf-8", null);//TODO fix
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1060,9 +983,7 @@ public class ThreadDisplayFragment extends Fragment implements AwfulUpdateCallba
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){
             		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
-            		if(mReply != null){
-            			mReply.startAnimation(mFlashingAnimation);
-            		}//TODO add tablet notification
+            		//TODO add tablet notification
         			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
         		}
         	}

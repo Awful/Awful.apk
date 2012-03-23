@@ -46,9 +46,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -71,6 +68,10 @@ import android.support.v4.content.Loader;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
@@ -82,18 +83,15 @@ import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 
-public class UserCPFragment extends DialogFragment implements AwfulUpdateCallback {
+public class UserCPFragment extends SherlockDialogFragment implements AwfulUpdateCallback {
     private static final String TAG = "UserCPActivity";
 
-    private ImageButton mHome;
-    private ImageButton mPrivateMessage;
     private ListView mBookmarkList;
-    private TextView mTitle;
     private AwfulPreferences mPrefs;
-    private ImageButton mRefresh;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
+	private TextView mTitle;
     private TextView mPageCountText;
     
     private int mPage = 1;
@@ -147,6 +145,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler, Constants.USERCP_ID);
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
+
     @Override
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity);
@@ -177,18 +176,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         View result = aInflater.inflate(R.layout.user_cp, aContainer, false);
 
         mBookmarkList = (ListView) result.findViewById(R.id.bookmark_list);
-
-        if (AwfulActivity.useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-            mHome          = (ImageButton) actionbar.findViewById(R.id.home);
-            mPrivateMessage = (ImageButton) actionbar.findViewById(R.id.pm_button);
-            if (!mPrefs.hasPlatinum) {
-                mPrivateMessage.setEnabled(false);
-                mPrivateMessage.setVisibility(View.GONE);
-            }
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh_top);
-        } else if (((AwfulActivity) getActivity()).isLargeScreen()) {
+        if (((AwfulActivity) getActivity()).isTV()) {
             View actionbar = ((ViewStub) result.findViewById(R.id.actionbar_blank)).inflate();
             mTitle         = (TextView) actionbar.findViewById(R.id.title);
         }
@@ -211,14 +199,7 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         super.onActivityCreated(aSavedState);
 
         setRetainInstance(true);
-
-        if (AwfulActivity.useLegacyActionbar()) {
-            mTitle.setText(getString(R.string.usercp));
-
-            mHome.setOnClickListener(onButtonClick);
-            mRefresh.setOnClickListener(onButtonClick);
-            mPrivateMessage.setOnClickListener(onButtonClick);
-        } else if (((AwfulActivity) getActivity()).isLargeScreen()) {
+        if (((AwfulActivity) getActivity()).isTV()) {
             mTitle.setText(getString(R.string.user_cp));
         }
 
@@ -281,13 +262,13 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
 
-        MenuInflater inflater = getActivity().getMenuInflater();
+        android.view.MenuInflater inflater = getActivity().getMenuInflater();
         
         inflater.inflate(R.menu.thread_longpress, aMenu);
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem aItem) {
+    public boolean onContextItemSelected(android.view.MenuItem aItem) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
@@ -388,14 +369,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
         return true;
     }
 
-    private boolean isTablet() {
-        if (getActivity() != null) {
-            return ((AwfulActivity) getActivity()).isTablet();
-        }
-
-        return false;
-    }
-
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
@@ -437,12 +410,6 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setAnimation(null);
-            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(mFlashingAnimation);
-        }
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
@@ -450,19 +417,10 @@ public class UserCPFragment extends DialogFragment implements AwfulUpdateCallbac
 
     @Override
     public void loadingStarted() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(mLoadingAnimation);
-        }
     }
 
     @Override
     public void loadingSucceeded() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setAnimation(null);
-            mRefresh.setVisibility(View.GONE);
-        }
     }
     
     private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);

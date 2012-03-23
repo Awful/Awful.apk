@@ -29,14 +29,15 @@ package com.ferg.awful;
 
 import java.util.HashMap;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -50,6 +51,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.network.NetworkUtils;
@@ -58,17 +63,9 @@ import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
 
-public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback {
+public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
-
-    private ImageButton mUserCp;
-    private ImageButton mPM;
-    private TextView mPMcount;
     private ExpandableListView mForumList;
-    private TextView mTitle;
-    private ImageButton mRefresh;
-    
-    private int unreadPMCount;
 
     private AwfulPreferences mPrefs;
 
@@ -124,18 +121,6 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
         mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
-
-        if (AwfulActivity.useLegacyActionbar()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-            mTitle         = (TextView) actionbar.findViewById(R.id.title);
-            mUserCp        = (ImageButton) actionbar.findViewById(R.id.user_cp);
-            mPM        = (ImageButton) actionbar.findViewById(R.id.pm_button);
-            mPMcount        = (TextView) actionbar.findViewById(R.id.pm_count);
-            mRefresh       = (ImageButton) actionbar.findViewById(R.id.refresh);
-            if (!mPrefs.hasPlatinum) {
-                ((ImageButton)actionbar.findViewById(R.id.pm_button)).setVisibility(View.GONE);
-            }
-        }
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
@@ -145,20 +130,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         return result;
     }
 
-    private boolean isTablet() {
-        return ((AwfulActivity) getActivity()).isTablet();
-    }
-
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-
-        if (AwfulActivity.useLegacyActionbar()) {
-            mTitle.setText(getString(R.string.forums_title));
-            mUserCp.setOnClickListener(onButtonClick);
-            mPM.setOnClickListener(onButtonClick);
-            mRefresh.setOnClickListener(onButtonClick);
-        }
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
@@ -224,10 +198,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
-                ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
-            } else {
-                startForumActivity((int) id);
+            if (getActivity() != null) {
+                ((ForumsIndexActivity) getActivity()).openForum((int) id);
             }
             return true;
         }
@@ -238,10 +210,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-            if (getActivity() instanceof ForumsTabletActivity && ((ForumsTabletActivity) getActivity()).isDualPane()) {
-                ((ForumsTabletActivity) getActivity()).setContentPane((int) id);
-            } else {
-                startForumActivity((int) id);
+            if (getActivity() != null) {
+                ((ForumsIndexActivity) getActivity()).openForum((int) id);
             }
             return true;
         }
@@ -291,10 +261,8 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     };
 
     public void displayUserCP() {
-        if (!isTablet()) {
-            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        } else {
-            UserCPFragment.newInstance(true).show(getFragmentManager(), "user_control_panel_dialog");
+    	if (getActivity() != null) {
+            ((ForumsIndexActivity) getActivity()).openForum(Constants.USERCP_ID);
         }
     }
     
@@ -338,16 +306,9 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setAnimation(null);
-            mRefresh.setImageResource(android.R.drawable.ic_dialog_alert);
-            mRefresh.startAnimation(mFlashingAnimation);
-        } else {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
-        }
+    	if(getActivity() != null){
+    		getActivity().setProgressBarIndeterminateVisibility(false);
+    	}
 
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -356,25 +317,14 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 
     @Override
     public void loadingStarted() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setVisibility(View.VISIBLE);
-            mRefresh.setImageResource(R.drawable.ic_menu_refresh);
-            mRefresh.startAnimation(mLoadingAnimation);
-        } else {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(true);
-        	}
-        }
+    	if(getActivity() != null){
+    		getActivity().setProgressBarIndeterminateVisibility(true);
+    	}
     }
     @Override
     public void loadingSucceeded() {
-        if (AwfulActivity.useLegacyActionbar()) {
-            mRefresh.setAnimation(null);
-            mRefresh.setVisibility(View.GONE);
-        } else {
-            if (getActivity() != null) {
-                getActivity().setProgressBarIndeterminateVisibility(false);
-            }
+        if (getActivity() != null) {
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
     
@@ -396,10 +346,7 @@ public class ForumsIndexFragment extends Fragment implements AwfulUpdateCallback
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		if(mForumList != null){
-			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-			if(mForumList.getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
-				mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-	        }
+			mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
 		}
 	}
 	
