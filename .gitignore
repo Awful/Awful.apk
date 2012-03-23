@@ -21,3 +21,5 @@ local.properties
 /libraries/LeftNavBarLibrary/gen
 /libraries/LeftNavBarLibrary/.settings
 /application/.settings
+/libraries/Sherlock/bin
+/libraries/Sherlock/gen
