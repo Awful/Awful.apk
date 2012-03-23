@@ -47,9 +47,6 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -65,6 +62,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.dialog.LogOutDialog;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -76,7 +77,7 @@ import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends SherlockListFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
     private ImageButton mUserCp;
@@ -230,14 +231,6 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
 		}
 	}
 
-    private boolean isTablet() {
-        if (getActivity() != null) {
-            return ((AwfulActivity) getActivity()).isTablet();
-        }
-
-        return false;
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -308,7 +301,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
         if(aMenuInfo instanceof AdapterContextMenuInfo){
-	        MenuInflater inflater = getActivity().getMenuInflater();
+	        android.view.MenuInflater inflater = getActivity().getMenuInflater();
 	        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aMenuInfo;
 	        switch(mCursorAdapter.getType(info.position)){
 	           case R.layout.forum_item:
@@ -321,7 +314,7 @@ public class ForumDisplayFragment extends ListFragment implements AwfulUpdateCal
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem aItem) {
+    public boolean onContextItemSelected(android.view.MenuItem aItem) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:

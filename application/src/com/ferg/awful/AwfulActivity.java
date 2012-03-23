@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import com.ferg.awful.service.AwfulSyncService;
 
-import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -22,6 +21,8 @@ import android.view.*;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.example.google.tv.leftnavbar.LeftNavBar;
 import com.example.google.tv.leftnavbar.LeftNavBarService;
 
@@ -34,7 +35,7 @@ import com.example.google.tv.leftnavbar.LeftNavBarService;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends FragmentActivity implements ServiceConnection {
+public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection {
     private static final String TAG = "AwfulActivity";
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
@@ -81,44 +82,12 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
         unbindService(this);
     }
 
-    public boolean isTablet() {
-        Configuration config = getResources().getConfiguration();
-        PackageManager manager = getPackageManager();
-
-        if (manager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                // If it's a Honeycomb device, it has to be a tablet
-                return true;
-            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) && config.smallestScreenWidthDp >= 600) {
-                // If it's 3.2+ and the smallest screen width is at least a 7" device, it's a tablet
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // Differs from isTablet() since sometimes we want to use large screen features for a TV
-    public boolean isLargeScreen() {
-        Configuration config = getResources().getConfiguration();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            // If it's a Honeycomb device, it has to be a tablet
-            return true;
-        } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) && config.smallestScreenWidthDp >= 600) {
-            // If it's 3.2+ and the smallest screen width is at least a 7" device, it's a tablet
-            return true;
-        }
-
-        return false;
-    }
-
     public boolean isTV() {
         return !getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
             && !useLegacyActionbar();
     }
 
-    public static boolean useLegacyActionbar() {
+    public static boolean useLegacyActionbar() {//TODO we'll be eliminating this as we go to sherlock
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
     }
 
@@ -272,18 +241,20 @@ public class AwfulActivity extends FragmentActivity implements ServiceConnection
         // TODO: doing this because I don't even
     }
 
+    /*TODO this stuff is gonna break the leftnavbar for now, sorry :(
     @Override
-    public ActionBar getActionBar() {
+    public android.app.ActionBar getActionBar() {
         if (isTV()) {
             return getLeftNavBar();
         }
 
         return super.getActionBar();
     }
-    
+    */
     public void setActionbarTitle(String aTitle) {
-        ActionBar action = getActionBar();
-
-        action.setTitle(Html.fromHtml(aTitle).toString());
+    	if(aTitle != null){
+	        ActionBar action = getSupportActionBar();
+	        action.setTitle(Html.fromHtml(aTitle).toString());
+    	}
     }
 }

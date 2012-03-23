@@ -27,24 +27,29 @@
 
 package com.ferg.awful;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.widget.RelativeLayout;
+import android.view.Window;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsIndexActivity extends AwfulActivity {
 
     private boolean DEVELOPER_MODE = false;
     private static final String TAG = "ForumsIndexActivity";
+
+    private boolean mContent;
+    private ForumsIndexFragment mIndexFragment = null;
+    private ForumDisplayFragment mFragment = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        super.onCreate(savedInstanceState);
         if (DEVELOPER_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
@@ -58,46 +63,60 @@ public class ForumsIndexActivity extends AwfulActivity {
                     .build());
         }
         
-        super.onCreate(savedInstanceState);
-
         new Thread(new Runnable() {
             public void run() {
                 GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsIndexActivity");
                 GoogleAnalyticsTracker.getInstance().dispatch();
             }
         }).start();
-
-        if (isTablet()) {
-            startTabletActivity();
-        } else if (isTV()) {
+        if (isTV()) {
             startTVActivity();
-        } else {
-            startPhoneActivity();
+        }else{
+	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+	        setContentView(R.layout.forum_index_activity);
+	
+	        mContent = (findViewById(R.id.content)!= null);
+	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
+	
+	        setActionBar();
+	
+	        checkIntentExtras();
         }
     }
 
-    private void startPhoneActivity() {
-        Intent shim = new Intent(this, ForumsPhoneActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
-        }
-
-        startActivity(shim);
-        finish();
+    private void setActionBar() {
+        ActionBar action = getSupportActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
     }
 
-    private void startTabletActivity() {
-        Intent shim = new Intent(this, ForumsTabletActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
+    private void checkIntentExtras() {
+        if (getIntent().hasExtra(Constants.SHORTCUT)) {
+            if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
+            	if(isDualPane()){
+            		setContentPane(Constants.USERCP_ID);
+            	}else{
+            		mIndexFragment.displayUserCP();
+            	}
+            }
         }
+    }
 
-        startActivity(shim);
-        finish();
+    public boolean isDualPane() {
+        return mContent;
+    }
+
+    public void setContentPane(int aForumId) {
+        ForumDisplayFragment fragment = 
+            ForumDisplayFragment.newInstance(aForumId);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(mFragment == null){
+        	transaction.add(R.id.content, fragment);
+        }else{
+        	transaction.remove(mFragment);
+        	transaction.add(R.id.content, fragment);
+        }
+    	mFragment = fragment;
+        transaction.commit();
     }
 
     private void startTVActivity() {
