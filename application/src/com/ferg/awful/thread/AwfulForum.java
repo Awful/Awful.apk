@@ -74,7 +74,15 @@ public class AwfulForum extends AwfulPagedItem {
 
 	public static void getForumsFromRemote(TagNode response, ContentResolver contentInterface) throws XPatherException {
 		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-
+		
+		ContentValues bookmarks = new ContentValues();
+		bookmarks.put(ID, Constants.USERCP_ID);
+		bookmarks.put(TITLE, "Bookmarks");
+		bookmarks.put(PARENT_ID, 0);
+		bookmarks.put(INDEX, 0);
+		result.add(bookmarks);
+		
+		int ix = 1;
 		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
 		for (Object current : forumObjects) {
 			try{
@@ -87,7 +95,8 @@ public class AwfulForum extends AwfulPagedItem {
 	                TagNode parentForum = title[0];
 	                forum.put(TITLE,parentForum.getText().toString());
 	                forum.put(PARENT_ID, 0);
-	
+	                forum.put(INDEX, ix);
+	                ix++;
 	                // Just nix the part we don't need to get the forum ID
 	                String id = parentForum.getAttributeByName("href");
 	                forumId=getForumId(id);
@@ -109,7 +118,6 @@ public class AwfulForum extends AwfulPagedItem {
 	                    subforum.put(TITLE,subNode.getText().toString());
 	                    subforum.put(ID,getForumId(id));
 	                    subforum.put(PARENT_ID, forumId);
-	                    //subforum.put(SUBTEXT,"");
 	                    result.add(subforum);
 	                }
 	            }
@@ -157,6 +165,8 @@ public class AwfulForum extends AwfulPagedItem {
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, Constants.USERCP_ID);
     	forumData.put(TITLE, "Bookmarks");
+    	forumData.put(PARENT_ID, 0);
+    	forumData.put(INDEX, 0);
         int lastPage = AwfulPagedItem.parseLastPage(page);
         Log.i(TAG, "Last Page: " +lastPage);
     	forumData.put(PAGE_COUNT, lastPage);
@@ -186,7 +196,13 @@ public class AwfulForum extends AwfulPagedItem {
 			sub.setTextColor(mPrefs.postFontColor2);
 		}
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
-		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
+		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
+		if(subtext == null || subtext.length() < 1){
+			sub.setVisibility(View.GONE);
+		}else{
+			sub.setVisibility(View.VISIBLE);
+			sub.setText(subtext);
+		}
 	}
 
 	public static String parseTitle(TagNode data) {

@@ -26,17 +26,16 @@ public class UserCPShortcutActivity extends Activity {
 
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
             setupShortcut();
-            finish();
-            return;
         }
 
-        setContentView(R.layout.user_cp);
+        finish();
     }
 
     private void setupShortcut() {
 
         Intent shortcutIntent = new Intent();
-        shortcutIntent.setClass(this, UserCPActivity.class);
+        shortcutIntent.setClass(this, ForumDisplayActivity.class);
+        shortcutIntent.putExtra(Constants.FORUM, Constants.USERCP_ID);
 
         // Then, set up the container intent (the response to the caller)
         Intent intent = new Intent();

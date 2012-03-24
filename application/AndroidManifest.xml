@@ -20,8 +20,8 @@
 		android:icon="@drawable/icon" 
 		android:name=".AwfulApplication"
         android:backupAgent=".backup.PreferencesBackupAgent"
-        android:hardwareAccelerated="false"
-        android:theme="@style/Theme.Sherlock.Light"
+        android:hardwareAccelerated="true"
+        android:theme="@style/Theme.Sherlock"
 		android:debuggable="true">
         <activity android:name="ForumsIndexActivity"
                   android:label="@string/app_name">
@@ -77,11 +77,6 @@
         <activity android:name="ProfileActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="SettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="ColorSettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
-        <activity 
-            android:name="UserCPActivity" 
-            android:exported="true"
-            android:clearTaskOnLaunch="true" 
-            />
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 

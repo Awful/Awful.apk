@@ -2,6 +2,7 @@ package com.ferg.awful;
 
 import java.util.LinkedList;
 
+import com.ferg.awful.constants.Constants;
 import com.ferg.awful.service.AwfulSyncService;
 
 import android.content.ComponentName;
@@ -234,7 +235,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     };
 
     public void displayUserCP() {
-        UserCPFragment.newInstance(true).show(getSupportFragmentManager(), "user_control_panel_dialog");
+    	startActivity(new Intent().setClass(this, ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
     }
 
     public void displayPostReplyDialog() {

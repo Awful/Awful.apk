@@ -121,6 +121,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
         mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
+        mForumList.setDrawingCacheEnabled(true);
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
@@ -307,10 +308,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
     	if(getActivity() != null){
-    		getActivity().setProgressBarIndeterminateVisibility(false);
-    	}
-
-        if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
@@ -318,13 +316,13 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     @Override
     public void loadingStarted() {
     	if(getActivity() != null){
-    		getActivity().setProgressBarIndeterminateVisibility(true);
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
     	}
     }
     @Override
     public void loadingSucceeded() {
         if (getActivity() != null) {
-            getActivity().setProgressBarIndeterminateVisibility(false);
+        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         }
     }
     

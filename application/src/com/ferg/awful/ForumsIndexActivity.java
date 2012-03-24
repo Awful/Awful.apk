@@ -72,6 +72,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (isTV()) {
             startTVActivity();
         }else{
+            requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	        setContentView(R.layout.forum_index_activity);
 	
@@ -86,7 +87,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     private void setActionBar() {
         ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setTitle(R.string.forums_title);
     }
 

@@ -463,7 +463,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     
     private void launchParentForum(){
     	if(mParentForumId > 0){
-    		startActivity(new Intent(getActivity(), ForumDisplayActivity.class).putExtra(Constants.FORUM_ID, mParentForumId));
+    		startActivity(new Intent(getActivity(), ForumDisplayActivity.class).putExtra(Constants.FORUM, mParentForumId));
     	}else{
     		getActivity().finish();
     	}
@@ -566,7 +566,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
     private void displayUserCP() {
     	//TODO update to splitview
-        startActivity(new Intent().setClass(getActivity(), UserCPActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
     }
 
     private void displayPagePicker() {
@@ -769,11 +769,8 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
     @Override
     public void loadingFailed() {
-            if(getActivity() != null){
-            	getActivity().setProgressBarIndeterminateVisibility(false);
-            }
-
         if(getActivity() != null){
+        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
@@ -781,30 +778,30 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public void loadingStarted() {
     	threadLoadingState = true;
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(true);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    	}
     }
 
     @Override
     public void loadingSucceeded() {
     	threadLoadingState = false;
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    	}
     }
     
     public void imageLoadingStarted() {
     	threadLoadingState = false;
     	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(true);
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
         }
     }
     
     public void imageLoadingFinished() {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    	}
     }
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {

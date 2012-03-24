@@ -62,6 +62,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -77,16 +78,10 @@ import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ForumDisplayFragment extends SherlockListFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
-    private ImageButton mUserCp;
-    private TextView mTitle;
-    private ImageButton mRefresh;
-    private ImageButton mRefreshBar;
-    private ImageButton mNextPage;
-    private ImageButton mPrevPage;
-    private TextView mPageCountText;
+    private ListView mListView;
 
     private AwfulPreferences mPrefs;
     
@@ -112,7 +107,7 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
             switch (aMsg.what) {
 	        	case AwfulSyncService.MSG_GRAB_IMAGE:
 	        		if(isResumed() && isVisible()){
-	        			getListView().invalidateViews();
+	        			mListView.invalidateViews();
 	        		}
 	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
@@ -154,16 +149,8 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
-		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
-        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		if(mPrevPage != null){
-			mNextPage.setOnClickListener(onButtonClick);
-			mPrevPage.setOnClickListener(onButtonClick);
-			mRefreshBar.setOnClickListener(onButtonClick);
-			updatePageBar();
-		}
+        mListView = (ListView) result.findViewById(R.id.forum_list);
+        mListView.setDrawingCacheEnabled(true);
 		
         mPrefs = new AwfulPreferences(getActivity());
         return result;
@@ -189,32 +176,17 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         }
 
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
-        setListAdapter(mCursorAdapter);
-        getListView().setOnItemClickListener(onThreadSelected);
-        getListView().setBackgroundColor(mPrefs.postBackgroundColor);
-        getListView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mListView.setAdapter(mCursorAdapter);
+        mListView.setOnItemClickListener(onThreadSelected);
+        mListView.setBackgroundColor(mPrefs.postBackgroundColor);
+        mListView.setCacheColorHint(mPrefs.postBackgroundColor);
         
-        registerForContextMenu(getListView());
+        registerForContextMenu(mListView);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
     }
 
 	public void updatePageBar(){
-		if(mPageCountText != null){
-			mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
-			if (getPage() <= 1) {
-				mPrevPage.setVisibility(View.INVISIBLE);
-			} else {
-				mPrevPage.setVisibility(View.VISIBLE);
-			}
-	
-			if (getPage() == getLastPage()) {
-	            mNextPage.setVisibility(View.GONE);
-	            mRefreshBar.setVisibility(View.VISIBLE);
-			} else {
-	            mNextPage.setVisibility(View.VISIBLE);
-	            mRefreshBar.setVisibility(View.GONE);
-			}
-		}
+		
 	}
 
     @Override
@@ -264,7 +236,7 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
 	        case R.id.user_cp:
-	            startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+	            startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
 	            return true;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -398,7 +370,7 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.user_cp:
-                    startActivity(new Intent().setClass(getActivity(), UserCPActivity.class));
+                    startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
                     break;
                 case R.id.refresh_top:
                 case R.id.refresh:
@@ -494,11 +466,9 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		if(getListView()!=null){
-	        getListView().setBackgroundColor(prefs.postBackgroundColor);
-	        if(getListView().getChildCount() >4){//shitty workaround for: http://code.google.com/p/android/issues/detail?id=9775
-	        	getListView().setCacheColorHint(prefs.postBackgroundColor);
-	        }
+		if(mListView!=null){
+			mListView.setBackgroundColor(prefs.postBackgroundColor);
+			mListView.setCacheColorHint(prefs.postBackgroundColor);
 		}
 	}
 	
@@ -535,6 +505,10 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
     }
 	
+	public boolean isBookmark(){
+		return getForumId()==Constants.USERCP_ID;
+	}
+	
 	/** Set Bookmark status.
 	 * @param id Thread ID
 	 * @param addRemove 1 to add bookmark, 0 to remove.
@@ -548,12 +522,21 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
         	Log.v(TAG,"Creating forum cursor: "+getForumId());
-            return new CursorLoader(getActivity(), 
-            						AwfulThread.CONTENT_URI, 
-            						AwfulProvider.ThreadProjection, 
-            						AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)),
-            						AwfulThread.INDEX);
+        	if(isBookmark()){
+	        	return new CursorLoader(getActivity(), 
+						AwfulThread.CONTENT_URI_UCP, 
+						AwfulProvider.ThreadProjection, 
+						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
+						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(mPage),AwfulPagedItem.pageToIndex(mPage+1)), 
+						(mPrefs.newThreadsFirst? AwfulThread.UNREADCOUNT+" DESC" :AwfulThread.INDEX));
+        	}else{
+	            return new CursorLoader(getActivity(), 
+	            						AwfulThread.CONTENT_URI, 
+	            						AwfulProvider.ThreadProjection, 
+	            						AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
+	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)),
+	            						AwfulThread.INDEX);
+        	}
         }
 
 		@Override
@@ -623,11 +606,9 @@ public class ForumDisplayFragment extends SherlockListFragment implements AwfulU
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(!aData.isClosed() && aData.moveToFirst()){
                 String title = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
-
-                	if(getActivity() != null){
-                		((AwfulActivity) getActivity()).setActionbarTitle(title);
-                	}
-
+            	if(getActivity() != null){
+            		((AwfulActivity) getActivity()).setActionbarTitle(title);
+            	}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();
         	}

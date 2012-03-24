@@ -1,14 +1,15 @@
 package com.ferg.awful;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.ferg.awful.constants.Constants;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
+import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PrivateMessageActivity extends AwfulActivity {
@@ -27,9 +28,13 @@ public class PrivateMessageActivity extends AwfulActivity {
 
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.fragment_pane);
+        
+        ActionBar action = getSupportActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setDisplayHomeAsUpEnabled(true);
+        action.setTitle("Awful - Private Messages");//TODO move to r.string
 
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
         	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);

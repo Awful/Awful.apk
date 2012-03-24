@@ -57,7 +57,6 @@ public class ForumDisplayActivity extends AwfulActivity {
         } else {
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         	ActionBar action = getSupportActionBar();
 

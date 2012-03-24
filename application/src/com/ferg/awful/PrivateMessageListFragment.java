@@ -1,5 +1,6 @@
 package com.ferg.awful;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -12,7 +13,6 @@ import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulMessage;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -28,11 +27,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class PrivateMessageListFragment extends SherlockFragment implements
@@ -86,17 +82,8 @@ public class PrivateMessageListFragment extends SherlockFragment implements
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
-
-        setActionBar();
         
         return result;
-    }
-    
-    private void setActionBar() {
-        ActionBar action = getActivity().getActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        action.setDisplayHomeAsUpEnabled(true);
-        action.setTitle("Awful - Private Messages");
     }
     
     @Override
@@ -216,26 +203,24 @@ public class PrivateMessageListFragment extends SherlockFragment implements
 
 	@Override
     public void loadingFailed() {
-        	if(getActivity()!= null){
-            	getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
-        if(getActivity()!= null){
+    	if(getActivity()!= null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void loadingStarted() {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(true);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    	}
     }
 
     @Override
     public void loadingSucceeded() {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    	}
     }
 
 	@Override

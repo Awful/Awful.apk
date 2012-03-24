@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/thread_tag"
             android:layout_below="@id/title"
-            android:textColor="@color/background"
+            android:textColor="@color/secondary_post_font"
             android:textSize="16dip" />
 
         <TextView
