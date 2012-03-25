@@ -34,7 +34,7 @@ public class UserCPShortcutActivity extends Activity {
     private void setupShortcut() {
 
         Intent shortcutIntent = new Intent();
-        shortcutIntent.setClass(this, ForumDisplayActivity.class);
+        shortcutIntent.setClass(this, ForumsIndexActivity.class);
         shortcutIntent.putExtra(Constants.FORUM, Constants.USERCP_ID);
 
         // Then, set up the container intent (the response to the caller)

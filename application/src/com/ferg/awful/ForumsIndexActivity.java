@@ -30,7 +30,12 @@ package com.ferg.awful;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Window;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -45,6 +50,10 @@ public class ForumsIndexActivity extends AwfulActivity {
     private boolean mContent;
     private ForumsIndexFragment mIndexFragment = null;
     private ForumDisplayFragment mFragment = null;
+    private ViewPager mViewPager;
+    private ForumPagerAdapter pagerAdapter;
+    
+    private int mForumId;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -74,13 +83,25 @@ public class ForumsIndexActivity extends AwfulActivity {
         }else{
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+	        mForumId = getIntent().getIntExtra(Constants.FORUM, 0);
 	        setContentView(R.layout.forum_index_activity);
-	
 	        mContent = (findViewById(R.id.content)!= null);
-	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
-	
+	        if(isDualPane()){
+		        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
+		        if(mForumId > 0){
+		        	setContentPane(mForumId);
+		        }
+	        }else{
+	        	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
+	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager()); 
+		        mViewPager.setAdapter(pagerAdapter);
+		        if(mForumId > 0){
+		        	mViewPager.setCurrentItem(1);
+		        }
+	        }
+	        
 	        setActionBar();
-	
+	        
 	        checkIntentExtras();
         }
     }
@@ -94,41 +115,72 @@ public class ForumsIndexActivity extends AwfulActivity {
     private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-            	if(isDualPane()){
-            		setContentPane(Constants.USERCP_ID);
-            	}else{
-            		mIndexFragment.displayUserCP();
-            	}
+            	setContentPane(Constants.USERCP_ID);
             }
         }
     }
+    
+    public class ForumPagerAdapter extends FragmentPagerAdapter{
+    	private int tabCount = 2;
+		public ForumPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
 
-    public boolean isDualPane() {
+		@Override
+		public Fragment getItem(int arg0) {
+			Log.e(TAG,"CREATING TAB:"+arg0);
+			switch(arg0){
+			case 0:
+				mIndexFragment = ForumsIndexFragment.newInstance();
+				return mIndexFragment;
+			case 1:
+				mFragment = ForumDisplayFragment.newInstance(mForumId);
+				return mFragment;
+			default:
+				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+			}
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			return tabCount;
+		}
+    	
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+    		mViewPager.setCurrentItem(0);
+    	}else{
+    		finish();
+    	}
+        return;
+    }
+
+    private boolean isDualPane() {
         return mContent;
     }
     
     public void openForum(int id){
-    	if (isDualPane()) {
-        	setContentPane(id);
-        } else {
-            Intent viewForum = new Intent().setClass(this, ForumDisplayActivity.class);
-            viewForum.putExtra(Constants.FORUM, id);
-            startActivity(viewForum);
+    	setContentPane(id);
+    	if (!isDualPane()) {
+    		mViewPager.setCurrentItem(1);
         }
     }
 
     public void setContentPane(int aForumId) {
-        ForumDisplayFragment fragment = 
-            ForumDisplayFragment.newInstance(aForumId);
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if(mFragment == null){
+    	mForumId = aForumId;
+        if(mFragment == null && isDualPane()){
+            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         	transaction.add(R.id.content, fragment);
-        }else{
-        	transaction.remove(mFragment);
-        	transaction.add(R.id.content, fragment);
+            transaction.commit();
+        	mFragment = fragment;
+        }else if(mFragment != null){
+        	mFragment.openForum(aForumId, 1);
         }
-    	mFragment = fragment;
-        transaction.commit();
     }
 
     private void startTVActivity() {

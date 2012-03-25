@@ -64,16 +64,6 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
 			</intent-filter>
         </activity>
-        <activity 
-            android:name="ForumDisplayActivity"
-            >
-        	<intent-filter>
-            	<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
-        	</intent-filter>
-        </activity>
         <activity android:name="ProfileActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="SettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="ColorSettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />

@@ -169,11 +169,13 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
             c2pForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
         }
         
-        mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM, mForumId);
-        
-        if (c2pForumID != null) {
-        	mForumId = Integer.parseInt(c2pForumID);
+        if(mForumId <1){
+        	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM, mForumId);
+	        if (c2pForumID != null) {
+	        	mForumId = Integer.parseInt(c2pForumID);
+	        }
         }
+        
 
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
         mListView.setAdapter(mCursorAdapter);
@@ -236,7 +238,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
 	        case R.id.user_cp:
-	            startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
+	        	displayForumContents(Constants.USERCP_ID);
 	            return true;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -370,7 +372,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.user_cp:
-                    startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
+                	displayForumContents(Constants.USERCP_ID);
                     break;
                 case R.id.refresh_top:
                 case R.id.refresh:
@@ -412,10 +414,6 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     	if(getActivity() != null){
     		if(getActivity() instanceof ForumsIndexActivity){
     			((ForumsIndexActivity) getActivity()).openForum(aId);
-	    	}else{
-	    		Intent viewForum = new Intent().setClass(getActivity(), ForumDisplayActivity.class);
-	            viewForum.putExtra(Constants.FORUM, aId);
-	            startActivity(viewForum);
 	    	}
     	}
     }
@@ -496,6 +494,19 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     private void setForumId(int aForum) {
 		mForumId = aForum;
 	}
+    
+    public void openForum(int id, int page){
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+    	getLoaderManager().destroyLoader(getLoaderId());
+    	setForumId(id);
+    	mPage = page;
+    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
+    	mListView.setAdapter(mCursorAdapter);
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
+		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+		refreshInfo();
+		syncForum();
+    }
 
 	private void syncForum() {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());

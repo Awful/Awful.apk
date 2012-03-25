@@ -23,6 +23,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private AwfulActivity mParent;
 	private LayoutInflater inf;
 	private int mId;
+	private int selectedId = -1;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
 		this(context, c, 0);
@@ -33,6 +34,10 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
 		mId = id;
+	}
+	
+	public void setSelected(int id){
+		selectedId = id;
 	}
 
 	@Override
@@ -53,6 +58,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			AwfulEmote.getView(current, mPrefs, data);
 		}
+		refreshSelector(current, data);
 	}
 
 	@Override
@@ -81,7 +87,23 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);
 		}
+		refreshSelector(row, data);
 		return row;
+	}
+	
+	private void refreshSelector(View current, Cursor data){
+		View v = current.findViewById(R.id.selector);
+		if(v != null){
+			if(selectedId > -1){
+				if(selectedId == data.getInt(data.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
+					v.setVisibility(View.VISIBLE);
+				}else{
+					v.setVisibility(View.GONE);
+				}
+			}else{
+				v.setVisibility(View.GONE);
+			}
+		}
 	}
 	
 	public int getInt(int position, String column){

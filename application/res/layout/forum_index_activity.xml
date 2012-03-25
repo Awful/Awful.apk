@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment
+<android.support.v4.view.ViewPager
     xmlns:android="http://schemas.android.com/apk/res/android"
-    class="com.ferg.awful.ForumsIndexFragment"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:id="@+id/forum_index_fragment"
-    ></fragment>
+    android:id="@+id/forum_index_pager"
+    ></android.support.v4.view.ViewPager>

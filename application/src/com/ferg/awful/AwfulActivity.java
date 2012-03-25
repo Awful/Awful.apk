@@ -237,7 +237,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     };
 
     public void displayUserCP() {
-    	startActivity(new Intent().setClass(this, ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
+    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
     }
 
     public void displayPostReplyDialog() {
@@ -281,7 +281,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 				startActivity(new Intent(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 				break;
 			case FORUM:
-				startActivity(new Intent(this, ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+				startActivity(new Intent(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 																		  .putExtra(Constants.FORUM, target.mId));
 				break;
 			case THREAD:

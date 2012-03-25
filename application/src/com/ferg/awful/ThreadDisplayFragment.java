@@ -469,7 +469,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     
     private void launchParentForum(){
     	if(mParentForumId > 0){
-    		startActivity(new Intent(getActivity(), ForumDisplayActivity.class).putExtra(Constants.FORUM, mParentForumId));
+    		startActivity(new Intent(getActivity(), ForumsIndexActivity.class).putExtra(Constants.FORUM, mParentForumId));
     	}else{
     		getActivity().finish();
     	}
@@ -571,7 +571,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
     private void displayUserCP() {
     	//TODO update to splitview
-        startActivity(new Intent().setClass(getActivity(), ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
+        startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
     }
 
     private void displayPagePicker() {
