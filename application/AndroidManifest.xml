@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awful"
-      android:versionCode="34"
-      android:versionName="2.2.1"
+      android:versionCode="35"
+      android:versionName="2.3.0_b1"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -36,15 +36,11 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/index.php"/>
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:path="/"/>
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:path=""/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/usercp.php"/>
+				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/bookmarkthreads.php"/>
             </intent-filter>
         </activity>
-        <activity 
-            android:name="ForumsTabletActivity" 
-            android:exported="true"
-            />
-        <activity 
-            android:name="ForumsPhoneActivity"
-            />
         <activity 
             android:name="ForumsTVActivity"
             />
@@ -82,6 +78,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity 
+            android:name="UserCPActivity" 
+            android:exported="true"
+            android:clearTaskOnLaunch="true" 
+            />
         <activity android:name="MessageDisplayActivity"></activity>
         <activity android:name="PrivateMessageActivity">
         	<intent-filter>

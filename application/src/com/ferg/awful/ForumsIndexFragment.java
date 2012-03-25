@@ -111,7 +111,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity);
 
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity(), this);
     }
 
     @Override

@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -153,7 +154,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         mListView = (ListView) result.findViewById(R.id.forum_list);
         mListView.setDrawingCacheEnabled(true);
 		
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity(), this);
         return result;
     }
 
@@ -163,18 +164,30 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 
         setRetainInstance(true);
         
-        String c2pForumID = null;
-        // we're receiving an intent from an outside link (say, ChromeToPhone). Let's check to see
-        // if we have a URL from such a link.
-        if (getActivity().getIntent().getData() != null && getActivity().getIntent().getData().getScheme().equals("http")) {
-            c2pForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
-        }
-        
-        if(mForumId <1){
+        //parsing forum id
+        if(mForumId <1){//we might already have it from newInstance(id), that value overrides the intent values
+        	
+        	//if not, try the intent first.
         	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
-	        if (c2pForumID != null) {
-	        	mForumId = Integer.parseInt(c2pForumID);
-	        }
+        	mPage = getActivity().getIntent().getIntExtra(Constants.FORUM_PAGE, mPage);
+        	
+        	//then try to see if we got a url intent (from browser/awful/chrome2phone/ect)
+        	Uri data = getActivity().getIntent().getData();
+            if (data != null && data.getScheme().equals("http")) {
+            	if(data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("bookmarkthreads")){
+            		mForumId = Constants.USERCP_ID;
+            	}else{
+                    String urlForumID = null;
+                    urlForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
+        	        if (urlForumID != null) {
+        	        	mForumId = Integer.parseInt(urlForumID);
+        	        }
+            	}
+                String urlPage = data.getQueryParameter("pagenumber");
+                if(urlPage != null){
+    	        	mPage = Integer.parseInt(urlPage);
+                }
+            }
         }
         
 
@@ -429,29 +442,24 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     @Override
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(false);
-        	}
-
         if(getActivity() != null){
+        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void loadingStarted() {
-        	if(getActivity() != null){
-        		getActivity().setProgressBarIndeterminateVisibility(true);
-        	}
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    	}
     }
 
     @Override
     public void loadingSucceeded() {
-        if (isAdded()) {
-            	if(getActivity() != null){
-            		getActivity().setProgressBarIndeterminateVisibility(false);
-            	}
-        }
+    	if(getActivity() != null){
+    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    	}
     }
 
     private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
@@ -516,7 +524,9 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     }
 
 	private void syncForum() {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+		if(getForumId() > 0){
+			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+		}
     }
 	
 	private void markUnread(int id) {

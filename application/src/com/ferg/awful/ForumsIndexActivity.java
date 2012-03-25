@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -36,9 +37,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Window;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Window;
 import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -97,6 +98,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 		        mViewPager.setAdapter(pagerAdapter);
 		        mViewPager.setOnPageChangeListener(pagerAdapter);
 		        if(mForumId > 0){
+		        	mViewPager.setCurrentItem(1);
+		        }
+		        Uri data = getIntent().getData();
+		        if(data != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
 		        	mViewPager.setCurrentItem(1);
 		        }
 	        }

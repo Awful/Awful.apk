@@ -265,7 +265,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     public void setNavBar(AwfulNavItem[] navList){
     	mNavList = navList;
-    	SpinnerAdapter mSpinnerAdapter = new ArrayAdapter<AwfulNavItem>(this, android.R.layout.simple_spinner_dropdown_item, mNavList);
+    	SpinnerAdapter mSpinnerAdapter = new ArrayAdapter<AwfulNavItem>(this, R.layout.nav_bar_item, mNavList);
     	ActionBar bar = getSupportActionBar();
     	bar.setListNavigationCallbacks(mSpinnerAdapter, this);
     }

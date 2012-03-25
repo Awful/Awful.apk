@@ -138,7 +138,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     handleStatusUpdate(aMsg.arg1);
                     if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
-                    	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+                    	refreshPosts();
                     }
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
@@ -149,7 +149,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
                     handleStatusUpdate(aMsg.arg1);
                 	refreshInfo();
                     if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
-                    	getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+                    	refreshPosts();
                     }
                     break;
                 default:
@@ -216,7 +216,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity);
 
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = new AwfulPreferences(getActivity(), this);
     }
 
     @Override
@@ -925,8 +925,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		// don't need this, threadview is automatically refreshed on resume.
-		//actually, it's not anymore, but it doesn't matter much
+		refreshPosts();
 	}
 
 	public void setPostJump(String postID) {
@@ -1054,6 +1053,12 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 	public void refreshInfo() {
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+		}
+	}
+	
+	public void refreshPosts(){
+		if(getActivity() != null){
+			getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
 		}
 	}
 

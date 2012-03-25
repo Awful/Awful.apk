@@ -133,7 +133,7 @@ public class AwfulSyncService extends Service {
                 	syncForum(aMsg.arg1, aMsg.arg2);
                     break;
                 case MSG_SYNC_INDEX:
-                    queueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
+                	backQueueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
                     break;
                 case MSG_SET_BOOKMARK:
                 	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));

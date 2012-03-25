@@ -1,5 +1,8 @@
 package com.ferg.awful.preferences;
 
+import java.util.ArrayList;
+
+import com.ferg.awful.AwfulUpdateCallback;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 
@@ -17,6 +20,7 @@ import android.preference.PreferenceManager;
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private SharedPreferences mPrefs;
 	private Context mContext;
+	private ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
 	
 	public String username;
 	public boolean hasPlatinum;
@@ -58,6 +62,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 	}
+	
+	public AwfulPreferences(Context context, AwfulUpdateCallback updateCallback){
+		this(context);
+		mCallback.add(updateCallback);
+	}
 
 	public void unRegisterListener(){
 		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
@@ -66,9 +75,23 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public SharedPreferences getPrefs(){
 		return mPrefs;
 	}
+	
+	public void registerCallback(AwfulUpdateCallback client){
+		if(!mCallback.contains(client)){
+			mCallback.add(client);
+		}
+	}
+	
+	public void unregisterCallback(AwfulUpdateCallback client){
+		mCallback.remove(client);
+	}
+	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
+		for(AwfulUpdateCallback auc : mCallback){
+			auc.onPreferenceChange(this);
+		}
 	}
 
     public void setUsername(String aUsername) {
