@@ -44,15 +44,18 @@
 			/>
 	</RelativeLayout>
 
-    <ImageView
+    <TextView
         android:id="@+id/selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="4dip"
+        android:layout_marginRight="2dip"
         android:layout_marginLeft="4dip"
         android:layout_centerVertical="true"
-        android:src="@drawable/r_arrow"
+		android:textSize="24dip"
+		android:textStyle="bold"
+        android:text=">"
+		android:textColor="@color/secondary_post_font"
         android:visibility="gone" />
 
 </RelativeLayout>

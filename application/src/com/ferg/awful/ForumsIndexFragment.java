@@ -199,7 +199,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-        	mCursorAdapter.setSelected((int) id);
+        	setSelected((int) id);
         	mForumList.invalidateViews();
             if (getActivity() != null) {
                 ((ForumsIndexActivity) getActivity()).openForum((int) id);
@@ -213,7 +213,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
-        	mCursorAdapter.setSelected((int) id);
+        	setSelected((int) id);
         	mForumList.invalidateViews();
             if (getActivity() != null) {
                 ((ForumsIndexActivity) getActivity()).openForum((int) id);
@@ -394,19 +394,10 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 	
 	private class AwfulTreeAdapter extends CursorTreeAdapter{
 		private LayoutInflater inf;
-		private int selectedId = -1;
 		
 		public AwfulTreeAdapter(Context context) {
 			super(null, context, false);
 			inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
-		public void setSelected(int id){
-			selectedId = id;
-		}
-		
-		public int getSelected(){
-			return selectedId;
 		}
 		
 		public int getGroupPosition(int parent) {
@@ -472,11 +463,12 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 				boolean isLastChild, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, cursor);
-			View v = row.findViewById(R.id.selector);
+			TextView v = (TextView) row.findViewById(R.id.selector);
 			if(v != null){
 				if(selectedId > -1){
 					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
 						v.setVisibility(View.VISIBLE);
+						v.setTextColor(mPrefs.postFontColor);
 					}else{
 						v.setVisibility(View.GONE);
 					}
@@ -492,11 +484,12 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 				boolean isExpanded, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, cursor);
-			View v = row.findViewById(R.id.selector);
+			TextView v = (TextView) row.findViewById(R.id.selector);
 			if(v != null){
 				if(selectedId > -1){
 					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
 						v.setVisibility(View.VISIBLE);
+						v.setTextColor(mPrefs.postFontColor);
 					}else{
 						v.setVisibility(View.GONE);
 					}
@@ -507,5 +500,15 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 			return row;
 		}
 		
+	}
+
+
+	private int selectedId = -1;
+	public void setSelected(int id){
+		selectedId = id;
+	}
+	
+	public int getSelected(){
+		return selectedId;
 	}
 }

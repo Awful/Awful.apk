@@ -99,6 +99,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 		        	mViewPager.setCurrentItem(1);
 		        }
 	        }
+	        if(mIndexFragment != null && mForumId > 0){
+	        	mIndexFragment.setSelected(mForumId);
+	        }
 	        
 	        setActionBar();
 	        
@@ -132,6 +135,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 			switch(arg0){
 			case 0:
 				mIndexFragment = ForumsIndexFragment.newInstance();
+				if(mForumId > 0){
+					mIndexFragment.setSelected(mForumId);
+				}
 				return mIndexFragment;
 			case 1:
 				mFragment = ForumDisplayFragment.newInstance(mForumId);
