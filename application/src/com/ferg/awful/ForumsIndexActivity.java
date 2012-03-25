@@ -83,7 +83,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         }else{
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
 	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-	        mForumId = getIntent().getIntExtra(Constants.FORUM, 0);
+	        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
 	        setContentView(R.layout.forum_index_activity);
 	        mContent = (findViewById(R.id.content)!= null);
 	        if(isDualPane()){

@@ -121,6 +121,15 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     private boolean threadBookmarked = false;
     
 	private String mPostJump = "";
+	
+	public static ThreadDisplayFragment newInstance(int id, int page) {
+		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
+
+        fragment.setThreadId(id);
+        fragment.setPage(page);
+
+        return fragment;
+	}
 
     private Handler mHandler = new Handler() {
         @Override
@@ -228,34 +237,36 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
             c2pPage = data.getData().getQueryParameter("pagenumber");
             c2pURLFragment = data.getData().getEncodedFragment();
         }
-        mThreadId = data.getIntExtra(Constants.THREAD_ID, 0);
-        mPage = data.getIntExtra(Constants.PAGE, 1);
-        if (c2pThreadID != null) {
-        	mThreadId = Integer.parseInt(c2pThreadID);
-        }
-        if (c2pPage != null) {
-        	int page = Integer.parseInt(c2pPage);
-
-        	if (c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")) {
-        		int ppp = Integer.parseInt(c2pPostPerPage);
-
-        		if (mPrefs.postPerPage != ppp) {
-        			page = (int) Math.ceil((double)(page*ppp) / mPrefs.postPerPage);
-        		}
-        	} else {
-        		if (mPrefs.postPerPage != Constants.ITEMS_PER_PAGE) {
-        			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)mPrefs.postPerPage);
-        		}
-        	}
-        	mPage = page;
-        	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
-        		setPostJump(c2pURLFragment.replaceAll("\\D", ""));
-        	}
+        if(mThreadId < 1){
+	        mThreadId = data.getIntExtra(Constants.THREAD_ID, mThreadId);
+	        mPage = data.getIntExtra(Constants.THREAD_PAGE, mPage);
+	        if (c2pThreadID != null) {
+	        	mThreadId = Integer.parseInt(c2pThreadID);
+	        }
+	        if (c2pPage != null) {
+	        	int page = Integer.parseInt(c2pPage);
+	
+	        	if (c2pPostPerPage != null && c2pPostPerPage.matches("\\d+")) {
+	        		int ppp = Integer.parseInt(c2pPostPerPage);
+	
+	        		if (mPrefs.postPerPage != ppp) {
+	        			page = (int) Math.ceil((double)(page*ppp) / mPrefs.postPerPage);
+	        		}
+	        	} else {
+	        		if (mPrefs.postPerPage != Constants.ITEMS_PER_PAGE) {
+	        			page = (int) Math.ceil((page*Constants.ITEMS_PER_PAGE)/(double)mPrefs.postPerPage);
+	        		}
+	        	}
+	        	mPage = page;
+	        	if (c2pURLFragment != null && c2pURLFragment.startsWith("post")) {
+	        		setPostJump(c2pURLFragment.replaceAll("\\D", ""));
+	        	}
+	        }
         }
         if (savedInstanceState != null) {
         	Log.e(TAG, "onCreate savedState");
             mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, mThreadId);
-    		mPage = savedInstanceState.getInt(Constants.PAGE, mPage);
+    		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, mPage);
         }
         
         mPostLoaderCallback = new PostLoaderManager();
@@ -424,9 +435,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-        	case android.R.id.home:
-        		launchParentForum();
-        		break;
             case R.id.next_page:
             	goToPage(getPage() + 1);
                 break;
@@ -469,7 +477,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     
     private void launchParentForum(){
     	if(mParentForumId > 0){
-    		startActivity(new Intent(getActivity(), ForumsIndexActivity.class).putExtra(Constants.FORUM, mParentForumId));
+    		startActivity(new Intent(getActivity(), ForumsIndexActivity.class).putExtra(Constants.FORUM_ID, mParentForumId));
     	}else{
     		getActivity().finish();
     	}
@@ -547,7 +555,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
     	Log.v(TAG,"onSaveInstanceState");
-        outState.putInt(Constants.PAGE, getPage());
+        outState.putInt(Constants.THREAD_PAGE, getPage());
     	outState.putInt(Constants.THREAD_ID, getThreadId());
     }
     
@@ -571,7 +579,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 
     private void displayUserCP() {
     	//TODO update to splitview
-        startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM, Constants.USERCP_ID));
+        startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM_ID, Constants.USERCP_ID));
     }
 
     private void displayPagePicker() {
@@ -1048,4 +1056,5 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 			getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
 		}
 	}
+
 }

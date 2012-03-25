@@ -171,7 +171,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         }
         
         if(mForumId <1){
-        	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM, mForumId);
+        	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
 	        if (c2pForumID != null) {
 	        	mForumId = Integer.parseInt(c2pForumID);
 	        }
@@ -279,15 +279,11 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, (int) info.id).putExtra(Constants.PAGE, 1);
-            	startActivity(viewThread);
+            	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
         		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
-        		Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
-        										 .putExtra(Constants.THREAD_ID, (int) info.id)
-        										 .putExtra(Constants.PAGE, lastPage);
-            	startActivity(viewThread2);
+            	viewThread((int) info.id,lastPage);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
@@ -301,6 +297,19 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         }
 
         return false;
+    }
+    
+    private void viewThread(int id, int page){
+    	if(getActivity() instanceof ThreadDisplayActivity){
+    		((ThreadDisplayActivity) getActivity()).displayThread(id, page);
+    	}else{
+			Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
+											 .putExtra(Constants.THREAD_ID, id)
+											 .putExtra(Constants.THREAD_PAGE, page)
+											 .putExtra(Constants.FORUM_ID, getForumId())
+											 .putExtra(Constants.FORUM_PAGE, getPage());
+	    	startActivity(viewThread2);
+    	}
     }
 
     private void copyUrl(int id) {
@@ -394,14 +403,11 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
             switch(mCursorAdapter.getType(aPosition)) {
                 case R.layout.thread_item:
-                    Intent viewThread = new Intent().setClass(getActivity(), ThreadDisplayActivity.class);
                     Log.i(TAG, "Thread ID: " + Long.toString(aId));
-                    viewThread.putExtra(Constants.THREAD_ID, (int) aId);
                     int unreadPage = AwfulPagedItem.getLastReadPage(mCursorAdapter.getInt(aPosition, AwfulThread.UNREADCOUNT),
                     												mCursorAdapter.getInt(aPosition, AwfulThread.POSTCOUNT),
                     												mPrefs.postPerPage);
-                    viewThread.putExtra(Constants.PAGE, unreadPage);
-                    startActivity(viewThread);
+                    viewThread((int) aId, unreadPage);
                     break;
                     
                 case R.layout.forum_item:

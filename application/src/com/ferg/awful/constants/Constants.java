@@ -129,6 +129,11 @@ public class Constants {
 	public static final String YES = "yes";//heh
 
 	public static final String EMOTE_URL = "http://forums.somethingawful.com/misc.php?action=showsmilies";
+	
+	//NOT FOR NETWORK USE
+	public static final String FORUM_PAGE = "forum_page";
+	//NOT FOR NETWORK USE
+	public static final String THREAD_PAGE = "thread_page";
 
 
 

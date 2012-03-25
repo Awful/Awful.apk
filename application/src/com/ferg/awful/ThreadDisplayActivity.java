@@ -34,13 +34,15 @@ import com.actionbarsherlock.view.Window;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
-    
+    private ForumDisplayFragment sidebarFrag;
+    private boolean sidebarVisible;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +66,11 @@ public class ThreadDisplayActivity extends AwfulActivity {
         setActionBar();
 
         setContentView(R.layout.thread_display_activity);
+        sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
+        sidebarVisible = sidebarFrag != null;
+        if(isDualPane()){
+        	//TODO autohide code here
+        }
     }
 
     private void setActionBar() {
@@ -82,8 +89,12 @@ public class ThreadDisplayActivity extends AwfulActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                returnHome();
-                break;
+            	if(isDualPane()){
+            		toggleSidebar();
+            	}else{
+            		returnHome();
+            	}
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -123,9 +134,26 @@ public class ThreadDisplayActivity extends AwfulActivity {
     	}
 	}
     
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        Log.v(TAG,"Orientation change");
+    public boolean isDualPane(){
+    	return sidebarFrag != null;
     }
+    
+    public void toggleSidebar(){
+    	if(isDualPane() && sidebarFrag != null){
+    		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    		if(sidebarVisible){
+    			ft.hide(sidebarFrag);
+    		}else{
+    			ft.show(sidebarFrag);
+    		}
+    		ft.commit();
+    		sidebarVisible = !sidebarVisible;
+    	}
+    }
+
+	public void displayThread(int id, int page) {
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.thread_display_fragment, ThreadDisplayFragment.newInstance(id, page));
+		ft.commit();
+	}
 }
