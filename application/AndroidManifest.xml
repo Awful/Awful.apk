@@ -46,7 +46,6 @@
             />
         <activity
                 android:name="AwfulLoginActivity"
-                android:theme="@android:style/Theme.NoTitleBar"
                 android:windowSoftInputMode="adjustResize"/>
         <activity android:name="ThreadDisplayTabletActivity" />
         <activity 
@@ -60,9 +59,9 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
 			</intent-filter>
         </activity>
-        <activity android:name="ProfileActivity" android:theme="@android:style/Theme.NoTitleBar" />
-        <activity android:name="SettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
-        <activity android:name="ColorSettingsActivity" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="ProfileActivity" />
+        <activity android:name="SettingsActivity" />
+        <activity android:name="ColorSettingsActivity" />
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
@@ -71,7 +70,6 @@
             android:name="UserCPShortcutActivity"
             android:icon="@drawable/icon" 
             android:label="@string/usercp"
-            android:theme="@android:style/Theme.NoTitleBar"
             >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />

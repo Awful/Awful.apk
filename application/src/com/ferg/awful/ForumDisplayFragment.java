@@ -92,15 +92,19 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     private int mPage = 1;
     private int mLastPage = 1;
     private String mTitle;
+    private boolean skipLoad = false;
+    
+    private long lastRefresh;
 
-    public static ForumDisplayFragment newInstance(int aForum) {
+    public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
 
         fragment.setForumId(aForum);
+        fragment.skipLoad(skipLoad);
 
         return fragment;
     }
-    
+
 
 	private Handler mHandler = new Handler() {
         @Override
@@ -116,6 +120,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
             			if(getActivity() != null){
             				getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+            				lastRefresh = System.currentTimeMillis();
             			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
@@ -220,7 +225,11 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     @Override
     public void onResume() {
         super.onResume();
-        syncForum();
+        if(skipLoad){
+        	skipLoad = false;//only skip the first time
+        }else{
+        	syncForumsIfStale();
+        }
     }    
     @Override
     public void onStop() {
@@ -515,6 +524,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     	getLoaderManager().destroyLoader(getLoaderId());
     	setForumId(id);
     	mPage = page;
+    	lastRefresh = 0;
     	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
     	mListView.setAdapter(mCursorAdapter);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
@@ -523,11 +533,17 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 		syncForum();
     }
 
-	private void syncForum() {
+	public void syncForum() {
 		if(getForumId() > 0){
 			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
 		}
     }
+	
+	public void syncForumsIfStale() {
+		if(lastRefresh < System.currentTimeMillis()-(1000*60*5)){
+			syncForum();
+		}
+	}
 	
 	private void markUnread(int id) {
         ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
@@ -662,6 +678,10 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	
 	public String getTitle(){
 		return mTitle;
+	}
+    
+	private void skipLoad(boolean skip) {
+		skipLoad = skip;
 	}
 
 }

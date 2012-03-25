@@ -137,7 +137,6 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
         ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
-        syncForums();
     }
 
     @Override
@@ -366,12 +365,17 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         	if(aData.moveToFirst()){
         		if(aLoader.getId() == 0){
         			mCursorAdapter.setGroupCursor(aData);
+        			if(aData.getCount() < 3){
+        				syncForums();
+        			}
         		}else{
         			int groupId = mCursorAdapter.getGroupPosition(aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID)));
         			if(groupId >=0){
         				mCursorAdapter.setChildrenCursor(groupId, aData);
         			}
         		}
+        	}else{
+                syncForums();
         	}
         }
 

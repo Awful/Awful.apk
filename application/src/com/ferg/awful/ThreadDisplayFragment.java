@@ -33,6 +33,7 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.*;
 import android.net.Uri;
 import android.os.*;
@@ -825,7 +826,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), false, mPage == mLastPage), "text/html", "utf-8", null);//TODO fix
+            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), largeScreen(), mPage == mLastPage), "text/html", "utf-8", null);//TODO fix
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1060,6 +1061,10 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
 		}
+	}
+	
+	public boolean largeScreen(){
+		return (getActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 	}
 
 }
