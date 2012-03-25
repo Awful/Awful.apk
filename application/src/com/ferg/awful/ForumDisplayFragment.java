@@ -90,6 +90,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
+    private String mTitle;
 
     public static ForumDisplayFragment newInstance(int aForum) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
@@ -616,9 +617,9 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(!aData.isClosed() && aData.moveToFirst()){
-                String title = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
+                mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
             	if(getActivity() != null){
-            		((AwfulActivity) getActivity()).setActionbarTitle(title);
+            		((AwfulActivity) getActivity()).setActionbarTitle(mTitle);
             	}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();
@@ -641,6 +642,10 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
 	    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
 		}
+	}
+	
+	public String getTitle(){
+		return mTitle;
 	}
 
 }

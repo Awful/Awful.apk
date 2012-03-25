@@ -418,36 +418,14 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 		@Override
 		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
 			AwfulForum.getView(view, mPrefs, cursor);
-			View v = view.findViewById(R.id.selector);
-			if(v != null){
-				if(selectedId > -1){
-					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
-						v.setVisibility(View.VISIBLE);
-					}else{
-						v.setVisibility(View.GONE);
-					}
-				}else{
-					v.setVisibility(View.GONE);
-				}
-			}
+			showSelector(view, cursor);
 		}
 
 		@Override
 		protected void bindGroupView(View view, Context context, Cursor cursor,
 				boolean isExpanded) {
 			AwfulForum.getView(view, mPrefs, cursor);
-			View v = view.findViewById(R.id.selector);
-			if(v != null){
-				if(selectedId > -1){
-					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
-						v.setVisibility(View.VISIBLE);
-					}else{
-						v.setVisibility(View.GONE);
-					}
-				}else{
-					v.setVisibility(View.GONE);
-				}
-			}
+			showSelector(view, cursor);
 		}
 
 		@Override
@@ -463,19 +441,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 				boolean isLastChild, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, cursor);
-			TextView v = (TextView) row.findViewById(R.id.selector);
-			if(v != null){
-				if(selectedId > -1){
-					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
-						v.setVisibility(View.VISIBLE);
-						v.setTextColor(mPrefs.postFontColor);
-					}else{
-						v.setVisibility(View.GONE);
-					}
-				}else{
-					v.setVisibility(View.GONE);
-				}
-			}
+			showSelector(row, cursor);
 			return row;
 		}
 
@@ -484,6 +450,9 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 				boolean isExpanded, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulForum.getView(row, mPrefs, cursor);
+			return row;
+		}
+		private void showSelector(View row, Cursor cursor){
 			TextView v = (TextView) row.findViewById(R.id.selector);
 			if(v != null){
 				if(selectedId > -1){
@@ -497,9 +466,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 					v.setVisibility(View.GONE);
 				}
 			}
-			return row;
 		}
-		
 	}
 
 

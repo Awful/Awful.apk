@@ -95,6 +95,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
 	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager()); 
 		        mViewPager.setAdapter(pagerAdapter);
+		        mViewPager.setOnPageChangeListener(pagerAdapter);
 		        if(mForumId > 0){
 		        	mViewPager.setCurrentItem(1);
 		        }
@@ -111,7 +112,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     private void setActionBar() {
         ActionBar action = getSupportActionBar();
-        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setTitle(R.string.forums_title);
     }
 
@@ -123,7 +124,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
     }
     
-    public class ForumPagerAdapter extends FragmentPagerAdapter{
+    public class ForumPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener{
     	private int tabCount = 2;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -151,6 +152,30 @@ public class ForumsIndexActivity extends AwfulActivity {
 		@Override
 		public int getCount() {
 			return tabCount;
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+
+		@Override
+		public void onPageSelected(int arg0) {
+			switch(arg0){
+			case 0:
+				setActionbarTitle(getString(R.string.forums_title));
+				break;
+			case 1:
+				if(mFragment != null && mFragment.getTitle() != null){
+					setActionbarTitle(mFragment.getTitle());
+				}
+				break;
+			default:
+				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+			}
 		}
     	
     }
