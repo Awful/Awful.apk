@@ -70,6 +70,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
+        action.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     @Override

@@ -68,6 +68,8 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.ferg.awful.AwfulActivity.AwfulNavItem;
+import com.ferg.awful.AwfulActivity.NAV_TYPE;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
@@ -81,6 +83,14 @@ import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 import com.ferg.awful.widget.SnapshotWebView;
 
+/**
+ * Uses intent extras:
+ *  TYPE - STRING ID - DESCRIPTION
+ *	int - Constants.THREAD_ID - id number for that thread
+ *	int - Constants.PAGE - page number to load
+ *
+ *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
+ */
 public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
     private AwfulPreferences mPrefs;
@@ -323,10 +333,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 		}
 	}
 
-    private void setActionbarTitle(String aTitle) {
-            ((ThreadDisplayActivity) getActivity()).setActionbarTitle(aTitle);
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -470,54 +476,53 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     	
     }
 
-    	private void copyThreadURL(String postId) {
+	private void copyThreadURL(String postId) {
+		StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_THREAD_ID);
+		url.append("=");
+		url.append(getThreadId());
+		url.append("&");
+		url.append(Constants.PARAM_PAGE);
+		url.append("=");
+		url.append(getPage());
+		url.append("&");
+		url.append(Constants.PARAM_PER_PAGE);
+		url.append("=");
+		url.append(mPrefs.postPerPage);
+		if (postId != null) {
+			url.append("#");
+			url.append("post");
+			url.append(postId);
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+					Context.CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
+			clipboard.setPrimaryClip(clip);
 
-    		StringBuffer url = new StringBuffer();
-    		url.append(Constants.FUNCTION_THREAD);
-    		url.append("?");
-    		url.append(Constants.PARAM_THREAD_ID);
-    		url.append("=");
-    		url.append(getThreadId());
-    		url.append("&");
-    		url.append(Constants.PARAM_PAGE);
-    		url.append("=");
-    		url.append(getPage());
-    		url.append("&");
-    		url.append(Constants.PARAM_PER_PAGE);
-    		url.append("=");
-    		url.append(mPrefs.postPerPage);
-    		if (postId != null) {
-    			url.append("#");
-    			url.append("post");
-    			url.append(postId);
-    		}
-    		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-    			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-    					Context.CLIPBOARD_SERVICE);
-    			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
-    			clipboard.setPrimaryClip(clip);
+			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
+					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
+			successToast.show();
+		} else {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
 
-    			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
-    					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
-    			successToast.show();
-    		} else {
-    			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
+			alert.setTitle("URL");
 
-    			alert.setTitle("URL");
+			final EditText input = new EditText(this.getActivity());
+			input.setText(url.toString());
+			alert.setView(input);
 
-    			final EditText input = new EditText(this.getActivity());
-    			input.setText(url.toString());
-    			alert.setView(input);
+			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.dismiss();
+				}
+			});
 
-    			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-    				public void onClick(DialogInterface dialog, int whichButton) {
-    					dialog.dismiss();
-    				}
-    			});
-
-    			alert.show();
-    		}
-    	}
+			alert.show();
+		}
+	}
 
     	private void rateThread() {
 
@@ -951,6 +956,10 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         return mThreadId;
 	}
 
+    private void setActionbarNav(AwfulNavItem[] navList) {
+            ((ThreadDisplayActivity) getActivity()).setNavBar(navList);
+    }
+
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
         private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
         private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
@@ -974,7 +983,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         public void onLoaderReset(Loader<Cursor> aLoader) {
         }
     }
-    //I'll probably break this out into a separate object.
+    
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
@@ -985,11 +994,16 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Thread title finished, populating.");
         	if(aData.getCount() >0 && aData.moveToFirst()){
-                setActionbarTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
+        		AwfulNavItem[] navList = new AwfulNavItem[3];
+        		navList[2] = new AwfulNavItem();
+        		String forumTitle = aData.getString(aData.getColumnIndex(AwfulThread.FORUM_TITLE));
+        		navList[1] = new AwfulNavItem(mParentForumId, NAV_TYPE.FORUM, (forumTitle == null? "Parent Forum" : forumTitle));
+        		navList[0] = new AwfulNavItem(getThreadId(), NAV_TYPE.THREAD, aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
+                setActionbarNav(navList);
         		updatePageBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){

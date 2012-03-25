@@ -18,6 +18,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.Html;
 import android.view.*;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -36,7 +38,7 @@ import com.example.google.tv.leftnavbar.LeftNavBarService;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection {
+public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, ActionBar.OnNavigationListener {
     private static final String TAG = "AwfulActivity";
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
@@ -258,4 +260,57 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	        action.setTitle(Html.fromHtml(aTitle).toString());
     	}
     }
+    
+    private AwfulNavItem[] mNavList;
+    
+    public void setNavBar(AwfulNavItem[] navList){
+    	mNavList = navList;
+    	SpinnerAdapter mSpinnerAdapter = new ArrayAdapter<AwfulNavItem>(this, android.R.layout.simple_spinner_dropdown_item, mNavList);
+    	ActionBar bar = getSupportActionBar();
+    	bar.setListNavigationCallbacks(mSpinnerAdapter, this);
+    }
+    
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		Log.e(TAG,"Nav item selected: "+itemId);
+		if(mNavList != null && itemId < mNavList.length){
+			AwfulNavItem target = mNavList[(int) itemId];
+			//This is the fallback processing point. Override this in your child activities to implement dual-pane and other things.
+			switch(target.mType){
+			case INDEX:
+				startActivity(new Intent(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+				break;
+			case FORUM:
+				startActivity(new Intent(this, ForumDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+																		  .putExtra(Constants.FORUM, target.mId));
+				break;
+			case THREAD:
+				//startActivity(new Intent(this, ThreadDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.THREAD_ID, target.mId));
+				break;
+			}
+			return true;
+		}
+		return false;
+	};
+    
+    public static class AwfulNavItem{
+    	public int mId;
+    	public NAV_TYPE mType;
+    	public String mTitle;
+    	public AwfulNavItem(int id, NAV_TYPE type, String title){
+    		mId = id;
+    		mType = type;
+    		mTitle = title;
+    	}
+    	public AwfulNavItem(){
+    		mId = 0;
+    		mType = NAV_TYPE.INDEX;
+    		mTitle = "Something Awful Forums";//TODO replace with r.string
+    	}
+    	@Override
+    	public String toString(){
+    		return mTitle;
+    	}
+    }
+	public enum NAV_TYPE {INDEX, FORUM, THREAD}
 }

@@ -90,12 +90,14 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static final String STICKY = "sticky";
 	public static final String CATEGORY = "category";
 	public static final String LASTPOSTER = "killedby";
+	public static final String FORUM_TITLE = "forum_title";
 
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
+
     
     public static TagNode getForumThreads(int aForumId) throws Exception {
 		return getForumThreads(aForumId, 1);

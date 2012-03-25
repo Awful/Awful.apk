@@ -102,6 +102,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TYPE,
 		AwfulThread.TAG_URL,
 		AwfulThread.TAG_CACHEFILE,
+		AwfulThread.FORUM_TITLE,
 		UPDATED_TIMESTAMP };
 
 	public static final String[] ForumProjection = new String[]{
@@ -509,7 +510,7 @@ public class AwfulProvider extends ContentProvider {
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(TABLE_THREADS+"."+AwfulThread.ID + "=?");
 			case THREAD:
-				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
 			case UCP_THREAD_ID:
@@ -649,6 +650,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
 		sThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
 		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
+		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
 		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_DRAFTS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
@@ -670,6 +672,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
+		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
 		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
