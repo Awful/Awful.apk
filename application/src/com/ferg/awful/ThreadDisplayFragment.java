@@ -69,13 +69,12 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.ferg.awful.AwfulActivity.AwfulNavItem;
-import com.ferg.awful.AwfulActivity.NAV_TYPE;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 import com.ferg.awful.preferences.ColorPickerPreference;
 import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.reply.Reply;
+import com.ferg.awful.service.AwfulCursorAdapter;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPagedItem;
@@ -92,7 +91,7 @@ import com.ferg.awful.widget.SnapshotWebView;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpdateCallback {
+public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
     private AwfulPreferences mPrefs;
 
@@ -115,11 +114,13 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     private int mPage = 1;
     private int mThreadId = 0;
     private int mLastPage = 0;
-    private int mParentForumId = -1;
+    private int mParentForumId = 0;
     private int mReplyDraftSaved = 0;
     private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
+    
+    private String mTitle = null;
     
 	private String mPostJump = "";
 	
@@ -299,9 +300,10 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
-		syncThread();
-        //getLoaderManager().initLoader(getThreadId(), null, mPostLoaderCallback);
+        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
+        if(getThreadId() > 0){
+        	syncThread();
+        }
 	}
 
 	private void initThreadViewProperties() {
@@ -328,7 +330,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 	public void updatePageBar(){
 		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
 		if(getActivity() != null){
-			((AwfulActivity)getActivity()).invalidateOptionsMenu();
+			getAwfulActivity().invalidateOptionsMenu();
 		}
 		if (getPage() <= 1) {
 			mPrevPage.setVisibility(View.INVISIBLE);
@@ -348,8 +350,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
 
         
     }
@@ -372,6 +372,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
                 mThreadView.resumeTimers();
         	}
         }
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
     }
     
@@ -379,6 +380,9 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public void onPause() {
         super.onPause();
+        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
+        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
+        getLoaderManager().destroyLoader(getThreadId());
         mThreadView.pauseTimers();
         mThreadView.stopLoading();
         mThreadView.onPause();
@@ -387,8 +391,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public void onStop() {
         super.onStop();
-        mThreadView.stopLoading();
-        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
     }
 
     @Override
@@ -406,7 +408,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getThreadId());
+        getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
@@ -539,7 +541,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     		builder.setItems(items, new DialogInterface.OnClickListener() {
     			public void onClick(DialogInterface dialog, int item) {
     				if (getActivity() != null) {
-    					((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_VOTE,
+    					getAwfulActivity().sendMessage(AwfulSyncService.MSG_VOTE,
     							getThreadId(), item);
     				}
     			}
@@ -559,19 +561,19 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     
     private void syncThread() {
         if(getActivity() != null){
-        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
+        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
         }
     }
     
     private void markLastRead(int index) {
         if(getActivity() != null){
-        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
+        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
         }
     }
 
     private void toggleThreadBookmark() {
         if(getActivity() != null){
-        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
+        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
         }
     }
 
@@ -659,7 +661,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         // If we're here because of a post result, refresh the thread
         switch (aRequestCode) {
             case PostReplyFragment.RESULT_POSTED:
-                ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getThreadId());
+                getAwfulActivity().registerSyncService(mMessenger, getThreadId());
             	if(getPage() < getLastPage()){
             		goToPage(getLastPage());
             	}else{
@@ -783,7 +785,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     @Override
     public void loadingFailed() {
         if(getActivity() != null){
-        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
@@ -792,7 +794,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     public void loadingStarted() {
     	threadLoadingState = true;
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
     	}
     }
 
@@ -800,20 +802,20 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     public void loadingSucceeded() {
     	threadLoadingState = false;
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
     	}
     }
     
     public void imageLoadingStarted() {
     	threadLoadingState = false;
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
         }
     }
     
     public void imageLoadingFinished() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
     	}
     }
 
@@ -963,10 +965,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         return mThreadId;
 	}
 
-    private void setActionbarNav(AwfulNavItem[] navList) {
-            ((ThreadDisplayActivity) getActivity()).setNavBar(navList);
-    }
-
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
         private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
         private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
@@ -1005,12 +1003,7 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
-        		AwfulNavItem[] navList = new AwfulNavItem[3];
-        		navList[2] = new AwfulNavItem();
-        		String forumTitle = aData.getString(aData.getColumnIndex(AwfulThread.FORUM_TITLE));
-        		navList[1] = new AwfulNavItem(mParentForumId, NAV_TYPE.FORUM, (forumTitle == null? "Parent Forum" : forumTitle));
-        		navList[0] = new AwfulNavItem(getThreadId(), NAV_TYPE.THREAD, aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
-                setActionbarNav(navList);
+        		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){
@@ -1065,5 +1058,38 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
 	public boolean largeScreen(){
 		return (getActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 	}
+	
+	public void setTitle(String title){
+		mTitle = title;
+		if(getActivity() != null && mTitle != null){
+			getAwfulActivity().setActionbarTitle(mTitle);
+		}
+	}
+	
+	public String getTitle(){
+		return mTitle;
+	}
 
+	public int getParentForumId() {
+		return mParentForumId;
+	}
+
+	public void openThread(int id, int page) {
+    	if(getActivity() != null){
+	        getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
+	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
+	        getLoaderManager().destroyLoader(getThreadId());
+    	}
+    	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+    	setPage(page);
+    	mLastPage = 1;
+		mPostJump = "";
+		updatePageBar();
+    	if(getActivity() != null){
+	        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
+            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+			refreshInfo();
+			syncThread();
+    	}
+	}
 }

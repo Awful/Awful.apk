@@ -79,7 +79,7 @@ import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
-public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
     private ListView mListView;
@@ -212,7 +212,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     @Override
     public void onStart() {
         super.onStart(); Log.e(TAG, "Start");
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
+        getAwfulActivity().registerSyncService(mMessenger, getForumId());
     }
     
     @Override
@@ -240,7 +240,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     @Override
     public void onStop() {
         super.onStop(); Log.e(TAG, "Stop");
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+        getAwfulActivity().unregisterSyncService(mMessenger, getForumId());
     }
     @Override
     public void onDestroyView() {
@@ -324,16 +324,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     }
     
     private void viewThread(int id, int page){
-    	if(getActivity() instanceof ThreadDisplayActivity){
-    		((ThreadDisplayActivity) getActivity()).displayThread(id, page);
-    	}else{
-			Intent viewThread2 = new Intent().setClass(getActivity(), ThreadDisplayActivity.class)
-											 .putExtra(Constants.THREAD_ID, id)
-											 .putExtra(Constants.THREAD_PAGE, page)
-											 .putExtra(Constants.FORUM_ID, getForumId())
-											 .putExtra(Constants.FORUM_PAGE, getPage());
-	    	startActivity(viewThread2);
-    	}
+    	getAwfulActivity().displayThread(id, page, getForumId(), getPage());
     }
 
     private void copyUrl(int id) {
@@ -443,9 +434,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 
     private void displayForumContents(int aId) {
     	if(getActivity() != null){
-    		if(getActivity() instanceof ForumsIndexActivity){
-    			((ForumsIndexActivity) getActivity()).openForum(aId);
-	    	}
+    		getAwfulActivity().displayForum(aId, 1);
     	}
     }
 
@@ -454,7 +443,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
         if(getActivity() != null){
-        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
@@ -462,14 +451,14 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     @Override
     public void loadingStarted() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
     	}
     }
 
     @Override
     public void loadingSucceeded() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
     	}
     }
 
@@ -523,7 +512,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     
     public void openForum(int id, int page){
     	if(getActivity() != null){
-	        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+	        getAwfulActivity().unregisterSyncService(mMessenger, getForumId());
 	    	getLoaderManager().destroyLoader(getLoaderId());
     	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
@@ -534,7 +523,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
 	    		mListView.setAdapter(mCursorAdapter);
 	    	}
-	        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
+	        getAwfulActivity().registerSyncService(mMessenger, getForumId());
 			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
 			refreshInfo();
 			syncForum();
@@ -543,7 +532,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 
 	public void syncForum() {
 		if(getForumId() > 0){
-			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+			getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
 		}
     }
 	
@@ -554,7 +543,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	}
 	
 	private void markUnread(int id) {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
+        getAwfulActivity().sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
     }
 	
 	public boolean isBookmark(){
@@ -566,7 +555,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	 * @param addRemove 1 to add bookmark, 0 to remove.
 	 */
     private void toggleThreadBookmark(int id, int addRemove) {
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+        getAwfulActivity().sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
     }
 	
 	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -659,7 +648,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         	if(!aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
             	if(getActivity() != null){
-            		((AwfulActivity) getActivity()).setActionbarTitle(mTitle);
+            		getAwfulActivity().setActionbarTitle(mTitle);
             	}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         		updatePageBar();

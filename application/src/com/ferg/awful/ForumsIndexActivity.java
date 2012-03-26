@@ -50,13 +50,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     private boolean mSecondPane;
     private ForumsIndexFragment mIndexFragment = null;
-    private ForumDisplayFragment mFragment = null;
+    private ForumDisplayFragment mForumFragment = null;
+    private ThreadDisplayFragment mThreadFragment = null;
     private boolean skipLoad = false;
     
     private ViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
-    private int mForumId;
+    private int mForumId = 0;
+    private int mThreadId = 0;
+    private int mThreadPage = 1;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -88,6 +91,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	        
 	        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
+	        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+	        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
 	        
 	        if(mForumId < 1){
 	        	skipLoad = true;
@@ -111,6 +116,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 		        	mViewPager.setCurrentItem(1);
 		        }else{
 		        	mForumId = Constants.USERCP_ID;
+		        }
+		        if(mThreadId > 0){
+		        	mViewPager.setCurrentItem(2);
 		        }
 		        Uri data = getIntent().getData();
 		        if(data != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
@@ -143,7 +151,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     public class ForumPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener{
-    	private int tabCount = 2;
+    	private int tabCount = 3;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
@@ -159,8 +167,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 				}
 				return mIndexFragment;
 			case 1:
-				mFragment = ForumDisplayFragment.newInstance(mForumId, skipLoad);
-				return mFragment;
+				mForumFragment = ForumDisplayFragment.newInstance(mForumId, skipLoad);
+				return mForumFragment;
+			case 2:
+				mThreadFragment = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
+				return mThreadFragment;
 			default:
 				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
 			}
@@ -187,9 +198,14 @@ public class ForumsIndexActivity extends AwfulActivity {
 				setActionbarTitle(getString(R.string.forums_title));
 				break;
 			case 1:
-				if(mFragment != null && mFragment.getTitle() != null){
-					setActionbarTitle(mFragment.getTitle());
-					mFragment.syncForumsIfStale();
+				if(mForumFragment != null && mForumFragment.getTitle() != null){
+					setActionbarTitle(mForumFragment.getTitle());
+					mForumFragment.syncForumsIfStale();
+				}
+				break;
+			case 2:
+				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
+					setActionbarTitle(mThreadFragment.getTitle());
 				}
 				break;
 			default:
@@ -202,7 +218,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void onBackPressed() {
     	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-    		mViewPager.setCurrentItem(0);
+    		mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
     	}else{
     		finish();
     	}
@@ -213,7 +229,8 @@ public class ForumsIndexActivity extends AwfulActivity {
         return mSecondPane;
     }
     
-    public void openForum(int id){
+    @Override
+    public void displayForum(int id, int page){
     	setContentPane(id);
     	if (!isDualPane()) {
     		mViewPager.setCurrentItem(1);
@@ -222,14 +239,14 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     public void setContentPane(int aForumId) {
     	mForumId = aForumId;
-        if(mFragment == null && isDualPane()){
+        if(mForumFragment == null && isDualPane()){
             ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, false);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         	transaction.add(R.id.content, fragment);
             transaction.commit();
-        	mFragment = fragment;
-        }else if(mFragment != null){
-        	mFragment.openForum(aForumId, 1);
+        	mForumFragment = fragment;
+        }else if(mForumFragment != null){
+        	mForumFragment.openForum(aForumId, 1);
         }
     }
 
@@ -243,6 +260,20 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         startActivity(shim);
         finish();
+    }
+    
+    @Override
+    public void displayThread(int id, int page, int fId, int fPg){
+    	if(mViewPager != null){
+    		mThreadId = id;
+    		mThreadPage = page;
+    		if(mThreadFragment != null){
+    			mThreadFragment.openThread(id, page);
+    		}
+    		mViewPager.setCurrentItem(2);
+    	}else{
+    		super.displayForum(id, page);
+    	}
     }
 }
 

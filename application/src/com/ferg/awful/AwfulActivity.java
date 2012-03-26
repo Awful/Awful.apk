@@ -38,7 +38,7 @@ import com.example.google.tv.leftnavbar.LeftNavBarService;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, ActionBar.OnNavigationListener {
+public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection {
     private static final String TAG = "AwfulActivity";
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
@@ -230,21 +230,42 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
                     startActivity(new Intent(AwfulActivity.this, PrivateMessageActivity.class));
                     break;
                 case R.id.reply:
-                    displayPostReplyDialog();
+                    //displayPostReplyDialog();
                     break;
             }
         }
     };
 
     public void displayUserCP() {
-    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM_ID, Constants.USERCP_ID));
+    	displayForum(Constants.USERCP_ID, 1);
+    }
+    
+    public void displayThread(int id, int page, int forumId, int forumPage){
+    	startActivity(new Intent().setClass(this, ThreadDisplayActivity.class)
+    							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    							  .putExtra(Constants.THREAD_ID, id)
+    							  .putExtra(Constants.THREAD_PAGE, page)
+    							  .putExtra(Constants.FORUM_ID, forumId)
+    							  .putExtra(Constants.FORUM_PAGE, forumPage));
+    }
+    
+    public void displayForum(int id, int page){
+    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
+    							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    							  .putExtra(Constants.FORUM_ID, id)
+    							  .putExtra(Constants.FORUM_PAGE, page));
+    }
+    
+    public void displayForumIndex(){
+    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
+				  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
-    public void displayPostReplyDialog() {
-        // TODO: doing this because I don't even
-    }
 
     /*TODO this stuff is gonna break the leftnavbar for now, sorry :(
+    public void displayPostReplyDialog(int id, int type) {
+        // TODO: doing this because I don't even
+    }
     @Override
     public android.app.ActionBar getActionBar() {
         if (isTV()) {
@@ -260,57 +281,4 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	        action.setTitle(Html.fromHtml(aTitle).toString());
     	}
     }
-    
-    private AwfulNavItem[] mNavList;
-    
-    public void setNavBar(AwfulNavItem[] navList){
-    	mNavList = navList;
-    	SpinnerAdapter mSpinnerAdapter = new ArrayAdapter<AwfulNavItem>(this, R.layout.nav_bar_item, mNavList);
-    	ActionBar bar = getSupportActionBar();
-    	bar.setListNavigationCallbacks(mSpinnerAdapter, this);
-    }
-    
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		Log.e(TAG,"Nav item selected: "+itemId);
-		if(mNavList != null && itemId < mNavList.length){
-			AwfulNavItem target = mNavList[(int) itemId];
-			//This is the fallback processing point. Override this in your child activities to implement dual-pane and other things.
-			switch(target.mType){
-			case INDEX:
-				startActivity(new Intent(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-				break;
-			case FORUM:
-				startActivity(new Intent(this, ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-																		  .putExtra(Constants.FORUM_ID, target.mId));
-				break;
-			case THREAD:
-				//startActivity(new Intent(this, ThreadDisplayActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.THREAD_ID, target.mId));
-				break;
-			}
-			return true;
-		}
-		return false;
-	};
-    
-    public static class AwfulNavItem{
-    	public int mId;
-    	public NAV_TYPE mType;
-    	public String mTitle;
-    	public AwfulNavItem(int id, NAV_TYPE type, String title){
-    		mId = id;
-    		mType = type;
-    		mTitle = title;
-    	}
-    	public AwfulNavItem(){
-    		mId = 0;
-    		mType = NAV_TYPE.INDEX;
-    		mTitle = "Something Awful Forums";//TODO replace with r.string
-    	}
-    	@Override
-    	public String toString(){
-    		return mTitle;
-    	}
-    }
-	public enum NAV_TYPE {INDEX, FORUM, THREAD}
 }

@@ -63,7 +63,7 @@ import com.ferg.awful.provider.AwfulProvider;
 import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulForum;
 
-public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdateCallback {
+public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
     private ExpandableListView mForumList;
 
@@ -136,7 +136,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         super.onActivityCreated(aSavedState);
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
+        getAwfulActivity().registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     @Override
     public void onDestroyView() {
         super.onDestroyView(); Log.e(TAG, "DestroyView");
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
+        getAwfulActivity().unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
     }
     
     @Override
@@ -201,7 +201,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         	setSelected((int) id);
         	mForumList.invalidateViews();
             if (getActivity() != null) {
-                ((ForumsIndexActivity) getActivity()).openForum((int) id);
+                getAwfulActivity().displayForum((int) id, 1);
             }
             return true;
         }
@@ -215,7 +215,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
         	setSelected((int) id);
         	mForumList.invalidateViews();
             if (getActivity() != null) {
-                ((ForumsIndexActivity) getActivity()).openForum((int) id);
+                getAwfulActivity().displayForum((int) id, 1);
             }
             return true;
         }
@@ -260,7 +260,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 
     public void displayUserCP() {
     	if (getActivity() != null) {
-            ((ForumsIndexActivity) getActivity()).openForum(Constants.USERCP_ID);
+            getAwfulActivity().displayForum(Constants.USERCP_ID, 1);
         }
     }
     
@@ -305,7 +305,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     public void loadingFailed() {
         Log.e(TAG, "Loading failed.");
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
@@ -313,13 +313,13 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     @Override
     public void loadingStarted() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
+    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
     	}
     }
     @Override
     public void loadingSucceeded() {
         if (getActivity() != null) {
-        	((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         }
     }
     
@@ -347,7 +347,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 	
 	private void syncForums() {
 		if(getActivity() != null){
-			((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+			getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
 	

@@ -36,12 +36,16 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
+
+import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
     private ForumDisplayFragment sidebarFrag;
+    private ThreadDisplayFragment mainWindowFrag;
     private boolean sidebarVisible;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +69,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         setActionBar();
 
         setContentView(R.layout.thread_display_activity);
+        mainWindowFrag = getFragment();
         sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
         sidebarVisible = sidebarFrag != null;
         if(isDualPane()){
@@ -76,7 +81,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
         ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
-        action.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     @Override
@@ -91,7 +95,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
             	if(isDualPane()){
             		toggleSidebar();
             	}else{
-            		returnHome();
+            		navigateUp();
             	}
                 return true;
         }
@@ -99,11 +103,11 @@ public class ThreadDisplayActivity extends AwfulActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void returnHome() {
-        finish();
-        Intent i = new Intent(this, ForumsIndexActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    public void navigateUp() {
+        Intent i = new Intent(this, ForumsIndexActivity.class).putExtra(Constants.FORUM_ID, mainWindowFrag.getParentForumId())
+        													  .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
+        finish();
     }
 
     public void setThreadTitle(String aTitle) {
@@ -112,13 +116,14 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void displayPostReplyDialog() {
-        getFragment().displayPostReplyDialog();
+    	if(mainWindowFrag != null){
+    		mainWindowFrag.displayPostReplyDialog();
+    	}
     }
 
     public void refreshThread() {
-    	ThreadDisplayFragment frag = getFragment();
-    	if(frag != null){
-    		getFragment().refresh();
+    	if(mainWindowFrag != null){
+    		mainWindowFrag.refresh();
     	}
     }
 
@@ -127,9 +132,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void refreshInfo() {
-    	ThreadDisplayFragment frag = getFragment();
-    	if(frag != null){
-    		getFragment().refreshInfo();
+    	if(mainWindowFrag != null){
+    		mainWindowFrag.refreshInfo();
     	}
 	}
     
@@ -149,10 +153,16 @@ public class ThreadDisplayActivity extends AwfulActivity {
     		sidebarVisible = !sidebarVisible;
     	}
     }
-
-	public void displayThread(int id, int page) {
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.replace(R.id.thread_display_fragment, ThreadDisplayFragment.newInstance(id, page));
-		ft.commit();
+    
+    @Override
+	public void displayThread(int id, int page, int forumId, int forumPage) {
+    	if(mainWindowFrag != null){
+    		mainWindowFrag.openThread(id, page);
+    	}else{
+			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			mainWindowFrag = ThreadDisplayFragment.newInstance(id, page);
+			ft.replace(R.id.thread_display_fragment, mainWindowFrag);
+			ft.commit();
+    	}
 	}
 }
