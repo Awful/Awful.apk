@@ -263,7 +263,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     @Override
-    public void displayThread(int id, int page, int fId, int fPg){
+    public void displayThread(int id, int page, int forumId, int forumPg){
     	if(mViewPager != null){
     		mThreadId = id;
     		mThreadPage = page;
@@ -272,7 +272,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}
     		mViewPager.setCurrentItem(2);
     	}else{
-    		super.displayForum(id, page);
+    		super.displayThread(id, page, forumId, forumPg);
     	}
     }
 }

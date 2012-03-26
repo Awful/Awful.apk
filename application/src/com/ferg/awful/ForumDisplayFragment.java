@@ -43,14 +43,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -58,13 +55,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -79,12 +72,22 @@ import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
 
+/**
+ * Uses intent extras:
+ *  TYPE - STRING ID - DESCRIPTION
+ *	int - Constants.FORUM_ID - id number for the forum
+ *	int - Constants.FORUM_PAGE - page number to load
+ *
+ *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
+ */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
     private ListView mListView;
-
-    private AwfulPreferences mPrefs;
+    private ImageButton mRefreshBar;
+    private ImageButton mNextPage;
+    private ImageButton mPrevPage;
+    private TextView mPageCountText;
     
     private Cursor[] combinedCursors = new Cursor[2];
     
@@ -136,7 +139,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     };
     private AwfulCursorAdapter mCursorAdapter;
     private Messenger mMessenger = new Messenger(mHandler);
-    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
+    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
@@ -158,8 +161,17 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
         mListView = (ListView) result.findViewById(R.id.forum_list);
         mListView.setDrawingCacheEnabled(true);
-		
-        mPrefs = new AwfulPreferences(getActivity(), this);
+        
+        mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
+		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		if(mPrevPage != null){
+			mNextPage.setOnClickListener(onButtonClick);
+			mPrevPage.setOnClickListener(onButtonClick);
+			mRefreshBar.setOnClickListener(onButtonClick);
+			updatePageBar();
+		}
         return result;
     }
 
@@ -206,7 +218,22 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 
 	public void updatePageBar(){
-		
+		if(mPageCountText != null){
+			mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+			if (getPage() <= 1) {
+				mPrevPage.setVisibility(View.INVISIBLE);
+			} else {
+				mPrevPage.setVisibility(View.VISIBLE);
+			}
+
+			if (getPage() == getLastPage()) {
+	            mNextPage.setVisibility(View.GONE);
+	            mRefreshBar.setVisibility(View.VISIBLE);
+			} else {
+	            mNextPage.setVisibility(View.VISIBLE);
+	            mRefreshBar.setVisibility(View.GONE);
+			}
+		}
 	}
 
     @Override
@@ -220,6 +247,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         super.onResume(); Log.e(TAG, "Resume");
 		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
 		refreshInfo();
         if(skipLoad){
         	skipLoad = false;//only skip the first time
@@ -234,6 +262,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         getLoaderManager().destroyLoader(getLoaderId());
         getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
+		getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
@@ -517,6 +546,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
+    	mLastPage = 0;
     	lastRefresh = 0;
     	if(getActivity() != null){
 	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
@@ -531,7 +561,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 
 	public void syncForum() {
-		if(getForumId() > 0){
+		if(getAwfulActivity() != null && getForumId() > 0){
 			getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
 		}
     }
@@ -558,7 +588,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         getAwfulActivity().sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
     }
 	
-	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+
+		public ForumContentsCallback(Handler handler) {
+			super(handler);
+		}
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
@@ -596,6 +630,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mCursorAdapter.swapCursor(null);
 			combinedCursors[1]=null;
 		}
+		
+        @Override
+        public void onChange (boolean selfChange){
+        	Log.i(TAG,"Thread List update.");
+        	refreshInfo();
+        }
     }
 	
 	private class SubforumsCallback implements LoaderManager.LoaderCallbacks<Cursor> {

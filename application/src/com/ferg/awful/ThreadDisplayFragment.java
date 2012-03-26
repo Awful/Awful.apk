@@ -87,13 +87,12 @@ import com.ferg.awful.widget.SnapshotWebView;
  * Uses intent extras:
  *  TYPE - STRING ID - DESCRIPTION
  *	int - Constants.THREAD_ID - id number for that thread
- *	int - Constants.PAGE - page number to load
+ *	int - Constants.THREAD_PAGE - page number to load
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
-    private AwfulPreferences mPrefs;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -119,6 +118,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
+    private boolean dataLoaded = false;
     
     private String mTitle = null;
     
@@ -216,14 +216,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void onAttach(Activity aActivity) {
-        super.onAttach(aActivity);
+        super.onAttach(aActivity); Log.e(TAG, "onAttach");
 
         mPrefs = new AwfulPreferences(getActivity(), this);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
         //setRetainInstance(true);
         
@@ -273,11 +273,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
-    }
 
+        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
+        if(getThreadId() > 0){
+        	syncThread();
+        }
+    }
+//--------------------------------
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState);
+        super.onCreateView(aInflater, aContainer, aSavedState); Log.e(TAG, "onCreateView");
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
@@ -298,11 +303,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
-		super.onActivityCreated(aSavedState);
-
-        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
-        if(getThreadId() > 0){
-        	syncThread();
+		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
+        if(dataLoaded){
+        	refreshPosts();
         }
 	}
 
@@ -349,15 +352,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void onStart() {
-        super.onStart();
-
+        super.onStart(); Log.e(TAG, "onStart");
         
     }
     
 
     @Override
     public void onResume() {
-        super.onResume();
+        super.onResume(); Log.e(TAG, "Resume");
         
         if (mThreadWindow.getChildCount() < 2) {
             mThreadView = new SnapshotWebView(getActivity());
@@ -379,10 +381,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     @Override
     public void onPause() {
-        super.onPause();
+        super.onPause(); Log.e(TAG, "onPause");
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
-        getLoaderManager().destroyLoader(getThreadId());
         mThreadView.pauseTimers();
         mThreadView.stopLoading();
         mThreadView.onPause();
@@ -390,17 +391,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
     @Override
     public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
+        super.onStop(); Log.e(TAG, "onStop");
     }
     
     @Override
     public void onDestroyView(){
-    	super.onDestroyView();
+    	super.onDestroyView(); Log.e(TAG, "onDestroyView");
         try {
             mThreadWindow.removeView(mThreadView);
             mThreadView.destroy();
@@ -408,16 +404,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy(); Log.e(TAG, "onDestroy");
+        getLoaderManager().destroyLoader(getThreadId());
         getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDetach() {
+        super.onDetach(); Log.e(TAG, "onDetach");
     }
     
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
+    	Log.e(TAG, "onCreateOptionsMenu");
         if(menu.size() == 0){
             inflater.inflate(R.menu.post_menu, menu);
         }
@@ -425,6 +427,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+    	Log.e(TAG, "onCreateOptionsMenu");
         if(menu == null){
             return;
         }
@@ -561,6 +564,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void syncThread() {
         if(getActivity() != null){
+        	dataLoaded = false;
         	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
         }
     }
@@ -982,6 +986,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
+            dataLoaded = true;
         }
 
         @Override
@@ -1082,6 +1087,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	setPage(page);
+    	dataLoaded = false;
     	mLastPage = 1;
 		mPostJump = "";
 		updatePageBar();

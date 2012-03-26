@@ -67,8 +67,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private static final String TAG = "ForumsIndex";
     private ExpandableListView mForumList;
 
-    private AwfulPreferences mPrefs;
-
     public static ForumsIndexFragment newInstance() {
         return new ForumsIndexFragment();
     }
@@ -110,8 +108,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity);
-
-        mPrefs = new AwfulPreferences(getActivity(), this);
     }
 
     @Override
