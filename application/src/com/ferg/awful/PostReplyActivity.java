@@ -30,10 +30,10 @@ package com.ferg.awful;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Window;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PostReplyActivity extends AwfulActivity {
@@ -43,7 +43,7 @@ public class PostReplyActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
 
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            //requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         new Thread(new Runnable() {
             public void run() {

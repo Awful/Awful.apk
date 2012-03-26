@@ -520,17 +520,23 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 	}
     
     public void openForum(int id, int page){
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
-    	getLoaderManager().destroyLoader(getLoaderId());
-    	setForumId(id);
+    	if(getActivity() != null){
+	        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+	    	getLoaderManager().destroyLoader(getLoaderId());
+    	}
+    	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
     	lastRefresh = 0;
-    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
-    	mListView.setAdapter(mCursorAdapter);
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
-		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
-		refreshInfo();
-		syncForum();
+    	if(getActivity() != null){
+	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
+	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
+	    		mListView.setAdapter(mCursorAdapter);
+	    	}
+	        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
+			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+			refreshInfo();
+			syncForum();
+    	}
     }
 
 	public void syncForum() {

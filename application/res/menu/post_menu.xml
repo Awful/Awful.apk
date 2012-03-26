@@ -2,11 +2,27 @@
 <menu 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	>
-	
+	<item
+		android:id="@+id/reply"
+		android:icon="@drawable/new_post"
+        android:showAsAction="ifRoom"
+		/>
+	<item
+		android:id="@+id/next_page"
+		android:icon="@drawable/r_arrow"
+        android:showAsAction="ifRoom"
+		/>
+	<item
+		android:id="@+id/usercp"
+		android:icon="@drawable/gear"
+		android:title="@string/user_cp"
+        android:showAsAction="ifRoom"
+		/>
 	<item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_goto"
 		android:title="@string/go_to"
+        android:showAsAction="ifRoom"
 		/>
 	<item
 		android:id="@+id/refresh"
@@ -18,7 +34,7 @@
         android:title="@string/bookmark"
         android:icon="@drawable/ic_menu_star"
         />
-	<item android:id="@+id/usercp" android:icon="@drawable/ic_menu_usercp" android:title="@string/usercp" /><item
+	<item
         android:id="@+id/rate_thread"
         android:title="@string/rate_thread"
         android:icon="@drawable/ic_menu_rate_thread"

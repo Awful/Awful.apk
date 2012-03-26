@@ -442,9 +442,6 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
             case R.id.reply:
                 displayPostReplyDialog();
                 break;
-            case R.id.go_back:
-                goToPage(getPage()-1);
-                break;
             case R.id.usercp:
                 displayUserCP();
                 break;
@@ -466,9 +463,9 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     		case R.id.copy_url:
     			copyThreadURL(null);
     			break;
-    		case R.id.find:
-    			this.mThreadView.showFindDialog(null, true);
-    			break;
+    		//case R.id.find://TODO oops, broke this
+    		//	this.mThreadView.showFindDialog(null, true);
+    		//	break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
@@ -717,10 +714,12 @@ public class ThreadDisplayFragment extends SherlockFragment implements AwfulUpda
     }
 
     public void displayPostReplyDialog(Bundle aArgs) {
+    	startActivityForResult(new Intent(getActivity(), PostReplyActivity.class).putExtras(aArgs), PostReplyFragment.RESULT_POSTED);
+    	/*
             PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
             fragment.setTargetFragment(this, PostReplyFragment.RESULT_POSTED);
             fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
-    }
+    */}
     
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
     	TextView draftAlertMsg = new TextView(getActivity());

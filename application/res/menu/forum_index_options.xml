@@ -10,18 +10,23 @@
     <item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_refresh"
-		android:title="@string/refresh" />
+		android:title="@string/refresh" 
+		/>
     <item 
         android:id="@+id/pm" 
         android:icon="@android:drawable/sym_action_email"
-        android:title="@string/private_message"/>
+        android:title="@string/private_message"
+        android:showAsAction="ifRoom" 
+        />
 	<item
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_menu_preferences"
-		android:title="@string/settings" />
+		android:title="@string/settings" 
+		/>
     <item
 		android:id="@+id/logout"
 		android:icon="@drawable/ic_menu_logout"
-		android:title="@string/logout" />
+		android:title="@string/logout" 
+		/>
     
 </menu>
