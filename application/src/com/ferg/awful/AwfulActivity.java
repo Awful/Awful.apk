@@ -275,7 +275,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         return super.getActionBar();
     }
     */
-    public void setActionbarTitle(String aTitle) {
+    public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
     	if(aTitle != null){
 	        ActionBar action = getSupportActionBar();
 	        action.setTitle(Html.fromHtml(aTitle).toString());

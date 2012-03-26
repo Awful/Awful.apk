@@ -1067,7 +1067,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void setTitle(String title){
 		mTitle = title;
 		if(getActivity() != null && mTitle != null){
-			getAwfulActivity().setActionbarTitle(mTitle);
+			getAwfulActivity().setActionbarTitle(mTitle, this);
 		}
 	}
 	

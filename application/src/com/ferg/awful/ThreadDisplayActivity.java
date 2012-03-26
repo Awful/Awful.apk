@@ -155,6 +155,13 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
     
     @Override
+	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
+    	if(requestor instanceof ThreadDisplayFragment){//only switch title for the thread, not the sidebar
+    		super.setActionbarTitle(aTitle, requestor);
+    	}
+	}
+
+	@Override
 	public void displayThread(int id, int page, int forumId, int forumPage) {
     	if(mainWindowFrag != null){
     		mainWindowFrag.openThread(id, page);

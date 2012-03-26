@@ -195,17 +195,17 @@ public class ForumsIndexActivity extends AwfulActivity {
 		public void onPageSelected(int arg0) {
 			switch(arg0){
 			case 0:
-				setActionbarTitle(getString(R.string.forums_title));
+				setActionbarTitle(getString(R.string.forums_title), null);
 				break;
 			case 1:
 				if(mForumFragment != null && mForumFragment.getTitle() != null){
-					setActionbarTitle(mForumFragment.getTitle());
+					setActionbarTitle(mForumFragment.getTitle(), null);
 					mForumFragment.syncForumsIfStale();
 				}
 				break;
 			case 2:
 				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
-					setActionbarTitle(mThreadFragment.getTitle());
+					setActionbarTitle(mThreadFragment.getTitle(), null);
 				}
 				break;
 			default:
@@ -216,6 +216,35 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     @Override
+	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
+    	if(requestor != null && mViewPager != null){
+    		switch(mViewPager.getCurrentItem()){
+    		case 0:
+				if(requestor instanceof ForumsIndexFragment){
+		    		super.setActionbarTitle(aTitle, requestor);
+				}
+				break;
+			case 1:
+				if(requestor instanceof ForumDisplayFragment){
+		    		super.setActionbarTitle(aTitle, requestor);
+				}
+				break;
+			case 2:
+				if(requestor instanceof ThreadDisplayFragment){
+		    		super.setActionbarTitle(aTitle, requestor);
+				}
+				break;
+			default:
+				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+    		}
+    	}else{
+			if(requestor == null || requestor instanceof ForumDisplayFragment){
+	    		super.setActionbarTitle(aTitle, requestor);
+			}
+    	}
+	}
+
+	@Override
     public void onBackPressed() {
     	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
     		mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
