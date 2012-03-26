@@ -104,7 +104,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+        setRetainInstance(false);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
 
     @Override
     public void onStart() {
-        super.onStart();
+        super.onStart(); Log.e(TAG, "Start");
 
         boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
         if (loggedIn) {
@@ -153,35 +153,35 @@ public class ForumsIndexFragment extends SherlockFragment implements AwfulUpdate
     
     @Override
     public void onResume() {
-        super.onResume();
+        super.onResume(); Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
     }
     
     @Override
     public void onPause() {
-        super.onPause();
+        super.onPause(); Log.e(TAG, "Pause");
 		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }
         
     @Override
     public void onStop() {
-        super.onStop();
+        super.onStop(); Log.e(TAG, "Stop");
     }
     
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        super.onDestroyView(); Log.e(TAG, "DestroyView");
         ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
     }
     
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        super.onDestroy(); Log.e(TAG, "Destroy");
     }
 
 	@Override
 	public void onDetach() {
-		super.onDetach();
+		super.onDetach(); Log.e(TAG, "Detach");
 	}
     
     @Override

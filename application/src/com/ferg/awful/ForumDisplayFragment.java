@@ -167,7 +167,7 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setRetainInstance(true);
+        setRetainInstance(false);
         
         //parsing forum id
         if(mForumId <1){//we might already have it from newInstance(id), that value overrides the intent values
@@ -203,7 +203,6 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
         mListView.setCacheColorHint(mPrefs.postBackgroundColor);
         
         registerForContextMenu(mListView);
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
     }
 
 	public void updatePageBar(){
@@ -212,42 +211,45 @@ public class ForumDisplayFragment extends SherlockFragment implements AwfulUpdat
 
     @Override
     public void onStart() {
-        super.onStart();
-		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
-		refreshInfo();
+        super.onStart(); Log.e(TAG, "Start");
+        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, getForumId());
     }
     
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-    @Override
     public void onResume() {
-        super.onResume();
+        super.onResume(); Log.e(TAG, "Resume");
+		getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
+		refreshInfo();
         if(skipLoad){
         	skipLoad = false;//only skip the first time
         }else{
         	syncForumsIfStale();
         }
-    }    
+    }
+    
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause(); Log.e(TAG, "Pause");
         getLoaderManager().destroyLoader(getLoaderId());
         getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
+    
+    @Override
+    public void onStop() {
+        super.onStop(); Log.e(TAG, "Stop");
+        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+    }
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, getForumId());
+        super.onDestroyView(); Log.e(TAG, "DestroyView");
     }
     
     @Override
     public void onDetach() {
-        super.onDetach();
+        super.onDetach(); Log.e(TAG, "Detach");
     }
     
     @Override

@@ -131,6 +131,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setTitle(R.string.forums_title);
+        action.setDisplayHomeAsUpEnabled(true);
     }
 
     private void checkIntentExtras() {

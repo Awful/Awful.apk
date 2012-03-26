@@ -24,7 +24,7 @@
         android:theme="@style/Theme.Sherlock"
 		android:debuggable="true">
         <activity android:name="ForumsIndexActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -47,11 +47,10 @@
         <activity
                 android:name="AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize"/>
-        <activity android:name="ThreadDisplayTabletActivity" />
         <activity 
             android:name="ThreadDisplayActivity"
           	android:configChanges="orientation|keyboardHidden|screenSize"
-            android:hardwareAccelerated="false">
+            android:hardwareAccelerated="false" android:uiOptions="splitActionBarWhenNarrow">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
