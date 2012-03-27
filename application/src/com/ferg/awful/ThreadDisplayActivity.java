@@ -32,7 +32,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
@@ -119,8 +118,17 @@ public class ThreadDisplayActivity extends AwfulActivity {
     		mainWindowFrag.refresh();
     	}
     }
+    
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+    	if(mainWindowFrag != null){
+    		mainWindowFrag.onCreateOptionsMenu(menu, getSupportMenuInflater());
+    		return true;
+    	}
+		return super.onCreateOptionsMenu(menu);
+	}
 
-    private ThreadDisplayFragment getFragment() {
+	private ThreadDisplayFragment getFragment() {
         return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_display_fragment);
     }
 
