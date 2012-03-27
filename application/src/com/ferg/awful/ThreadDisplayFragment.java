@@ -97,6 +97,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
+    private ImageButton mToggleSidebar;
+    
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
@@ -119,6 +121,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
     private boolean dataLoaded = false;
+    
+    private static final int buttonSelectedColor = 0xa0ff7f00;
     
     private String mTitle = null;
     
@@ -291,6 +295,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
@@ -299,6 +304,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		initThreadViewProperties();
 		mNextPage.setOnClickListener(onButtonClick);
+		mToggleSidebar.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
@@ -313,6 +319,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(dataLoaded){
         	refreshPosts();
         }
+		if(isDualPane()){
+			mToggleSidebar.setVisibility(View.VISIBLE);
+			if(isSidebarVisible()){
+				mToggleSidebar.setColorFilter(buttonSelectedColor);
+			}else{
+				mToggleSidebar.setColorFilter(0);
+			}
+		}else{
+			mToggleSidebar.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	private void initThreadViewProperties() {
@@ -419,6 +435,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDetach() {
         super.onDetach(); Log.e(TAG, "onDetach");
+    }
+    
+    public boolean isDualPane(){
+    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isDualPane());
+    }
+    
+    public boolean isSidebarVisible(){
+    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
     }
     
     @Override
@@ -703,6 +727,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     break;
                 case R.id.page_count:
                 	displayPagePicker();
+                	break;
+                case R.id.toggle_sidebar:
+                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
+                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
+                		if(isSidebarVisible()){
+                			mToggleSidebar.setColorFilter(buttonSelectedColor);
+                		}else{
+                			mToggleSidebar.setColorFilter(0);
+                		}
+                	}
                 	break;
             }
         }

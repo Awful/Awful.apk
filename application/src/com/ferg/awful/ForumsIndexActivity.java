@@ -221,46 +221,26 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 
 		@Override
-		public CharSequence getPageTitle(int position) {
-			String title;
-			switch(position){
-			case 0:
-				title = getString(R.string.forums_title);
-				break;
-			case 1:
-				if(mForumFragment != null && mForumFragment.getTitle() != null){
-					title = mForumFragment.getTitle();
-				}else{
-					title = getString(R.string.forums_title);
-				}
-				break;
-			case 2:
-				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
-					title = mThreadFragment.getTitle();
-				}else{
-					title = getString(R.string.forums_title);
-				}
-				break;
-			default:
-				title = getString(R.string.forums_title);
-			}
-			return title;
-		}
-
-		@Override
 		public void onPageSelected(int arg0) {
 	        ActionBar action = getSupportActionBar();
 			switch(arg0){
 			case 0:
+				setActionbarTitle(getString(R.string.forums_title), null);
 		        action.setDisplayShowHomeEnabled(true);
 				break;
 			case 1:
+				if(mForumFragment != null && mForumFragment.getTitle() != null){
+					setActionbarTitle(mForumFragment.getTitle(), null);
+				}
 				if(mForumFragment != null){
 					mForumFragment.syncForumsIfStale();
 				}
 		        action.setDisplayShowHomeEnabled(false);
 				break;
 			case 2:
+				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
+					setActionbarTitle(mThreadFragment.getTitle(), null);
+				}
 		        action.setDisplayShowHomeEnabled(false);
 				break;
 			default:
@@ -340,7 +320,11 @@ public class ForumsIndexActivity extends AwfulActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
             	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-            		mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+            		if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
+            			displayForum(mThreadFragment.getParentForumId(), 1);
+            		}else{
+            			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+            		}
                     return true;
             	}
             	break;

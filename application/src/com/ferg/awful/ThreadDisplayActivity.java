@@ -92,11 +92,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-            	if(isDualPane()){
-            		toggleSidebar();
-            	}else{
-            		navigateUp();
-            	}
+            	navigateUp();
                 return true;
         }
 
@@ -104,10 +100,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     }
 
     public void navigateUp() {
-        Intent i = new Intent(this, ForumsIndexActivity.class).putExtra(Constants.FORUM_ID, mainWindowFrag.getParentForumId())
-        													  .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
-        finish();
+        displayForum(mainWindowFrag.getParentForumId(), 1);
     }
 
     public void setThreadTitle(String aTitle) {
@@ -182,4 +175,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
     		sidebarFrag.openForum(id, page);
     	}
     }
+
+	public boolean isSidebarVisible() {
+		return sidebarVisible;
+	}
 }

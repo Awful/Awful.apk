@@ -2,29 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/page_indicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:background="@drawable/page_bottom_bg" >
-
-            <TextView
-                android:id="@+id/page_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:shadowColor="#070707"
-                android:shadowDx="0"
-                android:shadowDy="-1"
-                android:shadowRadius="0.2"
-                android:text="Page x/x"
-                android:textColor="#eeeeee"
-                android:textSize="22dip"
-                android:textStyle="bold" />
 
             <ImageButton
                  android:id="@+id/prev_page"
@@ -32,31 +15,43 @@
                  android:src="@drawable/l_arrow"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
-                 android:layout_alignParentLeft="true"
-                 android:layout_centerVertical="true"
-                 android:padding="5dp"
-                 style="@style/ActionBarButton"/>
-
-
-            <RelativeLayout
-                android:id="@+id/frameLayout1"
+                 android:layout_weight="1"
+                 style="@style/ActionBarButton"/>
+			<ImageButton
+			    android:id="@+id/toggle_sidebar"
+			    style="@style/ActionBarButton"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
+               	android:visibility="invisible"
+                 android:layout_weight="1"
+			    android:src="@drawable/ic_action_threads" />
+            <TextView
+                android:id="@+id/page_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/page_count"
-                android:layout_toLeftOf="@id/next_page" >
-
-	            <ImageButton
-	                android:id="@+id/refresh"
-	                style="@style/ActionBarButton"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_centerInParent="true"
-	                android:padding="1dp"
-	                android:src="@drawable/stat_notify_sync"
-	                 />
-
-            </RelativeLayout>
+                android:layout_gravity="center"
+			    android:paddingTop="1dp"
+			    android:paddingBottom="1dp"
+                android:gravity="center"
+                android:shadowColor="#070707"
+                android:shadowDx="0"
+                android:shadowDy="-1"
+                android:shadowRadius="0.2"
+                android:textColor="#eeeeee"
+                android:textSize="22dip"
+                 android:layout_weight="1"
+                android:textStyle="bold"
+                android:clickable="true" />
+            
+            <ImageButton
+                android:id="@+id/refresh"
+                style="@style/ActionBarButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                 android:layout_weight="1"
+                android:src="@drawable/stat_notify_sync"
+                 />
             
             <ImageButton
                  android:id="@+id/next_page"
@@ -64,10 +59,8 @@
                  android:src="@drawable/r_arrow"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
-                 android:layout_alignParentRight="true"
-                 android:layout_centerVertical="true"
-                 android:padding="5dp"
+                 android:layout_weight="1"
                  style="@style/ActionBarButton"/>
 
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
