@@ -126,9 +126,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-
-        fragment.setThreadId(id);
-        fragment.setPage(page);
+		Bundle args = new Bundle();
+		args.putInt(Constants.THREAD_ID, id);
+		args.putInt(Constants.THREAD_PAGE, page);
+		fragment.setArguments(args);
 
         return fragment;
 	}
@@ -217,8 +218,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity); Log.e(TAG, "onAttach");
-
-        mPrefs = new AwfulPreferences(getActivity(), this);
     }
 
     @Override
@@ -226,6 +225,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onCreate(savedInstanceState); Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
         //setRetainInstance(true);
+        
+        Bundle args = getArguments();
+        if(args != null){
+	        mThreadId = args.getInt(Constants.THREAD_ID, 0);
+	        mPage = args.getInt(Constants.THREAD_PAGE, 1);
+        }
         
         String c2pThreadID = null;
         String c2pPostPerPage = null;
@@ -296,6 +301,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
+		mPageCountText.setOnClickListener(onButtonClick);
 		updatePageBar();
 
 		return result;
@@ -342,11 +348,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
 		if (getPage() == getLastPage()) {
-            mNextPage.setVisibility(View.GONE);
-            mRefreshBar.setVisibility(View.VISIBLE);
+            mNextPage.setVisibility(View.INVISIBLE);
 		} else {
             mNextPage.setVisibility(View.VISIBLE);
-            mRefreshBar.setVisibility(View.GONE);
 		}
 	}
 
@@ -420,9 +424,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
     	Log.e(TAG, "onCreateOptionsMenu");
-        if(menu.size() == 0){
-            inflater.inflate(R.menu.post_menu, menu);
-        }
+        inflater.inflate(R.menu.post_menu, menu);
     }
 
     @Override
@@ -480,11 +482,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void launchParentForum(){
     	if(mParentForumId > 0){
-    		startActivity(new Intent(getActivity(), ForumsIndexActivity.class).putExtra(Constants.FORUM_ID, mParentForumId));
-    	}else{
-    		getActivity().finish();
+    		getAwfulActivity().displayForum(mParentForumId, 1);
     	}
-    	
     }
 
 	private void copyThreadURL(String postId) {
@@ -582,8 +581,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
 
     private void displayUserCP() {
-    	//TODO update to splitview
-        startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra(Constants.FORUM_ID, Constants.USERCP_ID));
+    	getAwfulActivity().displayForum(Constants.USERCP_ID, 1);
     }
 
     private void displayPagePicker() {
@@ -703,6 +701,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 		refresh();
                 	}
                     break;
+                case R.id.page_count:
+                	displayPagePicker();
+                	break;
             }
         }
     };
@@ -788,26 +789,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void loadingFailed() {
+    	super.loadingFailed();
         if(getActivity() != null){
-        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void loadingStarted() {
+    	super.loadingStarted();
     	threadLoadingState = true;
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
-    	}
     }
 
     @Override
     public void loadingSucceeded() {
+    	super.loadingSucceeded();
     	threadLoadingState = false;
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
-    	}
     }
     
     public void imageLoadingStarted() {

@@ -5,13 +5,6 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <ViewStub
-        android:id="@+id/actionbar"
-        android:inflatedId="@+id/actionbar_inflated"
-        android:layout="@layout/actionbar_forum"
-        android:layout_width="fill_parent"
-        android:layout_height="45dip"
-        />
 	<ListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
@@ -19,5 +12,10 @@
         android:divider="#8c8c8c"
         android:dividerHeight="1px"
 		android:cacheColorHint="@color/background"
+        android:layout_weight="1"
 		/>
+	<include 
+        android:id="@+id/pagebar"
+        layout="@layout/pagebar"
+        />
 </LinearLayout>

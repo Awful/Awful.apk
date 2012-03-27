@@ -37,8 +37,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -109,6 +111,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		        }
 	        }else{
 	        	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
+	        	mViewPager.setOffscreenPageLimit(2);
 	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager()); 
 		        mViewPager.setAdapter(pagerAdapter);
 		        mViewPager.setOnPageChangeListener(pagerAdapter);
@@ -161,21 +164,47 @@ public class ForumsIndexActivity extends AwfulActivity {
 			Log.e(TAG,"CREATING TAB:"+arg0);
 			switch(arg0){
 			case 0:
-				mIndexFragment = ForumsIndexFragment.newInstance();
+				if(mIndexFragment == null){
+					mIndexFragment = ForumsIndexFragment.newInstance();
+				}
 				if(mForumId > 0){
 					mIndexFragment.setSelected(mForumId);
 				}
 				return mIndexFragment;
 			case 1:
-				mForumFragment = ForumDisplayFragment.newInstance(mForumId, skipLoad);
+				if(mForumFragment == null){
+					mForumFragment = ForumDisplayFragment.newInstance(mForumId, skipLoad);
+				}
 				return mForumFragment;
 			case 2:
-				mThreadFragment = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
+				if(mThreadFragment == null){
+					mThreadFragment = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
+				}
 				return mThreadFragment;
 			default:
 				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
 			}
 			return null;
+		}
+		
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			Log.e(TAG,"INSTANTIATING TAB:"+position);
+			Fragment frag = (Fragment) super.instantiateItem(container, position);
+			switch(position){
+			case 0:
+				mIndexFragment = (ForumsIndexFragment) frag;
+				break;
+			case 1:
+				mForumFragment = (ForumDisplayFragment) frag;
+				break;
+			case 2:
+				mThreadFragment = (ThreadDisplayFragment) frag;
+				break;
+			default:
+				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+			}
+			return frag;
 		}
 
 		@Override
@@ -192,21 +221,47 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 
 		@Override
-		public void onPageSelected(int arg0) {
-			switch(arg0){
+		public CharSequence getPageTitle(int position) {
+			String title;
+			switch(position){
 			case 0:
-				setActionbarTitle(getString(R.string.forums_title), null);
+				title = getString(R.string.forums_title);
 				break;
 			case 1:
 				if(mForumFragment != null && mForumFragment.getTitle() != null){
-					setActionbarTitle(mForumFragment.getTitle(), null);
-					mForumFragment.syncForumsIfStale();
+					title = mForumFragment.getTitle();
+				}else{
+					title = getString(R.string.forums_title);
 				}
 				break;
 			case 2:
 				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
-					setActionbarTitle(mThreadFragment.getTitle(), null);
+					title = mThreadFragment.getTitle();
+				}else{
+					title = getString(R.string.forums_title);
 				}
+				break;
+			default:
+				title = getString(R.string.forums_title);
+			}
+			return title;
+		}
+
+		@Override
+		public void onPageSelected(int arg0) {
+	        ActionBar action = getSupportActionBar();
+			switch(arg0){
+			case 0:
+		        action.setDisplayShowHomeEnabled(true);
+				break;
+			case 1:
+				if(mForumFragment != null){
+					mForumFragment.syncForumsIfStale();
+				}
+		        action.setDisplayShowHomeEnabled(false);
+				break;
+			case 2:
+		        action.setDisplayShowHomeEnabled(false);
 				break;
 			default:
 				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
@@ -218,6 +273,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
 	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
     	if(requestor != null && mViewPager != null){
+    		//This will only honor the request if the requestor is the currently active view.
     		switch(mViewPager.getCurrentItem()){
     		case 0:
 				if(requestor instanceof ForumsIndexFragment){
@@ -277,6 +333,21 @@ public class ForumsIndexActivity extends AwfulActivity {
         }else if(mForumFragment != null){
         	mForumFragment.openForum(aForumId, 1);
         }
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+            	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+            		mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+                    return true;
+            	}
+            	break;
+    		default:
+    			break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void startTVActivity() {

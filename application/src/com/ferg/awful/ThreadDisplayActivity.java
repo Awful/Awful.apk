@@ -28,6 +28,7 @@
 package com.ferg.awful;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
@@ -62,7 +63,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setupLeftNavBar(R.layout.thread_action_items, true);
         } else {
-            //requestWindowFeature(Window.FEATURE_NO_TITLE);
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         }
@@ -88,7 +88,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
         super.onStart();
     }
 
-    @Override
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -172,4 +172,14 @@ public class ThreadDisplayActivity extends AwfulActivity {
 			ft.commit();
     	}
 	}
+	
+	@Override
+    public void displayForum(int id, int page){
+		if(isDualPane() && sidebarFrag != null){
+    		if(!sidebarVisible){
+    			toggleSidebar();
+    		}
+    		sidebarFrag.openForum(id, page);
+    	}
+    }
 }

@@ -299,23 +299,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
     @Override
     public void loadingFailed() {
+    	super.loadingFailed();
         Log.e(TAG, "Loading failed.");
     	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void loadingStarted() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
-    	}
-    }
-    @Override
-    public void loadingSucceeded() {
-        if (getActivity() != null) {
-        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         }
     }
     

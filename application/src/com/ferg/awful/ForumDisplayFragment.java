@@ -102,8 +102,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
 
-        fragment.setForumId(aForum);
-        fragment.skipLoad(skipLoad);
+        Bundle args = new Bundle();
+        args.putInt(Constants.FORUM_ID, aForum);
+        fragment.setArguments(args);
+        
+        fragment.skipLoad(skipLoad);//we don't care about persisting this
 
         return fragment;
     }
@@ -146,7 +149,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        if(getActivity() instanceof ForumsIndexActivity){
+            setHasOptionsMenu(true);
+        }
     }
     protected int getLoaderId() {
     	//loader ID conflicts suck.
@@ -170,6 +175,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mNextPage.setOnClickListener(onButtonClick);
 			mPrevPage.setOnClickListener(onButtonClick);
 			mRefreshBar.setOnClickListener(onButtonClick);
+			mPageCountText.setOnClickListener(onButtonClick);
 			updatePageBar();
 		}
         return result;
@@ -180,6 +186,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         super.onActivityCreated(aSavedState);
 
         setRetainInstance(false);
+
+        Bundle args = getArguments();
+        if(args != null){
+        	mForumId = args.getInt(Constants.FORUM_ID, 0);
+        }
         
         //parsing forum id
         if(mForumId <1){//we might already have it from newInstance(id), that value overrides the intent values
@@ -227,11 +238,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}
 
 			if (getPage() == getLastPage()) {
-	            mNextPage.setVisibility(View.GONE);
-	            mRefreshBar.setVisibility(View.VISIBLE);
+	            mNextPage.setVisibility(View.INVISIBLE);
 			} else {
 	            mNextPage.setVisibility(View.VISIBLE);
-	            mRefreshBar.setVisibility(View.GONE);
 			}
 		}
 	}
@@ -282,9 +291,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(menu.size() == 0){
-            inflater.inflate(R.menu.forum_display_menu, menu);
-        }
+        inflater.inflate(R.menu.forum_display_menu, menu);
     }
     
     @Override
@@ -437,6 +444,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 case R.id.prev_page:
                 	goToPage(getPage()-1);
                     break;
+                case R.id.page_count:
+                	displayPagePicker();
+                	break;
             }
         }
     };
@@ -469,25 +479,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void loadingFailed() {
+    	super.loadingFailed();
         Log.e(TAG, "Loading failed.");
         if(getActivity() != null){
-        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void loadingStarted() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
-    	}
-    }
-
-    @Override
-    public void loadingSucceeded() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
-    	}
     }
 
     private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
