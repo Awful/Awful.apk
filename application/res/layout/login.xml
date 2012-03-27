@@ -3,7 +3,6 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="@color/background"
     android:padding="10dip"
     android:paddingBottom="0dip"
     >
@@ -19,8 +18,7 @@
         android:id="@+id/prompt_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login with your Awful credentials."
-        android:textColor="#ff000000"
+        android:text="@string/login_message"
         android:textSize="18dip"
         android:layout_alignParentTop="true"
         android:drawableLeft="@drawable/emot_goonsay"
@@ -31,14 +29,14 @@
 		android:layout_height="wrap_content"
         android:layout_below="@id/prompt_msg"
         android:inputType="textNoSuggestions"
-		android:hint="Username"
+		android:hint="@string/username"
 		/>
 	<EditText
 		android:id="@+id/password"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@id/username"
-		android:hint="Password"
+		android:hint="@string/password"
 		android:inputType="textPassword"
 		/>
 	<Button
@@ -50,7 +48,7 @@
         android:drawableRight="@drawable/r_blue_arrow"
         android:padding="15dip"
         android:drawablePadding="15dip"
-		android:text="Login"
+		android:text="@string/login"
 		/>
 
 

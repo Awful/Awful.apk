@@ -119,4 +119,8 @@
     <string name="platinum">Platinum Account</string>
     <string name="platinum_summary">Enable platinum features (but they won\'t work without a platinum account)</string>
     <string name="post_sent">Hope it didn\'t suck...</string>
+    <string name="login_message">Login with your Awful credentials.</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="login">Login</string>
 </resources>

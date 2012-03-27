@@ -46,7 +46,7 @@
             />
         <activity
                 android:name="AwfulLoginActivity"
-                android:windowSoftInputMode="adjustResize"/>
+                android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light"/>
         <activity 
             android:name="ThreadDisplayActivity"
           	android:configChanges="orientation|keyboardHidden|screenSize"
