@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -100,11 +101,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void setActionBar() {
         ActionBar action = getSupportActionBar();
         action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        //action.setTitle(R.string.forums_title);
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);
         mTitleView = (TextView) action.getCustomView();
         mTitleView.setMovementMethod(new ScrollingMovementMethod());
+        getAwfulApplication().setFontFromPreference(mTitleView, 1, Typeface.BOLD);
         action.setDisplayShowCustomEnabled(true);
         action.setDisplayHomeAsUpEnabled(true);
     }
@@ -281,5 +282,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     		mTitleView.setText(aTitle);
     		mTitleView.bringPointIntoView(0);
     	}
+    }
+    
+    public AwfulApplication getAwfulApplication(){
+    	return (AwfulApplication) getApplication();
     }
 }
