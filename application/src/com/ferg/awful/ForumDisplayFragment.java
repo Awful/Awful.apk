@@ -291,7 +291,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forum_display_menu, menu);
+        if(menu.size() == 0){
+        	inflater.inflate(R.menu.forum_display_menu, menu);
+        }
     }
     
     @Override
@@ -434,7 +436,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 case R.id.user_cp:
                 	displayForumContents(Constants.USERCP_ID);
                     break;
-                case R.id.refresh_top:
                 case R.id.refresh:
                 	syncForum();
                     break;

@@ -36,10 +36,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awful.constants.Constants;
@@ -55,6 +56,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
     private boolean skipLoad = false;
+    
     
     private ViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
@@ -89,8 +91,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (isTV()) {
             startTVActivity();
         }else{
-            requestWindowFeature(Window.FEATURE_ACTION_BAR);
-	        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	        
 	        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
 	        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
@@ -138,12 +138,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
     }
 
-    private void setActionBar() {
-        ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        action.setTitle(R.string.forums_title);
-        action.setDisplayHomeAsUpEnabled(true);
-    }
 
     private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
@@ -222,11 +216,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
-	        ActionBar action = getSupportActionBar();
+	        //ActionBar action = getSupportActionBar();
 			switch(arg0){
 			case 0:
 				setActionbarTitle(getString(R.string.forums_title), null);
-		        action.setDisplayShowHomeEnabled(true);
 				break;
 			case 1:
 				if(mForumFragment != null && mForumFragment.getTitle() != null){
@@ -235,13 +228,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 				if(mForumFragment != null){
 					mForumFragment.syncForumsIfStale();
 				}
-		        action.setDisplayShowHomeEnabled(false);
 				break;
 			case 2:
 				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
 					setActionbarTitle(mThreadFragment.getTitle(), null);
 				}
-		        action.setDisplayShowHomeEnabled(false);
 				break;
 			default:
 				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");

@@ -123,4 +123,5 @@
     <string name="password">Password</string>
     <string name="username">Username</string>
     <string name="login">Login</string>
+    <string name="next_page">Next Page</string>
 </resources>

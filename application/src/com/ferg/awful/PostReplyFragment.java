@@ -173,13 +173,6 @@ public class PostReplyFragment extends SherlockDialogFragment {
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
 
-        if (((AwfulActivity) getActivity()).isTV()) {
-            View actionbar = ((ViewStub) result.findViewById(R.id.actionbar)).inflate();
-
-            mTitle   = (TextView) actionbar.findViewById(R.id.title);
-            mSubmit  = (ImageButton) actionbar.findViewById(R.id.submit_button);
-        }
-
         mPrefs = new AwfulPreferences(getActivity());
 
         return result;

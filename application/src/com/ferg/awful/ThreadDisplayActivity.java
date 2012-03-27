@@ -58,12 +58,9 @@ public class ThreadDisplayActivity extends AwfulActivity {
         }).start();
         
 
-        if (isTV()) {
+        if (isTV()) {//TODO this is probably broke as hell.
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setupLeftNavBar(R.layout.thread_action_items, true);
-        } else {
-            requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         }
         setActionBar();
 
@@ -74,12 +71,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
         if(isDualPane()){
         	//TODO autohide code here
         }
-    }
-
-    private void setActionBar() {
-        ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        action.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -100,11 +91,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
 
     public void navigateUp() {
         displayForum(mainWindowFrag.getParentForumId(), 1);
-    }
-
-    public void setThreadTitle(String aTitle) {
-            ActionBar action = getSupportActionBar();
-            action.setTitle(Html.fromHtml(aTitle).toString());
     }
 
     public void displayPostReplyDialog() {

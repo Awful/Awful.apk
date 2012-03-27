@@ -5,20 +5,6 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <ViewStub
-        android:id="@+id/actionbar"
-        android:inflatedId="@+id/actionbar_inflated"
-        android:layout="@layout/actionbar_pm"
-        android:layout_width="fill_parent"
-        android:layout_height="45dip"
-        />
-    <ViewStub
-        android:id="@+id/actionbar_blank"
-        android:inflatedId="@+id/actionbar_blank_inflated"
-        android:layout="@layout/actionbar_blank"
-        android:layout_width="fill_parent"
-        android:layout_height="45dip"
-        />
 	<ListView
 		android:id="@+id/message_listview"
 		android:layout_width="fill_parent"

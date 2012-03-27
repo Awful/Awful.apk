@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/awful_actionbar_title"
+    android:scrollHorizontally="true"
+    android:focusable="false"
+    android:ellipsize="none"
+    android:singleLine="true"
+    android:focusableInTouchMode="true"
+    android:textAppearance="@style/TextAppearance.Sherlock.Widget.ActionBar.Title"
+    android:textSize="@dimen/abs__action_bar_title_text_size"
+    android:text="@string/forums_title"
+    android:textStyle="bold"
+    android:gravity="center_vertical" >
+    
+
+</TextView>

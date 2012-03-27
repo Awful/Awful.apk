@@ -81,13 +81,6 @@ public class PostReplyActivity extends AwfulActivity {
         startActivity(i);
     }
 
-    private void setActionBar() {
-        ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        action.setDisplayHomeAsUpEnabled(true);
-        action.setTitle(R.string.post_reply);
-    }
-
 	public void setContentPane() {
 		if (getSupportFragmentManager().findFragmentById(R.id.replycontent) == null) {
 			PostReplyFragment fragment = PostReplyFragment.newInstance(getIntent().getExtras());

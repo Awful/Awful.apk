@@ -50,7 +50,7 @@ public class ProfileActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         GoogleAnalyticsTracker.getInstance().trackPageView("/ProfileActivity");
         GoogleAnalyticsTracker.getInstance().dispatch();
-        setContentView(R.layout.profile);
+        //setContentView(R.layout.profile);
 
         mFetchTask = new FetchProfileTask();
         mFetchTask.execute(getIntent().getStringExtra(Constants.PARAM_USER_ID));
@@ -97,11 +97,11 @@ public class ProfileActivity extends AwfulActivity {
 
     private void displayProfile(Profile aProfile) {
         TextView title    = (TextView) findViewById(R.id.title);
-        WebView info      = (WebView) findViewById(R.id.profile_body);
+        //WebView info      = (WebView) findViewById(R.id.profile_body);
 
         title.setText(aProfile.getUsername());
 
-        info.loadData(aProfile.getInfo(), "text/html", "utf-8");
+        //info.loadData(aProfile.getInfo(), "text/html", "utf-8");
     }
 
 	private class FetchProfileTask extends AsyncTask<String, Void, Profile> {

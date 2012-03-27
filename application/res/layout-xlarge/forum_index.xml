@@ -5,13 +5,6 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-    <ViewStub
-        android:id="@+id/actionbar"
-        android:inflatedId="@+id/actionbar_inflated"
-        android:layout="@layout/actionbar_index"
-        android:layout_width="fill_parent"
-        android:layout_height="45dip"
-        />
 	<ExpandableListView
 		android:id="@+id/forum_list"
 		android:layout_width="fill_parent"

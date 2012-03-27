@@ -55,6 +55,6 @@ public class ForumsTVActivity extends AwfulActivity {
 
         setContentView(R.layout.forum_index_activity);
 
-        setupLeftNavBar(R.layout.action_options);
+        //setupLeftNavBar(R.layout.action_options);//TODO sooo broke
     }
 }

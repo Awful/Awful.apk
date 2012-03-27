@@ -17,15 +17,18 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Window;
 import com.example.google.tv.leftnavbar.LeftNavBar;
 import com.example.google.tv.leftnavbar.LeftNavBarService;
 
@@ -44,6 +47,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
 
+    private TextView mTitleView;
+    
     private LeftNavBar mLeftNavBar;
     
     @Override
@@ -52,6 +57,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
     }
 
     @Override
@@ -89,10 +96,18 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         return false;//!getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
     }
 
-    /*
-    public static boolean useLegacyActionbar() {//TODO we'll be eliminating this as we go to sherlock
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
-    }*/
+
+    protected void setActionBar() {
+        ActionBar action = getSupportActionBar();
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        //action.setTitle(R.string.forums_title);
+        action.setDisplayShowTitleEnabled(false);
+        action.setCustomView(R.layout.actionbar_title);
+        mTitleView = (TextView) action.getCustomView();
+        mTitleView.setMovementMethod(new ScrollingMovementMethod());
+        action.setDisplayShowCustomEnabled(true);
+        action.setDisplayHomeAsUpEnabled(true);
+    }
 
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
@@ -260,25 +275,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
 				  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
-
-
-    /*TODO this stuff is gonna break the leftnavbar for now, sorry :(
-    public void displayPostReplyDialog(int id, int type) {
-        // TODO: doing this because I don't even
-    }
-    @Override
-    public android.app.ActionBar getActionBar() {
-        if (isTV()) {
-            return getLeftNavBar();
-        }
-
-        return super.getActionBar();
-    }
-    */
+    
     public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
-    	if(aTitle != null){
-	        ActionBar action = getSupportActionBar();
-	        action.setTitle(Html.fromHtml(aTitle).toString());
+    	if(aTitle != null && mTitleView != null){
+    		mTitleView.setText(aTitle);
+    		mTitleView.bringPointIntoView(0);
     	}
     }
 }

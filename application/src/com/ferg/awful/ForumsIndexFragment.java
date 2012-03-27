@@ -244,9 +244,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
                 case R.id.user_cp:
                     displayUserCP();
                     break;
-                case R.id.pm_button:
-                    startActivity(new Intent(getActivity(), PrivateMessageActivity.class));
-                    break;
                 case R.id.refresh:
                 	syncForums();
                     break;

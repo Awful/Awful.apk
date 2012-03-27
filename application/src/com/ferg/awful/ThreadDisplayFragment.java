@@ -448,7 +448,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
     	Log.e(TAG, "onCreateOptionsMenu");
-        inflater.inflate(R.menu.post_menu, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.post_menu, menu);
+    	}
     }
 
     @Override
@@ -706,7 +708,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.next_page:
-                case R.id.next_page_top:
                 	goToPage(getPage() + 1);
                     break;
                 case R.id.prev_page:
@@ -715,7 +716,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 case R.id.reply:
                     displayPostReplyDialog();
                     break;
-                case R.id.refresh_top:
                 case R.id.refresh:
                 	if(imagesLoadingState && mThreadView != null){
                 		mThreadView.stopLoading();

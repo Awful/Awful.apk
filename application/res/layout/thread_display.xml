@@ -12,13 +12,6 @@
         android:orientation="vertical"
         android:layout_weight="1"
         >
-        <ViewStub
-            android:id="@+id/actionbar" 
-            android:inflatedId="@+id/actionbar_inflated"
-            android:layout="@layout/actionbar_thread"
-            android:layout_width="fill_parent"
-            android:layout_height="45dip"
-            />
 
         <FrameLayout
             android:id="@+id/thread_window"
@@ -35,7 +28,6 @@
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_below="@id/actionbar"
                 />
         </FrameLayout>
     </LinearLayout>

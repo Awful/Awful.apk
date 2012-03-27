@@ -9,6 +9,11 @@
 		>
 		<menu>
 			<item
+				android:id="@+id/next_page"
+		        android:title="@string/next_page"
+				android:icon="@drawable/r_arrow"
+		        />
+			<item
 				android:id="@+id/reply"
 		        android:title="@string/post_reply"
 				android:icon="@drawable/new_post"
@@ -35,11 +40,6 @@
 				/>
         </menu>
 	</item>
-	<item
-		android:id="@+id/next_page"
-		android:icon="@drawable/r_arrow"
-        android:showAsAction="ifRoom"
-		/>
     <item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_goto"
