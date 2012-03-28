@@ -9,12 +9,12 @@
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 18pt Verdana, Arial, sans-serif;
+    font: normal normal normal 18pt userselected, Verdana, Arial, sans-serif;
 }
 
 .postdate {
     color: white;
-    font: normal normal normal 14pt Verdana, Arial, sans-serif;
+    font: normal normal normal 14pt userselected, Verdana, Arial, sans-serif;
 }
 
 .userinfo {

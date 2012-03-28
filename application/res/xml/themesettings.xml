@@ -8,6 +8,13 @@
             android:entryValues="@array/schemas_values"
 			android:defaultValue="default"
             />
+            <ListPreference
+            android:key="preferred_font"
+            android:title="@string/select_font"
+            android:entries="@array/themes"
+            android:entryValues="@array/schemas_values"
+			android:defaultValue="fonts/terminus_mono.ttf.mp3"
+            />
         </PreferenceCategory>
           <PreferenceCategory android:title="@string/alternate_backgrounds">
                 <CheckBoxPreference

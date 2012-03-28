@@ -35,6 +35,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.database.*;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.*;
 import android.text.Html;
@@ -295,6 +296,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
+		
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);

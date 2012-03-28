@@ -105,7 +105,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         action.setCustomView(R.layout.actionbar_title);
         mTitleView = (TextView) action.getCustomView();
         mTitleView.setMovementMethod(new ScrollingMovementMethod());
-        getAwfulApplication().setFontFromPreference(mTitleView, 1, Typeface.BOLD);
+        getAwfulApplication().setPreferredFont(mTitleView, Typeface.BOLD);
         action.setDisplayShowCustomEnabled(true);
         action.setDisplayHomeAsUpEnabled(true);
     }
@@ -286,5 +286,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     public AwfulApplication getAwfulApplication(){
     	return (AwfulApplication) getApplication();
+    }
+    
+    public void setPreferredFont(View view, int flags){
+    	if(getApplication() != null){
+    		((AwfulApplication)getApplication()).setPreferredFont(view, flags);
+    	}
     }
 }

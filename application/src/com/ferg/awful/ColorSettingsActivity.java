@@ -35,6 +35,16 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		addPreferencesFromResource(R.xml.themesettings);
 		ListPreference p = (ListPreference) findPreference("themes");
 		p.setSummary(p.getEntry());
+		
+		ListPreference f = (ListPreference) findPreference("preferred_font");
+		String[] fontList = ((AwfulApplication)getApplication()).getFontList();
+		String[] fontNames = new String[fontList.length];
+		for(int x=0; x<fontList.length;x++){
+			fontNames[x] = fontList[x].replaceAll(".mp3", "");
+		}
+		f.setEntries(fontNames);
+		f.setEntryValues(fontList);
+		f.setSummary(f.getEntry());
 
 		if(mPrefs.getString("themes","default").equals("custom")){
             addPreferencesFromResource(R.xml.colorsettings);

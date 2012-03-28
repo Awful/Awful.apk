@@ -103,6 +103,7 @@
             />
         <activity android:name="ImageSettingsActivity"></activity>
         <activity android:name="ThreadInfoSettingsActivity"></activity>
+        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awful.provider.AwfulWebProvider" android:authorities="com.ferg.awful.webprovider"></provider>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

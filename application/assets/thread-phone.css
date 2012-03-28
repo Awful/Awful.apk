@@ -20,7 +20,7 @@ td {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 14pt Verdana, Arial, sans-serif;
+    font: normal normal normal 14pt userselected, Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
@@ -52,7 +52,7 @@ td {
 
 .postdate, .avatar-text {
     color: white;
-    font: normal normal normal 16pt Verdana, Arial, sans-serif;
+    font: normal normal normal 16pt userselected, Verdana, Arial, sans-serif;
 }
 
 .bbc-block h4 {

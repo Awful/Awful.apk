@@ -13,6 +13,7 @@ import com.ferg.awful.thread.AwfulThread;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +60,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulEmote.getView(current, mPrefs, data);
 		}
 		refreshSelector(current, data);
+		mParent.setPreferredFont(current, Typeface.NORMAL);
 	}
 
 	@Override
@@ -88,6 +90,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.loading, parent, false);
 		}
 		refreshSelector(row, data);
+		mParent.setPreferredFont(row, Typeface.NORMAL);
 		return row;
 	}
 	

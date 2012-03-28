@@ -33,6 +33,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.*;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -424,6 +425,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		protected View newChildView(Context context, Cursor cursor,
 				boolean isLastChild, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
+			getAwfulActivity().setPreferredFont(row, Typeface.NORMAL);
 			AwfulForum.getView(row, mPrefs, cursor);
 			showSelector(row, cursor);
 			return row;
@@ -433,6 +435,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		protected View newGroupView(Context context, Cursor cursor,
 				boolean isExpanded, ViewGroup parent) {
 			View row = inf.inflate(R.layout.forum_item, parent, false);
+			getAwfulActivity().setPreferredFont(row, Typeface.NORMAL);
 			AwfulForum.getView(row, mPrefs, cursor);
 			return row;
 		}

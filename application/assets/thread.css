@@ -1,7 +1,12 @@
+@font-face {
+font-family: userselected;
+src: url('content://com.ferg.awful.webprovider/userfont.ttf');
+}
+
 body {
     margin: 0;
     padding: 0;
-    font: 16pt Verdana, Arial, sans-serif
+    font: 16pt userselected, Verdana, Arial, sans-serif
 }
 
 td {
@@ -60,6 +65,7 @@ table {
 
 .username {
     vertical-align: top;
+    font-family: userselected;
     font-style: bold !important;
 }
 
@@ -69,7 +75,7 @@ table {
 
 .userinfo, .post-content {
     color: black;
-    font: normal normal normal 16pt Verdana, Arial, sans-serif;
+    font: normal normal normal 16pt userselected, Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
@@ -83,7 +89,7 @@ table {
 
 .postdate {
     color: black;
-    font: normal normal normal 13pt Verdana, Arial, sans-serif;
+    font: normal normal normal 13pt userselected, Verdana, Arial, sans-serif;
 }
 
 .action-button {
@@ -131,7 +137,7 @@ table {
 
 .number {
     top: 1px;
-    font: bold 36pt Verdana, Arial, sans-serif;
+    font: bold 36pt userselected, Verdana, Arial, sans-serif;
     text-shadow: 1px 1px 1px #444;
     color: #eee;
     position: relative;

@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -168,6 +169,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mListView.setDrawingCacheEnabled(true);
         
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
