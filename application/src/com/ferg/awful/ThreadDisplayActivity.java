@@ -45,15 +45,11 @@ import android.view.MotionEvent;
 import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class ThreadDisplayActivity extends AwfulActivity implements OnDoubleTapListener, OnGestureListener {
+public class ThreadDisplayActivity extends AwfulActivity {
     private static final String TAG = "ThreadDisplayActivities";
     private ForumDisplayFragment sidebarFrag;
     private ThreadDisplayFragment mainWindowFrag;
     private boolean sidebarVisible;
-    
-    private GestureDetector gestDetect;
-    
-    private Handler mHandler = new Handler();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,8 +74,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnDoubleTapL
         sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
         sidebarVisible = sidebarFrag != null;
         if(isDualPane()){
-        	gestDetect = new GestureDetector(this, this);
-        	gestDetect.setOnDoubleTapListener(this);
+        	//TODO autohide
         }
     }
 
@@ -184,64 +179,4 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnDoubleTapL
 		return sidebarVisible;
 	}
 	
-	
-
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return gestDetect.onTouchEvent(event);
-	}
-
-	@Override
-	public boolean onDoubleTap(MotionEvent e) {
-		toggleSidebar();
-		return true;
-	}
-
-	@Override
-	public boolean onDoubleTapEvent(MotionEvent e) {
-		return false;
-	}
-
-	@Override
-	public boolean onSingleTapConfirmed(MotionEvent e) {
-		return false;
-	}
-
-	@Override
-	public boolean onDown(MotionEvent e) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-			float velocityY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void onLongPress(MotionEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-			float distanceY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void onShowPress(MotionEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean onSingleTapUp(MotionEvent e) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }
