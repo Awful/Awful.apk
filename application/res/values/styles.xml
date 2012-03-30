@@ -15,10 +15,15 @@
         <item name="android:layout_height">1px</item>
         <item name="android:background">#8c8c8c</item>
     </style>
-    <style name="VerticalGradient">
+    <style name="VerticalGradientRight">
         <item name="android:layout_width">15dip</item>
         <item name="android:layout_height">fill_parent</item>
-        <item name="android:background">@drawable/gradient</item>
+        <item name="android:background">@drawable/gradient_right</item>
+    </style>
+    <style name="VerticalGradientLeft">
+        <item name="android:layout_width">15dip</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@drawable/gradient_left</item>
     </style>
     <style name="ActionBarSeparator">
         <item name="android:layout_width">1px</item>
@@ -51,17 +56,6 @@
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowRadius">0.2</item>
-    </style>
-
-    <!-- Older platforms don't have Theme.Holo.DialogWhenLarge; we will define
-         our own wrapper theme that uses it only when running on the appropriate
-         platform version.  On older platforms, we always use the generic
-         fullscreen theme, because they don't support some feature that help
-         in correctly laying out an activity as a dialog. -->
-    <style name="ThemeDialogWhenLarge" parent="android:style/Theme.NoTitleBar">
-    </style>
-
-    <style name="CustomActionBar" parent="android:style/Theme.Holo.Light">
     </style>
     
     <!-- QuickActions -->

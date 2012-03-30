@@ -131,7 +131,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
-        preferredFont			 = mPrefs.getString("preferred_font", "");
+        preferredFont			 = mPrefs.getString("preferred_font", "default");
        	 //TODO: I have never seen this before oh god
 	}
 }

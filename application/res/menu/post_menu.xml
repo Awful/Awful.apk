@@ -4,7 +4,7 @@
 	>
 	<item
 		android:id="@+id/thread_actions"
-		android:icon="@drawable/ic_action_example"
+		android:icon="@drawable/macyos_logo"
         android:showAsAction="always"
 		>
 		<menu>

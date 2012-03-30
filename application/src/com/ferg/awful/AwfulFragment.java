@@ -52,4 +52,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
     	}
     }
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		if(getAwfulActivity() != null){
+			getAwfulActivity().updateActionbarTheme();
+		}
+	}
+    
 }

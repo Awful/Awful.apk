@@ -125,10 +125,20 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         mForumList.setOnChildClickListener(onForumSelected);
         mForumList.setOnGroupClickListener(onParentForumSelected);
         mForumList.setOnItemLongClickListener(onForumLongclick);
+        if(isDualPane()){
+        	result.findViewById(R.id.split_gradient_right).setVisibility(View.VISIBLE);
+        }
         return result;
     }
 
-    @Override
+    private boolean isDualPane() {
+    	if(getActivity() instanceof ForumsIndexActivity){
+    		return ((ForumsIndexActivity)getAwfulActivity()).isDualPane();
+    	}
+    	return false;
+	}
+
+	@Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
@@ -321,8 +331,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
+		super.onPreferenceChange(mPrefs);
 		if(mForumList != null){
+			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
 			mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
+			mCursorAdapter.notifyDataSetChanged();
 		}
 	}
 	

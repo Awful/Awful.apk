@@ -100,14 +100,24 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 
     protected void setActionBar() {
         ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);
         mTitleView = (TextView) action.getCustomView();
         mTitleView.setMovementMethod(new ScrollingMovementMethod());
-        getAwfulApplication().setPreferredFont(mTitleView, Typeface.BOLD);
+        updateActionbarTheme();
         action.setDisplayShowCustomEnabled(true);
         action.setDisplayHomeAsUpEnabled(true);
+    }
+    
+    protected void updateActionbarTheme(){
+        ActionBar action = getSupportActionBar();
+        //action.setLogo(R.drawable.macinyos_left);
+        //action.setDisplayUseLogoEnabled(true);
+        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.macyos_titles));
+        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        //mTitleView.setBackgroundColor(0xffffffff);
+        //mTitleView.setTextColor(0xff000000);
+        getAwfulApplication().setPreferredFont(mTitleView, Typeface.NORMAL);
     }
 
 	@Override
@@ -278,9 +288,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
     
     public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
-    	if(aTitle != null && mTitleView != null){
-    		mTitleView.setText(aTitle);
-    		mTitleView.bringPointIntoView(0);
+    	if(aTitle != null && mTitleView != null && aTitle.length()>0){
+    		mTitleView.setText(Html.fromHtml(aTitle));
+    		if(mTitleView.getLayout() != null){
+    			mTitleView.bringPointIntoView(0);
+    		}
     	}
     }
     
@@ -289,7 +301,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
     
     public void setPreferredFont(View view, int flags){
-    	if(getApplication() != null){
+    	if(getApplication() != null && view != null){
     		((AwfulApplication)getApplication()).setPreferredFont(view, flags);
     	}
     }

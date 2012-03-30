@@ -327,7 +327,9 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:1)' href='file:///android_asset/thread-mdpi.css' />");
             buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:.75)' href='file:///android_asset/thread-mdpi.css' />");
         }
-
+        
+        buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awful.webprovider/"+aPrefs.preferredFont+"'); }</style>");
+        
         buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>");
         buffer.append("<script type='text/javascript'>");
         buffer.append("  window.JSON = null;");

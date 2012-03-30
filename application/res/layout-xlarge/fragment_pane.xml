@@ -31,7 +31,7 @@
                 />
         </RelativeLayout>
         <ImageView
-            style="@style/VerticalGradient"
+            style="@style/VerticalGradientRight"
             />
     </RelativeLayout>
 </LinearLayout>

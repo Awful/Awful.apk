@@ -5,14 +5,26 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-	<ExpandableListView
-		android:id="@+id/forum_list"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-        android:divider="#8c8c8c"
-        android:dividerHeight="1px"
-        android:groupIndicator="@null"
-		android:cacheColorHint="@color/background"
-        android:choiceMode="singleChoice"
-		/>
+    <RelativeLayout
+        android:id="@+id/index_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        >
+		<ExpandableListView
+			android:id="@+id/forum_list"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+	        android:divider="#8c8c8c"
+	        android:dividerHeight="1px"
+	        android:groupIndicator="@null"
+			android:cacheColorHint="@color/background"
+	        android:choiceMode="singleChoice"
+			/>
+        <ImageView
+        	android:visibility="gone"
+        	android:layout_alignParentRight="true"
+            android:id="@+id/split_gradient_right"
+            style="@style/VerticalGradientLeft"
+            />
+    </RelativeLayout>
 </LinearLayout>

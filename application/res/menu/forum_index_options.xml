@@ -3,7 +3,7 @@
 	>
 	<item
 		android:id="@+id/user_cp"
-		android:icon="@drawable/gear"
+		android:icon="@drawable/macyos_logo"
 		android:showAsAction="always" 
         android:title="@string/usercp"
         />
@@ -16,7 +16,6 @@
         android:id="@+id/pm" 
         android:icon="@android:drawable/sym_action_email"
         android:title="@string/private_message"
-        android:showAsAction="ifRoom" 
         />
 	<item
 		android:id="@+id/settings"

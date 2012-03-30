@@ -120,6 +120,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 	
 	private void processFonts(){
 		fonts.clear();
+		fonts.put("default",Typeface.defaultFromStyle(Typeface.NORMAL));
 		try {
 			String[] files = getAssets().list("fonts");
 			for(String file : files){

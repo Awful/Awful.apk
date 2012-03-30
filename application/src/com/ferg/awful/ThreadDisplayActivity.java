@@ -33,18 +33,27 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 
 import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class ThreadDisplayActivity extends AwfulActivity {
+public class ThreadDisplayActivity extends AwfulActivity implements OnDoubleTapListener, OnGestureListener {
     private static final String TAG = "ThreadDisplayActivities";
     private ForumDisplayFragment sidebarFrag;
     private ThreadDisplayFragment mainWindowFrag;
     private boolean sidebarVisible;
+    
+    private GestureDetector gestDetect;
+    
+    private Handler mHandler = new Handler();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +78,8 @@ public class ThreadDisplayActivity extends AwfulActivity {
         sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
         sidebarVisible = sidebarFrag != null;
         if(isDualPane()){
-        	//TODO autohide code here
+        	gestDetect = new GestureDetector(this, this);
+        	gestDetect.setOnDoubleTapListener(this);
         }
     }
 
@@ -172,5 +182,66 @@ public class ThreadDisplayActivity extends AwfulActivity {
 
 	public boolean isSidebarVisible() {
 		return sidebarVisible;
+	}
+	
+	
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		return gestDetect.onTouchEvent(event);
+	}
+
+	@Override
+	public boolean onDoubleTap(MotionEvent e) {
+		toggleSidebar();
+		return true;
+	}
+
+	@Override
+	public boolean onDoubleTapEvent(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean onDown(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

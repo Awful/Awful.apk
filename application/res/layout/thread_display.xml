@@ -17,13 +17,8 @@
             android:id="@+id/thread_window"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
-
-            <ImageView
-                android:id="@+id/snapshot"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                />
-            <com.ferg.awful.widget.SnapshotWebView
+            
+            <WebView
                 android:background="@color/background"
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"

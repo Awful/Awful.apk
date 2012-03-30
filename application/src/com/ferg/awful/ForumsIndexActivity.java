@@ -281,7 +281,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         return;
     }
 
-    private boolean isDualPane() {
+    public boolean isDualPane() {
         return mSecondPane;
     }
     
