@@ -82,7 +82,6 @@ import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulPost;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
-import com.ferg.awful.widget.SnapshotWebView;
 
 /**
  * Uses intent extras:
@@ -108,7 +107,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ProgressDialog mDialog;
     private ViewGroup mThreadWindow;
 
-    private SnapshotWebView mThreadView;
+    private WebView mThreadView;
     
     private boolean imagesLoadingState;
     private boolean threadLoadingState;
@@ -302,8 +301,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		mThreadView = (SnapshotWebView) result.findViewById(R.id.thread);
-		mSnapshotView = (ImageView) result.findViewById(R.id.snapshot);
+		mThreadView = (WebView) result.findViewById(R.id.thread);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		initThreadViewProperties();
 		mNextPage.setOnClickListener(onButtonClick);
@@ -339,7 +337,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		mThreadView.setSnapshotView(mSnapshotView);
+		mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
@@ -385,7 +383,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onResume(); Log.e(TAG, "Resume");
         
         if (mThreadWindow.getChildCount() < 2) {
-            mThreadView = new SnapshotWebView(getActivity());
+            mThreadView = new WebView(getActivity());
 
             initThreadViewProperties();
 
@@ -965,6 +963,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
+		super.onPreferenceChange(mPrefs);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
 		refreshPosts();
 	}
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent"
+        android:id="@+id/secondary_title_bar"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:background="@drawable/page_bottom_bg" >
+        <ImageButton
+                android:id="@+id/move_up"
+                style="@style/ActionBarButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                 android:layout_weight="0.1"
+                android:src="@drawable/quickaction_arrow_up"
+                 />
+
+        <TextView
+            android:id="@+id/second_titlebar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:padding="2dp"
+            android:shadowColor="#070707"
+            android:shadowDx="0"
+            android:shadowDy="-1"
+            android:shadowRadius="0.2"
+            android:singleLine="true"
+            android:textColor="#eeeeee"
+            android:textSize="22dip"
+            android:textStyle="bold" />
+
+</LinearLayout>

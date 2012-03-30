@@ -44,6 +44,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -88,7 +89,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
+    private ImageButton mMoveUp;
     private TextView mPageCountText;
+    private TextView mSecondaryTitle;
+	private ImageButton mToggleSidebar;
     
     private Cursor[] combinedCursors = new Cursor[2];
     
@@ -97,6 +101,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private int mLastPage = 1;
     private String mTitle;
     private boolean skipLoad = false;
+    private int mParentForumId = 0;
     
     private long lastRefresh;
 
@@ -147,6 +152,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -173,13 +179,21 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		if(mPrevPage != null){
-			mNextPage.setOnClickListener(onButtonClick);
-			mPrevPage.setOnClickListener(onButtonClick);
-			mRefreshBar.setOnClickListener(onButtonClick);
-			mPageCountText.setOnClickListener(onButtonClick);
-			updatePageBar();
+		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
+		mToggleSidebar.setOnClickListener(onButtonClick);
+		mToggleSidebar.setImageResource(R.drawable.quickaction_arrow_up);
+		mNextPage.setOnClickListener(onButtonClick);
+		mPrevPage.setOnClickListener(onButtonClick);
+		mRefreshBar.setOnClickListener(onButtonClick);
+		mPageCountText.setOnClickListener(onButtonClick);
+		if(getAwfulActivity() instanceof ThreadDisplayActivity){
+			result.findViewById(R.id.split_gradient_right).setVisibility(View.VISIBLE);
+			result.findViewById(R.id.secondary_title_bar).setVisibility(View.VISIBLE);
+			mSecondaryTitle = (TextView) result.findViewById(R.id.second_titlebar);
+			mMoveUp = (ImageButton) result.findViewById(R.id.move_up);
+			mMoveUp.setOnClickListener(onButtonClick);
 		}
+		updatePageBar();
         return result;
     }
 
@@ -237,6 +251,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				mPrevPage.setVisibility(View.INVISIBLE);
 			} else {
 				mPrevPage.setVisibility(View.VISIBLE);
+			}
+			
+			if(mMoveUp != null){
+				if(mForumId != 0){
+					mMoveUp.setVisibility(View.VISIBLE);
+				}else{
+					mMoveUp.setVisibility(View.INVISIBLE);
+				}
 			}
 
 			if (getPage() == getLastPage()) {
@@ -433,10 +455,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
 
 	private View.OnClickListener onButtonClick = new View.OnClickListener() {
-        public void onClick(View aView) {
+
+		public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.user_cp:
-                	displayForumContents(Constants.USERCP_ID);
+                case R.id.move_up:
+                	displayForumContents(mParentForumId);
                     break;
                 case R.id.refresh:
                 	syncForum();
@@ -449,6 +472,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                     break;
                 case R.id.page_count:
                 	displayPagePicker();
+                	break;
+                case R.id.toggle_sidebar:
                 	break;
             }
         }
@@ -506,6 +531,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
+		super.onPreferenceChange(mPrefs);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
@@ -696,12 +723,20 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(!aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
+                mParentForumId = aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID));
             	if(getActivity() != null){
             		getAwfulActivity().setActionbarTitle(mTitle, ForumDisplayFragment.this);
             	}
+            	if(mSecondaryTitle != null){
+            		mSecondaryTitle.setText(Html.fromHtml(mTitle));
+            	}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
-        		updatePageBar();
         	}
+
+			if(mForumId == 0 && mSecondaryTitle != null){
+				mSecondaryTitle.setText(R.string.forums_title);
+			}
+			updatePageBar();
         }
         
         @Override
