@@ -1,8 +1,3 @@
-@font-face {
-font-family: userselected;
-src: url('content://com.ferg.awful.webprovider/userfont.ttf');
-}
-
 body {
     margin: 0;
     padding: 0;
