@@ -305,4 +305,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     		((AwfulApplication)getApplication()).setPreferredFont(view, flags);
     	}
     }
+    
+    public static boolean isHoneycomb(){
+    	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
 }

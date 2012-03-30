@@ -54,14 +54,3 @@ function scrollLastRead(){
     }
 }
 
-$(window).scroll(function () { 
-	var minBound = $(window).scrollTop();
-	var maxBound = $(window).scrollTop()+$(window).height()*2;
-  $("img").each(function (){
-  	if($(this).offset().top > maxBound || ($(this).offset().top + $(this).height()) < minBound){
-  		$(this).css("visibility", "hidden");
-  	}else{
-  		$(this).css("visibility", "visible");
-  	}
-  });
-});

@@ -62,6 +62,7 @@ import android.widget.TextView;
 
 import org.json.*;
 
+import com.ferg.awful.AwfulActivity;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.network.NetworkUtils;
@@ -331,9 +332,23 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awful.webprovider/"+aPrefs.preferredFont+"'); }</style>");
         
         buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>");
-        buffer.append("<script type='text/javascript'>");
-        buffer.append("  window.JSON = null;");
-        buffer.append("</script>");
+        
+        //this is a workaround for animation performance issues. it's only needed for honeycomb/ICS
+        if(AwfulActivity.isHoneycomb()){
+	        buffer.append("<script type='text/javascript'>");
+	        buffer.append("$(window).scroll(function () { ");
+	        buffer.append("var minBound = $(window).scrollTop()-$(window).height();");
+	        buffer.append("var maxBound = $(window).scrollTop()+$(window).height()*2;");
+	        buffer.append("$(\"img\").each(function (){");
+	        buffer.append("if($(this).offset().top > maxBound || ($(this).offset().top + $(this).height()) < minBound){");
+	        buffer.append("$(this).css(\"visibility\", \"hidden\");");
+      		buffer.append("}else{");
+      		buffer.append("$(this).css(\"visibility\", \"visible\");");
+	        buffer.append("}});});");
+	        buffer.append("</script>");
+        }
+        
+        
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>");
         buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>");
