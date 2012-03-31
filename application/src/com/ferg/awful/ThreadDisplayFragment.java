@@ -112,8 +112,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean imagesLoadingState;
     private boolean threadLoadingState;
 
-    private int mPage = 1;
     private int mThreadId = 0;
+    private int mUserId = 0;
+    private int mPage = 1;
     private int mLastPage = 0;
     private int mParentForumId = 0;
     private int mReplyDraftSaved = 0;
@@ -127,6 +128,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private String mTitle = null;
     
 	private String mPostJump = "";
+	private int savedPage = 0;//for reverting from "Find posts by"
 	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -591,7 +593,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private void syncThread() {
         if(getActivity() != null){
         	dataLoaded = false;
-        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage());
+        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage(), Integer.valueOf(mUserId));
         }
     }
     
@@ -680,6 +682,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             case ClickInterface.COPY_URL:
             	copyThreadURL(aPostId);
             	break;
+            case ClickInterface.READ_POSTS:
+            	if(mUserId == 0){
+	            	Cursor data = getActivity().getContentResolver().query(ContentUris.withAppendedId(AwfulPost.CONTENT_URI, Long.parseLong(aPostId)), 
+	            														   AwfulProvider.PostProjection, 
+	            														   null, 
+	            														   null, 
+	            														   null);
+	            	if(data.moveToFirst()){
+	            		selectUser(data.getInt(data.getColumnIndex(AwfulPost.USER_ID)));
+	            	}
+            	}else{
+            		deselectUser();
+            	}
+            	break;
         }
 
         return false;
@@ -757,11 +773,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     public void displayPostReplyDialog(Bundle aArgs) {
     	startActivityForResult(new Intent(getActivity(), PostReplyActivity.class).putExtras(aArgs), PostReplyFragment.RESULT_POSTED);
-    	/*
-            PostReplyFragment fragment = PostReplyFragment.newInstance(aArgs);
-            fragment.setTargetFragment(this, PostReplyFragment.RESULT_POSTED);
-            fragment.show(getActivity().getSupportFragmentManager(), "post_reply_dialog");
-    */}
+    }
     
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
     	TextView draftAlertMsg = new TextView(getActivity());
@@ -898,18 +910,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int LAST_READ = 1;
         public static final int EDIT      = 2;
 		public static final int COPY_URL = 3;
+		public static final int READ_POSTS = 4;
 
         final CharSequence[] mEditablePostItems = {
             "Quote", 
             "Mark last read",
             "Edit Post",
-            "Copy Post URL"
+            "Copy Post URL",
+            "Read Posts by this User"
         };
         final CharSequence[] mPostItems = {
-            "Quote", 
+            "Quote",
             "Mark last read",
             "Send Private Message",
-            "Copy Post URL"
+            "Copy Post URL",
+            "Read Posts by this User"
         };
 
         // Post ID is the item tapped
@@ -995,6 +1010,26 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void setThreadId(int aThreadId){
 		mThreadId = aThreadId;
 	}
+	
+	public void selectUser(int id){
+		savedPage = mPage;
+		mUserId = id;
+		setPage(1);
+		mLastPage = 1;
+		mPostJump = "";
+        mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+        syncThread();
+	}
+	
+	public void deselectUser(){
+		mUserId = 0;
+		setPage(savedPage);
+		mLastPage = 0;
+		mPostJump = "";
+        mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+        syncThread();
+	}
+	
 	public int getLastPage() {
         return mLastPage;
 	}
@@ -1120,6 +1155,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        getLoaderManager().destroyLoader(getThreadId());
     	}
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+		mUserId = 0;
     	setPage(page);
     	dataLoaded = false;
     	mLastPage = 1;

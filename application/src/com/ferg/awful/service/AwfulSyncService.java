@@ -127,7 +127,7 @@ public class AwfulSyncService extends Service {
                     unregisterClient(aMsg.arg1);
                     break;
                 case MSG_SYNC_THREAD:
-                    queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
+                    queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj, mPrefs));
                     break;
                 case MSG_SYNC_FORUM:
                 	syncForum(aMsg.arg1, aMsg.arg2);

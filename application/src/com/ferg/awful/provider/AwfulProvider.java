@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -180,6 +180,17 @@ public class AwfulProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase aDb) {
+        	createForumTable(aDb);
+        	createThreadTable(aDb);
+        	createUCPTable(aDb);
+        	createPostTable(aDb);
+        	createEmoteTable(aDb);
+        	createPMTable(aDb);
+        	createDraftTable(aDb);
+        }
+        	
+        	
+    	public void createForumTable(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_FORUM + " (" +
                 AwfulForum.ID      + " INTEGER UNIQUE," + 
                 AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index)
@@ -187,7 +198,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR,"        + 
                 AwfulForum.PAGE_COUNT + " INTEGER);");
-            
+    	}
+        public void createThreadTable(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
@@ -205,18 +217,22 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.TAG_URL      + " VARCHAR,"    + 
                 AwfulThread.TAG_CACHEFILE + " VARCHAR,"   +
             	UPDATED_TIMESTAMP   + " DATETIME);");
+    	}
+        public void createUCPTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
                 AwfulThread.INDEX      + " INTEGER," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
+    	}
+        public void createPostTable(SQLiteDatabase aDb) {
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
                 AwfulPost.THREAD_ID             + " INTEGER,"        + 
                 AwfulPost.POST_INDEX            + " INTEGER,"        + 
                 AwfulPost.DATE                  + " VARCHAR,"        + 
-                AwfulPost.USER_ID               + " VARCHAR,"        + 
+                AwfulPost.USER_ID               + " INTEGER,"        + 
                 AwfulPost.USERNAME              + " VARCHAR,"        +
                 AwfulPost.PREVIOUSLY_READ       + " INTEGER,"        +
                 AwfulPost.EDITABLE              + " INTEGER,"        +
@@ -228,6 +244,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
                 AwfulPost.EDITED                + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
+    	}
+        public void createEmoteTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
@@ -235,6 +253,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
                 AwfulEmote.URL   	 + " VARCHAR,"     + 
                 AwfulEmote.CACHEFILE + " VARCHAR);");
+    	}
+        public void createPMTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +
                 AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
@@ -244,6 +264,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.UNREAD      + " INTEGER,"   + 
                 AwfulMessage.DATE + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
+    	}
+        public void createDraftTable(SQLiteDatabase aDb) {
             
             
             aDb.execSQL("CREATE TABLE " + TABLE_DRAFTS + " ("    +
@@ -264,8 +286,15 @@ public class AwfulProvider extends ContentProvider {
         
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
-        	dropAllTables(aDb);
-            onCreate(aDb);
+        	switch(aOldVersion){
+        	case 16:
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+            	createPostTable(aDb);
+        		break;
+    		default:
+    			dropAllTables(aDb);
+                onCreate(aDb);
+        	}
         }
         
         private void dropAllTables(SQLiteDatabase aDb){

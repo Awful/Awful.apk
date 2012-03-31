@@ -50,12 +50,12 @@ public class MarkLastReadTask extends AwfulTask {
                 
                 //update unread count
                 Cursor threadData = resolv.query(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mId), AwfulProvider.ThreadProjection, null, null, null);
-                if(threadData.getCount()>0){
+                if(threadData.getCount()>0 && threadData.moveToFirst()){
 	                ContentValues thread_update = new ContentValues();
 	                thread_update.put(AwfulThread.UNREADCOUNT, threadData.getInt(threadData.getColumnIndex(AwfulThread.POSTCOUNT)) - mArg1);
-	                mContext.getContentResolver().update(AwfulPost.CONTENT_URI, 
+	                mContext.getContentResolver().update(AwfulThread.CONTENT_URI, 
 	                									thread_update, 
-								                		AwfulPost.THREAD_ID+"=?", 
+	                									AwfulThread.ID+"=?", 
 								                		AwfulProvider.int2StrArray(mId));
                 }
             } catch (Exception e) {

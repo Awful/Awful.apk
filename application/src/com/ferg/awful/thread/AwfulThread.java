@@ -240,11 +240,12 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static void getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs) throws Exception {
+    public static void getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
+        params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
 
         TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params);
         ContentValues thread = new ContentValues();
@@ -290,7 +291,12 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
 			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
 		}
-    	int replycount = Math.max(totalReplies, AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0));
+		int replycount;
+		if(aUserId > 0){
+			replycount = AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0);
+		}else{
+			replycount = Math.max(totalReplies, AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0));
+		}
     	Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
     	
     	thread.put(AwfulThread.POSTCOUNT, replycount);
@@ -333,6 +339,9 @@ public class AwfulThread extends AwfulPagedItem  {
         
         buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>");
         
+        buffer.append("<script type='text/javascript'>");
+        buffer.append("  window.JSON = null;");
+        buffer.append("</script>");
         //this is a workaround for animation performance issues. it's only needed for honeycomb/ICS
         if(AwfulActivity.isHoneycomb()){
 	        buffer.append("<script type='text/javascript'>");
