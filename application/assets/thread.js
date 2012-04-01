@@ -1,12 +1,26 @@
 var prefs = JSON.parse(preferences);
 
 $(document).ready(function() {
-    $('.action-button').live('click', function(event) {
-        if ($(this).hasClass("editable")) {
-            listener.onEditablePostClick($(this).attr('id'), $(this).attr('lastreadurl'));
-        } else {
-            listener.onPostClick($(this).attr('id'), $(this).attr('lastreadurl'), $(this).attr('username'));
-        }
+    $('.quote_button').live('click', function(event) {
+        listener.onQuoteClick($(this).attr('id'));
+    });
+    $('.edit_button').live('click', function(event) {
+        listener.onEditClick($(this).attr('id'));
+    });
+    $('.more_button').live('click', function(event) {
+        listener.onMoreClick($(this).attr('id'), $(this).attr('username'), $(this).attr('userid'));
+    });
+    $('.sendpm_button').live('click', function(event) {
+        listener.onSendPMClick($(this).attr('username'));
+    });
+    $('.lastread_button').live('click', function(event) {
+        listener.onLastReadClick($(this).attr('lastreadurl'));
+    });
+    $('.copyurl_button').live('click', function(event) {
+        listener.onCopyUrlClick($(this).attr('id'));
+    });
+    $('.userposts_button').live('click', function(event) {
+        listener.onUserPostsClick($(this).attr('id'));
     });
     if(prefs.showSpoilers){
     $('.bbc-spoiler').removeAttr('onmouseover');
@@ -17,11 +31,9 @@ $(document).ready(function() {
     $('.bbc-spoiler').mouseout ( function(){ this.style.color=this.style.backgroundColor=prefs.postcolor;});
     }
 
-	$('.userinfo').click(function(event) {
+	$('.user-button').click(function(event) {
 	  $(this).parent().children('.avatar-text').toggle();
-	});
-	$('.avatar').click(function(event) {
-	  $(this).parent().children('.avatar-text').toggle();
+	  $(this).closest('tr').find('.button-row').toggle();
 	});
 	
     var salr = new SALR(prefs);

@@ -3,10 +3,14 @@ package com.ferg.awful;
 import java.util.LinkedList;
 
 import com.ferg.awful.constants.Constants;
+import com.ferg.awful.network.NetworkUtils;
 import com.ferg.awful.service.AwfulSyncService;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.pm.PackageManager;
@@ -23,6 +27,7 @@ import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -52,6 +57,29 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     private LeftNavBar mLeftNavBar;
     
+    private boolean isActive = false;
+    private BroadcastReceiver br = new BroadcastReceiver(){
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(Constants.UNREGISTERED_BROADCAST)){
+				clearCookies();
+				if(isActive){
+					Toast.makeText(AwfulActivity.this, "You are logged out!", Toast.LENGTH_LONG).show();
+					reauthenticate();
+				}
+			}
+		}
+    };
+    
+    private void clearCookies(){
+        NetworkUtils.clearLoginCookies(this);
+    }
+    
+    private void reauthenticate(){
+        startActivity(new Intent(this, AwfulLoginActivity.class));
+    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +88,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
     }
 
     @Override
@@ -72,12 +101,14 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onResume() {
         super.onResume();
         mConf.onResume();
+        isActive = true;
     }
     
     @Override
     protected void onPause() {
         super.onPause();
         mConf.onPause();
+        isActive = false;
     }
     
     @Override
@@ -91,6 +122,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         super.onDestroy();
         mConf.onDestroy();
         unbindService(this);
+        unregisterReceiver(br);
     }
 
     public boolean isTV() {

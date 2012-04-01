@@ -51,8 +51,8 @@
 
         <ImageView
             android:id="@+id/thread_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="15dp"
             android:layout_marginRight="6dip"
             android:layout_marginTop="4dip"
             android:layout_below="@id/title"

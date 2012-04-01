@@ -125,9 +125,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         mForumList.setOnChildClickListener(onForumSelected);
         mForumList.setOnGroupClickListener(onParentForumSelected);
         mForumList.setOnItemLongClickListener(onForumLongclick);
-        if(isDualPane()){
-        	result.findViewById(R.id.split_gradient_right).setVisibility(View.VISIBLE);
-        }
         return result;
     }
 

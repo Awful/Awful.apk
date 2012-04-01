@@ -415,6 +415,7 @@ public class AwfulProvider extends ContentProvider {
         String table = null;
 		int result = 0;
 		String id_row = null;
+		String unique_match = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -427,6 +428,7 @@ public class AwfulProvider extends ContentProvider {
             case POST:
                 table = TABLE_POSTS;
                 id_row = AwfulPost.ID;
+                unique_match = AwfulPost.POST_INDEX+"=? AND "+AwfulPost.THREAD_ID+"=?";
                 break;
             case THREAD:
                 table = TABLE_THREADS;
@@ -450,6 +452,9 @@ public class AwfulProvider extends ContentProvider {
 
 		try {
 			for (ContentValues value : aValues) {
+				if(unique_match != null){
+					db.delete(table, unique_match, int2StrArray(value.getAsInteger(AwfulPost.POST_INDEX), value.getAsInteger(AwfulPost.THREAD_ID)));
+				}
 				try{
 					db.insertOrThrow(table, "", value);
 				}catch(SQLException sqle){

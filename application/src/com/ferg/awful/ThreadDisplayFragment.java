@@ -642,64 +642,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             .show();
         
     }
-
-    private boolean onPostActionItemSelected(int aItem, String aPostId, int aLastReadIndex, String aUsername) {
-        switch (aItem) {
-            case ClickInterface.EDIT:
-            	if (aUsername != null){
-            		//TODO update this I guess
-                        MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
-            	}else{
-                    Bundle args = new Bundle();
-
-                    args.putInt(Constants.THREAD_ID, mThreadId);
-                    args.putInt(Constants.EDITING, AwfulMessage.TYPE_EDIT);
-                    args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
-
-
-                    if(mReplyDraftSaved >0){
-                    	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
-                    }else{
-                        displayPostReplyDialog(args);
-                    }
-            	}
-                return true;
-            case ClickInterface.QUOTE:
-                Bundle args = new Bundle();
-                args.putInt(Constants.THREAD_ID, mThreadId);
-                args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
-                args.putInt(Constants.EDITING, AwfulMessage.TYPE_QUOTE);
-
-                if(mReplyDraftSaved >0){
-                	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
-                }else{
-                    displayPostReplyDialog(args);
-                }
-                return true;
-            case ClickInterface.LAST_READ:
-            	markLastRead(aLastReadIndex);
-                return true;
-            case ClickInterface.COPY_URL:
-            	copyThreadURL(aPostId);
-            	break;
-            case ClickInterface.READ_POSTS:
-            	if(mUserId == 0){
-	            	Cursor data = getActivity().getContentResolver().query(ContentUris.withAppendedId(AwfulPost.CONTENT_URI, Long.parseLong(aPostId)), 
-	            														   AwfulProvider.PostProjection, 
-	            														   null, 
-	            														   null, 
-	            														   null);
-	            	if(data.moveToFirst()){
-	            		selectUser(data.getInt(data.getColumnIndex(AwfulPost.USER_ID)));
-	            	}
-            	}else{
-            		deselectUser();
-            	}
-            	break;
-        }
-
-        return false;
-    }
     
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
@@ -906,75 +848,96 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
 
     private class ClickInterface {
-        public static final int QUOTE     = 0;
-        public static final int LAST_READ = 1;
-        public static final int EDIT      = 2;
-		public static final int COPY_URL = 3;
-		public static final int READ_POSTS = 4;
-
-        final CharSequence[] mEditablePostItems = {
-            "Quote", 
-            "Mark last read",
-            "Edit Post",
-            "Copy Post URL",
-            "Read Posts by this User"
-        };
+        public static final int SEND_PM  = 0;
+        public static final int COPY_URL = 1;
+        public static final int USER_POSTS = 2;
+		
         final CharSequence[] mPostItems = {
-            "Quote",
-            "Mark last read",
             "Send Private Message",
             "Copy Post URL",
             "Read Posts by this User"
         };
+        
+        public void onQuoteClick(final String aPostId) {
+        	Bundle args = new Bundle();
+            args.putInt(Constants.THREAD_ID, mThreadId);
+            args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
+            args.putInt(Constants.EDITING, AwfulMessage.TYPE_QUOTE);
 
-        // Post ID is the item tapped
-        public void onPostClick(final String aPostId, final String aLastReadUrl, final String aUsername) {
-            new AlertDialog.Builder(getActivity())
-                .setTitle("Select an Action")
-                .setItems(mPostItems, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, Integer.parseInt(aLastReadUrl), aUsername);
-                    }
-                })
-                .show();
+            if(mReplyDraftSaved >0){
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+            }else{
+                displayPostReplyDialog(args);
+            }
+        }
+        
+        public void onLastReadClick(final String aLastReadUrl) {
+        	markLastRead(Integer.parseInt(aLastReadUrl));
+        }
+
+        public void onSendPMClick(final String aUsername) {
+    		//TODO update this I guess
+            MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
         }
 
         // Post ID is the item tapped
-        public void onEditablePostClick(final String aPostId, final String aLastReadUrl) {
-            new AlertDialog.Builder(getActivity())
-                .setTitle("Select an Action")
-                .setItems(mEditablePostItems, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface aDialog, int aItem) {
-                        onPostActionItemSelected(aItem, aPostId, Integer.parseInt(aLastReadUrl), null);
-                    }
-                })
-                .show();
-        }
+        public void onEditClick(final String aPostId) {
+        	Bundle args = new Bundle();
 
-        public void onPreviousPageClick() {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    goToPage(getPage() - 1);
-                }
-            });
-        }
+            args.putInt(Constants.THREAD_ID, mThreadId);
+            args.putInt(Constants.EDITING, AwfulMessage.TYPE_EDIT);
+            args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
 
-        public void onNextPageClick() {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    goToPage(getPage() + 1);
-                }
-            });
-        }
 
-        public void onRefreshPageClick() {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    refresh();
+            if(mReplyDraftSaved >0){
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+            }else{
+                displayPostReplyDialog(args);
+            }
+        }
+        
+        public void onMoreClick(final String aPostId, final String aUsername, final String aUserId) {
+        	new AlertDialog.Builder(getActivity())
+            .setTitle("Select an Action")
+            .setItems(mPostItems, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface aDialog, int aItem) {
+                    onPostActionItemSelected(aItem, aPostId, aUsername, aUserId);
                 }
-            });
+            })
+            .show();
+        }
+        
+        public void onCopyUrlClick(final String aPostId) {
+        	copyThreadURL(aPostId);
+        }
+        
+        public void onUserPostsClick(final String aUserId) {
+        	if(mUserId >0){
+        		deselectUser();
+        	}else{
+        		selectUser(Integer.parseInt(aUserId));
+        	}
         }
     }
+    
+	private void onPostActionItemSelected(int aItem,
+			String aPostId, String aUsername, String aUserId) {
+		switch(aItem){
+		case ClickInterface.SEND_PM:
+            MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
+			break;
+		case ClickInterface.COPY_URL:
+        	copyThreadURL(aPostId);
+			break;
+		case ClickInterface.USER_POSTS:
+			if(mUserId >0){
+        		deselectUser();
+        	}else{
+        		selectUser(Integer.parseInt(aUserId));
+        	}
+			break;
+		}
+	}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {

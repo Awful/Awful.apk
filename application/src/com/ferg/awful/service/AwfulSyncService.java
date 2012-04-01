@@ -218,9 +218,17 @@ public class AwfulSyncService extends Service {
 					TagNode threads = null;
                     if(mId == Constants.USERCP_ID){
                     	threads = AwfulThread.getUserCPThreads(mArg1);
+                		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
+                        	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
+                        	return false;
+                		}
                         AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
                     }else{
                     	threads = AwfulThread.getForumThreads(mId, mArg1);
+                		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
+                        	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
+                        	return false;
+                        }
                         AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
                     }
                 } catch (Exception e) {

@@ -381,7 +381,6 @@ public class AwfulPost {
         try {
         	aThread = convertVideos(aThread);
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
-			boolean fyad = false;
 
             for (TagNode node : postNodes) {
             	//fyad status, to prevent processing postbody twice if we are in fyad
@@ -429,20 +428,7 @@ public class AwfulPost {
 						post.put(AVATAR_TEXT, pc.getText().toString().trim());
 					}
 
-					if (pc.getAttributeByName("class").contains("complete_shit")) {
-						StringBuffer fixedContent = new StringBuffer();
-						Matcher fixCharMatch = fixCharacters_regex.matcher(NetworkUtils.getAsString(pc));
-
-                        while (fixCharMatch.find()) {
-                            fixCharMatch.appendReplacement(fixedContent, "");
-                        }
-
-						fixCharMatch.appendTail(fixedContent);
-	                    post.put(CONTENT, fixedContent.toString());
-	                    fyad = true;
-					}
-
-					if (pc.getAttributeByName("class").equalsIgnoreCase("postbody") && !fyad) {
+					if (pc.getAttributeByName("class").equalsIgnoreCase("postbody") || pc.getAttributeByName("class").contains("complete_shit")) {
 						TagNode[] images = pc.getElementsByName("img", true);
 
 						for(TagNode img : images){
@@ -452,6 +438,9 @@ public class AwfulPost {
 
 							if ((parent != null && parent.getName().equals("a")) || (img.hasAttribute("class") && img.getAttributeByName("class").contains("nolink"))) { //image is linked, don't override
 								dontLink = true;
+							}
+							if(src.contains(".gif")){
+								img.setAttribute("class", (img.hasAttribute("class") ? img.getAttributeByName("class")+" " : "") + "gif");
 							}
 
 							if (img.hasAttribute("title")) {
@@ -501,7 +490,7 @@ public class AwfulPost {
 					}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
-						post.put(DATE, pc.getText().toString().replaceAll("[^\\w\\s:,]", "").trim());
+						post.put(DATE, NetworkUtils.unencodeHtml(pc.getText().toString()).replaceAll("[^\\w\\s:,]", "").trim());
 					}
 					
 					if (pc.getAttributeByName("class").equalsIgnoreCase("profilelinks")) {

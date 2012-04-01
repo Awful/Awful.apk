@@ -50,6 +50,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String imgurThumbnails;
 	public boolean newThreadsFirst;
 	public String preferredFont;
+	public String theme;
 
 	/**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
@@ -132,6 +133,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
+        theme					 = mPrefs.getString("selected_theme", "macinyos");
        	 //TODO: I have never seen this before oh god
 	}
 }

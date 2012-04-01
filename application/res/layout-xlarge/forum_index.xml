@@ -21,7 +21,6 @@
 	        android:choiceMode="singleChoice"
 			/>
         <ImageView
-        	android:visibility="gone"
         	android:layout_alignParentRight="true"
             android:id="@+id/split_gradient_right"
             style="@style/VerticalGradientLeft"

@@ -27,6 +27,7 @@
 
 package com.ferg.awful.constants;
 
+import android.content.Intent;
 import android.graphics.Color;
 
 public class Constants {
@@ -96,6 +97,7 @@ public class Constants {
     public static final String AUTHORITY = "com.ferg.awful.provider";
     
     //broadcast intent
+	public static final String UNREGISTERED_BROADCAST = "com.ferg.awful.service.not_registered";
     public static final String DATA_UPDATE_BROADCAST = "com.ferg.awful.service.dataupdated";
 	public static final String DATA_UPDATE_ID_EXTRA = "updatedID";
 	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";

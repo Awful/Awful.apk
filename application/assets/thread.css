@@ -55,7 +55,6 @@ table {
     vertical-align: top;
     border-width: 1px;
     border-collapse: collapse;
-    margin-right: 110px;
 }
 
 .username {
@@ -105,6 +104,20 @@ table {
     text-align: center;
     margin-top: 15px;
     padding-bottom: 5px;
+}
+
+.avatar-text img {
+    float: right;
+    margin: 5px;
+    width: 140px;
+    height: 30px;
+}
+
+.button-row img {
+    float: right;
+    margin: 5px;
+    width: 140px;
+    height: 30px;
 }
 
 .usercolumn {
