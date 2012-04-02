@@ -27,23 +27,32 @@
 
 package com.ferg.awful;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.text.ClipboardManager;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewStub;
 import android.view.ViewGroup;
 import android.widget.*;
+import android.widget.AdapterView.OnItemClickListener;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -62,7 +71,7 @@ import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPost;
 
-public class PostReplyFragment extends SherlockDialogFragment {
+public class PostReplyFragment extends SherlockDialogFragment implements OnClickListener {
     private static final String TAG = "PostReplyActivity";
 
     public static final int RESULT_POSTED = 1;
@@ -172,7 +181,8 @@ public class PostReplyFragment extends SherlockDialogFragment {
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-
+        result.findViewById(R.id.bbcode).setOnClickListener(this);
+        result.findViewById(R.id.emotes).setOnClickListener(this);
         mPrefs = new AwfulPreferences(getActivity());
 
         return result;
@@ -238,9 +248,104 @@ public class PostReplyFragment extends SherlockDialogFragment {
             inflater.inflate(R.menu.post_reply, menu);
     }
     
-    @Override
+    private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
+    	public String[] items = new String[]{
+    			"Bold", "Italics", "Underline", "Strikeout", "URL", "Image", "Quote", "Spoiler", "Code"
+    	};
+		ListView mListView;
+		@Override
+		public View onCreateView(LayoutInflater inflater,
+				ViewGroup container, Bundle savedInstanceState) {
+			super.onCreateView(inflater, container, savedInstanceState);
+			mListView = new ListView(getActivity());
+			mListView.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, items));
+			mListView.setOnItemClickListener(this);
+			return mListView;
+		}
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+			switch((int)arg3) {
+	        case 0:
+	        	insertBBCode(BBCODE.BOLD);
+	            break;
+	        case 1:
+	        	insertBBCode(BBCODE.ITALICS);
+	            break;
+	        case 2:
+	        	insertBBCode(BBCODE.UNDERLINE);
+	            break;
+	        case 3:
+	        	insertBBCode(BBCODE.STRIKEOUT);
+	            break;
+	        case 4:
+	        	insertBBCode(BBCODE.URL);
+	            break;
+	        case 5:
+	        	insertBBCode(BBCODE.IMAGE);
+	            break;
+	        case 6:
+	        	insertBBCode(BBCODE.QUOTE);
+	            break;
+	        case 7:
+	        	insertBBCode(BBCODE.SPOILER);
+	            break;
+	        case 8:
+	        	insertBBCode(BBCODE.CODE);
+	            break;
+			}
+			dismiss();
+		}
+		
+	};
+	
+	private int selectionStart = -1;
+	private int selectionEnd = -1;
+	
+	@Override
+	public void onClick(View v) {
+		if(v.getId() == R.id.bbcode){
+			selectionStart = mMessage.getSelectionStart();//work around the ICS text selection actionbar, bane of my existence
+			selectionEnd = mMessage.getSelectionEnd();
+			BBCodeFragment fragment = new BBCodeFragment();
+	        fragment.show(getActivity().getSupportFragmentManager(), "select_bbcode_dialog");
+		}
+		if(v.getId() == R.id.emotes){
+			Toast.makeText(v.getContext(), "EMOTIONALLY UNAVAILABLE", Toast.LENGTH_LONG).show();
+		}
+	}
+    
+    private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, IMAGE, QUOTE, SPOILER, CODE};
+
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+	        case R.id.bbcode_bold:
+	        	insertBBCode(BBCODE.BOLD);
+	            break;
+	        case R.id.bbcode_italics:
+	        	insertBBCode(BBCODE.ITALICS);
+	            break;
+	        case R.id.bbcode_underline:
+	        	insertBBCode(BBCODE.UNDERLINE);
+	            break;
+	        case R.id.bbcode_strikeout:
+	        	insertBBCode(BBCODE.STRIKEOUT);
+	            break;
+	        case R.id.bbcode_url:
+	        	insertBBCode(BBCODE.URL);
+	            break;
+	        case R.id.bbcode_image:
+	        	insertBBCode(BBCODE.IMAGE);
+	            break;
+	        case R.id.bbcode_quote:
+	        	insertBBCode(BBCODE.QUOTE);
+	            break;
+	        case R.id.bbcode_spoiler:
+	        	insertBBCode(BBCODE.SPOILER);
+	            break;
+	        case R.id.bbcode_code:
+	        	insertBBCode(BBCODE.CODE);
+	            break;
             case R.id.submit_button:
                 postReply();
                 break;
@@ -249,6 +354,87 @@ public class PostReplyFragment extends SherlockDialogFragment {
         }
 
         return true;
+    }
+    
+    public void insertBBCode(BBCODE code){
+    	if(selectionStart < 0){//we might be getting this from an earlier point
+	    	selectionStart = mMessage.getSelectionStart();
+	    	selectionEnd = mMessage.getSelectionEnd();
+    	}
+    	boolean highlighted = selectionStart != selectionEnd;
+    	String startTag = null;
+    	String endTag = null;
+    	switch(code){
+    	case BOLD:
+    		startTag = "[b]";
+    		endTag = "[/b]";
+    		break;
+    	case ITALICS:
+    		startTag = "[i]";
+    		endTag = "[/i]";
+    		break;
+    	case UNDERLINE:
+    		startTag = "[u]";
+    		endTag = "[/u]";
+    		break;
+    	case STRIKEOUT:
+    		startTag = "[s]";
+    		endTag = "[/s]";
+    		break;
+    	case URL:
+    		/* clipboard code, probably need to implement an alertdialog for this
+    		String link = null;
+    		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+    			ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+    			String copy = String.valueOf(cb.getText());
+    			if(copy.startsWith("http://") || copy.startsWith("https://")){
+    				link = copy;
+    			}
+    		}else{
+    			android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+    			String copy = String.valueOf(cb.getText());
+    			if(copy.startsWith("http://") || copy.startsWith("https://")){
+    				link = copy;
+    			}
+    		}
+    		if(link != null){
+    			startTag = "[url="+link+"]";
+    		}else{
+    			startTag = "[url]";
+    		}
+    		*/
+			startTag = "[url]";
+    		endTag = "[/url]";
+    		break;
+    	case QUOTE:
+    		startTag = "[quote]";
+    		endTag = "[/quote]";
+    		break;
+    	case IMAGE:
+    		startTag = "[img]";
+    		endTag = "[/img]";
+    		break;
+    	case SPOILER:
+    		startTag = "[spoiler]";
+    		endTag = "[/spoiler]";
+    		break;
+    	case CODE:
+    		startTag = "[code]";
+    		endTag = "[/code]";
+    		break;
+    	}
+    	if(startTag != null && endTag != null){
+    		if(highlighted){
+    			mMessage.getEditableText().insert(selectionStart, startTag);
+    			mMessage.getEditableText().insert(selectionEnd+startTag.length(), endTag);
+    			mMessage.setSelection(selectionStart+startTag.length());
+    		}else{
+    			mMessage.getEditableText().insert(selectionStart, startTag+endTag);
+    			mMessage.setSelection(selectionStart+startTag.length());
+    		}
+    	}
+    	selectionStart = -1;//reset them for next time
+    	selectionEnd = -1;
     }
     
     @Override

@@ -8,7 +8,7 @@
 	<EditText
 		android:id="@+id/post_message"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
 		android:layout_marginTop="10dip"
 		android:layout_above="@+id/submit_button"
 		android:singleLine="false"
@@ -17,5 +17,45 @@
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
         android:textColor="@color/default_post_font"
         android:textCursorDrawable="@null"
+        android:layout_weight="1"
+        android:isScrollContainer="true"
 		/>
+    <LinearLayout 
+        android:orientation="horizontal"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:background="@drawable/page_bottom_bg">
+        <TextView 
+            android:id="@+id/bbcode"
+            android:text="BBCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+		    android:paddingTop="1dp"
+		    android:paddingBottom="1dp"
+            android:gravity="center"
+            android:shadowColor="#070707"
+            android:shadowDx="0"
+            android:shadowDy="-1"
+            android:shadowRadius="0.2"
+            android:textColor="#eeeeee"
+            android:textSize="22dip"
+            android:layout_weight="1"
+            android:textStyle="bold"/>
+        <TextView 
+            android:id="@+id/emotes"
+            android:text="Emotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+		    android:paddingTop="1dp"
+		    android:paddingBottom="1dp"
+            android:gravity="center"
+            android:shadowColor="#070707"
+            android:shadowDx="0"
+            android:shadowDy="-1"
+            android:shadowRadius="0.2"
+            android:textColor="#eeeeee"
+            android:textSize="22dip"
+            android:layout_weight="1"
+            android:textStyle="bold"/>
+    </LinearLayout>
 </LinearLayout>

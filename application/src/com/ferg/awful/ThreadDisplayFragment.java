@@ -720,7 +720,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
     	TextView draftAlertMsg = new TextView(getActivity());
     	if(timeStamp != null){
-    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     	    try {
 				Date d = sdf.parse(timeStamp);
@@ -756,6 +756,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     ContentResolver cr = getActivity().getContentResolver();
                     cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
                     displayPostReplyDialog(aArgs);
+                }
+            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface aDialog, int aWhich) {
+                    ContentResolver cr = getActivity().getContentResolver();
+                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+                    mReplyDraftSaved = 0;
                 }
             })
             .show();

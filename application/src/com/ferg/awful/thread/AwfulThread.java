@@ -345,9 +345,9 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:1)' href='file:///android_asset/thread-mdpi.css' />");
             buffer.append("<link rel='stylesheet' media='screen and (-webkit-device-pixel-ratio:.75)' href='file:///android_asset/thread-mdpi.css' />");
         }
-        
-        buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awful.webprovider/"+aPrefs.preferredFont+"'); }</style>");
-        
+        if(!aPrefs.preferredFont.contains("default")){
+        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awful.webprovider/"+aPrefs.preferredFont+"'); }</style>");
+        }
         buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>");
         
         buffer.append("<script type='text/javascript'>");
@@ -441,12 +441,13 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
-            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_more.png' />");
-            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_last_read.png' />");
-            buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
             if(post.isEditable()){
             	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_edit.png' />");
+            }else{
+            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
             }
+            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_last_read.png' />");
+            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_more.png' />");
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("</tr>");
@@ -496,7 +497,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		<div class='avatar'>");
 
             if (aPrefs.imagesEnabled != false && post.getAvatar() != null) {
-                buffer.append("            <img src='" + post.getAvatar() + "' />");
+                buffer.append("            <img class='gif' style='outline:black double;' src='" + post.getAvatar() + "' />");
             }else{
                 buffer.append("            <img src='file:///android_res/drawable/post_action_icon.png' />");
             }
@@ -504,23 +505,24 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		</div>");
             buffer.append("        </div>");
             buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
-            
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
-            buffer.append("            " + post.getContent());
-            buffer.append("        </div>");
             buffer.append("    		<div class='button-row' style='display: none; width: 100%;'>");
-            buffer.append("    			<hr/>");
-            buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
+            buffer.append("        		<div style='height:34px' >");
             if(post.isEditable()){
             	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_edit.png' />");
+            }else{
+            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
             }
             buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_last_read.png' />");
             buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_more.png' />");
-
+            buffer.append("        		</div>");
+            buffer.append("    			<hr />");
             buffer.append("    		</div>");
+            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("            " + post.getContent());
+            buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("</tr>");
         }

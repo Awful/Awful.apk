@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bbcode"
+        android:title="@string/bbcode"
+		android:icon="@drawable/ic_action_example"
+		android:showAsAction="always" 
+		>
+		<menu>
+        <item
+			android:id="@+id/bbcode_bold"
+			android:title="Bold"
+	        />
+        <item
+			android:id="@+id/bbcode_italics"
+			android:title="Italics"
+	        />
+        <item
+			android:id="@+id/bbcode_underline"
+			android:title="Underline"
+	        />
+        <item
+			android:id="@+id/bbcode_strikeout"
+			android:title="Strikeout"
+	        />
+        <item
+			android:id="@+id/bbcode_image"
+			android:title="Image Tag"
+	        />
+        <item
+			android:id="@+id/bbcode_url"
+			android:title="Insert URL"
+	        />
+        <item
+			android:id="@+id/bbcode_quote"
+			android:title="Quote Block"
+	        />
+        <item
+			android:id="@+id/bbcode_spoiler"
+			android:title="Spoiler Block"
+	        />
+        <item
+			android:id="@+id/bbcode_code"
+			android:title="Code Block"
+	        />
+     </menu>
+    </item>
 	<item
 		android:id="@+id/submit_button"
 		android:icon="@drawable/action_bar_send_submit"
