@@ -3,28 +3,28 @@
 	>
 	<item
 		android:id="@+id/user_cp"
-		android:icon="@drawable/macyos_logo"
+		android:icon="@drawable/menu_bookmark"
 		android:showAsAction="always" 
         android:title="@string/usercp"
         />
     <item
 		android:id="@+id/refresh"
-		android:icon="@drawable/ic_menu_refresh"
+		android:icon="@drawable/menu_refresh"
 		android:title="@string/refresh" 
 		/>
     <item 
         android:id="@+id/pm" 
-        android:icon="@android:drawable/sym_action_email"
+        android:icon="@drawable/menu_mail"
         android:title="@string/private_message"
         />
 	<item
 		android:id="@+id/settings"
-		android:icon="@drawable/ic_menu_preferences"
+		android:icon="@drawable/menu_settings"
 		android:title="@string/settings" 
 		/>
     <item
 		android:id="@+id/logout"
-		android:icon="@drawable/ic_menu_logout"
+		android:icon="@drawable/menu_logout"
 		android:title="@string/logout" 
 		/>
     

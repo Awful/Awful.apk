@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-  <PreferenceCategory android:title="@string/image_settings">
+  <PreferenceCategory android:title="@string/threadinfo_settings">
 		<CheckBoxPreference 
             android:key="threadinfo_author" 
 			android:title="@string/threadinfo_author"

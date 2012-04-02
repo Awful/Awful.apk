@@ -146,7 +146,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         //action.setLogo(R.drawable.macinyos_left);
         //action.setDisplayUseLogoEnabled(true);
         //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.macyos_titles));
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
+        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         //mTitleView.setBackgroundColor(0xffffffff);
         //mTitleView.setTextColor(0xff000000);
         getAwfulApplication().setPreferredFont(mTitleView, Typeface.NORMAL);

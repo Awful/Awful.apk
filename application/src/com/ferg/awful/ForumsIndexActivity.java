@@ -350,5 +350,20 @@ public class ForumsIndexActivity extends AwfulActivity {
     		super.displayThread(id, page, forumId, forumPg);
     	}
     }
+
+
+	@Override
+	public void displayUserCP() {
+		displayForum(Constants.USERCP_ID,1);
+	}
+
+
+	@Override
+	public void displayForumIndex() {
+		if(mViewPager != null){
+			mViewPager.setCurrentItem(0);
+		}
+	}
+    
 }
 

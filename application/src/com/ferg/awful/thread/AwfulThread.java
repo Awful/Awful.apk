@@ -426,7 +426,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%;"+(post.isOp()?"background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postOPColor):"")+"'>");
             buffer.append("        <div class='user-button' >");
-            buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
+            buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
@@ -437,7 +437,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("            </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='action-button' >");
-            buffer.append("            <img src='file:///android_res/drawable/post_action_icon.png' />");
+            buffer.append("            <img src='file:///android_res/drawable/menu_more.png' />");
             buffer.append("        </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
@@ -496,7 +496,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		</div>");
             buffer.append("        		<div class='avatar'>");
 
-            if (aPrefs.imagesEnabled != false && post.getAvatar() != null) {
+            if (aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null) {
                 buffer.append("            <img class='gif' style='outline:black double;' src='" + post.getAvatar() + "' />");
             }else{
                 buffer.append("            <img src='file:///android_res/drawable/post_action_icon.png' />");

@@ -37,14 +37,13 @@ td {
 .action-button {
     float: right;
     vertical-align: middle;
-    margin-right: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    padding: 12px;
+    padding-left: 20px;
 
 }
 
 .userinfo-row {
-    background: #006699;
+    background: #000000;
     width:100%;
     overflow: auto;
 }

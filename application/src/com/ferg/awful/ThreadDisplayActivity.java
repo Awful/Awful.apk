@@ -62,11 +62,6 @@ public class ThreadDisplayActivity extends AwfulActivity {
             }
         }).start();
         
-
-        if (isTV()) {//TODO this is probably broke as hell.
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setupLeftNavBar(R.layout.thread_action_items, true);
-        }
         setActionBar();
 
         setContentView(R.layout.thread_display_activity);

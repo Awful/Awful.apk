@@ -59,7 +59,6 @@ table {
 
 .username {
     vertical-align: top;
-    font-family: userselected;
     font-style: bold !important;
 }
 
@@ -89,9 +88,6 @@ table {
 .action-button {
     float: right;
     vertical-align: middle;
-    margin-right: 12px;
-    margin-top: 12px;
-    margin-bottom: 20px;
 }
 
 .userinfo {

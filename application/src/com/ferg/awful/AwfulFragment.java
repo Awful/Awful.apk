@@ -26,6 +26,24 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
         mPrefs.unregisterCallback(this);
         mPrefs.unRegisterListener();
     }
+    
+    protected void displayForumIndex(){
+    	if(getActivity() != null){
+    		getAwfulActivity().displayForumIndex();
+    	}
+    }
+    
+    protected void displayForumContents(int aId) {
+    	if(getActivity() != null){
+    		getAwfulActivity().displayForum(aId, 1);
+    	}
+    }
+    
+    protected void displayThread(int aId, int aPage, int forumId, int forumPage) {
+    	if(getActivity() != null){
+    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage);
+    	}
+    }
 	
 	
 	public AwfulActivity getAwfulActivity(){

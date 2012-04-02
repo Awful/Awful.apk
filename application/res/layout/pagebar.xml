@@ -7,7 +7,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/page_bottom_bg" >
+            android:background="#FF000000" >
 
             <ImageButton
                  android:id="@+id/prev_page"
@@ -16,16 +16,16 @@
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
                  android:layout_weight="1"
-                 style="@style/ActionBarButton"/>
-			<ImageButton
-			    android:id="@+id/toggle_sidebar"
-			    style="@style/ActionBarButton"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_centerInParent="true"
-               	android:visibility="invisible"
+                 style="@style/ActionBarButton"/>
+            
+            <ImageButton
+                android:id="@+id/refresh"
+                style="@style/ActionBarButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                  android:layout_weight="1"
-			    android:src="@drawable/ic_action_threads" />
+                android:src="@drawable/default_load"
+                 />
             <TextView
                 android:id="@+id/page_count"
                 android:layout_width="wrap_content"
@@ -34,25 +34,22 @@
 			    android:paddingTop="1dp"
 			    android:paddingBottom="1dp"
                 android:gravity="center"
-                android:shadowColor="#070707"
-                android:shadowDx="0"
-                android:shadowDy="-1"
-                android:shadowRadius="0.2"
-                android:textColor="#eeeeee"
+                android:textColor="#CCFFFFFF"
                 android:textSize="22dip"
                  android:layout_weight="1"
                 android:textStyle="bold"
                 android:clickable="true" />
             
-            <ImageButton
-                android:id="@+id/refresh"
-                style="@style/ActionBarButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+			<ImageButton
+			    android:id="@+id/toggle_sidebar"
+			    style="@style/ActionBarButton"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
+               	android:visibility="invisible"
                  android:layout_weight="1"
-                android:src="@drawable/stat_notify_sync"
-                 />
-            
+			    android:src="@drawable/overflow" />
+			
             <ImageButton
                  android:id="@+id/next_page"
                  android:layout_height="wrap_content"

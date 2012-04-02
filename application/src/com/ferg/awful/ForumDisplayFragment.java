@@ -181,7 +181,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
-		mToggleSidebar.setImageResource(R.drawable.quickaction_arrow_up);
+        mToggleSidebar.setImageResource(R.drawable.menu_refresh);
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
@@ -247,10 +247,22 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void updatePageBar(){
 		if(mPageCountText != null){
 			mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+    		mRefreshBar.setVisibility(View.VISIBLE);
+            mNextPage.setVisibility(View.VISIBLE);
+			mPrevPage.setVisibility(View.VISIBLE);
+			mToggleSidebar.setVisibility(View.INVISIBLE);
 			if (getPage() <= 1) {
-				mPrevPage.setVisibility(View.INVISIBLE);
-			} else {
-				mPrevPage.setVisibility(View.VISIBLE);
+				mPrevPage.setVisibility(View.GONE);
+				mToggleSidebar.setVisibility(View.GONE);
+			}
+			if (getPage() == getLastPage()) {
+	            mNextPage.setVisibility(View.GONE);
+	            if(getPage() != 1){
+		    		mRefreshBar.setVisibility(View.GONE);
+					mToggleSidebar.setVisibility(View.VISIBLE);//this is acting as a refresh button
+	            }else{
+	    			mToggleSidebar.setVisibility(View.INVISIBLE);//if we are at page 1/1, we already have the refresh button on the other side
+	            }
 			}
 			
 			if(mMoveUp != null){
@@ -261,11 +273,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				}
 			}
 
-			if (getPage() == getLastPage()) {
-	            mNextPage.setVisibility(View.INVISIBLE);
-			} else {
-	            mNextPage.setVisibility(View.VISIBLE);
-			}
+			
 		}
 	}
 
@@ -321,10 +329,28 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
     
     @Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		MenuItem ucp = menu.findItem(R.id.user_cp);
+		if(ucp != null){
+			if(mForumId == Constants.USERCP_ID){
+				ucp.setIcon(R.drawable.menu_home);
+				ucp.setTitle(R.string.forums_title);
+			}else{
+				ucp.setIcon(R.drawable.menu_bookmark);
+				ucp.setTitle(R.string.user_cp);
+			}
+		}
+	}
+    
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
 	        case R.id.user_cp:
-	        	displayForumContents(Constants.USERCP_ID);
+	        	if(getForumId() != Constants.USERCP_ID){
+	        		displayForumContents(Constants.USERCP_ID);
+	        	}else{
+	        		displayForumIndex();
+	        	}
 	            return true;
             case R.id.settings:
                 startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -385,7 +411,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
     
     private void viewThread(int id, int page){
-    	getAwfulActivity().displayThread(id, page, getForumId(), getPage());
+    	displayThread(id, page, getForumId(), getPage());
     }
 
     private void copyUrl(int id) {
@@ -461,6 +487,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 case R.id.move_up:
                 	displayForumContents(mParentForumId);
                     break;
+                case R.id.toggle_sidebar://this switches between being a refresh button and being hidden depending on page number.
                 case R.id.refresh:
                 	syncForum();
                     break;
@@ -472,8 +499,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                     break;
                 case R.id.page_count:
                 	displayPagePicker();
-                	break;
-                case R.id.toggle_sidebar:
                 	break;
             }
         }
@@ -497,13 +522,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             }
         }
     };
-
-    private void displayForumContents(int aId) {
-    	if(getActivity() != null){
-    		getAwfulActivity().displayForum(aId, 1);
-    	}
-    }
-
     
     @Override
     public void loadingFailed() {
@@ -579,6 +597,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
 	    		mListView.setAdapter(mCursorAdapter);
 	    	}
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+				getActivity().invalidateOptionsMenu();
+			}
 	        getAwfulActivity().registerSyncService(mMessenger, getForumId());
 			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
 			refreshInfo();

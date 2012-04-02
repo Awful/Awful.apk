@@ -68,7 +68,7 @@
                     android:id="@+id/hide_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_action_example" />
+                    android:src="@drawable/menu_drop_down" />
         	</LinearLayout>
         </LinearLayout>
         <WebView

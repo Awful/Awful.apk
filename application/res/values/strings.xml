@@ -12,7 +12,7 @@
     <string name="quote">Quote</string>
     <string name="edit">Edit</string>
     <string name="forums_title">Forums</string>
-    <string name="user_cp">User Control Panel</string>
+    <string name="user_cp">Bookmarks</string>
     <string name="post_reply">Post Reply</string>
     <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
     <string name="login_failed">Login failed!</string>
@@ -86,6 +86,7 @@
 	<string name="find">Find on Page</string>
 	<string name="load_images">Load Images</string>
 	<string name="load_images_summary">If disabled, images are replaced with links.</string>
+	<string name="load_avatars">Show Avatars</string>
 	<string name="read_post_background2_color">Read Post Alternate Color</string>
 	<string name="select_forum">Select a forum</string>
 	<string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
@@ -107,6 +108,7 @@
 	<string name="show_smilies">Show Emotes</string>
 	<string name="show_smilies_summary">Show emotes or replace with :text: version.</string>
 	<string name="threadinfo">Thread info</string>
+	<string name="threadinfo_settings">Thread info Settings</string>
 	<string name="imgur_thumbnails">Imgur Thumbnails</string>
 	<string name="vote_failed">An error occured while voting, please try again</string>
 	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>

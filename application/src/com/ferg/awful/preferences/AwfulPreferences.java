@@ -34,6 +34,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postOPColor;
 	public int postLinkQuoteColor;
 	public boolean imagesEnabled;
+	public boolean avatarsEnabled;
 	public boolean showSmilies;
 	public boolean hideOldImages;
 	public boolean alternateBackground;
@@ -117,6 +118,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     	postOPColor              = mPrefs.getInt("op_post_color", mContext.getResources().getColor(R.color.op_post));
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
+        avatarsEnabled            = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
         postPerPage              = Math.min(mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE), Constants.ITEMS_PER_PAGE);//can't make the preference page honor a max value

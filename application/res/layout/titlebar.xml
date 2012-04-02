@@ -5,7 +5,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:visibility="gone"
-        android:background="@drawable/page_bottom_bg" >
+        android:background="#FF000000" >
         <ImageButton
                 android:id="@+id/move_up"
                 style="@style/ActionBarButton"
@@ -25,12 +25,8 @@
             android:ellipsize="marquee"
             android:gravity="center"
             android:padding="2dp"
-            android:shadowColor="#070707"
-            android:shadowDx="0"
-            android:shadowDy="-1"
-            android:shadowRadius="0.2"
             android:singleLine="true"
-            android:textColor="#eeeeee"
+            android:textColor="#CCFFFFFF"
             android:textSize="22dip"
             android:textStyle="bold" />
 
