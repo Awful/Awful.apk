@@ -54,6 +54,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String theme;
 	public int postDividerColor;
 	public int postHeaderBackgroundColor;
+	public boolean upperNextArrow;
 
 	/**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
@@ -140,6 +141,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         theme					 = mPrefs.getString("selected_theme", "default");
+        upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
        	 //TODO: I have never seen this before oh god
 	}
 }

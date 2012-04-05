@@ -103,6 +103,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private boolean skipLoad = false;
     private int mParentForumId = 0;
     
+    private static final int buttonSelectedColor = 0xa0ff7f00;
+    
     private long lastRefresh;
 
     public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
@@ -134,10 +136,22 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             				getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
             				lastRefresh = System.currentTimeMillis();
             			}
+            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	                    	mRefreshBar.setColorFilter(0);
+	                    	mToggleSidebar.setColorFilter(0);
+            			}
             			loadingSucceeded();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
+            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	                    	mRefreshBar.setColorFilter(0);
+	                    	mToggleSidebar.setColorFilter(0);
+            			}
             			loadingFailed();
             		}else if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
+            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	                    	mRefreshBar.setColorFilter(buttonSelectedColor);
+	                    	mToggleSidebar.setColorFilter(buttonSelectedColor);
+            			}
             			loadingStarted();
             		}
                     break;

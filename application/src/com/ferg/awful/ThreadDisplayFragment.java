@@ -129,6 +129,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	private String mPostJump = "";
 	private int savedPage = 0;//for reverting from "Find posts by"
+	private int savedScrollPosition = 0;
 	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -148,6 +149,25 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     handleStatusUpdate(aMsg.arg1);
                     if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
                     	refreshPosts();
+                    }
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+                    	if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
+                    		if(getPage() == getLastPage()){
+                    			mNextPage.setColorFilter(buttonSelectedColor);
+                    		}else if(getPage() <= 1){
+                    			mPrevPage.setColorFilter(buttonSelectedColor);
+                    		}else{
+                    			mRefreshBar.setColorFilter(buttonSelectedColor);
+                    		}
+	                    }else{
+                    		if(getPage() == getLastPage()){
+                    			mNextPage.setColorFilter(0);
+                    		}else if(getPage() <= 1){
+                    			mPrevPage.setColorFilter(0);
+                    		}else{
+                    			mRefreshBar.setColorFilter(0);
+                    		}
+	                    }
                     }
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
@@ -280,13 +300,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	Log.e(TAG, "onCreate savedState");
             mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, mThreadId);
     		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, mPage);
+    		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
         }
         
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
 
         getAwfulActivity().registerSyncService(mMessenger, getThreadId());
-        if(getThreadId() > 0){
+        if(getThreadId() > 0 && savedScrollPosition < 1){
         	syncThread();
         }
     }
@@ -319,15 +340,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-        if(dataLoaded){
+        if(dataLoaded || savedScrollPosition > 0){
         	refreshPosts();
         }
 		if(isDualPane()){
 			mToggleSidebar.setVisibility(View.VISIBLE);
-			if(isSidebarVisible()){
-				mToggleSidebar.setColorFilter(buttonSelectedColor);
-			}else{
-				mToggleSidebar.setColorFilter(0);
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+            	if(isSidebarVisible()){
+					mToggleSidebar.setColorFilter(buttonSelectedColor);
+				}else{
+					mToggleSidebar.setColorFilter(0);
+				}
 			}
 		}else{
 			mToggleSidebar.setVisibility(View.INVISIBLE);
@@ -360,16 +383,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(getActivity() != null){
 			getAwfulActivity().invalidateOptionsMenu();
 		}
+		mRefreshBar.setVisibility(View.VISIBLE);
+		mPrevPage.setVisibility(View.VISIBLE);
+		mNextPage.setVisibility(View.VISIBLE);
 		if (getPage() <= 1) {
-			mPrevPage.setVisibility(View.INVISIBLE);
-		} else {
+			mPrevPage.setImageResource(R.drawable.ic_menu_load);
 			mPrevPage.setVisibility(View.VISIBLE);
+			mRefreshBar.setVisibility(View.INVISIBLE);
+		} else {
+			mPrevPage.setImageResource(R.drawable.ic_menu_arrowleft);
 		}
 
 		if (getPage() == getLastPage()) {
-            mNextPage.setVisibility(View.INVISIBLE);
+			mNextPage.setImageResource(R.drawable.ic_menu_load);
+			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
-            mNextPage.setVisibility(View.VISIBLE);
+			mNextPage.setImageResource(R.drawable.ic_menu_arrowright);
 		}
 	}
 
@@ -462,7 +491,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(menu == null){
             return;
         }
-
+        MenuItem nextArrow = menu.findItem(R.id.next_page);
+        if(nextArrow != null){
+        	nextArrow.setVisible(mPrefs.upperNextArrow);
+        }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
         	bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
@@ -588,6 +620,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	Log.v(TAG,"onSaveInstanceState");
         outState.putInt(Constants.THREAD_PAGE, getPage());
     	outState.putInt(Constants.THREAD_ID, getThreadId());
+    	if(mThreadView != null){
+    		outState.putInt("scroll_position", mThreadView.getScrollY());
+    	}
     }
     
     private void syncThread() {
@@ -667,10 +702,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.next_page:
-                	goToPage(getPage() + 1);
+            		if (getPage() == getLastPage()) {
+            			refresh();
+            		} else {
+                    	goToPage(getPage() + 1);
+            		}
                     break;
                 case R.id.prev_page:
-                	goToPage(getPage() - 1);
+                	if (getPage() <= 1) {
+            			refresh();
+            		} else {
+                    	goToPage(getPage() - 1);
+            		}
                     break;
                 case R.id.reply:
                     displayPostReplyDialog();
@@ -690,10 +733,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 case R.id.toggle_sidebar:
                 	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
                 		((ThreadDisplayActivity)getActivity()).toggleSidebar();
-                		if(isSidebarVisible()){
-                			mToggleSidebar.setColorFilter(buttonSelectedColor);
-                		}else{
-                			mToggleSidebar.setColorFilter(0);
+                		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	                    	if(isSidebarVisible()){
+	                			mToggleSidebar.setColorFilter(buttonSelectedColor);
+	                		}else{
+	                			mToggleSidebar.setColorFilter(0);
+	                		}
                 		}
                 	}
                 	break;
@@ -847,6 +892,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("postjumpid", mPostJump);
+            result.put("scrollPosition", savedScrollPosition);
         } catch (JSONException e) {
         }
 
@@ -1025,6 +1071,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             dataLoaded = true;
+			savedScrollPosition = 0;
         }
 
         @Override

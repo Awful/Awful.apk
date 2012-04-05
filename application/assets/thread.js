@@ -48,15 +48,19 @@ $(window).ready(function() {
 
 
 function scrollPost() {
-    if (prefs.postjumpid != "") {
-    	try{
-    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
-    	}catch(error){
-    		scrollLastRead();
-    	}
-    } else {
-	    scrollLastRead();
-    }
+	if(prefs.scrollPosition > 0){
+		$(window).scrollTop(prefs.scrollPosition);
+	}else{
+	    if (prefs.postjumpid != "") {
+	    	try{
+	    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+	    	}catch(error){
+	    		scrollLastRead();
+	    	}
+	    } else {
+		    scrollLastRead();
+	    }
+	}
 }
 
 function scrollLastRead(){

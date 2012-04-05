@@ -514,15 +514,15 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
-            buffer.append("    		<div class='button-row' style='display: none; width: 100%;'>");
+            buffer.append("    		<div class='button-row' style='display: none; width: 100%;background:#FF000000;'>");
             buffer.append("        		<div style='height:34px' >");
             if(post.isEditable()){
-            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_edit.png' />");
+            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
             }else{
-            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
+            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_quote_wide.png' />");
             }
-            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_last_read.png' />");
-            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_more.png' />");
+            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/ic_menu_lastread_wide.png' />");
+            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/ic_menu_menu_wide.png' />");
             buffer.append("        		</div>");
             buffer.append("    			<hr />");
             buffer.append("    		</div>");

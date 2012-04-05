@@ -7,6 +7,10 @@
 	background-position:center; 
 }
 
+td {
+    border: 0px solid #c0ffee;
+}
+
 .post-content {
     padding: 6px;
     border: 0px;

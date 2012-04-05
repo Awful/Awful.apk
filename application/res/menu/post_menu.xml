@@ -9,11 +9,6 @@
 		>
 		<menu>
 			<item
-				android:id="@+id/next_page"
-		        android:title="@string/next_page"
-				android:icon="@drawable/ic_menu_arrowright"
-		        />
-			<item
 				android:id="@+id/reply"
 		        android:title="@string/post_reply"
 				android:icon="@drawable/ic_menu_reply"
@@ -40,6 +35,12 @@
 				/>
         </menu>
 	</item>
+	<item
+		android:id="@+id/next_page"
+        android:title="@string/next_page"
+		android:icon="@drawable/ic_menu_arrowright"
+       	android:showAsAction="always"
+        />
     <item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_gotopage"

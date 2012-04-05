@@ -69,6 +69,11 @@
 			android:title="@string/new_threads_first"
 			android:defaultValue="false"
 			/>
+		<CheckBoxPreference 
+            android:key="upper_next_arrow" 
+			android:title="@string/show_next_page_button_at_top"
+			android:defaultValue="false"
+			/>
 			<!-- TODO: Move these to a submenu or something, it's getting crowded. -->
 		<CheckBoxPreference 
             android:key="wrap_thread_titles" 
