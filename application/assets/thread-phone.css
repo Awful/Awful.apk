@@ -7,10 +7,6 @@
 	background-position:center; 
 }
 
-td {
-    border: 0px solid #c0ffee;
-}
-
 .post-content {
     padding: 6px;
     border: 0px;
@@ -37,8 +33,9 @@ td {
 .action-button {
     float: right;
     vertical-align: middle;
-    padding: 12px;
-    padding-left: 20px;
+    height:100%;
+    padding-right: 12px;
+    padding-left: 25px;
 
 }
 
@@ -46,6 +43,12 @@ td {
     background: #000000;
     width:100%;
     overflow: auto;
+    border-top-style: solid;
+    border-top-width:2px;
+    border-bottom-style: solid;
+    border-bottom-width:2px;
+    border-right-width:0px;
+    border-left-width:0px;
 }
 
 .postdate, .avatar-text {

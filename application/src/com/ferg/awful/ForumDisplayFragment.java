@@ -175,13 +175,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mListView.setDrawingCacheEnabled(true);
         
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
-        mToggleSidebar.setImageResource(R.drawable.menu_refresh);
+        mToggleSidebar.setImageResource(R.drawable.ic_menu_load);
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
@@ -333,10 +333,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		MenuItem ucp = menu.findItem(R.id.user_cp);
 		if(ucp != null){
 			if(mForumId == Constants.USERCP_ID){
-				ucp.setIcon(R.drawable.menu_home);
+				ucp.setIcon(R.drawable.ic_menu_home);
 				ucp.setTitle(R.string.forums_title);
 			}else{
-				ucp.setIcon(R.drawable.menu_bookmark);
+				ucp.setIcon(R.drawable.ic_menu_bookmarks);
 				ucp.setTitle(R.string.user_cp);
 			}
 		}
@@ -550,7 +550,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);

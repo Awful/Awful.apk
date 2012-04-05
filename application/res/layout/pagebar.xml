@@ -11,8 +11,9 @@
 
             <ImageButton
                  android:id="@+id/prev_page"
-                 android:layout_height="wrap_content"
-                 android:src="@drawable/l_arrow"
+                 android:layout_height="match_parent"
+                 android:scaleType="fitCenter"
+                 android:src="@drawable/ic_menu_arrowleft"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
                  android:layout_weight="1"
@@ -22,9 +23,10 @@
                 android:id="@+id/refresh"
                 style="@style/ActionBarButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                android:src="@drawable/default_load"
+                android:layout_height="match_parent"
+                 android:scaleType="fitCenter"
+                android:layout_weight="1"
+                android:src="@drawable/ic_menu_load"
                  />
             <TextView
                 android:id="@+id/page_count"
@@ -35,25 +37,26 @@
 			    android:paddingBottom="1dp"
                 android:gravity="center"
                 android:textColor="#CCFFFFFF"
-                android:textSize="22dip"
+                android:textSize="20dip"
                  android:layout_weight="1"
-                android:textStyle="bold"
                 android:clickable="true" />
             
 			<ImageButton
 			    android:id="@+id/toggle_sidebar"
 			    style="@style/ActionBarButton"
 			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                 android:scaleType="fitCenter"
 			    android:layout_centerInParent="true"
                	android:visibility="invisible"
                  android:layout_weight="1"
-			    android:src="@drawable/overflow" />
+			    android:src="@drawable/ic_menu_sidebar" />
 			
             <ImageButton
                  android:id="@+id/next_page"
-                 android:layout_height="wrap_content"
-                 android:src="@drawable/r_arrow"
+                 android:layout_height="match_parent"
+                 android:scaleType="fitCenter"
+                 android:src="@drawable/ic_menu_arrowright"
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
                  android:layout_weight="1"

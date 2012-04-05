@@ -2,24 +2,24 @@
 <menu 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	>
-	<item android:id="@+id/user_cp" android:showAsAction="ifRoom" android:title="@string/usercp" android:icon="@drawable/menu_bookmark"></item>
+	<item android:id="@+id/user_cp" android:showAsAction="ifRoom" android:title="@string/usercp" android:icon="@drawable/ic_menu_bookmarks"></item>
 	
 	<item
 		android:id="@+id/go_to"
-		android:icon="@drawable/menu_goto"
+		android:icon="@drawable/ic_menu_gotopage"
 		android:title="@string/go_to"
 		/>
 	<item
 		android:title="@string/logout"
         android:id="@+id/logout"
-        android:icon="@drawable/menu_logout"/>
+        android:icon="@drawable/ic_menu_logout"/>
 	<item
 		android:id="@+id/refresh"
-		android:icon="@drawable/menu_refresh"
+		android:icon="@drawable/ic_menu_load"
 		android:title="@string/refresh" />
 	<item
 		android:id="@+id/settings"
-		android:icon="@drawable/menu_settings"
+		android:icon="@drawable/ic_menu_settings"
 		android:title="@string/settings" />
 	
 </menu>

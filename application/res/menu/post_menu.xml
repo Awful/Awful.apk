@@ -4,55 +4,55 @@
 	>
 	<item
 		android:id="@+id/thread_actions"
-		android:icon="@drawable/menu_drop_down"
+		android:icon="@drawable/ic_menu_dropdown"
         android:showAsAction="always"
 		>
 		<menu>
 			<item
 				android:id="@+id/next_page"
 		        android:title="@string/next_page"
-				android:icon="@drawable/r_arrow"
+				android:icon="@drawable/ic_menu_arrowright"
 		        />
 			<item
 				android:id="@+id/reply"
 		        android:title="@string/post_reply"
-				android:icon="@drawable/menu_reply"
+				android:icon="@drawable/ic_menu_reply"
 				/>
 			<item
 		        android:id="@+id/bookmark"
 		        android:title="@string/bookmark"
-		        android:icon="@drawable/menu_star"
+		        android:icon="@drawable/ic_menu_bookmark"
 		        />
         	<item
 		        android:id="@+id/rate_thread"
 		        android:title="@string/rate_thread"
-		        android:icon="@drawable/menu_rate"
+		        android:icon="@drawable/ic_menu_rate"
 		        />
         	<item
 				android:id="@+id/copy_url"
-				android:icon="@drawable/menu_copy"
+				android:icon="@drawable/ic_menu_link"
 				android:title="@string/copy_url"
 		        />
 			<item
 				android:id="@+id/refresh"
-				android:icon="@drawable/menu_refresh"
+				android:icon="@drawable/ic_menu_load"
 				android:title="@string/refresh" 
 				/>
         </menu>
 	</item>
     <item
 		android:id="@+id/go_to"
-		android:icon="@drawable/menu_goto"
+		android:icon="@drawable/ic_menu_gotopage"
 		android:title="@string/go_to"
 		/>
 	<item
 		android:id="@+id/usercp"
-		android:icon="@drawable/menu_bookmark"
+		android:icon="@drawable/ic_menu_bookmarks"
 		android:title="@string/user_cp"
 		/>
 	<item
 		android:id="@+id/settings"
-		android:icon="@drawable/menu_settings"
+		android:icon="@drawable/ic_menu_settings"
 		android:title="@string/settings"
         />
 	

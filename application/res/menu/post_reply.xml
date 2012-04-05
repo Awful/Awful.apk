@@ -3,7 +3,7 @@
     <item
         android:id="@+id/bbcode"
         android:title="@string/bbcode"
-		android:icon="@drawable/menu_drop_down"
+		android:icon="@drawable/ic_menu_dropdown"
 		android:showAsAction="always" 
 		>
 		<menu>

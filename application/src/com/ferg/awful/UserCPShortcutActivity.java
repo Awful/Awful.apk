@@ -42,7 +42,7 @@ public class UserCPShortcutActivity extends Activity {
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.usercp));
         Parcelable iconResource = Intent.ShortcutIconResource.fromContext(
-                this,  R.drawable.icon);
+                this,  R.drawable.ic_launcher_awful);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher

@@ -297,7 +297,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
 		
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -948,7 +948,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.BOLD);
+		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
 		refreshPosts();
 	}
 

@@ -199,7 +199,13 @@ public class AwfulThread extends AwfulPagedItem  {
                 if(tarStar.length>0){
                 	TagNode[] tarStarImg = tarStar[0].getElementsByName("img", true);
                 	if(tarStarImg.length >0 && !tarStarImg[0].getAttributeByName("src").contains("star-off")){
-                		thread.put(BOOKMARKED, 1);
+                		if(tarStarImg[0].getAttributeByName("src").contains("star0")){
+                    		thread.put(BOOKMARKED, 1);
+                		}else if(tarStarImg[0].getAttributeByName("src").contains("star1")){
+                    		thread.put(BOOKMARKED, 2);
+                		}else if(tarStarImg[0].getAttributeByName("src").contains("star2")){
+                    		thread.put(BOOKMARKED, 3);
+                		}
                 	}else{
                 		thread.put(BOOKMARKED, 0);
                 	}
@@ -424,30 +430,30 @@ public class AwfulThread extends AwfulPagedItem  {
             }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
-            buffer.append("    <td class='userinfo-row' style='width: 100%;"+(post.isOp()?"background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postOPColor):"")+"'>");
+            buffer.append("    <td class='userinfo-row' style='width: 100%;border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>");
             buffer.append("        <div class='user-button' >");
             buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
-            buffer.append("                <h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/red_star.png' />":"")  +  "</h4>");
+            buffer.append("                <h4>" + post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/red_star.png' />":"")  +  "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate'>");
             buffer.append("                " + post.getDate());
             buffer.append("            </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='action-button' >");
-            buffer.append("            <img src='file:///android_res/drawable/menu_more.png' />");
+            buffer.append("            <img src='file:///android_res/drawable/ic_menu_more.png' />");
             buffer.append("        </div>");
             buffer.append("        </div>");
             buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
             if(post.isEditable()){
-            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_edit.png' />");
+            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
             }else{
-            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_quote.png' />");
+            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_quote_wide.png' />");
             }
-            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_last_read.png' />");
-            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/"+aPrefs.theme+"_more.png' />");
+            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/ic_menu_lastread_wide.png' />");
+            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/ic_menu_menu_wide.png' />");
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("</tr>");
@@ -586,8 +592,19 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 			info.setText(tmp.toString().trim());
 		}
-		if(!hideBookmark && data.getInt(data.getColumnIndex(BOOKMARKED)) >0){
-			bookmark.setImageResource(R.drawable.blue_star);
+		int mark = data.getInt(data.getColumnIndex(BOOKMARKED));
+		if(mark > 1 || (!hideBookmark && mark == 1)){
+			switch(mark){
+			case 1:
+				bookmark.setImageResource(R.drawable.blue_star);
+				break;
+			case 2:
+				bookmark.setImageResource(R.drawable.red_star);
+				break;
+			case 3:
+				bookmark.setImageResource(R.drawable.gold_star);
+				break;
+			}
 			bookmark.setVisibility(View.VISIBLE);
 			if(!stuck){
 				bookmark.setPadding(0, 5, 4, 0);

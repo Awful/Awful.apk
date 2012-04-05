@@ -60,7 +60,6 @@ public class AwfulPost {
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
-	private static final Pattern postIndex_regex = Pattern.compile("index=(\\d+)");
 
     public static final String ID                    = "_id";
     public static final String POST_INDEX                    = "post_index";
@@ -234,8 +233,8 @@ public class AwfulPost {
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
                 current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
-                current.setIsAdmin(aCursor.getInt(isAdminIndex) == 1 ? true : false);
-                current.setIsMod(aCursor.getInt(isModIndex) == 1 ? true : false);
+                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0 ? true : false);
+                current.setIsMod(aCursor.getInt(isModIndex) > 0 ? true : false);
                 current.setAvatar(aCursor.getString(avatarIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
@@ -400,7 +399,8 @@ public class AwfulPost {
                 	post.put(PREVIOUSLY_READ, 1);
                 }
                 index++;
-                
+				post.put(IS_MOD, 0);
+                post.put(IS_ADMIN, 0);
                 TagNode[] postContent = node.getElementsHavingAttribute("class", true);
                 for(TagNode pc : postContent){
 					if (pc.getAttributeByName("class").contains("author")) {
@@ -409,15 +409,11 @@ public class AwfulPost {
 
 					if (pc.getAttributeByName("class").contains("role-mod")) {
 						post.put(IS_MOD, 1);
-					} else {
-						post.put(IS_MOD, 0);
-                    }
+					}
 
 					if (pc.getAttributeByName("class").contains("role-admin")) {
                         post.put(IS_ADMIN, 1);
-					} else {
-                        post.put(IS_ADMIN, 0);
-                    }
+					}
 
 					if (pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length > 0) {
 						TagNode[] avatar = pc.getElementsByName("img", true);

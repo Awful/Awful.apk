@@ -11,7 +11,7 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:padding="8dip"
-	        android:background="@drawable/bar"
+	        android:background="#FF000000"
 	        >
 	        <LinearLayout
 	            android:id="@+id/messagehead"
@@ -25,10 +25,6 @@
 	                    android:id="@+id/message_title"
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
-	                    android:shadowColor="#070707"
-	                    android:shadowDx="0"
-	                    android:shadowDy="-1"
-	                    android:shadowRadius="0.2"
 	                    android:textColor="#ffffff"
 	                    android:textSize="20dip"
 	                    android:textStyle="bold" />
@@ -68,7 +64,7 @@
                     android:id="@+id/hide_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/menu_drop_down" />
+                    android:src="@drawable/ic_menu_dropdown" />
         	</LinearLayout>
         </LinearLayout>
         <WebView

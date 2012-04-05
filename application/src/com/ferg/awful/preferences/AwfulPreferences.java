@@ -52,6 +52,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean newThreadsFirst;
 	public String preferredFont;
 	public String theme;
+	public int postDividerColor;
+	public int postHeaderBackgroundColor;
 
 	/**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
@@ -117,6 +119,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", mContext.getResources().getColor(R.color.alt_background_read));
     	postOPColor              = mPrefs.getInt("op_post_color", mContext.getResources().getColor(R.color.op_post));
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote));
+      	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", mContext.getResources().getColor(R.color.abs__background_holo_dark));
+      	postDividerColor      = mPrefs.getInt("post_divider_color", mContext.getResources().getColor(R.color.abs__holo_blue_light));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         avatarsEnabled            = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
@@ -135,7 +139,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
-        theme					 = mPrefs.getString("selected_theme", "macinyos");
+        theme					 = mPrefs.getString("selected_theme", "default");
        	 //TODO: I have never seen this before oh god
 	}
 }
