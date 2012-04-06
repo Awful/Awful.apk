@@ -31,8 +31,8 @@ $(document).ready(function() {
     $('.bbc-spoiler').mouseout ( function(){ this.style.color=this.style.backgroundColor=prefs.postcolor;});
     }
 
-	$('.user-button').click(function(event) {
-	  $(this).parent().children('.avatar-text').toggle();
+	$('.userinfo-row').click(function(event) {
+	  $(this).closest('tr').next().find('.avatar-text-phone').toggle();
 	  $(this).closest('tr').find('.button-row').toggle();
 	});
 	

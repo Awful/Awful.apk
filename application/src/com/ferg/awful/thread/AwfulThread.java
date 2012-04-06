@@ -431,7 +431,6 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%;border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>");
-            buffer.append("        <div class='user-button' >");
             buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
@@ -445,8 +444,11 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        <div class='action-button' >");
             buffer.append("            <img src='file:///android_res/drawable/ic_menu_more.png' />");
             buffer.append("        </div>");
-            buffer.append("        </div>");
-            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
+            buffer.append("    </td>");
+            buffer.append("</tr>");
+            buffer.append("<tr>");
+            buffer.append("    <td class='post-buttons' style='background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>");
+            buffer.append("        <div class='avatar-text-phone' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
             if(post.isEditable()){
             	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
             }else{

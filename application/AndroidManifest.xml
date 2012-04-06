@@ -60,7 +60,7 @@
         </activity>
         <activity android:name="ProfileActivity" />
         <activity android:name="SettingsActivity" />
-        <activity android:name="ColorSettingsActivity" />
+        <activity android:name="ColorSettingsActivity" android:hardwareAccelerated="false"/>
         <activity 
             android:name="PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 

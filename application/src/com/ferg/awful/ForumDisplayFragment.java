@@ -103,7 +103,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private boolean skipLoad = false;
     private int mParentForumId = 0;
     
-    private static final int buttonSelectedColor = 0xa0ff7f00;
+    private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
     private long lastRefresh;
 

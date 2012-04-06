@@ -123,7 +123,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadBookmarked = false;
     private boolean dataLoaded = false;
     
-    private static final int buttonSelectedColor = 0xa0ff7f00;
+    private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
     private String mTitle = null;
     

@@ -102,18 +102,14 @@ table {
     padding-bottom: 5px;
 }
 
-.avatar-text img {
+.avatar-text-phone img {
     float: right;
     margin: 5px;
-    width: 140px;
-    height: 30px;
 }
 
 .button-row img {
     float: right;
     margin: 5px;
-    width: 140px;
-    height: 30px;
 }
 
 .usercolumn {
