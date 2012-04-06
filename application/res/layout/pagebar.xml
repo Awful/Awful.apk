@@ -37,7 +37,7 @@
 			    android:paddingBottom="1dp"
                 android:gravity="center"
                 android:textColor="#CCFFFFFF"
-                android:textSize="20dip"
+                android:textSize="@dimen/abs__action_bar_title_text_size"
                  android:layout_weight="1"
                 android:clickable="true" />
             
