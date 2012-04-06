@@ -33,6 +33,8 @@ $(document).ready(function() {
 
 	$('.userinfo-row').click(function(event) {
 	  $(this).closest('tr').next().find('.avatar-text-phone').toggle();
+	});
+	$('.usercolumn').click(function(event) {
 	  $(this).closest('tr').find('.button-row').toggle();
 	});
 	

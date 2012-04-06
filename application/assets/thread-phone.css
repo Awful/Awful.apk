@@ -55,6 +55,17 @@ td {
     border-left-width:0px;
 }
 
+.post-buttons {
+    background: #000000;
+    width:100%;
+    overflow: auto;
+    border-top-width:0px;
+    border-bottom-style: solid;
+    border-bottom-width:2px;
+    border-right-width:0px;
+    border-left-width:0px;
+}
+
 .postdate, .avatar-text {
     color: white;
     font: normal normal normal 16pt userselected, Verdana, Arial, sans-serif;

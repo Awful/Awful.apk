@@ -431,7 +431,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>");
             buffer.append("    <td class='userinfo-row' style='width: 100%;border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>");
-            buffer.append("        <div class='avatar' "+((aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
+            buffer.append("        <div class='avatar' "+((aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">");
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
@@ -447,7 +447,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("    </td>");
             buffer.append("</tr>");
             buffer.append("<tr>");
-            buffer.append("    <td class='post-buttons' style='background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>");
+            buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>");
             buffer.append("        <div class='avatar-text-phone' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
             if(post.isEditable()){
             	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
@@ -504,7 +504,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		</div>");
             buffer.append("        		<div class='avatar'>");
 
-            if (aPrefs.imagesEnabled != false && aPrefs.avatarsEnabled != false && post.getAvatar() != null) {
+            if (aPrefs.avatarsEnabled != false && post.getAvatar() != null) {
                 buffer.append("            <img class='gif' style='outline:black double;' src='" + post.getAvatar() + "' />");
             }else{
                 buffer.append("            <img src='file:///android_res/drawable/post_action_icon.png' />");
