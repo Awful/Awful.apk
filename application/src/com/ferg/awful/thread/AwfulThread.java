@@ -455,7 +455,9 @@ public class AwfulThread extends AwfulPagedItem  {
             	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_quote_wide.png' />");
             }
             buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/ic_menu_lastread_wide.png' />");
-            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/ic_menu_menu_wide.png' />");
+            buffer.append("        		<div class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >");
+            buffer.append("        		<h5><img src='file:///android_res/drawable/ic_menu_menu_wide.png' /> More</h5>");
+            buffer.append("        		</div>");
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("</tr>");
@@ -517,14 +519,20 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
             buffer.append("    		<div class='button-row' style='display: none; width: 100%;background:#FF000000;'>");
-            buffer.append("        		<div style='height:34px' >");
             if(post.isEditable()){
-            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
+            	buffer.append("        		<div class='edit_button inline-button' id='" + post.getId() + "' />");
+                buffer.append("        			<img src='file:///android_res/drawable/light_inline_edit.png' /> Edit");
+                buffer.append("        		</div>");
             }else{
-            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_quote_wide.png' />");
+            	buffer.append("        		<div class='quote_button inline-button' id='" + post.getId() + "' />");
+                buffer.append("        			<img src='file:///android_res/drawable/light_inline_quote.png' /> Quote");
+                buffer.append("        		</div>");
             }
-            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/ic_menu_lastread_wide.png' />");
-            buffer.append("        		<img class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' src='file:///android_res/drawable/ic_menu_menu_wide.png' />");
+            buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />");
+            buffer.append("        			<img src='file:///android_res/drawable/light_inline_lastread.png' /><div style='vertical-align: middle;'> Last Read</div>");
+            buffer.append("        		</div>");
+            buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >");
+            buffer.append("        			<img src='file:///android_res/drawable/light_inline_more.png' /> More");
             buffer.append("        		</div>");
             buffer.append("    			<hr />");
             buffer.append("    		</div>");

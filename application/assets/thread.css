@@ -108,8 +108,14 @@ table {
 }
 
 .button-row img {
-    float: right;
     margin: 5px;
+}
+
+.inline-button {
+	display: inline-block;
+	border:1px solid black;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .usercolumn {
