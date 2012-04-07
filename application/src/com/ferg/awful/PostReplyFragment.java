@@ -71,7 +71,7 @@ import com.ferg.awful.service.AwfulSyncService;
 import com.ferg.awful.thread.AwfulMessage;
 import com.ferg.awful.thread.AwfulPost;
 
-public class PostReplyFragment extends SherlockDialogFragment implements OnClickListener {
+public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyActivity";
 
     public static final int RESULT_POSTED = 1;
@@ -96,6 +96,7 @@ public class PostReplyFragment extends SherlockDialogFragment implements OnClick
         	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
+            		loadingSucceeded();
             		if(mDialog != null){
             			mDialog.dismiss();
             			mDialog = null;
@@ -110,20 +111,15 @@ public class PostReplyFragment extends SherlockDialogFragment implements OnClick
                 			if(getActivity() instanceof PostReplyActivity){
                 				getActivity().setResult(RESULT_POSTED);
                 				getActivity().finish();
-                			}else{
-                				try{
-                					dismiss();
-                				}catch(Exception e){
-                					e.printStackTrace();
-                					//we get an odd exception here if the thread's webview onLoadFinished triggers as we are sending.
-                				}
                 			}
                 		}
                 	}
                     break;
                 case AwfulSyncService.Status.WORKING:
+                	loadingStarted();
                     break;
                 case AwfulSyncService.Status.ERROR:
+            		loadingFailed();
                 	if(mDialog != null){
             			mDialog.dismiss();
             			mDialog = null;
@@ -150,10 +146,6 @@ public class PostReplyFragment extends SherlockDialogFragment implements OnClick
         PostReplyFragment fragment = new PostReplyFragment();
 
         fragment.setArguments(aArguments);
-
-        fragment.setShowsDialog(false);
-        fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-
         return fragment;
     }
 
