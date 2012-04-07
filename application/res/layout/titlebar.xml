@@ -12,7 +12,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                  android:layout_weight="0.1"
-                android:src="@drawable/quickaction_arrow_up"
+                android:src="@drawable/ic_menu_dropdown_up"
                  />
 
         <TextView

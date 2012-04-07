@@ -301,7 +301,7 @@ public class AwfulPost {
 					node.setAttribute("onclick", "location.href=\""+link+"\"");
 					TagNode img = new TagNode("img");
 					img.setAttribute("class", "nolink");
-					img.setAttribute("src", "file:///android_res/drawable/play.png");
+					img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
 					img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
 					node.addChild(img);
 				}

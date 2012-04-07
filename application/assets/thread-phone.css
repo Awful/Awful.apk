@@ -17,6 +17,10 @@ td {
     overflow: scroll;
 }
 
+ {
+	
+}
+
 .userinfo, .post-content {
     color: black;
     font: normal normal normal 14pt userselected, Verdana, Arial, sans-serif;
@@ -27,7 +31,7 @@ td {
     font-size: 16pt;
 }
 
-.userinfo {
+.userinfo, .avatar-text-phone {
     padding: 3px;
     float: left;
     color: white;
@@ -50,7 +54,7 @@ td {
     border-top-style: solid;
     border-top-width:2px;
     border-bottom-style: solid;
-    border-bottom-width:2px;
+    border-bottom-width:0px;
     border-right-width:0px;
     border-left-width:0px;
 }

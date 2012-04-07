@@ -45,7 +45,7 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@id/password"
         android:layout_alignRight="@id/password"
-        android:drawableRight="@drawable/r_arrow"
+        android:drawableRight="@drawable/ic_menu_arrowright"
         android:padding="15dip"
         android:drawablePadding="15dip"
 		android:text="@string/login"

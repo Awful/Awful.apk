@@ -28,7 +28,7 @@
         <ImageButton
              android:id="@+id/prev_page"
              android:layout_height="wrap_content"
-             android:src="@drawable/l_arrow"
+             android:src="@drawable/ic_menu_arrowleft"
              android:layout_width="wrap_content"
              android:layout_alignParentLeft="true"
              android:layout_centerVertical="true"
@@ -37,7 +37,7 @@
         <ImageButton
              android:id="@+id/next_page"
              android:layout_height="wrap_content"
-             android:src="@drawable/r_arrow"
+             android:src="@drawable/ic_menu_arrowright"
              android:layout_width="wrap_content"
              android:layout_alignParentRight="true"
              android:layout_centerVertical="true"

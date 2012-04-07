@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="4dip"
             android:layout_marginTop="6dip"
-            android:src="@drawable/sticky" />
+            android:src="@drawable/ic_sticky" />
 
         <ImageView
             android:id="@+id/bookmark_icon"
@@ -30,7 +30,7 @@
             android:layout_marginRight="4dip"
             android:paddingTop="10dip"
 
-            android:src="@drawable/blue_star" />
+            android:src="@drawable/ic_star_blue" />
     </RelativeLayout>
 
     <RelativeLayout

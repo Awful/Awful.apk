@@ -450,13 +450,19 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>");
             buffer.append("        <div class='avatar-text-phone' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText():"")+"<br/>");
             if(post.isEditable()){
-            	buffer.append("        		<img class='edit_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_edit_wide.png' />");
+            	buffer.append("        		<div class='edit_button inline-button' id='" + post.getId() + "' />");
+                buffer.append("        			<img src='file:///android_res/drawable/dark_inline_edit.png' style='position:relative;vertical-align:middle;' /> Edit");
+                buffer.append("        		</div>");
             }else{
-            	buffer.append("        		<img class='quote_button' id='" + post.getId() + "' src='file:///android_res/drawable/ic_menu_quote_wide.png' />");
+            	buffer.append("        		<div class='quote_button inline-button' id='" + post.getId() + "' />");
+                buffer.append("        			<img src='file:///android_res/drawable/dark_inline_quote.png' style='position:relative;vertical-align:middle;' /> Quote");
+                buffer.append("        		</div>");
             }
-            buffer.append("        		<img class='lastread_button' lastreadurl='" + post.getLastReadUrl() + "' src='file:///android_res/drawable/ic_menu_lastread_wide.png' />");
-            buffer.append("        		<div class='more_button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >");
-            buffer.append("        		<h5><img src='file:///android_res/drawable/ic_menu_menu_wide.png' /> More</h5>");
+            buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />");
+            buffer.append("        			<img src='file:///android_res/drawable/dark_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read");
+            buffer.append("        		</div>");
+            buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >");
+            buffer.append("        			<img src='file:///android_res/drawable/dark_inline_more.png' style='position:relative;vertical-align:middle;' /> More");
             buffer.append("        		</div>");
             buffer.append("        </div>");
             buffer.append("    </td>");
@@ -518,23 +524,23 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>");
             buffer.append("    </td>");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>");
-            buffer.append("    		<div class='button-row' style='display: none; width: 100%;background:#FF000000;'>");
+            buffer.append("    		<div class='button-row' style='display: none; width: 100%;color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>");
             if(post.isEditable()){
             	buffer.append("        		<div class='edit_button inline-button' id='" + post.getId() + "' />");
-                buffer.append("        			<img src='file:///android_res/drawable/light_inline_edit.png' /> Edit");
+                buffer.append("        			<img src='file:///android_res/drawable/light_inline_edit.png' style='position:relative;vertical-align:middle;' /> Edit");
                 buffer.append("        		</div>");
             }else{
             	buffer.append("        		<div class='quote_button inline-button' id='" + post.getId() + "' />");
-                buffer.append("        			<img src='file:///android_res/drawable/light_inline_quote.png' /> Quote");
+                buffer.append("        			<img src='file:///android_res/drawable/light_inline_quote.png' style='position:relative;vertical-align:middle;' /> Quote");
                 buffer.append("        		</div>");
             }
             buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />");
-            buffer.append("        			<img src='file:///android_res/drawable/light_inline_lastread.png' /><div style='vertical-align: middle;'> Last Read</div>");
+            buffer.append("        			<img src='file:///android_res/drawable/light_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read");
             buffer.append("        		</div>");
             buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >");
-            buffer.append("        			<img src='file:///android_res/drawable/light_inline_more.png' /> More");
+            buffer.append("        			<img src='file:///android_res/drawable/light_inline_more.png' style='position:relative;vertical-align:middle;' /> More");
             buffer.append("        		</div>");
-            buffer.append("    			<hr />");
+            buffer.append("    			<hr style='clear:both;' />");
             buffer.append("    		</div>");
             buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
             buffer.append("            " + post.getContent());
@@ -553,7 +559,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
 		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
 		if(stuck){
-			sticky.setImageResource(R.drawable.sticky);
+			sticky.setImageResource(R.drawable.ic_sticky);
 			sticky.setVisibility(View.VISIBLE);
 		}else{
 			sticky.setVisibility(View.GONE);
@@ -606,13 +612,13 @@ public class AwfulThread extends AwfulPagedItem  {
 		if(mark > 1 || (!hideBookmark && mark == 1)){
 			switch(mark){
 			case 1:
-				bookmark.setImageResource(R.drawable.blue_star);
+				bookmark.setImageResource(R.drawable.ic_star_blue);
 				break;
 			case 2:
-				bookmark.setImageResource(R.drawable.red_star);
+				bookmark.setImageResource(R.drawable.ic_star_red);
 				break;
 			case 3:
-				bookmark.setImageResource(R.drawable.gold_star);
+				bookmark.setImageResource(R.drawable.ic_star_gold);
 				break;
 			}
 			bookmark.setVisibility(View.VISIBLE);

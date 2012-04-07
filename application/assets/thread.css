@@ -66,7 +66,7 @@ table {
 	margin-left: 5px;
 }
 
-.userinfo, .post-content {
+.userinfo, .post-content, .avatar-text-phone {
     color: black;
     font: normal normal normal 16pt userselected, Verdana, Arial, sans-serif;
     vertical-align: top;
@@ -102,10 +102,6 @@ table {
     padding-bottom: 5px;
 }
 
-.avatar-text-phone img {
-    float: right;
-    margin: 5px;
-}
 
 .button-row img {
     margin: 5px;
@@ -113,9 +109,11 @@ table {
 
 .inline-button {
 	display: inline-block;
-	border:1px solid black;
+	margin-left:5px;
+	margin-right:10px;
     text-align: center;
     vertical-align: middle;
+    float: right;
 }
 
 .usercolumn {
