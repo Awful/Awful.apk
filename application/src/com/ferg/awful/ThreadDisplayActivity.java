@@ -30,12 +30,17 @@ package com.ferg.awful;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 
+import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class ThreadDisplayActivity extends AwfulActivity {
+public class ThreadDisplayActivity extends AwfulActivity implements OnClickListener {
     private static final String TAG = "ThreadDisplayActivities";
     private ForumDisplayFragment sidebarFrag;
     private ThreadDisplayFragment mainWindowFrag;
@@ -57,9 +62,14 @@ public class ThreadDisplayActivity extends AwfulActivity {
         setContentView(R.layout.thread_display_activity);
         mainWindowFrag = getFragment();
         sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
-        sidebarVisible = sidebarFrag != null;
-        if(isDualPane()){
-        	//TODO autohide
+        sidebarFrag.skipLoad(true);
+        findViewById(R.id.sidebar_toggle_button).setOnClickListener(this);
+    	FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    	ft.hide(sidebarFrag);
+		ft.commit();
+		sidebarVisible = false;
+        if(!Constants.isWidescreen(this)){
+    		findViewById(R.id.sidebar_toggle).setVisibility(View.GONE);
         }
     }
 
@@ -115,7 +125,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
 	}
     
     public boolean isDualPane(){
-    	return sidebarFrag != null;
+    	return Constants.isWidescreen(this);
     }
     
     public void toggleSidebar(){
@@ -125,6 +135,7 @@ public class ThreadDisplayActivity extends AwfulActivity {
     			ft.hide(sidebarFrag);
     		}else{
     			ft.show(sidebarFrag);
+    			sidebarFrag.syncForumsIfStale();
     		}
     		ft.commit();
     		sidebarVisible = !sidebarVisible;
@@ -163,5 +174,29 @@ public class ThreadDisplayActivity extends AwfulActivity {
 	public boolean isSidebarVisible() {
 		return sidebarVisible;
 	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if(Constants.isWidescreen(newConfig)){
+    		findViewById(R.id.sidebar_toggle).setVisibility(View.VISIBLE);
+		}else{
+			if(sidebarVisible){
+				toggleSidebar();
+			}
+    		findViewById(R.id.sidebar_toggle).setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.sidebar_toggle_button:
+			toggleSidebar();
+			break;
+		}
+	}
+	
+	
 	
 }

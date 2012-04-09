@@ -27,8 +27,11 @@
 
 package com.ferg.awful.constants;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.os.Build;
 
 public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
@@ -138,7 +141,33 @@ public class Constants {
 	public static final String THREAD_PAGE = "thread_page";
 
 
-
-
+	public static boolean isGingerbread(){
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+	}
+	public static boolean isHoneycomb(){
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+	}
+	public static boolean isICS(){
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+	}
+	
+	public static boolean isWidescreen(Context cont){
+		if(cont != null){
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+				return cont.getResources().getConfiguration().screenWidthDp >= 900;
+			}else{
+				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
+			}
+		}else{
+			return false;
+		}
+	}
+	public static boolean isWidescreen(Configuration newConfig) {
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+			return newConfig.screenWidthDp >= 900;
+		}else{
+			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
+		}
+	}
 
 }

@@ -797,7 +797,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		return mTitle;
 	}
     
-	private void skipLoad(boolean skip) {
+	public void skipLoad(boolean skip) {
 		skipLoad = skip;
 	}
 

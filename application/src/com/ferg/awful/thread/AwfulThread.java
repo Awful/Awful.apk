@@ -435,7 +435,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>");
             buffer.append("        <div class='userinfo'>");
             buffer.append("            <div class='username'>");
-            buffer.append("                <h4>" + post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/red_star.png' />":"")  +  "</h4>");
+            buffer.append("                <h4>" + post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  +  "</h4>");
             buffer.append("            </div>");
             buffer.append("            <div class='postdate'>");
             buffer.append("                " + post.getDate());
@@ -504,7 +504,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        	<div class='user-button' >");
             buffer.append("        		<div class='userinfo'>");
             buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";") + "'>");
-            buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/blue_star.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/red_star.png' />":"")  + "</h4>");
+            buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  + "</h4>");
             buffer.append("            		</div>");
             buffer.append("            		<div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" :  "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";") + "'>");
             buffer.append("           		     " + post.getDate());
@@ -513,9 +513,9 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		<div class='avatar'>");
 
             if (aPrefs.avatarsEnabled != false && post.getAvatar() != null) {
-                buffer.append("            <img class='gif' style='outline:black double;' src='" + post.getAvatar() + "' />");
+                buffer.append("            <img class='gif' src='" + post.getAvatar() + "' />");
             }else{
-                buffer.append("            <img src='file:///android_res/drawable/post_action_icon.png' />");
+                buffer.append("            <img src='file:///android_res/drawable/ic_menu_more.png' />");
             }
 
             buffer.append("        		</div>");
