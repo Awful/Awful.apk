@@ -154,7 +154,7 @@ public class Constants {
 	public static boolean isWidescreen(Context cont){
 		if(cont != null){
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= 900;
+				return cont.getResources().getConfiguration().screenWidthDp >= 750;
 			}else{
 				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 			}
@@ -164,7 +164,7 @@ public class Constants {
 	}
 	public static boolean isWidescreen(Configuration newConfig) {
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-			return newConfig.screenWidthDp >= 900;
+			return newConfig.screenWidthDp >= 750;
 		}else{
 			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 		}

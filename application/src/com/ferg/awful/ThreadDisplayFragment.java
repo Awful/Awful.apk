@@ -343,18 +343,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(dataLoaded || savedScrollPosition > 0){
         	refreshPosts();
         }
-		if(isDualPane()){
-			mToggleSidebar.setVisibility(View.VISIBLE);
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-            	if(isSidebarVisible()){
-					mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}else{
-					mToggleSidebar.setColorFilter(0);
-				}
-			}
-		}else{
-			mToggleSidebar.setVisibility(View.INVISIBLE);
-		}
+        updateSidebarHint(isDualPane(), isSidebarVisible());
 	}
 
 	private void initThreadViewProperties() {
@@ -733,13 +722,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 case R.id.toggle_sidebar:
                 	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
                 		((ThreadDisplayActivity)getActivity()).toggleSidebar();
-                		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	                    	if(isSidebarVisible()){
-	                			mToggleSidebar.setColorFilter(buttonSelectedColor);
-	                		}else{
-	                			mToggleSidebar.setColorFilter(0);
-	                		}
-                		}
                 	}
                 	break;
             }
@@ -1179,5 +1161,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			refreshInfo();
 			syncThread();
     	}
+	}
+
+	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
+		if(mToggleSidebar != null){
+			if(showIcon){
+				mToggleSidebar.setVisibility(View.VISIBLE);
+	    		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+					if(sidebarVisible){
+						mToggleSidebar.setColorFilter(buttonSelectedColor);
+					}else{
+						mToggleSidebar.setColorFilter(0);
+					}
+	    		}
+			}else{
+				mToggleSidebar.setVisibility(View.INVISIBLE);
+			}
+		}
 	}
 }

@@ -139,6 +139,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
     		}
     		ft.commit();
     		sidebarVisible = !sidebarVisible;
+    		mainWindowFrag.updateSidebarHint(isDualPane(), sidebarVisible);
     	}
     }
     
