@@ -149,7 +149,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         //mTitleView.setBackgroundColor(0xffffffff);
         //mTitleView.setTextColor(0xff000000);
-        getAwfulApplication().setPreferredFont(mTitleView, Typeface.NORMAL);
+        setPreferredFont(mTitleView, Typeface.NORMAL);
     }
 
 	@Override
@@ -336,6 +336,10 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	if(getApplication() != null && view != null){
     		((AwfulApplication)getApplication()).setPreferredFont(view, flags);
     	}
+    }
+    
+    public void setPreferredFont(View view){
+    	setPreferredFont(view, -1);
     }
     
     public static boolean isHoneycomb(){

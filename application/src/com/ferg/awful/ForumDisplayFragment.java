@@ -189,7 +189,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mListView.setDrawingCacheEnabled(true);
         
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
+		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
@@ -201,7 +201,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
 		if(getAwfulActivity() instanceof ThreadDisplayActivity){
-			result.findViewById(R.id.split_gradient_right).setVisibility(View.VISIBLE);
 			result.findViewById(R.id.secondary_title_bar).setVisibility(View.VISIBLE);
 			mSecondaryTitle = (TextView) result.findViewById(R.id.second_titlebar);
 			mMoveUp = (ImageButton) result.findViewById(R.id.move_up);
@@ -249,7 +248,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
         
 
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity);
         mListView.setAdapter(mCursorAdapter);
         mListView.setOnItemClickListener(onThreadSelected);
         mListView.setBackgroundColor(mPrefs.postBackgroundColor);
@@ -564,7 +563,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
+		getAwfulActivity().setPreferredFont(mPageCountText);
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
@@ -607,7 +606,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	mLastPage = 0;
     	lastRefresh = 0;
     	if(getActivity() != null){
-	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId());
+	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity);
 	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
 	    		mListView.setAdapter(mCursorAdapter);
 	    	}

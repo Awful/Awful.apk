@@ -23,12 +23,6 @@
             android:dividerHeight="1px"
             android:cacheColorHint="@color/background"
             />
-        <ImageView
-        	android:visibility="gone"
-        	android:layout_alignParentRight="true"
-            android:id="@+id/split_gradient_right"
-            style="@style/VerticalGradientLeft"
-            />
     </RelativeLayout>
 	    <include 
 	        android:id="@+id/pagebar"

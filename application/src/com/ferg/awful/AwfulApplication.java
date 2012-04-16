@@ -21,7 +21,8 @@ import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
 
 //@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
-@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
+//@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
+@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
 public class AwfulApplication extends Application implements AwfulUpdateCallback{
 	private static String TAG = "AwfulApplication";
 	
@@ -49,6 +50,11 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
     }
 
 	public void setFontFromPreference(TextView textView, int flags){
+		if(flags < 0 && textView.getTypeface() != null){
+			flags = textView.getTypeface().getStyle();
+		}else{
+			flags = Typeface.NORMAL;
+		}
 		if(fonts.size() == 0){
 			processFonts();
 		}

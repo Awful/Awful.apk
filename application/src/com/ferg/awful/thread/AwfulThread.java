@@ -552,7 +552,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-	public static String getView(View current, AwfulPreferences prefs, Cursor data, Context context, boolean hideBookmark) {
+	public static String getView(View current, AwfulPreferences prefs, Cursor data, Context context, boolean hideBookmark, boolean hasSidebar, boolean selected) {
 		String tag_url = null;
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
@@ -634,6 +634,17 @@ public class AwfulThread extends AwfulPagedItem  {
 			
 		}
 		
+		if(hasSidebar){
+			current.setBackgroundResource(R.drawable.gradient_left);
+		}else{
+			current.setBackgroundResource(0);
+		}
+		if(selected){
+			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+		}else{
+			current.findViewById(R.id.selector).setVisibility(View.GONE);
+		}
+		
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		if(unreadCount >=0){
@@ -687,5 +698,6 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 		return null;
 	}
+	
 	
 }

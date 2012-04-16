@@ -27,13 +27,11 @@
 
 package com.ferg.awful;
 
-import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.os.*;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,12 +45,10 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.*;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -67,6 +63,7 @@ import com.ferg.awful.thread.AwfulForum;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
     private ExpandableListView mForumList;
+    private boolean mIsSidebar;
 
     public static ForumsIndexFragment newInstance() {
         return new ForumsIndexFragment();
@@ -128,7 +125,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         return result;
     }
 
-    private boolean isDualPane() {
+    private boolean isSideBar() {
     	if(getActivity() instanceof ForumsIndexActivity){
     		return ((ForumsIndexActivity)getAwfulActivity()).isDualPane();
     	}
@@ -138,6 +135,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	@Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
+        mIsSidebar = isSideBar();
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
         getAwfulActivity().registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
@@ -412,15 +410,47 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
 		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
-			AwfulForum.getView(view, mPrefs, cursor);
-			showSelector(view, cursor);
+			AwfulForum.getView(view,
+							   mPrefs,
+							   cursor,
+							   mIsSidebar,
+							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
 		}
 
 		@Override
 		protected void bindGroupView(View view, Context context, Cursor cursor,
 				boolean isExpanded) {
-			AwfulForum.getView(view, mPrefs, cursor);
-			showSelector(view, cursor);
+			AwfulForum.getView(view,
+							   mPrefs,
+							   cursor,
+							   mIsSidebar,
+							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+		}
+
+		@Override
+		protected View newChildView(Context context, Cursor cursor,
+				boolean isLastChild, ViewGroup parent) {
+			View row = inf.inflate(R.layout.forum_item, parent, false);
+			getAwfulActivity().setPreferredFont(row);
+			AwfulForum.getView(row,
+							   mPrefs,
+							   cursor,
+							   mIsSidebar,
+							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+			return row;
+		}
+
+		@Override
+		protected View newGroupView(Context context, Cursor cursor,
+				boolean isExpanded, ViewGroup parent) {
+			View row = inf.inflate(R.layout.forum_item, parent, false);
+			getAwfulActivity().setPreferredFont(row);
+			AwfulForum.getView(row, 
+							   mPrefs,
+							   cursor,
+							   mIsSidebar,
+							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+			return row;
 		}
 
 		@Override
@@ -429,40 +459,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			Log.v(TAG, "getChildrenCursor "+parentId);
 			getLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
 			return null;
-		}
-
-		@Override
-		protected View newChildView(Context context, Cursor cursor,
-				boolean isLastChild, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, parent, false);
-			getAwfulActivity().setPreferredFont(row, Typeface.NORMAL);
-			AwfulForum.getView(row, mPrefs, cursor);
-			showSelector(row, cursor);
-			return row;
-		}
-
-		@Override
-		protected View newGroupView(Context context, Cursor cursor,
-				boolean isExpanded, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, parent, false);
-			getAwfulActivity().setPreferredFont(row, Typeface.NORMAL);
-			AwfulForum.getView(row, mPrefs, cursor);
-			return row;
-		}
-		private void showSelector(View row, Cursor cursor){
-			TextView v = (TextView) row.findViewById(R.id.selector);
-			if(v != null){
-				if(selectedId > -1){
-					if(selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
-						v.setVisibility(View.VISIBLE);
-						v.setTextColor(mPrefs.postFontColor);
-					}else{
-						v.setVisibility(View.GONE);
-					}
-				}else{
-					v.setVisibility(View.GONE);
-				}
-			}
 		}
 	}
 

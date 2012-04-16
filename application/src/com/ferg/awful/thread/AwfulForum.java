@@ -188,7 +188,7 @@ public class AwfulForum extends AwfulPagedItem {
         return -1;
     }
     
-	public static void getView(View current, AwfulPreferences mPrefs, Cursor data) {
+	public static void getView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.subtext);
 		if(mPrefs != null){
@@ -202,6 +202,16 @@ public class AwfulForum extends AwfulPagedItem {
 		}else{
 			sub.setVisibility(View.VISIBLE);
 			sub.setText(subtext);
+		}
+		if(hasSidebar){
+			current.setBackgroundResource(R.drawable.gradient_left);
+		}else{
+			current.setBackgroundResource(0);
+		}
+		if(selected){
+			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+		}else{
+			current.findViewById(R.id.selector).setVisibility(View.GONE);
 		}
 	}
 
@@ -221,14 +231,26 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param current
 	 * @param mPrefs
 	 * @param data
+	 * @param selected 
+	 * @param mIsSidebar 
 	 */
-	public static void getSubforumView(View current, AwfulPreferences mPrefs, Cursor data) {
+	public static void getSubforumView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
 		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
 		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
+		if(hasSidebar){
+			current.setBackgroundResource(R.drawable.gradient_left);
+		}else{
+			current.setBackgroundResource(0);
+		}
+		if(selected){
+			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+		}else{
+			current.findViewById(R.id.selector).setVisibility(View.GONE);
+		}
 		if(mPrefs != null){
 			title.setTextColor(mPrefs.postFontColor);
 			sub.setTextColor(mPrefs.postFontColor2);

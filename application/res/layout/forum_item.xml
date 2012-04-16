@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="8dip"
+    android:layout_height="wrap_content"
+    android:background="@drawable/gradient_left"
     >
     <ImageView
         android:id="@+id/sticky_icon"
@@ -12,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dip"
         android:layout_marginRight="4dip"
+        android:paddingLeft="8dip"
         android:src="@drawable/ic_sticky"
         android:visibility="gone"
         />
@@ -21,6 +21,7 @@
         android:layout_centerVertical="true"
         android:layout_toRightOf="@id/sticky_icon"
         android:layout_toLeftOf="@+id/selector"
+    	android:padding="8dip"
 		>
 		<TextView
 			android:id="@+id/title"
@@ -43,19 +44,14 @@
             android:layout_alignParentLeft="true"
 			/>
 	</RelativeLayout>
-
-    <TextView
+    <ImageView
         android:id="@+id/selector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="2dip"
-        android:layout_marginLeft="4dip"
-        android:layout_centerVertical="true"
-		android:textSize="24dip"
-		android:textStyle="bold"
-        android:text=">"
-		android:textColor="@color/secondary_post_font"
-        android:visibility="gone" />
+        android:src="@drawable/ic_menu_arrowright"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_centerVertical="true"
+    	android:layout_alignParentRight="true"
+    	android:visibility="gone"
+        />
 
 </RelativeLayout>

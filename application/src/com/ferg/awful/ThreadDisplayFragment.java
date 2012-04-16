@@ -305,7 +305,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
-
+        
         getAwfulActivity().registerSyncService(mMessenger, getThreadId());
         if(getThreadId() > 0 && savedScrollPosition < 1){
         	syncThread();
@@ -318,7 +318,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
 
 		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
+		getAwfulActivity().setPreferredFont(mPageCountText);
 		
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -326,6 +326,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mThreadView = (WebView) result.findViewById(R.id.thread);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
+		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
 		initThreadViewProperties();
 		mNextPage.setOnClickListener(onButtonClick);
 		mToggleSidebar.setOnClickListener(onButtonClick);
@@ -402,19 +403,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onResume() {
         super.onResume(); Log.e(TAG, "Resume");
         
-        if (mThreadWindow.getChildCount() < 2) {
+        if (mThreadView == null) {
             mThreadView = new WebView(getActivity());
 
             initThreadViewProperties();
-
+            mThreadWindow.removeAllViews();
             mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         }else{
-        	if(mThreadView != null){
-                mThreadView.onResume();
-                mThreadView.resumeTimers();
-        	}
+            mThreadView.onResume();
+            mThreadView.resumeTimers();
         }
+        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
     }
@@ -449,8 +449,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDestroy() {
         super.onDestroy(); Log.e(TAG, "onDestroy");
-        getLoaderManager().destroyLoader(getThreadId());
         getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
+        getLoaderManager().destroyLoader(getThreadId());
     }
 
     @Override
@@ -976,7 +976,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText, Typeface.NORMAL);
+		getAwfulActivity().setPreferredFont(mPageCountText);
 		refreshPosts();
 	}
 

@@ -25,38 +25,43 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private LayoutInflater inf;
 	private int mId;
 	private int selectedId = -1;
+	private boolean mIsSidebar;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
-		this(context, c, 0);
+		this(context, c, 0, false);
 	}
-	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id) {
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar) {
 		super(context, c, 0);
 		mPrefs = new AwfulPreferences(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
 		mId = id;
+		mIsSidebar = isSidebar;
 	}
 	
 	public void setSelected(int id){
 		selectedId = id;
 	}
+	
+	public void setSidebar(boolean isSidebar){
+		mIsSidebar = isSidebar;
+	}
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			String tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID);
+			String tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 			if(tagUrl != null){
 				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
 			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getSubforumView(current, mPrefs, data);
+			AwfulForum.getSubforumView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
-			AwfulMessage.getView(current, mPrefs, data);
+			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			AwfulEmote.getView(current, mPrefs, data);
 		}
-		refreshSelector(current, data);
-		mParent.setPreferredFont(current, Typeface.NORMAL);
+		mParent.setPreferredFont(current);
 	}
 
 	@Override
@@ -64,40 +69,24 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			String tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID);
+			String tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 			if(tagUrl != null){
 				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
 			}
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, mPrefs, data);
+			AwfulForum.getSubforumView(row, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
-			AwfulMessage.getView(row, mPrefs, data);
+			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);//TODO add custom emote view
 			AwfulEmote.getView(row, mPrefs, data);
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);
 		}
-		refreshSelector(row, data);
-		mParent.setPreferredFont(row, Typeface.NORMAL);
+		mParent.setPreferredFont(row);
 		return row;
-	}
-	
-	private void refreshSelector(View current, Cursor data){
-		View v = current.findViewById(R.id.selector);
-		if(v != null){
-			if(selectedId > -1){
-				if(selectedId == data.getInt(data.getColumnIndex(AwfulForum.ID))){//android provider requires that _id is the id column for every table
-					v.setVisibility(View.VISIBLE);
-				}else{
-					v.setVisibility(View.GONE);
-				}
-			}else{
-				v.setVisibility(View.GONE);
-			}
-		}
 	}
 	
 	public int getInt(int position, String column){
@@ -124,8 +113,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
     			return R.layout.thread_item;
     		}else if(tmpcursor.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
     			return R.layout.forum_item;
-    		}else if(tmpcursor.getColumnIndex(AwfulPost.AVATAR) >= 0){//unique to posts
-    			return R.layout.post_item;
     		}
     	}
     	return -1;

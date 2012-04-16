@@ -20,10 +20,5 @@
 			android:cacheColorHint="@color/background"
 	        android:choiceMode="singleChoice"
 			/>
-        <ImageView
-        	android:layout_alignParentRight="true"
-            android:id="@+id/split_gradient_right"
-            style="@style/VerticalGradientLeft"
-            />
     </RelativeLayout>
 </LinearLayout>

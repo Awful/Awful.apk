@@ -2,17 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:paddingBottom="8dip"
-    android:paddingLeft="@dimen/forum_item_margin"
-    android:paddingRight="8dip"
-    android:paddingTop="8dip" >
+    android:background="@drawable/gradient_left" >
 
     <RelativeLayout
         android:id="@+id/icon_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="false">
+        android:layout_centerVertical="false"
+	    android:paddingBottom="8dip"
+	    android:paddingLeft="4dip"
+	    android:paddingTop="8dip">
 
         <ImageView
             android:id="@+id/sticky_icon"
@@ -38,7 +37,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/icon_box" >
+        android:layout_toRightOf="@+id/icon_box"
+        android:layout_toLeftOf="@+id/selector"
+	    android:paddingBottom="8dip"
+	    android:paddingLeft="4dip"
+	    android:paddingRight="4dip"
+	    android:paddingTop="8dip" >
 
         <TextView
             android:id="@+id/title"
@@ -62,12 +66,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/thread_tag"
+            android:layout_toLeftOf="@+id/unread_count"
             android:layout_below="@id/title"
             android:textColor="@color/secondary_post_font"
             android:textSize="16dip" />
 
         <TextView
-            android:id="@id/unread_count"
+            android:id="@+id/unread_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -78,5 +83,12 @@
             android:textSize="14dip"
             android:textStyle="bold" />
     </RelativeLayout>
-
+    <ImageView
+        android:id="@+id/selector"
+        android:src="@drawable/ic_menu_arrowright"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_centerVertical="true"
+    	android:visibility="gone"
+        />
 </RelativeLayout>
