@@ -15,6 +15,13 @@
             android:entryValues="@array/schemas_values"
 			android:defaultValue="default"
             />
+            <ListPreference
+            android:key="selected_theme"
+            android:title="Icon Theme"
+            android:entries="@array/icon_themes"
+            android:entryValues="@array/icon_themes_values"
+			android:defaultValue="light"
+            />
         </PreferenceCategory>
           <PreferenceCategory android:title="@string/alternate_backgrounds">
                 <CheckBoxPreference

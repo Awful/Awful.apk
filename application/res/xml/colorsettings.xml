@@ -33,8 +33,20 @@
 		   	/>
 		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
-		   	android:key="alternative_read_post_background_color"
-		   	android:title="@string/read_post_background_color"
+		   	android:key="post_header_font_color"
+		   	android:title="Post Header Font Color"
+		   	android:defaultValue="@color/forum_title"
+		   	/>
+		<com.ferg.awful.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:key="post_header_background_color"
+		   	android:title="Post Header Background Color"
+		   	android:defaultValue="@color/forums_blue"
+		   	/>
+		<com.ferg.awful.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:key="post_divider_color"
+		   	android:title="Post Divider Background Color"
 		   	android:defaultValue="@color/background_read"
 		   	/>
 		<com.ferg.awful.preferences.ColorPickerPreference

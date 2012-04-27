@@ -47,7 +47,7 @@
     </item>
 	<item
 		android:id="@+id/submit_button"
-		android:icon="@drawable/ic_menu_reply"
+		android:icon="@drawable/ic_menu_post"
 		android:showAsAction="always" 
         />
 </menu>

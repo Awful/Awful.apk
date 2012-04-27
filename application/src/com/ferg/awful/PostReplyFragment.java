@@ -27,10 +27,12 @@
 
 package com.ferg.awful;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -99,10 +101,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 		sendSuccessful = true;
                 		if(getActivity() != null){ 
                 			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
-                			if(getActivity() instanceof PostReplyActivity){
-                				getActivity().setResult(RESULT_POSTED);
-                				getActivity().finish();
-                			}
+                			leave();
                 		}
                 	}
                     break;
@@ -202,6 +201,14 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     @Override
     public void onResume() {
         super.onResume();
+    }
+    
+    private void leave(){
+    	//add functionality for non-activity cases, for future updates
+    	if(getActivity() instanceof PostReplyActivity){
+			getActivity().setResult(RESULT_POSTED);
+			getActivity().finish();
+		}
     }
     
     @Override
@@ -468,11 +475,31 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     };
 
     private void postReply() {
-    	if(mDialog == null && getActivity() != null){
-    		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
-    	}
-        saveReply();
-        ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+    	new AlertDialog.Builder(getActivity())
+        .setTitle("Confirm Post?")
+        .setPositiveButton(R.string.post_reply,
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface aDialog, int aWhich) {
+                	if(mDialog == null && getActivity() != null){
+                		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
+                	}
+                    saveReply();
+                    ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+                }
+            })
+        .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface aDialog, int aWhich) {
+                ContentResolver cr = getActivity().getContentResolver();
+                cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+                leave();
+            }
+        }).setNeutralButton(R.string.reply_alert_save_draft,  new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface aDialog, int aWhich) {
+                saveReply();
+                leave();
+            }
+        })
+        .show();
     }
     
     private void deleteReply(){
@@ -519,7 +546,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
         		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if (replyData != null) {
-    				String quoteData = NetworkUtils.unencodeHtml(replyData)+"\n\n";
+    				String quoteData = NetworkUtils.unencodeHtml(replyData);
+    				if(quoteData.endsWith("[/quote]")){
+    					quoteData = quoteData+"\n\n";
+    				}
     				mMessage.setText(quoteData);
     				mMessage.setSelection(quoteData.length());
     				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));

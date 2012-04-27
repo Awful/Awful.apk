@@ -1,5 +1,8 @@
 package com.ferg.awful;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -8,11 +11,13 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.test.PerformanceTestCase;
 
+import com.ferg.awful.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ColorSettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	
+	private Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
 	SharedPreferences mPrefs;
 	ActivityConfigurator mConf;
 	String lastTheme;
@@ -33,6 +38,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		lastTheme = mPrefs.getString("themes","default");
 		addPreferencesFromResource(R.xml.themesettings);
+		addPreferencesFromResource(R.xml.colorsettings);
 		ListPreference p = (ListPreference) findPreference("themes");
 		p.setSummary(p.getEntry());
 		
@@ -40,14 +46,19 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		String[] fontList = ((AwfulApplication)getApplication()).getFontList();
 		String[] fontNames = new String[fontList.length];
 		for(int x=0; x<fontList.length;x++){
-			fontNames[x] = fontList[x].replaceAll(".mp3", "");
+			Matcher fontName = fontFilename.matcher(fontList[x]);
+			if(fontName.find()){
+				fontNames[x] = fontName.group(1).replaceAll("_", " ");
+			}else{//if the regex fails, try our best to clean up the filename.
+				fontNames[x] = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
+			}
 		}
 		f.setEntries(fontNames);
 		f.setEntryValues(fontList);
 		f.setSummary(f.getEntry());
-
-		if(mPrefs.getString("themes","default").equals("custom")){
-            addPreferencesFromResource(R.xml.colorsettings);
+		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
+			ListPreference pl = (ListPreference) findPreference(valueSummaryKey);
+			pl.setSummary(pl.getEntry());
 		}
 	}
 
@@ -86,15 +97,25 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 	}
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
-		"themes"
+		"themes",
+		"selected_theme"
 	};
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
 			if(valueSummaryKey.equals(key)) {
+				if("selected_theme".equals(key)){
+					ListPreference p = (ListPreference) findPreference(key);
+					p.setSummary(p.getEntry());
+				}
 				if(key.equals("themes")){
 					ListPreference p = (ListPreference) findPreference(key);
+					if(lastTheme.equals("yospos")){
+						Editor prefEdit = prefs.edit();
+						prefEdit.putString("preferred_font", "default");
+						savePreferences(prefEdit);
+					}
 					if(p.getValue().equals("dark")){
 						if(lastTheme.equals("custom")){
 							saveCustomTheme();
@@ -106,8 +127,12 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
+						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_header_background));//TODO
+						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.dark_header_divider));//TODO
+						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
+						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("Dark");
 						lastTheme = "dark";
@@ -124,8 +149,16 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.alt_background));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read));
+						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.forums_blue));//TODO
+						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.background));//TODO
+						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.forums_gray));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.link_quote));
+						if(Constants.isWidescreen(getParent())){//TODO fix this, tablet mode will only be used in landscape on certain devices. this won't accommodate that.
+							prefEdit.putString("selected_theme", "light");
+						}else{
+							prefEdit.putString("selected_theme", "dark");
+						}
                         savePreferences(prefEdit);
 						p.setSummary("Default");
 						lastTheme = "default";
@@ -142,11 +175,38 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.yospos_alt_background));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.yospos_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.yospos_alt_background_read));
+						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.yospos_background));//TODO
+						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.yospos_default_post_font));//TODO
+						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.yospos_default_post_font));//TODO
+						prefEdit.putString("preferred_font", "fonts/terminus_mono.ttf.mp3");
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.yospos_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.yospos_link_quote));
+						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("yospos, bitch");
 						lastTheme = "yospos";
+						this.finish();
+						return;
+					}else if(p.getValue().equals("darkblue")){
+						if(lastTheme.equals("custom")){
+							saveCustomTheme();
+						}
+						Editor prefEdit = prefs.edit();
+						prefEdit.putInt("default_post_font_color", getResources().getColor(R.color.dark_default_post_font));
+						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
+						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.dark_background));
+						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
+						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
+						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
+						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_background));//TODO
+						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.dark_blue));//TODO
+						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
+						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
+						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
+						prefEdit.putString("selected_theme", "dark");
+                        savePreferences(prefEdit);
+						p.setSummary("Darkish Blueish");
+						lastTheme = "darkblue";
 						this.finish();
 						return;
 					}else if(!lastTheme.equals("custom")){
@@ -157,10 +217,12 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 							prefEdit.putInt("alternative_post_background_color", mPrefs.getInt("custom_alternative_post_background_color", getResources().getColor(R.color.alt_background)));
 							prefEdit.putInt("read_post_background_color", mPrefs.getInt("custom_read_post_background_color", getResources().getColor(R.color.background_read)));
 							prefEdit.putInt("alternative_read_post_background_color", mPrefs.getInt("custom_alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
+							prefEdit.putInt("post_header_background_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.forums_blue)));//TODO
+							prefEdit.putInt("post_divider_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.background)));//TODO
+							prefEdit.putInt("post_header_font_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.forums_gray)));//TODO
 							prefEdit.putInt("op_post_color", mPrefs.getInt("custom_op_post_color", getResources().getColor(R.color.op_post)));
 							prefEdit.putInt("link_quote_color", mPrefs.getInt("custom_link_quote_color", getResources().getColor(R.color.link_quote)));
                             savePreferences(prefEdit);
-							addPreferencesFromResource(R.xml.colorsettings);
 							p.setSummary("Custom");
 							lastTheme = "custom";
 						}
@@ -178,6 +240,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		prefEdit.putInt("custom_alternative_post_background_color", mPrefs.getInt("alternative_post_background_color", getResources().getColor(R.color.alt_background)));
 		prefEdit.putInt("custom_read_post_background_color", mPrefs.getInt("read_post_background_color", getResources().getColor(R.color.background_read)));
 		prefEdit.putInt("custom_alternative_read_post_background_color", mPrefs.getInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
+		prefEdit.putInt("custom_post_header_background_color", mPrefs.getInt("post_header_background_color", getResources().getColor(R.color.forums_blue)));
+		prefEdit.putInt("custom_post_divider_color", mPrefs.getInt("post_divider_color", getResources().getColor(R.color.background)));
+		prefEdit.putInt("custom_post_header_font_color", mPrefs.getInt("post_header_font_color", getResources().getColor(R.color.forums_gray)));
 		prefEdit.putInt("custom_op_post_color", mPrefs.getInt("op_post_color", getResources().getColor(R.color.op_post)));
 		prefEdit.putInt("custom_link_quote_color", mPrefs.getInt("link_quote_color", getResources().getColor(R.color.link_quote)));
         savePreferences(prefEdit);

@@ -253,7 +253,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	
 	// All keys representing int values whose Summaries should be set to their values
 	private static final String[] VALUE_SUMMARY_KEYS_INT = { 
-		"default_post_font_size" 
+		"default_post_font_size",
+		"post_per_page"
 		};
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {

@@ -9,8 +9,13 @@
     <string-array name="schemas_values">
         <item>default</item>
         <item>dark</item>
+        <item>darkblue</item>
         <item>yospos</item>
         <item>custom</item>
+    </string-array>
+    <string-array name="icon_themes_values">
+        <item>light</item>
+        <item>dark</item>
     </string-array>
 	<string-array name="imgur_thumbnails_values">
 		<item>d</item>

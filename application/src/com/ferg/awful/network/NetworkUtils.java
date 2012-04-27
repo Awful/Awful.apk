@@ -328,8 +328,8 @@ public class NetworkUtils {
         if (sHttpClient == null) {
         	HttpParams httpPar = new BasicHttpParams();
         	HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
-        	HttpConnectionParams.setSoTimeout(httpPar, 10000);//timeout to wait if no data transfer occurs
-        	HttpConnectionParams.setSocketBufferSize(httpPar, 32768);
+        	HttpConnectionParams.setSoTimeout(httpPar, 20000);//timeout to wait if no data transfer occurs //TODO bumped to 20, but we need to monitor cell status now
+        	HttpConnectionParams.setSocketBufferSize(httpPar, 65548);
             sHttpClient = new DefaultHttpClient(httpPar);
         }
 

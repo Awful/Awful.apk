@@ -66,8 +66,13 @@
 	<string-array name="themes">
 		<item>Default</item>
 		<item>Dark</item>
+		<item>Dark-Blue</item>
 		<item>yospos</item>
 		<item>Custom</item>
+	</string-array>
+	<string-array name="icon_themes">
+		<item>Black</item>
+		<item>White</item>
 	</string-array>
 	<string name="threadinfo_author">Author</string>
 	<string name="threadinfo_killed">Killed By</string>
@@ -117,6 +122,7 @@
 	<string name="draft_alert_keep">Keep Message</string>
 	<string name="draft_alert_discard">Discard Message</string>
 	<string name="draft_alert_title">Previous Reply Found</string>
+	<string name="reply_alert_save_draft">Save Draft</string>
     <string name="new_threads_first">Sort UCP by new posts</string>
     <string name="image_settings">Image Preferences</string>
     <string name="platinum">Platinum Account</string>
