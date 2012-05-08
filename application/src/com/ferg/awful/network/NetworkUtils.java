@@ -86,6 +86,8 @@ public class NetworkUtils {
     			Context.MODE_PRIVATE);
     	String useridCookieValue   = prefs.getString(Constants.COOKIE_PREF_USERID,   null);
     	String passwordCookieValue = prefs.getString(Constants.COOKIE_PREF_PASSWORD, null);
+    	String sessionidCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONID, null);
+    	String sessionhashCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONHASH, null);
     	long expiry                = prefs.getLong  (Constants.COOKIE_PREF_EXPIRY_DATE, -1);
     	
     	if(useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
@@ -100,6 +102,16 @@ public class NetworkUtils {
     		passwordCookie.setDomain(Constants.COOKIE_DOMAIN);
     		passwordCookie.setExpiryDate(expiryDate);
     		passwordCookie.setPath(Constants.COOKIE_PATH);
+    		
+    		BasicClientCookie sessionidCookie = new BasicClientCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
+    		sessionidCookie.setDomain(Constants.COOKIE_DOMAIN);
+    		sessionidCookie.setExpiryDate(expiryDate);
+    		sessionidCookie.setPath(Constants.COOKIE_PATH);
+    		
+    		BasicClientCookie sessionhashCookie = new BasicClientCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+    		sessionhashCookie.setDomain(Constants.COOKIE_DOMAIN);
+    		sessionhashCookie.setExpiryDate(expiryDate);
+    		sessionhashCookie.setPath(Constants.COOKIE_PATH);
     		
     		CookieStore jar = new BasicCookieStore();
     		jar.addCookie(useridCookie);
@@ -146,16 +158,24 @@ public class NetworkUtils {
     	
     	String useridValue = null;
     	String passwordValue = null;
+    	String sessionId = null;
+    	String sessionHash = null;
     	Date expires = null;
     	
     	List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
     	for(Cookie cookie : cookies) {
-    		if(cookie.getDomain().equals(Constants.COOKIE_DOMAIN)) {
+    		if(cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
     			if(cookie.getName().equals(Constants.COOKIE_NAME_USERID)) {
     				useridValue = cookie.getValue();
     				expires = cookie.getExpiryDate();
     			} else if(cookie.getName().equals(Constants.COOKIE_NAME_PASSWORD)) {
     				passwordValue = cookie.getValue();
+    				expires = cookie.getExpiryDate();
+    			} else if(cookie.getName().equals(Constants.COOKIE_NAME_SESSIONID)) {
+    				sessionId = cookie.getValue();
+    				expires = cookie.getExpiryDate();
+    			} else if(cookie.getName().equals(Constants.COOKIE_NAME_SESSIONHASH)) {
+    				sessionHash = cookie.getValue();
     				expires = cookie.getExpiryDate();
     			}
     		}
@@ -165,6 +185,8 @@ public class NetworkUtils {
     		Editor edit = prefs.edit();
     		edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
     		edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
+    		edit.putString(Constants.COOKIE_PREF_SESSIONID, sessionId);
+    		edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
     		edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
