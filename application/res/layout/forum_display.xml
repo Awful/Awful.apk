@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
-	<ListView
+	<com.markupartist.android.widget.PullToRefreshListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"

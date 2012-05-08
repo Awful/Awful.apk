@@ -27,6 +27,8 @@
 
 package com.ferg.awful;
 
+import java.util.Date;
+
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -37,7 +39,9 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -73,6 +77,8 @@ import com.ferg.awful.thread.AwfulForum;
 import com.ferg.awful.thread.AwfulPagedItem;
 import com.ferg.awful.thread.AwfulThread;
 import com.ferg.awful.widget.NumberPicker;
+import com.markupartist.android.widget.PullToRefreshListView;
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 
 /**
  * Uses intent extras:
@@ -85,7 +91,7 @@ import com.ferg.awful.widget.NumberPicker;
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
-    private ListView mListView;
+    private PullToRefreshListView mListView;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -185,9 +191,16 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
         View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
 
-        mListView = (ListView) result.findViewById(R.id.forum_list);
+        mListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
         mListView.setDrawingCacheEnabled(true);
-        
+        mListView.setOnRefreshListener(new OnRefreshListener() {
+			
+			@Override
+			public void onRefresh() {
+				syncForum();
+			}
+		});
+        mListView.onRefreshComplete();
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -542,10 +555,21 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         Log.e(TAG, "Loading failed.");
         if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        	mListView.onRefreshComplete("Loading Failed!");
         }
     }
 
-    private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
+    @Override
+	public void loadingSucceeded() {
+		super.loadingSucceeded();
+		if(getActivity() != null){
+			Date time = new Date();
+			mListView.onRefreshComplete("Updated @ "+time.getHours()+":"+time.getMinutes());
+		}
+	}
+
+
+	private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
 	private static final RotateAnimation mLoadingAnimation = 
 			new RotateAnimation(
 					0f, 360f,
