@@ -282,7 +282,9 @@ public class AwfulThread extends AwfulPagedItem  {
         TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
         if (bkButtons.length >0) {
         	String bkSrc = bkButtons[0].getAttributeByName("src");
-        	thread.put(BOOKMARKED, bkSrc != null && bkSrc.contains("unbookmark"));
+        	if(bkSrc != null && bkSrc.contains("unbookmark")){
+        		//thread.put(BOOKMARKED, 1);//TODO update to not clobber the existing bookmark value
+        	}
         }
         TagNode breadcrumbs = response.findElementByAttValue("class", "breadcrumbs", true, true);
     	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
