@@ -268,9 +268,9 @@ public class AwfulPost {
 				youTube.removeAttribute("src");
 				youTube.removeAttribute("height");
 				youTube.removeAttribute("width");
-				youTube.setAttribute("style", "background-image:url("+image+"); position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
+				youTube.setAttribute("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
 				TagNode img = new TagNode("img");
-				img.setAttribute("class", "nolink");
+				img.setAttribute("class", "nolink videoPlayButton");
 				img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
 				img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-16px;margin-left:-16px;");
 				youTube.addChild(img);
@@ -322,10 +322,10 @@ public class AwfulPost {
 						continue;
 					}
 					node.removeAllChildren();
-					node.setAttribute("style", "background-image:url("+image+"); position:relative;text-align:center; width:" + width + "; height:" + height);
+					node.setAttribute("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
 					node.setAttribute("onclick", "location.href=\""+link+"\"");
 					TagNode img = new TagNode("img");
-					img.setAttribute("class", "nolink");
+					img.setAttribute("class", "nolink videoPlayButton");
 					img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
 					img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
 					node.addChild(img);
@@ -453,6 +453,10 @@ public class AwfulPost {
 						TagNode[] images = pc.getElementsByName("img", true);
 
 						for(TagNode img : images){
+							//don't alter video mock buttons
+							if((img.hasAttribute("class") && img.getAttributeByName("class").contains("videoPlayButton"))){
+								continue;
+							}
 							boolean dontLink = false;
 							TagNode parent = img.getParent();
 							String src = img.getAttributeByName("src");
