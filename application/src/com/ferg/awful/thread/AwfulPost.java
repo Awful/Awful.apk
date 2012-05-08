@@ -59,6 +59,7 @@ public class AwfulPost {
 
     private static final Pattern fixCharacters_regex = Pattern.compile("([\\r\\f])");
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
+	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
 	private static final Pattern postIndex_regex = Pattern.compile("index=(\\d+)");
 
@@ -251,7 +252,31 @@ public class AwfulPost {
 
 	private static TagNode convertVideos(TagNode contentNode) {
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
-
+		TagNode[] youtubeNodes = contentNode.getElementsByAttValue("class", "youtube-player", true, true);
+		for(TagNode youTube : youtubeNodes){
+			String src = youTube.getAttributeByName("src");
+			int height = Integer.parseInt(youTube.getAttributeByName("height"));
+			int width = Integer.parseInt(youTube.getAttributeByName("width"));
+			Matcher youtube = youtubeHDId_regex.matcher(src);
+			if(youtube.find()){
+				String videoId = youtube.group(1);
+				String link = "http://www.youtube.com/watch?v=" + videoId;
+				String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+				youTube.setName("a");
+				youTube.setAttribute("href", link);
+				youTube.removeAttribute("type");
+				youTube.removeAttribute("frameborder");
+				youTube.removeAttribute("src");
+				youTube.removeAttribute("height");
+				youTube.removeAttribute("width");
+				youTube.setAttribute("style", "background-image:url("+image+"); position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
+				TagNode img = new TagNode("img");
+				img.setAttribute("class", "nolink");
+				img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
+				img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-16px;margin-left:-16px;");
+				youTube.addChild(img);
+			}
+		}
 		for(TagNode node : videoNodes){
 			try{
 				String src = null;
@@ -270,7 +295,7 @@ public class AwfulPost {
 					String link = null, image = null;
 					Matcher youtube = youtubeId_regex.matcher(src);
 					Matcher vimeo = vimeoId_regex.matcher(src);
-					if(youtube.find()){
+					if(youtube.find()){//we'll leave in the old youtube code in case something gets reverted
 						String videoId = youtube.group(1);
 						link = "http://www.youtube.com/watch?v=" + videoId;
 						image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";

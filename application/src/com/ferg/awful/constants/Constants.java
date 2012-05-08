@@ -86,10 +86,14 @@ public class Constants {
 	public static final String COOKIE_PATH          = "/";
 	public static final String COOKIE_NAME_USERID   = "bbuserid";
 	public static final String COOKIE_NAME_PASSWORD = "bbpassword";
+	public static final String COOKIE_NAME_SESSIONID = "sessionid";
+	public static final String COOKIE_NAME_SESSIONHASH = "sessionhash";
 	
 	public static final String COOKIE_PREFERENCE       = "awful_cookie_pref";
 	public static final String COOKIE_PREF_USERID      = "bbuserid";
 	public static final String COOKIE_PREF_PASSWORD    = "bbpassword";
+	public static final String COOKIE_PREF_SESSIONID    = "sessionid";
+	public static final String COOKIE_PREF_SESSIONHASH    = "sessionhash";
 	public static final String COOKIE_PREF_EXPIRY_DATE = "expiration";
 
 	// Content provider
