@@ -3,7 +3,7 @@
 	>
 	<item
 		android:id="@+id/user_cp"
-		android:icon="@drawable/ic_menu_bookmarks"
+		android:icon="@drawable/ic_interface_bookmarks"
 		android:showAsAction="always" 
         android:title="@string/usercp"
         />

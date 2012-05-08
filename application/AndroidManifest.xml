@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awful"
       android:versionCode="35"
-      android:versionName="2.3.0_b1"
+      android:versionName="2.3.0_b13"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
