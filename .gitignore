@@ -23,3 +23,5 @@ local.properties
 /application/.settings
 /libraries/Sherlock/bin
 /libraries/Sherlock/gen
+/libraries/pulltorefresh/gen
+/libraries/pulltorefresh/bin

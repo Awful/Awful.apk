@@ -89,32 +89,38 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		return row;
 	}
 	
-	public int getInt(int position, String column){
-    	Cursor tmpcursor = getCursor();
-    	int col = tmpcursor.getColumnIndex(column);
-    	if(tmpcursor.moveToPosition(position) && col >=0){
+	public int getInt(long id, String column){
+    	Cursor tmpcursor = getRow(id);
+    	if(tmpcursor != null){
+        	int col = tmpcursor.getColumnIndex(column);
     		return tmpcursor.getInt(col);
     	}
 		return 0;
 	}
 
-	public String getString(int position, String column){
-    	Cursor tmpcursor = getCursor();
-    	int col = tmpcursor.getColumnIndex(column);
-    	if(tmpcursor.moveToPosition(position) && col >=0){
+	public String getString(long id, String column){
+    	Cursor tmpcursor = getRow(id);
+    	if(tmpcursor != null){
+        	int col = tmpcursor.getColumnIndex(column);
     		return tmpcursor.getString(col);
     	}
 		return null;
 	}
-	public int getType(int position){
+	/**
+	 * Returns a cursor pointing to the row containing the specified ID or null if not found.
+	 * DO NOT CLOSE THE CURSOR.
+	 * @param id
+	 * @return cursor with specified row or null. DO NOT CLOSE.
+	 */
+	public Cursor getRow(long id){
     	Cursor tmpcursor = getCursor();
-    	if(tmpcursor.moveToPosition(position)){
-    		if(tmpcursor.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-    			return R.layout.thread_item;
-    		}else if(tmpcursor.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-    			return R.layout.forum_item;
-    		}
+    	if(tmpcursor != null && tmpcursor.moveToFirst()){
+    		do{
+    			if(tmpcursor.getLong(tmpcursor.getColumnIndex(AwfulThread.ID)) == id){//contentprovider id tables are required to be _id
+		    		return tmpcursor;
+    			}
+    		}while(tmpcursor.moveToNext());
     	}
-    	return -1;
+    	return null;
 	}
 }

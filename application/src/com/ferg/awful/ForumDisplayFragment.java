@@ -200,7 +200,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				syncForum();
 			}
 		});
-        mListView.onRefreshComplete();
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -401,12 +400,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         if(aMenuInfo instanceof AdapterContextMenuInfo){
 	        android.view.MenuInflater inflater = getActivity().getMenuInflater();
 	        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aMenuInfo;
-	        switch(mCursorAdapter.getType(info.position)){
-	           case R.layout.forum_item:
-	           	break;
-	           case R.layout.thread_item:
+	        Cursor row = mCursorAdapter.getRow(info.id);
+            if(row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
 	              inflater.inflate(R.menu.thread_longpress, aMenu);
-	          	break;
 	       }
         }
     }
@@ -419,14 +415,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
-        		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.position, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
+        		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
             	viewThread((int) info.id,lastPage);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
                 return true;
             case R.id.thread_bookmark:
-            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.position, AwfulThread.BOOKMARKED)+1)%2);
+            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2);
                 return true;
             case R.id.copy_url_thread:
             	copyUrl((int) info.id);
@@ -533,18 +529,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-            switch(mCursorAdapter.getType(aPosition)) {
-                case R.layout.thread_item:
+        	Cursor row = mCursorAdapter.getRow(aId);
+            if(row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
                     Log.i(TAG, "Thread ID: " + Long.toString(aId));
-                    int unreadPage = AwfulPagedItem.getLastReadPage(mCursorAdapter.getInt(aPosition, AwfulThread.UNREADCOUNT),
-                    												mCursorAdapter.getInt(aPosition, AwfulThread.POSTCOUNT),
+                    int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
+                    												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     												mPrefs.postPerPage);
                     viewThread((int) aId, unreadPage);
-                    break;
-                    
-                case R.layout.forum_item:
+            }else if(row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
                     displayForumContents((int) aId);
-                    break;
             }
         }
     };
@@ -710,6 +703,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 					mCursorAdapter.swapCursor(aData);
 				}
 			}
+			mListView.onRefreshComplete();
         }
 
 		@Override
@@ -753,6 +747,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 					mCursorAdapter.swapCursor(combinedCursors[0]);
 				}
 			}
+			mListView.onRefreshComplete();
         }
 
 		@Override
