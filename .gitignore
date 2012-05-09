@@ -27,3 +27,6 @@ local.properties
 /libraries/pulltorefresh/bin
 /libraries/GreenDroid/bin
 /libraries/GreenDroid/gen
+/libraries/Sherlock/bin
+/libraries/Sherlock/bin/sherlock-awful.jar
+/libraries/Sherlock/bin/res
