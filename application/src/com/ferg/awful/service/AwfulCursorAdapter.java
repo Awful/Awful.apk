@@ -53,7 +53,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			tagUrl = AwfulForum.getSubforumView(current, mPrefs, data, mIsSidebar, false);
+			tagUrl = AwfulForum.getSubforumView(current, mParent, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
@@ -74,7 +74,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			tagUrl = AwfulForum.getSubforumView(row, mPrefs, data, mIsSidebar, false);
+			tagUrl = AwfulForum.getSubforumView(row, mParent, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);

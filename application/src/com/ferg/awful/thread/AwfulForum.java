@@ -30,15 +30,23 @@ package com.ferg.awful.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ImageView.ScaleType;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -47,6 +55,7 @@ import java.util.regex.Pattern;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
+import com.ferg.awful.AwfulActivity;
 import com.ferg.awful.R;
 import com.ferg.awful.constants.Constants;
 import com.ferg.awful.preferences.AwfulPreferences;
@@ -67,7 +76,7 @@ public class AwfulForum extends AwfulPagedItem {
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 
-	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
+	private static final String FORUM_ROW   = "//table[@id='forums']//tr";
 	//private static final String FORUM_TITLE = "//a[@class='forum']";
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
@@ -76,12 +85,15 @@ public class AwfulForum extends AwfulPagedItem {
 
 	public static void getForumsFromRemote(TagNode response, ContentResolver contentInterface) throws XPatherException {
 		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-		
+
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        
 		ContentValues bookmarks = new ContentValues();
 		bookmarks.put(ID, Constants.USERCP_ID);
 		bookmarks.put(TITLE, "Bookmarks");
 		bookmarks.put(PARENT_ID, 0);
 		bookmarks.put(INDEX, 0);
+		bookmarks.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
 		result.add(bookmarks);
 		
 		int ix = 1;
@@ -92,9 +104,9 @@ public class AwfulForum extends AwfulPagedItem {
 				TagNode node = (TagNode) current;
 				int forumId = 0;
 	            // First, grab the parent forum
-				TagNode[] title = node.getElementsByName("a", true);
-	            if (title.length > 0) {
-	                TagNode parentForum = title[0];
+				TagNode title = node.findElementByAttValue("class", "forum", true, true);
+	            if (title != null) {
+	                TagNode parentForum = title;
 	                forum.put(TITLE,parentForum.getText().toString());
 	                forum.put(PARENT_ID, 0);
 	                forum.put(INDEX, ix);
@@ -105,15 +117,33 @@ public class AwfulForum extends AwfulPagedItem {
 	                forum.put(ID,forumId);
 	                forum.put(SUBTEXT,parentForum.getAttributeByName("title"));
 	            }
+	            TagNode tarIcon = node.findElementByAttValue("class", "icon", true, true);
+                if (tarIcon != null) {
+                	TagNode imgTag = tarIcon.findElementByName("img", true);
+                	if(imgTag != null && imgTag.hasAttribute("src")){
+	                    String url = imgTag.getAttributeByName("src");
+	                    if(url != null){
+	                    	//thread tag stuff
+	        				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(url);
+	        				if(fileNameMatcher.find()){
+	        					forum.put(TAG_CACHEFILE,fileNameMatcher.group(1));
+	        				}
+	        				forum.put(TAG_URL, url);
+	                    }
+                	}
+                }
+                forum.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
 	            result.add(forum);
 	
 	            // Now grab the subforums
 	            // we will see if the prior search found more than one link under the forum row, indicating subforums
-	            if (title.length > 1) {
-	                for (int x=1;x<title.length;x++) {
+	            TagNode subforumBlock = node.findElementByAttValue("class", "subforums", true, true);
+	            if(subforumBlock != null){
+		            TagNode[] subforums = subforumBlock.getElementsByName("a", true);
+	                for (int x=0;x<subforums.length;x++) {
 	                	ContentValues subforum = new ContentValues();
 	
-	                    TagNode subNode = title[x];
+	                    TagNode subNode = subforums[x];
 	
 	                    String id = subNode.getAttributeByName("href");
 	
@@ -237,9 +267,9 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static String getSubforumView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static String getSubforumView(View current, AwfulActivity parent, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
-		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
+		TextView sub = (TextView) current.findViewById(R.id.subtext);
 		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
 		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
 		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
@@ -260,7 +290,54 @@ public class AwfulForum extends AwfulPagedItem {
 		}
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		title.setTypeface(null, Typeface.BOLD);
-		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
+		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
+		if(subtext != null && subtext.length() > 0){
+			sub.setVisibility(View.VISIBLE);
+			sub.setText(subtext);
+		}else{
+			sub.setVisibility(View.GONE);
+		}
+		
+		ImageView threadTag = (ImageView) current.findViewById(R.id.forum_tag);
+		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+		String tag_url = null;
+		Bitmap tagImg = null;
+		if(tagFile != null){
+			tagImg = getCategory(parent, tagFile);
+			if(tagImg != null){
+				threadTag.setVisibility(View.VISIBLE);
+				threadTag.setScaleType(ScaleType.FIT_XY);
+				threadTag.setImageBitmap(tagImg);
+			}else{
+				threadTag.setVisibility(View.GONE);
+				tag_url = data.getString(data.getColumnIndex(TAG_URL));
+			}			
+		}else{
+			threadTag.setVisibility(View.GONE);
+		}
+		return tag_url;
+	}
+	
+	public static Bitmap getCategory(Context aContext, String fileName){
+		try{
+			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+				File cacheDir;
+				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
+					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awful/cache/category/");
+				}else{
+					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
+				}
+				File cachedImg = new File(cacheDir, fileName);
+				if(cachedImg.exists() && cachedImg.canRead()){
+					FileInputStream is = new FileInputStream(cachedImg);
+					Bitmap data = BitmapFactory.decodeStream(is);
+					is.close();
+					return data;
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

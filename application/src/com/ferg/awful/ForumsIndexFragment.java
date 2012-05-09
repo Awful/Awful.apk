@@ -410,46 +410,68 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
 		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
-			AwfulForum.getView(view,
+			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			String tagUrl = AwfulForum.getSubforumView(view,
+								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
-							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+							   selectedId > -1 && selectedId == id);
+			if(tagUrl != null){
+				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			}
+			getAwfulActivity().setPreferredFont(view);
 		}
 
 		@Override
 		protected void bindGroupView(View view, Context context, Cursor cursor,
 				boolean isExpanded) {
-			AwfulForum.getView(view,
+			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			String tagUrl = AwfulForum.getSubforumView(view,
+								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
-							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+							   selectedId > -1 && selectedId == id);
+			if(tagUrl != null){
+				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			}
+			getAwfulActivity().setPreferredFont(view);
 		}
 
 		@Override
 		protected View newChildView(Context context, Cursor cursor,
 				boolean isLastChild, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, parent, false);
-			getAwfulActivity().setPreferredFont(row);
-			AwfulForum.getView(row,
+			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View row = inf.inflate(R.layout.thread_item, parent, false);
+			String tagUrl = AwfulForum.getSubforumView(row,
+								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
-							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+							   selectedId > -1 && selectedId == id);
+			if(tagUrl != null){
+				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			}
+			getAwfulActivity().setPreferredFont(row);
 			return row;
 		}
 
 		@Override
 		protected View newGroupView(Context context, Cursor cursor,
 				boolean isExpanded, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, parent, false);
-			getAwfulActivity().setPreferredFont(row);
-			AwfulForum.getView(row, 
+			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View row = inf.inflate(R.layout.thread_item, parent, false);
+			String tagUrl = AwfulForum.getSubforumView(row, 
+								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
-							   selectedId > -1 && selectedId == cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)));
+							   selectedId > -1 && selectedId == id);
+			if(tagUrl != null){
+				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			}
+			getAwfulActivity().setPreferredFont(row);
 			return row;
 		}
 
