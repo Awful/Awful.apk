@@ -307,6 +307,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
 			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
 		}
+		threadData.close();
 		int replycount;
 		if(aUserId > 0){
 			replycount = AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0);

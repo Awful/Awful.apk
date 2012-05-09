@@ -35,7 +35,7 @@ public class BookmarkTask extends AwfulTask {
             }
 
             try {
-                NetworkUtils.post(Constants.FUNCTION_BOOKMARK, params);
+                NetworkUtils.postIgnoreBody(Constants.FUNCTION_BOOKMARK, params);
                 ContentValues cv = new ContentValues();
                 cv.put(AwfulThread.BOOKMARKED, mArg1);
                 mContext.getContentResolver().update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(mId));

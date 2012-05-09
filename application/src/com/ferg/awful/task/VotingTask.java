@@ -30,7 +30,7 @@ public class VotingTask extends AwfulTask {
 			params.put(Constants.PARAM_VOTE, String.valueOf(mArg1+1));
 
             try {
-            	NetworkUtils.post(Constants.FUNCTION_RATE_THREAD, params);
+            	NetworkUtils.postIgnoreBody(Constants.FUNCTION_RATE_THREAD, params);
             } catch (Exception e) {
                 e.printStackTrace();
             	return false;

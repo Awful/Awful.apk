@@ -102,9 +102,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
-    private ImageView mSnapshotView;
     private TextView mPageCountText;
-    private ProgressDialog mDialog;
     private ViewGroup mThreadWindow;
 
     private WebView mThreadView;

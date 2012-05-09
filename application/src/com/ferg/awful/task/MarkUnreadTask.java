@@ -25,7 +25,7 @@ public class MarkUnreadTask extends AwfulTask {
             params.put(Constants.PARAM_ACTION, "resetseen");
 
             try {
-                NetworkUtils.post(Constants.FUNCTION_THREAD, params);
+                NetworkUtils.postIgnoreBody(Constants.FUNCTION_THREAD, params);
                 ContentValues last_read = new ContentValues();
                 last_read.put(AwfulPost.PREVIOUSLY_READ, 0);
                 mContext.getContentResolver().update(AwfulPost.CONTENT_URI, last_read, AwfulPost.THREAD_ID+"=?", new String[]{Integer.toString(mId)});

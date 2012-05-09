@@ -259,6 +259,24 @@ public class NetworkUtils {
 
 		return response;
 	}
+	
+	/**
+	 * POSTs a message to the selected URL, but ignores any response body. Useful for quick-actions that we don't need the body content from.
+	 * @param aUrl
+	 * @param aParams
+	 * @return HTTP Request status code (200 = success, ect)
+	 * @throws Exception
+	 */
+	public static int postIgnoreBody(String aUrl, HashMap<String, String> aParams) throws Exception {
+
+		Log.i(TAG, aUrl);
+        HttpPost httpPost = new HttpPost(aUrl);
+        httpPost.setEntity(
+            new UrlEncodedFormEntity(getPostParameters(aParams)));  
+
+        HttpResponse httpResponse = sHttpClient.execute(httpPost);
+        return httpResponse.getStatusLine().getStatusCode();
+	}
 
     public static TagNode postImage(String aUrl, HashMap<String, String> aParams, String aBitmapKey, 
             Bitmap aBitmap) throws Exception
