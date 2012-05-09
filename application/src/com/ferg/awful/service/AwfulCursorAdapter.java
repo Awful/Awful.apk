@@ -49,33 +49,32 @@ public class AwfulCursorAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
+		String tagUrl = null;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			String tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
-			if(tagUrl != null){
-				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
-			}
+			tagUrl = AwfulThread.getView(current, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getSubforumView(current, mPrefs, data, mIsSidebar, false);
+			tagUrl = AwfulForum.getSubforumView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			AwfulEmote.getView(current, mPrefs, data);
 		}
 		mParent.setPreferredFont(current);
+		if(tagUrl != null){
+			mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
+		}
 	}
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
 		View row;
+		String tagUrl = null;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			String tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
-			if(tagUrl != null){
-				mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
-			}
+			tagUrl = AwfulThread.getView(row, mPrefs, data, context, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, mPrefs, data, mIsSidebar, false);
+			tagUrl = AwfulForum.getSubforumView(row, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);
@@ -86,6 +85,9 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.loading, parent, false);
 		}
 		mParent.setPreferredFont(row);
+		if(tagUrl != null){
+			mParent.sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, mId, tagUrl.hashCode(), tagUrl);
+		}
 		return row;
 	}
 	

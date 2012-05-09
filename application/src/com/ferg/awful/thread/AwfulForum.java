@@ -64,6 +64,8 @@ public class AwfulForum extends AwfulPagedItem {
 	public static final String TITLE   = "title";
 	public static final String SUBTEXT = "subtext";
 	public static final String PAGE_COUNT = "page_count";
+    public static final String TAG_URL 		="tag_url";
+    public static final String TAG_CACHEFILE 	="tag_cachefile";
 
 	private static final String FORUM_ROW   = "//table[@id='forums']//tr//td[@class='title']";
 	//private static final String FORUM_TITLE = "//a[@class='forum']";
@@ -235,7 +237,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static void getSubforumView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static String getSubforumView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
@@ -259,5 +261,6 @@ public class AwfulForum extends AwfulPagedItem {
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		title.setTypeface(null, Typeface.BOLD);
 		sub.setText(data.getString(data.getColumnIndex(SUBTEXT)));
+		return null;
 	}
 }

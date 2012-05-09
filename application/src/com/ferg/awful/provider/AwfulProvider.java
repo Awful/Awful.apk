@@ -52,7 +52,7 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -111,7 +111,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulForum.INDEX,
 		AwfulForum.TITLE,
 		AwfulForum.SUBTEXT,
-		AwfulForum.PAGE_COUNT
+		AwfulForum.PAGE_COUNT,
+		UPDATED_TIMESTAMP
 	};
 	
 	public static final String[] PostProjection = new String[]{
@@ -197,7 +198,9 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.INDEX      + " INTEGER,"   	 + 
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR,"        + 
-                AwfulForum.PAGE_COUNT + " INTEGER);");
+                AwfulForum.TAG_URL      + " VARCHAR,"    + 
+                AwfulForum.TAG_CACHEFILE + " VARCHAR,"   +
+            	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
         public void createThreadTable(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
@@ -290,6 +293,9 @@ public class AwfulProvider extends ContentProvider {
         	case 16:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             	createPostTable(aDb);
+        	case 17:
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+            	createForumTable(aDb);
         		break;
     		default:
     			dropAllTables(aDb);
