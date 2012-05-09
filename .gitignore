@@ -25,3 +25,5 @@ local.properties
 /libraries/Sherlock/gen
 /libraries/pulltorefresh/gen
 /libraries/pulltorefresh/bin
+/libraries/GreenDroid/bin
+/libraries/GreenDroid/gen
