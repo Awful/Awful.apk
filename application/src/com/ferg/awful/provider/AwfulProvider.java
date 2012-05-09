@@ -112,6 +112,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulForum.TITLE,
 		AwfulForum.SUBTEXT,
 		AwfulForum.PAGE_COUNT,
+		AwfulForum.TAG_URL,
+		AwfulForum.TAG_CACHEFILE,
 		UPDATED_TIMESTAMP
 	};
 	
@@ -198,6 +200,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.INDEX      + " INTEGER,"   	 + 
                 AwfulForum.TITLE   + " VARCHAR,"        + 
                 AwfulForum.SUBTEXT + " VARCHAR,"        + 
+                AwfulForum.PAGE_COUNT + " INTEGER,"		+
                 AwfulForum.TAG_URL      + " VARCHAR,"    + 
                 AwfulForum.TAG_CACHEFILE + " VARCHAR,"   +
             	UPDATED_TIMESTAMP   + " DATETIME);");
@@ -303,7 +306,14 @@ public class AwfulProvider extends ContentProvider {
         	}
         }
         
-        private void dropAllTables(SQLiteDatabase aDb){
+        @Override
+		public void onDowngrade(SQLiteDatabase aDb, int oldVersion,
+				int newVersion) {
+			dropAllTables(aDb);
+            onCreate(aDb);
+		}
+
+		private void dropAllTables(SQLiteDatabase aDb){
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
@@ -658,6 +668,9 @@ public class AwfulProvider extends ContentProvider {
 		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
 		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
 		sForumProjectionMap.put(AwfulForum.PAGE_COUNT, AwfulForum.PAGE_COUNT);
+		sForumProjectionMap.put(AwfulForum.TAG_URL, AwfulForum.TAG_URL);
+		sForumProjectionMap.put(AwfulForum.TAG_CACHEFILE, AwfulForum.TAG_CACHEFILE);
+		sForumProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
 
 		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
 		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
@@ -688,8 +701,8 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
-		sThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
-		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
+		sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
+		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
 		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
 		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_DRAFTS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);

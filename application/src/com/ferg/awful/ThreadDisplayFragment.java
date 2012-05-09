@@ -487,6 +487,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(bk != null){
         	bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
         }
+        MenuItem re = menu.findItem(R.id.reply);
+        if(re != null){
+        	re.setEnabled(!threadClosed);
+        	if(threadClosed){
+        		re.setTitle("Thread Locked");
+        	}else{
+        		re.setTitle(R.string.post_reply);
+        	}
+        }
     }
     
     @Override
