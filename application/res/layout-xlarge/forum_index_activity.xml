@@ -7,7 +7,7 @@
 	android:background="@color/background"
     >
     <fragment
-        class="com.ferg.awful.ForumsIndexFragment"
+        class="com.ferg.awfulapp.ForumsIndexFragment"
         android:id="@+id/forums_index"
         android:layout_width="0dip"
         android:layout_height="fill_parent"

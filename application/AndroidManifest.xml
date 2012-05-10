@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.ferg.awful"
-      android:versionCode="35"
-      android:versionName="2.3.0_b13"
+      package="com.ferg.awfulapp"
+      android:versionCode="36"
+      android:versionName="2.3.0_b14"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -18,12 +18,12 @@
     <application 
 		android:label="@string/app_name" 
 		android:icon="@drawable/icon" 
-		android:name=".AwfulApplication"
-        android:backupAgent=".backup.PreferencesBackupAgent"
+		android:name="com.ferg.awfulapp.AwfulApplication"
+		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
         android:theme="@style/Theme.Sherlock"
 		android:debuggable="true">
-        <activity android:name="ForumsIndexActivity"
+        <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,13 +42,13 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="ForumsTVActivity"
+            android:name="com.ferg.awfulapp.ForumsTVActivity"
             />
         <activity
-                android:name="AwfulLoginActivity"
+                android:name="com.ferg.awfulapp.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light"/>
         <activity 
-            android:name="ThreadDisplayActivity"
+            android:name="com.ferg.awfulapp.ThreadDisplayActivity"
           	android:configChanges="orientation|keyboardHidden|screenSize"
             android:hardwareAccelerated="false">
             <intent-filter>
@@ -58,15 +58,15 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
 			</intent-filter>
         </activity>
-        <activity android:name="ProfileActivity" />
-        <activity android:name="SettingsActivity" />
-        <activity android:name="ColorSettingsActivity" android:hardwareAccelerated="false"/>
+        <activity android:name="com.ferg.awfulapp.ProfileActivity" />
+        <activity android:name="com.ferg.awfulapp.SettingsActivity" />
+        <activity android:name="com.ferg.awfulapp.ColorSettingsActivity" android:hardwareAccelerated="false"/>
         <activity 
-            android:name="PostReplyActivity"
+            android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
             />
         <activity 
-            android:name="UserCPShortcutActivity"
+            android:name="com.ferg.awfulapp.UserCPShortcutActivity"
             android:icon="@drawable/icon" 
             android:label="@string/usercp"
             >
@@ -76,12 +76,12 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="UserCPActivity" 
+            android:name="com.ferg.awfulapp.UserCPActivity" 
             android:exported="true"
             android:clearTaskOnLaunch="true" 
             />
-        <activity android:name="MessageDisplayActivity"></activity>
-        <activity android:name="PrivateMessageActivity">
+        <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"></activity>
+        <activity android:name="com.ferg.awfulapp.PrivateMessageActivity">
         	<intent-filter>
             	<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -90,11 +90,11 @@
         	</intent-filter>
         </activity>
 
-		<provider android:name="com.ferg.awful.provider.AwfulProvider"
-				  android:authorities="com.ferg.awful.provider" />
+		<provider android:name="com.ferg.awfulapp.provider.AwfulProvider"
+				  android:authorities="com.ferg.awfulapp.provider" />
 		<service 
-            android:label="AwfulSyncService" 
-            android:name="com.ferg.awful.service.AwfulSyncService"
+            android:label="AwfulSyncService"
+            android:name="com.ferg.awfulapp.service.AwfulSyncService"
             />
 
         <meta-data 
@@ -102,8 +102,8 @@
             android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" 
             />
         <activity android:name="ImageSettingsActivity"></activity>
-        <activity android:name="ThreadInfoSettingsActivity"></activity>
-        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awful.provider.AwfulWebProvider" android:authorities="com.ferg.awful.webprovider"></provider>
+            <activity android:name="ThreadInfoSettingsActivity"></activity>
+        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

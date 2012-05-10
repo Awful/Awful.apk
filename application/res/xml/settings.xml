@@ -22,7 +22,7 @@
             />
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_thread_display">
-		<com.ferg.awful.preferences.NumericEditTextPreference
+		<com.ferg.awfulapp.preferences.NumericEditTextPreference
 			android:key="post_per_page"
 			android:title="@string/setting_posts_per_page"
             android:summary="@string/setting_posts_per_page_summary"
