@@ -269,9 +269,8 @@ public class AwfulForum extends AwfulPagedItem {
 	 */
 	public static String getSubforumView(View current, AwfulActivity parent, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
-		TextView sub = (TextView) current.findViewById(R.id.subtext);
-		current.findViewById(R.id.sticky_icon).setVisibility(View.GONE);
-		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
+		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
+		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
 		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
 		if(hasSidebar){

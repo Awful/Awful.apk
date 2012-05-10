@@ -213,10 +213,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
 		if(getAwfulActivity() instanceof ThreadDisplayActivity){
-			result.findViewById(R.id.secondary_title_bar).setVisibility(View.VISIBLE);
-			mSecondaryTitle = (TextView) result.findViewById(R.id.second_titlebar);
-			mMoveUp = (ImageButton) result.findViewById(R.id.move_up);
-			mMoveUp.setOnClickListener(onButtonClick);
+			View v = result.findViewById(R.id.secondary_title_bar);
+			if(v != null){
+				v.setVisibility(View.VISIBLE);
+				mSecondaryTitle = (TextView) result.findViewById(R.id.second_titlebar);
+				mMoveUp = (ImageButton) result.findViewById(R.id.move_up);
+				mMoveUp.setOnClickListener(onButtonClick);
+			}
 		}
 		updatePageBar();
         return result;

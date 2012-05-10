@@ -113,7 +113,7 @@ public class GDTabActivity extends TabActivity implements ActionBarActivity {
 
     @Override
     public void setTitle(CharSequence title) {
-        getActionBar().setTitle(title);
+        getGDActionBar().setTitle(title);
     }
 
     @Override
