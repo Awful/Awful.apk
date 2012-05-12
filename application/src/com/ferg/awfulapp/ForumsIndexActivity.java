@@ -33,9 +33,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -45,6 +43,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
+import com.ferg.awfulapp.widget.AwfulViewPager;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsIndexActivity extends AwfulActivity {
@@ -59,7 +59,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private boolean skipLoad = false;
     
     
-    private ViewPager mViewPager;
+    private AwfulViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
     private int mForumId = 0;
@@ -111,7 +111,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		        	setContentPane(mForumId);
 		        }
 	        }else{
-	        	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
+	        	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
 	        	mViewPager.setOffscreenPageLimit(2);
 	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager()); 
 		        mViewPager.setAdapter(pagerAdapter);
@@ -148,7 +148,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
     }
     
-    public class ForumPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener{
+    public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
     	private int tabCount = 3;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
