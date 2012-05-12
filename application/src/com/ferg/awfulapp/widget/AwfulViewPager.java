@@ -1362,7 +1362,7 @@ public class AwfulViewPager extends ViewGroup {
 	                    mLastMotionY = y;
 	                    return false;
 	                }
-	                if (xDiff > mTouchSlop*2 && xDiff > yDiff*2) {
+	                if (xDiff > mTouchSlop*1.5 && xDiff > yDiff*2) {
 	                    if (DEBUG) Log.v(TAG, "Starting drag!");
 	                    mIsBeingDragged = true;
 	                    setScrollState(SCROLL_STATE_DRAGGING);
