@@ -31,6 +31,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postBackgroundColor2;
 	public int postReadBackgroundColor;
 	public int postReadBackgroundColor2;
+	public int postReadFontColor;
 	public int postOPColor;
 	public int postLinkQuoteColor;
 	public boolean imagesEnabled;
@@ -119,6 +120,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
        	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", mContext.getResources().getColor(R.color.alt_background));
     	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", mContext.getResources().getColor(R.color.background_read));
     	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", mContext.getResources().getColor(R.color.alt_background_read));
+    	postReadFontColor  		 = mPrefs.getInt("read_post_font_color", mContext.getResources().getColor(R.color.font_read));
     	postOPColor              = mPrefs.getInt("op_post_color", mContext.getResources().getColor(R.color.op_post));
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", mContext.getResources().getColor(R.color.link_quote));
       	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", mContext.getResources().getColor(R.color.forums_blue));
@@ -142,7 +144,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
-        theme					 = mPrefs.getString("selected_theme", "light");//TODO rename setting key to "icon_theme"
+        theme					 = mPrefs.getString("selected_theme", "dark");//TODO rename setting key to "icon_theme"
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
        	 //TODO: I have never seen this before oh god
 	}

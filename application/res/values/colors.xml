@@ -8,6 +8,7 @@
     <color name="background">#f4f4f4</color>
     <color name="alt_background">#dfdfdf</color>
     <color name="background_read">#ddeeff</color>
+    <color name="font_read">#777777</color>
     <color name="alt_background_read">#c0e0ff</color>
     <color name="op_post">#199ed7</color>
     <color name="link_quote">#0000ff</color>

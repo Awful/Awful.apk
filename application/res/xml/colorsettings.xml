@@ -27,9 +27,21 @@
 			/>
 		<com.ferg.awfulapp.preferences.ColorPickerPreference
 		   	alphaSlider="false"
+		   	android:key="read_post_font_color"
+		   	android:title="@string/read_post_font_color"
+		   	android:defaultValue="@color/font_read"
+		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
 		   	android:key="read_post_background_color"
 		   	android:title="@string/read_post_background_color"
 		   	android:defaultValue="@color/background_read"
+		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:key="alternative_read_post_background_color"
+		   	android:title="@string/alt_read_post_background_color"
+		   	android:defaultValue="@color/alt_background_read"
 		   	/>
 		<com.ferg.awfulapp.preferences.ColorPickerPreference
 		   	alphaSlider="false"
