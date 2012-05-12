@@ -1362,14 +1362,14 @@ public class AwfulViewPager extends ViewGroup {
 	                    mLastMotionY = y;
 	                    return false;
 	                }
-	                if (xDiff > mTouchSlop*1.5 && xDiff > yDiff*2) {
+	                if (xDiff > mTouchSlop*2 && xDiff > yDiff*1.5) {
 	                    if (DEBUG) Log.v(TAG, "Starting drag!");
 	                    mIsBeingDragged = true;
 	                    setScrollState(SCROLL_STATE_DRAGGING);
 	                    mLastMotionX = x;
 	                    setScrollingCacheEnabled(true);
 	                } else {
-	                    if (yDiff > mTouchSlop) {
+	                    if (yDiff > mTouchSlop*2) {
 	                        // The finger has moved enough in the vertical
 	                        // direction to be counted as a drag...  abort
 	                        // any attempt to drag horizontally, to work correctly
