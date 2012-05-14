@@ -2,6 +2,7 @@ package com.ferg.awfulapp.task;
 
 import java.util.HashMap;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.util.Log;
 
@@ -28,8 +29,10 @@ public class BookmarkTask extends AwfulTask {
 		if (!isCancelled()) {
         	HashMap<String, String> params = new HashMap<String, String>();
             params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
+            ContentResolver cr = mContext.getContentResolver();
             if(mArg1 < 1){
             	params.put(Constants.PARAM_ACTION, "remove");
+            	cr.delete(AwfulThread.CONTENT_URI_UCP, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(mId));
             }else{
             	params.put(Constants.PARAM_ACTION, "add");
             }
@@ -38,7 +41,7 @@ public class BookmarkTask extends AwfulTask {
                 NetworkUtils.postIgnoreBody(Constants.FUNCTION_BOOKMARK, params);
                 ContentValues cv = new ContentValues();
                 cv.put(AwfulThread.BOOKMARKED, mArg1);
-                mContext.getContentResolver().update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(mId));
+                cr.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(mId));
             } catch (Exception e) {
                 Log.i(TAG, e.toString());
                 return false;

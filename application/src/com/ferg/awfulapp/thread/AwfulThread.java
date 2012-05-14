@@ -569,7 +569,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 
 		ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
-		if(!prefs.threadInfo_Tag){
+		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			threadTag.setVisibility(View.GONE);
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));

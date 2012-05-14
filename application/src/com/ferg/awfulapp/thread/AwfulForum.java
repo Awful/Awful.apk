@@ -262,12 +262,12 @@ public class AwfulForum extends AwfulPagedItem {
 	 * This function takes a thread list item and reuses it as a subforum item.
 	 * This is a hack to make a single cursor listadapter successfully combine thread and subforum items.
 	 * @param current
-	 * @param mPrefs
+	 * @param aPrefs
 	 * @param data
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static String getSubforumView(View current, AwfulActivity parent, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static String getSubforumView(View current, AwfulActivity parent, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
@@ -283,9 +283,9 @@ public class AwfulForum extends AwfulPagedItem {
 		}else{
 			current.findViewById(R.id.selector).setVisibility(View.GONE);
 		}
-		if(mPrefs != null){
-			title.setTextColor(mPrefs.postFontColor);
-			sub.setTextColor(mPrefs.postFontColor2);
+		if(aPrefs != null){
+			title.setTextColor(aPrefs.postFontColor);
+			sub.setTextColor(aPrefs.postFontColor2);
 		}
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		title.setTypeface(null, Typeface.BOLD);
@@ -301,7 +301,7 @@ public class AwfulForum extends AwfulPagedItem {
 		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 		String tag_url = null;
 		Bitmap tagImg = null;
-		if(tagFile != null){
+		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			tagImg = getCategory(parent, tagFile);
 			if(tagImg != null){
 				threadTag.setVisibility(View.VISIBLE);
