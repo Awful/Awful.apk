@@ -144,7 +144,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
-        theme					 = mPrefs.getString("selected_theme", "dark");//TODO rename setting key to "icon_theme"
+        theme					 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
        	 //TODO: I have never seen this before oh god
 	}

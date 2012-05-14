@@ -366,8 +366,8 @@ public class AwfulThread extends AwfulPagedItem  {
         if(AwfulActivity.isHoneycomb()){
 	        buffer.append("<script type='text/javascript'>");
 	        buffer.append("$(window).scroll(function () { ");
-	        buffer.append("var minBound = $(window).scrollTop()-$(window).height();");
-	        buffer.append("var maxBound = $(window).scrollTop()+$(window).height()*2;");
+	        buffer.append("var minBound = $(window).scrollTop()-($(window).height()/2);");
+	        buffer.append("var maxBound = $(window).scrollTop()+$(window).height()*1.5;");
 	        buffer.append("$(\".gif\").each(function (){");
 	        buffer.append("if($(this).offset().top > maxBound || ($(this).offset().top + $(this).height()) < minBound){");
 	        buffer.append("$(this).css(\"visibility\", \"hidden\");");
@@ -472,7 +472,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("</tr>");
             buffer.append("<tr>");
             buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>");
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>");
+            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB((post.isPreviouslyRead() ? aPrefs.postReadFontColor : aPrefs.postFontColor)) + "; font-size: " + aPrefs.postFontSize + ";'>");
             buffer.append("            " + post.getContent());
             buffer.append("        </div>");
             buffer.append("    </td>");

@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.AlertDialog;
@@ -560,8 +561,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void loadingSucceeded() {
 		super.loadingSucceeded();
 		if(getActivity() != null){
-			Date time = new Date();
-			mListView.onRefreshComplete("Updated @ "+time.getHours()+":"+time.getMinutes());
+			mListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 		}
 	}
 

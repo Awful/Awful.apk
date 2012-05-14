@@ -126,6 +126,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.dark_background));
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_default_post_font));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_header_background));//TODO
@@ -148,6 +149,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.background));
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.alt_background));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.default_post_font));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.forums_blue));//TODO
@@ -174,6 +176,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.yospos_secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.yospos_background));
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.yospos_alt_background));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.yospos_default_post_font));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.yospos_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.yospos_alt_background_read));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.yospos_background));//TODO
@@ -197,6 +200,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.dark_background));
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_default_post_font));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_background));//TODO
@@ -216,6 +220,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 							prefEdit.putInt("secondary_post_font_color", mPrefs.getInt("custom_secondary_post_font_color", getResources().getColor(R.color.secondary_post_font)));
 							prefEdit.putInt("default_post_background_color", mPrefs.getInt("custom_default_post_background_color", getResources().getColor(R.color.background)));
 							prefEdit.putInt("alternative_post_background_color", mPrefs.getInt("custom_alternative_post_background_color", getResources().getColor(R.color.alt_background)));
+							prefEdit.putInt("read_post_font_color", mPrefs.getInt("custom_read_post_font_color", getResources().getColor(R.color.font_read)));
 							prefEdit.putInt("read_post_background_color", mPrefs.getInt("custom_read_post_background_color", getResources().getColor(R.color.background_read)));
 							prefEdit.putInt("alternative_read_post_background_color", mPrefs.getInt("custom_alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
 							prefEdit.putInt("post_header_background_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.forums_blue)));//TODO
@@ -239,6 +244,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		prefEdit.putInt("custom_secondary_post_font_color", mPrefs.getInt("secondary_post_font_color", getResources().getColor(R.color.secondary_post_font)));
 		prefEdit.putInt("custom_default_post_background_color", mPrefs.getInt("default_post_background_color", getResources().getColor(R.color.background)));
 		prefEdit.putInt("custom_alternative_post_background_color", mPrefs.getInt("alternative_post_background_color", getResources().getColor(R.color.alt_background)));
+		prefEdit.putInt("custom_read_post_font_color", mPrefs.getInt("read_post_font_color", getResources().getColor(R.color.font_read)));
 		prefEdit.putInt("custom_read_post_background_color", mPrefs.getInt("read_post_background_color", getResources().getColor(R.color.background_read)));
 		prefEdit.putInt("custom_alternative_read_post_background_color", mPrefs.getInt("alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
 		prefEdit.putInt("custom_post_header_background_color", mPrefs.getInt("post_header_background_color", getResources().getColor(R.color.forums_blue)));
