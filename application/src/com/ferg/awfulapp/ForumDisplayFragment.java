@@ -684,7 +684,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 						AwfulProvider.ThreadProjection, 
 						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
 						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)), 
-						(mPrefs.newThreadsFirst? AwfulThread.UNREADCOUNT+" DESC" :AwfulThread.INDEX));
+						(mPrefs.newThreadsFirst? AwfulThread.HAS_NEW_POSTS+" DESC" :AwfulThread.INDEX));
         	}else{
 	            return new CursorLoader(getActivity(), 
 	            						AwfulThread.CONTENT_URI, 
