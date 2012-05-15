@@ -342,7 +342,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	}
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, boolean lastPage) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, boolean lastPage, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer("<html><head>");
         buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />");
         buffer.append("<meta name='format-detection' content='telephone=no' />");
@@ -399,9 +399,9 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("    <table id='thread-body'>");
 
         if (isTablet) {
-            buffer.append(AwfulThread.getPostsHtmlForTablet(aPosts, aPrefs));
+            buffer.append(AwfulThread.getPostsHtmlForTablet(aPosts, aPrefs, threadLocked));
         } else {
-            buffer.append(AwfulThread.getPostsHtmlForPhone(aPosts, aPrefs));
+            buffer.append(AwfulThread.getPostsHtmlForPhone(aPosts, aPrefs, threadLocked));
         }
 
         buffer.append("    </table>");
@@ -414,7 +414,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public static String getPostsHtmlForPhone(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs) {
+    public static String getPostsHtmlForPhone(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer();
 
         boolean light = true;
@@ -455,14 +455,13 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>");
             buffer.append("        <div class='avatar-text-phone' style='display:none;float: left; width: 100%;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
             if(post.isEditable()){
-            	buffer.append("        		<div class='edit_button inline-button' id='" + post.getId() + "' />");
-                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> Edit");
-                buffer.append("        		</div>");
-            }else{
-            	buffer.append("        		<div class='quote_button inline-button' id='" + post.getId() + "' />");
-                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> Quote");
+            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />");
+                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
                 buffer.append("        		</div>");
             }
+        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />");
+            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
+            buffer.append("        		</div>");
             buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />");
             buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read");
             buffer.append("        		</div>");
@@ -484,7 +483,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public static String getPostsHtmlForTablet(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs) {
+    public static String getPostsHtmlForTablet(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer();
 
         boolean light = true;

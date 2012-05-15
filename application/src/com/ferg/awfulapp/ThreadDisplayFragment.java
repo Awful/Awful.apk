@@ -861,7 +861,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage == mLastPage), "text/html", "utf-8", null);//TODO fix
+            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage == mLastPage, threadClosed), "text/html", "utf-8", null);//TODO fix
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -968,7 +968,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			String aPostId, String aUsername, String aUserId) {
 		switch(aItem){
 		case ClickInterface.SEND_PM:
-            MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
+        	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
+            //MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
 			break;
 		case ClickInterface.COPY_URL:
         	copyThreadURL(aPostId);
