@@ -103,6 +103,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
+    private View mPageBar;
     private TextView mPageCountText;
     private ViewGroup mThreadWindow;
 
@@ -323,6 +324,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		mPageBar = result.findViewById(R.id.page_indicator);
 		mThreadView = (WebView) result.findViewById(R.id.thread);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
@@ -333,7 +335,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
 		updatePageBar();
-
+		onPreferenceChange(mPrefs);
 		return result;
 	}
 
@@ -919,8 +921,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
 
         public void onSendPMClick(final String aUsername) {
-    		//TODO update this I guess
-            MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
+        	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
         }
 
         // Post ID is the item tapped
@@ -986,7 +987,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		refreshPosts();
+		if(mPageBar != null){
+			mPageBar.setBackgroundColor(mPrefs.actionbarColor);
+		}
+		if(mPageCountText != null){
+			mPageCountText.setTextColor(mPrefs.actionbarFontColor);
+		}
+		if(mThreadView != null){
+			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
+		}
 	}
 
 	public void setPostJump(String postID) {

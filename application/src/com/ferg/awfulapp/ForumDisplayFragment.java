@@ -93,7 +93,8 @@ import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
-    private PullToRefreshListView mListView;
+    private PullToRefreshListView mListView;//TODO replace with custom pull-to-refresh
+    private View mPageBar;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -207,6 +208,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		mPageBar = result.findViewById(R.id.page_indicator);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
         mToggleSidebar.setImageResource(R.drawable.ic_menu_load);
@@ -223,6 +225,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				mMoveUp.setOnClickListener(onButtonClick);
 			}
 		}
+		onPreferenceChange(mPrefs);
 		updatePageBar();
         return result;
     }
@@ -588,6 +591,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
+		}
+		if(mPageBar != null){
+			mPageBar.setBackgroundColor(prefs.actionbarColor);
+		}
+		if(mPageCountText != null){
+			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
 	}
 	

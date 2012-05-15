@@ -48,6 +48,8 @@
     <string name="read_post_background_color">Read Post BG Color</string>
     <string name="alt_read_post_background_color">Alt Read Post BG Color</string>
     <string name="read_post_font_color">Read Post Font Color</string>
+    <string name="actionbar_color">Actionbar Color</string>
+    <string name="actionbar_font_color">Actionbar Font Color</string>
     <string name="op_post_color">OP Post Color</string>
     <string name="hyperlink_font_quote_color">Quote / Link Font Color</string>
     <string name="press_color_to_apply">Press color to apply</string>

@@ -74,9 +74,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		if(getAwfulActivity() != null){
-			getAwfulActivity().updateActionbarTheme();
-		}
+		
 	}
     
 }

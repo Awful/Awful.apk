@@ -12,6 +12,12 @@
     <color name="alt_background_read">#c0e0ff</color>
     <color name="op_post">#199ed7</color>
     <color name="link_quote">#0000ff</color>
+    <color name="actionbar_color">#000000</color>
+    <color name="actionbar_font_color">#ffffff</color>
+    
+    
+        
+        
     <color name="dark_default_post_font">#ffffff</color>
     <color name="dark_secondary_post_font">#777777</color>
     <color name="dark_background">#000000</color>

@@ -63,6 +63,18 @@
 		   	/>
 		<com.ferg.awfulapp.preferences.ColorPickerPreference
 		   	alphaSlider="false"
+		   	android:defaultValue="@color/actionbar_color"
+		   	android:key="actionbar_color"
+		   	android:title="@string/actionbar_color"
+		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:defaultValue="@color/actionbar_font_color"
+		   	android:key="actionbar_font_color"
+		   	android:title="@string/actionbar_font_color"
+		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
 		   	android:defaultValue="@color/op_post"
 		   	android:key="op_post_color"
 		   	android:title="@string/op_post_color"

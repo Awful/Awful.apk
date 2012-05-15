@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 import android.content.BroadcastReceiver;
@@ -16,6 +17,7 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -48,7 +50,7 @@ import com.example.google.tv.leftnavbar.LeftNavBarService;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection {
+public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, AwfulUpdateCallback {
     private static final String TAG = "AwfulActivity";
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
@@ -57,6 +59,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     private TextView mTitleView;
     
     private LeftNavBar mLeftNavBar;
+    
+    private AwfulPreferences mPrefs;
     
     private boolean isActive = false;
     private BroadcastReceiver br = new BroadcastReceiver(){
@@ -86,6 +90,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         super.onCreate(savedInstanceState);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
+        mPrefs = new AwfulPreferences(this, this);
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -137,19 +142,15 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         action.setCustomView(R.layout.actionbar_title);
         mTitleView = (TextView) action.getCustomView();
         mTitleView.setMovementMethod(new ScrollingMovementMethod());
-        updateActionbarTheme();
+        updateActionbarTheme(mPrefs);
         action.setDisplayShowCustomEnabled(true);
         action.setDisplayHomeAsUpEnabled(true);
     }
     
-    protected void updateActionbarTheme(){
+    protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
-        //action.setLogo(R.drawable.macinyos_left);
-        //action.setDisplayUseLogoEnabled(true);
-        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.macyos_titles));
-        //action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        //mTitleView.setBackgroundColor(0xffffffff);
-        //mTitleView.setTextColor(0xff000000);
+        action.setBackgroundDrawable(new ColorDrawable(aPrefs.actionbarColor));
+        mTitleView.setTextColor(aPrefs.actionbarFontColor);
         setPreferredFont(mTitleView, Typeface.NORMAL);
     }
 
@@ -346,4 +347,17 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     public static boolean isHoneycomb(){
     	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		updateActionbarTheme(prefs);
+	}
+	
+	//UNUSED - I don't know why I put them in the same interface. Oh well.
+	@Override
+	public void loadingFailed() {}
+	@Override
+	public void loadingStarted() {}
+	@Override
+	public void loadingSucceeded() {}
 }
