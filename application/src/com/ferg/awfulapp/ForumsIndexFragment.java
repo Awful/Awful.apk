@@ -28,10 +28,13 @@
 package com.ferg.awfulapp;
 
 
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.*;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,6 +63,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.thread.AwfulThread;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumsIndex";
@@ -139,7 +143,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         mIsSidebar = isSideBar();
         mCursorAdapter = new AwfulTreeAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
-        getAwfulActivity().registerSyncService(mMessenger, Constants.FORUM_INDEX_ID);
     }
 
     @Override
@@ -174,7 +177,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onDestroyView() {
         super.onDestroyView(); Log.e(TAG, "DestroyView");
-        getAwfulActivity().unregisterSyncService(mMessenger, Constants.FORUM_INDEX_ID);
     }
     
     @Override
@@ -337,7 +339,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	
 	private void syncForums() {
 		if(getActivity() != null){
-			getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
 	
@@ -412,14 +414,23 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			String tagUrl = AwfulForum.getSubforumView(view,
+			ImageView tag = AwfulForum.getSubforumView(view,
 								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tagUrl != null){
-				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			if(tag != null){
+				Object tagStuff = tag.getTag();
+				if(tagStuff instanceof String[]){
+					String[] tagFile = (String[]) tagStuff;
+					Log.e("AImg","Image download: "+tagFile[0]);
+					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
+					tag.setTag(tagFile[0]);
+					imageQueue.put(tagFile[1].hashCode(), tag);
+				}else if(tagStuff instanceof String){
+					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
+				}
 			}
 			getAwfulActivity().setPreferredFont(view);
 		}
@@ -428,14 +439,23 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		protected void bindGroupView(View view, Context context, Cursor cursor,
 				boolean isExpanded) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			String tagUrl = AwfulForum.getSubforumView(view,
+			ImageView tag = AwfulForum.getSubforumView(view,
 								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tagUrl != null){
-				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			if(tag != null){
+				Object tagStuff = tag.getTag();
+				if(tagStuff instanceof String[]){
+					String[] tagFile = (String[]) tagStuff;
+					Log.e("AImg","Image download: "+tagFile[0]);
+					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
+					tag.setTag(tagFile[0]);
+					imageQueue.put(tagFile[1].hashCode(), tag);
+				}else if(tagStuff instanceof String){
+					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
+				}
 			}
 			getAwfulActivity().setPreferredFont(view);
 		}
@@ -445,14 +465,23 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				boolean isLastChild, ViewGroup parent) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
 			View row = inf.inflate(R.layout.thread_item, parent, false);
-			String tagUrl = AwfulForum.getSubforumView(row,
+			ImageView tag = AwfulForum.getSubforumView(row,
 								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tagUrl != null){
-				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			if(tag != null){
+				Object tagStuff = tag.getTag();
+				if(tagStuff instanceof String[]){
+					String[] tagFile = (String[]) tagStuff;
+					Log.e("AImg","Image download: "+tagFile[0]);
+					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
+					tag.setTag(tagFile[0]);
+					imageQueue.put(tagFile[1].hashCode(), tag);
+				}else if(tagStuff instanceof String){
+					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
+				}
 			}
 			getAwfulActivity().setPreferredFont(row);
 			return row;
@@ -463,14 +492,23 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				boolean isExpanded, ViewGroup parent) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
 			View row = inf.inflate(R.layout.thread_item, parent, false);
-			String tagUrl = AwfulForum.getSubforumView(row, 
+			ImageView tag = AwfulForum.getSubforumView(row, 
 								getAwfulActivity(),
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tagUrl != null){
-				getAwfulActivity().sendMessage(AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagUrl.hashCode(), tagUrl);
+			if(tag != null){
+				Object tagStuff = tag.getTag();
+				if(tagStuff instanceof String[]){
+					String[] tagFile = (String[]) tagStuff;
+					Log.e("AImg","Image download: "+tagFile[0]);
+					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
+					tag.setTag(tagFile[0]);
+					imageQueue.put(tagFile[1].hashCode(), tag);
+				}else if(tagStuff instanceof String){
+					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
+				}
 			}
 			getAwfulActivity().setPreferredFont(row);
 			return row;
@@ -483,7 +521,26 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			getLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
 			return null;
 		}
+		private HashMap<Integer,ImageView> imageQueue = new HashMap<Integer,ImageView>();
+		private HashMap<String,Bitmap> imageCache = new HashMap<String,Bitmap>();
+		private Handler mImageHandler = new Handler(){
+
+			@Override
+			public void handleMessage(Message msg) {
+				Log.i(TAG,"Image Message: "+msg.arg1);
+				if(msg.arg1 == AwfulSyncService.Status.OKAY && msg.what == AwfulSyncService.MSG_GRAB_IMAGE){
+					ImageView imgTag = imageQueue.remove(msg.arg2);
+					if(imgTag != null){
+						AwfulThread.setBitmap(getActivity(), imgTag, imageCache);
+					}
+				}
+			}
+			
+		};
+		private Messenger mReplyTo = new Messenger(mImageHandler);
 	}
+	
+	
 
 
 	private int selectedId = -1;

@@ -3,6 +3,7 @@ package com.ferg.awfulapp.task;
 import java.util.HashMap;
 
 import android.content.Context;
+import android.os.Message;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
@@ -16,8 +17,8 @@ public class VotingTask extends AwfulTask {
 	 * @param id Thread id.
 	 * @param arg1 Vote (1-5)
 	 */
-	public VotingTask(AwfulSyncService sync, int id, int arg1, Context cxt) {
-		super(sync, id, arg1, null, AwfulSyncService.MSG_VOTE);
+	public VotingTask(AwfulSyncService sync, Message aMsg, Context cxt) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_VOTE);
 		this.ApplicationContext = cxt;
 	}
 
@@ -43,11 +44,11 @@ public class VotingTask extends AwfulTask {
 	public void onPostExecute(Boolean success){
 		if(!isCancelled()){
 			if(success){
-				mContext.updateStatus(TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
 				Toast successToast = Toast.makeText(ApplicationContext, String.format(this.mContext.getString(R.string.vote_succeeded), mArg1+1), Toast.LENGTH_LONG);
 				successToast.show();
 			}else{
-				mContext.updateStatus(TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
 				Toast errorToast = Toast.makeText(ApplicationContext, R.string.vote_failed, Toast.LENGTH_LONG);
 				errorToast.show();
 			}

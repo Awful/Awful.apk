@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -15,8 +16,8 @@ import com.ferg.awfulapp.thread.AwfulForum;
 
 public class IndexTask extends AwfulTask {
 
-	public IndexTask(AwfulSyncService sync, int id, int arg1, AwfulPreferences aPrefs) {
-		super(sync, id, arg1, aPrefs, AwfulSyncService.MSG_SYNC_INDEX);
+	public IndexTask(AwfulSyncService sync, Message aMsg, AwfulPreferences aPrefs) {
+		super(sync, aMsg, aPrefs, AwfulSyncService.MSG_SYNC_INDEX);
 	}
 
 	@Override

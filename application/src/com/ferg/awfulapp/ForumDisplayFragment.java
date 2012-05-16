@@ -268,7 +268,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
         
 
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
         mListView.setAdapter(mCursorAdapter);
         mListView.setOnItemClickListener(onThreadSelected);
         mListView.setBackgroundColor(mPrefs.postBackgroundColor);
@@ -318,7 +318,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onResume() {
         super.onResume(); Log.e(TAG, "Resume");
-        getAwfulActivity().registerSyncService(mMessenger, getForumId());
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
 		refreshInfo();
@@ -332,7 +331,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onPause() {
         super.onPause(); Log.e(TAG, "Pause");
-        getAwfulActivity().unregisterSyncService(mMessenger, getForumId());
         getLoaderManager().destroyLoader(getLoaderId());
         getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
@@ -628,7 +626,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     public void openForum(int id, int page){
     	if(getActivity() != null){
-	        getAwfulActivity().unregisterSyncService(mMessenger, getForumId());
 	    	getLoaderManager().destroyLoader(getLoaderId());
     	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
@@ -636,14 +633,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	mLastPage = 0;
     	lastRefresh = 0;
     	if(getActivity() != null){
-	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity);
+	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
 	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
 	    		mListView.setAdapter(mCursorAdapter);
 	    	}
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
-	        getAwfulActivity().registerSyncService(mMessenger, getForumId());
 			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
 			refreshInfo();
 			syncForum();
@@ -652,7 +648,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
 	public void syncForum() {
 		if(getAwfulActivity() != null && getForumId() > 0){
-			getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
 		}
     }
 	
@@ -663,7 +659,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
 	
 	private void markUnread(int id) {
-        getAwfulActivity().sendMessage(AwfulSyncService.MSG_MARK_UNREAD,id,0);
+        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_UNREAD,id,0);
     }
 	
 	public boolean isBookmark(){
@@ -675,7 +671,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	 * @param addRemove 1 to add bookmark, 0 to remove.
 	 */
     private void toggleThreadBookmark(int id, int addRemove) {
-        getAwfulActivity().sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
     }
 	
 	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {

@@ -7,6 +7,7 @@ import org.htmlcleaner.TagNode;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -18,9 +19,8 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 
 public class FetchPrivateMessageTask extends AwfulTask {
 
-	public FetchPrivateMessageTask(AwfulSyncService sync, int id, int arg1,
-			AwfulPreferences aPrefs) {
-		super(sync, id, arg1, aPrefs, AwfulSyncService.MSG_FETCH_PM);
+	public FetchPrivateMessageTask(AwfulSyncService sync, Message aMsg,	AwfulPreferences aPrefs) {
+		super(sync, aMsg, aPrefs, AwfulSyncService.MSG_FETCH_PM);
 	}
 
 	@Override

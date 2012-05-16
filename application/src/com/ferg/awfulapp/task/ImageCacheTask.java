@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -20,9 +21,9 @@ import com.ferg.awfulapp.thread.AwfulEmote;
 
 public class ImageCacheTask extends AwfulTask {
 	private String mUrl;
-	public ImageCacheTask(AwfulSyncService sync, int id, int hash, String url) {
-		super(sync, id, hash, null, AwfulSyncService.MSG_GRAB_IMAGE);
-		mUrl = url;
+	public ImageCacheTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_GRAB_IMAGE);
+		mUrl = (String) aMsg.obj;
 	}
 
 	@Override

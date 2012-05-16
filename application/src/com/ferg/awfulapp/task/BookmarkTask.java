@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -20,8 +21,8 @@ public class BookmarkTask extends AwfulTask {
 	 * @param arg1 Set to 1 to bookmark, 0 to remove bookmark.
 	 * @param aPrefs
 	 */
-	public BookmarkTask(AwfulSyncService sync, int id, int arg1) {
-		super(sync, id, arg1, null, AwfulSyncService.MSG_SET_BOOKMARK);
+	public BookmarkTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_SET_BOOKMARK);
 	}
 
 	@Override

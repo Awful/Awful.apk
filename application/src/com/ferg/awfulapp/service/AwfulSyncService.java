@@ -68,8 +68,6 @@ import com.ferg.awfulapp.thread.*;
 public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";
 
-    public static final int MSG_REGISTER_CLIENT   = 0;
-    public static final int MSG_UNREGISTER_CLIENT = 1;
     public static final int MSG_SYNC_THREAD       = 2;
     public static final int MSG_PROGRESS_STATUS   = 3;
     public static final int MSG_SYNC_FORUM       = 4;
@@ -94,8 +92,7 @@ public class AwfulSyncService extends Service {
 	/** arg1 = category/emote id, arg2 = url hash for duplicate task prevention, obj = String url **/
 	public static final int MSG_GRAB_IMAGE = 16;
 	public static final int MSG_FETCH_EMOTES = 17;
-
-    private HashMap<Integer,Messenger> mClients = new HashMap<Integer,Messenger>();
+	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
 
@@ -120,78 +117,60 @@ public class AwfulSyncService extends Service {
         public void handleMessage(Message aMsg) {
         	debugLogReceivedMessage(-1,aMsg);
             switch (aMsg.what) {
-                case MSG_REGISTER_CLIENT:
-                    registerClient(aMsg, aMsg.arg1);
-                    break;
-                case MSG_UNREGISTER_CLIENT:
-                    unregisterClient(aMsg.arg1);
-                    break;
                 case MSG_SYNC_THREAD:
-                    queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj, mPrefs));
+                    queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_SYNC_FORUM:
-                	syncForum(aMsg.arg1, aMsg.arg2);
+                	syncForum(aMsg);
                     break;
                 case MSG_SYNC_INDEX:
-                	backQueueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
+                	backQueueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_SET_BOOKMARK:
-                	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_FETCH_PM_INDEX:
-                	queueUniqueThread(new PrivateMessageIndexTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new PrivateMessageIndexTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_FETCH_PM:
-                	queueUniqueThread(new FetchPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, mPrefs));
+                	queueUniqueThread(new FetchPrivateMessageTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_MARK_LASTREAD:
-                	queueUniqueThread(new MarkLastReadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new MarkLastReadTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_MARK_UNREAD:
-                	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_VOTE:
-                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, getApplicationContext()));
+                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg, getApplicationContext()));
                     break;
                 case MSG_SEND_PM:
-                	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_FETCH_POST_REPLY:
-                	queueUniqueThread(new FetchReplyTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
+                	queueUniqueThread(new FetchReplyTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_SEND_POST:
-                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (Integer) aMsg.obj));
+                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_TRIM_DB:
-                	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2));
+                	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_GRAB_IMAGE:
-                	backQueueUniqueThread(new ImageCacheTask(AwfulSyncService.this, aMsg.arg1, aMsg.arg2, (String) aMsg.obj));
+                	backQueueUniqueThread(new ImageCacheTask(AwfulSyncService.this, aMsg));
                     break;
             }
         }
     }
-
-    private void registerClient(Message aMsg, int clientId) {
-        Log.i(TAG, "Registered:"+clientId);
-        mClients.put(clientId, aMsg.replyTo);
-    }
-
-    private void unregisterClient(int clientId) {
-        Log.i(TAG, "Unregistered:"+clientId);
-        mClients.remove(clientId);
-    }
-
-    public void updateStatus(int aMessageType, int aStatus, int clientId, int arg2) {
+    
+    public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2) {
         Log.i(TAG, "Send Message - id: "+clientId+" type: "+aMessageType+" status: "+aStatus+" arg2: "+arg2);
-        Messenger client = mClients.get(clientId);
         //if the client unregisters before we send, this will be null
         if(client != null){
 	        try {
 	            Message msg = Message.obtain(null, aMessageType, aStatus, arg2);
 	            client.send(msg);
 	        } catch (RemoteException e) {
-	            mClients.remove(client);
 	        }
         }
     }
@@ -207,10 +186,10 @@ public class AwfulSyncService extends Service {
     	mHandler.sendMessageDelayed(mHandler.obtainMessage(msgId, arg1, arg2), delayMillis);
     }
     
-    private void syncForum(final int aForumId, final int aPage) {
-        Log.i(TAG, "Starting Forum sync:"+aForumId);
+    private void syncForum(Message aMsg) {
+        Log.i(TAG, "Starting Forum sync:"+aMsg.arg1);
         //or tasks can be anon inner classes
-        queueUniqueThread(new AwfulTask(this, aForumId, aPage, mPrefs, MSG_SYNC_FORUM){
+        queueUniqueThread(new AwfulTask(this, aMsg, mPrefs, MSG_SYNC_FORUM){
 
 			@Override
 			protected Boolean doInBackground(Void... params) {
@@ -304,12 +283,6 @@ public class AwfulSyncService extends Service {
 	public static void debugLogReceivedMessage(int id, Message aMsg) {
 		String what = aMsg.what+"";
 		switch(aMsg.what){
-		case MSG_REGISTER_CLIENT:
-			what = "MSG_REGISTER_CLIENT";
-			break;
-		case MSG_UNREGISTER_CLIENT:
-			what = "MSG_UNREGISTER_CLIENT";
-			break;
 		case MSG_SYNC_THREAD:
 			what = "MSG_SYNC_THREAD";
 			break;

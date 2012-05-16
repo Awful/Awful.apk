@@ -2,6 +2,7 @@ package com.ferg.awfulapp.task;
 
 import org.htmlcleaner.TagNode;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -11,8 +12,8 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 
 public class PrivateMessageIndexTask extends AwfulTask {
 
-	public PrivateMessageIndexTask(AwfulSyncService sync, int id, int page) {
-		super(sync, id, page, null, AwfulSyncService.MSG_FETCH_PM_INDEX);
+	public PrivateMessageIndexTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_FETCH_PM_INDEX);
 	}
 
 	@Override

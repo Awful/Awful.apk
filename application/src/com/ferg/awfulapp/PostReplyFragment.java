@@ -189,7 +189,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	getActivity().finish();
         }
         
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, mThreadId);
 		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         
@@ -485,7 +484,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
                 	}
                     saveReply();
-                    ((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+                    ((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
                 }
             })
         .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
@@ -573,7 +572,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         				mSubmit.setEnabled(false);
         			}
 			        if(getActivity() != null){
-			        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
+			        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
 			        }
         		}
         	}else{
@@ -586,7 +585,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
 		        }
 		        if(getActivity() != null){
-		        	((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
 		        }
         	}
         	aData.close();

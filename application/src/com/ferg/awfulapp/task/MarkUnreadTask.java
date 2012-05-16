@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.os.Message;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -13,8 +14,8 @@ import com.ferg.awfulapp.thread.AwfulThread;
 
 public class MarkUnreadTask extends AwfulTask {
 
-	public MarkUnreadTask(AwfulSyncService sync, int id, int arg1) {
-		super(sync, id, arg1, null, AwfulSyncService.MSG_MARK_UNREAD);
+	public MarkUnreadTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_MARK_UNREAD);
 	}
 
 	@Override

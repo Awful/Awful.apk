@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.task;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -11,9 +12,9 @@ public class ThreadTask extends AwfulTask {
 
 	private int mUserId = 0;
 	
-	public ThreadTask(AwfulSyncService sync, int id, int arg1, int uid, AwfulPreferences aPrefs) {
-		super(sync, id, arg1, aPrefs, AwfulSyncService.MSG_SYNC_THREAD);
-		mUserId = uid;
+	public ThreadTask(AwfulSyncService sync, Message aMsg, AwfulPreferences aPrefs) {
+		super(sync, aMsg, aPrefs, AwfulSyncService.MSG_SYNC_THREAD);
+		mUserId = (Integer) aMsg.obj;
 	}
 
 	@Override

@@ -49,6 +49,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.text.Html;
@@ -556,8 +557,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-	public static String getView(View current, AwfulPreferences prefs, Cursor data, Context context, boolean hideBookmark, boolean hasSidebar, boolean selected) {
-		String tag_url = null;
+	public static ImageView getView(View current, AwfulPreferences prefs, Cursor data, Context context, boolean hideBookmark, boolean hasSidebar, boolean selected) {
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
 		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
@@ -572,21 +572,23 @@ public class AwfulThread extends AwfulPagedItem  {
 		ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
 		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			threadTag.setVisibility(View.GONE);
+			threadTag = null;
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			Bitmap tagImg = null;
 			if(tagFile != null){
-				tagImg = getCategory(context, tagFile);
-				if(tagImg != null){
-					threadTag.setVisibility(View.VISIBLE);
-					threadTag.setScaleType(ScaleType.FIT_XY);
-					threadTag.setImageBitmap(tagImg);
+				if(tagFile.equals(threadTag.getTag())){
+					threadTag = null;
 				}else{
-					threadTag.setVisibility(View.GONE);
-					tag_url = data.getString(data.getColumnIndex(TAG_URL));
-				}			
+					if(!threadTagExists(context, tagFile)){
+						threadTag.setVisibility(View.INVISIBLE);
+						threadTag.setTag(new String[]{tagFile,data.getString(data.getColumnIndex(TAG_URL))});
+					}else{
+						threadTag.setTag(tagFile);
+					}
+				}
 			}else{
 				threadTag.setVisibility(View.GONE);
+				threadTag = null;
 			}
 		}
 
@@ -677,7 +679,26 @@ public class AwfulThread extends AwfulPagedItem  {
 				title.setEllipsize(null);
 			}
 		}
-		return tag_url;
+		return threadTag;
+	}
+	
+	public static boolean threadTagExists(Context aContext, String filename){
+		try{
+			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+				File cacheDir;
+				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
+					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/category/");
+				}else{
+					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
+				}
+				File cachedImg = new File(cacheDir, filename);
+				if(cachedImg.exists() && cachedImg.canRead()){
+					return true;
+				}
+			}
+		}catch(Exception e){
+		}
+		return false;
 	}
 	
 	public static Bitmap getCategory(Context aContext, String fileName){
@@ -703,5 +724,20 @@ public class AwfulThread extends AwfulPagedItem  {
 		return null;
 	}
 	
+	public static void setBitmap(Context context, ImageView imgView, HashMap<String, Bitmap> imageCache){
+		if(imgView.getTag() instanceof String){
+			String imageName = (String) imgView.getTag();
+			Bitmap image = imageCache.get(imageName);
+			if(image == null){
+				image = getCategory(context, imageName);
+				imageCache.put(imageName, image);
+			}
+			if(image != null){
+				imgView.setVisibility(View.VISIBLE);
+				imgView.setScaleType(ScaleType.FIT_XY);
+				imgView.setImageBitmap(image);
+			}
+		}
+	}
 	
 }

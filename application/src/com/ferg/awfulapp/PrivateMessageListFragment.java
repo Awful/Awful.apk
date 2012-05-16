@@ -113,7 +113,6 @@ public class PrivateMessageListFragment extends SherlockFragment implements
     @Override
     public void onStart(){
     	super.onStart();
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, Constants.PRIVATE_MESSAGE_THREAD);
 		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
@@ -121,7 +120,7 @@ public class PrivateMessageListFragment extends SherlockFragment implements
     
     private void syncPMs() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+    		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
     	}
 	}
 
@@ -133,7 +132,6 @@ public class PrivateMessageListFragment extends SherlockFragment implements
 	@Override
 	public void onStop(){
 		super.onStop();
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, Constants.PRIVATE_MESSAGE_THREAD);
 		getActivity().getSupportLoaderManager().destroyLoader(Constants.PRIVATE_MESSAGE_THREAD);
 		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
 	}

@@ -4,6 +4,8 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 import android.os.AsyncTask;
+import android.os.Message;
+import android.os.Messenger;
 
 /** A specialized AsyncTask for use with AwfulSyncService.
  * AwfulSyncService may avoid creating duplicate tasks if the new task's id and arg1 match any other pending task.
@@ -16,6 +18,7 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	protected int TYPE;
 	protected AwfulSyncService mContext;
 	protected AwfulPreferences mPrefs;
+	protected Messenger replyTo;
 	/**
 	 * Constructs AwfulTask that can be queued immediately.
 	 * @param sync AwfulSyncService where callbacks will be sent.
@@ -23,12 +26,13 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	 * @param arg1 An optional second argument to be used for page numbers, ect. Will be used for purposes of duplicate task avoidance if this value is anything other than 0.
 	 * @param aPrefs Some tasks require access to preferences. Reusing an existing AwfulPreference object reduces processing time.
 	 */
-	public AwfulTask(AwfulSyncService sync, int id, int arg1, AwfulPreferences aPrefs, int returnMessage){
+	public AwfulTask(AwfulSyncService sync, Message msg, AwfulPreferences aPrefs, int returnMessage){
 		mPrefs = aPrefs;
 		mContext = sync;
-		mId = id;
-		mArg1 = arg1;
+		mId = msg.arg1;
+		mArg1 = msg.arg2;
 		TYPE = returnMessage;
+		replyTo = msg.replyTo;
 	}
 	public int getId(){
 		return mId;
@@ -39,16 +43,16 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected void onPreExecute(){
 		if(!isCancelled()){
-			mContext.updateStatus(TYPE, AwfulSyncService.Status.WORKING, mId, mArg1);
+			mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.WORKING, mId, mArg1);
 		}
 	}
 	@Override
 	public void onPostExecute(Boolean success){
 		if(!isCancelled()){
 			if(success){
-				mContext.updateStatus(TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
 			}else{
-				mContext.updateStatus(TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
 			}
 			mContext.taskFinished(this);
 		}

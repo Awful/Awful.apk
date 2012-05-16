@@ -3,6 +3,7 @@ package com.ferg.awfulapp.task;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -13,8 +14,8 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 
 public class SendPostTask extends AwfulTask {
-	public SendPostTask(AwfulSyncService sync, int id, int arg1, int replyType) {
-		super(sync, id, arg1, null, AwfulSyncService.MSG_SEND_POST);
+	public SendPostTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_SEND_POST);
 	}
 
 	@Override

@@ -238,7 +238,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onActivityCreated(Bundle savedState){
 		super.onActivityCreated(savedState);
-        ((AwfulActivity) getActivity()).registerSyncService(mMessenger, pmId);
 		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
@@ -251,13 +250,13 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
     }
 	
 	private void syncPM() {
-		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_FETCH_PM, pmId, 0);
+		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM, pmId, 0);
 	}
 	
 	public void sendPM() {
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 		saveReply();
-		((AwfulActivity) getActivity()).sendMessage(AwfulSyncService.MSG_SEND_PM, pmId, AwfulMessage.TYPE_PM);
+		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_PM, pmId, AwfulMessage.TYPE_PM);
 	}
 	
 	public void saveReply(){
@@ -313,7 +312,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
-        ((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, pmId);
 		getLoaderManager().destroyLoader(pmId);
 		getActivity().getContentResolver().unregisterContentObserver(mPMDataCallback);
 		getActivity().getContentResolver().unregisterContentObserver(pmReplyObserver);

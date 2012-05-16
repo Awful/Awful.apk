@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -267,7 +268,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static String getSubforumView(View current, AwfulActivity parent, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static ImageView getSubforumView(View current, AwfulActivity parent, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
@@ -299,44 +300,21 @@ public class AwfulForum extends AwfulPagedItem {
 		
 		ImageView threadTag = (ImageView) current.findViewById(R.id.forum_tag);
 		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-		String tag_url = null;
-		Bitmap tagImg = null;
 		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			tagImg = getCategory(parent, tagFile);
-			if(tagImg != null){
-				threadTag.setVisibility(View.VISIBLE);
-				threadTag.setScaleType(ScaleType.FIT_XY);
-				threadTag.setImageBitmap(tagImg);
+			if(tagFile.equals(threadTag.getTag())){
+				threadTag = null;
 			}else{
-				threadTag.setVisibility(View.GONE);
-				tag_url = data.getString(data.getColumnIndex(TAG_URL));
-			}			
-		}else{
-			threadTag.setVisibility(View.GONE);
-		}
-		return tag_url;
-	}
-	
-	public static Bitmap getCategory(Context aContext, String fileName){
-		try{
-			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-				File cacheDir;
-				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
-					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/category/");
+				if(!AwfulThread.threadTagExists(parent, tagFile)){
+					threadTag.setVisibility(View.INVISIBLE);
+					threadTag.setTag(new String[]{tagFile,data.getString(data.getColumnIndex(TAG_URL))});
 				}else{
-					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
-				}
-				File cachedImg = new File(cacheDir, fileName);
-				if(cachedImg.exists() && cachedImg.canRead()){
-					FileInputStream is = new FileInputStream(cachedImg);
-					Bitmap data = BitmapFactory.decodeStream(is);
-					is.close();
-					return data;
+					threadTag.setTag(tagFile);
 				}
 			}
-		}catch(Exception e){
-			e.printStackTrace();
+		}else{
+			threadTag.setVisibility(View.GONE);
+			threadTag = null;
 		}
-		return null;
+		return threadTag;
 	}
 }

@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -18,8 +19,8 @@ import com.ferg.awfulapp.thread.AwfulThread;
 
 public class MarkLastReadTask extends AwfulTask {
 
-	public MarkLastReadTask(AwfulSyncService sync, int id, int index) {
-		super(sync, id, index, null, AwfulSyncService.MSG_MARK_LASTREAD);
+	public MarkLastReadTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_MARK_LASTREAD);
 	}
 
 	@Override

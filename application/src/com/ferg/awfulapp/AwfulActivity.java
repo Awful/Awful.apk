@@ -172,59 +172,24 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         Log.i(TAG, "Service Disconnected!");
 		mService = null;
 	}
-	public void registerSyncService(Messenger aMessenger, int aClientId){
-		try {
-            Message msg = Message.obtain(null, AwfulSyncService.MSG_REGISTER_CLIENT, aClientId,0);
-            msg.replyTo = aMessenger;
-            if(mService != null){
-    			mService.send(msg);
-    		}else{
-    			mMessageQueue.add(msg);
-    		}
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+	public void sendMessage(Messenger callback, int messageType, int id, int arg1){
+		sendMessage(callback, messageType, id, arg1, null);
 	}
-
-	public void unregisterSyncService(Messenger aMessenger, int aClientId){
-		if(mService != null){
-			try {
-	            Message msg = Message.obtain(null, AwfulSyncService.MSG_UNREGISTER_CLIENT, aClientId,0);
-	            msg.replyTo = aMessenger;
-	            mService.send(msg);
-	        } catch (RemoteException e) {
-	            e.printStackTrace();
-	        }
-		}
-	}
-	public void sendMessage(int messageType, int id, int arg1){
+	public void sendMessage(Messenger callback, int messageType, int id, int arg1, Object obj){
 		try {
             Message msg = Message.obtain(null, messageType, id, arg1);
-    		if(mService != null){
-    			mService.send(msg);
-    		}else{
-    			mMessageQueue.add(msg);
-    		}
-    			
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-	}
-	public void sendMessage(int messageType, int id, int arg1, Object obj){
-		try {
-            Message msg = Message.obtain(null, messageType, id, arg1);
+            msg.replyTo = callback;
             msg.obj = obj;
     		if(mService != null){
     			mService.send(msg);
     		}else{
     			mMessageQueue.add(msg);
     		}
-    			
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 	}
-    
+	
     public LeftNavBar getLeftNavBar() {
         if (mLeftNavBar == null) {
             mLeftNavBar = new LeftNavBar(this);

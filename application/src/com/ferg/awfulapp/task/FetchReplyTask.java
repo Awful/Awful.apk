@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Message;
 import android.util.Log;
 
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -18,9 +19,9 @@ public class FetchReplyTask extends AwfulTask {
 	
 	private int type;
 
-	public FetchReplyTask(AwfulSyncService sync, int threadId, int postId, int replyType) {
-		super(sync, threadId, postId, null, AwfulSyncService.MSG_FETCH_POST_REPLY);
-		type = replyType;
+	public FetchReplyTask(AwfulSyncService sync, Message aMsg) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_FETCH_POST_REPLY);
+		type = (Integer) aMsg.obj;
 	}
 
 	@Override

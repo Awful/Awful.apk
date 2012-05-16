@@ -306,7 +306,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
         
-        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
         if(getThreadId() > 0 && savedScrollPosition < 1){
         	syncThread();
         }
@@ -416,7 +415,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadView.onResume();
             mThreadView.resumeTimers();
         }
-        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
     }
@@ -451,7 +449,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDestroy() {
         super.onDestroy(); Log.e(TAG, "onDestroy");
-        getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
         getLoaderManager().destroyLoader(getThreadId());
     }
 
@@ -604,8 +601,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		builder.setItems(items, new DialogInterface.OnClickListener() {
     			public void onClick(DialogInterface dialog, int item) {
     				if (getActivity() != null) {
-    					getAwfulActivity().sendMessage(AwfulSyncService.MSG_VOTE,
-    							getThreadId(), item);
+    					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
     				}
     			}
     		});
@@ -628,19 +624,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private void syncThread() {
         if(getActivity() != null){
         	dataLoaded = false;
-        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage(), Integer.valueOf(mUserId));
+        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage(), Integer.valueOf(mUserId));
         }
     }
     
     private void markLastRead(int index) {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
+        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
         }
     }
 
     private void toggleThreadBookmark() {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
+        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
         }
     }
 
@@ -683,7 +679,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         // If we're here because of a post result, refresh the thread
         switch (aRequestCode) {
             case PostReplyFragment.RESULT_POSTED:
-                getAwfulActivity().registerSyncService(mMessenger, getThreadId());
             	if(getPage() < getLastPage()){
             		goToPage(getLastPage());
             	}else{
@@ -1163,7 +1158,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	public void openThread(int id, int page) {
     	if(getActivity() != null){
-	        getAwfulActivity().unregisterSyncService(mMessenger, getThreadId());
 	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
 	        getLoaderManager().destroyLoader(getThreadId());
     	}
@@ -1175,7 +1169,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mPostJump = "";
 		updatePageBar();
     	if(getActivity() != null){
-	        getAwfulActivity().registerSyncService(mMessenger, getThreadId());
             mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 			refreshInfo();
 			syncThread();
