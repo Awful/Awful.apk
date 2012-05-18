@@ -333,7 +333,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		if(mForumList != null){
 			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
 			mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-			mCursorAdapter.notifyDataSetChanged();
+			if(mCursorAdapter != null){
+				mCursorAdapter.notifyDataSetChanged();
+			}
 		}
 	}
 	

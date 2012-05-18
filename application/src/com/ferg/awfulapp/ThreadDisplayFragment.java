@@ -29,18 +29,13 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.database.*;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.*;
-import android.text.Html;
 import android.text.format.DateFormat;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +51,11 @@ import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
-import java.sql.Timestamp;
+import greendroid.widget.QuickAction;
+import greendroid.widget.QuickActionBar;
+import greendroid.widget.QuickActionWidget;
+import greendroid.widget.QuickActionWidget.OnQuickActionClickListener;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,7 +65,6 @@ import java.util.TimeZone;
 
 import org.json.*;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -75,8 +73,6 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.reply.Reply;
-import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -92,7 +88,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, OnQuickActionClickListener {
     private static final String TAG = "ThreadDisplayActivity";
 
     private PostLoaderManager mPostLoaderCallback;
@@ -130,6 +126,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private String mPostJump = "";
 	private int savedPage = 0;//for reverting from "Find posts by"
 	private int savedScrollPosition = 0;
+	
+	private ArrayList<ThreadQuickAction> actions = new ArrayList<ThreadQuickAction>();
 	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -222,21 +220,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
-			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
-			PackageManager pacman = aView.getContext().getPackageManager();
-			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
-					PackageManager.MATCH_DEFAULT_ONLY);
-			if (res.size() > 0) {
-				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				aView.getContext().startActivity(browserIntent);
-			} else {
-				String[] split = aUrl.split(":");
-				Toast.makeText(
-						aView.getContext(),
-						"No application found for protocol"
-								+ (split.length > 0 ? ": " + split[0] : "."), Toast.LENGTH_LONG)
-						.show();
+			actions.clear();
+			Uri link = Uri.parse(aUrl);
+			if(link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") || link.getLastPathSegment().contains(".jpeg") || link.getLastPathSegment().contains(".png") || link.getLastPathSegment().contains(".gif"))){//TODO make this detection less retarded
+				actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_allposts, "Inline Image", ThreadQuickAction.ACTION_EXPAND_IMAGE, aUrl));
 			}
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open External", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "Open Internal", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
+			QuickActionBar mBar = new QuickActionBar(getActivity());
+			for(QuickAction qa : actions){
+				mBar.addQuickAction(qa);
+			}
+			mBar.setOnQuickActionClickListener(ThreadDisplayFragment.this);
+			mBar.show(mPageBar);
 			return true;
 		}
 	};
@@ -536,12 +533,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     		return true;
     	}
-    
-    private void launchParentForum(){
-    	if(mParentForumId > 0){
-    		getAwfulActivity().displayForum(mParentForumId, 1);
-    	}
-    }
 
 	private void copyThreadURL(String postId) {
 		StringBuffer url = new StringBuffer();
@@ -977,7 +968,79 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		}
 	}
+	
+	@Override
+	public void onQuickActionClicked(QuickActionWidget widget, int position) {
+		ThreadQuickAction selected = actions.get(position);
+		if(selected != null){
+			switch(selected.action){
+			case ThreadQuickAction.ACTION_EXPAND_IMAGE:
+				
+				break;
+			case ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL:
+				Uri link = Uri.parse(selected.actionData);
+				String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
+				if(selected.actionData.contains(Constants.FUNCTION_THREAD) && threadId != null){
+					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
+					if(pageNum != null && pageNum.matches("\\d+")){
+						openThread(Integer.parseInt(threadId), Integer.parseInt(pageNum));
+					}else{
+						openThread(Integer.parseInt(threadId), 1);
+					}
+				}else{
+					//TODO use AwfulWebFragment to display this.
+				}
+				break;
+			case ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL:
+				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(selected.actionData));
+				PackageManager pacman = getActivity().getPackageManager();
+				List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
+						PackageManager.MATCH_DEFAULT_ONLY);
+				if (res.size() > 0) {
+					browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					getActivity().startActivity(browserIntent);
+				} else {
+					String[] split = selected.actionData.split(":");
+					Toast.makeText(
+							getActivity(),
+							"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
+							Toast.LENGTH_LONG)
+								.show();
+				}
+				break;
+			case ThreadQuickAction.ACTION_COPY_URL:
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+					ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipData clip = ClipData.newPlainText("Copied URL", selected.actionData);
+					clipboard.setPrimaryClip(clip);
 
+					Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+				} else {
+					android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+					clipboard.setText(selected.actionData);
+					Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+				}
+				break;
+			}
+		}
+	}
+	
+	private class ThreadQuickAction extends QuickAction {
+		public static final int ACTION_EXPAND_IMAGE = 1;
+		public static final int ACTION_OPEN_LINK_INTERNAL = 2;
+		public static final int ACTION_OPEN_LINK_EXTERNAL = 3;
+		public static final int ACTION_COPY_URL = 4;
+		
+		public int action;
+		public String actionData;
+		public ThreadQuickAction(Context ctx, int drawableId, String title, int actionId, String data) {
+			super(ctx, drawableId, title);
+			action = actionId;
+			actionData = data;
+		}
+		
+	}
+	
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
