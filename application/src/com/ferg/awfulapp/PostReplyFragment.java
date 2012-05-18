@@ -102,6 +102,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 		sendSuccessful = true;
                 		if(getActivity() != null){ 
                 			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
+                			getActivity().setResult(RESULT_POSTED);
                 			leave();
                 		}
                 	}
@@ -206,7 +207,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private void leave(){
     	//add functionality for non-activity cases, for future updates
     	if(getActivity() instanceof PostReplyActivity){
-			getActivity().setResult(RESULT_POSTED);
 			getActivity().finish();
 		}
     }

@@ -1,14 +1,13 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.ferg.awfulapp.R;
+import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback{
+public abstract class AwfulFragment extends SherlockDialogFragment implements AwfulUpdateCallback{
 
 	protected AwfulPreferences mPrefs;
     
@@ -20,6 +19,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     	}
         mPrefs = new AwfulPreferences(getAwfulActivity(), this);
     }
+    
+	@Override
+	public void onActivityCreated(Bundle aSavedState) {
+		super.onActivityCreated(aSavedState);
+		onPreferenceChange(mPrefs);
+	}
     
     @Override
     public void onDestroy() {

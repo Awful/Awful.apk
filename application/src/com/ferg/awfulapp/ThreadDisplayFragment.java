@@ -333,8 +333,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
-		updatePageBar();
-		onPreferenceChange(mPrefs);
 		return result;
 	}
 
@@ -345,6 +343,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	refreshPosts();
         }
         updateSidebarHint(isDualPane(), isSidebarVisible());
+		updatePageBar();
 	}
 
 	private void initThreadViewProperties() {

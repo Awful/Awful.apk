@@ -225,7 +225,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				mMoveUp.setOnClickListener(onButtonClick);
 			}
 		}
-		onPreferenceChange(mPrefs);
 		updatePageBar();
         return result;
     }

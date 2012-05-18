@@ -301,15 +301,11 @@ public class AwfulForum extends AwfulPagedItem {
 		ImageView threadTag = (ImageView) current.findViewById(R.id.forum_tag);
 		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			if(tagFile.equals(threadTag.getTag())){
-				threadTag = null;
+			if(!AwfulThread.threadTagExists(parent, tagFile)){
+				threadTag.setVisibility(View.INVISIBLE);
+				threadTag.setTag(new String[]{tagFile,data.getString(data.getColumnIndex(TAG_URL))});
 			}else{
-				if(!AwfulThread.threadTagExists(parent, tagFile)){
-					threadTag.setVisibility(View.INVISIBLE);
-					threadTag.setTag(new String[]{tagFile,data.getString(data.getColumnIndex(TAG_URL))});
-				}else{
-					threadTag.setTag(tagFile);
-				}
+				threadTag.setTag(tagFile);
 			}
 		}else{
 			threadTag.setVisibility(View.GONE);
