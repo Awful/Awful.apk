@@ -5,9 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-public abstract class AwfulFragment extends SherlockDialogFragment implements AwfulUpdateCallback{
+public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback{
 
 	protected AwfulPreferences mPrefs;
     

@@ -73,3 +73,12 @@ function scrollLastRead(){
     }
 }
 
+function showInlineImage(url){
+	$('a[href="'+url+'"]').append(function(){
+		if($(this).children('img[src="'+url+'"]').length < 1){
+			return '<img src="'+url+'" />';
+		}
+		return "";
+		});
+}
+

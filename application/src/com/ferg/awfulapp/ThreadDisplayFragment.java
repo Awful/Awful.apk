@@ -221,13 +221,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
 			actions.clear();
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
 			Uri link = Uri.parse(aUrl);
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open External", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "Open Internal", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
 			if(link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") || link.getLastPathSegment().contains(".jpeg") || link.getLastPathSegment().contains(".png") || link.getLastPathSegment().contains(".gif"))){//TODO make this detection less retarded
 				actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_allposts, "Inline Image", ThreadQuickAction.ACTION_EXPAND_IMAGE, aUrl));
 			}
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open External", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "Open Internal", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
 			QuickActionBar mBar = new QuickActionBar(getActivity());
 			for(QuickAction qa : actions){
 				mBar.addQuickAction(qa);
@@ -560,25 +560,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
 			clipboard.setPrimaryClip(clip);
 
-			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
-					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
-			successToast.show();
+			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		} else {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
-
-			alert.setTitle("URL");
-
-			final EditText input = new EditText(this.getActivity());
-			input.setText(url.toString());
-			alert.setView(input);
-
-			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.dismiss();
-				}
-			});
-
-			alert.show();
+			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(url.toString());
+			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -975,7 +961,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(selected != null){
 			switch(selected.action){
 			case ThreadQuickAction.ACTION_EXPAND_IMAGE:
-				
+				if(mThreadView != null){
+					mThreadView.loadUrl("javascript:showInlineImage('"+selected.actionData+"')");
+				}
 				break;
 			case ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL:
 				Uri link = Uri.parse(selected.actionData);
@@ -983,7 +971,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				if(selected.actionData.contains(Constants.FUNCTION_THREAD) && threadId != null){
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						openThread(Integer.parseInt(threadId), Integer.parseInt(pageNum));
+						int pageNumber = Integer.parseInt(pageNum);
+						int perPage = Constants.ITEMS_PER_PAGE;
+						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
+						if(paramPerPage != null && paramPerPage.matches("\\d+")){
+							perPage = Integer.parseInt(paramPerPage);
+						}
+						if(perPage != mPrefs.postPerPage){
+							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
+						}
+						openThread(Integer.parseInt(threadId), pageNumber);
 					}else{
 						openThread(Integer.parseInt(threadId), 1);
 					}
