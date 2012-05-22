@@ -18,6 +18,7 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	protected int TYPE;
 	protected AwfulSyncService mContext;
 	protected AwfulPreferences mPrefs;
+	private Object replyObject = null;
 	protected Messenger replyTo;
 	/**
 	 * Constructs AwfulTask that can be queued immediately.
@@ -40,6 +41,9 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	public int getArg1(){
 		return mArg1;
 	}
+	public void setReplyObject(Object obj){
+		replyObject = obj;
+	}
 	@Override
 	protected void onPreExecute(){
 		if(!isCancelled()){
@@ -50,9 +54,9 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 	public void onPostExecute(Boolean success){
 		if(!isCancelled()){
 			if(success){
-				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1, replyObject);
 			}else{
-				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1, replyObject);
 			}
 			mContext.taskFinished(this);
 		}

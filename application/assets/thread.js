@@ -42,11 +42,8 @@ $(document).ready(function() {
     var salr = new SALR(prefs);
 });
 
-$(window).load(function() {
-    scrollPost();
-});
 $(window).ready(function() {
-    scrollPost();
+    window.setTimeout(scrollPost(), 200);
 });
 
 

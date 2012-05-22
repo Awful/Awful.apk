@@ -58,6 +58,7 @@ import com.ferg.awfulapp.task.IndexTask;
 import com.ferg.awfulapp.task.MarkLastReadTask;
 import com.ferg.awfulapp.task.MarkUnreadTask;
 import com.ferg.awfulapp.task.PrivateMessageIndexTask;
+import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.SendPostTask;
 import com.ferg.awfulapp.task.SendPrivateMessageTask;
 import com.ferg.awfulapp.task.ThreadTask;
@@ -92,6 +93,8 @@ public class AwfulSyncService extends Service {
 	/** arg1 = category/emote id, arg2 = url hash for duplicate task prevention, obj = String url **/
 	public static final int MSG_GRAB_IMAGE = 16;
 	public static final int MSG_FETCH_EMOTES = 17;
+	/** obj = initial string, returns string with redirected URL **/
+	public static final int MSG_TRANSLATE_REDIRECT = 18;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -159,16 +162,20 @@ public class AwfulSyncService extends Service {
                 case MSG_GRAB_IMAGE:
                 	backQueueUniqueThread(new ImageCacheTask(AwfulSyncService.this, aMsg));
                     break;
+                case MSG_TRANSLATE_REDIRECT:
+                	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
+                    break;
             }
         }
     }
-    
-    public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2) {
+    public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2){
+    	updateStatus(client, aMessageType, aStatus, clientId, arg2, null);
+    }
+    public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2, Object obj) {
         Log.i(TAG, "Send Message - id: "+clientId+" type: "+aMessageType+" status: "+aStatus+" arg2: "+arg2);
-        //if the client unregisters before we send, this will be null
         if(client != null){
 	        try {
-	            Message msg = Message.obtain(null, aMessageType, aStatus, arg2);
+	            Message msg = Message.obtain(null, aMessageType, aStatus, arg2, obj);
 	            client.send(msg);
 	        } catch (RemoteException e) {
 	        }

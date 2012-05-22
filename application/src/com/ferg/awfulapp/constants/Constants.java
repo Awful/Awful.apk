@@ -66,6 +66,9 @@ public class Constants {
     public static final String PARAM_BOOKMARK  = "bookmark";
 	public static final String PARAM_PRIVATE_MESSAGE_ID = "privatemessageid";
 	public static final String PARAM_VOTE 	   = "vote";
+	public static final String PARAM_POST_ID   = "postid";
+	
+	public static final String VALUE_POST 	   = "post";
     
     public static final String FRAGMENT_PTI    = "pti";
 
@@ -143,6 +146,7 @@ public class Constants {
 	public static final String FORUM_PAGE = "forum_page";
 	//NOT FOR NETWORK USE
 	public static final String THREAD_PAGE = "thread_page";
+
 
 
 	public static boolean isGingerbread(){

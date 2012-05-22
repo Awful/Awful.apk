@@ -228,6 +228,24 @@ public class NetworkUtils {
         return response;
     }
 	
+	public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception{
+        String redirect = null;
+        URI location;
+        if(aParams != null){
+	        location = new URI(aUrl + getQueryStringParameters(aParams));
+        }else{
+	        location = new URI(aUrl);
+        }
+
+        HttpGet httpGet = new HttpGet(location);
+        HttpResponse httpResponse = sHttpClient.execute(httpGet);
+        Header redirectLocation = httpResponse.getFirstHeader("Location");
+        if(redirectLocation != null){
+        	redirect = redirectLocation.getValue();
+        }
+		return redirect;
+	}
+	
 	public static InputStream getStream(String aUrl) throws Exception{
 		URI location = new URI(aUrl);
 
@@ -370,6 +388,7 @@ public class NetworkUtils {
         	HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
         	HttpConnectionParams.setSoTimeout(httpPar, 20000);//timeout to wait if no data transfer occurs //TODO bumped to 20, but we need to monitor cell status now
         	HttpConnectionParams.setSocketBufferSize(httpPar, 65548);
+        	HttpClientParams.setRedirecting(httpPar, false);
             sHttpClient = new DefaultHttpClient(httpPar);
         }
 

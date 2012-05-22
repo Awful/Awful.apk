@@ -57,6 +57,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		return (AwfulActivity) getActivity();
 	}
 	
+	protected void displayForum(int forumId, int page){
+		if(getAwfulActivity() != null){
+			getAwfulActivity().displayForum(forumId, page);
+		}
+	}
+	
 	@Override
     public void loadingFailed() {
         if(getActivity() != null){
@@ -81,6 +87,10 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
+	}
+
+	public boolean onBackPressed() {
+		return false;
 	}
     
 }

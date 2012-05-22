@@ -1,11 +1,5 @@
 package com.ferg.awfulapp;
 
-import java.util.List;
-
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -14,27 +8,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-public class AwfulWebFragment extends AwfulFragment {
+public class AwfulWebFragment extends SherlockDialogFragment {
 	private static final String TAG = "AwfulWebFragment";
 
 	private Handler mHandler = new Handler();
 	private WebView mWebView;
+	
+	private AwfulPreferences mPrefs;
+	
+	private String url;
 
+	public static AwfulWebFragment newInstance(String url){
+		AwfulWebFragment frag = new AwfulWebFragment();
+		Bundle args = new Bundle();
+		args.putString("url", url);
+		frag.setArguments(args);
+		return frag;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		onPreferenceChange(mPrefs);
+		mPrefs = new AwfulPreferences(getActivity());
+		setStyle(STYLE_NO_FRAME, R.style.Theme_Sherlock_Light);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View result = inflater.inflate(R.layout.web_display, container);
+		View result = inflater.inflate(R.layout.web_display, container, true);
 		mWebView = (WebView) result.findViewById(R.id.web_view);
+		mWebView.setWebViewClient(callback);
 		
 		return result;
 	}
@@ -42,12 +50,8 @@ public class AwfulWebFragment extends AwfulFragment {
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
-	}
-	
-	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		super.onPreferenceChange(prefs);
-		mWebView.setBackgroundColor(prefs.postBackgroundColor);
+		mWebView.setBackgroundColor(mPrefs.postBackgroundColor);
+		url = getArguments().getString("url");
 	}
 	
 	@Override
@@ -58,11 +62,21 @@ public class AwfulWebFragment extends AwfulFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		if(mWebView != null){
+			mWebView.onResume();
+			mWebView.resumeTimers();
+			mWebView.loadUrl(url);
+		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
+		if(mWebView != null){
+			mWebView.stopLoading();
+			mWebView.pauseTimers();
+			mWebView.onPause();
+		}
 	}
 
 	@Override
@@ -78,6 +92,8 @@ public class AwfulWebFragment extends AwfulFragment {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		mWebView.destroy();
+		mWebView = null;
 	}
 	
 	@Override
@@ -108,22 +124,7 @@ public class AwfulWebFragment extends AwfulFragment {
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
-			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(aUrl));
-			PackageManager pacman = aView.getContext().getPackageManager();
-			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
-					PackageManager.MATCH_DEFAULT_ONLY);
-			if (res.size() > 0) {
-				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				aView.getContext().startActivity(browserIntent);
-			} else {
-				String[] split = aUrl.split(":");
-				Toast.makeText(
-						aView.getContext(),
-						"No application found for protocol"
-								+ (split.length > 0 ? ": " + split[0] : "."), Toast.LENGTH_LONG)
-						.show();
-			}
-			return true;
+			return false;
 		}
 	};
 }

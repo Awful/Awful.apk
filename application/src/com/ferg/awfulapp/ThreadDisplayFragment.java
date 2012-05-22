@@ -60,6 +60,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -119,6 +120,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadBookmarked = false;
     private boolean dataLoaded = false;
     
+    //oh god i'm replicating core android functionality, this is a bad sign.
+    //int[0] = threadid, int[1] = pagenum, int[2] = scroll position
+    private LinkedList<int[]> backStack = new LinkedList<int[]>();
+    
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
     private String mTitle = null;
@@ -142,9 +147,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
+            handleStatusUpdate(aMsg.arg1);
             switch (aMsg.what) {
+            	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
+            		if(aMsg.obj instanceof String){
+            			Uri resultLink = Uri.parse(aMsg.obj.toString());
+            			String postJump = "";
+            			if(resultLink.getFragment() != null){
+            				postJump = resultLink.getFragment().replaceAll("\\D", "");
+            			}
+            			if(resultLink.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
+        					String threadId = resultLink.getQueryParameter(Constants.PARAM_THREAD_ID);
+        					String pageNum = resultLink.getQueryParameter(Constants.PARAM_PAGE);
+        					if(pageNum != null && pageNum.matches("\\d+")){
+        						int pageNumber = Integer.parseInt(pageNum);
+        						int perPage = Constants.ITEMS_PER_PAGE;
+        						String paramPerPage = resultLink.getQueryParameter(Constants.PARAM_PER_PAGE);
+        						if(paramPerPage != null && paramPerPage.matches("\\d+")){
+        							perPage = Integer.parseInt(paramPerPage);
+        						}
+        						if(perPage != mPrefs.postPerPage){
+        							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
+        						}
+        						openThread(Integer.parseInt(threadId), pageNumber, postJump);
+        					}else{
+        						openThread(Integer.parseInt(threadId), 1, postJump);
+        					}
+        				}
+            		}
+            		break;
                 case AwfulSyncService.MSG_SYNC_THREAD:
-                    handleStatusUpdate(aMsg.arg1);
                     if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
                     	refreshPosts();
                     }
@@ -169,11 +201,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     }
                     break;
                 case AwfulSyncService.MSG_SET_BOOKMARK:
-                    handleStatusUpdate(aMsg.arg1);
                 	refreshInfo();
                     break;
                 case AwfulSyncService.MSG_MARK_LASTREAD:
-                    handleStatusUpdate(aMsg.arg1);
                 	refreshInfo();
                     if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
                     	refreshPosts();
@@ -220,12 +250,65 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
+			Uri link = Uri.parse(aUrl);
+			if(aUrl.contains(Constants.FUNCTION_THREAD)){
+				//for the new quote-link stuff
+				//http://forums.somethingawful.com/showthread.php?goto=post&postid=XXXX
+				if(link.getQueryParameter(Constants.PARAM_GOTO) != null 
+					&& link.getQueryParameter(Constants.PARAM_POST_ID) != null ){
+					startPostRedirect(aUrl);
+					return true;
+				}
+				//http://forums.somethingawful.com/showthread.php?action=showpost&postid=XXXX
+				//but seriously, who uses that function? it doesn't even show up anymore.
+				if(link.getQueryParameter(Constants.PARAM_ACTION) != null 
+						&& link.getQueryParameter(Constants.PARAM_POST_ID) != null ){
+					startPostRedirect(aUrl.replace("action=showpost", "goto=post"));
+					return true;
+				}
+				if(link.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
+					String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
+					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
+					if(pageNum != null && pageNum.matches("\\d+")){
+						int pageNumber = Integer.parseInt(pageNum);
+						int perPage = Constants.ITEMS_PER_PAGE;
+						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
+						if(paramPerPage != null && paramPerPage.matches("\\d+")){
+							perPage = Integer.parseInt(paramPerPage);
+						}
+						if(perPage != mPrefs.postPerPage){
+							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
+						}
+						openThread(Integer.parseInt(threadId), pageNumber);
+					}else{
+						openThread(Integer.parseInt(threadId), 1);
+					}
+					return true;
+				}
+			}
+			if(aUrl.contains(Constants.FUNCTION_FORUM)){
+				if(link.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
+					String forumId = link.getQueryParameter(Constants.PARAM_FORUM_ID);
+					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
+					if(pageNum != null && pageNum.matches("\\d+")){
+						displayForum(Integer.parseInt(forumId), Integer.parseInt(pageNum));
+					}else{
+						displayForum(Integer.parseInt(forumId), 1);
+					}
+					return true;
+				}
+			}
 			actions.clear();
 			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
-			Uri link = Uri.parse(aUrl);
 			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open External", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
 			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "Open Internal", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
-			if(link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") || link.getLastPathSegment().contains(".jpeg") || link.getLastPathSegment().contains(".png") || link.getLastPathSegment().contains(".gif"))){//TODO make this detection less retarded
+			if(link.getLastPathSegment() != null 
+					&& (link.getLastPathSegment().contains(".jpg") 
+							|| link.getLastPathSegment().contains(".jpeg") 
+							|| link.getLastPathSegment().contains(".png") 
+							|| link.getLastPathSegment().contains(".gif")
+						)
+					){//TODO make this detection less retarded
 				actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_allposts, "Inline Image", ThreadQuickAction.ACTION_EXPAND_IMAGE, aUrl));
 			}
 			QuickActionBar mBar = new QuickActionBar(getActivity());
@@ -615,6 +698,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
         }
     }
+    
+    private void startPostRedirect(String postUrl) {
+        if(getActivity() != null){
+        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_TRANSLATE_REDIRECT, getThreadId(), 0, postUrl);
+        }
+    }
 
     private void displayUserCP() {
     	getAwfulActivity().displayForum(Constants.USERCP_ID, 1);
@@ -966,27 +1055,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				}
 				break;
 			case ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL:
-				Uri link = Uri.parse(selected.actionData);
-				String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
-				if(selected.actionData.contains(Constants.FUNCTION_THREAD) && threadId != null){
-					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
-					if(pageNum != null && pageNum.matches("\\d+")){
-						int pageNumber = Integer.parseInt(pageNum);
-						int perPage = Constants.ITEMS_PER_PAGE;
-						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
-						if(paramPerPage != null && paramPerPage.matches("\\d+")){
-							perPage = Integer.parseInt(paramPerPage);
-						}
-						if(perPage != mPrefs.postPerPage){
-							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
-						}
-						openThread(Integer.parseInt(threadId), pageNumber);
-					}else{
-						openThread(Integer.parseInt(threadId), 1);
-					}
-				}else{
-					//TODO use AwfulWebFragment to display this.
-				}
+		        AwfulWebFragment.newInstance(selected.actionData).show(getFragmentManager().beginTransaction(), "awful_web_dialog");
 				break;
 			case ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL:
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(selected.actionData));
@@ -1214,8 +1283,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public int getParentForumId() {
 		return mParentForumId;
 	}
-
-	public void openThread(int id, int page) {
+	public void openThread(int id, int page){
+		openThread(id, page, "");
+	}
+	
+	public void openThread(int id, int page, String postJump) {
     	if(getActivity() != null){
 	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
 	        getLoaderManager().destroyLoader(getThreadId());
@@ -1225,7 +1297,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	setPage(page);
     	dataLoaded = false;
     	mLastPage = 1;
-		mPostJump = "";
+    	if(postJump != null){
+    		mPostJump = postJump;
+    	}else{
+    		mPostJump = "";
+    	}
 		updatePageBar();
     	if(getActivity() != null){
             mThreadView.loadData(getBlankPage(), "text/html", "utf-8");

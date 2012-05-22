@@ -155,7 +155,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 
 		@Override
-		public Fragment getItem(int arg0) {
+		public AwfulFragment getItem(int arg0) {
 			Log.e(TAG,"CREATING TAB:"+arg0);
 			switch(arg0){
 			case 0:
@@ -275,7 +275,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 	@Override
     public void onBackPressed() {
     	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-    		mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+    		if(!pagerAdapter.getItem(mViewPager.getCurrentItem()).onBackPressed()){
+    			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+    		}
     	}else{
     		finish();
     	}
