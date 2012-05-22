@@ -16,6 +16,8 @@ package com.ferg.awfulapp.widget;
  * limitations under the License.
  */
 
+import com.ferg.awfulapp.AwfulFragment;
+
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -76,7 +78,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     /**
      * Return the Fragment associated with a specified position.
      */
-    public abstract Fragment getItem(int position);
+    public abstract AwfulFragment getItem(int position);
 
     @Override
     public void startUpdate(ViewGroup container) {

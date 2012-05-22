@@ -122,7 +122,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     //oh god i'm replicating core android functionality, this is a bad sign.
     //int[0] = threadid, int[1] = pagenum, int[2] = scroll position
-    private LinkedList<int[]> backStack = new LinkedList<int[]>();
+    private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
     
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
@@ -169,9 +169,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         						if(perPage != mPrefs.postPerPage){
         							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
         						}
-        						openThread(Integer.parseInt(threadId), pageNumber, postJump);
+        						pushThread(Integer.parseInt(threadId), pageNumber, postJump);
         					}else{
-        						openThread(Integer.parseInt(threadId), 1, postJump);
+        						pushThread(Integer.parseInt(threadId), 1, postJump);
         					}
         				}
             		}
@@ -279,9 +279,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 						if(perPage != mPrefs.postPerPage){
 							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
 						}
-						openThread(Integer.parseInt(threadId), pageNumber);
+						pushThread(Integer.parseInt(threadId), pageNumber, "");
 					}else{
-						openThread(Integer.parseInt(threadId), 1);
+						pushThread(Integer.parseInt(threadId), 1, "");
 					}
 					return true;
 				}
@@ -1284,10 +1284,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		return mParentForumId;
 	}
 	public void openThread(int id, int page){
-		openThread(id, page, "");
+    	clearBackStack();
+    	loadThread(id, page, "");
+	}
+	public void openThread(int id, int page, String postJump){
+    	clearBackStack();
+    	loadThread(id, page, postJump);
 	}
 	
-	public void openThread(int id, int page, String postJump) {
+	private void loadThread(int id, int page, String postJump) {
     	if(getActivity() != null){
 	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
 	        getLoaderManager().destroyLoader(getThreadId());
@@ -1308,6 +1313,62 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			refreshInfo();
 			syncThread();
     	}
+	}
+	
+	private void openThread(AwfulStackEntry thread) {
+    	if(getActivity() != null){
+	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
+	        getLoaderManager().destroyLoader(getThreadId());
+    	}
+    	setThreadId(thread.id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+		mUserId = 0;
+    	setPage(thread.page);
+    	dataLoaded = false;
+    	mLastPage = 1;
+    	mPostJump = "";
+    	savedScrollPosition = thread.scrollPos;
+		updatePageBar();
+    	if(getActivity() != null){
+            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+			refreshInfo();
+			refreshPosts();
+    	}
+	}
+	
+	private static class AwfulStackEntry{
+		public int id, page, scrollPos;
+		public AwfulStackEntry(int threadId, int pageNum, int scrollPosition){
+			id = threadId; page = pageNum; scrollPos = scrollPosition;
+		}
+	}
+	
+	private void pushThread(int id, int page, String postJump){
+		if(mThreadView != null && getThreadId() != 0){
+			backStack.addFirst(new AwfulStackEntry(getThreadId(), getPage(), mThreadView.getScrollY()));
+		}
+		loadThread(id, page, postJump);
+	}
+	
+	private void popThread(){
+		openThread(backStack.removeFirst());
+	}
+	
+	private void clearBackStack(){
+		backStack.clear();
+	}
+	
+	private int backStackCount(){
+		return backStack.size();
+	}
+	
+	@Override
+	public boolean onBackPressed() {
+		if(backStackCount() > 0){
+			popThread();
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
