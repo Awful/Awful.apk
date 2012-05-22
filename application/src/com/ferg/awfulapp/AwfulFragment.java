@@ -7,8 +7,9 @@ import android.util.Log;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback{
+public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment{
 
 	protected AwfulPreferences mPrefs;
     

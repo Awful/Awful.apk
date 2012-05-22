@@ -326,6 +326,16 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	syncForumsIfStale();
         }
     }
+	
+	@Override
+	public void onPageVisible() {
+		syncForumsIfStale();
+	}
+	
+	@Override
+	public void onPageHidden() {
+		
+	}
     
     @Override
     public void onPause() {

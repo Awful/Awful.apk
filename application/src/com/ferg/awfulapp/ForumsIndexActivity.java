@@ -150,8 +150,11 @@ public class ForumsIndexActivity extends AwfulActivity {
     
     public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
     	private int tabCount = 3;
+    	private AwfulPagerFragment[] fragList;
+    	private AwfulPagerFragment visible;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
+			fragList = new AwfulPagerFragment[tabCount+1];
 		}
 
 		@Override
@@ -159,27 +162,35 @@ public class ForumsIndexActivity extends AwfulActivity {
 			Log.e(TAG,"CREATING TAB:"+arg0);
 			switch(arg0){
 			case 0:
-				if(mIndexFragment == null){
-					mIndexFragment = ForumsIndexFragment.newInstance();
+				if(fragList[0] == null){
+					fragList[0] = ForumsIndexFragment.newInstance();
 				}
-				if(mForumId > 0){
-					mIndexFragment.setSelected(mForumId);
-				}
-				return mIndexFragment;
+				break;
 			case 1:
-				if(mForumFragment == null){
-					mForumFragment = ForumDisplayFragment.newInstance(mForumId, skipLoad);
+				if(fragList[1] == null){
+					fragList[1] = ForumDisplayFragment.newInstance(mForumId, skipLoad);
 				}
-				return mForumFragment;
+				break;
 			case 2:
-				if(mThreadFragment == null){
-					mThreadFragment = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
+				if(fragList[2] == null){
+					fragList[2] = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
 				}
-				return mThreadFragment;
+				break;
+			case 3:
+				if(fragList[3] == null){
+					Log.e(TAG,"Extra tab not created yet!");
+				}
+				break;
 			default:
 				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+				return null;
 			}
-			return null;
+			return (AwfulFragment) fragList[arg0];
+		}
+
+		@Override
+		public AwfulPagerFragment getAwfulItem(int position) {
+			return fragList[position];
 		}
 		
 		@Override
@@ -217,27 +228,13 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
-	        //ActionBar action = getSupportActionBar();
-			switch(arg0){
-			case 0:
-				setActionbarTitle(getString(R.string.forums_title), null);
-				break;
-			case 1:
-				if(mForumFragment != null && mForumFragment.getTitle() != null){
-					setActionbarTitle(mForumFragment.getTitle(), null);
-				}
-				if(mForumFragment != null){
-					mForumFragment.syncForumsIfStale();
-				}
-				break;
-			case 2:
-				if(mThreadFragment != null && mThreadFragment.getTitle() != null){
-					setActionbarTitle(mThreadFragment.getTitle(), null);
-				}
-				break;
-			default:
-				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+			if(visible != null){
+				visible.onPageHidden();
 			}
+			AwfulPagerFragment apf = getAwfulItem(arg0);
+			setActionbarTitle(apf.getTitle(), null);
+			apf.onPageVisible();
+			visible = apf;
 		}
     	
     }
@@ -246,29 +243,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
     	if(requestor != null && mViewPager != null){
     		//This will only honor the request if the requestor is the currently active view.
-    		switch(mViewPager.getCurrentItem()){
-    		case 0:
-				if(requestor instanceof ForumsIndexFragment){
+    		if(pagerAdapter.getItem(mViewPager.getCurrentItem()).equals(requestor)){
 		    		super.setActionbarTitle(aTitle, requestor);
-				}
-				break;
-			case 1:
-				if(requestor instanceof ForumDisplayFragment){
-		    		super.setActionbarTitle(aTitle, requestor);
-				}
-				break;
-			case 2:
-				if(requestor instanceof ThreadDisplayFragment){
-		    		super.setActionbarTitle(aTitle, requestor);
-				}
-				break;
-			default:
-				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
-    		}
-    	}else{
-			if(requestor == null || requestor instanceof ForumDisplayFragment){
-	    		super.setActionbarTitle(aTitle, requestor);
 			}
+    	}else{
+    		super.setActionbarTitle(aTitle, requestor);
     	}
 	}
 

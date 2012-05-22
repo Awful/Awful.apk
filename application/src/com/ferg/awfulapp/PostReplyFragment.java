@@ -610,4 +610,19 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 			getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
 		}
 	}
+
+	@Override
+	public void onPageVisible() {
+		
+	}
+
+	@Override
+	public void onPageHidden() {
+		
+	}
+
+	@Override
+	public String getTitle() {
+		return "Reply Window";//TODO replace with thread name
+	}
 }

@@ -162,7 +162,17 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         super.onResume(); Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
     }
-    
+
+	@Override
+	public void onPageVisible() {
+		
+	}
+
+	@Override
+	public void onPageHidden() {
+		
+	}
+	
     @Override
     public void onPause() {
         super.onPause(); Log.e(TAG, "Pause");
@@ -552,5 +562,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	
 	public int getSelected(){
 		return selectedId;
+	}
+
+	@Override
+	public String getTitle() {
+		return getResources().getString(R.string.forums_title);
 	}
 }

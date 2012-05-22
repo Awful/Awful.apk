@@ -78,7 +78,16 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     /**
      * Return the Fragment associated with a specified position.
      */
-    public abstract AwfulFragment getItem(int position);
+    public abstract Fragment getItem(int position);
+    //god I know i'm doing this wrong.
+    public abstract AwfulPagerFragment getAwfulItem(int position);
+    
+    public interface AwfulPagerFragment{
+    	public boolean onBackPressed();
+    	public void onPageVisible();
+    	public void onPageHidden();
+    	public String getTitle();
+    }
 
     @Override
     public void startUpdate(ViewGroup container) {

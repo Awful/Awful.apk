@@ -482,7 +482,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onResume() {
         super.onResume(); Log.e(TAG, "Resume");
-        
+        resumeWebView();
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        refreshInfo();
+    }
+    
+    public void resumeWebView(){
         if (mThreadView == null) {
             mThreadView = new WebView(getActivity());
 
@@ -494,8 +499,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadView.onResume();
             mThreadView.resumeTimers();
         }
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
-        refreshInfo();
     }
     
     
@@ -504,14 +507,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onPause(); Log.e(TAG, "onPause");
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
+        pauseWebView();
+    }
+    
+    private void pauseWebView(){
         mThreadView.pauseTimers();
-        mThreadView.stopLoading();
         mThreadView.onPause();
     }
         
     @Override
     public void onStop() {
         super.onStop(); Log.e(TAG, "onStop");
+        mThreadView.stopLoading();
     }
     
     @Override
@@ -1386,5 +1393,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				mToggleSidebar.setVisibility(View.INVISIBLE);
 			}
 		}
+	}
+
+	@Override
+	public void onPageVisible() {
+		resumeWebView();
+	}
+
+	@Override
+	public void onPageHidden() {
+		pauseWebView();
 	}
 }
