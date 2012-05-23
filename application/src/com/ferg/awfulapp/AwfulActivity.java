@@ -288,7 +288,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 				  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
     
-    public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
+    public void displayQuickBrowser(String url){
+        AwfulWebFragment.newInstance(url).show(getSupportFragmentManager().beginTransaction(), "awful_web_dialog");
+    }
+    
+    public void setActionbarTitle(String aTitle, Object requestor) {
     	if(aTitle != null && mTitleView != null && aTitle.length()>0){
     		mTitleView.setText(Html.fromHtml(aTitle));
     		if(mTitleView.getLayout() != null){

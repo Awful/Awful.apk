@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	>
+	<item
+		android:id="@+id/prev_page"
+        android:title="@string/back"
+		android:icon="@drawable/ic_menu_arrowleft"
+       	android:showAsAction="ifRoom"
+        />
+	<item
+		android:id="@+id/next_page"
+        android:title="@string/forward"
+		android:icon="@drawable/ic_menu_arrowright"
+       	android:showAsAction="ifRoom"
+        />
+	<item
+		android:id="@+id/refresh"
+		android:icon="@drawable/ic_actionbar_load"
+		android:title="@string/refresh" 
+       	android:showAsAction="ifRoom"
+		/>
+    <item
+		android:id="@+id/copy_url"
+		android:icon="@drawable/ic_menu_link"
+		android:title="@string/copy_url"
+        />
+	<item
+		android:id="@+id/usercp"
+		android:icon="@drawable/ic_menu_bookmarks"
+		android:title="@string/user_cp"
+		/>
+	<item
+		android:id="@+id/settings"
+		android:icon="@drawable/ic_menu_settings"
+		android:title="@string/settings"
+        />
+	
+</menu>

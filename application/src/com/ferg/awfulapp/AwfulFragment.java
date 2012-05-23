@@ -93,5 +93,10 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	public boolean onBackPressed() {
 		return false;
 	}
+
+	@Override
+	public boolean canScrollX(int x) {
+		return false;
+	}
     
 }

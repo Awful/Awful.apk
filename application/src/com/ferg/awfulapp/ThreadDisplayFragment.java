@@ -147,10 +147,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
+        	Log.i(TAG, "Message received: "+aMsg.what+" state: "+aMsg.arg1+" id: "+aMsg.arg2);
             handleStatusUpdate(aMsg.arg1);
             switch (aMsg.what) {
             	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
-            		if(aMsg.obj instanceof String){
+            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY && aMsg.obj instanceof String){
             			Uri resultLink = Uri.parse(aMsg.obj.toString());
             			String postJump = "";
             			if(resultLink.getFragment() != null){
@@ -300,8 +301,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			}
 			actions.clear();
 			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open External", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "Open Internal", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open Link", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
+			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "QuickBrowser", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
 			if(link.getLastPathSegment() != null 
 					&& (link.getLastPathSegment().contains(".jpg") 
 							|| link.getLastPathSegment().contains(".jpeg") 
@@ -501,7 +502,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
     }
     
-    
+	@Override
+	public void onPageVisible() {
+		resumeWebView();
+	}
+
+	@Override
+	public void onPageHidden() {
+		pauseWebView();
+	}
+	
     @Override
     public void onPause() {
         super.onPause(); Log.e(TAG, "onPause");
@@ -509,10 +519,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
         pauseWebView();
     }
-    
+
     private void pauseWebView(){
-        mThreadView.pauseTimers();
-        mThreadView.onPause();
+        if (mThreadView != null) {
+        	mThreadView.pauseTimers();
+        	mThreadView.onPause();
+        }
     }
         
     @Override
@@ -1062,7 +1074,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				}
 				break;
 			case ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL:
-		        AwfulWebFragment.newInstance(selected.actionData).show(getFragmentManager().beginTransaction(), "awful_web_dialog");
+				getAwfulActivity().displayQuickBrowser(selected.actionData);
 				break;
 			case ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL:
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(selected.actionData));
@@ -1322,7 +1334,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
 	}
 	
-	private void openThread(AwfulStackEntry thread) {
+	private void loadThread(AwfulStackEntry thread) {
     	if(getActivity() != null){
 	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
 	        getLoaderManager().destroyLoader(getThreadId());
@@ -1357,7 +1369,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private void popThread(){
-		openThread(backStack.removeFirst());
+		loadThread(backStack.removeFirst());
 	}
 	
 	private void clearBackStack(){
@@ -1393,15 +1405,5 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				mToggleSidebar.setVisibility(View.INVISIBLE);
 			}
 		}
-	}
-
-	@Override
-	public void onPageVisible() {
-		resumeWebView();
-	}
-
-	@Override
-	public void onPageHidden() {
-		pauseWebView();
 	}
 }

@@ -118,7 +118,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
-
+        if(aForum < 1){
+        	aForum = Constants.USERCP_ID;
+        }
         Bundle args = new Bundle();
         args.putInt(Constants.FORUM_ID, aForum);
         fragment.setArguments(args);

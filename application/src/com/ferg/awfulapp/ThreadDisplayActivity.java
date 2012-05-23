@@ -61,7 +61,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
         setActionBar();
 
         setContentView(R.layout.thread_display_activity);
-        mainWindowFrag = getFragment();
+        mainWindowFrag = (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_display_fragment);
         sidebarFrag = (ForumDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.forum_display_fragment);
         sidebarFrag.skipLoad(true);
         findViewById(R.id.sidebar_toggle_button).setOnClickListener(this);
@@ -115,10 +115,6 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	private ThreadDisplayFragment getFragment() {
-        return (ThreadDisplayFragment) getSupportFragmentManager().findFragmentById(R.id.thread_display_fragment);
-    }
-
     public void refreshInfo() {
     	if(mainWindowFrag != null){
     		mainWindowFrag.refreshInfo();
@@ -145,7 +141,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
     }
     
     @Override
-	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
+	public void setActionbarTitle(String aTitle, Object requestor) {
     	if(requestor instanceof ThreadDisplayFragment){//only switch title for the thread, not the sidebar
     		super.setActionbarTitle(aTitle, requestor);
     	}
@@ -196,6 +192,13 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
 		case R.id.sidebar_toggle_button:
 			toggleSidebar();
 			break;
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if(mainWindowFrag == null || !mainWindowFrag.onBackPressed()){
+			finish();
 		}
 	}
 	

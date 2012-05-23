@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
+
 public class AwfulViewPager extends ViewGroup {
 	/*
 	 * Copyright (C) 2011 The Android Open Source Project
@@ -92,7 +94,7 @@ public class AwfulViewPager extends ViewGroup {
 	 *      complete}
 	 */
 	    private static final String TAG = "ViewPager";
-	    private static final boolean DEBUG = false;
+	    //private static final boolean DEBUG = false;
 
 	    private static final boolean USE_CACHE = false;
 
@@ -127,6 +129,9 @@ public class AwfulViewPager extends ViewGroup {
 
 	    private AwfulPagerAdapter mAdapter;
 	    private int mCurItem;   // Index of currently displayed page.
+	    
+	    private AwfulPagerFragment mCurFrag;
+	    
 	    private int mRestoredCurItem = -1;
 	    private Parcelable mRestoredAdapterState = null;
 	    private ClassLoader mRestoredClassLoader = null;
@@ -739,7 +744,7 @@ public class AwfulViewPager extends ViewGroup {
 	        // fling to a new position until we have finished the scroll to
 	        // that position, avoiding glitches from happening at that point.
 	        if (mPopulatePending) {
-	            if (DEBUG) Log.i(TAG, "populate is pending, skipping for now...");
+//	            if (DEBUG) Log.i(TAG, "populate is pending, skipping for now...");
 	            return;
 	        }
 
@@ -757,14 +762,14 @@ public class AwfulViewPager extends ViewGroup {
 	        final int N = mAdapter.getCount();
 	        final int endPos = Math.min(N-1, mCurItem + pageLimit);
 
-	        if (DEBUG) Log.v(TAG, "populating: startPos=" + startPos + " endPos=" + endPos);
+//	        if (DEBUG) Log.v(TAG, "populating: startPos=" + startPos + " endPos=" + endPos);
 
 	        // Add and remove pages in the existing list.
 	        int lastPos = -1;
 	        for (int i=0; i<mItems.size(); i++) {
 	            ItemInfo ii = mItems.get(i);
 	            if ((ii.position < startPos || ii.position > endPos) && !ii.scrolling) {
-	                if (DEBUG) Log.i(TAG, "removing: " + ii.position + " @ " + i);
+//	                if (DEBUG) Log.i(TAG, "removing: " + ii.position + " @ " + i);
 	                mItems.remove(i);
 	                i--;
 	                mAdapter.destroyItem(this, ii.position, ii.object);
@@ -777,7 +782,7 @@ public class AwfulViewPager extends ViewGroup {
 	                    lastPos = startPos;
 	                }
 	                while (lastPos <= endPos && lastPos < ii.position) {
-	                    if (DEBUG) Log.i(TAG, "inserting: " + lastPos + " @ " + i);
+//	                    if (DEBUG) Log.i(TAG, "inserting: " + lastPos + " @ " + i);
 	                    addNewItem(lastPos, i);
 	                    lastPos++;
 	                    i++;
@@ -792,18 +797,18 @@ public class AwfulViewPager extends ViewGroup {
 	            lastPos++;
 	            lastPos = lastPos > startPos ? lastPos : startPos;
 	            while (lastPos <= endPos) {
-	                if (DEBUG) Log.i(TAG, "appending: " + lastPos);
+//	                if (DEBUG) Log.i(TAG, "appending: " + lastPos);
 	                addNewItem(lastPos, -1);
 	                lastPos++;
 	            }
 	        }
 
-	        if (DEBUG) {
-	            Log.i(TAG, "Current page list:");
-	            for (int i=0; i<mItems.size(); i++) {
-	                Log.i(TAG, "#" + i + ": page " + mItems.get(i).position);
-	            }
-	        }
+//	        if (DEBUG) {
+//	            Log.i(TAG, "Current page list:");
+//	            for (int i=0; i<mItems.size(); i++) {
+//	                Log.i(TAG, "#" + i + ": page " + mItems.get(i).position);
+//	            }
+//	        }
 
 	        ItemInfo curItem = null;
 	        for (int i=0; i<mItems.size(); i++) {
@@ -813,7 +818,10 @@ public class AwfulViewPager extends ViewGroup {
 	            }
 	        }
 	        mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
-
+	        
+	        //this is probably a shitty hack.
+	        mCurFrag = (AwfulPagerFragment) (curItem != null ? curItem.object : null);
+	        
 	        mAdapter.finishUpdate(this);
 
 	        if (hasFocus()) {
@@ -1034,8 +1042,8 @@ public class AwfulViewPager extends ViewGroup {
 	        for (int i = 0; i < size; ++i) {
 	            final View child = getChildAt(i);
 	            if (child.getVisibility() != GONE) {
-	                if (DEBUG) Log.v(TAG, "Measuring #" + i + " " + child
-	                        + ": " + mChildWidthMeasureSpec);
+//	                if (DEBUG) Log.v(TAG, "Measuring #" + i + " " + child
+//	                        + ": " + mChildWidthMeasureSpec);
 
 	                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 	                if (lp == null || !lp.isDecor) {
@@ -1148,9 +1156,9 @@ public class AwfulViewPager extends ViewGroup {
 	                    int loff = (width + mPageMargin) * ii.position;
 	                    childLeft = paddingLeft + loff;
 	                    childTop = paddingTop;
-	                    if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
-	                            + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
-	                            + "x" + child.getMeasuredHeight());
+//	                    if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
+//	                            + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
+//	                            + "x" + child.getMeasuredHeight());
 	                    child.layout(childLeft, childTop,
 	                            childLeft + child.getMeasuredWidth(),
 	                            childTop + child.getMeasuredHeight());
@@ -1165,10 +1173,10 @@ public class AwfulViewPager extends ViewGroup {
 
 	    @Override
 	    public void computeScroll() {
-	        if (DEBUG) Log.i(TAG, "computeScroll: finished=" + mScroller.isFinished());
+//	        if (DEBUG) Log.i(TAG, "computeScroll: finished=" + mScroller.isFinished());
 	        if (!mScroller.isFinished()) {
 	            if (mScroller.computeScrollOffset()) {
-	                if (DEBUG) Log.i(TAG, "computeScroll: still scrolling");
+//	                if (DEBUG) Log.i(TAG, "computeScroll: still scrolling");
 	                int oldX = getScrollX();
 	                int oldY = getScrollY();
 	                int x = mScroller.getCurrX();
@@ -1307,7 +1315,7 @@ public class AwfulViewPager extends ViewGroup {
 	        // Always take care of the touch gesture being complete.
 	        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
 	            // Release the drag.
-	            if (DEBUG) Log.v(TAG, "Intercept done!");
+//	            if (DEBUG) Log.v(TAG, "Intercept done!");
 	            mIsBeingDragged = false;
 	            mIsUnableToDrag = false;
 	            mActivePointerId = INVALID_POINTER;
@@ -1322,11 +1330,11 @@ public class AwfulViewPager extends ViewGroup {
 	        // are dragging.
 	        if (action != MotionEvent.ACTION_DOWN) {
 	            if (mIsBeingDragged) {
-	                if (DEBUG) Log.v(TAG, "Intercept returning true!");
+//	                if (DEBUG) Log.v(TAG, "Intercept returning true!");
 	                return true;
 	            }
 	            if (mIsUnableToDrag) {
-	                if (DEBUG) Log.v(TAG, "Intercept returning false!");
+//	                if (DEBUG) Log.v(TAG, "Intercept returning false!");
 	                return false;
 	            }
 	        }
@@ -1354,16 +1362,17 @@ public class AwfulViewPager extends ViewGroup {
 	                final float xDiff = Math.abs(dx);
 	                final float y = MotionEventCompat.getY(ev, pointerIndex);
 	                final float yDiff = Math.abs(y - mLastMotionY);
-	                if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
-
-	                if (canScroll(this, false, (int) dx, (int) x, (int) y)) {
+	                Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+	                //mCurFrag.canScrollX((int) dx)
+	                if (mCurFrag.canScrollX((int) dx) || canScroll(this, false, (int) dx, (int) x, (int) y)) {
+	                	Log.v(TAG, "canScroll!");
 	                    // Nested view has scrollable area under this point. Let it be handled there.
 	                    mInitialMotionX = mLastMotionX = x;
 	                    mLastMotionY = y;
 	                    return false;
 	                }
-	                if (xDiff > mTouchSlop*2 && xDiff > yDiff*1.5) {
-	                    if (DEBUG) Log.v(TAG, "Starting drag!");
+	                if (xDiff > mTouchSlop*2 && xDiff > yDiff*1.25) {
+	                    Log.v(TAG, "Starting drag!");
 	                    mIsBeingDragged = true;
 	                    setScrollState(SCROLL_STATE_DRAGGING);
 	                    mLastMotionX = x;
@@ -1374,7 +1383,7 @@ public class AwfulViewPager extends ViewGroup {
 	                        // direction to be counted as a drag...  abort
 	                        // any attempt to drag horizontally, to work correctly
 	                        // with children that have scrolling containers.
-	                        if (DEBUG) Log.v(TAG, "Starting unable to drag!");
+//	                        if (DEBUG) Log.v(TAG, "Starting unable to drag!");
 	                        mIsUnableToDrag = true;
 	                    }
 	                }
@@ -1401,9 +1410,9 @@ public class AwfulViewPager extends ViewGroup {
 	                    mIsUnableToDrag = false;
 	                //}
 
-	                if (DEBUG) Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY
-	                        + " mIsBeingDragged=" + mIsBeingDragged
-	                        + "mIsUnableToDrag=" + mIsUnableToDrag);
+//	                if (DEBUG) Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY
+//	                        + " mIsBeingDragged=" + mIsBeingDragged
+//	                        + "mIsUnableToDrag=" + mIsUnableToDrag);
 	                break;
 	            }
 
@@ -1476,9 +1485,9 @@ public class AwfulViewPager extends ViewGroup {
 	                    final float xDiff = Math.abs(x - mLastMotionX);
 	                    final float y = MotionEventCompat.getY(ev, pointerIndex);
 	                    final float yDiff = Math.abs(y - mLastMotionY);
-	                    if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+	                    Log.v(TAG, "LATE Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 	                    if (xDiff > mTouchSlop && xDiff > yDiff) {
-	                        if (DEBUG) Log.v(TAG, "Starting drag!");
+	                        Log.v(TAG, "LATE Starting drag!");
 	                        mIsBeingDragged = true;
 	                        mLastMotionX = x;
 	                        setScrollState(SCROLL_STATE_DRAGGING);

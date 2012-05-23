@@ -78,15 +78,19 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     /**
      * Return the Fragment associated with a specified position.
      */
-    public abstract Fragment getItem(int position);
-    //god I know i'm doing this wrong.
-    public abstract AwfulPagerFragment getAwfulItem(int position);
+    public abstract AwfulPagerFragment getItem(int position);
     
     public interface AwfulPagerFragment{
+    	/**
+    	 * This event is called when the user presses the back button. Return true to consume this back-button event and prevent the activity from finishing.
+    	 * 
+    	 * @return true if you are consuming this back-button event.
+    	 */
     	public boolean onBackPressed();
     	public void onPageVisible();
     	public void onPageHidden();
     	public String getTitle();
+    	public boolean canScrollX(int x);
     }
 
     @Override
@@ -106,7 +110,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
             if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + fragment);
             mCurTransaction.attach(fragment);
         } else {
-            fragment = getItem(position);
+            fragment = (Fragment) getItem(position);
             if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
             mCurTransaction.add(container.getId(), fragment,
                     makeFragmentName(container.getId(), position));

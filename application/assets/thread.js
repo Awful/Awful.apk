@@ -43,7 +43,7 @@ $(document).ready(function() {
 });
 
 $(window).ready(function() {
-    window.setTimeout(scrollPost(), 200);
+    window.setTimeout("scrollPost()", 1000);
 });
 
 

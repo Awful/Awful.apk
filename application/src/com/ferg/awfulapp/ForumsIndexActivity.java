@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp;
 
+import java.util.ArrayList;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulViewPager;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -113,7 +116,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        }else{
 	        	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
 	        	mViewPager.setOffscreenPageLimit(2);
-	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager()); 
+	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
+	        	pagerAdapter.addFragment(ForumsIndexFragment.newInstance());
+	        	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, skipLoad));
+	        	pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
 		        mViewPager.setAdapter(pagerAdapter);
 		        mViewPager.setOnPageChangeListener(pagerAdapter);
 		        if(mForumId > 0){
@@ -140,7 +146,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
 
-    private void checkIntentExtras() {
+	private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
             	setContentPane(Constants.USERCP_ID);
@@ -149,48 +155,21 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
-    	private int tabCount = 3;
-    	private AwfulPagerFragment[] fragList;
+    	private ArrayList<AwfulPagerFragment> fragList;
     	private AwfulPagerFragment visible;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
-			fragList = new AwfulPagerFragment[tabCount+1];
+			fragList = new ArrayList<AwfulPagerFragment>(4);
+		}
+		
+		public void addFragment(AwfulPagerFragment frag){
+			fragList.add(frag);
+			notifyDataSetChanged();
 		}
 
 		@Override
-		public AwfulFragment getItem(int arg0) {
-			Log.e(TAG,"CREATING TAB:"+arg0);
-			switch(arg0){
-			case 0:
-				if(fragList[0] == null){
-					fragList[0] = ForumsIndexFragment.newInstance();
-				}
-				break;
-			case 1:
-				if(fragList[1] == null){
-					fragList[1] = ForumDisplayFragment.newInstance(mForumId, skipLoad);
-				}
-				break;
-			case 2:
-				if(fragList[2] == null){
-					fragList[2] = ThreadDisplayFragment.newInstance(mThreadId, mThreadPage);
-				}
-				break;
-			case 3:
-				if(fragList[3] == null){
-					Log.e(TAG,"Extra tab not created yet!");
-				}
-				break;
-			default:
-				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
-				return null;
-			}
-			return (AwfulFragment) fragList[arg0];
-		}
-
-		@Override
-		public AwfulPagerFragment getAwfulItem(int position) {
-			return fragList[position];
+		public AwfulPagerFragment getItem(int position) {
+			return fragList.get(position);
 		}
 		
 		@Override
@@ -214,8 +193,18 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 
 		@Override
+		public int getItemPosition(Object object) {
+			int pos = fragList.indexOf(object);
+			if(pos < 0){
+				return AwfulFragmentPagerAdapter.POSITION_NONE;
+			}else{
+				return pos;
+			}
+		}
+
+		@Override
 		public int getCount() {
-			return tabCount;
+			return fragList.size();
 		}
 
 		@Override
@@ -231,16 +220,18 @@ public class ForumsIndexActivity extends AwfulActivity {
 			if(visible != null){
 				visible.onPageHidden();
 			}
-			AwfulPagerFragment apf = getAwfulItem(arg0);
-			setActionbarTitle(apf.getTitle(), null);
-			apf.onPageVisible();
+			AwfulPagerFragment apf = getItem(arg0);
+			if(apf != null){
+				setActionbarTitle(apf.getTitle(), null);
+				apf.onPageVisible();
+			}
 			visible = apf;
 		}
     	
     }
     
     @Override
-	public void setActionbarTitle(String aTitle, AwfulFragment requestor) {
+	public void setActionbarTitle(String aTitle, Object requestor) {
     	if(requestor != null && mViewPager != null){
     		//This will only honor the request if the requestor is the currently active view.
     		if(pagerAdapter.getItem(mViewPager.getCurrentItem()).equals(requestor)){
@@ -260,7 +251,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}else{
     		finish();
     	}
-        return;
     }
 
     public boolean isDualPane() {
@@ -275,7 +265,23 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
     }
 
-    public void setContentPane(int aForumId) {
+    @Override
+	public void displayQuickBrowser(String url) {
+    	if(mViewPager != null){
+    		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
+    		if(apf instanceof AwfulWebFragment){
+    			((AwfulWebFragment) apf).loadUrl(url);
+    		}else{
+    			pagerAdapter.addFragment(AwfulWebFragment.newInstance(url));
+    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
+    		}
+    	}else{
+    		super.displayQuickBrowser(url);
+    	}
+	}
+
+
+	public void setContentPane(int aForumId) {
     	mForumId = aForumId;
         if(mForumFragment == null && isDualPane()){
             ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, false);
