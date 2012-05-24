@@ -213,7 +213,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mPageBar = result.findViewById(R.id.page_indicator);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
-        mToggleSidebar.setImageResource(R.drawable.ic_menu_load);
+        mToggleSidebar.setImageResource(R.drawable.ic_actionbar_load);
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
@@ -378,7 +378,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				ucp.setIcon(R.drawable.ic_menu_home);
 				ucp.setTitle(R.string.forums_title);
 			}else{
-				ucp.setIcon(R.drawable.ic_menu_bookmarks);
+				ucp.setIcon(R.drawable.ic_interface_bookmarks);
 				ucp.setTitle(R.string.user_cp);
 			}
 		}

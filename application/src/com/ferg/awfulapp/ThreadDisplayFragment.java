@@ -458,7 +458,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mPrevPage.setVisibility(View.VISIBLE);
 		mNextPage.setVisibility(View.VISIBLE);
 		if (getPage() <= 1) {
-			mPrevPage.setImageResource(R.drawable.ic_menu_load);
+			mPrevPage.setImageResource(R.drawable.ic_actionbar_load);
 			mPrevPage.setVisibility(View.VISIBLE);
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
@@ -466,7 +466,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
 		if (getPage() == getLastPage()) {
-			mNextPage.setImageResource(R.drawable.ic_menu_load);
+			mNextPage.setImageResource(R.drawable.ic_actionbar_load);
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
 			mNextPage.setImageResource(R.drawable.ic_menu_arrowright);
