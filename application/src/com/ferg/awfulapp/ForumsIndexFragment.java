@@ -566,6 +566,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public String getTitle() {
-		return getResources().getString(R.string.forums_title);
+		if(getActivity() != null){
+			return getResources().getString(R.string.forums_title);
+		}else{
+			return "Forums";
+		}
 	}
 }

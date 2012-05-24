@@ -44,8 +44,16 @@ $(document).ready(function() {
 
 $(window).ready(function() {
     window.setTimeout("scrollPost()", 1000);
+    $('.quote_link').each(function(){
+		var id = this.hash.replace(/post/,'');
+		if($(id).length > 0){
+			$(this).click(function(e){
+				e.preventDefault();
+				$(window).scrollTop($(id).offset().top);
+			});
+		}
+	});
 });
-
 
 function scrollPost() {
 	if(prefs.scrollPosition > 0){

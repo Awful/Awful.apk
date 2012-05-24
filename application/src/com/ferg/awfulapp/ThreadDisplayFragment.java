@@ -489,17 +489,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     public void resumeWebView(){
-        if (mThreadView == null) {
-            mThreadView = new WebView(getActivity());
-
-            initThreadViewProperties();
-            mThreadWindow.removeAllViews();
-            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-        }else{
-            mThreadView.onResume();
-            mThreadView.resumeTimers();
-        }
+    	if(getActivity() != null){
+	        if (mThreadView == null) {
+	            mThreadView = new WebView(getActivity());
+	
+	            initThreadViewProperties();
+	            mThreadWindow.removeAllViews();
+	            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
+	                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+	        }else{
+	            mThreadView.onResume();
+	            mThreadView.resumeTimers();
+	        }
+    	}
     }
     
 	@Override
@@ -530,7 +532,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStop() {
         super.onStop(); Log.e(TAG, "onStop");
-        mThreadView.stopLoading();
+        if (mThreadView != null) {
+        	mThreadView.stopLoading();
+        }
     }
     
     @Override

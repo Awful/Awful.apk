@@ -137,7 +137,9 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 	@Override
 	public void onStop() {
 		super.onStop(); Log.e(TAG, "onStop");
-		mWebView.stopLoading();
+        if (mWebView != null) {
+        	mWebView.stopLoading();
+        }
 	}
 
 	@Override
@@ -231,7 +233,7 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 		int ow = mWebView.getWidth();
 		int l = mWebView.getScrollX();
 		int r = l+mWebView.getWidth();
-		Log.e(TAG,"canScroll x:"+x+" ow:"+ow+" l:"+l+" r:"+r+" in:"+internalContentWidth);
+		//Log.e(TAG,"canScroll x:"+x+" ow:"+ow+" l:"+l+" r:"+r+" in:"+internalContentWidth);
 		if(ow >= internalContentWidth){
 			return false;
 		}
@@ -241,7 +243,6 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 		if(l-x >= internalContentWidth-ow){
 			return false;
 		}
-		//return ViewCompat.canScrollHorizontally(mWebView, -x);
 		return true;
 	}
 	public AwfulActivity getAwfulActivity(){
