@@ -271,6 +271,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
     		if(apf instanceof AwfulWebFragment){
     			((AwfulWebFragment) apf).loadUrl(url);
+    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
     		}else{
     			pagerAdapter.addFragment(AwfulWebFragment.newInstance(url));
     			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);

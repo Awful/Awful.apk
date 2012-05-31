@@ -3,15 +3,21 @@ package com.ferg.awfulapp;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment{
 
 	protected AwfulPreferences mPrefs;
+	
+	protected AQuery aq;
     
     @Override
     public void onAttach(Activity aActivity) {
@@ -20,6 +26,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
         mPrefs = new AwfulPreferences(getAwfulActivity(), this);
+    }
+    
+    protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
+    	View v = inflater.inflate(R.layout.forum_display, container, false);
+    	aq = new AQuery(getActivity(), v);
+    	return v;
     }
     
 	@Override

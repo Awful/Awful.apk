@@ -38,6 +38,7 @@ import android.util.Log;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Window;
+import com.androidquery.AQuery;
 import com.example.google.tv.leftnavbar.LeftNavBar;
 import com.example.google.tv.leftnavbar.LeftNavBarService;
 
@@ -55,6 +56,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
+    
+    private AQuery aq;
 
     private TextView mTitleView;
     
@@ -88,6 +91,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mPrefs = new AwfulPreferences(this, this);
