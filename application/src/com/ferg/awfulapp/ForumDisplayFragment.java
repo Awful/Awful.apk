@@ -68,6 +68,7 @@ import android.support.v4.content.Loader;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -94,13 +95,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private static final String TAG = "ThreadsActivity";
     
     private PullToRefreshListView mListView;//TODO replace with custom pull-to-refresh
-    private View mPageBar;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
-    private ImageButton mMoveUp;
     private TextView mPageCountText;
-    private TextView mSecondaryTitle;
 	private ImageButton mToggleSidebar;
     
     private Cursor[] combinedCursors = new Cursor[2];
@@ -192,9 +190,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState);
-
-        View result = aInflater.inflate(R.layout.forum_display, aContainer, false);
+        View result = inflateView(R.layout.forum_display, aContainer, aInflater);
 
         mListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
         mListView.setDrawingCacheEnabled(true);
@@ -210,7 +206,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		mPageBar = result.findViewById(R.id.page_indicator);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
         mToggleSidebar.setImageResource(R.drawable.ic_actionbar_load);
@@ -222,9 +217,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			View v = result.findViewById(R.id.secondary_title_bar);
 			if(v != null){
 				v.setVisibility(View.VISIBLE);
-				mSecondaryTitle = (TextView) result.findViewById(R.id.second_titlebar);
-				mMoveUp = (ImageButton) result.findViewById(R.id.move_up);
-				mMoveUp.setOnClickListener(onButtonClick);
+				aq.find(R.id.move_up).clicked(onButtonClick);
 			}
 		}
 		updatePageBar();
@@ -299,12 +292,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	            }
 			}
 			
-			if(mMoveUp != null){
-				if(mForumId != 0){
-					mMoveUp.setVisibility(View.VISIBLE);
-				}else{
-					mMoveUp.setVisibility(View.INVISIBLE);
-				}
+			if(mForumId != 0){
+				aq.find(R.id.move_up).visible();
+			}else{
+				aq.find(R.id.move_up).invisible();
 			}
 
 			
@@ -601,9 +592,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
 		}
-		if(mPageBar != null){
-			mPageBar.setBackgroundColor(prefs.actionbarColor);
-		}
+		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
@@ -800,15 +789,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             	if(getActivity() != null){
             		getAwfulActivity().setActionbarTitle(mTitle, ForumDisplayFragment.this);
             	}
-            	if(mSecondaryTitle != null){
-            		mSecondaryTitle.setText(Html.fromHtml(mTitle));
-            	}
+    			if(mForumId == 0){
+    				aq.find(R.id.second_titlebar).text(R.string.forums_title);
+    			}else{
+    				aq.find(R.id.second_titlebar).text(Html.fromHtml(mTitle));
+    			}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         	}
 
-			if(mForumId == 0 && mSecondaryTitle != null){
-				mSecondaryTitle.setText(R.string.forums_title);
-			}
 			updatePageBar();
         }
         
