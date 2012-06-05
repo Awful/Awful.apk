@@ -36,13 +36,10 @@ import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
@@ -92,57 +89,52 @@ public class ForumsIndexActivity extends AwfulActivity {
                 GoogleAnalyticsTracker.getInstance().dispatch();
             }
         }).start();
-        if (isTV()) {
-            startTVActivity();
-        }else{
-	        
-	        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
-	        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
-	        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
-	        
-	        if(mForumId < 1){
-	        	skipLoad = true;
-	        }
-	        
-	        setContentView(R.layout.forum_index_activity);
-	        mSecondPane = (findViewById(R.id.content)!= null);
-	        setSupportProgressBarIndeterminateVisibility(false);
-	        
-	        if(isDualPane()){
-		        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
-		        if(mForumId > 0){
-		        	setContentPane(mForumId);
-		        }
-	        }else{
-	        	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
-	        	mViewPager.setOffscreenPageLimit(2);
-	        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
-	        	pagerAdapter.addFragment(ForumsIndexFragment.newInstance());
-	        	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, skipLoad));
-	        	pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
-		        mViewPager.setAdapter(pagerAdapter);
-		        mViewPager.setOnPageChangeListener(pagerAdapter);
-		        if(mForumId > 0){
-		        	mViewPager.setCurrentItem(1);
-		        }else{
-		        	mForumId = Constants.USERCP_ID;
-		        }
-		        if(mThreadId > 0){
-		        	mViewPager.setCurrentItem(2);
-		        }
-		        Uri data = getIntent().getData();
-		        if(data != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
-		        	mViewPager.setCurrentItem(1);
-		        }
-	        }
-	        if(mIndexFragment != null && mForumId > 0){
-	        	mIndexFragment.setSelected(mForumId);
-	        }
-	        
-	        setActionBar();
-	        
-	        checkIntentExtras();
+        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
+        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
+        
+        if(mForumId < 1){
+        	skipLoad = true;
         }
+        
+        setContentView(R.layout.forum_index_activity);
+        mSecondPane = (findViewById(R.id.content)!= null);
+        setSupportProgressBarIndeterminateVisibility(false);
+        
+        if(isDualPane()){
+	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
+	        if(mForumId > 0){
+	        	setContentPane(mForumId);
+	        }
+        }else{
+        	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
+        	mViewPager.setOffscreenPageLimit(2);
+        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
+        	pagerAdapter.addFragment(ForumsIndexFragment.newInstance());
+        	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, skipLoad));
+        	pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
+	        mViewPager.setAdapter(pagerAdapter);
+	        mViewPager.setOnPageChangeListener(pagerAdapter);
+	        if(mForumId > 0){
+	        	mViewPager.setCurrentItem(1);
+	        }else{
+	        	mForumId = Constants.USERCP_ID;
+	        }
+	        if(mThreadId > 0){
+	        	mViewPager.setCurrentItem(2);
+	        }
+	        Uri data = getIntent().getData();
+	        if(data != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
+	        	mViewPager.setCurrentItem(1);
+	        }
+        }
+        if(mIndexFragment != null && mForumId > 0){
+        	mIndexFragment.setSelected(mForumId);
+        }
+        
+        setActionBar();
+        
+        checkIntentExtras();
     }
 
 

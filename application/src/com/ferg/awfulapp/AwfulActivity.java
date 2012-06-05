@@ -14,8 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.res.Configuration;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -27,20 +25,15 @@ import android.os.RemoteException;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
-import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Window;
 import com.androidquery.AQuery;
-import com.example.google.tv.leftnavbar.LeftNavBar;
-import com.example.google.tv.leftnavbar.LeftNavBarService;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -57,11 +50,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
     
-    private AQuery aq;
+    protected AQuery aq;
 
     private TextView mTitleView;
-    
-    private LeftNavBar mLeftNavBar;
     
     private AwfulPreferences mPrefs;
     
@@ -135,10 +126,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         unregisterReceiver(br);
     }
 
-    public boolean isTV() {
-        return false;//!getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
-    }
-
 
     protected void setActionBar() {
         ActionBar action = getSupportActionBar();
@@ -195,77 +182,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
             e.printStackTrace();
         }
 	}
-	
-    public LeftNavBar getLeftNavBar() {
-        if (mLeftNavBar == null) {
-            mLeftNavBar = new LeftNavBar(this);
-            mLeftNavBar.setOnClickHomeListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // This is called when the app icon is selected in the left navigation bar
-                    // Doing nothing.
-                }
-            });
-        }
-        
-        return mLeftNavBar;
-    }
-
-    public void setupLeftNavBar(int aActionItems) {
-        setupLeftNavBar(aActionItems, false);
-    }
-
-    public void setupLeftNavBar(int aActionItems, boolean aShowTitleBar) {
-        LeftNavBar bar = (LeftNavBarService.instance()).getLeftNavBar(this);
-        bar.setBackgroundDrawable(getResources().getDrawable(com.example.google.tv.leftnavbar.R.drawable.bar_tv));
-
-        bar = getLeftNavBar();
-
-        bar.setCustomView(aActionItems);
-        bar.setTitle(R.string.app_name);
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        bar.setTitleBackground(getResources().getDrawable(R.drawable.bar));
-        bar.setShowHideAnimationEnabled(true);
-
-        if (aShowTitleBar) {
-            bar.setDisplayOptions(
-                LeftNavBar.DISPLAY_AUTO_EXPAND|
-                ActionBar.DISPLAY_SHOW_HOME|
-                LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED|
-                ActionBar.DISPLAY_SHOW_CUSTOM|
-                ActionBar.DISPLAY_SHOW_TITLE
-            );
-        } else {
-            bar.setDisplayOptions(
-                LeftNavBar.DISPLAY_AUTO_EXPAND|
-                ActionBar.DISPLAY_SHOW_HOME|
-                LeftNavBar.DISPLAY_USE_LOGO_WHEN_EXPANDED|
-                ActionBar.DISPLAY_SHOW_CUSTOM
-            );
-        }
-
-        ViewGroup optionsContainer = (ViewGroup) bar.getCustomView();
-
-        for (int i = 0; i < optionsContainer.getChildCount(); i++) {
-            optionsContainer.getChildAt(i).setOnClickListener(onActionItemClick);
-        }
-    }
-
-    private View.OnClickListener onActionItemClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            switch (aView.getId()) {
-                case R.id.user_cp:
-                    displayUserCP();
-                    break;
-                case R.id.pm:
-                    startActivity(new Intent(AwfulActivity.this, PrivateMessageActivity.class));
-                    break;
-                case R.id.reply:
-                    //displayPostReplyDialog();
-                    break;
-            }
-        }
-    };
 
     public void displayUserCP() {
     	displayForum(Constants.USERCP_ID, 1);

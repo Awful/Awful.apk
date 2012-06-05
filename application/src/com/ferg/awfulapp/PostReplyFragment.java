@@ -152,10 +152,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 GoogleAnalyticsTracker.getInstance().dispatch();
             }
         }).start();
-
-        if (!((AwfulActivity) getActivity()).isTV()) {
-            setHasOptionsMenu(true);
-        }
+        setHasOptionsMenu(true);
     }
     
     @Override
@@ -192,11 +189,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         
 		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
-        
-        if (((AwfulActivity) getActivity()).isTV()) {
-            mTitle.setText(getString(R.string.post_reply));
-            mSubmit.setOnClickListener(onSubmitClick);
-        }
     }
 
     @Override

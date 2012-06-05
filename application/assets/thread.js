@@ -1,4 +1,6 @@
 var prefs = JSON.parse(preferences);
+var intHandle = 0;
+var xPos = 0;
 
 $(document).ready(function() {
     $('.quote_button').live('click', function(event) {
@@ -38,7 +40,6 @@ $(document).ready(function() {
 	  $(this).closest('tr').find('.button-row').toggle();
 	  $(this).find('.avatar-text').toggle();
 	});
-	
     var salr = new SALR(prefs);
 });
 
@@ -54,6 +55,21 @@ $(window).ready(function() {
 		}
 	});
 });
+
+$(window).load(function(){
+	clearInterval(intHandle);
+	intHandle = -1;
+	
+});
+
+
+function updateScroll(){
+	var newPos = $('.unread').first().offset().top;
+    if(newPos > xPos && xPos > 0){
+    	$(window).scrollTop($(window).scrollTop()+newPos-xPos);
+    	xPos = newPos;
+    }
+}
 
 function scrollPost() {
 	if(prefs.scrollPosition > 0){
@@ -74,7 +90,12 @@ function scrollPost() {
 function scrollLastRead(){
 	try{
         $(window).scrollTop($('.unread').first().offset().top);
+        xPos = $('.unread').first().offset().top;
+        if(intHandle == 0){
+        	setInterval(updateScroll, 200);
+    	}
     }catch(error){
+    	xPos = 0;
     }
 }
 

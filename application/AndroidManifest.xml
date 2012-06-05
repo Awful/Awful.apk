@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="39"
-      android:versionName="2.3.0_b16_2"
+      android:versionCode="40"
+      android:versionName="2.3.0_b17"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -15,6 +15,9 @@
         android:anyDensity="true" 
         />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <application 
 		android:label="@string/app_name" 
 		android:icon="@drawable/icon" 
@@ -41,9 +44,6 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/bookmarkthreads.php"/>
             </intent-filter>
         </activity>
-        <activity 
-            android:name="com.ferg.awfulapp.ForumsTVActivity"
-            />
         <activity
                 android:name="com.ferg.awfulapp.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light"/>
@@ -105,9 +105,4 @@
             <activity android:name="ThreadInfoSettingsActivity"></activity>
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <uses-feature android:name="com.google.android.tv" android:required="false" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 </manifest>

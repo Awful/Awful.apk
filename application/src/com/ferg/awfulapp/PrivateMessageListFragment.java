@@ -1,6 +1,6 @@
 package com.ferg.awfulapp;
 
-import com.actionbarsherlock.app.ActionBar;
+
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -177,9 +177,6 @@ public class PrivateMessageListFragment extends SherlockFragment implements
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.home:
-                    startActivity(new Intent().setClass(getActivity(), ForumsIndexActivity.class));
-                    break;
                 case R.id.new_pm:
                     startActivity(new Intent().setClass(getActivity(), MessageDisplayActivity.class));
                     break;
