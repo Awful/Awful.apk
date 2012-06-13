@@ -50,13 +50,6 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/ThreadDisplayActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
         
         setActionBar();
 

@@ -221,6 +221,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private WebViewClient callback = new WebViewClient(){
 		@Override
 		public void onPageFinished(WebView view, String url) {
+			Log.i(TAG,"PageFinished");
+			setProgress(100);
+			loadingSucceeded();
 			if(!isResumed()){
 				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
 				mHandler.postDelayed(new Runnable(){
@@ -241,6 +244,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
+			if(aUrl.contains("http://next.next")){
+				Log.e(TAG,"Bottom button clicked!");
+				goToPage(mPage+1);
+				return true;
+			}
+			if(aUrl.contains("http://refresh.refresh")){
+				Log.e(TAG,"Bottom button clicked!");
+				refresh();
+				return true;
+			}
 			Uri link = Uri.parse(aUrl);
 			if(aUrl.contains(Constants.FUNCTION_THREAD)){
 				//for the new quote-link stuff
@@ -923,7 +936,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
 
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage == mLastPage, threadClosed), "text/html", "utf-8", null);//TODO fix
+            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed), "text/html", "utf-8", null);//TODO fix
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1053,14 +1066,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		Log.e(TAG,"onCreateActionMode");
-		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open Link");
-		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Inline Image");
+		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
+		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Show Image");
 		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
-		return true;
+		return mActionModeURL != null;
 	}
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		Log.e(TAG,"onPrepareActionMode");
 		MenuItem inline = menu.findItem(R.id.content);
 		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
 			Uri link = Uri.parse(mActionModeURL);
@@ -1072,7 +1086,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 									)
 								);
 		}
-		return true;
+		return mActionModeURL != null;
 	}
 
 	@Override

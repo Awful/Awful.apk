@@ -355,7 +355,7 @@ public class AwfulThread extends AwfulPagedItem  {
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 100));
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, boolean lastPage, boolean threadLocked) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer("<html><head>");
         buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />");
         buffer.append("<meta name='format-detection' content='telephone=no' />");
@@ -389,7 +389,7 @@ public class AwfulThread extends AwfulPagedItem  {
         if(AwfulActivity.isHoneycomb()){
 	        buffer.append("<script type='text/javascript'>");
 	        buffer.append("$(window).scroll(gifHide);");
-	        buffer.append("$(window).load(gifHide);");
+	        buffer.append("$(window).ready(gifHide);");
 	        buffer.append("</script>");
         }
         
@@ -412,10 +412,12 @@ public class AwfulThread extends AwfulPagedItem  {
         } else {
             buffer.append(AwfulThread.getPostsHtmlForPhone(aPosts, aPrefs, threadLocked));
         }
-
         buffer.append("    </table>");
-        if(lastPage){
+
+        if(page >= lastPage){
         	buffer.append("<div class='unread' ></div>");
+        }else{
+        	//buffer.append("<a class='nextpage' href='http://next.next' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";border-top:1px;text-decoration:none;color:"+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor)+"; position:relative;display:block;text-align:center; width:100%; height:60px'><div style='font-size:32px;margin-top:-16px;text-decoration:none;position:absolute;text-align:center;top:50%;width:100%;'>"+(lastPage - page)+" Page"+(lastPage - page > 1? "s":"")+" Remaining</div></a>");
         }
         buffer.append("</div>");
         buffer.append("</body></html>");

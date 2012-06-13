@@ -52,8 +52,8 @@ $(window).ready(function() {
 		var id = this.hash.replace(/post/,'');
 		if($(id).length > 0){
 			$(this).click(function(e){
-				e.preventDefault();
 				$(window).scrollTop($(id).offset().top);
+				e.preventDefault();
 			});
 		}
 	});
