@@ -51,11 +51,6 @@ import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
-import greendroid.widget.QuickAction;
-import greendroid.widget.QuickActionBar;
-import greendroid.widget.QuickActionWidget;
-import greendroid.widget.QuickActionWidget.OnQuickActionClickListener;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,6 +61,7 @@ import java.util.TimeZone;
 
 import org.json.*;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -89,7 +85,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, OnQuickActionClickListener {
+public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayActivity";
 
     private PostLoaderManager mPostLoaderCallback;
@@ -103,11 +99,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private View mPageBar;
     private TextView mPageCountText;
     private ViewGroup mThreadWindow;
+    
+    private String mActionModeURL;
 
     private WebView mThreadView;
-    
-    private boolean imagesLoadingState;
-    private boolean threadLoadingState;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -132,8 +127,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private int savedPage = 0;//for reverting from "Find posts by"
 	private int savedScrollPosition = 0;
 	
-	private ArrayList<ThreadQuickAction> actions = new ArrayList<ThreadQuickAction>();
-	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
 		Bundle args = new Bundle();
@@ -147,9 +140,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	Log.i(TAG, "Message received: "+aMsg.what+" state: "+aMsg.arg1+" id: "+aMsg.arg2);
+        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             handleStatusUpdate(aMsg.arg1);
             switch (aMsg.what) {
+            	case AwfulSyncService.MSG_PROGRESS_PERCENT:
+                	setProgress(aMsg.arg2/2);
+            		break;
             	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY && aMsg.obj instanceof String){
             			Uri resultLink = Uri.parse(aMsg.obj.toString());
@@ -179,6 +175,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             		break;
                 case AwfulSyncService.MSG_SYNC_THREAD:
                     if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
+                    	setProgress(50);
                     	refreshPosts();
                     }
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
@@ -224,10 +221,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private WebViewClient callback = new WebViewClient(){
 		@Override
 		public void onPageFinished(WebView view, String url) {
-			if (imagesLoadingState) {
-				imagesLoadingState = false;
-				imageLoadingFinished();
-			}
 			if(!isResumed()){
 				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
 				mHandler.postDelayed(new Runnable(){
@@ -243,10 +236,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
 		public void onLoadResource(WebView view, String url) {
-			if (!threadLoadingState && !imagesLoadingState && url != null && url.startsWith("http")) {
-				imagesLoadingState = true;
-				imageLoadingStarted();
-			}
+			Log.i(TAG,"onLoadResource: "+url);
 		}
 
 		@Override
@@ -299,25 +289,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					return true;
 				}
 			}
-			actions.clear();
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_link, "Copy URL", ThreadQuickAction.ACTION_COPY_URL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_more, "Open Link", ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL, aUrl));
-			actions.add(new ThreadQuickAction(getActivity(), R.drawable.icon, "QuickBrowser", ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL, aUrl));
-			if(link.getLastPathSegment() != null 
-					&& (link.getLastPathSegment().contains(".jpg") 
-							|| link.getLastPathSegment().contains(".jpeg") 
-							|| link.getLastPathSegment().contains(".png") 
-							|| link.getLastPathSegment().contains(".gif")
-						)
-					){//TODO make this detection less retarded
-				actions.add(new ThreadQuickAction(getActivity(), R.drawable.light_inline_allposts, "Inline Image", ThreadQuickAction.ACTION_EXPAND_IMAGE, aUrl));
-			}
-			QuickActionBar mBar = new QuickActionBar(getActivity());
-			for(QuickAction qa : actions){
-				mBar.addQuickAction(qa);
-			}
-			mBar.setOnQuickActionClickListener(ThreadDisplayFragment.this);
-			mBar.show(mPageBar);
+			mActionModeURL = aUrl;
+			startActionMode();
 			return true;
 		}
 	};
@@ -446,6 +419,33 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
 				Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
 			}
+
+			@Override
+			public void onCloseWindow(WebView window) {
+				super.onCloseWindow(window);
+				Log.e(TAG,"onCloseWindow");
+			}
+
+			@Override
+			public boolean onCreateWindow(WebView view, boolean isDialog,
+					boolean isUserGesture, Message resultMsg) {
+				Log.e(TAG,"onCreateWindow"+(isDialog?" isDialog":"")+(isUserGesture?" isUserGesture":""));
+				return super.onCreateWindow(view, isDialog, isUserGesture, resultMsg);
+			}
+
+			@Override
+			public boolean onJsTimeout() {
+				Log.e(TAG,"onJsTimeout");
+				return super.onJsTimeout();
+			}
+
+			@Override
+			public void onProgressChanged(WebView view, int newProgress) {
+				super.onProgressChanged(view, newProgress);
+				Log.e(TAG,"onProgressChanged: "+newProgress);
+				setProgress(newProgress/2+50);//second half of progress bar
+			}
+			
 		});
 	}
 	
@@ -802,13 +802,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     displayPostReplyDialog();
                     break;
                 case R.id.refresh:
-                	if(imagesLoadingState && mThreadView != null){
-                		mThreadView.stopLoading();
-                		imagesLoadingState = false;
-                		imageLoadingFinished();
-                	}else{
-                		refresh();
-                	}
+                	refresh();
                     break;
                 case R.id.page_count:
                 	displayPagePicker();
@@ -914,26 +908,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void loadingStarted() {
     	super.loadingStarted();
-    	threadLoadingState = true;
     }
 
     @Override
     public void loadingSucceeded() {
     	super.loadingSucceeded();
-    	threadLoadingState = false;
-    }
-    
-    public void imageLoadingStarted() {
-    	threadLoadingState = false;
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
-        }
-    }
-    
-    public void imageLoadingFinished() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
-    	}
     }
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {
@@ -1038,6 +1017,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	copyThreadURL(aPostId);
         }
         
+        public void debugMessage(final String msg) {
+        	Log.e(TAG,"Awful DEBUG: "+msg);
+        }
+        
         public void onUserPostsClick(final String aUserId) {
         	if(mUserId >0){
         		deselectUser();
@@ -1066,68 +1049,79 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		}
 	}
-	
-	@Override
-	public void onQuickActionClicked(QuickActionWidget widget, int position) {
-		ThreadQuickAction selected = actions.get(position);
-		if(selected != null){
-			switch(selected.action){
-			case ThreadQuickAction.ACTION_EXPAND_IMAGE:
-				if(mThreadView != null){
-					mThreadView.loadUrl("javascript:showInlineImage('"+selected.actionData+"')");
-				}
-				break;
-			case ThreadQuickAction.ACTION_OPEN_LINK_INTERNAL:
-				getAwfulActivity().displayQuickBrowser(selected.actionData);
-				break;
-			case ThreadQuickAction.ACTION_OPEN_LINK_EXTERNAL:
-				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(selected.actionData));
-				PackageManager pacman = getActivity().getPackageManager();
-				List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
-						PackageManager.MATCH_DEFAULT_ONLY);
-				if (res.size() > 0) {
-					browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					getActivity().startActivity(browserIntent);
-				} else {
-					String[] split = selected.actionData.split(":");
-					Toast.makeText(
-							getActivity(),
-							"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
-							Toast.LENGTH_LONG)
-								.show();
-				}
-				break;
-			case ThreadQuickAction.ACTION_COPY_URL:
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-					ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-					ClipData clip = ClipData.newPlainText("Copied URL", selected.actionData);
-					clipboard.setPrimaryClip(clip);
 
-					Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
-				} else {
-					android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-					clipboard.setText(selected.actionData);
-					Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
-				}
-				break;
-			}
-		}
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		Log.e(TAG,"onCreateActionMode");
+		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open Link");
+		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Inline Image");
+		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
+		return true;
 	}
-	
-	private class ThreadQuickAction extends QuickAction {
-		public static final int ACTION_EXPAND_IMAGE = 1;
-		public static final int ACTION_OPEN_LINK_INTERNAL = 2;
-		public static final int ACTION_OPEN_LINK_EXTERNAL = 3;
-		public static final int ACTION_COPY_URL = 4;
-		
-		public int action;
-		public String actionData;
-		public ThreadQuickAction(Context ctx, int drawableId, String title, int actionId, String data) {
-			super(ctx, drawableId, title);
-			action = actionId;
-			actionData = data;
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		MenuItem inline = menu.findItem(R.id.content);
+		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
+			Uri link = Uri.parse(mActionModeURL);
+			inline.setVisible(link.getLastPathSegment() != null 
+								&& (link.getLastPathSegment().contains(".jpg") 
+									|| link.getLastPathSegment().contains(".jpeg") 
+									|| link.getLastPathSegment().contains(".png") 
+									|| link.getLastPathSegment().contains(".gif")
+									)
+								);
 		}
-		
+		return true;
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.normal:
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mActionModeURL));
+			PackageManager pacman = getActivity().getPackageManager();
+			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (res.size() > 0) {
+				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				getActivity().startActivity(browserIntent);
+			} else {
+				String[] split = mActionModeURL.split(":");
+				Toast.makeText(
+						getActivity(),
+						"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
+						Toast.LENGTH_LONG)
+							.show();
+			}
+			break;
+		case R.id.content:
+			if(mThreadView != null){
+				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
+			}
+			break;
+		case R.id.copy_url:
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+				ClipData clip = ClipData.newPlainText("Copied URL", mActionModeURL);
+				clipboard.setPrimaryClip(clip);
+			} else {
+				android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+				clipboard.setText(mActionModeURL);
+			}
+			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			return false;
+			//TODO reimplement internal browser.
+		}
+		mode.finish();
+		return true;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+		mActionModeURL = null;
 	}
 	
 	@Override
@@ -1216,6 +1210,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
+        	setProgress(50);
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             dataLoaded = true;
 			savedScrollPosition = 0;

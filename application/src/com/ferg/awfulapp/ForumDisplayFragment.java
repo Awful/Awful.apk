@@ -132,12 +132,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	AwfulSyncService.debugLogReceivedMessage(mForumId, aMsg);
+        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             switch (aMsg.what) {
 	        	case AwfulSyncService.MSG_GRAB_IMAGE:
 	        		if(isResumed() && isVisible()){
 	        			mListView.invalidateViews();
 	        		}
+	        		break;
+	        	case AwfulSyncService.MSG_PROGRESS_PERCENT:
+                	setProgress(aMsg.arg2);
 	        		break;
                 case AwfulSyncService.MSG_SYNC_FORUM:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
@@ -150,6 +153,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	                    	mToggleSidebar.setColorFilter(0);
             			}
             			loadingSucceeded();
+                    	setProgress(100);
             		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
             			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
 	                    	mRefreshBar.setColorFilter(0);

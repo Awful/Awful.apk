@@ -69,6 +69,7 @@ import com.ferg.awfulapp.thread.*;
 public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";
 
+    public static final int MSG_PROGRESS_PERCENT   = 1;
     public static final int MSG_SYNC_THREAD       = 2;
     public static final int MSG_PROGRESS_STATUS   = 3;
     public static final int MSG_SYNC_FORUM       = 4;
@@ -118,7 +119,7 @@ public class AwfulSyncService extends Service {
     public class MessageHandler extends Handler { 
         @Override
         public void handleMessage(Message aMsg) {
-        	debugLogReceivedMessage(-1,aMsg);
+        	debugLogReceivedMessage(TAG,aMsg);
             switch (aMsg.what) {
                 case MSG_SYNC_THREAD:
                     queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg, mPrefs));
@@ -202,21 +203,25 @@ public class AwfulSyncService extends Service {
 			protected Boolean doInBackground(Void... params) {
 				try {
 					TagNode threads = null;
+                    replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 25));
                     if(mId == Constants.USERCP_ID){
-                    	threads = AwfulThread.getUserCPThreads(mArg1);
+                    	threads = AwfulThread.getUserCPThreads(mArg1, replyTo);
+                        replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
                 		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
                         	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
                         	return false;
                 		}
                         AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
                     }else{
-                    	threads = AwfulThread.getForumThreads(mId, mArg1);
+                    	threads = AwfulThread.getForumThreads(mId, mArg1, replyTo);
+                        replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
                 		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
                         	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
                         	return false;
                         }
                         AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
                     }
+                    replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 100));
                 } catch (Exception e) {
                     Log.i(TAG, "Sync error");
                     e.printStackTrace();
@@ -287,23 +292,23 @@ public class AwfulSyncService extends Service {
 		return false;
 	}
 
-	public static void debugLogReceivedMessage(int id, Message aMsg) {
-		String what = aMsg.what+"";
+	public static void debugLogReceivedMessage(String tag, Message aMsg) {
+		String msg = aMsg.what+" - ";
 		switch(aMsg.what){
 		case MSG_SYNC_THREAD:
-			what = "MSG_SYNC_THREAD";
+			msg += "MSG_SYNC_THREAD";
 			break;
 		case MSG_SYNC_FORUM:
-			what = "MSG_SYNC_FORUM";
+			msg += "MSG_SYNC_FORUM";
 			break;
 		case MSG_SYNC_INDEX:
-			what = "MSG_SYNC_INDEX";
+			msg += "MSG_SYNC_INDEX";
 			break;
 		case MSG_FETCH_PM_INDEX:
-			what = "MSG_FETCH_PM_INDEX";
+			msg += "MSG_FETCH_PM_INDEX";
 			break;
 		}
-		Log.v(TAG, id+" Received: "+what+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
+		Log.v(tag, tag+"Received: "+msg+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
 	}
 
 }

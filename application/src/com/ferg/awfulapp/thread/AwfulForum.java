@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -268,7 +269,8 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static ImageView getSubforumView(View current, AwfulActivity parent, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static void getSubforumView(View current, AQuery aq, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+		aq.recycle(current);
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
@@ -298,19 +300,11 @@ public class AwfulForum extends AwfulPagedItem {
 			sub.setVisibility(View.GONE);
 		}
 		
-		ImageView threadTag = (ImageView) current.findViewById(R.id.forum_tag);
-		String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+		String tagFile = data.getString(data.getColumnIndex(TAG_URL));
 		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			if(!AwfulThread.threadTagExists(parent, tagFile)){
-				threadTag.setVisibility(View.INVISIBLE);
-				threadTag.setTag(new String[]{tagFile,data.getString(data.getColumnIndex(TAG_URL))});
-			}else{
-				threadTag.setTag(tagFile);
-			}
+			aq.id(R.id.forum_tag).visible().image(tagFile, true, true);
 		}else{
-			threadTag.setVisibility(View.GONE);
-			threadTag = null;
+			aq.id(R.id.forum_tag).gone();
 		}
-		return threadTag;
 	}
 }

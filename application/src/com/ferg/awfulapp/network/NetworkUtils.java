@@ -59,9 +59,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 public class NetworkUtils {
     private static final String TAG = "NetworkUtils";
@@ -206,6 +209,10 @@ public class NetworkUtils {
     }
 
 	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
+		return get(aUrl,aParams,null,0);
+	}
+	
+	public static TagNode get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
         TagNode response = null;
         String parameters = getQueryStringParameters(aParams);
         URI location = new URI(aUrl + parameters);
@@ -220,6 +227,11 @@ public class NetworkUtils {
 
         HttpEntity entity = httpResponse.getEntity();
 
+        if(statusCallback != null){
+	        //notify user we have gotten message body
+	        statusCallback.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, midpointPercent));
+        }
+	    
         if (entity != null) {
             response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
         }

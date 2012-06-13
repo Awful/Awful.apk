@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -70,25 +71,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build());
-        }
-        
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/ForumsIndexActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
         mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
         mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
         mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
@@ -151,7 +133,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     	private AwfulPagerFragment visible;
 		public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
-			fragList = new ArrayList<AwfulPagerFragment>(4);
+			fragList = new ArrayList<AwfulPagerFragment>(3);
 		}
 		
 		public void addFragment(AwfulPagerFragment frag){
@@ -218,6 +200,13 @@ public class ForumsIndexActivity extends AwfulActivity {
 				apf.onPageVisible();
 			}
 			visible = apf;
+		}
+
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			// TODO Auto-generated method stub
+			super.destroyItem(container, position, object);
+			Log.e(TAG,"DESTROY TAB: "+position);
 		}
     	
     }

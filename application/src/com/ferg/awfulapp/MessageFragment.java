@@ -72,7 +72,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
                 	loadingSucceeded();
@@ -106,7 +106,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
                 	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
             			Toast.makeText(getActivity(), "Message Load Failed!", Toast.LENGTH_LONG).show();
                 	}
                     break;

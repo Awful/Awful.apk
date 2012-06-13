@@ -55,6 +55,7 @@ import android.support.v4.content.Loader;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -78,7 +79,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	AwfulSyncService.debugLogReceivedMessage(Constants.FORUM_INDEX_ID, aMsg);
+        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             switch (aMsg.what) {
                 case AwfulSyncService.MSG_SYNC_INDEX:
             		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
@@ -402,10 +403,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	
 	private class AwfulTreeAdapter extends CursorTreeAdapter{
 		private LayoutInflater inf;
+		private AQuery rowAq;
 		
 		public AwfulTreeAdapter(Context context) {
 			super(null, context, false);
 			inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			rowAq = new AQuery(context);
 		}
 		
 		public int getGroupPosition(int parent) {
@@ -426,24 +429,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			ImageView tag = AwfulForum.getSubforumView(view,
-								getAwfulActivity(),
+			AwfulForum.getSubforumView(view,
+							   rowAq,
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tag != null){
-				Object tagStuff = tag.getTag();
-				if(tagStuff instanceof String[]){
-					String[] tagFile = (String[]) tagStuff;
-					Log.e("AImg","Image download: "+tagFile[0]);
-					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
-					tag.setTag(tagFile[0]);
-					imageQueue.put(tagFile[1].hashCode(), tag);
-				}else if(tagStuff instanceof String){
-					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
-				}
-			}
 			getAwfulActivity().setPreferredFont(view);
 		}
 
@@ -451,24 +442,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		protected void bindGroupView(View view, Context context, Cursor cursor,
 				boolean isExpanded) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			ImageView tag = AwfulForum.getSubforumView(view,
-								getAwfulActivity(),
+			AwfulForum.getSubforumView(view,
+							   rowAq,
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tag != null){
-				Object tagStuff = tag.getTag();
-				if(tagStuff instanceof String[]){
-					String[] tagFile = (String[]) tagStuff;
-					Log.e("AImg","Image download: "+tagFile[0]);
-					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
-					tag.setTag(tagFile[0]);
-					imageQueue.put(tagFile[1].hashCode(), tag);
-				}else if(tagStuff instanceof String){
-					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
-				}
-			}
 			getAwfulActivity().setPreferredFont(view);
 		}
 
@@ -477,24 +456,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				boolean isLastChild, ViewGroup parent) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
 			View row = inf.inflate(R.layout.thread_item, parent, false);
-			ImageView tag = AwfulForum.getSubforumView(row,
-								getAwfulActivity(),
+			AwfulForum.getSubforumView(row,
+					rowAq,
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tag != null){
-				Object tagStuff = tag.getTag();
-				if(tagStuff instanceof String[]){
-					String[] tagFile = (String[]) tagStuff;
-					Log.e("AImg","Image download: "+tagFile[0]);
-					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
-					tag.setTag(tagFile[0]);
-					imageQueue.put(tagFile[1].hashCode(), tag);
-				}else if(tagStuff instanceof String){
-					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
-				}
-			}
 			getAwfulActivity().setPreferredFont(row);
 			return row;
 		}
@@ -504,24 +471,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				boolean isExpanded, ViewGroup parent) {
 			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
 			View row = inf.inflate(R.layout.thread_item, parent, false);
-			ImageView tag = AwfulForum.getSubforumView(row, 
-								getAwfulActivity(),
+			AwfulForum.getSubforumView(row, 
+					rowAq,
 							   mPrefs,
 							   cursor,
 							   mIsSidebar,
 							   selectedId > -1 && selectedId == id);
-			if(tag != null){
-				Object tagStuff = tag.getTag();
-				if(tagStuff instanceof String[]){
-					String[] tagFile = (String[]) tagStuff;
-					Log.e("AImg","Image download: "+tagFile[0]);
-					getAwfulActivity().sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, Constants.FORUM_INDEX_ID, tagFile[1].hashCode(), tagFile[1]);
-					tag.setTag(tagFile[0]);
-					imageQueue.put(tagFile[1].hashCode(), tag);
-				}else if(tagStuff instanceof String){
-					AwfulThread.setBitmap(getAwfulActivity(), tag, imageCache);
-				}
-			}
 			getAwfulActivity().setPreferredFont(row);
 			return row;
 		}

@@ -7,16 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment{
+public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
 
 	protected AwfulPreferences mPrefs;
-	
 	protected AQuery aq;
     
     @Override
@@ -30,7 +31,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
     	View v = inflater.inflate(R.layout.forum_display, container, false);
-    	aq = new AQuery(getActivity(), v);
+    	aq = new AQuery(v);
     	return v;
     }
     
@@ -76,6 +77,20 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		}
 	}
 	
+	protected void setProgress(int percent){
+		AwfulActivity aa = getAwfulActivity();
+		if(aa != null){
+			aa.setSupportProgressBarVisibility(percent<100);
+			aa.setSupportProgress(percent*100);
+		}
+	}
+	
+	protected void startActionMode(){
+		if(getAwfulActivity() != null){
+			getAwfulActivity().startActionMode(this);
+		}
+	}
+	
 	@Override
     public void loadingFailed() {
         if(getActivity() != null){
@@ -110,5 +125,23 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	public boolean canScrollX(int x) {
 		return false;
 	}
+
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		return false;
+	}
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		return false;
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		return false;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {	}
     
 }

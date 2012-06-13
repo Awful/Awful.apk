@@ -89,6 +89,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_PROGRESS);
         registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
     }
 

@@ -1,10 +1,9 @@
 package com.ferg.awfulapp.service;
 
-import greendroid.widget.AsyncImageView;
-
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -38,6 +37,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private int mId;
 	private int selectedId = -1;
 	private boolean mIsSidebar;
+	private AQuery aq;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
 		this(context, c, 0, false, null);
@@ -50,6 +50,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		mId = id;
 		mIsSidebar = isSidebar;
 		mReplyTo = tagCallback;
+		aq = new AQuery(context);
 	}
 	
 	public void setSelected(int id){
@@ -62,40 +63,27 @@ public class AwfulCursorAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
-		ImageView tag = null;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			tag = AwfulThread.getView(current, mPrefs, data, mParent, mId == Constants.USERCP_ID, mIsSidebar, false);
+			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getSubforumView(current, mParent, mPrefs, data, mIsSidebar, false);
+			AwfulForum.getSubforumView(current, aq, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			AwfulEmote.getView(current, mPrefs, data);
 		}
 		mParent.setPreferredFont(current);
-		if(tag != null){
-			Object tagStuff = tag.getTag();
-			if(tagStuff instanceof String[]){
-				String[] tagFile = (String[]) tagStuff;
-				mParent.sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, mId, tagFile[1].hashCode(), tagFile[1]);
-				tag.setTag(tagFile[0]);
-				imageQueue.put(tagFile[1].hashCode(), tag);
-			}else if(tagStuff instanceof String){
-				AwfulThread.setBitmap(mParent, tag, imageCache);
-			}
-		}
 	}
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
 		View row;
-		ImageView tag = null;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			tag = AwfulThread.getView(row, mPrefs, data, mParent, mId == Constants.USERCP_ID, mIsSidebar, false);
+			AwfulThread.getView(row, mPrefs, data, aq, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, mParent, mPrefs, data, mIsSidebar, false);
+			AwfulForum.getSubforumView(row, aq, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);
@@ -106,17 +94,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.loading, parent, false);
 		}
 		mParent.setPreferredFont(row);
-		if(tag != null){
-			Object tagStuff = tag.getTag();
-			if(tagStuff instanceof String[]){
-				String[] tagFile = (String[]) tagStuff;
-				mParent.sendMessage(mReplyTo, AwfulSyncService.MSG_GRAB_IMAGE, mId, tagFile[1].hashCode(), tagFile[1]);
-				tag.setTag(tagFile[0]);
-				imageQueue.put(tagFile[1].hashCode(), tag);
-			}else if(tagStuff instanceof String){
-				AwfulThread.setBitmap(mParent, tag, imageCache);
-			}
-		}
 		return row;
 	}
 	

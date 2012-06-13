@@ -87,7 +87,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
+        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
             		loadingSucceeded();

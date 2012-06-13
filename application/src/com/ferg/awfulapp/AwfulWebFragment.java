@@ -145,7 +145,7 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView(); Log.e(TAG, "onDestroyView");
-		mWebView.destroy();
+		//mWebView.destroy();
 		mWebView = null;
 	}
 	

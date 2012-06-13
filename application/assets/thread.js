@@ -1,6 +1,4 @@
 var prefs = JSON.parse(preferences);
-var intHandle = 0;
-var xPos = 0;
 
 $(document).ready(function() {
     $('.quote_button').live('click', function(event) {
@@ -43,7 +41,12 @@ $(document).ready(function() {
     var salr = new SALR(prefs);
 });
 
+$(window).load(function() {
+	listener.debugMessage('load');
+});
+
 $(window).ready(function() {
+	listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
 		var id = this.hash.replace(/post/,'');
@@ -56,22 +59,8 @@ $(window).ready(function() {
 	});
 });
 
-$(window).load(function(){
-	clearInterval(intHandle);
-	intHandle = -1;
-	
-});
-
-
-function updateScroll(){
-	var newPos = $('.unread').first().offset().top;
-    if(newPos > xPos && xPos > 0){
-    	$(window).scrollTop($(window).scrollTop()+newPos-xPos);
-    	xPos = newPos;
-    }
-}
-
 function scrollPost() {
+	listener.debugMessage('scrollPost');
 	if(prefs.scrollPosition > 0){
 		$(window).scrollTop(prefs.scrollPosition);
 	}else{
@@ -88,23 +77,33 @@ function scrollPost() {
 }
 
 function scrollLastRead(){
+	listener.debugMessage('scrollLastRead');
 	try{
         $(window).scrollTop($('.unread').first().offset().top);
-        xPos = $('.unread').first().offset().top;
-        if(intHandle == 0){
-        	setInterval(updateScroll, 200);
-    	}
     }catch(error){
-    	xPos = 0;
     }
 }
 
 function showInlineImage(url){
+	listener.debugMessage('showInlineImage');
 	$('a[href="'+url+'"]').append(function(){
 		if($(this).children('img[src="'+url+'"]').length < 1){
 			return '<img src="'+url+'" />';
 		}
 		return "";
 		});
+}
+
+function gifHide() {
+	listener.debugMessage('gifHide');
+	var minBound = $(window).scrollTop()-($(window).height()/2);
+	var maxBound = $(window).scrollTop()+$(window).height()*1.5;
+	$(".gif").each(function (){
+		if($(this).offset().top > maxBound || ($(this).offset().top + $(this).height()) < minBound){
+			$(this).css("visibility", "hidden");
+		}else{
+			$(this).css("visibility", "visible");
+		}
+	});
 }
 
