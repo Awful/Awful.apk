@@ -77,6 +77,17 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		}
 	}
 	
+    public void displayPostReplyDialog(final int threadId, final int postId, final int type) {
+		if(getAwfulActivity() != null){
+			getAwfulActivity().runOnUiThread(new Runnable(){
+				@Override
+				public void run() {
+			    	getAwfulActivity().displayReplyWindow(threadId, postId, type);
+				}
+			});
+		}
+    }
+	
 	protected void setProgress(int percent){
 		AwfulActivity aa = getAwfulActivity();
 		if(aa != null){

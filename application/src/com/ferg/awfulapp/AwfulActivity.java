@@ -276,4 +276,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	@Override
 	public void loadingSucceeded() {}
 
+	public void fragmentClosing(AwfulFragment fragment) {
+	}
+
 }

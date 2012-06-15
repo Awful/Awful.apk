@@ -90,4 +90,11 @@ public class PostReplyActivity extends AwfulActivity {
 			transaction.commit();
 		}
 	}
+
+	@Override
+	public void fragmentClosing(AwfulFragment fragment) {
+		finish();
+	}
+	
+	
 }

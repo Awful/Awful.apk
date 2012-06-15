@@ -830,22 +830,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     };
 
     public void displayPostReplyDialog() {
-        Bundle args = new Bundle();
-        args.putInt(Constants.THREAD_ID, mThreadId);
-        args.putInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
 
         if(mReplyDraftSaved >0){
-        	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+        	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, -1, AwfulMessage.TYPE_NEW_REPLY);
         }else{
-            displayPostReplyDialog(args);
+            displayPostReplyDialog(mThreadId, -1, AwfulMessage.TYPE_NEW_REPLY);
         }
     }
-
-    public void displayPostReplyDialog(Bundle aArgs) {
-    	startActivityForResult(new Intent(getActivity(), PostReplyActivity.class).putExtras(aArgs), PostReplyFragment.RESULT_POSTED);
-    }
     
-    private void displayDraftAlert(int replyType, String timeStamp, final Bundle aArgs) {
+    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
     	TextView draftAlertMsg = new TextView(getActivity());
     	if(timeStamp != null){
     	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -876,14 +869,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             .setPositiveButton(R.string.draft_alert_keep,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aWhich) {
-                        displayPostReplyDialog(aArgs);
+                        displayPostReplyDialog(threadId, postId, replyType);
                     }
                 })
             .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aWhich) {
                     ContentResolver cr = getActivity().getContentResolver();
                     cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
-                    displayPostReplyDialog(aArgs);
+                    displayPostReplyDialog(threadId, postId, newType);
                 }
             }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aWhich) {
@@ -979,15 +972,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         };
         
         public void onQuoteClick(final String aPostId) {
-        	Bundle args = new Bundle();
-            args.putInt(Constants.THREAD_ID, mThreadId);
-            args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
-            args.putInt(Constants.EDITING, AwfulMessage.TYPE_QUOTE);
-
             if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, Integer.parseInt(aPostId),AwfulMessage.TYPE_QUOTE);
             }else{
-                displayPostReplyDialog(args);
+                displayPostReplyDialog(mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_QUOTE);
             }
         }
         
@@ -1009,9 +997,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 
             if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, args);
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_EDIT);
             }else{
-                displayPostReplyDialog(args);
+                displayPostReplyDialog(mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_EDIT);
             }
         }
         

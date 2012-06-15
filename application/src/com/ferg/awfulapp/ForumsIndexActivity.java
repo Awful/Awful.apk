@@ -141,6 +141,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 			notifyDataSetChanged();
 		}
 
+		public void deleteFragment(AwfulPagerFragment frag){
+			fragList.remove(frag);
+			notifyDataSetChanged();
+		}
+
 		@Override
 		public AwfulPagerFragment getItem(int position) {
 			AwfulPagerFragment frag = fragList.get(position);
@@ -277,16 +282,28 @@ public class ForumsIndexActivity extends AwfulActivity {
 	public void displayReplyWindow(int threadId, int postId, int type) {
     	if(mViewPager != null){
     		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
-    		if(apf instanceof AwfulWebFragment){
-    			((AwfulWebFragment) apf).loadUrl(url);
+    		if(apf instanceof PostReplyFragment){
+    			//TODO multiquote stuff
+    			//((PostReplyFragment) apf).multiQuote(postId);
     			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
     		}else{
-    			pagerAdapter.addFragment(AwfulWebFragment.newInstance(url));
+    	    	Bundle args = new Bundle();
+    	        args.putInt(Constants.THREAD_ID, threadId);
+    	        args.putInt(Constants.EDITING, type);
+    	        args.putInt(Constants.POST_ID, postId);
+    			pagerAdapter.addFragment(PostReplyFragment.newInstance(args));
     			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
     		}
     	}else{
-    		super.displayQuickBrowser(url);
+    		super.displayReplyWindow(threadId, postId, type);
     	}
+	}
+    
+	@Override
+	public void fragmentClosing(AwfulFragment fragment) {
+		if(pagerAdapter != null){
+			pagerAdapter.deleteFragment(fragment);
+		}
 	}
 
 

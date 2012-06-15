@@ -100,7 +100,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
                 		sendSuccessful = true;
-                		if(getActivity() != null){ 
+                		if(getAwfulActivity() != null){ 
                 			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
                 			getActivity().setResult(RESULT_POSTED);
                 			leave();
@@ -197,10 +197,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     private void leave(){
-    	//add functionality for non-activity cases, for future updates
-    	if(getActivity() instanceof PostReplyActivity){
-			getActivity().finish();
-		}
+    	if(getAwfulActivity() != null){
+    		getAwfulActivity().fragmentClosing(this);
+    	}
     }
     
     @Override
@@ -431,13 +430,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public void onDestroy() {
         super.onDestroy();
         cleanupTasks();
-        if(getActivity() != null){
-			if(getActivity() instanceof PostReplyActivity){
-			}else{
-				((ThreadDisplayActivity)getActivity()).refreshInfo();
-				((ThreadDisplayActivity)getActivity()).refreshThread();
-			}
-		}
     }
 
 	@Override
@@ -533,7 +525,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
-        	if(aData.getCount() >0 && aData.moveToFirst()){
+        	if(!aData.isClosed() && aData.getCount() >0 && aData.moveToFirst()){
         		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
         		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
