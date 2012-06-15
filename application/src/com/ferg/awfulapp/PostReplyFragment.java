@@ -364,7 +364,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     		endTag = "[/s]";
     		break;
     	case URL:
-    		/* clipboard code, probably need to implement an alertdialog for this
+    		/* TODO clipboard code, probably need to implement an alertdialog for this
     		String link = null;
     		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
     			ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -423,7 +423,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public void onDestroyView() {
         super.onDestroyView();
         //((AwfulActivity) getActivity()).unregisterSyncService(mMessenger, mThreadId);//this is causing the threadview to lose its sync
-		getActivity().getSupportLoaderManager().destroyLoader(mThreadId);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
     }
     

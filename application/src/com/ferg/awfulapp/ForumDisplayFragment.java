@@ -183,9 +183,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        if(getActivity() instanceof ForumsIndexActivity){
-            setHasOptionsMenu(true);
-        }
+        setHasOptionsMenu(!(getActivity() instanceof ThreadDisplayActivity));
     }
     protected int getLoaderId() {
     	//loader ID conflicts suck.
@@ -239,8 +237,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	mForumId = args.getInt(Constants.FORUM_ID, 0);
         }
         
+        if(aSavedState != null){
+        	Log.i(TAG,"Restoring state!");
+        	mForumId = args.getInt(Constants.FORUM_ID, mForumId);
+        	mPage = args.getInt(Constants.FORUM_PAGE, 1);
+        }
+        
         //parsing forum id
-        if(mForumId <1){//we might already have it from newInstance(id), that value overrides the intent values
+        if(mForumId <1){//we might already have it from newInstance(id) or a saved state, that value overrides the intent values
         	
         	//if not, try the intent first.
         	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
@@ -345,6 +349,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
     
     @Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+    	Log.v(TAG,"onSaveInstanceState");
+        outState.putInt(Constants.FORUM_PAGE, getPage());
+    	outState.putInt(Constants.FORUM_ID, getForumId());
+	}
+    
+	@Override
     public void onStop() {
         super.onStop(); Log.e(TAG, "Stop");
     }

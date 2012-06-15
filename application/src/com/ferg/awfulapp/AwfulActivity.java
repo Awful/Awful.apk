@@ -7,6 +7,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.thread.AwfulMessage;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -50,6 +51,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
     
+    private boolean loggedIn = false;
+    
     protected AQuery aq;
 
     private TextView mTitleView;
@@ -91,6 +94,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
+        loggedIn = NetworkUtils.restoreLoginCookies(this);
     }
 
     @Override
@@ -213,12 +217,24 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         AwfulWebFragment.newInstance(url).show(getSupportFragmentManager().beginTransaction(), "awful_web_dialog");
     }
     
+	public void displayReplyWindow(int threadId, int postId, int type) {
+    	Bundle args = new Bundle();
+        args.putInt(Constants.THREAD_ID, threadId);
+        args.putInt(Constants.EDITING, type);
+        args.putInt(Constants.POST_ID, postId);
+    	startActivityForResult(new Intent(this, PostReplyActivity.class).putExtras(args), PostReplyFragment.RESULT_POSTED);
+	}
+    
     public void setActionbarTitle(String aTitle, Object requestor) {
+        ActionBar action = getSupportActionBar();
+        if(action != null){
+        	mTitleView = (TextView) action.getCustomView();
+        }
     	if(aTitle != null && mTitleView != null && aTitle.length()>0){
     		mTitleView.setText(Html.fromHtml(aTitle));
-    		if(mTitleView.getLayout() != null){
-    			mTitleView.bringPointIntoView(0);
-    		}
+			mTitleView.scrollTo(0, 0);
+    	}else{
+    		Log.e(TAG, "FAILED setActionbarTitle - "+aTitle);
     	}
     }
     
@@ -245,6 +261,13 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 		updateActionbarTheme(prefs);
 	}
 	
+	protected boolean isLoggedIn(){
+		if(!loggedIn){
+			loggedIn = NetworkUtils.restoreLoginCookies(this);
+		}
+		return loggedIn;
+	}
+	
 	//UNUSED - I don't know why I put them in the same interface. Oh well.
 	@Override
 	public void loadingFailed() {}
@@ -252,4 +275,5 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	public void loadingStarted() {}
 	@Override
 	public void loadingSucceeded() {}
+
 }

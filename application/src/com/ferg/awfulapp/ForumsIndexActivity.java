@@ -143,13 +143,21 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public AwfulPagerFragment getItem(int position) {
-			return fragList.get(position);
+			AwfulPagerFragment frag = fragList.get(position);
+			Log.e(TAG,"getItem "+position+" - "+frag.toString());
+			return frag;
 		}
 		
 		@Override
+		public CharSequence getPageTitle(int position) {
+			return getItem(position).getTitle();
+		}
+
+		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			Log.e(TAG,"INSTANTIATING TAB:"+position);
+			Log.i(TAG,"INSTANTIATING TAB:"+position);
 			Fragment frag = (Fragment) super.instantiateItem(container, position);
+			fragList.set(position, (AwfulPagerFragment) frag);
 			switch(position){
 			case 0:
 				mIndexFragment = (ForumsIndexFragment) frag;
@@ -191,6 +199,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
+			Log.i(TAG,"onPageSelected: "+arg0);
 			if(visible != null){
 				visible.onPageHidden();
 			}
@@ -206,7 +215,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			// TODO Auto-generated method stub
 			super.destroyItem(container, position, object);
-			Log.e(TAG,"DESTROY TAB: "+position);
+			Log.i(TAG,"DESTROY TAB: "+position);
 		}
     	
     }
@@ -217,6 +226,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     		//This will only honor the request if the requestor is the currently active view.
     		if(pagerAdapter.getItem(mViewPager.getCurrentItem()).equals(requestor)){
 		    		super.setActionbarTitle(aTitle, requestor);
+			}else{
+				Log.e(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
 			}
     	}else{
     		super.setActionbarTitle(aTitle, requestor);
@@ -262,6 +273,22 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}
 	}
 
+    @Override
+	public void displayReplyWindow(int threadId, int postId, int type) {
+    	if(mViewPager != null){
+    		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
+    		if(apf instanceof AwfulWebFragment){
+    			((AwfulWebFragment) apf).loadUrl(url);
+    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
+    		}else{
+    			pagerAdapter.addFragment(AwfulWebFragment.newInstance(url));
+    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
+    		}
+    	}else{
+    		super.displayQuickBrowser(url);
+    	}
+	}
+
 
 	public void setContentPane(int aForumId) {
     	mForumId = aForumId;
@@ -293,18 +320,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     			break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void startTVActivity() {
-        Intent shim = new Intent(this, ForumsTVActivity.class);
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            shim.putExtras(extras);
-        }
-
-        startActivity(shim);
-        finish();
     }
     
     @Override

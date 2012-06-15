@@ -149,19 +149,18 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart(); Log.e(TAG, "Start");
-
-        boolean loggedIn = NetworkUtils.restoreLoginCookies(getActivity());
-        if (loggedIn) {
-            Log.v(TAG, "Cookie Loaded!");
-        } else {
-            startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-        }
     }
     
     @Override
     public void onResume() {
         super.onResume(); Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+		
+        if (isLoggedIn()) {
+            Log.v(TAG, "Cookie Loaded!");
+        } else {
+            startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
+        }
     }
 
 	@Override

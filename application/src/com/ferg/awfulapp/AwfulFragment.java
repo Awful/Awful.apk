@@ -116,7 +116,11 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
-
+	
+	protected boolean isLoggedIn(){
+		return getAwfulActivity().isLoggedIn();
+	}
+	
 	public boolean onBackPressed() {
 		return false;
 	}
