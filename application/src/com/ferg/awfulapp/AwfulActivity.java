@@ -270,13 +270,14 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	
 	//UNUSED - I don't know why I put them in the same interface. Oh well.
 	@Override
-	public void loadingFailed() {}
+	public void loadingFailed(Message aMsg) {}
 	@Override
-	public void loadingStarted() {}
+	public void loadingStarted(Message aMsg) {}
 	@Override
-	public void loadingSucceeded() {}
+	public void loadingSucceeded(Message aMsg) {}
+	@Override
+	public void loadingUpdate(Message aMsg) {}
 
-	public void fragmentClosing(AwfulFragment fragment) {
-	}
+	public void fragmentClosing(AwfulFragment fragment) {}
 
 }

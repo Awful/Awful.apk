@@ -1004,7 +1004,7 @@ public class AwfulViewPager extends ViewGroup {
 	                if (lp != null && lp.isDecor) {
 	                    final int hgrav = lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK;
 	                    final int vgrav = lp.gravity & Gravity.VERTICAL_GRAVITY_MASK;
-	                    Log.d(TAG, "gravity: " + lp.gravity + " hgrav: " + hgrav + " vgrav: " + vgrav);
+	                    //Log.d(TAG, "gravity: " + lp.gravity + " hgrav: " + hgrav + " vgrav: " + vgrav);
 	                    int widthMode = MeasureSpec.AT_MOST;
 	                    int heightMode = MeasureSpec.AT_MOST;
 	                    boolean consumeVertical = vgrav == Gravity.TOP || vgrav == Gravity.BOTTOM;
@@ -1362,17 +1362,17 @@ public class AwfulViewPager extends ViewGroup {
 	                final float xDiff = Math.abs(dx);
 	                final float y = MotionEventCompat.getY(ev, pointerIndex);
 	                final float yDiff = Math.abs(y - mLastMotionY);
-	                Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+	                //Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 	                //mCurFrag.canScrollX((int) dx)
 	                if ((mCurFrag != null && mCurFrag.canScrollX((int) dx)) || canScroll(this, false, (int) dx, (int) x, (int) y)) {
-	                	Log.v(TAG, "canScroll!");
+	                	//Log.v(TAG, "canScroll!");
 	                    // Nested view has scrollable area under this point. Let it be handled there.
 	                    mInitialMotionX = mLastMotionX = x;
 	                    mLastMotionY = y;
 	                    return false;
 	                }
 	                if (xDiff > mTouchSlop*2 && xDiff > yDiff*1.25) {
-	                    Log.v(TAG, "Starting drag!");
+	                    //Log.v(TAG, "Starting drag!");
 	                    mIsBeingDragged = true;
 	                    setScrollState(SCROLL_STATE_DRAGGING);
 	                    mLastMotionX = x;
@@ -1485,9 +1485,9 @@ public class AwfulViewPager extends ViewGroup {
 	                    final float xDiff = Math.abs(x - mLastMotionX);
 	                    final float y = MotionEventCompat.getY(ev, pointerIndex);
 	                    final float yDiff = Math.abs(y - mLastMotionY);
-	                    Log.v(TAG, "LATE Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+	                    //Log.v(TAG, "LATE Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 	                    if (xDiff > mTouchSlop && xDiff > yDiff) {
-	                        Log.v(TAG, "LATE Starting drag!");
+	                        //Log.v(TAG, "LATE Starting drag!");
 	                        mIsBeingDragged = true;
 	                        mLastMotionX = x;
 	                        setScrollState(SCROLL_STATE_DRAGGING);

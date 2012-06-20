@@ -127,54 +127,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
         return fragment;
     }
-
-
-	private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-            switch (aMsg.what) {
-	        	case AwfulSyncService.MSG_GRAB_IMAGE:
-	        		if(isResumed() && isVisible()){
-	        			mListView.invalidateViews();
-	        		}
-	        		break;
-	        	case AwfulSyncService.MSG_PROGRESS_PERCENT:
-                	setProgress(aMsg.arg2);
-	        		break;
-                case AwfulSyncService.MSG_SYNC_FORUM:
-            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-            			if(getActivity() != null){
-            				getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
-            				lastRefresh = System.currentTimeMillis();
-            			}
-            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	                    	mRefreshBar.setColorFilter(0);
-	                    	mToggleSidebar.setColorFilter(0);
-            			}
-            			loadingSucceeded();
-                    	setProgress(100);
-            		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
-            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	                    	mRefreshBar.setColorFilter(0);
-	                    	mToggleSidebar.setColorFilter(0);
-            			}
-            			loadingFailed();
-            		}else if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
-            			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	                    	mRefreshBar.setColorFilter(buttonSelectedColor);
-	                    	mToggleSidebar.setColorFilter(buttonSelectedColor);
-            			}
-            			loadingStarted();
-            		}
-                    break;
-                default:
-                    super.handleMessage(aMsg);
-            }
-        }
-    };
+    
     private AwfulCursorAdapter mCursorAdapter;
-    private Messenger mMessenger = new Messenger(mHandler);
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
@@ -567,39 +521,46 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     };
     
     @Override
-    public void loadingFailed() {
-    	super.loadingFailed();
+    public void loadingFailed(Message aMsg) {
+    	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-        if(getActivity() != null){
-        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        	mListView.onRefreshComplete("Loading Failed!");
-        }
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        mListView.onRefreshComplete("Loading Failed!");
     }
 
     @Override
-	public void loadingSucceeded() {
-		super.loadingSucceeded();
-		if(getActivity() != null){
-			mListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
+	public void loadingSucceeded(Message aMsg) {
+		super.loadingSucceeded(aMsg);
+		mListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
+		
+		switch (aMsg.what) {
+    	case AwfulSyncService.MSG_GRAB_IMAGE:
+    		if(isResumed() && isVisible()){
+    			mListView.invalidateViews();
+    		}
+    		break;
+        case AwfulSyncService.MSG_SYNC_FORUM:
+    			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+    			lastRefresh = System.currentTimeMillis();
+    			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+                	mRefreshBar.setColorFilter(0);
+                	mToggleSidebar.setColorFilter(0);
+    			}
 		}
 	}
-
-
-	private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
-	private static final RotateAnimation mLoadingAnimation = 
-			new RotateAnimation(
-					0f, 360f,
-					Animation.RELATIVE_TO_SELF, 0.5f,
-					Animation.RELATIVE_TO_SELF, 0.5f);
-	static {
-		mFlashingAnimation.setInterpolator(new LinearInterpolator());
-		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
-		mFlashingAnimation.setDuration(500);
-		mLoadingAnimation.setInterpolator(new LinearInterpolator());
-		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
-		mLoadingAnimation.setDuration(700);
-	}
 	
+	@Override
+	public void loadingUpdate(Message aMsg) {
+		super.loadingUpdate(aMsg);
+		switch (aMsg.what) {
+			case AwfulSyncService.MSG_SYNC_FORUM:
+				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+		        	mRefreshBar.setColorFilter(buttonSelectedColor);
+		        	mToggleSidebar.setColorFilter(buttonSelectedColor);
+				}
+				break;
+		}
+	}
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
@@ -607,6 +568,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
+			mListView.setTextColors(prefs.postFontColor, prefs.postFontColor2);
 		}
 		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){

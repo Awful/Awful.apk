@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
+    <item android:id="@+id/discard" android:icon="@drawable/ic_menu_load_fail" android:showAsAction="ifRoom"></item><item
         android:id="@+id/bbcode"
         android:title="@string/bbcode"
 		android:icon="@drawable/ic_actionbar_dropdown"
-		android:showAsAction="always" 
+		android:showAsAction="ifRoom" 
 		>
 		<menu>
         <item
@@ -50,4 +50,5 @@
 		android:icon="@drawable/ic_menu_post"
 		android:showAsAction="always" 
         />
+	
 </menu>

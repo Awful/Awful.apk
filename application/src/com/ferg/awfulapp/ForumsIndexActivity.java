@@ -222,6 +222,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 			super.destroyItem(container, position, object);
 			Log.i(TAG,"DESTROY TAB: "+position);
 		}
+
+		public void deletePage(int x) {
+			fragList.remove(x);
+			notifyDataSetChanged();
+		}
     	
     }
     
@@ -257,7 +262,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void displayForum(int id, int page){
     	setContentPane(id);
-    	if (!isDualPane()) {
+    	if (mViewPager != null) {
+    		closeTempWindows();
     		mViewPager.setCurrentItem(1);
         }
     }
@@ -283,9 +289,11 @@ public class ForumsIndexActivity extends AwfulActivity {
     	if(mViewPager != null){
     		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
     		if(apf instanceof PostReplyFragment){
+    			PostReplyFragment frag = (PostReplyFragment) apf;
     			//TODO multiquote stuff
     			//((PostReplyFragment) apf).multiQuote(postId);
     			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
+    			frag.newReply(threadId, postId, type);
     		}else{
     	    	Bundle args = new Bundle();
     	        args.putInt(Constants.THREAD_ID, threadId);
@@ -299,10 +307,21 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}
 	}
     
+    private void closeTempWindows(){
+    	if(mViewPager != null){
+    		while(pagerAdapter.getCount() > 3){
+    			pagerAdapter.deletePage(3);
+    		}
+    	}
+    }
+    
 	@Override
 	public void fragmentClosing(AwfulFragment fragment) {
 		if(pagerAdapter != null){
 			pagerAdapter.deleteFragment(fragment);
+		}
+		if(fragment instanceof PostReplyFragment && mThreadFragment != null){
+			mThreadFragment.onActivityResult(PostReplyFragment.RESULT_POSTED, 0, null);
 		}
 	}
 
@@ -342,6 +361,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void displayThread(int id, int page, int forumId, int forumPg){
     	if(mViewPager != null){
+    		closeTempWindows();
     		mThreadId = id;
     		mThreadPage = page;
     		if(mThreadFragment != null){

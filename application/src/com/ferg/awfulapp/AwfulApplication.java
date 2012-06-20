@@ -7,6 +7,7 @@ import java.util.Set;
 import android.app.Application;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,11 +103,13 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 	}
 
 	@Override
-	public void loadingFailed() {}
+	public void loadingFailed(Message aMsg) {}
 	@Override
-	public void loadingStarted() {}
+	public void loadingStarted(Message aMsg) {}
 	@Override
-	public void loadingSucceeded() {}
+	public void loadingSucceeded(Message aMsg) {}
+	@Override
+	public void loadingUpdate(Message aMsg) {}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

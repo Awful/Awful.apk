@@ -32,40 +32,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class PrivateMessageListFragment extends SherlockFragment implements
-		AwfulUpdateCallback {
+public class PrivateMessageListFragment extends AwfulFragment {
 	
 
     private static final String TAG = "PrivateMessageList";
 
     private ListView mPMList;
-    private AwfulPreferences mPrefs;
 
 	private AwfulCursorAdapter mCursorAdapter;
-
-	private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-        	Log.i(TAG, "Received Message:"+aMsg.what+" "+aMsg.arg1+" "+aMsg.arg2);
-            switch (aMsg.arg1) {
-                case AwfulSyncService.Status.OKAY:
-                	loadingSucceeded();
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX && getActivity() != null){
-                		getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
-                	}
-                    break;
-                case AwfulSyncService.Status.WORKING:
-                	loadingStarted();
-                    break;
-                case AwfulSyncService.Status.ERROR:
-                	loadingFailed();
-                    break;
-                default:
-                    super.handleMessage(aMsg);
-            }
-        }
-    };
-    private Messenger mMessenger = new Messenger(mHandler);
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
     
     @Override
@@ -94,7 +68,6 @@ public class PrivateMessageListFragment extends SherlockFragment implements
         setRetainInstance(true);
 
         
-        updateColors(mPrefs);
         mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
 
         mPMList.setOnItemClickListener(onPMSelected);
@@ -198,24 +171,18 @@ public class PrivateMessageListFragment extends SherlockFragment implements
     };
 
 	@Override
-    public void loadingFailed() {
+    public void loadingFailed(Message aMsg) {
+		super.loadingFailed(aMsg);
     	if(getActivity()!= null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
-    public void loadingStarted() {
-    	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(true);
-    	}
-    }
-
-    @Override
-    public void loadingSucceeded() {
-    	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).setSupportProgressBarIndeterminateVisibility(false);
+    public void loadingSucceeded(Message aMsg) {
+    	super.loadingSucceeded(aMsg);
+    	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX){
+    		getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
     	}
     }
 
@@ -256,4 +223,16 @@ public class PrivateMessageListFragment extends SherlockFragment implements
         	}
         }
     }
+	@Override
+	public void onPageVisible() {
+	}
+
+	@Override
+	public void onPageHidden() {
+	}
+
+	@Override
+	public String getTitle() {
+		return "Private Messages";
+	}
 }

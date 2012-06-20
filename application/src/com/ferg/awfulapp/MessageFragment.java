@@ -72,10 +72,11 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
+        	//TODO update to match update structure in AwfulFragments
         	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
-                	loadingSucceeded();
+                	loadingSucceeded(null);
                 	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
                 		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
                 	}
@@ -93,10 +94,10 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
                 	}
                     break;
                 case AwfulSyncService.Status.WORKING:
-                	loadingStarted();
+                	loadingStarted(null);
                     break;
                 case AwfulSyncService.Status.ERROR:
-                	loadingFailed();
+                	loadingFailed(null);
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
 	                	if(mDialog != null){
 	            			mDialog.dismiss();
@@ -344,24 +345,29 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	}
 
 	@Override
-	public void loadingFailed() {
+	public void loadingFailed(Message aMsg) {
 		if(getActivity() != null){
 				getActivity().setProgressBarIndeterminateVisibility(false);
 		}
 	}
 
 	@Override
-	public void loadingStarted() {
+	public void loadingStarted(Message aMsg) {
 		if (getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(true);
 		}
 	}
 
 	@Override
-	public void loadingSucceeded() {
+	public void loadingSucceeded(Message aMsg) {
 		if (getActivity() != null) {
 			getActivity().setProgressBarIndeterminateVisibility(false);
 		}
+	}
+
+	@Override
+	public void loadingUpdate(Message aMsg) {
+		
 	}
 
 	@Override

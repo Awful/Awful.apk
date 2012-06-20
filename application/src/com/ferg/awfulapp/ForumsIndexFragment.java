@@ -67,7 +67,7 @@ import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private static final String TAG = "ForumsIndex";
+    protected static String TAG = "ForumsIndex";
     private ExpandableListView mForumList;
     private boolean mIsSidebar;
 
@@ -75,31 +75,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         return new ForumsIndexFragment();
     }
     
-    
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-            switch (aMsg.what) {
-                case AwfulSyncService.MSG_SYNC_INDEX:
-            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY){
-            			if(getActivity() != null){
-            				getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
-            			}
-            			loadingSucceeded();
-            		}else if(aMsg.arg1 == AwfulSyncService.Status.ERROR){
-            			loadingFailed();
-            		}else if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
-            			loadingStarted();
-            		}
-                    break;
-                default:
-                    super.handleMessage(aMsg);
-            }
-        }
-    };
     private AwfulTreeAdapter mCursorAdapter;
-    private Messenger mMessenger = new Messenger(mHandler);
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
     
     @Override
@@ -314,15 +290,22 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     }
 
     @Override
-    public void loadingFailed() {
-    	super.loadingFailed();
+    public void loadingFailed(Message aMsg) {
+    	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
     	if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
     }
     
-    private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
+    @Override
+	public void loadingSucceeded(Message aMsg) {
+		super.loadingSucceeded(aMsg);
+		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+	}
+
+
+	private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
 	private static final RotateAnimation mLoadingAnimation = 
 			new RotateAnimation(
 					0f, 360f,

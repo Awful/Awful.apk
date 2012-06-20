@@ -137,83 +137,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         return fragment;
 	}
 
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-            handleStatusUpdate(aMsg.arg1);
-            switch (aMsg.what) {
-            	case AwfulSyncService.MSG_PROGRESS_PERCENT:
-                	setProgress(aMsg.arg2/2);
-            		break;
-            	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
-            		if(aMsg.arg1 == AwfulSyncService.Status.OKAY && aMsg.obj instanceof String){
-            			Uri resultLink = Uri.parse(aMsg.obj.toString());
-            			String postJump = "";
-            			if(resultLink.getFragment() != null){
-            				postJump = resultLink.getFragment().replaceAll("\\D", "");
-            			}
-            			if(resultLink.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
-        					String threadId = resultLink.getQueryParameter(Constants.PARAM_THREAD_ID);
-        					String pageNum = resultLink.getQueryParameter(Constants.PARAM_PAGE);
-        					if(pageNum != null && pageNum.matches("\\d+")){
-        						int pageNumber = Integer.parseInt(pageNum);
-        						int perPage = Constants.ITEMS_PER_PAGE;
-        						String paramPerPage = resultLink.getQueryParameter(Constants.PARAM_PER_PAGE);
-        						if(paramPerPage != null && paramPerPage.matches("\\d+")){
-        							perPage = Integer.parseInt(paramPerPage);
-        						}
-        						if(perPage != mPrefs.postPerPage){
-        							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
-        						}
-        						pushThread(Integer.parseInt(threadId), pageNumber, postJump);
-        					}else{
-        						pushThread(Integer.parseInt(threadId), 1, postJump);
-        					}
-        				}
-            		}
-            		break;
-                case AwfulSyncService.MSG_SYNC_THREAD:
-                    if(aMsg.arg1 != AwfulSyncService.Status.WORKING && getActivity() != null){
-                    	setProgress(50);
-                    	refreshPosts();
-                    }
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-                    	if(aMsg.arg1 == AwfulSyncService.Status.WORKING){
-                    		if(getPage() == getLastPage()){
-                    			mNextPage.setColorFilter(buttonSelectedColor);
-                    		}else if(getPage() <= 1){
-                    			mPrevPage.setColorFilter(buttonSelectedColor);
-                    		}else{
-                    			mRefreshBar.setColorFilter(buttonSelectedColor);
-                    		}
-	                    }else{
-                    		if(getPage() == getLastPage()){
-                    			mNextPage.setColorFilter(0);
-                    		}else if(getPage() <= 1){
-                    			mPrevPage.setColorFilter(0);
-                    		}else{
-                    			mRefreshBar.setColorFilter(0);
-                    		}
-	                    }
-                    }
-                    break;
-                case AwfulSyncService.MSG_SET_BOOKMARK:
-                	refreshInfo();
-                    break;
-                case AwfulSyncService.MSG_MARK_LASTREAD:
-                	refreshInfo();
-                    if(aMsg.arg1 == AwfulSyncService.Status.OKAY && getActivity() != null){
-                    	refreshPosts();
-                    }
-                    break;
-                default:
-                    super.handleMessage(aMsg);
-            }
-        }
-    };
-
-    private Messenger mMessenger = new Messenger(mHandler);
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
     
@@ -223,7 +146,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
-			loadingSucceeded();
 			if(!isResumed()){
 				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
 				mHandler.postDelayed(new Runnable(){
@@ -245,12 +167,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
 			if(aUrl.contains("http://next.next")){
-				Log.e(TAG,"Bottom button clicked!");
 				goToPage(mPage+1);
 				return true;
 			}
 			if(aUrl.contains("http://refresh.refresh")){
-				Log.e(TAG,"Bottom button clicked!");
 				refresh();
 				return true;
 			}
@@ -719,7 +639,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private void syncThread() {
         if(getActivity() != null){
         	dataLoaded = false;
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD,getThreadId(),getPage(), Integer.valueOf(mUserId));
+        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
     
@@ -778,6 +698,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
         // If we're here because of a post result, refresh the thread
+    	//TODO change to use goto=lastpage (in case new post created new page) (issue: goto=last doesn't respond with perpage=XX)
         switch (aRequestCode) {
             case PostReplyFragment.RESULT_POSTED:
             	if(getPage() < getLastPage()){
@@ -889,36 +810,119 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
     }
 
-    private void handleStatusUpdate(int aStatus) {
-        switch (aStatus) {
-            case AwfulSyncService.Status.WORKING:
-                loadingStarted();
-                break;
-            case AwfulSyncService.Status.OKAY:
-                loadingSucceeded();
-                break;
-            case AwfulSyncService.Status.ERROR:
-                loadingFailed();
-                break;
-        };
+    @Override
+    public void loadingFailed(Message aMsg) {
+    	super.loadingFailed(aMsg);
+        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+        
+    	switch (aMsg.what) {
+	        case AwfulSyncService.MSG_SYNC_THREAD:
+	        	refreshPosts();
+	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	    			mNextPage.setColorFilter(0);
+	    			mPrevPage.setColorFilter(0);
+	    			mRefreshBar.setColorFilter(0);
+	            }
+	            break;
+	        case AwfulSyncService.MSG_SET_BOOKMARK:
+	        	refreshInfo();
+	            break;
+	        case AwfulSyncService.MSG_MARK_LASTREAD:
+	        	refreshInfo();
+	            refreshPosts();
+	            break;
+	        default:
+	        	Log.e(TAG,"Message not handled: "+aMsg.what);
+	        	break;
+    	}
     }
 
     @Override
-    public void loadingFailed() {
-    	super.loadingFailed();
-        if(getActivity() != null){
-        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        }
+    public void loadingStarted(Message aMsg) {
+    	super.loadingStarted(aMsg);
+    	switch(aMsg.what){
+		case AwfulSyncService.MSG_SYNC_THREAD:
+	    	if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	    		if(getPage() == getLastPage()){
+	    			mNextPage.setColorFilter(buttonSelectedColor);
+	    			mPrevPage.setColorFilter(0);
+	    			mRefreshBar.setColorFilter(0);
+	    		}else if(getPage() <= 1){
+	    			mPrevPage.setColorFilter(buttonSelectedColor);
+	    			mNextPage.setColorFilter(0);
+	    			mRefreshBar.setColorFilter(0);
+	    		}else{
+	    			mRefreshBar.setColorFilter(buttonSelectedColor);
+	    			mPrevPage.setColorFilter(0);
+	    			mNextPage.setColorFilter(0);
+	    		}
+	        }
+	        break;
+        default:
+        	Log.e(TAG,"Message not handled: "+aMsg.what);
+        	break;
+    	}
     }
 
     @Override
-    public void loadingStarted() {
-    	super.loadingStarted();
-    }
+	public void loadingUpdate(Message aMsg) {
+		super.loadingUpdate(aMsg);
+    	setProgress(aMsg.arg2/2);
+	}
 
-    @Override
-    public void loadingSucceeded() {
-    	super.loadingSucceeded();
+	@Override
+    public void loadingSucceeded(Message aMsg) {
+    	super.loadingSucceeded(aMsg);
+    	switch (aMsg.what) {
+    	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
+    		if(aMsg.obj instanceof String){
+    			Uri resultLink = Uri.parse(aMsg.obj.toString());
+    			String postJump = "";
+    			if(resultLink.getFragment() != null){
+    				postJump = resultLink.getFragment().replaceAll("\\D", "");
+    			}
+    			if(resultLink.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
+					String threadId = resultLink.getQueryParameter(Constants.PARAM_THREAD_ID);
+					String pageNum = resultLink.getQueryParameter(Constants.PARAM_PAGE);
+					if(pageNum != null && pageNum.matches("\\d+")){
+						int pageNumber = Integer.parseInt(pageNum);
+						int perPage = Constants.ITEMS_PER_PAGE;
+						String paramPerPage = resultLink.getQueryParameter(Constants.PARAM_PER_PAGE);
+						if(paramPerPage != null && paramPerPage.matches("\\d+")){
+							perPage = Integer.parseInt(paramPerPage);
+						}
+						if(perPage != mPrefs.postPerPage){
+							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
+						}
+						pushThread(Integer.parseInt(threadId), pageNumber, postJump);
+					}else{
+						pushThread(Integer.parseInt(threadId), 1, postJump);
+					}
+				}
+    		}
+    		break;
+        case AwfulSyncService.MSG_SYNC_THREAD:
+        	if(aMsg.arg2 == getPage()){
+	        	setProgress(50);
+	        	refreshPosts();
+	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
+	    			mNextPage.setColorFilter(0);
+	    			mPrevPage.setColorFilter(0);
+	    			mRefreshBar.setColorFilter(0);
+	            }
+        	}
+            break;
+        case AwfulSyncService.MSG_SET_BOOKMARK:
+        	refreshInfo();
+            break;
+        case AwfulSyncService.MSG_MARK_LASTREAD:
+        	refreshInfo();
+            refreshPosts();
+            break;
+        default:
+        	Log.e(TAG,"Message not handled: "+aMsg.what);
+        	break;
+    	}
     }
 
     private void populateThreadView(ArrayList<AwfulPost> aPosts) {
@@ -989,11 +993,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         // Post ID is the item tapped
         public void onEditClick(final String aPostId) {
-        	Bundle args = new Bundle();
-
-            args.putInt(Constants.THREAD_ID, mThreadId);
-            args.putInt(Constants.EDITING, AwfulMessage.TYPE_EDIT);
-            args.putInt(Constants.POST_ID, Integer.parseInt(aPostId));
 
 
             if(mReplyDraftSaved >0){
@@ -1263,20 +1262,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
     }
     
-    private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
-	private static final RotateAnimation mLoadingAnimation = 
-			new RotateAnimation(
-					0f, 360f,
-					Animation.RELATIVE_TO_SELF, 0.5f,
-					Animation.RELATIVE_TO_SELF, 0.5f);
-	static {
-		mFlashingAnimation.setInterpolator(new LinearInterpolator());
-		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
-		mFlashingAnimation.setDuration(500);
-		mLoadingAnimation.setInterpolator(new LinearInterpolator());
-		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
-		mLoadingAnimation.setDuration(700);
-	}
 	public void refreshInfo() {
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);

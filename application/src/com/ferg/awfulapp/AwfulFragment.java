@@ -1,7 +1,12 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +17,42 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
-
+	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
+	
+
+    protected Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+        	if(getActivity()!= null){
+	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
+	        	if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
+	        		loadingUpdate(aMsg);
+	        	}else{
+		            switch (aMsg.arg1) {
+		                case AwfulSyncService.Status.WORKING:
+		                    loadingStarted(aMsg);
+		                    break;
+		                case AwfulSyncService.Status.OKAY:
+		                    loadingSucceeded(aMsg);
+		                    break;
+		                case AwfulSyncService.Status.ERROR:
+		                    loadingFailed(aMsg);
+		                    break;
+		            };
+	        	}
+        	}
+        }
+    };
+
+    protected Messenger mMessenger = new Messenger(mHandler);
     
     @Override
     public void onAttach(Activity aActivity) {
@@ -92,7 +126,14 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		AwfulActivity aa = getAwfulActivity();
 		if(aa != null){
 			aa.setSupportProgressBarVisibility(percent<100);
+        	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgress(percent*100);
+		}
+	}
+	
+	protected void setTitle(String title){
+		if(getActivity()!=null){
+			getAwfulActivity().setActionbarTitle(title, this);
 		}
 	}
 	
@@ -103,24 +144,34 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	}
 	
 	@Override
-    public void loadingFailed() {
-        if(getActivity() != null){
-        	getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
+    public void loadingFailed(Message aMsg) {
+		AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+        	aa.setSupportProgressBarIndeterminateVisibility(false);
+			aa.setSupportProgressBarVisibility(false);
         }
     }
 
     @Override
-    public void loadingStarted() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(true);
+    public void loadingStarted(Message aMsg) {
+		AwfulActivity aa = getAwfulActivity();
+    	if(aa != null){
+    		aa.setSupportProgressBarIndeterminateVisibility(true);
     	}
     }
 
     @Override
-    public void loadingSucceeded() {
-    	if(getActivity() != null){
-    		getAwfulActivity().setSupportProgressBarIndeterminateVisibility(false);
+    public void loadingSucceeded(Message aMsg) {
+		AwfulActivity aa = getAwfulActivity();
+    	if(aa != null){
+    		aa.setSupportProgressBarIndeterminateVisibility(false);
+			aa.setSupportProgressBarVisibility(false);
     	}
+    }
+    
+    @Override
+    public void loadingUpdate(Message aMsg) {
+    	setProgress(aMsg.arg2);
     }
 
 	@Override
