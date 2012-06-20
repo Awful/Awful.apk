@@ -113,17 +113,27 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         measureView(mRefreshView);
         mRefreshViewHeight = mRefreshView.getMeasuredHeight();
     }
+    
+    public void setTextColors(int primary, int secondary){
+    	if(mRefreshViewText != null && mRefreshViewLastUpdated != null){
+	    	mRefreshViewText.setTextColor(primary);
+	    	mRefreshViewLastUpdated.setTextColor(secondary);
+    	}
+    }
 
     @Override
     protected void onAttachedToWindow() {
+    	Log.e("PULLREFRESH","onAttachedToWindow setSelection");
         setSelection(1);
     }
 
     @Override
     public void setAdapter(ListAdapter adapter) {
         super.setAdapter(adapter);
-
-        setSelection(1);
+        if (mRefreshView.getBottom() > 0) {
+        	Log.e("PULLREFRESH","setAdapter setSelection");
+        	setSelection(1);
+        }
     }
 
     /**
@@ -182,6 +192,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                         // Abort refresh and scroll down below the refresh view
                         resetHeader();
                         setSelection(1);
+                    	Log.e("PULLREFRESH","onTouchEvent setSelection");
                     }
                 }
                 break;
@@ -306,9 +317,11 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
                 && firstVisibleItem == 0
                 && mRefreshState != REFRESHING) {
             setSelection(1);
+        	Log.e("PULLREFRESH","SCROLL_STATE_FLING setSelection");
             mBounceHack = true;
         } else if (mBounceHack && mCurrentScrollState == SCROLL_STATE_FLING) {
             setSelection(1);
+        	Log.e("PULLREFRESH","mBounceHack setSelection");
         }
 
         if (mOnScrollListener != null) {
@@ -374,6 +387,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         if (mRefreshView.getBottom() > 0) {
             invalidateViews();
             setSelection(1);
+        	Log.e("PULLREFRESH","onRefreshComplete setSelection");
         }
     }
 
