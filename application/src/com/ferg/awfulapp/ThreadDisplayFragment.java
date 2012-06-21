@@ -340,7 +340,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
-		mThreadView.getSettings().setRenderPriority(RenderPriority.HIGH);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

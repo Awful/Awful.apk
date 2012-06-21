@@ -106,7 +106,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        	mViewPager.setCurrentItem(2);
 	        }
 	        Uri data = getIntent().getData();
-	        if(data != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
+	        if(data != null && data.getLastPathSegment() != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
 	        	mViewPager.setCurrentItem(1);
 	        }
         }
