@@ -86,7 +86,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private static final String TAG = "ThreadDisplayActivity";
+    private static final String TAG = "ThreadDisplayFragment";
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;

@@ -28,7 +28,9 @@
 package com.ferg.awfulapp;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import android.app.Activity;
 import android.content.Context;
@@ -75,7 +77,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         return new ForumsIndexFragment();
     }
     
-    private AwfulTreeAdapter mCursorAdapter;
+    private AwfulExpandableListAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
     
     @Override
@@ -118,7 +120,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         mIsSidebar = isSideBar();
-        mCursorAdapter = new AwfulTreeAdapter(getActivity());
+        mCursorAdapter = new AwfulExpandableListAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
     }
 
@@ -218,32 +220,14 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		public boolean onItemLongClick(AdapterView<?> parent, View v,
 				int position, long id) {
 			Log.e(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id) );
-			if(ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP){
-				int gId = ExpandableListView.getPackedPositionGroup(id);
-				int gPos = mCursorAdapter.getGroupPosition(gId);
-				if(mForumList.isGroupExpanded(gPos)){
-					mForumList.collapseGroup(gPos);
-				}else{
-					mForumList.expandGroup(gPos);
-				}
-				return true;
+			if(mForumList.isGroupExpanded(position)){
+				mForumList.collapseGroup(position);
+			}else{
+				mForumList.expandGroup(position);
 			}
-			return false;
+			return true;
 		}
     	
-    };
-
-    private View.OnClickListener onButtonClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            switch (aView.getId()) {
-                case R.id.user_cp:
-                    displayUserCP();
-                    break;
-                case R.id.refresh:
-                	syncForums();
-                    break;
-            }
-        }
     };
 
     public void displayUserCP() {
@@ -303,22 +287,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		super.loadingSucceeded(aMsg);
 		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
 	}
-
-
-	private static final AlphaAnimation mFlashingAnimation = new AlphaAnimation(1f, 0f);
-	private static final RotateAnimation mLoadingAnimation = 
-			new RotateAnimation(
-					0f, 360f,
-					Animation.RELATIVE_TO_SELF, 0.5f,
-					Animation.RELATIVE_TO_SELF, 0.5f);
-	static {
-		mFlashingAnimation.setInterpolator(new LinearInterpolator());
-		mFlashingAnimation.setRepeatCount(Animation.INFINITE);
-		mFlashingAnimation.setDuration(500);
-		mLoadingAnimation.setInterpolator(new LinearInterpolator());
-		mLoadingAnimation.setRepeatCount(Animation.INFINITE);
-		mLoadingAnimation.setDuration(700);
-	}
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
@@ -343,155 +311,162 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load Index Cursor: "+aId);
-            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, AwfulForum.PARENT_ID+"=?", new String[]{Integer.toString(aId)}, AwfulForum.INDEX);
+            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, null, null, AwfulForum.INDEX);
         }
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Index cursor: "+aLoader.getId());
-        	if(aData.moveToFirst()){
-        		if(aLoader.getId() == 0){
-        			mCursorAdapter.setGroupCursor(aData);
-        			if(aData.getCount() < 3){
-        				syncForums();
-        			}
-        		}else{
-        			int groupId = mCursorAdapter.getGroupPosition(aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID)));
-        			if(groupId >=0){
-        				mCursorAdapter.setChildrenCursor(groupId, aData);
-        			}
-        		}
-        	}else{
-                syncForums();
+        	if(aData.moveToFirst() && !aData.isClosed()){
+    			mCursorAdapter.setCursor(aData);
         	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			Log.e(TAG,"resetLoader: "+arg0.getId());
-			if(arg0.getId() == 0){
-    			mCursorAdapter.setGroupCursor(null);
-    		}else{
-    			int groupId = mCursorAdapter.getGroupPosition(arg0.getId());
-    			if(groupId >=0){
-    				if(mForumList.isGroupExpanded(groupId)){
-    					mForumList.collapseGroup(groupId);
-    				}
-    				mCursorAdapter.setChildrenCursor(groupId, null);
-    			}
-    		}
 		}
     }
 	
-	private class AwfulTreeAdapter extends CursorTreeAdapter{
-		private LayoutInflater inf;
-		private AQuery rowAq;
-		
-		public AwfulTreeAdapter(Context context) {
-			super(null, context, false);
-			inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			rowAq = new AQuery(context);
+	public class ForumEntry{
+		public int id;
+		public int parentId;
+		public String title;
+		public String subtitle;
+		public String tagUrl;
+		public ArrayList<ForumEntry> subforums = new ArrayList<ForumEntry>();
+		public ForumEntry(int aId, int parent, String aTitle, String aSubtitle, String aTagUrl){
+			id = aId; parentId = parent; title = aTitle; subtitle = aSubtitle; tagUrl = aTagUrl;
 		}
-		
-		public int getGroupPosition(int parent) {
-			Cursor groupCursor = getCursor();
-			if(groupCursor!=null && !groupCursor.isClosed() && groupCursor.moveToFirst()){
-				int column = groupCursor.getColumnIndex(AwfulForum.ID);
-				do{
-					if(groupCursor.getInt(column) == parent){
-						return groupCursor.getPosition();
-					}
-				}while(groupCursor.moveToNext());
-			}else{
-				Log.e(TAG, "CLOSED CURSOR! "+parent);
-			}
-			return -1;
-		}
-
-		@Override
-		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
-			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			AwfulForum.getSubforumView(view,
-							   rowAq,
-							   mPrefs,
-							   cursor,
-							   mIsSidebar,
-							   selectedId > -1 && selectedId == id);
-			getAwfulActivity().setPreferredFont(view);
-		}
-
-		@Override
-		protected void bindGroupView(View view, Context context, Cursor cursor,
-				boolean isExpanded) {
-			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			AwfulForum.getSubforumView(view,
-							   rowAq,
-							   mPrefs,
-							   cursor,
-							   mIsSidebar,
-							   selectedId > -1 && selectedId == id);
-			getAwfulActivity().setPreferredFont(view);
-		}
-
-		@Override
-		protected View newChildView(Context context, Cursor cursor,
-				boolean isLastChild, ViewGroup parent) {
-			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			View row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row,
-					rowAq,
-							   mPrefs,
-							   cursor,
-							   mIsSidebar,
-							   selectedId > -1 && selectedId == id);
-			getAwfulActivity().setPreferredFont(row);
-			return row;
-		}
-
-		@Override
-		protected View newGroupView(Context context, Cursor cursor,
-				boolean isExpanded, ViewGroup parent) {
-			int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
-			View row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, 
-					rowAq,
-							   mPrefs,
-							   cursor,
-							   mIsSidebar,
-							   selectedId > -1 && selectedId == id);
-			getAwfulActivity().setPreferredFont(row);
-			return row;
-		}
-
-		@Override
-		protected Cursor getChildrenCursor(Cursor groupCursor) {
-			int parentId = groupCursor.getInt(groupCursor.getColumnIndex(AwfulForum.ID));
-			Log.v(TAG, "getChildrenCursor "+parentId);
-			getLoaderManager().restartLoader(parentId, null, mForumLoaderCallback);
-			return null;
-		}
-		private HashMap<Integer,ImageView> imageQueue = new HashMap<Integer,ImageView>();
-		private HashMap<String,Bitmap> imageCache = new HashMap<String,Bitmap>();
-		private Handler mImageHandler = new Handler(){
-
-			@Override
-			public void handleMessage(Message msg) {
-				Log.i(TAG,"Image Message: "+msg.arg1);
-				if(msg.arg1 == AwfulSyncService.Status.OKAY && msg.what == AwfulSyncService.MSG_GRAB_IMAGE){
-					ImageView imgTag = imageQueue.remove(msg.arg2);
-					if(imgTag != null){
-						AwfulThread.setBitmap(getActivity(), imgTag, imageCache);
-					}
-				}
-			}
-			
-		};
-		private Messenger mReplyTo = new Messenger(mImageHandler);
 	}
 	
+	private class AwfulExpandableListAdapter extends BaseExpandableListAdapter {
+		private LayoutInflater inf;
+		private AQuery rowAq;
+		private ArrayList<ForumEntry> parentForums = new ArrayList<ForumEntry>();
+		private HashMap<Integer, ForumEntry> forums = new HashMap<Integer, ForumEntry>();
+		
+		public AwfulExpandableListAdapter(Context parent){
+			rowAq = new AQuery(parent);
+			inf = (LayoutInflater) parent.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+		
+		public void setCursor(Cursor data){
+			parentForums.clear();
+			forums.clear();
+			if(data != null && !data.isClosed() && data.moveToFirst()){
+				LinkedList<ForumEntry> tmpSubforums = new LinkedList<ForumEntry>();
+				do{
+					if(data.getInt(data.getColumnIndex(AwfulForum.ID)) <= 0){
+						continue;
+					}
+					ForumEntry forum = new ForumEntry(data.getInt(data.getColumnIndex(AwfulForum.ID)),
+													  data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)),
+													  data.getString(data.getColumnIndex(AwfulForum.TITLE)),
+													  data.getString(data.getColumnIndex(AwfulForum.SUBTEXT)),
+													  data.getString(data.getColumnIndex(AwfulForum.TAG_URL))
+													  );
+					if(forum.parentId != 0){
+						tmpSubforums.add(forum);
+					}else{
+						parentForums.add(forum);
+					}
+					forums.put(forum.id, forum);
+				}while(data.moveToNext());
+				//do subforums after parent forums, in case we have subforums out of order
+				for(ForumEntry sub : tmpSubforums){
+					ForumEntry parent = forums.get(sub.parentId);
+					if(parent != null){
+						parent.subforums.add(sub);
+					}
+				}
+				tmpSubforums.clear();
+			}
+			notifyDataSetChanged();
+		}
+		
+		public ForumEntry getForum(int id){
+			return forums.get(id);
+		}
+		
+		public int getGroupPosition(int id){
+			return parentForums.indexOf(forums.get(id));
+		}
+		
+		@Override
+		public ForumEntry getChild(int groupPosition, int childPosition) {
+			return parentForums.get(groupPosition).subforums.get(childPosition);
+		}
+
+		@Override
+		public long getChildId(int groupPosition, int childPosition) {
+			return parentForums.get(groupPosition).subforums.get(childPosition).id;
+		}
+
+		@Override
+		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+			if(convertView == null || convertView.getId() == R.layout.thread_item){
+				convertView = inf.inflate(R.layout.thread_item, parent, false);
+			}
+			ForumEntry forum = parentForums.get(groupPosition).subforums.get(childPosition);
+			AwfulForum.getExpandableForumView(convertView,
+							   rowAq,
+							   mPrefs,
+							   forum,
+							   selectedId > -1 && selectedId == forum.id,
+							   false);
+			getAwfulActivity().setPreferredFont(convertView);
+			return convertView;
+		}
+
+		@Override
+		public int getChildrenCount(int groupPosition) {
+			return parentForums.get(groupPosition).subforums.size();
+		}
+
+		@Override
+		public ForumEntry getGroup(int groupPosition) {
+			return parentForums.get(groupPosition);
+		}
+
+		@Override
+		public int getGroupCount() {
+			return parentForums.size();
+		}
+
+		@Override
+		public long getGroupId(int groupPosition) {
+			return parentForums.get(groupPosition).id;
+		}
+
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+			if(convertView == null || convertView.getId() == R.layout.thread_item){
+				convertView = inf.inflate(R.layout.thread_item, parent, false);
+			}
+			ForumEntry forum = parentForums.get(groupPosition);
+			AwfulForum.getExpandableForumView(convertView,
+							   rowAq,
+							   mPrefs,
+							   forum,
+							   selectedId > -1 && selectedId == forum.id,
+							   forum.subforums.size() > 0);
+			getAwfulActivity().setPreferredFont(convertView);
+			return convertView;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return true;
+		}
+
+		@Override
+		public boolean isChildSelectable(int groupPosition, int childPosition) {
+			return true;
+		}
+		
+	}
 	
-
-
 	private int selectedId = -1;
 	public void setSelected(int id){
 		selectedId = id;

@@ -58,6 +58,7 @@ import org.htmlcleaner.XPatherException;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -303,6 +304,37 @@ public class AwfulForum extends AwfulPagedItem {
 		String tagFile = data.getString(data.getColumnIndex(TAG_URL));
 		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			aq.id(R.id.forum_tag).visible().image(tagFile, true, true);
+		}else{
+			aq.id(R.id.forum_tag).gone();
+		}
+	}
+	
+	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
+		aq.recycle(current);
+		aq.find(R.id.icon_box).gone();
+		if(hasChildren){
+			aq.find(R.id.selector).visible().image(R.drawable.light_inline_more);
+		}else{
+			aq.find(R.id.selector).gone();
+		}
+		aq.find(R.id.unread_count).gone();
+		//if(selected){
+		//	aq.find(R.id.selector).visible();
+		//}else{
+		//	aq.find(R.id.selector).gone();
+		//}
+		TextView title = (TextView) current.findViewById(R.id.title);
+		title.setTypeface(null, Typeface.BOLD);
+		String titleText = (data.title != null ? data.title : "");
+		aq.find(R.id.title).textColor(aPrefs.postFontColor).text(Html.fromHtml(titleText));
+		if(data.subtitle != null && data.subtitle.length() > 0){
+			aq.find(R.id.threadinfo).visible().textColor(aPrefs.postFontColor2).text(Html.fromHtml(data.subtitle));
+		}else{
+			aq.find(R.id.threadinfo).gone();
+		}
+		
+		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
+			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);
 		}else{
 			aq.id(R.id.forum_tag).gone();
 		}

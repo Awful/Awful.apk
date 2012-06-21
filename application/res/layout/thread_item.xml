@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/gradient_left" >
+    android:layout_height="fill_parent" >
 
     <RelativeLayout
         android:id="@+id/icon_box"
@@ -78,7 +77,7 @@
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
             android:textColor="@color/secondary_post_font"
-            android:textSize="16dip" />
+            android:textSize="14dip" />
 
         <TextView
             android:id="@+id/unread_count"
