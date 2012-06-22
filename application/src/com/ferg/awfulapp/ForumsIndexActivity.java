@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -58,6 +59,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
     private boolean skipLoad = false;
+    
+    private Handler mHandler = new Handler();
     
     
     private AwfulViewPager mViewPager;
@@ -174,7 +177,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 				mThreadFragment = (ThreadDisplayFragment) frag;
 				break;
 			default:
-				Log.e(TAG,"TAB COUNT OUT OF BOUNDS");
+				Log.e(TAG,"INSTANTIATING TEMPORARY TAB: "+frag.toString());
 			}
 			return frag;
 		}
@@ -292,7 +295,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     			PostReplyFragment frag = (PostReplyFragment) apf;
     			//TODO multiquote stuff
     			//((PostReplyFragment) apf).multiQuote(postId);
-    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
     			frag.newReply(threadId, postId, type);
     		}else{
     	    	Bundle args = new Bundle();
@@ -300,8 +302,14 @@ public class ForumsIndexActivity extends AwfulActivity {
     	        args.putInt(Constants.EDITING, type);
     	        args.putInt(Constants.POST_ID, postId);
     			pagerAdapter.addFragment(PostReplyFragment.newInstance(args));
-    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
     		}
+    		mHandler.post(new Runnable(){
+				@Override
+				public void run() {
+					//so it seems if you setCurrentItem() while an ActionbarSherlock submenu is visible, you'll crash. good to know.
+	    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
+				}
+    		});
     	}else{
     		super.displayReplyWindow(threadId, postId, type);
     	}

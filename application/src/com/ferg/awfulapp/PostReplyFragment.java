@@ -75,7 +75,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private Bundle mExtras;
     private EditText mMessage;
     private ProgressDialog mDialog;
-    private AwfulPreferences mPrefs;
 
     private int mThreadId;
     private int mPostId;
@@ -118,9 +117,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-        result.findViewById(R.id.bbcode).setOnClickListener(this);
-        result.findViewById(R.id.emotes).setOnClickListener(this);
-        mPrefs = new AwfulPreferences(getActivity());
+        //result.findViewById(R.id.bbcode).setOnClickListener(this);
+        //result.findViewById(R.id.emotes).setOnClickListener(this);
 
         return result;
     }
@@ -228,6 +226,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		Log.d(TAG,"onCreateOptionsMenu");
             inflater.inflate(R.menu.post_reply, menu);
     }
     
@@ -556,10 +555,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	}else{
 		        if(mDialog == null && getActivity() != null){
 		        	Log.e(TAG, "DISPLAYING DIALOG");
-		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
+		        	//mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
 		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
 		        }
         	}
+        	Log.e(TAG, "CLOSING CURSOR");
         	aData.close();
         }
         

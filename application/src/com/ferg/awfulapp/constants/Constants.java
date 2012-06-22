@@ -149,7 +149,13 @@ public class Constants {
 	public static final String THREAD_PAGE = "thread_page";
 
 
-
+	/**
+	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.
+	 * @return
+	 */
+	public static boolean isFroyo() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+	}
 	public static boolean isGingerbread(){
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
 	}
