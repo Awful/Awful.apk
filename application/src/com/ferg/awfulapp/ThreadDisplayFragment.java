@@ -52,6 +52,8 @@ import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -88,6 +90,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayFragment";
+    private static final boolean DEBUG = true;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -147,18 +150,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
-			if(!isResumed()){
-				Log.e(TAG,"PageFinished after pausing. Forcing Webview.pauseTimers");
-				mHandler.postDelayed(new Runnable(){
-					@Override
-					public void run() {
-						if(mThreadView != null){
-							mThreadView.pauseTimers();
-							mThreadView.onPause();
-						}
-					}
-				}, 500);
-			}
 		}
 
 		public void onLoadResource(WebView view, String url) {
@@ -195,18 +186,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						int pageNumber = Integer.parseInt(pageNum);
+						int pageNumber = Integer.parseInt(pageNum.replaceAll("\\D", ""));
 						int perPage = Constants.ITEMS_PER_PAGE;
 						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
 						if(paramPerPage != null && paramPerPage.matches("\\d+")){
-							perPage = Integer.parseInt(paramPerPage);
+							perPage = Integer.parseInt(paramPerPage.replaceAll("\\D", ""));
 						}
 						if(perPage != mPrefs.postPerPage){
 							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
 						}
-						pushThread(Integer.parseInt(threadId), pageNumber, "");
+						pushThread(Integer.parseInt(threadId.replaceAll("\\D", "")), pageNumber, "");
 					}else{
-						pushThread(Integer.parseInt(threadId), 1, "");
+						pushThread(Integer.parseInt(threadId.replaceAll("\\D", "")), 1, "");
 					}
 					return true;
 				}
@@ -216,9 +207,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String forumId = link.getQueryParameter(Constants.PARAM_FORUM_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						displayForum(Integer.parseInt(forumId), Integer.parseInt(pageNum));
+						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), Integer.parseInt(pageNum.replaceAll("\\D", "")));
 					}else{
-						displayForum(Integer.parseInt(forumId), 1);
+						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), 1);
 					}
 					return true;
 				}
@@ -342,9 +333,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        //if(Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
-        //	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
-        //}
+        if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
+        	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
+        }
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
@@ -353,32 +344,32 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
 			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-				Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
+				if(DEBUG) Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
 			}
 
 			@Override
 			public void onCloseWindow(WebView window) {
 				super.onCloseWindow(window);
-				Log.e(TAG,"onCloseWindow");
+				if(DEBUG) Log.e(TAG,"onCloseWindow");
 			}
 
 			@Override
 			public boolean onCreateWindow(WebView view, boolean isDialog,
 					boolean isUserGesture, Message resultMsg) {
-				Log.e(TAG,"onCreateWindow"+(isDialog?" isDialog":"")+(isUserGesture?" isUserGesture":""));
+				if(DEBUG) Log.e(TAG,"onCreateWindow"+(isDialog?" isDialog":"")+(isUserGesture?" isUserGesture":""));
 				return super.onCreateWindow(view, isDialog, isUserGesture, resultMsg);
 			}
 
 			@Override
 			public boolean onJsTimeout() {
-				Log.e(TAG,"onJsTimeout");
+				if(DEBUG) Log.e(TAG,"onJsTimeout");
 				return super.onJsTimeout();
 			}
 
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
 				super.onProgressChanged(view, newProgress);
-				Log.e(TAG,"onProgressChanged: "+newProgress);
+				if(DEBUG) Log.e(TAG,"onProgressChanged: "+newProgress);
 				setProgress(newProgress/2+50);//second half of progress bar
 			}
 			
@@ -411,14 +402,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void onStart() {
-        super.onStart(); Log.e(TAG, "onStart");
-        
+        super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
+        //recreate that fucking webview if we don't have it yet
+        if(mThreadView == null){
+            mThreadView = new WebView(getActivity());
+
+            initThreadViewProperties();
+            mThreadWindow.removeAllViews();
+            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        	refreshPosts();
+        }
     }
     
 
     @Override
     public void onResume() {
-        super.onResume(); Log.e(TAG, "Resume");
+        super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
         resumeWebView();
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
@@ -452,7 +452,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
     @Override
     public void onPause() {
-        super.onPause(); Log.e(TAG, "onPause");
+        super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
         pauseWebView();
@@ -467,32 +467,37 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
     @Override
     public void onStop() {
-        super.onStop(); Log.e(TAG, "onStop");
+        super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         if (mThreadView != null) {
+        	//SALT THE FUCKING EARTH
         	mThreadView.stopLoading();
+        	savedScrollPosition = mThreadView.getScrollY();
+        	mThreadWindow.removeAllViews();
+        	mThreadView.destroy();
+        	mThreadView = null;
         }
     }
     
     @Override
     public void onDestroyView(){
-    	super.onDestroyView(); Log.e(TAG, "onDestroyView");
-        try {
-            mThreadWindow.removeView(mThreadView);
-            mThreadView.destroy();
-            mThreadView = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
+        //try {
+        //    mThreadWindow.removeView(mThreadView);
+        //    mThreadView.destroy();
+        //    mThreadView = null;
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
     }
     @Override
     public void onDestroy() {
-        super.onDestroy(); Log.e(TAG, "onDestroy");
+        super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         getLoaderManager().destroyLoader(getThreadId());
     }
 
     @Override
     public void onDetach() {
-        super.onDetach(); Log.e(TAG, "onDetach");
+        super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
     }
     
     public boolean isDualPane(){
@@ -505,7 +510,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
-    	Log.e(TAG, "onCreateOptionsMenu");
+    	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
     	}
@@ -513,7 +518,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-    	Log.e(TAG, "onCreateOptionsMenu");
+    	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
         if(menu == null){
             return;
         }
@@ -631,7 +636,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
-    	Log.v(TAG,"onSaveInstanceState");
+    	if(DEBUG) Log.v(TAG,"onSaveInstanceState");
         outState.putInt(Constants.THREAD_PAGE, getPage());
     	outState.putInt(Constants.THREAD_ID, getThreadId());
     	if(mThreadView != null){
@@ -934,9 +939,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-
-            mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", 
-            		AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed), "text/html", "utf-8", null);//TODO fix
+            
+            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed);
+            //if(DEBUG && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            //	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
+            //	out.write(html.getBytes());
+            //	out.close();
+            //}
+            mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1055,7 +1065,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		Log.e(TAG,"onCreateActionMode");
+		if(DEBUG) Log.e(TAG,"onCreateActionMode");
 		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
 		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Show Image");
 		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
@@ -1064,7 +1074,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		Log.e(TAG,"onPrepareActionMode");
+		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
 		MenuItem inline = menu.findItem(R.id.content);
 		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
 			Uri link = Uri.parse(mActionModeURL);
@@ -1260,7 +1270,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         @Override
         public void onChange (boolean selfChange){
-        	Log.e(TAG,"Thread Data update.");
+        	if(DEBUG) Log.e(TAG,"Thread Data update.");
         	refreshInfo();
         }
     }

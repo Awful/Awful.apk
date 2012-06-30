@@ -77,7 +77,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
                 	loadingSucceeded(null);
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM){
+                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
                 		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
                 	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){

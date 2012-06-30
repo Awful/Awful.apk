@@ -94,7 +94,8 @@ import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
     
-    private PullToRefreshListView mListView;//TODO replace with custom pull-to-refresh
+    //private PullToRefreshListView mListView;//TODO replace with custom pull-to-refresh
+    private ListView mListView;//TODO replace with custom pull-to-refresh
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -148,15 +149,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
 
-        mListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
+        mListView = (ListView) result.findViewById(R.id.forum_list);
         mListView.setDrawingCacheEnabled(true);
-        mListView.setOnRefreshListener(new OnRefreshListener() {
+        /*mListView.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override
 			public void onRefresh() {
 				syncForum();
 			}
-		});
+		});*///TODO fixing thread list on jb
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -193,8 +194,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         
         if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
-        	mForumId = args.getInt(Constants.FORUM_ID, mForumId);
-        	mPage = args.getInt(Constants.FORUM_PAGE, 1);
+        	mForumId = aSavedState.getInt(Constants.FORUM_ID, mForumId);
+        	mPage = aSavedState.getInt(Constants.FORUM_PAGE, 1);
         }
         
         //parsing forum id
@@ -525,13 +526,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
         Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        mListView.onRefreshComplete("Loading Failed!");
+        //mListView.onRefreshComplete("Loading Failed!");//TODO fixing thread list on jb
     }
 
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		mListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
+		//mListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));//TODO fixing thread list on jb
 		
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
@@ -568,7 +569,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mListView!=null){
 			mListView.setBackgroundColor(prefs.postBackgroundColor);
 			mListView.setCacheColorHint(prefs.postBackgroundColor);
-			mListView.setTextColors(prefs.postFontColor, prefs.postFontColor2);
+			//mListView.setTextColors(prefs.postFontColor, prefs.postFontColor2);//TODO fixing thread list on jb
 		}
 		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
@@ -690,7 +691,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 					mCursorAdapter.swapCursor(aData);
 				}
 			}
-			mListView.onRefreshComplete();
+			//mListView.onRefreshComplete();//TODO fixing thread list on jb
         }
 
 		@Override
@@ -734,7 +735,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 					mCursorAdapter.swapCursor(combinedCursors[0]);
 				}
 			}
-			mListView.onRefreshComplete();
+			//mListView.onRefreshComplete();//TODO fixing thread list on jb
         }
 
 		@Override
