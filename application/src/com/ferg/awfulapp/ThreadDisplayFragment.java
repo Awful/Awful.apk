@@ -406,7 +406,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         //recreate that fucking webview if we don't have it yet
         if(mThreadView == null){
             mThreadView = new WebView(getActivity());
-
+            mThreadView.setId(R.id.thread);
             initThreadViewProperties();
             mThreadWindow.removeAllViews();
             mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
@@ -428,7 +428,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(getActivity() != null){
 	        if (mThreadView == null) {
 	            mThreadView = new WebView(getActivity());
-	
+	            mThreadView.setId(R.id.thread);
 	            initThreadViewProperties();
 	            mThreadWindow.removeAllViews();
 	            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(

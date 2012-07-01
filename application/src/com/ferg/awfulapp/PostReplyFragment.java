@@ -149,9 +149,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     private void leave(){
-    	if(getAwfulActivity() != null){
+    	if(getAwfulActivity() != null && getView() != null){
     		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+    		if(imm != null){
+    			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+    		}
     		getAwfulActivity().fragmentClosing(this);
     	}
     }

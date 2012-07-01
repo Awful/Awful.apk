@@ -137,6 +137,13 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		}
 	}
 	
+	protected boolean isFragmentVisible(){
+		if(getActivity()!=null){
+			return getAwfulActivity().isFragmentVisible(this);
+		}
+		return false;
+	}
+	
 	protected void startActionMode(){
 		if(getAwfulActivity() != null){
 			getAwfulActivity().startActionMode(this);

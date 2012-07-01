@@ -89,11 +89,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mPrefs = new AwfulPreferences(this, this);
-        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
         loggedIn = NetworkUtils.restoreLoginCookies(this);
     }
 
@@ -101,6 +99,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onStart() {
         super.onStart();
         mConf.onStart();
+        registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
+        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
     
     @Override
@@ -121,14 +121,14 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onStop() {
         super.onStop();
         mConf.onStop();
+        unbindService(this);
+        unregisterReceiver(br);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mConf.onDestroy();
-        unbindService(this);
-        unregisterReceiver(br);
     }
 
 
@@ -163,6 +163,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 				e.printStackTrace();
 			}
         }
+        mMessageQueue.clear();
 	}
 
 	@Override
@@ -266,6 +267,10 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 			loggedIn = NetworkUtils.restoreLoginCookies(this);
 		}
 		return loggedIn;
+	}
+
+	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
+		return true;
 	}
 	
 	//UNUSED - I don't know why I put them in the same interface. Oh well.

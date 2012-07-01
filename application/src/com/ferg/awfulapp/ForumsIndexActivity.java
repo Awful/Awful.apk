@@ -337,6 +337,15 @@ public class ForumsIndexActivity extends AwfulActivity {
 	}
 
 
+	@Override
+	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
+		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
+			return awfulFragment.equals(pagerAdapter.getItem(mViewPager.getCurrentItem())); 
+		}
+		return true;
+	}
+
+
 	public void setContentPane(int aForumId) {
     	mForumId = aForumId;
         if(mForumFragment == null && isDualPane()){
