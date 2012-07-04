@@ -31,7 +31,7 @@
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     <string name="prefs_salr">SALR Preferences</string>
     <string name="inline_youtube">Embedded Youtube</string>
-    <string name="inline_youtube_summary">Display Youtube videos within a post</string>
+    <string name="inline_youtube_summary">EXPERIMENTAL! Requires ICS or above.</string>
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>

@@ -51,6 +51,7 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 /**
@@ -91,6 +92,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		findPreference("inline_youtube").setEnabled(Constants.isICS());
 		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);

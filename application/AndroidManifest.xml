@@ -49,8 +49,7 @@
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light"/>
         <activity 
             android:name="com.ferg.awfulapp.ThreadDisplayActivity"
-          	android:configChanges="orientation|keyboardHidden|screenSize"
-            android:hardwareAccelerated="false">
+          	android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />

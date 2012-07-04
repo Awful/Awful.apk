@@ -339,7 +339,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
-			mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+			if(!mPrefs.inlineYoutube){
+				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+			}
 		}
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
