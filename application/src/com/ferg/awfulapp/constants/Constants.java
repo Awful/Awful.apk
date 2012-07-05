@@ -148,6 +148,8 @@ public class Constants {
 	//NOT FOR NETWORK USE
 	public static final String THREAD_PAGE = "thread_page";
 
+	public static final int LOGIN_ACTIVITY_REQUEST = 99;
+
 
 	/**
 	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.

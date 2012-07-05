@@ -149,9 +149,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     private void leave(){
-    	if(getAwfulActivity() != null && getView() != null){
+    	if(getAwfulActivity() != null){
     		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-    		if(imm != null){
+    		if(imm != null && getView() != null){
     			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
     		}
     		getAwfulActivity().fragmentClosing(this);
@@ -177,16 +177,16 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     private void autosave(){
-        if(!sendSuccessful){
+        if(!sendSuccessful && mMessage != null){
         	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", ""))){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
+        		mMessage.setText("");
         	}else{
         		Log.i(TAG, "Message Unsent, saving.");
         		saveReply();
         	}
         }
-        mMessage.setText("");
     }
 
 	@Override
@@ -339,6 +339,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             	deleteReply();
             	leave();
                 break;
+            case R.id.save_draft:
+            	saveReply();
+            	leave();
+            	break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -619,6 +623,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
 	@Override
 	public void onPageHidden() {
+		autosave();
 		if(getActivity() != null && mMessage != null){
 			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mMessage.getApplicationWindowToken(), 0);
@@ -643,11 +648,15 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		case AwfulMessage.TYPE_QUOTE:
 			return "Quote"+title;
 		}
-		return "Loading";//TODO replace with thread name
+		return "Loading";
 	}
 
 	public void newReply(int threadId, int postId, int type) {
-		deleteReply();
+		if(threadId == mThreadId){
+			deleteReply();
+		}else{
+			autosave();
+		}
 		mThreadId = threadId;
 		mPostId = postId;
 		mReplyType = type;

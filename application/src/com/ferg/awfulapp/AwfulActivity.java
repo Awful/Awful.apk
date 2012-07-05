@@ -9,6 +9,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -59,27 +60,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     private AwfulPreferences mPrefs;
     
-    private boolean isActive = false;
-    private BroadcastReceiver br = new BroadcastReceiver(){
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if(intent.getAction().equals(Constants.UNREGISTERED_BROADCAST)){
-				clearCookies();
-				if(isActive){
-					Toast.makeText(AwfulActivity.this, "You are logged out!", Toast.LENGTH_LONG).show();
-					reauthenticate();
-				}
-			}
-		}
-    };
-    
-    private void clearCookies(){
-        NetworkUtils.clearLoginCookies(this);
-    }
-    
     private void reauthenticate(){
-        startActivity(new Intent(this, AwfulLoginActivity.class));
+        startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
     }
     
     @Override
@@ -99,7 +81,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onStart() {
         super.onStart();
         mConf.onStart();
-        registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
     
@@ -107,14 +88,20 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onResume() {
         super.onResume();
         mConf.onResume();
-        isActive = true;
+        
+        if (isLoggedIn()) {
+            Log.v(TAG, "Cookie Loaded!");
+        } else {
+        	if(!(this instanceof AwfulLoginActivity)){
+        		reauthenticate();
+        	}
+        }
     }
     
     @Override
     protected void onPause() {
         super.onPause();
         mConf.onPause();
-        isActive = false;
     }
     
     @Override
@@ -122,7 +109,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         super.onStop();
         mConf.onStop();
         unbindService(this);
-        unregisterReceiver(br);
     }
     
     @Override
@@ -132,7 +118,15 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
 
 
-    protected void setActionBar() {
+    @Override
+	protected void onActivityResult(int request, int result, Intent intent) {
+		super.onActivityResult(request, result, intent);
+		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED){
+			finish();
+		}
+	}
+
+	protected void setActionBar() {
         ActionBar action = getSupportActionBar();
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);

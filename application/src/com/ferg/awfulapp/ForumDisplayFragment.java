@@ -385,7 +385,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	        android.view.MenuInflater inflater = getActivity().getMenuInflater();
 	        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aMenuInfo;
 	        Cursor row = mCursorAdapter.getRow(info.id);
-            if(row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
+            if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
 	              inflater.inflate(R.menu.thread_longpress, aMenu);
 	       }
         }
@@ -514,13 +514,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
         	Cursor row = mCursorAdapter.getRow(aId);
-            if(row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
+            if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
                     Log.i(TAG, "Thread ID: " + Long.toString(aId));
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     												mPrefs.postPerPage);
                     viewThread((int) aId, unreadPage);
-            }else if(row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
+            }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
                     displayForumContents((int) aId);
             }
         }

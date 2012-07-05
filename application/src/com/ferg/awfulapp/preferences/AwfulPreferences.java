@@ -26,6 +26,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//GENERAL STUFF
 	public String username;
 	public boolean hasPlatinum;
+	public boolean debugMode;
 	
 	//THEME STUFF
 	public int postFontSize;
@@ -39,6 +40,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postOPColor;
 	public int postLinkQuoteColor;
 	public int postDividerColor;
+	public boolean postDividerEnabled;
 	public int postHeaderBackgroundColor;
 	public int postHeaderFontColor;
 	public int actionbarColor;
@@ -139,6 +141,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
       	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", res.getColor(R.color.forums_blue));
       	postHeaderFontColor      = mPrefs.getInt("post_header_font_color", res.getColor(R.color.forums_gray));
       	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.abs__holo_blue_light));
+      	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
       	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
       	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
@@ -150,6 +153,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+        debugMode            	 = mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);

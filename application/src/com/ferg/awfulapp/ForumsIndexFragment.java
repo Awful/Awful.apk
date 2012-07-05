@@ -133,12 +133,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void onResume() {
         super.onResume(); Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
-		
-        if (isLoggedIn()) {
-            Log.v(TAG, "Cookie Loaded!");
-        } else {
-            startActivityForResult(new Intent().setClass(getActivity(), AwfulLoginActivity.class), 0);
-        }
     }
 
 	@Override
@@ -189,6 +183,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private OnChildClickListener onForumSelected = new OnChildClickListener() {
         @Override
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
+			Log.e(TAG, "gpos: "+groupPosition+"cpos: "+childPosition+" id: "+id);
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
@@ -203,6 +198,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private OnGroupClickListener onParentForumSelected = new OnGroupClickListener() {
         @Override
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
+			Log.e(TAG, "gpos: "+groupPosition+" id: "+id);
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
@@ -219,11 +215,15 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View v,
 				int position, long id) {
-			Log.e(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id) );
-			if(mForumList.isGroupExpanded(position)){
-				mForumList.collapseGroup(position);
-			}else{
-				mForumList.expandGroup(position);
+			Log.e(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id));
+			
+			if(ExpandableListView.getPackedPositionChild(id) < 0){
+				int gpos = mCursorAdapter.getGroupPosition(ExpandableListView.getPackedPositionGroup(id));
+				if(mForumList.isGroupExpanded(gpos)){
+					mForumList.collapseGroup(gpos);
+				}else{
+					mForumList.expandGroup(gpos);
+				}
 			}
 			return true;
 		}

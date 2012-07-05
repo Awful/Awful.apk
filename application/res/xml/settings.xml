@@ -93,5 +93,11 @@
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
 			/>
+		<CheckBoxPreference 
+            android:key="debug_mode" 
+			android:title="@string/debug_mode"
+			android:summary="@string/debug_mode_summary"
+			android:defaultValue="false"
+			/>
     </PreferenceCategory>
 </PreferenceScreen>

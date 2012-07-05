@@ -31,7 +31,10 @@
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     <string name="prefs_salr">SALR Preferences</string>
     <string name="inline_youtube">Embedded Youtube</string>
-    <string name="inline_youtube_summary">EXPERIMENTAL! Requires ICS or above.</string>
+    <string name="inline_youtube_summary">EXPERIMENTAL! ICS/JB only. Seriously broken as hell.</string>
+    <string name="debug_mode">Debug Mode</string>
+    <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
+    <string name="post_divider_enabled">Show Post Divider</string>
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>
@@ -140,4 +143,6 @@
     <string name="bbcode">BBCode</string>
     <string name="draft_discard_only">Discard and Cancel</string>
     <string name="show_next_page_button_at_top">Show Next Page Button at Top</string>
+    <string name="menu_discard">Discard</string>
+    <string name="menu_save_draft">Save Draft</string>
 </resources>

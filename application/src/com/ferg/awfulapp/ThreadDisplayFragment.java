@@ -90,7 +90,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayFragment";
-    private static final boolean DEBUG = true;
+    private boolean DEBUG = false;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -230,7 +230,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onCreate(savedInstanceState); Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
         //setRetainInstance(true);
-        
+        DEBUG = mPrefs.debugMode;
         Bundle args = getArguments();
         if(args != null){
 	        mThreadId = args.getInt(Constants.THREAD_ID, 0);
@@ -943,11 +943,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
             
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed);
-            //if(DEBUG && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
-            //	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
-            //	out.write(html.getBytes());
-            //	out.close();
-            //}
+            if(DEBUG && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
+            	out.write(html.getBytes());
+            	out.close();
+            }
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();

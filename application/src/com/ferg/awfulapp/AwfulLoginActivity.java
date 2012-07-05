@@ -31,6 +31,7 @@ import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		Log.e(TAG,"onCreate"+(savedInstanceState != null?" savedInstanceState":""));
 
         new Thread(new Runnable() {
             public void run() {
@@ -120,8 +122,10 @@ public class AwfulLoginActivity extends AwfulActivity {
     //Not sure if this needs a @Override since it worked without one
     public void onResume(){
     	super.onResume();
+		Log.e(TAG,"onResume");
     	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 		if (loggedIn) {
+			Log.e(TAG,"Already logged in! Closing AwfulLoginActivity!");
 			this.finish();
 		}
     }
@@ -164,8 +168,8 @@ public class AwfulLoginActivity extends AwfulActivity {
             mLoginTask.cancel(true);
         }
     }
-    
-    private void loginClick(){
+
+	private void loginClick(){
         String username = mUsername.getText().toString();
         String password = mPassword.getText().toString();
         
