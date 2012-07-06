@@ -60,6 +60,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
@@ -151,6 +152,13 @@ public class AwfulThread extends AwfulPagedItem  {
                 if (tarThread.length > 0) {
                     thread.put(TITLE, tarThread[0].getText().toString().trim());
                 }
+                
+                if(node.hasAttribute("class") && node.getAttributeByName("class").contains("closed")){
+                	thread.put(LOCKED, 1);
+                }else{
+                	thread.put(LOCKED, 0);
+                }
+                	
 
                 TagNode[] killedBy = node.getElementsByAttValue("class", "lastpost", true, true);
                 thread.put(LASTPOSTER, killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
@@ -572,7 +580,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
 		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
-		String threadTagUrl = null;
+		TextView title = (TextView) current.findViewById(R.id.title);
 		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
 		if(stuck){
 			sticky.setImageResource(R.drawable.ic_sticky);
@@ -664,7 +672,6 @@ public class AwfulThread extends AwfulPagedItem  {
 		}else{
 			unread.setVisibility(View.GONE);
 		}
-		TextView title = (TextView) current.findViewById(R.id.title);
 		title.setTypeface(null, Typeface.NORMAL);
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
 			title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
@@ -678,6 +685,12 @@ public class AwfulThread extends AwfulPagedItem  {
 			}else{
 				title.setEllipsize(null);
 			}
+		}
+		
+		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
+			aq.find(R.id.forum_tag).image(R.drawable.light_inline_link).visible().width(15);
+		}else{
+			aq.find(R.id.forum_tag).gone();
 		}
 	}
 	
