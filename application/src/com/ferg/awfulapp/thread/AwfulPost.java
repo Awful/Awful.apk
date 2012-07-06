@@ -403,7 +403,7 @@ public class AwfulPost {
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
         try {
-        	if(Constants.isICS() && !prefs.inlineYoutube) {//skipping youtube support for now, it kinda sucks.
+        	if(!Constants.isICS() || !prefs.inlineYoutube) {//skipping youtube support for now, it kinda sucks.
         		aThread = convertVideos(aThread);
     		}
         	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);

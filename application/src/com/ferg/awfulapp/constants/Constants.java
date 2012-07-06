@@ -150,6 +150,8 @@ public class Constants {
 
 	public static final int LOGIN_ACTIVITY_REQUEST = 99;
 
+	public static final int DEFAULT_FONT_SIZE = 16;
+
 
 	/**
 	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.

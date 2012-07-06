@@ -12,6 +12,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -29,7 +30,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean debugMode;
 	
 	//THEME STUFF
-	public int postFontSize;
+	public int postFontSizeDip;
+	public int postFontSizePx;
 	public int postFontColor;
 	public int postFontColor2;
 	public int postBackgroundColor;
@@ -128,7 +130,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		username                 = mPrefs.getString("username", "Username");
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
-		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
+		postFontSizeDip             = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
+		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		postFontColor            = mPrefs.getInt("default_post_font_color", res.getColor(R.color.default_post_font));
 		postFontColor2           = mPrefs.getInt("secondary_post_font_color", res.getColor(R.color.secondary_post_font));
       	postBackgroundColor      = mPrefs.getInt("default_post_background_color", res.getColor(R.color.background));

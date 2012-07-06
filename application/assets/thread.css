@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    font: 16pt userselected, Verdana, Arial, sans-serif
+    font-family: userselected, Verdana, Arial, sans-serif;
 }
 
 td {
@@ -41,9 +41,7 @@ table {
 .bbc-block h4 {
     border-top: 1px #999999 solid;
     padding: 8px 0 2px 0;
-    font-size: 16pt;
     font-style: italic;
-    color: #555;
 }
 
 .bbc-block blockquote {
@@ -62,13 +60,15 @@ table {
     font-style: bold !important;
 }
 
+.username h4 {
+    font-size: larger;
+}
+
 .username img{
 	margin-left: 5px;
 }
 
 .userinfo, .post-content, .avatar-text-phone {
-    color: black;
-    font: normal normal normal 16pt userselected, Verdana, Arial, sans-serif;
     vertical-align: top;
 }
 
@@ -78,10 +78,6 @@ table {
 
 .post-content img{
 	max-width: 100% !important;
-}
-
-.postdate {
-    font: normal normal normal 13pt userselected, Verdana, Arial, sans-serif;
 }
 
 .action-button {
@@ -113,11 +109,12 @@ table {
     text-align: center;
     vertical-align: middle;
     float: right;
+    font-size: larger;
 }
 
 .usercolumn {
     vertical-align: top;
-    width: 13em;
+    width: 20%;
 }
 
 .quote-button {
@@ -127,35 +124,7 @@ table {
 }
 
 .bbc-spoiler, .bbc-spoiler li {
-    color: black;
     background: black;
-}
-
-.footer {
-    width: 100%;
-    height: 50px;
-    background: url("page_indicator_background.png") repeat-x;
-    text-align: center;
-}
-
-.number {
-    top: 1px;
-    font: bold 36pt userselected, Verdana, Arial, sans-serif;
-    text-shadow: 1px 1px 1px #444;
-    color: #eee;
-    position: relative;
-}
-
-#previous-page {
-    float: left;
-    margin-left: 20px;
-    margin-top: 13px;
-}
-
-#next-page {
-    float: right;
-    margin-right: 20px;
-    margin-top: 13px;
 }
 
 .editedby {

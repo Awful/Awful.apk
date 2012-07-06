@@ -406,14 +406,18 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
+        if(!aPrefs.postDividerEnabled){
+            buffer.append(".userinfo-row {border-top-width:0px;}\n");
+            buffer.append(".post-buttons {border-bottom-width:0px;}\n");
+        }
         buffer.append(".bbc-block { border-bottom: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; }\n");
         buffer.append(".bbc-block h4 { border-top: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor2)+"; }\n");
         buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
         
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
-        buffer.append("<div class='content'>\n");
-        buffer.append("    <table id='thread-body'>\n");
+        buffer.append("<div class='content' >\n");
+        buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
 
         if (isTablet) {
             buffer.append(AwfulThread.getPostsHtmlForTablet(aPosts, aPrefs, threadLocked));
@@ -454,14 +458,14 @@ public class AwfulThread extends AwfulPagedItem  {
             }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "' id='" + post.getId() + "'>\n");
-            buffer.append("    <td class='userinfo-row' style='width: 100%;border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
+            buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
             buffer.append("        <div class='avatar' "+((aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">\n");
             buffer.append("        </div>\n");
             buffer.append("        <div class='userinfo'>\n");
-            buffer.append("            <div class='username' style='color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";' >\n");
+            buffer.append("            <div class='username' >\n");
             buffer.append("                <h4>" + post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  +  "</h4>\n");
             buffer.append("            </div>");
-            buffer.append("            <div class='postdate' style='color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";' >\n");
+            buffer.append("            <div class='postdate' >\n");
             buffer.append("                " + post.getDate());
             buffer.append("            </div>\n");
             buffer.append("        </div>\n");
@@ -492,9 +496,9 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("</tr>\n");
             buffer.append("<tr>\n");
             buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>\n");
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB((post.isPreviouslyRead() ? aPrefs.postReadFontColor : aPrefs.postFontColor)) + "; font-size: " + aPrefs.postFontSize + ";'>\n");
+            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB((post.isPreviouslyRead() ? aPrefs.postReadFontColor : aPrefs.postFontColor)) + ";'>\n");
             buffer.append("            " + post.getContent());
-            buffer.append("        </div>\n");
+            buffer.append("\n        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
         }
@@ -523,13 +527,13 @@ public class AwfulThread extends AwfulPagedItem  {
             }
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + "'>\n");
-            buffer.append("    <td class='usercolumn' style='background: " + background + ";'>\n");
+            buffer.append("    <td class='usercolumn' style='background: " + background + ";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
             buffer.append("        	<div class='user-button' >\n");
             buffer.append("        		<div class='userinfo'>\n");
-            buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" : "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";") + "'>\n");
+            buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
             buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  + "</h4>\n");
             buffer.append("            		</div>");
-            buffer.append("            		<div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";" :  "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";") + "'>\n");
+            buffer.append("            		<div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
             buffer.append("           		     " + post.getDate());
             buffer.append("            		</div>\n");
             buffer.append("        		</div>\n");
@@ -543,7 +547,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("        		</div>\n");
             buffer.append("        </div>\n");
-            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
+            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("    <td class='post-cell' style='background: " + background + ";'>\n");
@@ -565,7 +569,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		</div>\n");
             buffer.append("    			<hr style='clear:both;' />\n");
             buffer.append("    		</div>\n");
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + "; font-size: " + aPrefs.postFontSize + ";'>\n");
+            buffer.append("        <div class='post-content'>\n");
             buffer.append("            " + post.getContent());
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");

@@ -29,9 +29,9 @@
 			android:defaultValue="40"
 			/>
 		<Preference 
-			android:key="default_post_font_size" 
+			android:key="default_post_font_size_dip" 
 			android:title="@string/default_post_font_size"
-			android:defaultValue="22"
+			android:defaultValue="18"
 			/>
 		<Preference 
 			android:key="colors" 
