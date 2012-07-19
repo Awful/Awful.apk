@@ -49,6 +49,9 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         
         mPref = new AwfulPreferences(this, this);
         onPreferenceChange(mPref);
+        if(mPref.sendUsernameInReport){
+        	ErrorReporter.getInstance().putCustomData("SAusername", mPref.username);
+        }
     }
 
 	public void setFontFromPreference(TextView textView, int flags){

@@ -145,4 +145,6 @@
     <string name="show_next_page_button_at_top">Show Next Page Button at Top</string>
     <string name="menu_discard">Discard</string>
     <string name="menu_save_draft">Save Draft</string>
+    <string name="send_username_in_report">Send Username in Reports</string>
+	<string name="send_username_in_report_summary">Attaches the forum username to crash reports.</string>
 </resources>

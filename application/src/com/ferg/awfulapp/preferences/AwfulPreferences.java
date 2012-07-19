@@ -28,6 +28,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String username;
 	public boolean hasPlatinum;
 	public boolean debugMode;
+	public boolean sendUsernameInReport;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
@@ -168,6 +169,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
+        sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
        	 //TODO: I have never seen this before oh god
 	}
 }
