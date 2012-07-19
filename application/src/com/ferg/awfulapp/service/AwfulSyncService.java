@@ -27,28 +27,21 @@
 
 package com.ferg.awfulapp.service;
 
+import java.util.Stack;
+
+import org.htmlcleaner.TagNode;
+
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Stack;
-
-import org.htmlcleaner.TagNode;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.task.AwfulTask;
 import com.ferg.awfulapp.task.BookmarkTask;
 import com.ferg.awfulapp.task.FetchPrivateMessageTask;
@@ -64,7 +57,8 @@ import com.ferg.awfulapp.task.SendPrivateMessageTask;
 import com.ferg.awfulapp.task.ThreadTask;
 import com.ferg.awfulapp.task.TrimDBTask;
 import com.ferg.awfulapp.task.VotingTask;
-import com.ferg.awfulapp.thread.*;
+import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.thread.AwfulThread;
 
 public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";

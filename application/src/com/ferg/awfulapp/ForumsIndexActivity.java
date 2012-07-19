@@ -29,12 +29,9 @@ package com.ferg.awfulapp;
 
 import java.util.ArrayList;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -42,12 +39,10 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulViewPager;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsIndexActivity extends AwfulActivity {
 

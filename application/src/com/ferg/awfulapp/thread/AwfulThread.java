@@ -29,8 +29,6 @@ package com.ferg.awfulapp.thread;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +47,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Message;
@@ -57,16 +54,10 @@ import android.os.Messenger;
 import android.text.Html;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
 import android.widget.TextView;
-
-import org.json.*;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;

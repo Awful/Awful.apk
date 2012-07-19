@@ -7,11 +7,9 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Message;
-import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulPost;

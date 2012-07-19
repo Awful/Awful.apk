@@ -1,14 +1,10 @@
 package com.ferg.awfulapp;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 import android.view.Window;
-import android.widget.FrameLayout;
 
+import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class MessageDisplayActivity extends AwfulActivity {

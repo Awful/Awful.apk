@@ -31,14 +31,13 @@ import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View.OnClickListener;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -48,12 +47,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";

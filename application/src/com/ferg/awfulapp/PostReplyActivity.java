@@ -31,10 +31,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.ferg.awfulapp.R;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PostReplyActivity extends AwfulActivity {

@@ -27,19 +27,15 @@
 
 package com.ferg.awfulapp;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageButton;
 
-import com.ferg.awfulapp.R;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ThreadDisplayActivity extends AwfulActivity implements OnClickListener {
     private static final String TAG = "ThreadDisplayActivities";

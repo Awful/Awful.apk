@@ -28,9 +28,7 @@
 package com.ferg.awfulapp.constants;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Build;
 
 public class Constants {

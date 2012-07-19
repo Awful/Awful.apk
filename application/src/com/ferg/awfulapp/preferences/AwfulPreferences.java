@@ -2,10 +2,6 @@ package com.ferg.awfulapp.preferences;
 
 import java.util.ArrayList;
 
-import com.ferg.awfulapp.AwfulUpdateCallback;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -13,6 +9,10 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import com.ferg.awfulapp.AwfulUpdateCallback;
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 

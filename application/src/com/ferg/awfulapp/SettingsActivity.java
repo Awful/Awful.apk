@@ -47,10 +47,9 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 

@@ -1,10 +1,9 @@
 package com.ferg.awfulapp;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.ferg.awfulapp.constants.Constants;
 
 public class UserCPActivity extends AwfulActivity {
 

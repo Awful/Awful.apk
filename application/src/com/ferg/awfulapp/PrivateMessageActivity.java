@@ -1,15 +1,13 @@
 package com.ferg.awfulapp;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-import com.ferg.awfulapp.R;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 

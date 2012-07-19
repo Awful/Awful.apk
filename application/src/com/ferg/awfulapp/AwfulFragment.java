@@ -1,8 +1,6 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +15,6 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;

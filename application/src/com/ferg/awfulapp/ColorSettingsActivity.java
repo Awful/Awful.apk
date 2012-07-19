@@ -11,9 +11,7 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.test.PerformanceTestCase;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 

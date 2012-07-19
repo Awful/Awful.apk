@@ -16,8 +16,6 @@
 
 package com.ferg.awfulapp.preferences;
 
-import com.ferg.awfulapp.R;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -26,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import com.ferg.awfulapp.R;
 
 public class ColorPickerDialog 
 	extends 

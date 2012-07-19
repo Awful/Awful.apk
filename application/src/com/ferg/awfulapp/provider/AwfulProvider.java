@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp.provider;
 
+import java.util.HashMap;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -39,14 +41,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.reply.Reply;
-import com.ferg.awfulapp.thread.*;
-
-import java.util.HashMap;
+import com.ferg.awfulapp.thread.AwfulEmote;
+import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.thread.AwfulThread;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";

@@ -2,19 +2,9 @@ package com.ferg.awfulapp;
 
 import java.util.LinkedList;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.thread.AwfulMessage;
-
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -26,16 +16,18 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
-import android.view.*;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Window;
 import com.androidquery.AQuery;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
