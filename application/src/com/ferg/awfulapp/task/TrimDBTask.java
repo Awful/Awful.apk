@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
@@ -38,6 +39,7 @@ public class TrimDBTask extends AwfulTask {
 			rowCount += dbInterface.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
 			rowCount += dbInterface.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
 			rowCount += dbInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
+			rowCount += dbInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
     	}
     	Log.i(TAG,"Trimming DB older than "+mArg1+" days, culled: "+rowCount);
 		return true;

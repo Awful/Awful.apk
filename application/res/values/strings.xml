@@ -31,7 +31,7 @@
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     <string name="prefs_salr">SALR Preferences</string>
     <string name="inline_youtube">Embedded Youtube</string>
-    <string name="inline_youtube_summary">EXPERIMENTAL! ICS/JB only. Seriously broken as hell.</string>
+    <string name="inline_youtube_summary">EXPERIMENTAL! ICS/JB only. Might cause scroll lag/graphical glitches.</string>
     <string name="debug_mode">Debug Mode</string>
     <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
     <string name="post_divider_enabled">Show Post Divider</string>
@@ -72,7 +72,7 @@
 	<string-array name="themes">
 		<item>Default</item>
 		<item>Dark</item>
-		<item>Dark-Blue</item>
+		<item>Dark-Blue (OLED-Optimized)</item>
 		<item>yospos</item>
 		<item>Custom</item>
 	</string-array>

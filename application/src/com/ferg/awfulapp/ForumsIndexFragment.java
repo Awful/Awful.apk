@@ -133,7 +133,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public void onPageVisible() {
-		
+		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
 	}
 
 	@Override
@@ -166,15 +166,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onDetach() {
 		super.onDetach(); Log.e(TAG, "Detach");
 	}
-    
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // The only activity we call for result is login
-        // Odds are we want to refresh whether or not it was successful
-        
-        //refresh
-    	syncForums();
-    }
 
     private OnChildClickListener onForumSelected = new OnChildClickListener() {
         @Override
@@ -306,13 +297,13 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-			Log.i(TAG,"Load Index Cursor: "+aId);
+			Log.i(TAG,"Load Index Cursor");
             return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, null, null, AwfulForum.INDEX);
         }
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Index cursor: "+aLoader.getId());
+        	Log.v(TAG,"Index cursor: "+aData.getCount());
         	if(aData.moveToFirst() && !aData.isClosed()){
     			mCursorAdapter.setCursor(aData);
         	}
@@ -321,6 +312,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			Log.e(TAG,"resetLoader: "+arg0.getId());
+			mCursorAdapter.setCursor(null);
 		}
     }
 	
@@ -377,6 +369,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 					}
 				}
 				tmpSubforums.clear();
+	        	if(parentForums.size() < 5){
+	        		syncForums();
+	        	}
 			}
 			notifyDataSetChanged();
 		}
@@ -391,11 +386,17 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		
 		@Override
 		public ForumEntry getChild(int groupPosition, int childPosition) {
+			if(parentForums.size() < 1){
+				return null;
+			}
 			return parentForums.get(groupPosition).subforums.get(childPosition);
 		}
 
 		@Override
 		public long getChildId(int groupPosition, int childPosition) {
+			if(parentForums.size() < 1){
+				return 0;
+			}
 			return parentForums.get(groupPosition).subforums.get(childPosition).id;
 		}
 
@@ -417,6 +418,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
 		public int getChildrenCount(int groupPosition) {
+			if(parentForums.size() < 1){
+				return 0;
+			}
 			return parentForums.get(groupPosition).subforums.size();
 		}
 
@@ -432,6 +436,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
 		public long getGroupId(int groupPosition) {
+			if(parentForums.size() < 1){
+				return 0;
+			}
 			return parentForums.get(groupPosition).id;
 		}
 
@@ -479,5 +486,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}else{
 			return "Forums";
 		}
+	}
+
+	public void refresh() {
+		syncForums();
 	}
 }

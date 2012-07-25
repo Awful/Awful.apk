@@ -41,6 +41,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulTask;
 import com.ferg.awfulapp.task.BookmarkTask;
@@ -90,6 +91,7 @@ public class AwfulSyncService extends Service {
 	public static final int MSG_FETCH_EMOTES = 17;
 	/** obj = initial string, returns string with redirected URL **/
 	public static final int MSG_TRANSLATE_REDIRECT = 18;
+    public static final int MSG_ERR_NOT_LOGGED_IN   = 19;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -190,7 +192,8 @@ public class AwfulSyncService extends Service {
     
     private void syncForum(Message aMsg) {
         Log.i(TAG, "Starting Forum sync:"+aMsg.arg1);
-        //or tasks can be anon inner classes
+        //tasks can be anon inner classes
+        //but why would i do this
         queueUniqueThread(new AwfulTask(this, aMsg, mPrefs, MSG_SYNC_FORUM){
 
 			@Override
@@ -202,7 +205,8 @@ public class AwfulSyncService extends Service {
                     	threads = AwfulThread.getUserCPThreads(mArg1, replyTo);
                         replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
                 		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
-                        	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
+                        	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
+                        	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
                         	return false;
                 		}
                         AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
@@ -210,7 +214,8 @@ public class AwfulSyncService extends Service {
                     	threads = AwfulThread.getForumThreads(mId, mArg1, replyTo);
                         replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
                 		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
-                        	sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
+                        	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
+                        	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
                         	return false;
                         }
                         AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
@@ -301,8 +306,11 @@ public class AwfulSyncService extends Service {
 		case MSG_FETCH_PM_INDEX:
 			msg += "MSG_FETCH_PM_INDEX";
 			break;
+		case MSG_ERR_NOT_LOGGED_IN:
+			msg += "MSG_ERR_NOT_LOGGED_IN";
+			break;
 		}
-		Log.v(tag, tag+"Received: "+msg+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
+		Log.v(tag, tag+" Received: "+msg+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
 	}
 
 }

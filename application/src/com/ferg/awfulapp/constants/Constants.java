@@ -104,13 +104,6 @@ public class Constants {
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awfulapp.provider";
     
-    //broadcast intent
-	public static final String UNREGISTERED_BROADCAST = "com.ferg.awfulapp.service.not_registered";
-    public static final String DATA_UPDATE_BROADCAST = "com.ferg.awfulapp.service.dataupdated";
-	public static final String DATA_UPDATE_ID_EXTRA = "updatedID";
-	public static final String DATA_UPDATE_PAGE_EXTRA = "updatedPage";
-	public static final String DATA_UPDATE_STATUS_EXTRA = "updateStatus";
-    
     //default per-page, user configurable, 
     //or reduce to speed processing time once auto-load is in
     public static final int ITEMS_PER_PAGE = 40;

@@ -264,7 +264,8 @@ public class AwfulThread extends AwfulPagedItem  {
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
         
         if(response.findElementByAttValue("id", "notregistered", true, false) != null){
-        	aContext.sendBroadcast(new Intent(Constants.UNREGISTERED_BROADCAST));
+        	NetworkUtils.clearLoginCookies(aContext);
+            statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
         	return;
         }
         

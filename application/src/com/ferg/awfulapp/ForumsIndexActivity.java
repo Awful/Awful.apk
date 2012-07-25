@@ -29,6 +29,8 @@ package com.ferg.awfulapp;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -401,6 +403,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 			mViewPager.setCurrentItem(0);
 		}
 	}
-    
+
+
+    @Override
+	protected void onActivityResult(int request, int result, Intent intent) {
+		super.onActivityResult(request, result, intent);
+		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
+			if(mIndexFragment != null){
+				mIndexFragment.refresh();
+			}
+		}
+	}
 }
 
