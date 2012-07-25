@@ -60,7 +60,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     private AwfulPreferences mPrefs;
     
-    private void reauthenticate(){
+    public void reauthenticate(){
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
     }
     

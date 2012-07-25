@@ -31,7 +31,7 @@
 		<Preference 
 			android:key="default_post_font_size_dip" 
 			android:title="@string/default_post_font_size"
-			android:defaultValue="18"
+			android:defaultValue="16"
 			/>
 		<Preference 
 			android:key="colors" 
