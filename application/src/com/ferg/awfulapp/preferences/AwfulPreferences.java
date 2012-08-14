@@ -12,6 +12,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -26,9 +27,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//GENERAL STUFF
 	public String username;
 	public boolean hasPlatinum;
+	public boolean debugMode;
 	
 	//THEME STUFF
-	public int postFontSize;
+	public int postFontSizeDip;
+	public int postFontSizePx;
 	public int postFontColor;
 	public int postFontColor2;
 	public int postBackgroundColor;
@@ -39,6 +42,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postOPColor;
 	public int postLinkQuoteColor;
 	public int postDividerColor;
+	public boolean postDividerEnabled;
 	public int postHeaderBackgroundColor;
 	public int postHeaderFontColor;
 	public int actionbarColor;
@@ -126,7 +130,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		username                 = mPrefs.getString("username", "Username");
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
-		postFontSize             = mPrefs.getInt("default_post_font_size", 22);
+		postFontSizeDip             = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
+		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		postFontColor            = mPrefs.getInt("default_post_font_color", res.getColor(R.color.default_post_font));
 		postFontColor2           = mPrefs.getInt("secondary_post_font_color", res.getColor(R.color.secondary_post_font));
       	postBackgroundColor      = mPrefs.getInt("default_post_background_color", res.getColor(R.color.background));
@@ -139,6 +144,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
       	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", res.getColor(R.color.forums_blue));
       	postHeaderFontColor      = mPrefs.getInt("post_header_font_color", res.getColor(R.color.forums_gray));
       	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.abs__holo_blue_light));
+      	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
       	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
       	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
@@ -150,6 +156,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+        debugMode            	 = mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);

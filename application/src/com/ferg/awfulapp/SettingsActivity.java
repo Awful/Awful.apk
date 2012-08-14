@@ -51,6 +51,7 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 /**
@@ -92,6 +93,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
+		findPreference("inline_youtube").setEnabled(Constants.isICS());
+		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
 		mColorsPreference = getPreferenceScreen().findPreference("colors");
@@ -100,7 +103,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mImagePreference.setOnPreferenceClickListener(onImagesListener);
 		mInfoPreference = getPreferenceScreen().findPreference("threadinfo");
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
-		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size");
+		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
 	}
 	
@@ -230,7 +233,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 				@Override
 				public void onStopTrackingTouch(SeekBar seekBar) {
 					Editor sizeEdit = mPrefs.edit();
-					sizeEdit.putInt("default_post_font_size", seekBar.getProgress()+10);
+					sizeEdit.putInt("default_post_font_size_dip", seekBar.getProgress()+10);
 					sizeEdit.commit();
 				}
 				
@@ -241,12 +244,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 				@Override
 				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 					mFontSizeText.setText((progress+10)+ "  Get out");
-			        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (progress+10));
+			        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+10));
 				}
 			});
-	        bar.setProgress(mPrefs.getInt("default_post_font_size", 22)-10);
+	        bar.setProgress(mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE)-10);
 	        mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
-	        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, (bar.getProgress()+10));
+	        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+10));
 	        mFontSizeDialog.show();
 			return true;
 		}
@@ -254,8 +257,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	
 	// All keys representing int values whose Summaries should be set to their values
 	private static final String[] VALUE_SUMMARY_KEYS_INT = { 
-		"default_post_font_size",
+		"default_post_font_size_dip",
 		"post_per_page"
+		};
+	private static final int[] VALUE_SUMMARY_DEFAULTS_INT = { 
+		Constants.DEFAULT_FONT_SIZE,
+		Constants.ITEMS_PER_PAGE
 		};
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
@@ -264,23 +271,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_INT) {
-			if(valueSummaryKey.equals(key)) {
-				findPreference(key).setSummary(String.valueOf(prefs.getInt(key, 0)));
-			}
-		}
-		
-		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
-			if(valueSummaryKey.equals(key)) {
-				ListPreference p = (ListPreference) findPreference(key);
-				p.setSummary(p.getEntry());
-			}
-		}
+		setSummaries();
 	}
 	
 	private void setSummaries() {
-		for(String key : VALUE_SUMMARY_KEYS_INT) {
-			findPreference(key).setSummary(String.valueOf(mPrefs.getInt(key, 0)));
+		for(int x=0;x<VALUE_SUMMARY_KEYS_INT.length;x++) {
+			findPreference(VALUE_SUMMARY_KEYS_INT[x]).setSummary(String.valueOf(mPrefs.getInt(VALUE_SUMMARY_KEYS_INT[x], VALUE_SUMMARY_DEFAULTS_INT[x])));
 		}
 		for(String key : VALUE_SUMMARY_KEYS_LIST) {
 			ListPreference p = (ListPreference) findPreference(key);

@@ -126,11 +126,12 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.dark_background));
 						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
-						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_default_post_font));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
 						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
 						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_header_background));//TODO
 						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.dark_header_divider));//TODO
+						prefEdit.putBoolean("post_divider_enabled", false);
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
@@ -155,6 +156,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.forums_blue));//TODO
 						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.background));//TODO
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.forums_gray));//TODO
+						prefEdit.putBoolean("post_divider_enabled", false);
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.link_quote));
 						if(Constants.isWidescreen(getParent())){//TODO fix this, tablet mode will only be used in landscape on certain devices. this won't accommodate that.
@@ -182,6 +184,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.yospos_background));//TODO
 						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.yospos_default_post_font));//TODO
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.yospos_default_post_font));//TODO
+						prefEdit.putBoolean("post_divider_enabled", true);
 						prefEdit.putString("preferred_font", "fonts/terminus_mono.ttf.mp3");
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.yospos_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.yospos_link_quote));
@@ -199,12 +202,13 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("default_post_font_color", getResources().getColor(R.color.dark_default_post_font));
 						prefEdit.putInt("secondary_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
 						prefEdit.putInt("default_post_background_color", getResources().getColor(R.color.dark_background));
-						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_alt_background));
-						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_default_post_font));
-						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background_read));
-						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_alt_background_read));
+						prefEdit.putInt("alternative_post_background_color", getResources().getColor(R.color.dark_background));
+						prefEdit.putInt("read_post_font_color", getResources().getColor(R.color.dark_secondary_post_font));
+						prefEdit.putInt("read_post_background_color", getResources().getColor(R.color.dark_background));
+						prefEdit.putInt("alternative_read_post_background_color", getResources().getColor(R.color.dark_background));
 						prefEdit.putInt("post_header_background_color", getResources().getColor(R.color.dark_background));//TODO
 						prefEdit.putInt("post_divider_color", getResources().getColor(R.color.dark_blue));//TODO
+						prefEdit.putBoolean("post_divider_enabled", true);
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));

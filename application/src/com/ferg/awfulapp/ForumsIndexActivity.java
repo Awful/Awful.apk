@@ -29,6 +29,7 @@ package com.ferg.awfulapp;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -58,6 +59,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ForumsIndexFragment mIndexFragment = null;
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
+    private PostReplyFragment mReplyFragment = null;
     private boolean skipLoad = false;
     
     private Handler mHandler = new Handler();
@@ -140,8 +142,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 		
 		public void addFragment(AwfulPagerFragment frag){
-			fragList.add(frag);
-			notifyDataSetChanged();
+			if(!fragList.contains(frag)){
+				fragList.add(frag);
+				notifyDataSetChanged();
+			}
 		}
 
 		public void deleteFragment(AwfulPagerFragment frag){
@@ -166,18 +170,17 @@ public class ForumsIndexActivity extends AwfulActivity {
 			Log.i(TAG,"INSTANTIATING TAB:"+position);
 			Fragment frag = (Fragment) super.instantiateItem(container, position);
 			fragList.set(position, (AwfulPagerFragment) frag);
-			switch(position){
-			case 0:
+			if(frag instanceof ForumsIndexFragment){
 				mIndexFragment = (ForumsIndexFragment) frag;
-				break;
-			case 1:
+			}
+			if(frag instanceof ForumDisplayFragment){
 				mForumFragment = (ForumDisplayFragment) frag;
-				break;
-			case 2:
+			}
+			if(frag instanceof ThreadDisplayFragment){
 				mThreadFragment = (ThreadDisplayFragment) frag;
-				break;
-			default:
-				Log.e(TAG,"INSTANTIATING TEMPORARY TAB: "+frag.toString());
+			}
+			if(frag instanceof PostReplyFragment){
+				mReplyFragment = (PostReplyFragment) frag;
 			}
 			return frag;
 		}
@@ -290,17 +293,18 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
 	public void displayReplyWindow(int threadId, int postId, int type) {
     	if(mViewPager != null){
-    		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
-    		if(apf instanceof PostReplyFragment){
-    			PostReplyFragment frag = (PostReplyFragment) apf;
+    		if(mReplyFragment != null){
     			//TODO multiquote stuff
-    			//((PostReplyFragment) apf).multiQuote(postId);
-    			frag.newReply(threadId, postId, type);
+    			//mReplyFragment.multiQuote(postId);
+    			mReplyFragment.newReply(threadId, postId, type);
+    			pagerAdapter.addFragment(mReplyFragment);
+    			Log.e(TAG,"Reusing existing reply: "+threadId+" - "+postId+" - "+ type);
     		}else{
     	    	Bundle args = new Bundle();
     	        args.putInt(Constants.THREAD_ID, threadId);
     	        args.putInt(Constants.EDITING, type);
     	        args.putInt(Constants.POST_ID, postId);
+    			Log.e(TAG,"New reply: "+threadId+" - "+postId+" - "+ type);
     			pagerAdapter.addFragment(PostReplyFragment.newInstance(args));
     		}
     		mHandler.post(new Runnable(){
@@ -331,6 +335,15 @@ public class ForumsIndexActivity extends AwfulActivity {
 		if(fragment instanceof PostReplyFragment && mThreadFragment != null){
 			mThreadFragment.onActivityResult(PostReplyFragment.RESULT_POSTED, 0, null);
 		}
+	}
+
+
+	@Override
+	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
+		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
+			return awfulFragment.equals(pagerAdapter.getItem(mViewPager.getCurrentItem())); 
+		}
+		return true;
 	}
 
 
@@ -394,6 +407,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 			mViewPager.setCurrentItem(0);
 		}
 	}
-    
+
+
+    @Override
+	protected void onActivityResult(int request, int result, Intent intent) {
+		super.onActivityResult(request, result, intent);
+		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
+			if(mIndexFragment != null){
+				mIndexFragment.refresh();
+			}
+		}
+	}
 }
 

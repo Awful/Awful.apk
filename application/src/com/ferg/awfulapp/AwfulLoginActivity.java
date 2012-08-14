@@ -31,15 +31,21 @@ import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View.OnClickListener;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -64,6 +70,7 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		Log.e(TAG,"onCreate"+(savedInstanceState != null?" savedInstanceState":""));
 
         new Thread(new Runnable() {
             public void run() {
@@ -77,6 +84,27 @@ public class AwfulLoginActivity extends AwfulActivity {
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
+        mPassword.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				Log.e(TAG,"keyevent: "+event.getKeyCode());
+				return false;
+			}
+		});
+        mPassword.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				Log.e(TAG,"onEditorAction: "+actionId);
+				if(actionId == EditorInfo.IME_ACTION_DONE){
+					loginClick();
+				}
+				if(event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+					loginClick();
+				}
+				return false;
+			}
+		});
 
         mLogin.setOnClickListener(onLoginClick);
 
@@ -94,8 +122,10 @@ public class AwfulLoginActivity extends AwfulActivity {
     //Not sure if this needs a @Override since it worked without one
     public void onResume(){
     	super.onResume();
+		Log.e(TAG,"onResume");
     	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 		if (loggedIn) {
+			Log.e(TAG,"Already logged in! Closing AwfulLoginActivity!");
 			this.finish();
 		}
     }
@@ -138,15 +168,18 @@ public class AwfulLoginActivity extends AwfulActivity {
             mLoginTask.cancel(true);
         }
     }
-    
+
+	private void loginClick(){
+        String username = mUsername.getText().toString();
+        String password = mPassword.getText().toString();
+        
+        mLoginTask = new LoginTask();
+        mLoginTask.execute(new String[] {username, password});
+    }
 
     private View.OnClickListener onLoginClick = new View.OnClickListener() {
         public void onClick(View aView) {
-            String username = mUsername.getText().toString();
-            String password = mPassword.getText().toString();
-            
-            mLoginTask = new LoginTask();
-            mLoginTask.execute(new String[] {username, password});
+        	loginClick();
         }
     };
     

@@ -33,7 +33,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
         public void handleMessage(Message aMsg) {
         	if(getActivity()!= null){
 	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-	        	if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
+	        	if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
+	        		AwfulActivity aa = getAwfulActivity();
+	            	aa.setSupportProgressBarIndeterminateVisibility(false);
+	        		aa.setSupportProgressBarVisibility(false);
+	        		aa.reauthenticate();
+	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
 	        		loadingUpdate(aMsg);
 	        	}else{
 		            switch (aMsg.arg1) {
@@ -135,6 +140,13 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		if(getActivity()!=null){
 			getAwfulActivity().setActionbarTitle(title, this);
 		}
+	}
+	
+	protected boolean isFragmentVisible(){
+		if(getActivity()!=null){
+			return getAwfulActivity().isFragmentVisible(this);
+		}
+		return false;
 	}
 	
 	protected void startActionMode(){

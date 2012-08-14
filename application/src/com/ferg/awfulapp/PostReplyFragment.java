@@ -68,11 +68,10 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
-    private static final String TAG = "PostReplyActivity";
+    private static final String TAG = "PostReplyFragment";
 
     public static final int RESULT_POSTED = 1;
 
-    private Bundle mExtras;
     private EditText mMessage;
     private ProgressDialog mDialog;
 
@@ -81,7 +80,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private int mReplyType;
     private String mThreadTitle;
     private boolean sendSuccessful = false;
-    private boolean threadClosed = false;
     private String originalReplyData = "";
     
     private ReplyCallback mReplyDataCallback = new ReplyCallback(mHandler);
@@ -91,14 +89,16 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
 
-        fragment.setArguments(aArguments);
+        fragment.mReplyType = aArguments.getInt(Constants.EDITING, -1);
+        fragment.mPostId = aArguments.getInt(Constants.POST_ID, -1);
+        fragment.mThreadId = aArguments.getInt(Constants.THREAD_ID, -1);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);Log.e(TAG,"onCreate");
 
         new Thread(new Runnable() {
             public void run() {
@@ -107,16 +107,18 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             }
         }).start();
         setHasOptionsMenu(true);
+        setRetainInstance(true);
         mThreadLoaderCallback = new ThreadDataCallback();
     }
     
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState);
+        super.onCreateView(aInflater, aContainer, aSavedState);Log.e(TAG,"onCreateView");
 
         View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
+        mMessage.setText("");
         //result.findViewById(R.id.bbcode).setOnClickListener(this);
         //result.findViewById(R.id.emotes).setOnClickListener(this);
 
@@ -125,59 +127,61 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
-
-        setRetainInstance(true);
+        super.onActivityCreated(aSavedState);Log.e(TAG,"onActivityCreated");
 
         mMessage.setBackgroundColor(mPrefs.postBackgroundColor);
         mMessage.setTextColor(mPrefs.postFontColor);
         
-        mExtras = getExtras();
-        mReplyType = mExtras.getInt(Constants.EDITING, getArguments().getInt(Constants.EDITING, -1));
-        mPostId = mExtras.getInt(Constants.POST_ID, getArguments().getInt(Constants.POST_ID, -1));
-        mThreadId = mExtras.getInt(Constants.THREAD_ID, getArguments().getInt(Constants.THREAD_ID, -1));
         if(mReplyType <0 || mThreadId <0 || (mReplyType != AwfulMessage.TYPE_NEW_REPLY && mPostId < 0)){
         	Log.e(TAG,"MISSING ARGUMENTS!");
         	getActivity().finish();
         }
         
-		getActivity().getSupportLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
-        refreshThreadInfo();
     }
 
     @Override
     public void onResume() {
-        super.onResume();
+        super.onResume(); Log.e(TAG,"onResume");
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        refreshLoader();
+        refreshThreadInfo();
     }
     
     private void leave(){
     	if(getAwfulActivity() != null){
     		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+    		if(imm != null && getView() != null){
+    			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+    		}
     		getAwfulActivity().fragmentClosing(this);
     	}
     }
     
     @Override
     public void onPause() {
-        super.onPause();
-        
+        super.onPause();Log.e(TAG,"onPause");
+
+		getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
+		getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
+		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
+		getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         cleanupTasks();
     }
         
     @Override
     public void onStop() {
-        super.onStop();
+        super.onStop();Log.e(TAG,"onStop");
         autosave();
         cleanupTasks();
     }
     
     private void autosave(){
-        if(!sendSuccessful){
+        if(!sendSuccessful && mMessage != null){
         	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", ""))){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
+        		mMessage.setText("");
         	}else{
         		Log.i(TAG, "Message Unsent, saving.");
         		saveReply();
@@ -335,6 +339,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             	deleteReply();
             	leave();
                 break;
+            case R.id.save_draft:
+            	saveReply();
+            	leave();
+            	break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -425,36 +433,25 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
-		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
-		getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
+        super.onDestroyView();Log.e(TAG,"onDestroyView");
+        mMessage = null;
     }
     
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        super.onDestroy();Log.e(TAG,"onDestroy");
         cleanupTasks();
     }
 
 	@Override
 	public void onDetach() {
-		super.onDetach();
+		super.onDetach();Log.e(TAG,"onDetach");
 	}
 
     private void cleanupTasks() {
         if (mDialog != null) {
             mDialog.dismiss();
         }
-    }
-
-    private Bundle getExtras() {
-        if (getArguments() != null) {
-            return getArguments();
-        }
-
-        return getActivity().getIntent().getExtras();
     }
     
     private void postReply() {
@@ -491,7 +488,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     private void saveReply(){
-    	if(getActivity() != null && mThreadId >0){
+    	if(getActivity() != null && mThreadId >0 && mMessage != null){
     		ContentResolver cr = getActivity().getContentResolver();
 	    	ContentValues post = new ContentValues();
 	    	post.put(AwfulMessage.ID, mThreadId);
@@ -554,12 +551,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         		}
         	}else{
 		        if(mDialog == null && getActivity() != null){
-		        	Log.e(TAG, "DISPLAYING DIALOG");
-		        	//mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
+		        	Log.d(TAG, "DISPLAYING DIALOG");
+		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
 		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
 		        }
         	}
-        	Log.e(TAG, "CLOSING CURSOR");
         	aData.close();
         }
         
@@ -587,7 +583,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Thread title finished, populating.");
         	if(aData.getCount() >0 && aData.moveToFirst()){
-        		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+        		//threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		mThreadTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
         		setTitle(getTitle());
         	}
@@ -627,7 +623,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
 	@Override
 	public void onPageHidden() {
-		if(getActivity() != null){
+		autosave();
+		if(getActivity() != null && mMessage != null){
 			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mMessage.getApplicationWindowToken(), 0);
 		}
@@ -651,15 +648,24 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		case AwfulMessage.TYPE_QUOTE:
 			return "Quote"+title;
 		}
-		return "Loading";//TODO replace with thread name
+		return "Loading";
 	}
 
 	public void newReply(int threadId, int postId, int type) {
-		deleteReply();
+		if(threadId == mThreadId){
+			deleteReply();
+		}else{
+			autosave();
+		}
 		mThreadId = threadId;
 		mPostId = postId;
 		mReplyType = type;
 		mThreadTitle = null;
+		sendSuccessful = false;
+		originalReplyData = "";
+		if(mMessage != null){
+			mMessage.setText("");
+		}
 		refreshLoader();
 		refreshThreadInfo();
 		setTitle(getTitle());

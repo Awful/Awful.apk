@@ -42,11 +42,11 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-	listener.debugMessage('load');
+	//listener.debugMessage('load');
 });
 
 $(window).ready(function() {
-	listener.debugMessage('ready');
+	//listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
 		var id = this.hash.replace(/post/,'');
@@ -60,7 +60,7 @@ $(window).ready(function() {
 });
 
 function scrollPost() {
-	listener.debugMessage('scrollPost');
+	//listener.debugMessage('scrollPost');
 	if(prefs.scrollPosition > 0){
 		$(window).scrollTop(prefs.scrollPosition);
 	}else{
@@ -77,7 +77,7 @@ function scrollPost() {
 }
 
 function scrollLastRead(){
-	listener.debugMessage('scrollLastRead');
+	//listener.debugMessage('scrollLastRead');
 	try{
         $(window).scrollTop($('.unread').first().offset().top);
     }catch(error){
@@ -85,7 +85,7 @@ function scrollLastRead(){
 }
 
 function showInlineImage(url){
-	listener.debugMessage('showInlineImage');
+	//listener.debugMessage('showInlineImage');
 	$('a[href="'+url+'"]').append(function(){
 		if($(this).children('img[src="'+url+'"]').length < 1){
 			return '<img src="'+url+'" />';
@@ -95,7 +95,7 @@ function showInlineImage(url){
 }
 
 function gifHide() {
-	listener.debugMessage('gifHide');
+	//listener.debugMessage('gifHide');
 	var minBound = $(window).scrollTop()-($(window).height()/2);
 	var maxBound = $(window).scrollTop()+$(window).height()*1.5;
 	$(".gif").each(function (){

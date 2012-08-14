@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="41"
-      android:versionName="2.3.0_b18"
+      android:versionCode="44"
+      android:versionName="2.3.0_b21"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 
@@ -46,11 +46,10 @@
         </activity>
         <activity
                 android:name="com.ferg.awfulapp.AwfulLoginActivity"
-                android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light"/>
+                android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light" android:launchMode="singleTop"/>
         <activity 
             android:name="com.ferg.awfulapp.ThreadDisplayActivity"
-          	android:configChanges="orientation|keyboardHidden|screenSize"
-            android:hardwareAccelerated="false">
+          	android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />

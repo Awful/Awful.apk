@@ -55,6 +55,11 @@
 		   	android:title="Post Header Background Color"
 		   	android:defaultValue="@color/forums_blue"
 		   	/>
+		<CheckBoxPreference 
+            android:key="post_divider_enabled" 
+			android:title="@string/post_divider_enabled"
+			android:defaultValue="false"
+			/>
 		<com.ferg.awfulapp.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="post_divider_color"

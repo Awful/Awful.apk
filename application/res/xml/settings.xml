@@ -29,9 +29,9 @@
 			android:defaultValue="40"
 			/>
 		<Preference 
-			android:key="default_post_font_size" 
+			android:key="default_post_font_size_dip" 
 			android:title="@string/default_post_font_size"
-			android:defaultValue="22"
+			android:defaultValue="16"
 			/>
 		<Preference 
 			android:key="colors" 
@@ -87,11 +87,17 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
-		<!-- <CheckBoxPreference 
+		<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
-			/>-->
+			/>
+		<CheckBoxPreference 
+            android:key="debug_mode" 
+			android:title="@string/debug_mode"
+			android:summary="@string/debug_mode_summary"
+			android:defaultValue="false"
+			/>
     </PreferenceCategory>
 </PreferenceScreen>

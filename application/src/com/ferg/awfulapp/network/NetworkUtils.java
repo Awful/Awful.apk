@@ -413,6 +413,7 @@ public class NetworkUtils {
         CleanerProperties properties = sCleaner.getProperties();
         properties.setOmitComments(true);
         properties.setRecognizeUnicodeChars(false);
+        properties.setUseEmptyElementTags(false);
     }
 
 	public static void logCookies() {

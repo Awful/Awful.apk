@@ -9,6 +9,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -59,27 +60,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     private AwfulPreferences mPrefs;
     
-    private boolean isActive = false;
-    private BroadcastReceiver br = new BroadcastReceiver(){
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if(intent.getAction().equals(Constants.UNREGISTERED_BROADCAST)){
-				clearCookies();
-				if(isActive){
-					Toast.makeText(AwfulActivity.this, "You are logged out!", Toast.LENGTH_LONG).show();
-					reauthenticate();
-				}
-			}
-		}
-    };
-    
-    private void clearCookies(){
-        NetworkUtils.clearLoginCookies(this);
-    }
-    
-    private void reauthenticate(){
-        startActivity(new Intent(this, AwfulLoginActivity.class));
+    public void reauthenticate(){
+        startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
     }
     
     @Override
@@ -89,11 +71,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mPrefs = new AwfulPreferences(this, this);
-        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        registerReceiver(br, new IntentFilter(Constants.UNREGISTERED_BROADCAST));
         loggedIn = NetworkUtils.restoreLoginCookies(this);
     }
 
@@ -101,38 +81,52 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void onStart() {
         super.onStart();
         mConf.onStart();
+        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
         mConf.onResume();
-        isActive = true;
+        
+        if (isLoggedIn()) {
+            Log.v(TAG, "Cookie Loaded!");
+        } else {
+        	if(!(this instanceof AwfulLoginActivity)){
+        		reauthenticate();
+        	}
+        }
     }
     
     @Override
     protected void onPause() {
         super.onPause();
         mConf.onPause();
-        isActive = false;
     }
     
     @Override
     protected void onStop() {
         super.onStop();
         mConf.onStop();
+        unbindService(this);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mConf.onDestroy();
-        unbindService(this);
-        unregisterReceiver(br);
     }
 
 
-    protected void setActionBar() {
+    @Override
+	protected void onActivityResult(int request, int result, Intent intent) {
+		super.onActivityResult(request, result, intent);
+		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED){
+			finish();
+		}
+	}
+
+	protected void setActionBar() {
         ActionBar action = getSupportActionBar();
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);
@@ -163,6 +157,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 				e.printStackTrace();
 			}
         }
+        mMessageQueue.clear();
 	}
 
 	@Override
@@ -266,6 +261,10 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 			loggedIn = NetworkUtils.restoreLoginCookies(this);
 		}
 		return loggedIn;
+	}
+
+	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
+		return true;
 	}
 	
 	//UNUSED - I don't know why I put them in the same interface. Oh well.
