@@ -1240,6 +1240,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
         	setProgress(50);
+        	if(aData.isClosed()){
+        		return;
+        	}
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             dataLoaded = true;
 			savedScrollPosition = 0;
