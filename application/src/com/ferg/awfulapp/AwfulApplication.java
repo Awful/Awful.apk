@@ -48,7 +48,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         mPref = new AwfulPreferences(this, this);
         onPreferenceChange(mPref);
         if(mPref.sendUsernameInReport){
-        	ErrorReporter.getInstance().putCustomData("SAusername", mPref.username);
+        	ErrorReporter.getInstance().putCustomData("SA Username", mPref.username);
         }
     }
 
