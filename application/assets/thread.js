@@ -39,6 +39,10 @@ $(document).ready(function() {
 	  $(this).find('.avatar-text').toggle();
 	});
     var salr = new SALR(prefs);
+    
+    $("img[title*=':']").load(function(index) {
+	$(this).height(($(this).height() *  prefs.postFontSize / 15));
+	});
 });
 
 $(window).load(function() {

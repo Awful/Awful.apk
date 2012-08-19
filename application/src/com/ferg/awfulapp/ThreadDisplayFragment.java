@@ -978,6 +978,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
+            result.put("postFontSize", aAppPrefs.postFontSizePx);
             result.put("postcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
             result.put("backgroundcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
