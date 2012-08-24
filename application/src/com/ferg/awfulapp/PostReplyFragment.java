@@ -162,7 +162,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     @Override
     public void onPause() {
         super.onPause();Log.e(TAG,"onPause");
-
 		getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
 		getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
@@ -179,7 +178,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void autosave(){
         if(!sendSuccessful && mMessage != null){
-        	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", ""))){
+        	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", "")) || this.sendSuccessful == true){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
         		mMessage.setText("");
