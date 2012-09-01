@@ -27,31 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.*;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.database.*;
-import android.net.Uri;
-import android.os.*;
-import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
-import android.webkit.*;
-import android.webkit.WebSettings.PluginState;
-import android.webkit.WebSettings.RenderPriority;
-import android.widget.*;
-import android.support.v4.app.*;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.ParseException;
@@ -62,13 +37,50 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.text.format.DateFormat;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebSettings.PluginState;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
@@ -966,6 +978,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
+            result.put("postFontSize", aAppPrefs.postFontSizePx);
             result.put("postcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
             result.put("backgroundcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
@@ -1227,6 +1240,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
         	setProgress(50);
+        	if(aData.isClosed()){
+        		return;
+        	}
             populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
             dataLoaded = true;
 			savedScrollPosition = 0;

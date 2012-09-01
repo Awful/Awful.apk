@@ -94,6 +94,12 @@
 			android:defaultValue="false"
 			/>
 		<CheckBoxPreference 
+            android:key="send_username_in_report" 
+			android:title="@string/send_username_in_report"
+			android:summary="@string/send_username_in_report_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
             android:key="debug_mode" 
 			android:title="@string/debug_mode"
 			android:summary="@string/debug_mode_summary"

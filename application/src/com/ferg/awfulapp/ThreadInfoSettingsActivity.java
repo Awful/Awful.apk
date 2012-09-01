@@ -3,7 +3,6 @@ package com.ferg.awfulapp;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-import com.ferg.awfulapp.R;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ThreadInfoSettingsActivity extends PreferenceActivity {

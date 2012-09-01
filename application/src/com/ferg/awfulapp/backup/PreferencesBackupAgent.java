@@ -2,7 +2,6 @@ package com.ferg.awfulapp.backup;
 
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.SharedPreferencesBackupHelper;
-import android.preference.PreferenceManager;
 
 import com.ferg.awfulapp.constants.Constants;
 

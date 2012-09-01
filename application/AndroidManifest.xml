@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
       android:versionCode="44"
-      android:versionName="2.3.0_b21"
+      android:versionName="2.3.0_b22pre"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="7" 

@@ -1,13 +1,12 @@
 package com.ferg.awfulapp;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.network.NetworkUtils;
-
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.preference.PreferenceManager;
+
+import com.ferg.awfulapp.network.NetworkUtils;
 
 /**
  * Responsible for setting activity preferences which need to affect every activity in the app.

@@ -1,11 +1,11 @@
 package com.ferg.awfulapp.task;
 
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.service.AwfulSyncService;
-
 import android.os.AsyncTask;
 import android.os.Message;
 import android.os.Messenger;
+
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 /** A specialized AsyncTask for use with AwfulSyncService.
  * AwfulSyncService may avoid creating duplicate tasks if the new task's id and arg1 match any other pending task.

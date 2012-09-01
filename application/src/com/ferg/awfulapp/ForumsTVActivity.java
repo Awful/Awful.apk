@@ -27,14 +27,9 @@
 
 package com.ferg.awfulapp;
 
-import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.*;
+import android.view.Window;
 
-import android.support.v4.app.FragmentTransaction;
-
-import com.ferg.awfulapp.R;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ForumsTVActivity extends AwfulActivity {

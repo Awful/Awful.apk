@@ -2,10 +2,6 @@ package com.ferg.awfulapp.preferences;
 
 import java.util.ArrayList;
 
-import com.ferg.awfulapp.AwfulUpdateCallback;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -13,6 +9,10 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import com.ferg.awfulapp.AwfulUpdateCallback;
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -28,6 +28,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String username;
 	public boolean hasPlatinum;
 	public boolean debugMode;
+	public boolean sendUsernameInReport;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
@@ -168,6 +169,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
+        sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
        	 //TODO: I have never seen this before oh god
 	}
 }

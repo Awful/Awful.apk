@@ -18,8 +18,8 @@ package com.ferg.awfulapp.preferences;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Bitmap.Config;
+import android.graphics.Color;
 import android.preference.Preference;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -96,6 +96,7 @@ public class ColorPickerPreference
 		ImageView iView = new ImageView(getContext());
 		LinearLayout widgetFrameView = ((LinearLayout)mView.findViewById(android.R.id.widget_frame));
 		if (widgetFrameView == null) return;
+		widgetFrameView.setVisibility(View.VISIBLE);
 		widgetFrameView.setPadding(
 			widgetFrameView.getPaddingLeft(),
 			widgetFrameView.getPaddingTop(),
@@ -108,7 +109,8 @@ public class ColorPickerPreference
 			widgetFrameView.removeViews(0, count);
 		}
 		widgetFrameView.addView(iView);
-		iView.setBackgroundDrawable(new AlphaPatternDrawable((int)(5 * mDensity)));
+		//iView.setBackgroundDrawable(new AlphaPatternDrawable((int)(5 * mDensity)));
+
 		iView.setImageBitmap(getPreviewBitmap());
 	}
 

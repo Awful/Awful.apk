@@ -1,33 +1,30 @@
-local.properties
-
 *.swp
 
 *.keystore
 
 *.DS_Store
 
-/bin/*
 
-/gen/*
+# built application files
+*.apk
+*.ap_
 
-.classpath
+# files for the dex VM
+*.dex
 
-.project
-/application/gen
-/application/bin
-/application/bin
-/application/gen
-/libraries/LeftNavBarLibrary/bin
-/libraries/LeftNavBarLibrary/gen
-/libraries/LeftNavBarLibrary/.settings
-/application/.settings
-/libraries/Sherlock/bin
-/libraries/Sherlock/gen
-/libraries/pulltorefresh/gen
-/libraries/pulltorefresh/bin
-/libraries/GreenDroid/bin
-/libraries/GreenDroid/gen
-/libraries/Sherlock/bin
-/libraries/Sherlock/bin/sherlock-awful.jar
-/libraries/Sherlock/bin/res
-/libraries/Sherlock/gen
+# Java class files
+*.class
+
+# generated files
+*bin/
+*gen/
+
+
+
+# Local configuration file (sdk path, etc)
+*.properties
+
+# Eclipse project files
+*.classpath
+*.project
+*.settings

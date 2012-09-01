@@ -2,12 +2,9 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.widget.TextView;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 
 public class UserCPShortcutActivity extends Activity {

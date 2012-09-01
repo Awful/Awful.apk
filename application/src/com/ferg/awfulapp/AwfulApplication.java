@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.annotation.ReportsCrashes;
+
 import android.app.Application;
-import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Message;
 import android.util.Log;
@@ -13,14 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.acra.*;
-import org.acra.annotation.*;
-
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 //@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
 //@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
@@ -49,6 +47,9 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         
         mPref = new AwfulPreferences(this, this);
         onPreferenceChange(mPref);
+        if(mPref.sendUsernameInReport){
+        	ErrorReporter.getInstance().putCustomData("SA Username", mPref.username);
+        }
     }
 
 	public void setFontFromPreference(TextView textView, int flags){

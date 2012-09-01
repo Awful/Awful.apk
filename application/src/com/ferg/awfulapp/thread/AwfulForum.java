@@ -27,37 +27,27 @@
 
 package com.ferg.awfulapp.thread;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.text.Html;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.ImageView.ScaleType;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Environment;
+import android.text.Html;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
 import com.androidquery.AQuery;
-import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;

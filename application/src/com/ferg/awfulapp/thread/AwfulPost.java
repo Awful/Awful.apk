@@ -34,7 +34,8 @@ import java.util.regex.Pattern;
 
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -42,9 +43,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;

@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.os.Message;
 import android.util.Log;
 
@@ -13,7 +12,6 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.reply.Reply;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPost;
 
 public class FetchReplyTask extends AwfulTask {
 	

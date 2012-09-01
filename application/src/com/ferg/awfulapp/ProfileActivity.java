@@ -31,13 +31,10 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.webkit.WebView;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.user.Profile;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ProfileActivity extends AwfulActivity {
     private static final String TAG = "ProfileActivity";

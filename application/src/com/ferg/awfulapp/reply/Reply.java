@@ -27,14 +27,12 @@
 
 package com.ferg.awfulapp.reply;
 
-import android.content.ContentValues;
-import android.graphics.Bitmap;
-import android.util.Log;
-
 import java.util.HashMap;
 
 import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
+
+import android.content.ContentValues;
+import android.graphics.Bitmap;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;

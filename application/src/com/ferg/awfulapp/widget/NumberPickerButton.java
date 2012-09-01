@@ -16,14 +16,13 @@
 
 package com.ferg.awfulapp.widget;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.R.id;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
+
+import com.ferg.awfulapp.R;
 
 /**
  * This class exists purely to cancel long click events.
