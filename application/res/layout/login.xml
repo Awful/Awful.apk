@@ -14,15 +14,17 @@
 		android:scaleType="fitCenter"
 		android:adjustViewBounds="true"
 		android:src="@drawable/dealwithit" />
+
      <TextView
-        android:id="@+id/prompt_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/login_message"
-        android:textSize="18dip"
-        android:layout_alignParentTop="true"
-        android:drawableLeft="@drawable/emot_goonsay"
-        />
+         android:id="@+id/prompt_msg"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentTop="true"
+         android:drawableLeft="@drawable/emot_goonsay"
+         android:drawablePadding="@dimen/login_label_padding"
+         android:text="@string/login_message"
+         android:textSize="18dip" />
+
 	<EditText
 		android:id="@+id/username"
 		android:layout_width="fill_parent"
