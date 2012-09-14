@@ -42,8 +42,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.Html;
 import android.util.Log;
+import android.view.View;
 
+import com.androidquery.AQuery;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -555,5 +559,13 @@ public class AwfulPost {
 
         return result;
     }
+
+	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, Cursor data) {
+		aq.recycle(current);
+		aq.find(R.id.title).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME))));
+		aq.find(R.id.subtext).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(CONTENT))));
+		aq.id(R.id.forum_tag).gone();
+		aq.id(R.id.thread_tag).gone();
+	}
 
 }

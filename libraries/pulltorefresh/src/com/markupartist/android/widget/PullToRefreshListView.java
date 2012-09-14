@@ -124,6 +124,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
     @Override
     protected void onAttachedToWindow() {
     	//Log.e("PULLREFRESH","onAttachedToWindow setSelection");
+    	super.onAttachedToWindow();
         setSelection(1);
     }
 

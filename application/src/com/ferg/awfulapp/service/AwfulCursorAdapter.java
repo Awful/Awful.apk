@@ -22,6 +22,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 public class AwfulCursorAdapter extends CursorAdapter {
@@ -31,7 +32,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private LayoutInflater inf;
 	private int mId;
 	private int selectedId = -1;
-	private boolean mIsSidebar;
+	private boolean mIsSidebar;//refactor this out
 	private AQuery aq;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
@@ -62,6 +63,8 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			AwfulForum.getSubforumView(current, aq, mPrefs, data, mIsSidebar, false);
+		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+			AwfulPost.getView(current, aq, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
@@ -79,6 +82,9 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
 			AwfulForum.getSubforumView(row, aq, mPrefs, data, mIsSidebar, false);
+		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+			row = inf.inflate(R.layout.thread_item, parent, false);
+			AwfulPost.getView(row, aq, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);
