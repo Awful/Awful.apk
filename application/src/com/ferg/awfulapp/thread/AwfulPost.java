@@ -562,10 +562,17 @@ public class AwfulPost {
 
 	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, Cursor data) {
 		aq.recycle(current);
-		aq.find(R.id.title).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME))));
-		aq.find(R.id.subtext).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(CONTENT))));
-		aq.id(R.id.forum_tag).gone();
-		aq.id(R.id.thread_tag).gone();
+		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(mPrefs.postHeaderFontColor);
+		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(mPrefs.postHeaderFontColor);
+		int background = 0;
+		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
+			background = mPrefs.postReadBackgroundColor;
+		}else{
+			background = mPrefs.postBackgroundColor;
+		}
+		aq.find(R.id.post_content).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)))).textColor(mPrefs.postFontColor).backgroundColor(background);
+		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true).height(100,false).width(100,false);
+		aq.find(R.id.post_header).backgroundColor(mPrefs.postHeaderBackgroundColor);
 	}
 
 }

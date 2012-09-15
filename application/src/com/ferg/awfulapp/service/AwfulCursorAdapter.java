@@ -83,7 +83,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.thread_item, parent, false);
 			AwfulForum.getSubforumView(row, aq, mPrefs, data, mIsSidebar, false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			row = inf.inflate(R.layout.thread_item, parent, false);
+			row = inf.inflate(R.layout.post_item, parent, false);
 			AwfulPost.getView(row, aq, mPrefs, data);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);

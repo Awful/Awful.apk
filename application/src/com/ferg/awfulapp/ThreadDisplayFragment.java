@@ -74,6 +74,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,6 +86,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -119,6 +121,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private String mActionModeURL;
 
     private WebView mThreadView;
+    
+    private ListView mThreadListView;
+    private AwfulCursorAdapter mCursorAdapter;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -315,10 +320,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
         mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mPageBar = result.findViewById(R.id.page_indicator);
-		mThreadView = (WebView) result.findViewById(R.id.thread);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
-		initThreadViewProperties();
 		mNextPage.setOnClickListener(onButtonClick);
 		mToggleSidebar.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
@@ -418,15 +421,26 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         //recreate that fucking webview if we don't have it yet
-        if(mThreadView == null){
-            mThreadView = new WebView(getActivity());
-            mThreadView.setId(R.id.thread);
-            initThreadViewProperties();
-            mThreadWindow.removeAllViews();
-            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-        	refreshPosts();
-        }
+		if(!mPrefs.staticThreadView && mThreadView == null){
+	        mThreadView = new WebView(getActivity());
+	        mThreadView.setId(R.id.thread);
+	        initThreadViewProperties();
+	        mThreadWindow.removeAllViews();
+	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
+	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+	    	refreshPosts();
+		}
+		if(mPrefs.staticThreadView && mThreadListView == null){
+			mThreadListView = new ListView(getActivity());
+			mThreadListView.setBackgroundColor(mPrefs.postBackgroundColor);
+			mThreadListView.setCacheColorHint(mPrefs.postBackgroundColor);
+			mCursorAdapter = new AwfulCursorAdapter(getAwfulActivity(), null);
+			mThreadListView.setAdapter(mCursorAdapter);
+	        mThreadWindow.removeAllViews();
+	        mThreadWindow.addView(mThreadListView,new ViewGroup.LayoutParams(
+	        			ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+            refreshPosts();
+    	}
     }
     
 
@@ -439,7 +453,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     public void resumeWebView(){
-    	if(getActivity() != null){
+    	if(getActivity() != null && !mPrefs.staticThreadView){
 	        if (mThreadView == null) {
 	            mThreadView = new WebView(getActivity());
 	            mThreadView.setId(R.id.thread);
@@ -456,12 +470,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	@Override
 	public void onPageVisible() {
-		resumeWebView();
+		if(!mPrefs.staticThreadView){
+			resumeWebView();
+		}else{
+			
+		}
 	}
 
 	@Override
 	public void onPageHidden() {
-		pauseWebView();
+		if(!mPrefs.staticThreadView){
+			pauseWebView();
+		}else{
+			
+		}
 	}
 	
     @Override
@@ -482,7 +504,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-        if (mThreadView != null) {
+        if (mThreadView != null && !Constants.isICS()) {
         	//SALT THE FUCKING EARTH
         	mThreadView.stopLoading();
         	savedScrollPosition = mThreadView.getScrollY();
@@ -495,13 +517,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDestroyView(){
     	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-        //try {
-        //    mThreadWindow.removeView(mThreadView);
-        //    mThreadView.destroy();
-        //    mThreadView = null;
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+    	if(mThreadView != null){
+	        try {
+	            mThreadWindow.removeView(mThreadView);
+	            mThreadView.destroy();
+	            mThreadView = null;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+    	}
     }
     @Override
     public void onDestroy() {
@@ -656,6 +680,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(mThreadView != null){
     		outState.putInt("scroll_position", mThreadView.getScrollY());
     	}
+    	if(mThreadListView != null){
+    		outState.putInt("scroll_position", mThreadListView.getScrollY());
+    	}
     }
     
     private void syncThread() {
@@ -733,7 +760,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
 
     public void refresh() {
-		mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    	if(mThreadView != null){
+    		mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    	}
         syncThread();
     }
 
@@ -1166,6 +1195,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		}
+		if(mThreadListView != null){
+			mThreadListView.setBackgroundColor(mPrefs.postBackgroundColor);
+			mThreadListView.setCacheColorHint(mPrefs.postBackgroundColor);
+		}
 	}
 
 	public void setPostJump(String postID) {
@@ -1177,7 +1210,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			setPage(aPage);
 			updatePageBar();
 			mPostJump = "";
-            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+			if(mThreadView != null){
+				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+			}
 	        syncThread();
 		}
 	}
@@ -1243,7 +1278,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(aData.isClosed()){
         		return;
         	}
-            populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
+        	if(mPrefs.staticThreadView){
+        		mCursorAdapter.swapCursor(aData);
+        	}else{
+        		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
+        	}
             dataLoaded = true;
 			savedScrollPosition = 0;
         }
@@ -1345,7 +1384,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
 		updatePageBar();
     	if(getActivity() != null){
-            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    		if(mThreadView != null){
+    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    		}
 			refreshInfo();
 			syncThread();
     	}
@@ -1365,7 +1406,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	savedScrollPosition = thread.scrollPos;
 		updatePageBar();
     	if(getActivity() != null){
-            mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    		if(mThreadView != null){
+    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+    		}
 			refreshInfo();
 			refreshPosts();
     	}
@@ -1381,6 +1424,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void pushThread(int id, int page, String postJump){
 		if(mThreadView != null && getThreadId() != 0){
 			backStack.addFirst(new AwfulStackEntry(getThreadId(), getPage(), mThreadView.getScrollY()));
+		}
+		if(mThreadListView != null && getThreadId() != 0){
+			backStack.addFirst(new AwfulStackEntry(getThreadId(), getPage(), mThreadListView.getScrollY()));
 		}
 		loadThread(id, page, postJump);
 	}

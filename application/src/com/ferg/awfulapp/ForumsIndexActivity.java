@@ -286,7 +286,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}
 	}
 
-    @Override
+    /*revert slider reply window I guess.
 	public void displayReplyWindow(int threadId, int postId, int type) {
     	if(mViewPager != null){
     		if(mReplyFragment != null){
@@ -314,6 +314,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		super.displayReplyWindow(threadId, postId, type);
     	}
 	}
+     */
     
     private void closeTempWindows(){
     	if(mViewPager != null){

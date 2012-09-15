@@ -120,6 +120,8 @@ public class Constants {
 	public static final int SUBFORUM_LOADER_ID = 886;
 	public static final int EMOTE_LOADER_ID = 887;
 	public static final int MISC_LOADER_ID = 888;
+	public static final int THREAD_LOADER_ID = 889;
+	public static final int POST_LOADER_ID = 889;
 
 	public static final String ACTION_DOSEND = "dosend";
 	public static final String DESTINATION_TOUSER = "touser";

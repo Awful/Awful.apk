@@ -137,16 +137,16 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	Log.e(TAG,"MISSING ARGUMENTS!");
         	getActivity().finish();
         }
+        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        refreshLoader();
+        refreshThreadInfo();
         
     }
 
     @Override
     public void onResume() {
         super.onResume(); Log.e(TAG,"onResume");
-        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
-        refreshLoader();
-        refreshThreadInfo();
     }
     
     private void leave(){
@@ -162,19 +162,16 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     @Override
     public void onPause() {
         super.onPause();Log.e(TAG,"onPause");
-		getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
-		getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
-		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
-		getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         cleanupTasks();
     }
         
     @Override
     public void onStop() {
         super.onStop();Log.e(TAG,"onStop");
-        autosave();
         cleanupTasks();
     }
+    
+    
     
     private void autosave(){
         if(!sendSuccessful && mMessage != null){
@@ -434,6 +431,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     @Override
     public void onDestroyView() {
         super.onDestroyView();Log.e(TAG,"onDestroyView");
+        autosave();
+		getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
+		getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
+		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
+		getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         mMessage = null;
     }
     
