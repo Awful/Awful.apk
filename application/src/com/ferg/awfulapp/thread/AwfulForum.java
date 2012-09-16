@@ -260,18 +260,13 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param selected 
 	 * @param mIsSidebar 
 	 */
-	public static void getSubforumView(View current, AQuery aq, AwfulPreferences aPrefs, Cursor data, boolean hasSidebar, boolean selected) {
+	public static void getSubforumView(View current, AQuery aq, AwfulPreferences aPrefs, Cursor data, boolean selected) {
 		aq.recycle(current);
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
 		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
 		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
-		if(hasSidebar){
-			current.setBackgroundResource(R.drawable.gradient_left);
-		}else{
-			current.setBackgroundResource(0);
-		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
 		}else{

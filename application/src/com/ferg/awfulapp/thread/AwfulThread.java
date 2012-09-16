@@ -571,7 +571,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean hasSidebar, boolean selected) {
+	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean selected) {
 		aq.recycle(current);
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
@@ -644,11 +644,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			
 		}
 		
-		if(hasSidebar){
-			current.setBackgroundResource(R.drawable.gradient_left);
-		}else{
-			current.setBackgroundResource(0);
-		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
 		}else{

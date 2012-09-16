@@ -32,41 +32,40 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private LayoutInflater inf;
 	private int mId;
 	private int selectedId = -1;
-	private boolean mIsSidebar;//refactor this out
 	private AQuery aq;
+	private Messenger msgCallback;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
 		this(context, c, 0, false, null);
 	}
-	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar, Messenger tagCallback) {
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar, Messenger messageCallback) {
 		super(context, c, 0);
 		mPrefs = new AwfulPreferences(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
 		mId = id;
-		mIsSidebar = isSidebar;
-		mReplyTo = tagCallback;
+		msgCallback = messageCallback;
 		aq = new AQuery(context);
+	}
+	
+	public AwfulCursorAdapter(AwfulActivity awfulActivity, Cursor c, Messenger buttonMessenger) {
+		this(awfulActivity, c, 0, false, buttonMessenger);
 	}
 	
 	public void setSelected(int id){
 		selectedId = id;
 	}
-	
-	public void setSidebar(boolean isSidebar){
-		mIsSidebar = isSidebar;
-	}
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, mIsSidebar, false);
+			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getSubforumView(current, aq, mPrefs, data, mIsSidebar, false);
+			AwfulForum.getSubforumView(current, aq, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			AwfulPost.getView(current, aq, mPrefs, data);
+			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
-			AwfulMessage.getView(current, mPrefs, data, mIsSidebar, false);
+			AwfulMessage.getView(current, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			AwfulEmote.getView(current, mPrefs, data);
 		}
@@ -78,16 +77,16 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulThread.getView(row, mPrefs, data, aq, mId == Constants.USERCP_ID, mIsSidebar, false);
+			AwfulThread.getView(row, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, aq, mPrefs, data, mIsSidebar, false);
+			AwfulForum.getSubforumView(row, aq, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
 			row = inf.inflate(R.layout.post_item, parent, false);
-			AwfulPost.getView(row, aq, mPrefs, data);
+			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
-			AwfulMessage.getView(row, mPrefs, data, mIsSidebar, false);
+			AwfulMessage.getView(row, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);//TODO add custom emote view
 			AwfulEmote.getView(row, mPrefs, data);
@@ -132,21 +131,4 @@ public class AwfulCursorAdapter extends CursorAdapter {
     	}
     	return null;
 	}
-	
-	private HashMap<Integer,ImageView> imageQueue = new HashMap<Integer,ImageView>();
-	private HashMap<String,Bitmap> imageCache = new HashMap<String,Bitmap>();
-	private Handler mImageHandler = new Handler(){
-
-		@Override
-		public void handleMessage(Message msg) {
-			if(msg.arg1 == AwfulSyncService.Status.OKAY && msg.what == AwfulSyncService.MSG_GRAB_IMAGE){
-				ImageView imgTag = imageQueue.remove(msg.arg2);
-				if(imgTag != null){
-					AwfulThread.setBitmap(mParent, imgTag, imageCache);
-				}
-			}
-		}
-		
-	};
-	private Messenger mReplyTo = new Messenger(mImageHandler);
 }

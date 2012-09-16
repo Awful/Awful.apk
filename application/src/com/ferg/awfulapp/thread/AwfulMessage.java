@@ -51,7 +51,7 @@ public class AwfulMessage extends AwfulPagedItem {
 	 * Generates List view items for PM list.
 	 * @param mIsSidebar 
 	 */
-	public static View getView(View current, AwfulPreferences aPref, Cursor data, boolean hasSidebar, boolean selected) {
+	public static View getView(View current, AwfulPreferences aPref, Cursor data, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		String t = data.getString(data.getColumnIndex(TITLE));
 		if(t != null){
@@ -75,11 +75,6 @@ public class AwfulMessage extends AwfulPagedItem {
 		if(aPref != null){
 			title.setTextColor(aPref.postFontColor);
 			author.setTextColor(aPref.postFontColor2);
-		}
-		if(hasSidebar){
-			current.setBackgroundResource(R.drawable.gradient_left);
-		}else{
-			current.setBackgroundResource(0);
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);

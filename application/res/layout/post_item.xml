@@ -2,54 +2,126 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
+
     <RelativeLayout
         android:id="@+id/post_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
-
-        <ImageView
-            android:id="@+id/post_more_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/ic_menu_more" />
+        android:layout_alignParentTop="true"
+        android:padding="4dp" >
 
-        <ImageView
-            android:id="@+id/post_avatar"
+        <RelativeLayout
+            android:id="@+id/post_header_top"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon" />
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/post_more_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_menu_more" />
+
+            <ImageView
+                android:id="@+id/post_avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxHeight="48dp"
+                android:maxWidth="48dp"
+                android:src="@drawable/icon" />
 
+            <TextView
+                android:id="@+id/post_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/post_more_icon"
+                android:layout_toRightOf="@+id/post_avatar"
+                android:padding="2dp"
+                android:text="TextView"
+                android:textSize="18dp" />
+
+            <TextView
+                android:id="@+id/post_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/post_author"
+                android:layout_below="@+id/post_author"
+                android:layout_toRightOf="@+id/post_avatar"
+                android:padding="2dp"
+                android:text="TextView" />
+
+        </RelativeLayout>
+
         <TextView
-            android:id="@+id/post_author"
-            android:layout_width="wrap_content"
+            android:id="@+id/post_avatar_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/post_more_icon"
-            android:layout_toRightOf="@+id/post_avatar"
+            android:layout_below="@id/post_header_top"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
             android:text="TextView"
-            android:textSize="18dp" />
-
-        <TextView
-            android:id="@+id/post_date"
-            android:layout_width="wrap_content"
+            android:visibility="gone" />
+
+        <com.ferg.awfulapp.widget.AwfulHorizontalScrollView
+            android:id="@+id/post_button_scoller"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignRight="@+id/post_author"
-            android:layout_below="@+id/post_author"
-            android:layout_toRightOf="@+id/post_avatar"
-            android:text="TextView" />
+            android:layout_below="@id/post_avatar_text"
+            android:visibility="gone" >
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/post_userposts_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="More" />
+
+                <Button
+                    android:id="@+id/post_copyurl_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Copy URL" />
+
+                <Button
+                    android:id="@+id/post_pm_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PM" />
+
+                <Button
+                    android:id="@+id/post_last_read"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Last Read" />
+
+                <Button
+                    android:id="@+id/post_edit_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit" />
+
+                <Button
+                    android:id="@+id/post_quote_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quote" />
+            </LinearLayout>
+        </com.ferg.awfulapp.widget.AwfulHorizontalScrollView>
     </RelativeLayout>
-
+
     <TextView
         android:id="@+id/post_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/post_header"
+        android:layout_below="@id/post_header"
+        android:padding="4dp"
         android:text="TextView" />
 
 </RelativeLayout>

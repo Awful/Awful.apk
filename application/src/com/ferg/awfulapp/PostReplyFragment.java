@@ -89,10 +89,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
     public static PostReplyFragment newInstance(Bundle aArguments) {
         PostReplyFragment fragment = new PostReplyFragment();
-
-        fragment.mReplyType = aArguments.getInt(Constants.EDITING, -1);
-        fragment.mPostId = aArguments.getInt(Constants.POST_ID, -1);
-        fragment.mThreadId = aArguments.getInt(Constants.THREAD_ID, -1);
+        fragment.setArguments(aArguments);
         return fragment;
     }
 
@@ -110,6 +107,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         setHasOptionsMenu(true);
         setRetainInstance(true);
         mThreadLoaderCallback = new ThreadDataCallback();
+        
+
+        mReplyType = getArguments().getInt(Constants.EDITING, mReplyType);
+        mPostId = getArguments().getInt(Constants.POST_ID, mPostId);
+        mThreadId = getArguments().getInt(Constants.THREAD_ID, mThreadId);
     }
     
     @Override
@@ -175,7 +177,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void autosave(){
         if(!sendSuccessful && mMessage != null){
-        	if(mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", "")) || this.sendSuccessful == true){
+        	if(mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", "")) || this.sendSuccessful == true){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
         		mMessage.setText("");
@@ -487,6 +489,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private void deleteReply(){
 		ContentResolver cr = getActivity().getContentResolver();
 		cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
+		cr.notifyChange(AwfulThread.CONTENT_URI, null);
+		sendSuccessful = true;
     }
     
     private void saveReply(){

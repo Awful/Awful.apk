@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp.thread;
 
+import java.security.acl.LastOwnerException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -36,15 +37,29 @@ import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.XMLReader;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.text.Editable;
 import android.text.Html;
+import android.text.Html.ImageGetter;
+import android.text.Html.TagHandler;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.HorizontalScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
@@ -560,7 +575,7 @@ public class AwfulPost {
         return result;
     }
 
-	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, Cursor data) {
+	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
 		aq.recycle(current);
 		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(mPrefs.postHeaderFontColor);
 		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(mPrefs.postHeaderFontColor);
@@ -570,9 +585,55 @@ public class AwfulPost {
 		}else{
 			background = mPrefs.postBackgroundColor;
 		}
-		aq.find(R.id.post_content).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)))).textColor(mPrefs.postFontColor).backgroundColor(background);
-		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true).height(100,false).width(100,false);
+//		final Drawable frog = current.getContext().getResources().getDrawable(R.drawable.icon);
+		Spanned postContent = Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)),null,new TagHandler() {
+			
+			@Override
+			public void handleTag(boolean opening, String tag, Editable output,
+					XMLReader xmlReader) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		TextView contentView = (TextView) aq.find(R.id.post_content).visible().text(postContent).textColor(mPrefs.postFontColor).backgroundColor(background).getView();
+		contentView.setMovementMethod(LinkMovementMethod.getInstance());
+		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
+		aq.find(R.id.post_avatar_text).text(data.getString(data.getColumnIndex(AVATAR_TEXT))).textColor(mPrefs.postHeaderFontColor).gone();
 		aq.find(R.id.post_header).backgroundColor(mPrefs.postHeaderBackgroundColor);
+		OnClickListener buttonClick = new OnClickListener(){
+			private int id = data.getInt(data.getColumnIndex(ID));
+			private Messenger notify = buttonCallback;
+			@Override
+			public void onClick(View v) {
+				try {
+					//Send message for the button press, attach post ID
+					notify.send(Message.obtain(null, v.getId(), id, 0));
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		aq.find(R.id.post_edit_button).clicked(buttonClick).visible();
+		if(data.getInt(data.getColumnIndex(EDITABLE)) < 1){
+			aq.find(R.id.post_edit_button).gone();
+		}
+		aq.find(R.id.post_copyurl_button).clicked(buttonClick);
+		aq.find(R.id.post_pm_button).clicked(buttonClick);
+		aq.find(R.id.post_quote_button).clicked(buttonClick);//TODO hide button if thread locked
+		aq.find(R.id.post_userposts_button).clicked(buttonClick);
+		aq.find(R.id.post_last_read).clicked(buttonClick);
+		aq.find(R.id.post_header).clicked(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				View avatarText = v.findViewById(R.id.post_avatar_text);
+				avatarText.setVisibility(avatarText.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
+				HorizontalScrollView buttonContainer = (HorizontalScrollView) v.findViewById(R.id.post_button_scoller);
+				buttonContainer.setVisibility(buttonContainer.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
+				buttonContainer.scrollTo(buttonContainer.getWidth(), 0);
+			}
+		});
+		aq.find(R.id.post_button_scoller).backgroundColor(mPrefs.postHeaderBackgroundColor).gone();
 	}
 
 }

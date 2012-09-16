@@ -171,7 +171,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
-        staticThreadView	 	 = mPrefs.getBoolean("static_thread_view", true);
+        staticThreadView	 	 = mPrefs.getBoolean("static_thread_view", false);
        	 //TODO: I have never seen this before oh god
 	}
 }

@@ -59,6 +59,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -147,6 +148,32 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private String mPostJump = "";
 	private int savedPage = 0;//for reverting from "Find posts by"
 	private int savedScrollPosition = 0;
+	
+	private Handler buttonHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			Log.i(TAG, "POST BUTTON HIT "+msg.arg1+" - "+msg.what);
+			switch(msg.what){
+			case R.id.post_quote_button:
+				clickInterface.onQuoteClickInt(msg.arg1);
+				break;
+			case R.id.post_edit_button:
+				clickInterface.onEditClickInt(msg.arg1);
+				break;
+			case R.id.post_last_read:
+				clickInterface.onLastReadClickInt(mCursorAdapter.getInt(msg.arg1, AwfulPost.POST_INDEX));
+				break;
+			case R.id.post_copyurl_button:
+				copyThreadURL(Integer.toString(msg.arg1));
+				break;
+			case R.id.post_userposts_button:
+				clickInterface.onUserPostsClickInt(mCursorAdapter.getInt(msg.arg1, AwfulPost.USER_ID));
+				break;
+			}
+		}
+	};
+	private Messenger buttonCallback = new Messenger(buttonHandler);
 	
 	public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -426,6 +453,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        mThreadView.setId(R.id.thread);
 	        initThreadViewProperties();
 	        mThreadWindow.removeAllViews();
+	        mThreadListView = null;
+	        mCursorAdapter = null;
 	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
 	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 	    	refreshPosts();
@@ -434,9 +463,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			mThreadListView = new ListView(getActivity());
 			mThreadListView.setBackgroundColor(mPrefs.postBackgroundColor);
 			mThreadListView.setCacheColorHint(mPrefs.postBackgroundColor);
-			mCursorAdapter = new AwfulCursorAdapter(getAwfulActivity(), null);
+			mCursorAdapter = new AwfulCursorAdapter(getAwfulActivity(), null, buttonCallback);
 			mThreadListView.setAdapter(mCursorAdapter);
 	        mThreadWindow.removeAllViews();
+	        if(mThreadView != null){
+	        	mThreadView.destroy();
+	        	mThreadView = null;
+	        }
 	        mThreadWindow.addView(mThreadListView,new ViewGroup.LayoutParams(
 	        			ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
             refreshPosts();
@@ -980,7 +1013,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updatePageBar();
 
         try {
-            mThreadView.addJavascriptInterface(new ClickInterface(), "listener");
+            mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
             
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed);
@@ -1020,7 +1053,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         return result.toString();
     }
-
+    private ClickInterface clickInterface = new ClickInterface();
     private class ClickInterface {
         public static final int SEND_PM  = 0;
         public static final int COPY_URL = 1;
@@ -1033,15 +1066,25 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         };
         
         public void onQuoteClick(final String aPostId) {
+        	onQuoteClickInt(Integer.parseInt(aPostId));
+        }
+        
+        //name it differently to avoid ambiguity on the JS interface
+        public void onQuoteClickInt(final int aPostId){
             if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, Integer.parseInt(aPostId),AwfulMessage.TYPE_QUOTE);
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, aPostId,AwfulMessage.TYPE_QUOTE);
             }else{
-                displayPostReplyDialog(mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_QUOTE);
+                displayPostReplyDialog(mThreadId, aPostId, AwfulMessage.TYPE_QUOTE);
             }
         }
         
-        public void onLastReadClick(final String aLastReadUrl) {
-        	markLastRead(Integer.parseInt(aLastReadUrl));
+        public void onLastReadClick(final String index) {
+        	markLastRead(Integer.parseInt(index));
+        }
+        
+        //name it differently to avoid ambiguity on the JS interface
+        public void onLastReadClickInt(final int index) {
+        	markLastRead(index);
         }
 
         public void onSendPMClick(final String aUsername) {
@@ -1050,12 +1093,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         // Post ID is the item tapped
         public void onEditClick(final String aPostId) {
+        	onEditClickInt(Integer.parseInt(aPostId));
+        }
 
-
+        //name it differently to avoid ambiguity on the JS interface
+        public void onEditClickInt(final int aPostId) {
             if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_EDIT);
+            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, mThreadId, aPostId, AwfulMessage.TYPE_EDIT);
             }else{
-                displayPostReplyDialog(mThreadId, Integer.parseInt(aPostId), AwfulMessage.TYPE_EDIT);
+                displayPostReplyDialog(mThreadId, aPostId, AwfulMessage.TYPE_EDIT);
             }
         }
         
@@ -1079,10 +1125,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         
         public void onUserPostsClick(final String aUserId) {
+        	onUserPostsClickInt(Integer.parseInt(aUserId));
+        }
+        public void onUserPostsClickInt(final int aUserId) {
         	if(mUserId >0){
         		deselectUser();
         	}else{
-        		selectUser(Integer.parseInt(aUserId));
+        		selectUser(aUserId);
         	}
         }
     }
@@ -1237,7 +1286,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		setPage(1);
 		mLastPage = 1;
 		mPostJump = "";
-        mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+		if(mThreadView != null){
+			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+		}
         syncThread();
 	}
 	
@@ -1246,7 +1297,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		setPage(savedPage);
 		mLastPage = 0;
 		mPostJump = "";
-        mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+		if(mThreadView != null){
+			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+		}
         syncThread();
 	}
 	
@@ -1280,6 +1333,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	}
         	if(mPrefs.staticThreadView){
         		mCursorAdapter.swapCursor(aData);
+        		setProgress(100);
         	}else{
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
@@ -1289,6 +1343,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
+        	if(mCursorAdapter != null){
+        		mCursorAdapter.swapCursor(null);
+        	}
         }
     }
     
