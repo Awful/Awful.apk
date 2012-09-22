@@ -50,8 +50,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Html.ImageGetter;
-import android.text.Html.TagHandler;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -64,6 +62,7 @@ import android.widget.Toast;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.htmlwidget.HtmlView;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -586,17 +585,18 @@ public class AwfulPost {
 			background = mPrefs.postBackgroundColor;
 		}
 //		final Drawable frog = current.getContext().getResources().getDrawable(R.drawable.icon);
-		Spanned postContent = Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)),null,new TagHandler() {
-			
-			@Override
-			public void handleTag(boolean opening, String tag, Editable output,
-					XMLReader xmlReader) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		TextView contentView = (TextView) aq.find(R.id.post_content).visible().text(postContent).textColor(mPrefs.postFontColor).backgroundColor(background).getView();
+//		Spanned postContent = Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)),null,new TagHandler() {
+//			
+//			@Override
+//			public void handleTag(boolean opening, String tag, Editable output,
+//					XMLReader xmlReader) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
+		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(mPrefs.postFontColor).backgroundColor(background).getView();
 		contentView.setMovementMethod(LinkMovementMethod.getInstance());
+		contentView.setHtml(data.getString(data.getColumnIndex(CONTENT)), true);
 		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
 		aq.find(R.id.post_avatar_text).text(data.getString(data.getColumnIndex(AVATAR_TEXT))).textColor(mPrefs.postHeaderFontColor).gone();
 		aq.find(R.id.post_header).backgroundColor(mPrefs.postHeaderBackgroundColor);

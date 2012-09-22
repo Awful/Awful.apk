@@ -503,19 +503,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	@Override
 	public void onPageVisible() {
-		if(!mPrefs.staticThreadView){
+		if(mPrefs != null && !mPrefs.staticThreadView){
 			resumeWebView();
-		}else{
-			
 		}
 	}
 
 	@Override
 	public void onPageHidden() {
-		if(!mPrefs.staticThreadView){
+		if(mPrefs != null && !mPrefs.staticThreadView){
 			pauseWebView();
-		}else{
-			
 		}
 	}
 	
@@ -1331,10 +1327,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(aData.isClosed()){
         		return;
         	}
-        	if(mPrefs.staticThreadView){
+        	if(mThreadListView != null && mCursorAdapter != null){
         		mCursorAdapter.swapCursor(aData);
         		setProgress(100);
-        	}else{
+        	}
+        	if(mThreadView != null){
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
             dataLoaded = true;

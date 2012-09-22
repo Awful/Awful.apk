@@ -107,7 +107,7 @@
 			/>
 		<CheckBoxPreference 
             android:key="static_thread_view" 
-			android:title="Static Thread View"
+			android:title="EXPERIMENTAL: Static Thread View"
 			android:summary="Disable GIF Animation - Reduce battery use"
 			android:defaultValue="false"
 			/>
