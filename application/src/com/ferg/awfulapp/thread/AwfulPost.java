@@ -595,6 +595,7 @@ public class AwfulPost {
 //			}
 //		});
 		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(mPrefs.postFontColor).backgroundColor(background).getView();
+		contentView.cancelTasks();
 		contentView.setMovementMethod(LinkMovementMethod.getInstance());
 		contentView.setHtml(data.getString(data.getColumnIndex(CONTENT)), true);
 		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
