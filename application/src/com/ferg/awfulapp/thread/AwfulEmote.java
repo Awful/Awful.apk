@@ -26,7 +26,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 public class AwfulEmote {
-    public static final String PATH     = "/thread";
+    public static final String PATH     = "/emote";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
 	public static final String ID = "_id";

@@ -68,6 +68,8 @@ import org.htmlcleaner.CleanerTransformations;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagTransformation;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -225,6 +227,35 @@ public class NetworkUtils {
 
 	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
 		return get(aUrl,aParams,null,0);
+	}
+	
+	public static Document getJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
+		Document response = null;
+        String parameters = getQueryStringParameters(aParams);
+        URI location = new URI(aUrl + parameters);
+
+        Log.i(TAG, "Fetching " + location);
+
+        HttpGet httpGet;
+        HttpResponse httpResponse;
+
+        httpGet = new HttpGet(location);
+        httpResponse = sHttpClient.execute(httpGet);
+
+        HttpEntity entity = httpResponse.getEntity();
+
+        if(statusCallback != null){
+	        //notify user we have gotten message body
+	        statusCallback.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, midpointPercent));
+        }
+	    
+        if (entity != null) {
+            //response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
+        	response = Jsoup.parse(entity.getContent(), CHARSET, Constants.BASE_URL);
+        }
+        
+        Log.i(TAG, "Fetched " + location);
+        return response;
 	}
 	
 	public static TagNode get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {

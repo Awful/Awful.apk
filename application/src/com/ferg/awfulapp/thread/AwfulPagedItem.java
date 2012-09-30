@@ -31,8 +31,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";
@@ -49,6 +58,18 @@ public abstract class AwfulPagedItem {
     		if(pages2 != null){
 	    		lastPageMatch = pageNumber_regex.matcher(pages2.getText().toString());
 	    	}
+    	}
+    	if(lastPageMatch != null && lastPageMatch.find()){
+    		return Integer.parseInt(lastPageMatch.group(1));
+    	}
+		return 1;
+    }
+    
+    public static int parseLastPage(Element pagedItem){
+    	Matcher lastPageMatch = null;
+    	Elements pages = pagedItem.getElementsByClass("pages");
+    	if(pages.size() > 0){
+    		lastPageMatch = pageNumber_regex.matcher(pages.get(0).text());
     	}
     	if(lastPageMatch != null && lastPageMatch.find()){
     		return Integer.parseInt(lastPageMatch.group(1));
@@ -81,5 +102,12 @@ public abstract class AwfulPagedItem {
 			return indexToPage(total,postPerPage);
 		}
 		return indexToPage(total-unread+1,postPerPage);
+	}
+	
+	public static void checkPageErrors(Document page, Messenger handler) throws RemoteException{
+        if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
+        	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
+        	return;
+        }
 	}
 }
