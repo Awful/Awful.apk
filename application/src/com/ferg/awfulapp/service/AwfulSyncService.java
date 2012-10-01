@@ -92,6 +92,10 @@ public class AwfulSyncService extends Service {
 	/** obj = initial string, returns string with redirected URL **/
 	public static final int MSG_TRANSLATE_REDIRECT = 18;
     public static final int MSG_ERR_NOT_LOGGED_IN   = 19;
+    /** generic error message, (optional) obj=String - error message to display **/
+	public static final int MSG_ERROR = 20;
+    /** forums closed error message, (optional) obj=String - error message to display **/
+	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);

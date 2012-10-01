@@ -214,6 +214,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 			if(apf != null){
 				setActionbarTitle(apf.getTitle(), null);
 				apf.onPageVisible();
+				setLoadProgress(apf.getProgressPercent());
 			}
 			visible = apf;
 		}

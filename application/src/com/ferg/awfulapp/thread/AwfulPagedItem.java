@@ -104,10 +104,23 @@ public abstract class AwfulPagedItem {
 		return indexToPage(total-unread+1,postPerPage);
 	}
 	
-	public static void checkPageErrors(Document page, Messenger handler) throws RemoteException{
+	/**
+	 * Checks a page for forum errors, triggering error message callbacks if found.
+	 * Detects forum closures, logged-out state, and banned/probate status.
+	 * @param page Full HTML page to check.
+	 * @param handler Messenger to send reply messages to.
+	 * @return true if error is found, false otherwise
+	 * @throws RemoteException
+	 */
+	public static boolean checkPageErrors(Document page, Messenger handler) throws RemoteException{
         if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
         	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
-        	return;
+        	return true;
         }
+        if(page.getElementById("closemsg") != null){
+        	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERROR_FORUMS_CLOSED, 0, 0, page.getElementsByClass("reason").text()));
+        	return true;
+        }
+        return false;
 	}
 }

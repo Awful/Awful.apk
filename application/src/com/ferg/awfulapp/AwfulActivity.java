@@ -271,4 +271,10 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 
 	public void fragmentClosing(AwfulFragment fragment) {}
 
+	public void setLoadProgress(int percent) {
+		setSupportProgressBarVisibility(percent<100);
+    	setSupportProgressBarIndeterminateVisibility(false);
+		setSupportProgress(percent*100);
+	}
+
 }

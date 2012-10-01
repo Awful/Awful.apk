@@ -88,7 +88,14 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     	public void onPageVisible();
     	public void onPageHidden();
     	public String getTitle();
-    	public boolean canScrollX(int x);
+    	/**
+    	 * Check to see if this point is horizontally scrollable, and by X distance.
+    	 * @param dx Distance on X axis to scroll.
+    	 * @param y Position on Y axis where the event was triggered.
+    	 * @return True to allow horizontal scrolling, false to allow viewpager to take over.
+    	 */
+    	public boolean canScrollX(int dx, int y);
+    	public int getProgressPercent();
     }
 
     @Override

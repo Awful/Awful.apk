@@ -461,6 +461,8 @@ public class AwfulPost {
             //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
 			post.put(IS_MOD, 0);
             post.put(IS_ADMIN, 0);
+            
+            //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
             Elements postClasses = postData.getElementsByAttribute("class");
             for(Element entry: postClasses){
             	String type = entry.attr("class");

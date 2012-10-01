@@ -227,7 +227,7 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 	}
 
 	@Override
-	public boolean canScrollX(int x) {
+	public boolean canScrollX(int x, int y) {
 		int ow = mWebView.getWidth();
 		int l = mWebView.getScrollX();
 		int r = l+mWebView.getWidth();
@@ -321,4 +321,12 @@ public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPag
 
     		return true;
     	}
+
+	@Override
+	public int getProgressPercent() {
+		if(mWebView != null){
+			return mWebView.getProgress();
+		}
+		return 100;
+	}
 }

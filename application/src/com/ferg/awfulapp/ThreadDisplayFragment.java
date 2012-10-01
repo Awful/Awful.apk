@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +52,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -141,6 +143,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     //int[0] = threadid, int[1] = pagenum, int[2] = scroll position
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
     
+    private int scrollCheckMinBound = -1;
+    private int scrollCheckMaxBound = -1;
+    private int[] scrollCheckBounds = null;
+    
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
     private String mTitle = null;
@@ -194,6 +200,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
+			registerPreBlocks();
 		}
 
 		public void onLoadResource(WebView view, String url) {
@@ -505,6 +512,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPageVisible() {
 		if(mPrefs != null && !mPrefs.staticThreadView){
 			resumeWebView();
+		}
+	}
+	
+	
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if(mThreadView != null && dataLoaded && currentProgress > 99){
+			registerPreBlocks();
 		}
 	}
 
@@ -1130,6 +1147,33 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		selectUser(aUserId);
         	}
         }
+        
+        public void addCodeBounds(final String minBound, final String maxBound){
+        	int min = Integer.parseInt(minBound);
+        	int max = Integer.parseInt(maxBound);
+        	if(min < scrollCheckMinBound || scrollCheckMinBound < 0){
+        		scrollCheckMinBound = min;
+        	}
+        	if(max > scrollCheckMaxBound || scrollCheckMaxBound < 0){
+        		scrollCheckMaxBound = max;
+        	}
+        	Log.e(TAG,"Register pre block: "+min+" - "+max+" - new min: "+scrollCheckMinBound+" new max: "+scrollCheckMaxBound);
+        	//this array is going to be accessed very often during touch events, arraylist has too much processing overhead
+        	if(scrollCheckBounds == null){
+        		scrollCheckBounds = new int[2];
+        	}else{
+        		//GOOGLE DIDN'T ADD Arrays.copyOf TILL API 9 fuck
+        		//scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
+        		int[] newScrollCheckBounds = new int[scrollCheckBounds.length+2];
+        		for(int x = 0;x<scrollCheckBounds.length;x++){
+        			newScrollCheckBounds[x]=scrollCheckBounds[x];
+        		}
+        		scrollCheckBounds = newScrollCheckBounds;
+        	}
+        	scrollCheckBounds[scrollCheckBounds.length-2] = min;
+        	scrollCheckBounds[scrollCheckBounds.length-1] = max;
+        	Arrays.sort(scrollCheckBounds);
+        }
     }
     
 	private void onPostActionItemSelected(int aItem,
@@ -1523,4 +1567,37 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			}
 		}
 	}
+	
+	private void registerPreBlocks() {
+		scrollCheckBounds = null;
+		scrollCheckMinBound = -1;
+		scrollCheckMaxBound = -1;
+		if(mThreadView != null){
+			Log.e(TAG,"Queueing registerPreBlocks()");
+			mHandler.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+					if(mThreadView != null){
+						mThreadView.loadUrl("javascript:registerPreBlocks()");
+					}
+				}
+			}, 10000);
+		}
+	}
+
+	@Override
+	public boolean canScrollX(int x, int y) {
+		y = y+mThreadView.getScrollY()+mThreadView.getTop();
+		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
+			return false;
+		}
+		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
+			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 }

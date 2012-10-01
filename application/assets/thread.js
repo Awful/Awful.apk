@@ -63,6 +63,13 @@ $(window).ready(function() {
 	});
 });
 
+function registerPreBlocks(){
+	$('pre').each(function(){
+		var pos = $(this).offset().top;
+		listener.addCodeBounds(pos, pos+$(this).height());
+	});
+}
+
 function scrollPost() {
 	//listener.debugMessage('scrollPost');
 	if(prefs.scrollPosition > 0){

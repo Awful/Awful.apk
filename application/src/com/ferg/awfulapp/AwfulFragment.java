@@ -23,6 +23,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
+	protected int currentProgress = 100;
 	
 
     protected Handler mHandler = new Handler() {
@@ -125,12 +126,15 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     }
 	
 	protected void setProgress(int percent){
+		currentProgress = percent;
 		AwfulActivity aa = getAwfulActivity();
-		if(aa != null){
-			aa.setSupportProgressBarVisibility(percent<100);
-        	aa.setSupportProgressBarIndeterminateVisibility(false);
-			aa.setSupportProgress(percent*100);
+		if(aa != null && isFragmentVisible()){
+			aa.setLoadProgress(percent);
 		}
+	}
+	
+	public int getProgressPercent(){
+		return currentProgress;
 	}
 	
 	protected void setTitle(String title){
@@ -197,7 +201,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	}
 
 	@Override
-	public boolean canScrollX(int x) {
+	public boolean canScrollX(int x, int y) {
 		return false;
 	}
 
