@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 
 public class AwfulEmote {
+	public static final String TAG = "AwfulEmote";
     public static final String PATH     = "/emote";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 
@@ -39,13 +41,15 @@ public class AwfulEmote {
 	public static final String TEXT = "text";
 	public static final String SUBTEXT = "emote_subtext";//hover text
 	public static final String URL = "url";
+	public static final String INDEX = "emote_index";
 	public static final String CACHEFILE = "cachefile";//location of cached file or null if not cached yet.
 	
 	public static Pattern fileName_regex = Pattern.compile("/([^/]+)$");
 	
 	public static void getView(View current, AwfulPreferences aPref, Cursor data, AQuery aq) {
 		aq.recycle(current);//I love AQ
-		aq.find(R.id.emote_text).text(Html.fromHtml(data.getString(data.getColumnIndex(TEXT))));
+		aq.backgroundColor(aPref.postBackgroundColor2);
+		aq.find(R.id.emote_text).text(Html.fromHtml(data.getString(data.getColumnIndex(TEXT)))).textColor(aPref.postFontColor);
 		aq.find(R.id.emote_icon).image(data.getString(data.getColumnIndex(URL)), true, true);
 	}
 
@@ -55,18 +59,22 @@ public class AwfulEmote {
 		ArrayList<ContentValues> results = new ArrayList<ContentValues>();
 		int index = 1;
 		for(Element group : data.getElementsByClass("smilie_group")){
+			Log.e(TAG,"Parsing group.");
 			for(Element smilie : group.getElementsByClass("smilie")){
+				Log.e(TAG,"Parsing item.");
 				try{
 					ContentValues emote = new ContentValues();
 					Elements text = smilie.getElementsByClass("text");
-					emote.put(AwfulEmote.ID, index++);//intentional post-increment
-					emote.put(AwfulEmote.TEXT, text.text().trim());
+					emote.put(ID, index++);//intentional post-increment
+					emote.put(TEXT, text.text().trim());
 					Elements img = smilie.getElementsByAttribute("src");
-					emote.put(AwfulEmote.SUBTEXT, img.attr("title"));
+					emote.put(SUBTEXT, img.attr("title"));
 					String url = img.attr("src");
 					emote.put(AwfulEmote.URL, url);
+					emote.put(INDEX, index);
 		        	//timestamp for DB trimming
 					emote.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+					results.add(emote);
 				}catch(Exception e){
 					e.printStackTrace();
 					continue;
@@ -74,28 +82,5 @@ public class AwfulEmote {
 			}
 		}
 		return results;
-	}
-	
-	public static Bitmap getEmote(Context aContext, String fileName){
-		try{
-			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-				File cacheDir;
-				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
-					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/emotes/");
-				}else{
-					cacheDir = new File(aContext.getExternalCacheDir(),"emotes/");
-				}
-				File cachedImg = new File(cacheDir, fileName);
-				if(cachedImg.exists() && cachedImg.canRead()){
-					FileInputStream is = new FileInputStream(cachedImg);
-					Bitmap data = BitmapFactory.decodeStream(is);
-					is.close();
-					return data;
-				}
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return null;
 	}
 }

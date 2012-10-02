@@ -134,11 +134,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
         mMessage.setBackgroundColor(mPrefs.postBackgroundColor);
         mMessage.setTextColor(mPrefs.postFontColor);
-        
-        if(mReplyType <0 || mThreadId <0 || (mReplyType != AwfulMessage.TYPE_NEW_REPLY && mPostId < 0)){
-        	Log.e(TAG,"MISSING ARGUMENTS!");
-        	getActivity().finish();
-        }
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
@@ -342,6 +337,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             	saveReply();
             	leave();
             	break;
+            case R.id.emotes:
+    	    	selectionStart = mMessage.getSelectionStart();
+            	new EmoteFragment().show(getFragmentManager(), "emotes");
+            	break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -426,6 +425,14 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     			mMessage.setSelection(selectionStart+startTag.length());
     		}
     	}
+    	selectionStart = -1;//reset them for next time
+    	selectionEnd = -1;
+    }
+    
+    private void insertEmote(String emote){
+    	selectionStart = mMessage.getSelectionStart();
+		mMessage.getEditableText().insert(selectionStart, emote);
+		mMessage.setSelection(selectionStart+emote.length());
     	selectionStart = -1;//reset them for next time
     	selectionEnd = -1;
     }
@@ -675,6 +682,13 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		refreshLoader();
 		refreshThreadInfo();
 		setTitle(getTitle());
+	}
+
+	@Override
+	public void fragmentMessage(String type, String contents) {
+		if(type.equalsIgnoreCase("emote-selected")){
+			insertEmote(contents);
+		}
 	}
 	
 	

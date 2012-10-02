@@ -96,6 +96,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     	 */
     	public boolean canScrollX(int dx, int y);
     	public int getProgressPercent();
+    	public void fragmentMessage(String type, String contents);
     }
 
     @Override

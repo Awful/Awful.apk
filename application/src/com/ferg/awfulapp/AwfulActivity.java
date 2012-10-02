@@ -53,6 +53,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     private AwfulPreferences mPrefs;
     
     public void reauthenticate(){
+    	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
     }
     
@@ -276,5 +277,13 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	setSupportProgressBarIndeterminateVisibility(false);
 		setSupportProgress(percent*100);
 	}
+
+	/**
+	 * AwfulFragments have the capability to broadcast messages to other fragments on the same activity.
+	 * Override this method, then pass these Strings to any internal fragments.
+	 * @param type
+	 * @param contents
+	 */
+	public void fragmentMessage(String type, String contents) {	}//subclasses should implement this
 
 }

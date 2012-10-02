@@ -192,6 +192,18 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		
 	}
 	
+	public void sendFragmentMessage(String type, String contents){
+		AwfulActivity aa = getAwfulActivity();
+    	if(aa != null){
+    		aa.fragmentMessage(type, contents);
+    	}
+	}
+	
+	/**
+	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
+	 */
+	public void fragmentMessage(String type, String contents){	}
+	
 	protected boolean isLoggedIn(){
 		return getAwfulActivity().isLoggedIn();
 	}

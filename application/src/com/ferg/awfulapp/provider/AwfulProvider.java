@@ -191,6 +191,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulEmote.TEXT,
 		AwfulEmote.SUBTEXT,
 		AwfulEmote.URL,
+		AwfulEmote.INDEX,
 		UPDATED_TIMESTAMP
 	};
 	
@@ -272,10 +273,11 @@ public class AwfulProvider extends ContentProvider {
         public void createEmoteTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
-        		AwfulEmote.ID      	 + " INTEGER PRIMARY KEY,"  + 
-        		AwfulEmote.TEXT      + " VARCHAR UNIQUE,"   + 
+        		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
+        		AwfulEmote.TEXT      + " VARCHAR,"   + 
                 AwfulEmote.SUBTEXT   + " VARCHAR,"         + 
                 AwfulEmote.URL   	 + " VARCHAR,"     + 
+                AwfulEmote.INDEX   	 + " INTEGER,"     + 
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
         public void createPMTable(SQLiteDatabase aDb) {
@@ -461,6 +463,7 @@ public class AwfulProvider extends ContentProvider {
 		int result = 0;
 		String id_row = null;
 		String unique_match = null;
+		String unique_match2 = null;
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -473,7 +476,8 @@ public class AwfulProvider extends ContentProvider {
             case POST:
                 table = TABLE_POSTS;
                 id_row = AwfulPost.ID;
-                unique_match = AwfulPost.POST_INDEX+"=? AND "+AwfulPost.THREAD_ID+"=?";
+                unique_match = AwfulPost.POST_INDEX;
+                unique_match2 = AwfulPost.THREAD_ID;
                 break;
             case THREAD:
                 table = TABLE_THREADS;
@@ -494,6 +498,7 @@ public class AwfulProvider extends ContentProvider {
 			case EMOTE:
 				table = TABLE_EMOTES;
                 id_row = AwfulEmote.ID;
+                unique_match = AwfulEmote.TEXT;
 				break;
         }
 
@@ -501,8 +506,12 @@ public class AwfulProvider extends ContentProvider {
 
 		try {
 			for (ContentValues value : aValues) {
-				if(unique_match != null){//this is bad, needs to be rewritten
-					db.delete(table, unique_match, int2StrArray(value.getAsInteger(AwfulPost.POST_INDEX), value.getAsInteger(AwfulPost.THREAD_ID)));
+				if(unique_match != null){
+					if(unique_match2 != null){
+						db.delete(table, unique_match+"=? AND "+unique_match2+"=?", int2StrArray(value.getAsInteger(unique_match), value.getAsInteger(unique_match2)));
+					}else{
+						db.delete(table, unique_match+"=?", new String[]{value.getAsString(unique_match)});
+					}
 				}
 				try{
 					db.insertOrThrow(table, "", value);
@@ -697,8 +706,8 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", PM_ID);
 		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", DRAFT);
 		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", DRAFT_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emotes", EMOTE);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emotes/#", EMOTE_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "emote", EMOTE);
+		sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", EMOTE_ID);
 
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
@@ -802,6 +811,7 @@ public class AwfulProvider extends ContentProvider {
 		sEmoteProjectionMap.put(AwfulEmote.TEXT, AwfulEmote.TEXT);
 		sEmoteProjectionMap.put(AwfulEmote.SUBTEXT, AwfulEmote.SUBTEXT);
 		sEmoteProjectionMap.put(AwfulEmote.URL, AwfulEmote.URL);
+		sEmoteProjectionMap.put(AwfulEmote.INDEX, AwfulEmote.INDEX);
 		sEmoteProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
     }
 }

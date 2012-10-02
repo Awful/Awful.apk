@@ -412,10 +412,35 @@ public class ForumsIndexActivity extends AwfulActivity {
 	protected void onActivityResult(int request, int result, Intent intent) {
 		super.onActivityResult(request, result, intent);
 		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
+			mHandler.postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					if(mIndexFragment != null){
+						mIndexFragment.refresh();
+					}
+				}
+			}, 1000);
+		}
+	}
+
+
+	@Override
+	public void fragmentMessage(String type, String contents) {
+		if(mViewPager != null){
+			for(AwfulPagerFragment f : pagerAdapter.fragList){
+				f.fragmentMessage(type, contents);
+			}
+		}else{
 			if(mIndexFragment != null){
-				mIndexFragment.refresh();
+				mIndexFragment.fragmentMessage(type, contents);
+			}
+			if(mForumFragment != null){
+				mForumFragment.fragmentMessage(type, contents);
 			}
 		}
 	}
+    
+    
 }
 

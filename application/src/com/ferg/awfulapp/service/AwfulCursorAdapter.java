@@ -66,7 +66,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, false);
-		}else if(data.getColumnIndex(AwfulEmote.CACHEFILE) >= 0){
+		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			AwfulEmote.getView(current, mPrefs, data, aq);
 		}
 		mParent.setPreferredFont(current);
@@ -87,7 +87,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
-		}else if(data.getColumnIndex(AwfulEmote.SUBTEXT) >= 0){
+		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			row = inf.inflate(R.layout.emote_grid_item, parent, false);
 			AwfulEmote.getView(row, mPrefs, data, aq);
 		}else{

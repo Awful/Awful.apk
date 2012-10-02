@@ -30,7 +30,7 @@ public class FetchEmotesTask extends AwfulTask {
 			Document data = NetworkUtils.getJSoup(Constants.FUNCTION_MISC, para, replyTo, 50);
 			ArrayList<ContentValues> emotes = AwfulEmote.parseEmotes(data);
 			int resultCount = mContext.getContentResolver().bulkInsert(AwfulEmote.CONTENT_URI, emotes.toArray(new ContentValues[emotes.size()]));
-	        Log.i(TAG, "Inserted "+resultCount+" emotes into DB.");
+	        Log.i(TAG, "Inserted "+resultCount+" emotes into DB. "+emotes.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

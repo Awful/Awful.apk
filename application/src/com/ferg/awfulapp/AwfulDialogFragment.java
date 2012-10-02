@@ -184,6 +184,18 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     	setProgress(aMsg.arg2);
     }
 
+	public void sendFragmentMessage(String type, String contents){
+		AwfulActivity aa = getAwfulActivity();
+    	if(aa != null){
+    		aa.fragmentMessage(type, contents);
+    	}
+	}
+	
+	/**
+	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
+	 */
+	public void fragmentMessage(String type, String contents){	}
+	
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/submit_button"
+		android:icon="@drawable/ic_menu_post"
+		android:showAsAction="always" 
+        />
     <item
         android:id="@+id/bbcode"
         android:title="@string/bbcode"
@@ -7,6 +12,11 @@
 		android:showAsAction="ifRoom" 
 		>
 		<menu>
+		<item
+			android:id="@+id/emotes"
+			android:icon="@drawable/ic_menu_emote"
+			android:title="Emotes"
+	        />
         <item
 			android:id="@+id/bbcode_bold"
 			android:title="Bold"
@@ -45,11 +55,6 @@
 	        />
      </menu>
     </item>
-	<item
-		android:id="@+id/submit_button"
-		android:icon="@drawable/ic_menu_post"
-		android:showAsAction="always" 
-        />
 	<item android:id="@+id/save_draft" android:title="@string/menu_save_draft" android:showAsAction="never|withText"></item><item android:id="@+id/discard" android:icon="@drawable/ic_menu_load_fail" android:showAsAction="never|withText" android:title="@string/menu_discard"></item>
 	
 </menu>

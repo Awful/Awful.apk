@@ -45,6 +45,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulTask;
 import com.ferg.awfulapp.task.BookmarkTask;
+import com.ferg.awfulapp.task.FetchEmotesTask;
 import com.ferg.awfulapp.task.FetchPrivateMessageTask;
 import com.ferg.awfulapp.task.FetchReplyTask;
 import com.ferg.awfulapp.task.ImageCacheTask;
@@ -165,6 +166,9 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_TRANSLATE_REDIRECT:
                 	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
+                    break;
+                case MSG_FETCH_EMOTES:
+                	queueUniqueThread(new FetchEmotesTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
             }
         }
