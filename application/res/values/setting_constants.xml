@@ -24,4 +24,9 @@
 		<item>l</item>
 		<item>h</item>	
 	</string-array>
+	<string-array name="page_layout_values">
+		<item>auto</item>
+		<item>phone</item>
+		<item>tablet</item>
+	</string-array>
 </resources>

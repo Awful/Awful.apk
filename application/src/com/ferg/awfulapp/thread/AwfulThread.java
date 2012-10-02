@@ -258,6 +258,16 @@ public class AwfulThread extends AwfulPagedItem  {
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
         params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
         
+        ContentResolver contentResolv = aContext.getContentResolver();
+		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
+    	int totalReplies = 0, unread = -1, opId = 0, bookmarkStatus = 0;
+		if(threadData.moveToFirst()){
+			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
+			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
+			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
+			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
+		}
+        
         //notify user we are starting update
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
         
@@ -288,8 +298,11 @@ public class AwfulThread extends AwfulPagedItem  {
         if (bkButtons.size() >0) {
         	String bkSrc = bkButtons.get(0).attr("src");
         	if(bkSrc != null && bkSrc.contains("unbookmark")){
-        		//thread.put(BOOKMARKED, 1);//TODO update to not clobber the existing bookmark value
-        		Log.e(TAG,"THREAD IS BOOKMARKED, WHATEVER");
+        		if(bookmarkStatus < 1){
+        			thread.put(BOOKMARKED, 1);
+        		}
+        	}else{
+        		thread.put(BOOKMARKED, 0);
         	}
         }
     	int forumId = -1;
@@ -307,14 +320,6 @@ public class AwfulThread extends AwfulPagedItem  {
         //notify user we have began processing thread info
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 55));
 
-    	ContentResolver contentResolv = aContext.getContentResolver();
-		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
-		int totalReplies = 0, unread = -1, opId = 0;
-		if(threadData.moveToFirst()){
-			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
-			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
-			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
-		}
 		threadData.close();
 		int replycount;
 		if(aUserId > 0){

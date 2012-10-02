@@ -1359,7 +1359,11 @@ public class AwfulViewPager extends ViewGroup {
 	                final float yDiff = Math.abs(y - mLastMotionY);
 	                //Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 	                //mCurFrag.canScrollX((int) dx)
-	                if ((mCurFrag != null && mCurFrag.canScrollX((int) dx, (int) y)) || canScroll(this, false, (int) dx, (int) x, (int) y)) {
+	                if(mCurFrag != null && mCurFrag.canScrollX((int) dx, (int) y)){
+                        mIsUnableToDrag = true;
+                        return false;
+	                }
+	                if (canScroll(this, false, (int) dx, (int) x, (int) y)) {
 	                	//Log.v(TAG, "canScroll!");
 	                    // Nested view has scrollable area under this point. Let it be handled there.
 	                    mInitialMotionX = mLastMotionX = x;

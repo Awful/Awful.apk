@@ -113,6 +113,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ThreadDataCallback mThreadLoaderCallback;
 
     private ImageButton mToggleSidebar;
+	private boolean mShowSidebarIcon;
     
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -140,7 +141,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean dataLoaded = false;
     
     //oh god i'm replicating core android functionality, this is a bad sign.
-    //int[0] = threadid, int[1] = pagenum, int[2] = scroll position
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
     
     private int scrollCheckMinBound = -1;
@@ -839,8 +839,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 	displayPagePicker();
                 	break;
                 case R.id.toggle_sidebar:
-                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
-                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
+                	if(mShowSidebarIcon){
+	                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
+	                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
+	                	}
+                	}else{
+                		if (getPage() == getLastPage()) {
+                			refresh();
+                		} else {
+                        	goToPage(getPage() + 1);
+                		}
                 	}
                 	break;
             }
@@ -1028,9 +1036,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-            
-            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed);
-            if(DEBUG && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
+            		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
+            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
+            if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
             	out.write(html.getBytes());
             	out.close();
@@ -1552,9 +1561,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 
 	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
+		mShowSidebarIcon = showIcon;
 		if(mToggleSidebar != null){
-			if(showIcon){
+			if(mShowSidebarIcon){
 				mToggleSidebar.setVisibility(View.VISIBLE);
+				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
 	    		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
 					if(sidebarVisible){
 						mToggleSidebar.setColorFilter(buttonSelectedColor);
@@ -1563,7 +1574,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					}
 	    		}
 			}else{
-				mToggleSidebar.setVisibility(View.INVISIBLE);
+				mToggleSidebar.setVisibility(View.VISIBLE);
+				mToggleSidebar.setImageDrawable(null);
 			}
 		}
 	}
@@ -1581,7 +1593,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 						mThreadView.loadUrl("javascript:registerPreBlocks()");
 					}
 				}
-			}, 10000);
+			}, 2000);
 		}
 	}
 

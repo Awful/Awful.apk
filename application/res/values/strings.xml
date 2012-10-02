@@ -91,6 +91,12 @@
 		<item>Large (640px)</item>
 		<item>Huge (1024px)</item>
 	</string-array>
+	<string name="page_layout">Thread Layout</string>
+	<string-array name="page_layouts">
+		<item>Auto (Size/Orientation)</item>
+		<item>Phone Layout</item>
+		<item>Tablet Layout</item>
+	</string-array>
 	<string name="bookmark">Bookmark</string>
 	<string name="unbookmark">Unbookmark</string>
 	<string name="rate_thread">Rate Thread</string>

@@ -49,6 +49,7 @@ import com.ferg.awfulapp.widget.AwfulViewPager;
 public class ForumsIndexActivity extends AwfulActivity {
 
     private boolean DEVELOPER_MODE = false;
+    private boolean DEBUG = false;
     private static final String TAG = "ForumsIndexActivity";
 
     private boolean mSecondPane;
@@ -152,7 +153,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		@Override
 		public AwfulPagerFragment getItem(int position) {
 			AwfulPagerFragment frag = fragList.get(position);
-			Log.e(TAG,"getItem "+position+" - "+frag.toString());
+			if(DEBUG) Log.e(TAG,"getItem "+position+" - "+frag.toString());
 			return frag;
 		}
 		
@@ -163,7 +164,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			Log.i(TAG,"INSTANTIATING TAB:"+position);
+			if(DEBUG) Log.i(TAG,"INSTANTIATING TAB:"+position);
 			Fragment frag = (Fragment) super.instantiateItem(container, position);
 			fragList.set(position, (AwfulPagerFragment) frag);
 			if(frag instanceof ForumsIndexFragment){
@@ -206,7 +207,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
-			Log.i(TAG,"onPageSelected: "+arg0);
+			if(DEBUG) Log.i(TAG,"onPageSelected: "+arg0);
 			if(visible != null){
 				visible.onPageHidden();
 			}
@@ -223,7 +224,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			// TODO Auto-generated method stub
 			super.destroyItem(container, position, object);
-			Log.i(TAG,"DESTROY TAB: "+position);
+			if(DEBUG) Log.i(TAG,"DESTROY TAB: "+position);
 		}
 
 		public void deletePage(int x) {
@@ -240,7 +241,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		if(pagerAdapter.getItem(mViewPager.getCurrentItem()).equals(requestor)){
 		    		super.setActionbarTitle(aTitle, requestor);
 			}else{
-				Log.e(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
+				if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
 			}
     	}else{
     		super.setActionbarTitle(aTitle, requestor);

@@ -67,7 +67,7 @@ import com.ferg.awfulapp.thread.AwfulForum;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     protected static String TAG = "ForumsIndex";
     private ExpandableListView mForumList;
-    private boolean mIsSidebar;
+    private boolean DEBUG = false;
 
     public static ForumsIndexFragment newInstance() {
         return new ForumsIndexFragment();
@@ -105,29 +105,21 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         return result;
     }
 
-    private boolean isSideBar() {
-    	if(getActivity() instanceof ForumsIndexActivity){
-    		return ((ForumsIndexActivity)getAwfulActivity()).isDualPane();
-    	}
-    	return false;
-	}
-
 	@Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        mIsSidebar = isSideBar();
         mCursorAdapter = new AwfulExpandableListAdapter(getActivity());
         mForumList.setAdapter(mCursorAdapter);
     }
 
     @Override
     public void onStart() {
-        super.onStart(); Log.e(TAG, "Start");
+        super.onStart(); if(DEBUG) Log.e(TAG, "Start");
     }
     
     @Override
     public void onResume() {
-        super.onResume(); Log.e(TAG, "Resume");
+        super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
     }
 
@@ -143,34 +135,34 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	
     @Override
     public void onPause() {
-        super.onPause(); Log.e(TAG, "Pause");
+        super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
 		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
     }
         
     @Override
     public void onStop() {
-        super.onStop(); Log.e(TAG, "Stop");
+        super.onStop(); if(DEBUG) Log.e(TAG, "Stop");
     }
     
     @Override
     public void onDestroyView() {
-        super.onDestroyView(); Log.e(TAG, "DestroyView");
+        super.onDestroyView(); if(DEBUG) Log.e(TAG, "DestroyView");
     }
     
     @Override
     public void onDestroy() {
-        super.onDestroy(); Log.e(TAG, "Destroy");
+        super.onDestroy(); if(DEBUG) Log.e(TAG, "Destroy");
     }
 
 	@Override
 	public void onDetach() {
-		super.onDetach(); Log.e(TAG, "Detach");
+		super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
 	}
 
     private OnChildClickListener onForumSelected = new OnChildClickListener() {
         @Override
         public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
-			Log.e(TAG, "gpos: "+groupPosition+"cpos: "+childPosition+" id: "+id);
+        	if(DEBUG) Log.i(TAG, "gpos: "+groupPosition+"cpos: "+childPosition+" id: "+id);
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
@@ -185,7 +177,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private OnGroupClickListener onParentForumSelected = new OnGroupClickListener() {
         @Override
         public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
-			Log.e(TAG, "gpos: "+groupPosition+" id: "+id);
+        	if(DEBUG) Log.i(TAG, "gpos: "+groupPosition+" id: "+id);
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
@@ -202,7 +194,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View v,
 				int position, long id) {
-			Log.e(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id));
+			if(DEBUG) Log.i(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id));
 			
 			if(ExpandableListView.getPackedPositionChild(id) < 0){
 				int gpos = mCursorAdapter.getGroupPosition(ExpandableListView.getPackedPositionGroup(id));
