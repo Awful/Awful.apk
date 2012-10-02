@@ -25,7 +25,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
-public class AwfulWebFragment extends SherlockDialogFragment implements AwfulPagerFragment {
+public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerFragment {
 	private static final String TAG = "AwfulWebFragment";
 
 	private Handler mHandler = new Handler();

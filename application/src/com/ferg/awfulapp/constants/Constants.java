@@ -46,6 +46,7 @@ public class Constants {
     public static final String FUNCTION_PRIVATE_MESSAGE = BASE_URL + "/private.php";
     public static final String FUNCTION_BANLIST         = BASE_URL + "/banlist.php";
     public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
+	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
 
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
@@ -133,8 +134,6 @@ public class Constants {
 	public static final String PARAM_PARSEURL = "parseurl";
 
 	public static final String YES = "yes";//heh
-
-	public static final String EMOTE_URL = "http://forums.somethingawful.com/misc.php?action=showsmilies";
 	
 	//NOT FOR NETWORK USE
 	public static final String FORUM_PAGE = "forum_page";

@@ -343,24 +343,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 //--------------------------------
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState); Log.e(TAG, "onCreateView");
-        View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
+    	if(DEBUG) Log.e(TAG, "onCreateView");
+    	
+        View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+
+		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		
-		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
-		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
-		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
-        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
+		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
+		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
+        mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mPageBar = result.findViewById(R.id.page_indicator);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
-		mNextPage.setOnClickListener(onButtonClick);
-		mToggleSidebar.setOnClickListener(onButtonClick);
-		mPrevPage.setOnClickListener(onButtonClick);
-		mRefreshBar.setOnClickListener(onButtonClick);
-		mPageCountText.setOnClickListener(onButtonClick);
 		return result;
 	}
 
@@ -386,7 +382,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Constants.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.inlineYoutube){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
