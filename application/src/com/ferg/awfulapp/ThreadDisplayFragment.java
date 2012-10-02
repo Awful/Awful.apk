@@ -1599,6 +1599,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public boolean canScrollX(int x, int y) {
+		if(mThreadView == null){
+			return false;
+		}
 		y = y+mThreadView.getScrollY()+mThreadView.getTop();
 		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
 			return false;
