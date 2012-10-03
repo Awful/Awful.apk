@@ -6,7 +6,9 @@ import android.app.backup.SharedPreferencesBackupHelper;
 import com.ferg.awfulapp.constants.Constants;
 
 public class PreferencesBackupAgent extends BackupAgentHelper {
-    private static final String DEFAULT_PREFERENCES = "com.ferg.awful_preferences";
+	//if changing package name, MAKE SURE TO GET THIS TOO.
+	//com.example.appname_preferences
+    private static final String DEFAULT_PREFERENCES = "com.ferg.awfulapp_preferences";
     private static final String BACKUP_KEY          = "preferences_backup";
 
     @Override

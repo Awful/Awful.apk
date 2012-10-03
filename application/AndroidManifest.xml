@@ -93,11 +93,8 @@
             android:label="AwfulSyncService"
             android:name="com.ferg.awfulapp.service.AwfulSyncService"
             />
-
-        <meta-data 
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" 
-            />
+		<meta-data android:name="com.google.android.backup.api_key"
+		    android:value="AEdPqrEAAAAIvOiXrlcGjkg0FB1FGniG7EGKJWGm8Msq7xZ2wA" />
         <activity android:name="ImageSettingsActivity"></activity>
             <activity android:name="ThreadInfoSettingsActivity"></activity>
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
