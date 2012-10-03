@@ -118,12 +118,12 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);Log.e(TAG,"onCreateView");
 
-        View result = aInflater.inflate(R.layout.post_reply, aContainer, false);
+        View result = inflateView(R.layout.post_reply, aContainer, aInflater);
 
-        mMessage = (EditText) result.findViewById(R.id.post_message);
+        mMessage = aq.find(R.id.post_message).getEditText();
         mMessage.setText("");
-        //result.findViewById(R.id.bbcode).setOnClickListener(this);
-        //result.findViewById(R.id.emotes).setOnClickListener(this);
+        aq.find(R.id.bbcode).clicked(this);
+        aq.find(R.id.emotes).clicked(this);
 
         return result;
     }
