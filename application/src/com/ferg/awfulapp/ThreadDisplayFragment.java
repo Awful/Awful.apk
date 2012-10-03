@@ -85,6 +85,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
@@ -154,6 +155,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private String mPostJump = "";
 	private int savedPage = 0;//for reverting from "Find posts by"
 	private int savedScrollPosition = 0;
+	
+	private ShareActionProvider shareProvider;
 	
 	private Handler buttonHandler = new Handler(){
 
@@ -593,6 +596,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
+        	MenuItem share = menu.findItem(R.id.share_thread);
+        	if(share != null && share.getActionProvider() instanceof ShareActionProvider){
+        		shareProvider = (ShareActionProvider) share.getActionProvider();
+        		shareProvider.setShareIntent(createShareIntent());
+        	}
     	}
     }
 
@@ -660,9 +668,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     		return true;
     	}
-
-	private void copyThreadURL(String postId) {
-		StringBuffer url = new StringBuffer();
+    
+    private String generateThreadUrl(String postId){
+    	StringBuffer url = new StringBuffer();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
@@ -681,16 +689,25 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			url.append("post");
 			url.append(postId);
 		}
+		return url.toString();
+    }
+    
+    private Intent createShareIntent(){
+    	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
+    }
+
+	private void copyThreadURL(String postId) {
+		String url = generateThreadUrl(postId);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
 					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
+			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url);
 			clipboard.setPrimaryClip(clip);
 
 			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		} else {
 			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(url.toString());
+			clipboard.setText(url);
 			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -1416,6 +1433,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
             		//TODO add tablet notification
         			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
+        		}
+        		if(shareProvider != null){
+        			shareProvider.setShareIntent(createShareIntent());
         		}
         	}
         }
