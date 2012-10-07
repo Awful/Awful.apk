@@ -125,7 +125,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public void onPageVisible() {
-		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+		if(getActivity() != null){
+			getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+		}
 	}
 
 	@Override

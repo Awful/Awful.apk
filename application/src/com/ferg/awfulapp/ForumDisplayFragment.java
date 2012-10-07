@@ -136,11 +136,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(!(getActivity() instanceof ThreadDisplayActivity));
     }
-    protected int getLoaderId() {
-    	//loader ID conflicts suck.
-    	//this is terrible and I know it.
-		return getForumId()+1000;
-	}
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
@@ -297,7 +292,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onPause() {
         super.onPause(); Log.e(TAG, "Pause");
-        getLoaderManager().destroyLoader(getLoaderId());
+        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
@@ -546,7 +541,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
-    			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+    			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
     			lastRefresh = System.currentTimeMillis();
     			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
                 	mRefreshBar.setColorFilter(0);
@@ -612,7 +607,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     public void openForum(int id, int page){
     	if(getActivity() != null){
-	    	getLoaderManager().destroyLoader(getLoaderId());
+	    	getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
     	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
@@ -626,7 +621,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
-			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
 			refreshInfo();
 			syncForum();
     	}
@@ -803,7 +798,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	private void refreshInfo(){
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(getLoaderId(), null, mForumLoaderCallback);
+			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
 	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
 	    	getLoaderManager().restartLoader(Constants.SUBFORUM_LOADER_ID, null, mSubforumLoaderCallback);
 		}

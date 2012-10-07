@@ -84,7 +84,7 @@ public class AwfulPost {
 	private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
 
     public static final String ID                    = "_id";
-    public static final String POST_INDEX                    = "post_index";
+    public static final String POST_INDEX            = "post_index";
     public static final String THREAD_ID             = "thread_id";
     public static final String DATE                  = "date";
     public static final String USER_ID               = "user_id";
@@ -446,7 +446,12 @@ public class AwfulPost {
             post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
             
             //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
-            post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
+            //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
+            try{
+                post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
+            }catch(NumberFormatException nfe){
+            	post.put(POST_INDEX, index);
+            }
             
             //Check for "class=seenX", or just rely on unread index
             Elements seen = postData.getElementsByClass("seen");

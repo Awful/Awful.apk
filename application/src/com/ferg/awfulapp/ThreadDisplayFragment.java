@@ -535,7 +535,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
-        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
+        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
         pauseWebView();
     }
 
@@ -575,7 +575,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDestroy() {
         super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
-        getLoaderManager().destroyLoader(getThreadId());
+        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     }
 
     @Override
@@ -805,14 +805,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     @Override
     public void onActivityResult(int aRequestCode, int aResultCode, Intent aData) {
+    	Log.e(TAG,"onActivityResult: " + aRequestCode+" result: "+aResultCode);
         // If we're here because of a post result, refresh the thread
-    	//TODO change to use goto=lastpage (in case new post created new page) (issue: goto=last doesn't respond with perpage=XX)
         switch (aRequestCode) {
-            case PostReplyFragment.RESULT_POSTED:
-            	if(getPage() < getLastPage()){
-            		goToPage(getLastPage());
-            	}else{
-            		refresh();
+            case PostReplyFragment.REQUEST_POST:
+            	if(aResultCode == PostReplyFragment.RESULT_POSTED){
+            		startPostRedirect(Constants.FUNCTION_THREAD+"?goto=lastpost&threadid="+getThreadId()+"&perpage="+mPrefs.postPerPage);
+            	}else if(aResultCode > 100){//any result >100 it is a post id we edited
+            		startPostRedirect(Constants.FUNCTION_THREAD+"?goto=post&postid="+aResultCode+"&perpage="+mPrefs.postPerPage);
             	}
                 break;
         }
@@ -1457,13 +1457,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	public void refreshInfo() {
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Integer.MAX_VALUE-getThreadId(), null, mThreadLoaderCallback);
+			getLoaderManager().restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
 		}
 	}
 	
 	public void refreshPosts(){
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(getThreadId(), null, mPostLoaderCallback);
+			getLoaderManager().restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
 		}
 	}
 	
@@ -1492,8 +1492,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	private void loadThread(int id, int page, String postJump) {
     	if(getActivity() != null){
-	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
-	        getLoaderManager().destroyLoader(getThreadId());
+	        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
+	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     	}
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
@@ -1517,8 +1517,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	private void loadThread(AwfulStackEntry thread) {
     	if(getActivity() != null){
-	        getLoaderManager().destroyLoader(Integer.MAX_VALUE-getThreadId());
-	        getLoaderManager().destroyLoader(getThreadId());
+	        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
+	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     	}
     	setThreadId(thread.id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
@@ -1615,7 +1615,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public boolean canScrollX(int x, int y) {
-		if(mThreadView == null){
+		if(mThreadView == null || scrollCheckBounds == null){
 			return false;
 		}
 		y = y+mThreadView.getScrollY()+mThreadView.getTop();

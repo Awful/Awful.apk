@@ -332,7 +332,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 			pagerAdapter.deleteFragment(fragment);
 		}
 		if(fragment instanceof PostReplyFragment && mThreadFragment != null){
-			mThreadFragment.onActivityResult(PostReplyFragment.RESULT_POSTED, 0, null);
+			mThreadFragment.onActivityResult(PostReplyFragment.REQUEST_POST, 0, null);
 		}
 	}
 
@@ -421,6 +421,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 					}
 				}
 			}, 1000);
+		}
+		if(mThreadFragment != null){
+			mThreadFragment.onActivityResult(request, result, intent);
 		}
 	}
 

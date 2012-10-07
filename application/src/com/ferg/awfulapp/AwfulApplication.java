@@ -6,7 +6,11 @@ import java.util.Set;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
+import org.acra.ReportField;
 import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
 
 import android.app.Application;
 import android.graphics.Typeface;
@@ -116,6 +120,9 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		currentFont = fonts.get(mPref.preferredFont);
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
+        if(mPref.sendUsernameInReport){
+        	ErrorReporter.getInstance().putCustomData("SA Username", mPref.username);
+        }
 	}
 
 	public String[] getFontList() {

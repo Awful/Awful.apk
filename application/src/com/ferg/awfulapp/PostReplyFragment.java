@@ -71,7 +71,10 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyFragment";
 
-    public static final int RESULT_POSTED = 1;
+    public static final int REQUEST_POST = 5;
+    public static final int RESULT_POSTED = 6;
+    public static final int RESULT_CANCELLED = 7;
+    public static final int RESULT_EDITED = 8;
 
     private EditText mMessage;
     private ProgressDialog mDialog;
@@ -217,7 +220,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
     		sendSuccessful = true;
 			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
-			getActivity().setResult(RESULT_POSTED);
+			if(mReplyType == AwfulMessage.TYPE_EDIT){
+				getActivity().setResult(mPostId);
+			}else{
+				getActivity().setResult(RESULT_POSTED);
+			}
 			leave();
     	}
     }
@@ -331,10 +338,12 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 break;
             case R.id.discard:
             	deleteReply();
+            	getActivity().setResult(RESULT_CANCELLED);
             	leave();
                 break;
             case R.id.save_draft:
             	saveReply();
+            	getActivity().setResult(RESULT_CANCELLED);
             	leave();
             	break;
             case R.id.emotes:

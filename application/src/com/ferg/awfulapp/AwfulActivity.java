@@ -114,6 +114,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     @Override
 	protected void onActivityResult(int request, int result, Intent intent) {
 		super.onActivityResult(request, result, intent);
+    	Log.e(TAG,"onActivityResult: " + request+" result: "+result);
 		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED){
 			finish();
 		}
@@ -210,7 +211,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         args.putInt(Constants.THREAD_ID, threadId);
         args.putInt(Constants.EDITING, type);
         args.putInt(Constants.POST_ID, postId);
-    	startActivityForResult(new Intent(this, PostReplyActivity.class).putExtras(args), PostReplyFragment.RESULT_POSTED);
+    	startActivityForResult(new Intent(this, PostReplyActivity.class).putExtras(args), PostReplyFragment.REQUEST_POST);
 	}
     
     public void setActionbarTitle(String aTitle, Object requestor) {

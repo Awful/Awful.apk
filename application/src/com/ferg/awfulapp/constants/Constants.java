@@ -112,8 +112,8 @@ public class Constants {
     public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
     
     //asynctasks are managed by ID number, but PM page has no id
-	public static final int PRIVATE_MESSAGE_THREAD = 3;//can't use negative numbers anymore, but #3 does not exist on the forums anymore.
-	public static final int USERCP_ID = 2;//can't use negative numbers anymore, but #2 does not exist on the forums anymore.
+	public static final int PRIVATE_MESSAGE_THREAD = 998;//can't use negative numbers anymore.
+	public static final int USERCP_ID = 999;//can't use negative numbers anymore.
 	public static final int FORUM_INDEX_ID = 0;
 	/** To prevent loader ID collisions. */
 	public static final int REPLY_LOADER_ID = 884;
@@ -122,7 +122,9 @@ public class Constants {
 	public static final int EMOTE_LOADER_ID = 887;
 	public static final int MISC_LOADER_ID = 888;
 	public static final int THREAD_LOADER_ID = 889;
-	public static final int POST_LOADER_ID = 889;
+	public static final int FORUM_THREADS_LOADER_ID = 890;
+	public static final int THREAD_INFO_LOADER_ID = 891;
+	public static final int POST_LOADER_ID = 892;
 
 	public static final String ACTION_DOSEND = "dosend";
 	public static final String DESTINATION_TOUSER = "touser";
