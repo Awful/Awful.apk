@@ -1,5 +1,6 @@
 var prefs = JSON.parse(preferences);
 
+
 $(document).ready(function() {
     $('.quote_button').live('click', function(event) {
         listener.onQuoteClick($(this).attr('id'));
@@ -43,11 +44,23 @@ $(document).ready(function() {
     $("img[title*=':']").load(function(index) {
 	$(this).height(($(this).height() *  prefs.postFontSize / 15));
 	});
+	
 });
+
+
 
 $(window).load(function() {
 	//listener.debugMessage('load');
+	window.stop();
 });
+
+
+$('img[src*=".gif"]').load(function() {
+	if(prefs.disablegifs){
+		freeze_gif($(this).get(0));
+	}
+});
+
 
 $(window).ready(function() {
 	//listener.debugMessage('ready');
@@ -61,6 +74,7 @@ $(window).ready(function() {
 			});
 		}
 	});
+
 });
 
 function scrollPost() {
@@ -102,12 +116,27 @@ function gifHide() {
 	//listener.debugMessage('gifHide');
 	var minBound = $(window).scrollTop()-($(window).height()/2);
 	var maxBound = $(window).scrollTop()+$(window).height()*1.5;
-	$(".gif").each(function (){
+	$('img[src*=".gif"]').each(function (){
 		if($(this).offset().top > maxBound || ($(this).offset().top + $(this).height()) < minBound){
 			$(this).css("visibility", "hidden");
 		}else{
 			$(this).css("visibility", "visible");
 		}
 	});
+}
+
+
+function freeze_gif(i) {
+  var c = document.createElement('canvas');
+  var w = c.width = i.width;
+  var h = c.height = i.height;
+  c.getContext('2d').drawImage(i, 0, 0, w, h);
+  try {
+    i.src = c.toDataURL("image/gif"); // if possible, retain all css aspects
+  } catch(e) { // cross-domain -- mimic original with all its tag attributes
+    for (var j = 0, a; a = i.attributes[j]; j++)
+      c.setAttribute(a.name, a.value);
+    i.parentNode.replaceChild(c, i);
+  }
 }
 

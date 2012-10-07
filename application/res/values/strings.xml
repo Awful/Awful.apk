@@ -147,4 +147,5 @@
     <string name="menu_save_draft">Save Draft</string>
     <string name="send_username_in_report">Send Username in Reports</string>
 	<string name="send_username_in_report_summary">Attaches the forum username to crash reports.</string>
+	<string name="disable_gifs">Disable gif animation</string>
 </resources>

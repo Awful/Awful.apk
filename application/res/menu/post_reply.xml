@@ -50,6 +50,8 @@
 		android:icon="@drawable/ic_menu_post"
 		android:showAsAction="always" 
         />
-	<item android:id="@+id/save_draft" android:title="@string/menu_save_draft" android:showAsAction="never|withText"></item><item android:id="@+id/discard" android:icon="@drawable/ic_menu_load_fail" android:showAsAction="never|withText" android:title="@string/menu_discard"></item>
+	<item android:id="@+id/save_draft" android:title="@string/menu_save_draft" android:showAsAction="never|withText"></item>
+	<item android:id="@+id/discard" android:icon="@drawable/ic_menu_load_fail" android:showAsAction="never|withText" android:title="@string/menu_discard"></item>
+	<item android:id="@+id/add_attachment" android:title="@string/add_attachment" android:showAsAction="never|withText"></item>
 	
 </menu>

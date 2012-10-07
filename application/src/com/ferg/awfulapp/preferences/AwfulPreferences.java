@@ -63,6 +63,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean showAllSpoilers;
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
+	public boolean disableGifs;
 	
 	//FORUM STUFF
 	public boolean newThreadsFirst;
@@ -172,6 +173,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         staticThreadView	 	 = mPrefs.getBoolean("static_thread_view", false);
+        disableGifs	 			 = mPrefs.getBoolean("disable_gifs", false);
        	 //TODO: I have never seen this before oh god
 	}
 }

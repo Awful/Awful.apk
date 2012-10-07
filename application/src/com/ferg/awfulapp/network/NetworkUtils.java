@@ -291,9 +291,14 @@ public class NetworkUtils {
 		Log.i(TAG, aUrl);
 
         HttpPost httpPost = new HttpPost(aUrl);
-        httpPost.setEntity(
-            new UrlEncodedFormEntity(getPostParameters(aParams)));  
 
+        MultipartEntity post = new MultipartEntity();
+        ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
+        for(NameValuePair data : paramdata ){
+            post.addPart(data.getName(), new StringBody(data.getValue()));
+        }
+        
+        httpPost.setEntity(post);
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
 
         HttpEntity entity = httpResponse.getEntity();

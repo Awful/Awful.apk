@@ -1044,6 +1044,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("postjumpid", mPostJump);
             result.put("scrollPosition", savedScrollPosition);
+            result.put("disablegifs", Boolean.toString(aAppPrefs.disableGifs));
         } catch (JSONException e) {
         }
 
