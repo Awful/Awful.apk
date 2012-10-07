@@ -36,6 +36,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -255,52 +258,61 @@ public class AwfulThread extends AwfulPagedItem  {
         params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
         params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
         
+        ContentResolver contentResolv = aContext.getContentResolver();
+		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
+    	int totalReplies = 0, unread = -1, opId = 0, bookmarkStatus = 0;
+		if(threadData.moveToFirst()){
+			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
+			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
+			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
+			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
+		}
+        
         //notify user we are starting update
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
         
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
+        Document response = NetworkUtils.getJSoup(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
 
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
         
-        if(response.findElementByAttValue("id", "notregistered", true, false) != null){
-        	NetworkUtils.clearLoginCookies(aContext);
-            statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
-        	return;
+        if(AwfulPagedItem.checkPageErrors(response, statusUpdates)){
+        	return;//errors found, skip processing.
         }
         
         ContentValues thread = new ContentValues();
         thread.put(ID, aThreadId);
-        if (true /* mTitle == null */) {
-        	TagNode[] tarTitle = response.getElementsByAttValue("class", "bclast", true, true);
-
-            if (tarTitle.length > 0) {
-            	thread.put(TITLE, tarTitle[0].getText().toString().trim());
-            }
+    	Elements tarTitle = response.getElementsByAttributeValue("class", "bclast");
+        if (tarTitle.size() > 0) {
+        	thread.put(TITLE, tarTitle.get(0).text().trim());
         }
-
-        TagNode[] replyAlts = response.getElementsByAttValue("alt", "Reply", true, true);
-        if (replyAlts.length >0 && replyAlts[0].getAttributeByName("src").contains("forum-closed")) {
+            
+        Elements replyAlts = response.getElementsByAttributeValue("alt", "Reply");
+        if (replyAlts.size() >0 && replyAlts.get(0).attr("src").contains("forum-closed")) {
         	thread.put(LOCKED, 1);
         }else{
         	thread.put(LOCKED, 0);
         }
 
-        TagNode[] bkButtons = response.getElementsByAttValue("id", "button_bookmark", true, true);
-        if (bkButtons.length >0) {
-        	String bkSrc = bkButtons[0].getAttributeByName("src");
+        Elements bkButtons = response.getElementsByAttributeValue("id", "button_bookmark");
+        if (bkButtons.size() >0) {
+        	String bkSrc = bkButtons.get(0).attr("src");
         	if(bkSrc != null && bkSrc.contains("unbookmark")){
-        		//thread.put(BOOKMARKED, 1);//TODO update to not clobber the existing bookmark value
+        		if(bookmarkStatus < 1){
+        			thread.put(BOOKMARKED, 1);
+        		}
+        	}else{
+        		thread.put(BOOKMARKED, 0);
         	}
         }
-        TagNode breadcrumbs = response.findElementByAttValue("class", "breadcrumbs", true, true);
-    	TagNode[] forumlinks = breadcrumbs.getElementsHavingAttribute("href", true);
     	int forumId = -1;
-    	for(TagNode fl : forumlinks){
-    		Matcher matchForumId = forumId_regex.matcher(fl.getAttributeByName("href"));
-    		if(matchForumId.find()){//switched this to a regex
-    			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
-    		}
+    	for(Element breadcrumb : response.getElementsByClass("breadcrumbs")){
+	    	for(Element forumLink : breadcrumb.getElementsByAttribute("href")){
+	    		Matcher matchForumId = forumId_regex.matcher(forumLink.attr("href"));
+	    		if(matchForumId.find()){//switched this to a regex
+	    			forumId = Integer.parseInt(matchForumId.group(1));//so this won't fail
+	    		}
+	    	}
     	}
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
@@ -308,14 +320,6 @@ public class AwfulThread extends AwfulPagedItem  {
         //notify user we have began processing thread info
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 55));
 
-    	ContentResolver contentResolv = aContext.getContentResolver();
-		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
-		int totalReplies = 0, unread = -1, opId = 0;
-		if(threadData.moveToFirst()){
-			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
-			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
-			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
-		}
 		threadData.close();
 		int replycount;
 		if(aUserId > 0){
@@ -682,64 +686,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			aq.find(R.id.forum_tag).image(R.drawable.light_inline_link).visible().width(15);
 		}else{
 			aq.find(R.id.forum_tag).gone();
-		}
-	}
-	
-	public static boolean threadTagExists(Context aContext, String filename){
-		try{
-			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-				File cacheDir;
-				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
-					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/category/");
-				}else{
-					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
-				}
-				File cachedImg = new File(cacheDir, filename);
-				if(cachedImg.exists() && cachedImg.canRead()){
-					return true;
-				}
-			}
-		}catch(Exception e){
-		}
-		return false;
-	}
-	
-	public static Bitmap getCategory(Context aContext, String fileName){
-		try{
-			if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-				File cacheDir;
-				if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
-					cacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/category/");
-				}else{
-					cacheDir = new File(aContext.getExternalCacheDir(),"category/");
-				}
-				File cachedImg = new File(cacheDir, fileName);
-				if(cachedImg.exists() && cachedImg.canRead()){
-					FileInputStream is = new FileInputStream(cachedImg);
-					Bitmap data = BitmapFactory.decodeStream(is);
-					is.close();
-					return data;
-				}
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public static void setBitmap(Context context, ImageView imgView, HashMap<String, Bitmap> imageCache){
-		if(imgView.getTag() instanceof String){
-			String imageName = (String) imgView.getTag();
-			Bitmap image = imageCache.get(imageName);
-			if(image == null){
-				image = getCategory(context, imageName);
-				imageCache.put(imageName, image);
-			}
-			if(image != null){
-				imgView.setVisibility(View.VISIBLE);
-				imgView.setScaleType(ScaleType.FIT_XY);
-				imgView.setImageBitmap(image);
-			}
 		}
 	}
 	

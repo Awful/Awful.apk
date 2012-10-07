@@ -190,6 +190,16 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
 			finish();
 		}
 	}
+
+	@Override
+	public void fragmentMessage(String type, String contents) {
+		if(mainWindowFrag != null){
+			mainWindowFrag.fragmentMessage(type, contents);
+		}
+		if(sidebarFrag != null){
+			sidebarFrag.fragmentMessage(type, contents);
+		}
+	}
 	
 	
 	

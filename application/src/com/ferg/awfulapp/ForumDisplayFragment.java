@@ -745,7 +745,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				}
 			}
 			if(mPullRefreshListView != null){
-				mPullRefreshListView.onRefreshComplete();//TODO fixing thread list on jb
+				mPullRefreshListView.onRefreshComplete();
 			}
         }
 

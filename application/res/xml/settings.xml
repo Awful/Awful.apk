@@ -87,6 +87,13 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
+		<ListPreference
+            android:key="page_layout"
+            android:title="@string/page_layout"
+            android:entries="@array/page_layouts"
+            android:entryValues="@array/page_layout_values"
+			android:defaultValue="auto"
+            />
 		<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
@@ -112,7 +119,7 @@
 			/>
 		<CheckBoxPreference 
             android:key="static_thread_view" 
-			android:title="EXPERIMENTAL: Static Thread View"
+			android:title="UNFINISHED: Static Thread View"
 			android:summary="Disable GIF Animation - Reduce battery use"
 			android:defaultValue="false"
 			/>

@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +52,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -83,6 +85,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
@@ -111,6 +114,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ThreadDataCallback mThreadLoaderCallback;
 
     private ImageButton mToggleSidebar;
+	private boolean mShowSidebarIcon;
     
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -138,8 +142,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean dataLoaded = false;
     
     //oh god i'm replicating core android functionality, this is a bad sign.
-    //int[0] = threadid, int[1] = pagenum, int[2] = scroll position
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
+    
+    private int scrollCheckMinBound = -1;
+    private int scrollCheckMaxBound = -1;
+    private int[] scrollCheckBounds = null;
     
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
@@ -148,6 +155,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private String mPostJump = "";
 	private int savedPage = 0;//for reverting from "Find posts by"
 	private int savedScrollPosition = 0;
+	
+	private ShareActionProvider shareProvider;
 	
 	private Handler buttonHandler = new Handler(){
 
@@ -194,6 +203,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
+			registerPreBlocks();
 		}
 
 		public void onLoadResource(WebView view, String url) {
@@ -336,24 +346,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 //--------------------------------
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState); Log.e(TAG, "onCreateView");
-        View result = aInflater.inflate(R.layout.thread_display, aContainer, false);
+    	if(DEBUG) Log.e(TAG, "onCreateView");
+    	
+        View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+
+		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		
-		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
-		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
-		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
-        mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
+		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
+		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
+		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
+        mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mPageBar = result.findViewById(R.id.page_indicator);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
-		mNextPage.setOnClickListener(onButtonClick);
-		mToggleSidebar.setOnClickListener(onButtonClick);
-		mPrevPage.setOnClickListener(onButtonClick);
-		mRefreshBar.setOnClickListener(onButtonClick);
-		mPageCountText.setOnClickListener(onButtonClick);
 		return result;
 	}
 
@@ -379,7 +385,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Constants.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.inlineYoutube){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
@@ -507,6 +513,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			resumeWebView();
 		}
 	}
+	
+	
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if(mThreadView != null && dataLoaded && currentProgress > 99){
+			registerPreBlocks();
+		}
+	}
 
 	@Override
 	public void onPageHidden() {
@@ -580,6 +596,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
+        	MenuItem share = menu.findItem(R.id.share_thread);
+        	if(share != null && share.getActionProvider() instanceof ShareActionProvider){
+        		shareProvider = (ShareActionProvider) share.getActionProvider();
+        		shareProvider.setShareIntent(createShareIntent());
+        	}
     	}
     }
 
@@ -647,9 +668,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     		return true;
     	}
-
-	private void copyThreadURL(String postId) {
-		StringBuffer url = new StringBuffer();
+    
+    private String generateThreadUrl(String postId){
+    	StringBuffer url = new StringBuffer();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
@@ -668,16 +689,25 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			url.append("post");
 			url.append(postId);
 		}
+		return url.toString();
+    }
+    
+    private Intent createShareIntent(){
+    	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
+    }
+
+	private void copyThreadURL(String postId) {
+		String url = generateThreadUrl(postId);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
 					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url.toString());
+			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + this.mPage, url);
 			clipboard.setPrimaryClip(clip);
 
 			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		} else {
 			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(url.toString());
+			clipboard.setText(url);
 			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -822,8 +852,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 	displayPagePicker();
                 	break;
                 case R.id.toggle_sidebar:
-                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
-                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
+                	if(mShowSidebarIcon){
+	                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
+	                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
+	                	}
+                	}else{
+                		if (getPage() == getLastPage()) {
+                			refresh();
+                		} else {
+                        	goToPage(getPage() + 1);
+                		}
                 	}
                 	break;
             }
@@ -1011,9 +1049,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-            
-            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), Constants.isWidescreen(getActivity()), mPage, mLastPage, threadClosed);
-            if(DEBUG && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
+            		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
+            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
+            if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
             	out.write(html.getBytes());
             	out.close();
@@ -1130,6 +1169,33 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	}else{
         		selectUser(aUserId);
         	}
+        }
+        
+        public void addCodeBounds(final String minBound, final String maxBound){
+        	int min = Integer.parseInt(minBound);
+        	int max = Integer.parseInt(maxBound);
+        	if(min < scrollCheckMinBound || scrollCheckMinBound < 0){
+        		scrollCheckMinBound = min;
+        	}
+        	if(max > scrollCheckMaxBound || scrollCheckMaxBound < 0){
+        		scrollCheckMaxBound = max;
+        	}
+        	Log.e(TAG,"Register pre block: "+min+" - "+max+" - new min: "+scrollCheckMinBound+" new max: "+scrollCheckMaxBound);
+        	//this array is going to be accessed very often during touch events, arraylist has too much processing overhead
+        	if(scrollCheckBounds == null){
+        		scrollCheckBounds = new int[2];
+        	}else{
+        		//GOOGLE DIDN'T ADD Arrays.copyOf TILL API 9 fuck
+        		//scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
+        		int[] newScrollCheckBounds = new int[scrollCheckBounds.length+2];
+        		for(int x = 0;x<scrollCheckBounds.length;x++){
+        			newScrollCheckBounds[x]=scrollCheckBounds[x];
+        		}
+        		scrollCheckBounds = newScrollCheckBounds;
+        	}
+        	scrollCheckBounds[scrollCheckBounds.length-2] = min;
+        	scrollCheckBounds[scrollCheckBounds.length-1] = max;
+        	Arrays.sort(scrollCheckBounds);
         }
     }
     
@@ -1369,6 +1435,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             		//TODO add tablet notification
         			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
         		}
+        		if(shareProvider != null){
+        			shareProvider.setShareIntent(createShareIntent());
+        		}
         	}
         }
         
@@ -1509,9 +1578,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 
 	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
+		mShowSidebarIcon = showIcon;
 		if(mToggleSidebar != null){
-			if(showIcon){
+			if(mShowSidebarIcon){
 				mToggleSidebar.setVisibility(View.VISIBLE);
+				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
 	    		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
 					if(sidebarVisible){
 						mToggleSidebar.setColorFilter(buttonSelectedColor);
@@ -1520,8 +1591,45 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					}
 	    		}
 			}else{
-				mToggleSidebar.setVisibility(View.INVISIBLE);
+				mToggleSidebar.setVisibility(View.VISIBLE);
+				mToggleSidebar.setImageDrawable(null);
 			}
 		}
 	}
+	
+	private void registerPreBlocks() {
+		scrollCheckBounds = null;
+		scrollCheckMinBound = -1;
+		scrollCheckMaxBound = -1;
+		if(mThreadView != null){
+			Log.e(TAG,"Queueing registerPreBlocks()");
+			mHandler.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+					if(mThreadView != null){
+						mThreadView.loadUrl("javascript:registerPreBlocks()");
+					}
+				}
+			}, 2000);
+		}
+	}
+
+	@Override
+	public boolean canScrollX(int x, int y) {
+		if(mThreadView == null){
+			return false;
+		}
+		y = y+mThreadView.getScrollY()+mThreadView.getTop();
+		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
+			return false;
+		}
+		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
+			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 }

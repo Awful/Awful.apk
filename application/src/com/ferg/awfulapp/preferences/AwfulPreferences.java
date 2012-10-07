@@ -64,6 +64,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
 	public boolean disableGifs;
+	public String threadLayout;
 	
 	//FORUM STUFF
 	public boolean newThreadsFirst;
@@ -159,7 +160,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-        debugMode            	 = mPrefs.getBoolean("debug_mode", false);
+        debugMode            	 =false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
@@ -167,6 +168,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
+        threadLayout			 = mPrefs.getString("page_layout", "auto");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit

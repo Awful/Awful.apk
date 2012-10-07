@@ -1,57 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:orientation="vertical"
     android:padding="10dip"
-    android:paddingBottom="0dip"
-    >
+    android:paddingBottom="0dip" >
+
     <ImageView
-		android:id="@+id/dealwithit"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:scaleType="fitCenter"
-		android:adjustViewBounds="true"
-		android:src="@drawable/dealwithit" />
+        android:id="@+id/dealwithit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/dealwithit" />
 
-     <TextView
-         android:id="@+id/prompt_msg"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignParentTop="true"
-         android:drawableLeft="@drawable/emot_goonsay"
-         android:drawablePadding="@dimen/login_label_padding"
-         android:text="@string/login_message"
-         android:textSize="18dip" />
+    <TextView
+        android:id="@+id/prompt_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:drawableLeft="@drawable/emot_goonsay"
+        android:drawablePadding="4dip"
+        android:text="@string/login_message"
+        android:textSize="18dip" />
 
-	<EditText
-		android:id="@+id/username"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+    <LinearLayout
+        android:id="@+id/login_text_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/prompt_msg"
-        android:inputType="textNoSuggestions"
-		android:hint="@string/username"
-		/>
-	<EditText
-		android:id="@+id/password"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/username"
-		android:hint="@string/password"
-		android:inputType="textPassword"
-		/>
-	<Button
-		android:id="@+id/login"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/password"
-        android:layout_alignRight="@id/password"
+        android:orientation="vertical"
+        android:background="#AAFFFFFF" >
+
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/username"
+            android:inputType="textNoSuggestions" >
+
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/login_text_container"
+        android:drawablePadding="15dip"
         android:drawableRight="@drawable/ic_menu_arrowright"
         android:padding="15dip"
-        android:drawablePadding="15dip"
-		android:text="@string/login"
-		/>
-
+        android:text="@string/login"
+        android:background="#AAFFFFFF" />
 
 </RelativeLayout>

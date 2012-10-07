@@ -20,6 +20,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxStatus;
+import com.androidquery.callback.BitmapAjaxCallback;
+import com.ferg.awfulapp.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriMatcher;
@@ -45,6 +50,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -52,6 +58,7 @@ import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,6 +71,8 @@ import java.util.concurrent.RejectedExecutionException;
  * Supports basic formatting, images, and embedded YouTube videos.
  */
 public final class HtmlView extends TextView {
+	private AQuery aq;
+	private ImageView pseudoImgview = new ImageView(this.getContext());
 
     private static final String TAG = "HtmlView";
 
@@ -164,14 +173,9 @@ public final class HtmlView extends TextView {
     }
 
     /**
-     * Cache of recently used images.
-     */
-    private static final Map<String, SoftReference<Bitmap>> sImageCache = new HashMap<String, SoftReference<Bitmap>>();
-
-    /**
      * Keeps track of pending tasks.
      */
-    private final Set<ImageTask> mTasks = new HashSet<ImageTask>();
+    private final ArrayList<ImageTask> mTasks = new ArrayList<ImageTask>();
 
     /**
      * The total number of tasks created for the last call to
@@ -216,16 +220,19 @@ public final class HtmlView extends TextView {
     public HtmlView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         loadDrawables();
+        aq = new AQuery(this);
     }
 
     public HtmlView(Context context, AttributeSet attrs) {
         super(context, attrs);
         loadDrawables();
+        aq = new AQuery(this);
     }
 
     public HtmlView(Context context) {
         super(context);
         loadDrawables();
+        aq = new AQuery(this);
     }
 
     private void loadDrawables() {
@@ -300,14 +307,14 @@ public final class HtmlView extends TextView {
 
     @Override
     public Parcelable onSaveInstanceState() {
-        cancelTasks();
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.mHtml = mHtml;
         return ss;
     }
+    
 
-    @Override
+	@Override
     public void onRestoreInstanceState(Parcelable state) {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
@@ -325,12 +332,7 @@ public final class HtmlView extends TextView {
     }
 
     protected Bitmap getImage(String src) {
-        if (src != null) {
-            SoftReference<Bitmap> reference = sImageCache.get(src);
-            return reference != null ? reference.get() : null;
-        } else {
-            return null;
-        }
+    	return aq.getCachedImage(src);
     }
 
     private void handleEmbed(Element node, Editable output) {
@@ -400,8 +402,7 @@ public final class HtmlView extends TextView {
                 snapshotDrawable.setBounds(frame.getBounds());
                 frame.setDrawableByLayerId(layerId, snapshotDrawable);
             } else {
-                ImageTask task = new ImageTask(snapshotUrl, frame, layerId);
-                executeImageTask(task);
+            	executeImageTask(new ImageTask(snapshotUrl,frame,layerId));
             }
         }
     }
@@ -431,33 +432,9 @@ public final class HtmlView extends TextView {
         }
     }
 
-    private void executeImageTask(ImageTask task) {
-        try {
-            task.execute();
-            mTasks.add(task);
-            mTotalTaskCount += 1;
-        } catch (RejectedExecutionException e) {
-            // AsyncTask will throw this if it has too many queued tasks.
-            logResourceError("Unable to load image", task.mUrl);
-        }
-    }
-
-    private void cancelTasks() {
-        if (mTasks != null) {
-            for (ImageTask task : mTasks) {
-                task.cancel(false);
-            }
-            mTasks.clear();
-            mTotalTaskCount = 0;
-            mCompleteTaskCount = 0;
-            updateProgress();
-        } else {
-            // This can happen when setText is called
-            // indirectly by the superclass constructor.
-        }
-    }
-
     public void setHtml(String source, boolean loadImages) {
+    	cancelTasks();
+    	aq.recycle(pseudoImgview);
         imagesEnabled = loadImages;
         if (source == null) {
             setText(null);
@@ -467,8 +444,6 @@ public final class HtmlView extends TextView {
             return;
         }
         mHtml = source;
-
-        cancelTasks();
 
         // The Html.ImageGetter API is too limited because it does not provide
         // values for the 'alt' and 'title' attributes of image tags.
@@ -523,7 +498,6 @@ public final class HtmlView extends TextView {
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
         mHtml = null;
-        cancelTasks();
     }
 
     @Override
@@ -588,8 +562,20 @@ public final class HtmlView extends TextView {
 
         mHtmlChromeClient.onProgressChanged(this, newProgress);
     }
+    
+    public void cancelTasks(){
+    	for(ImageTask i : mTasks){
+    		i.cancelTask();
+    	}
+    }
+    
+    private void executeImageTask(ImageTask it){
+    	aq.image(it.getUrl(),true,true,0,R.drawable.light_inline_link,it);
+    	mTasks.add(it);
+    }
 
-    private class ImageTask extends AsyncTask<Void, Void, Bitmap> {
+    private class ImageTask extends BitmapAjaxCallback {
+    	
 
         /**
          * The URL to load.
@@ -615,7 +601,9 @@ public final class HtmlView extends TextView {
         /**
          * {@code true} if the task has been canceled, {@code false} otherwise.
          */
-        private boolean mCancelled;
+        private boolean mCancelled = false;
+        
+        private InputStream inputStream = null;
 
         public ImageTask(String url, HtmlImageSpan placeholder) {
             mUrl = url;
@@ -624,54 +612,34 @@ public final class HtmlView extends TextView {
             // Not used:
             mLayers = null;
             mLayerId = -1;
+            aq = new AQuery(HtmlView.this.getContext());
         }
 
-        public ImageTask(String url, LayerDrawable layers, int layerId) {
+        public void cancelTask() {
+			mCancelled = true;
+			cancel();
+		}
+
+		public ImageTask(String url, LayerDrawable layers, int layerId) {
             mUrl = url;
             mLayers = layers;
             mLayerId = layerId;
 
             // Not used:
             mSpan = null;
+            aq = new AQuery(HtmlView.this.getContext());
+        }
+        
+        public void killTask(){
+        	if(inputStream != null){
+        		try {
+					inputStream.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+        	}
         }
 
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            try {
-                URL url = new URL(mUrl);
-                InputStream in = url.openStream();
-                try {
-                    try {
-                        in = new BlockingFilterInputStream(in);
-                        return BitmapFactory.decodeStream(in);
-                    } catch (OutOfMemoryError e) {
-                        logResourceError("Insufficient memory to load image", mUrl, e);
-                        return null;
-                    } finally {
-                        in.close();
-                    }
-                } catch (NullPointerException e) {
-                    // See http://code.google.com/p/android/issues/detail?id=10337
-                    IOException ioe = new IOException();
-                    ioe.initCause(e);
-                    throw ioe;
-                }
-            } catch (IOException e) {
-                logResourceError("Unable to load image", mUrl, e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mCancelled = true;
-        }
-
-        private void saveToImageCache(Bitmap result) {
-            if (result != null) {
-                sImageCache.put(mUrl, new SoftReference<Bitmap>(result));
-            }
-        }
 
         private Drawable getDrawable(Bitmap result) {
             if (result != null) {
@@ -710,9 +678,14 @@ public final class HtmlView extends TextView {
             }
         }
 
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            saveToImageCache(result);
+		@Override
+		protected void callback(String url, ImageView iv,
+				Bitmap bm, AjaxStatus status) {
+			onPostImage(bm);
+			mTasks.remove(this);
+		}
+		
+        protected void onPostImage(Bitmap result) {
             if (!mCancelled) {
                 replaceSpan(result);
                 replaceLayer(result);

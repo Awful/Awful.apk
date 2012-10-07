@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -19,7 +19,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
+public abstract class AwfulDialogFragment extends SherlockDialogFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
@@ -144,10 +144,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	}
 	
 	protected boolean isFragmentVisible(){
-		if(getActivity()!=null){
-			return getAwfulActivity().isFragmentVisible(this);
-		}
-		return false;
+		return isVisible();
 	}
 	
 	protected void startActionMode(){
@@ -187,11 +184,6 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     	setProgress(aMsg.arg2);
     }
 
-	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		
-	}
-	
 	public void sendFragmentMessage(String type, String contents){
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
@@ -203,6 +195,11 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
 	 */
 	public void fragmentMessage(String type, String contents){	}
+	
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		
+	}
 	
 	protected boolean isLoggedIn(){
 		return getAwfulActivity().isLoggedIn();

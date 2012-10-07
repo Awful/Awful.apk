@@ -37,6 +37,10 @@ import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.Elements;
 import org.xml.sax.XMLReader;
 
 import android.content.ContentResolver;
@@ -77,6 +81,7 @@ public class AwfulPost {
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
+	private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
 
     public static final String ID                    = "_id";
     public static final String POST_INDEX                    = "post_index";
@@ -264,6 +269,16 @@ public class AwfulPost {
         }
         return result;
     }
+    
+    private static Document convertVideos(Document contentNode){
+    	for(Element node : contentNode.getElementsByClass("youtube-player")){
+    		node.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", node.attr("src")).text(node.attr("src")));
+    	}
+    	for(Element node : contentNode.getElementsByClass("bbcode_video")){
+    		node.replaceWith(new Element(Tag.valueOf("p"),"").text(node.attr("DEBUG: DISABLED VIDEO CONVERSION")));//TODO
+    	}
+    	return contentNode;
+    }
 
 	private static TagNode convertVideos(TagNode contentNode) {
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
@@ -405,13 +420,164 @@ public class AwfulPost {
         }
     }
 
-    public static void syncPosts(ContentResolver content, TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+    public static void syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
 
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
+    
+    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+    	ArrayList<ContentValues> result = new ArrayList<ContentValues>();
+    	boolean lastReadFound = false;
+		int index = startIndex;
+        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        Log.v(TAG,"Update time: "+update_time);
+        convertVideos(aThread);
+        Elements posts = aThread.getElementsByClass("post");
+        for(Element postData : posts){
+        	ContentValues post = new ContentValues();
+        	post.put(THREAD_ID, aThreadId);
+        	
+        	//post id is formatted "post1234567", so we strip out the "post" prefix.
+        	post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
+        	
+        	//timestamp for DB trimming after a week
+            post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+            
+            //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
+            post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
+            
+            //Check for "class=seenX", or just rely on unread index
+            Elements seen = postData.getElementsByClass("seen");
+            if(seen.size() < 1 && index > unreadIndex){
+            	post.put(PREVIOUSLY_READ, 0);
+            	lastReadFound = true;
+            }else{
+            	post.put(PREVIOUSLY_READ, 1);
+            }
+            index++;
+            
+            //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
+			post.put(IS_MOD, 0);
+            post.put(IS_ADMIN, 0);
+            
+            //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
+            Elements postClasses = postData.getElementsByAttribute("class");
+            for(Element entry: postClasses){
+            	String type = entry.attr("class");
+            	
+            	if (type.contains("author")) {
+					post.put(USERNAME, entry.text().trim());
+				}
 
+				if (type.contains("role-mod")) {
+					post.put(IS_MOD, 1);
+				}
+
+				if (type.contains("role-admin")) {
+                    post.put(IS_ADMIN, 1);
+				}
+
+				if (type.equalsIgnoreCase("title") && entry.children().size() > 0) {
+					Elements avatar = entry.getElementsByTag("img");
+
+					if (avatar.size() > 0) {
+						post.put(AVATAR, avatar.get(0).attr("src"));
+					}
+					post.put(AVATAR_TEXT, entry.text().trim());
+				}
+
+				if (type.equalsIgnoreCase("postbody") || type.contains("complete_shit")) {
+					Elements images = entry.getElementsByTag("img");
+
+					for(Element img : images){
+						//don't alter video mock buttons
+						if((img.hasAttr("class") && img.attr("class").contains("videoPlayButton"))){
+							continue;
+						}
+						boolean dontLink = false;
+						Element parent = img.parent();
+						String src = img.attr("src");
+
+						if ((parent != null && parent.tagName().equalsIgnoreCase("a")) || (img.hasAttr("class") && img.attr("class").contains("nolink"))) { //image is linked, don't override
+							dontLink = true;
+						}
+						if(src.contains(".gif")){
+							img.attr("class", (img.hasAttr("class") ? img.attr("class")+" " : "") + "gif");
+						}
+
+						if (img.hasAttr("title")) {
+							if (!prefs.showSmilies) { //kill all emotes
+								String name = img.attr("title");
+								img.replaceWith(new Element(Tag.valueOf("p"),"").text(name));
+							}
+						} else {
+							if (!lastReadFound && prefs.hideOldImages || !prefs.imagesEnabled) {
+								if (!dontLink) {
+									img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).text(src));
+								} else {
+									img.replaceWith(new Element(Tag.valueOf("p"),"").text(src));
+								}
+							} else {
+								if (!dontLink) {
+									String thumb = src;
+									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
+										int lastSlash = thumb.lastIndexOf('/');
+										if(src.length()-lastSlash<=9){
+											int pos = thumb.length() - 4;
+											thumb = thumb.substring(0, pos) + prefs.imgurThumbnails + thumb.substring(pos);
+										}
+									}
+									img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
+								}
+							}
+						}
+					}
+
+					StringBuffer fixedContent = new StringBuffer();
+					Matcher fixCharMatch = fixCharacters_regex.matcher(entry.html());
+
+                    while (fixCharMatch.find()) {
+                        fixCharMatch.appendReplacement(fixedContent, "");
+                    }
+
+					fixCharMatch.appendTail(fixedContent);
+                    post.put(CONTENT, fixedContent.toString());
+				}
+
+				if (type.equalsIgnoreCase("postdate")) {
+					post.put(DATE, NetworkUtils.unencodeHtml(entry.text()).replaceAll("[^\\w\\s:,]", "").trim());
+				}
+				
+				if (type.equalsIgnoreCase("profilelinks")) {
+					Elements userlink = entry.getElementsByAttributeValueContaining("href","userid=");
+
+					if (userlink.size() > 0) {
+						Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
+						if(userid.find()){
+							int uid = Integer.parseInt(userid.group(1));
+							post.put(USER_ID, uid);
+                        	post.put(IS_OP, (opId == uid ? 1 : 0));
+						}else{
+							Log.e(TAG, "Failed to parse UID!");
+						}
+					}else{
+						Log.e(TAG, "Failed to parse UID!");
+					}
+				}
+				if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
+					post.put(EDITED, "<i>" + entry.children().get(0).text().trim() + "</i>");
+				}
+            	
+            }
+            post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
+            result.add(post);
+        }
+        Log.i(TAG, Integer.toString(posts.size())+" posts found, "+result.size()+" posts parsed.");
+    	return result;
+    }
+    
     public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 		boolean lastReadFound = false;
@@ -595,6 +761,7 @@ public class AwfulPost {
 //			}
 //		});
 		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(mPrefs.postFontColor).backgroundColor(background).getView();
+		contentView.cancelTasks();
 		contentView.setMovementMethod(LinkMovementMethod.getInstance());
 		contentView.setHtml(data.getString(data.getColumnIndex(CONTENT)), true);
 		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
