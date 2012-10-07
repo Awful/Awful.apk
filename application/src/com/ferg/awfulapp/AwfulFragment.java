@@ -17,6 +17,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
@@ -24,6 +25,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
 	protected int currentProgress = 100;
+	private AwfulProgressBar mProgressBar;
 	
 
     protected Handler mHandler = new Handler() {
@@ -68,6 +70,10 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
     	View v = inflater.inflate(resId, container, false);
+    	View progressBar = v.findViewById(R.id.progress_bar);
+    	if(progressBar instanceof AwfulProgressBar){
+    		mProgressBar = (AwfulProgressBar) progressBar;
+    	}
     	aq = new AQuery(v);
     	return v;
     }
@@ -127,9 +133,13 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		AwfulActivity aa = getAwfulActivity();
-		if(aa != null && isFragmentVisible()){
-			aa.setLoadProgress(percent);
+		if(mProgressBar != null){
+			mProgressBar.setProgress(percent);
+		}else{
+			AwfulActivity aa = getAwfulActivity();
+			if(aa != null && isFragmentVisible()){
+				aa.setLoadProgress(percent);
+			}
 		}
 	}
 	

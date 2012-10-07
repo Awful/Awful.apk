@@ -74,7 +74,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public static final int REQUEST_POST = 5;
     public static final int RESULT_POSTED = 6;
     public static final int RESULT_CANCELLED = 7;
-    public static final int RESULT_EDITED = 8;
 
     private EditText mMessage;
     private ProgressDialog mDialog;

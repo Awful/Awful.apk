@@ -5,6 +5,12 @@
     android:orientation="vertical"
 	android:background="@color/background"
     >
+    <com.ferg.awfulapp.widget.AwfulProgressBar 
+        android:id="@+id/progress_bar"
+		android:layout_width="fill_parent"
+		android:layout_height="2dp"
+		android:visibility="invisible"
+       />
     <LinearLayout
         android:id="@+id/thread_container"
         android:layout_width="fill_parent"

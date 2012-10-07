@@ -75,6 +75,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.NumberPicker;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
@@ -124,8 +125,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
         return fragment;
     }
-    
-    private AwfulCursorAdapter mCursorAdapter;
+
+	private AwfulCursorAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private SubforumsCallback mSubforumLoaderCallback = new SubforumsCallback();
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
