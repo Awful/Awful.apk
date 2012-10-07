@@ -28,6 +28,7 @@
 package com.ferg.awfulapp.network;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -55,6 +56,7 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -328,7 +330,7 @@ public class NetworkUtils {
         for(NameValuePair data : paramdata ){
             post.addPart(data.getName(), new StringBody(data.getValue()));
         }
-        
+        post.addPart("attachment", new FileBody(new File("")));
         httpPost.setEntity(post);
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
 
