@@ -1,5 +1,6 @@
 package com.ferg.awfulapp;
 
+import java.io.File;
 import java.util.LinkedList;
 
 import android.app.Activity;
@@ -287,4 +288,12 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	 */
 	public void fragmentMessage(String type, String contents) {	}//subclasses should implement this
 
+	
+
+
+	@Override
+	public File getCacheDir() {
+		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
+		return super.getCacheDir();
+	}
 }
