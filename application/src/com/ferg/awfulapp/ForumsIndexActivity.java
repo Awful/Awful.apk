@@ -74,6 +74,9 @@ public class ForumsIndexActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
+        if(mForumId == 2){//workaround for old userCP ID, ugh.
+        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+        }
         mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
         mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
         
@@ -96,7 +99,9 @@ public class ForumsIndexActivity extends AwfulActivity {
         	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         	pagerAdapter.addFragment(ForumsIndexFragment.newInstance());
         	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, skipLoad));
-        	pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
+        	if(mThreadId > 0){
+        		pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
+        	}
 	        mViewPager.setAdapter(pagerAdapter);
 	        mViewPager.setOnPageChangeListener(pagerAdapter);
 	        if(mForumId > 0){
@@ -131,42 +136,17 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
-    	private ArrayList<AwfulPagerFragment> fragList;
-    	private AwfulPagerFragment visible;
-		public ForumPagerAdapter(FragmentManager fm) {
+    	public ForumPagerAdapter(FragmentManager fm) {
 			super(fm);
-			fragList = new ArrayList<AwfulPagerFragment>(3);
-		}
-		
-		public void addFragment(AwfulPagerFragment frag){
-			if(!fragList.contains(frag)){
-				fragList.add(frag);
-				notifyDataSetChanged();
-			}
 		}
 
-		public void deleteFragment(AwfulPagerFragment frag){
-			fragList.remove(frag);
-			notifyDataSetChanged();
-		}
-
-		@Override
-		public AwfulPagerFragment getItem(int position) {
-			AwfulPagerFragment frag = fragList.get(position);
-			if(DEBUG) Log.e(TAG,"getItem "+position+" - "+frag.toString());
-			return frag;
-		}
+		private AwfulPagerFragment visible;
 		
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return getItem(position).getTitle();
-		}
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			if(DEBUG) Log.i(TAG,"INSTANTIATING TAB:"+position);
 			Fragment frag = (Fragment) super.instantiateItem(container, position);
-			fragList.set(position, (AwfulPagerFragment) frag);
 			if(frag instanceof ForumsIndexFragment){
 				mIndexFragment = (ForumsIndexFragment) frag;
 			}
@@ -180,29 +160,6 @@ public class ForumsIndexActivity extends AwfulActivity {
 				mReplyFragment = (PostReplyFragment) frag;
 			}
 			return frag;
-		}
-
-		@Override
-		public int getItemPosition(Object object) {
-			int pos = fragList.indexOf(object);
-			if(pos < 0){
-				return AwfulFragmentPagerAdapter.POSITION_NONE;
-			}else{
-				return pos;
-			}
-		}
-
-		@Override
-		public int getCount() {
-			return fragList.size();
-		}
-
-		@Override
-		public void onPageScrollStateChanged(int arg0) {
-		}
-
-		@Override
-		public void onPageScrolled(int arg0, float arg1, int arg2) {
 		}
 
 		@Override
@@ -221,15 +178,14 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 
 		@Override
-		public void destroyItem(ViewGroup container, int position, Object object) {
-			// TODO Auto-generated method stub
-			super.destroyItem(container, position, object);
-			if(DEBUG) Log.i(TAG,"DESTROY TAB: "+position);
-		}
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
-		public void deletePage(int x) {
-			fragList.remove(x);
-			notifyDataSetChanged();
+		@Override
+		public void onPageScrollStateChanged(int state) {}
+
+		@Override
+		protected Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag) {
+			return newFrag;//just dump the old fragment and replace it
 		}
     	
     }
@@ -320,8 +276,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     
     private void closeTempWindows(){
     	if(mViewPager != null){
-    		while(pagerAdapter.getCount() > 3){
-    			pagerAdapter.deletePage(3);
+    		for(int ix=0; ix<pagerAdapter.getCount(); ix++){
+    			if(pagerAdapter.getItem(ix) instanceof ThreadDisplayFragment){//close anything after the thread display fragment
+    				while(pagerAdapter.getCount() > ix+1){
+    					pagerAdapter.deletePage(ix+1);
+    				}
+    			}
     		}
     	}
     }
@@ -386,6 +346,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     		mThreadPage = page;
     		if(mThreadFragment != null){
     			mThreadFragment.openThread(id, page);
+    		}else{
+    			pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(id, page));
     		}
     		mViewPager.setCurrentItem(2);
     	}else{
@@ -430,8 +392,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 	@Override
 	public void fragmentMessage(String type, String contents) {
-		if(mViewPager != null){
-			for(AwfulPagerFragment f : pagerAdapter.fragList){
+		if(pagerAdapter != null){
+			for(AwfulPagerFragment f : pagerAdapter){
 				f.fragmentMessage(type, contents);
 			}
 		}else{

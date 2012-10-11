@@ -25,41 +25,60 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-package com.ferg.awfulapp.task;
+package com.ferg.awfulapp.widget;
 
-import android.content.ContentResolver;
-import android.os.Message;
-import android.util.Log;
+import android.R;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.PorterDuff.Mode;
+import android.util.AttributeSet;
+import android.view.View;
 
-import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.thread.AwfulEmote;
-import com.ferg.awfulapp.thread.AwfulForum;
-import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.AwfulThread;
+public class AwfulProgressBar extends View {
+	private int mProgress = 100;
+	private Paint mProgressColor;
+	private Paint mClearColor;
+	
 
-public class TrimDBTask extends AwfulTask {
-	private static final int TABLE_THREAD = 1;
-	private static final int TABLE_POST = 2;
-	private static final int TABLE_UCP = 3;
-	public TrimDBTask(AwfulSyncService sync, Message aMsg) {
-		super(sync, aMsg, null, AwfulSyncService.MSG_TRIM_DB);
-		if(mArg1 <1){
-			mArg1 = 7;
-		}
+	public AwfulProgressBar(Context context) {
+		super(context);
+		setPaint(context);
+	}
+
+	public AwfulProgressBar(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		setPaint(context);
+	}
+
+	public AwfulProgressBar(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		setPaint(context);
+	}
+	
+	private void setPaint(Context context){
+		mProgressColor = new Paint();
+		mProgressColor.setColor(context.getResources().getColor(R.color.holo_blue_light));
+		mClearColor = new Paint();
+		mClearColor.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
-    	ContentResolver dbInterface = mContext.getContentResolver();
-    	int rowCount = 0;
-		rowCount += dbInterface.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-		rowCount += dbInterface.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-		rowCount += dbInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-		rowCount += dbInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-		rowCount += dbInterface.delete(AwfulEmote.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-    	Log.i(TAG,"Trimming DB older than "+mArg1+" days, culled: "+rowCount);
-		return true;
+	protected void onDraw(Canvas canvas) {
+		canvas.drawPaint(mClearColor);
+		canvas.drawRect(0, 0, (int)((mProgress/100.0)*getWidth()), getHeight(), mProgressColor);
+	}
+	
+	public void setProgress(int progress){
+		mProgress = progress;
+		if(progress < 100 && progress > 0){
+			setVisibility(View.VISIBLE);
+			invalidate();
+		}else{
+			setVisibility(View.GONE);
+		}
 	}
 
 }

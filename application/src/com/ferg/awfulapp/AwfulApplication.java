@@ -1,5 +1,6 @@
 package com.ferg.awfulapp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -151,4 +152,12 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		}
 		onPreferenceChange(mPref);
 	}
+
+	@Override
+	public File getCacheDir() {
+		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
+		return super.getCacheDir();
+	}
+	
+	
 }

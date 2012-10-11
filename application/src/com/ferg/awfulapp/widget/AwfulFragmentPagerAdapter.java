@@ -16,6 +16,11 @@ package com.ferg.awfulapp.widget;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
+
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -61,23 +66,55 @@ import android.view.ViewGroup;
  * {@sample development/samples/Support4Demos/res/layout/fragment_pager_list.xml
  *      complete}
  */
-public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
-    private static final String TAG = "FragmentPagerAdapter";
+public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implements Iterable<AwfulFragmentPagerAdapter.AwfulPagerFragment> {
+
+	private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
     private Fragment mCurrentPrimaryItem = null;
+    
+    private ArrayList<AwfulPagerFragment> fragList;
 
     public AwfulFragmentPagerAdapter(FragmentManager fm) {
         mFragmentManager = fm;
+		fragList = new ArrayList<AwfulPagerFragment>();
     }
+    
+
+	public void addFragment(AwfulPagerFragment frag){
+		if(!fragList.contains(frag)){
+			fragList.add(frag);
+			notifyDataSetChanged();
+		}
+	}
+	
+	public void deleteFragment(AwfulPagerFragment frag){
+		fragList.remove(frag);
+		notifyDataSetChanged();
+	}
+
+	public AwfulPagerFragment deletePage(int x) {
+		AwfulPagerFragment tmp = fragList.remove(x);
+		notifyDataSetChanged();
+		return tmp;
+	}
+	
+    @Override
+	public Iterator<AwfulPagerFragment> iterator() {
+		return fragList.iterator();
+	}
 
     /**
      * Return the Fragment associated with a specified position.
      */
-    public abstract AwfulPagerFragment getItem(int position);
-    
+	public AwfulPagerFragment getItem(int position) {
+		AwfulPagerFragment frag = fragList.get(position);
+		if(DEBUG) Log.e(TAG,"getItem "+position+" - "+frag.toString());
+		return frag;
+	}
+	
     public interface AwfulPagerFragment{
     	/**
     	 * This event is called when the user presses the back button. Return true to consume this back-button event and prevent the activity from finishing.
@@ -102,6 +139,8 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     @Override
     public void startUpdate(ViewGroup container) {
     }
+    
+    protected abstract Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag);
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
@@ -111,12 +150,20 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
 
         // Do we already have this fragment?
         String name = makeFragmentName(container.getId(), position);
-        Fragment fragment = mFragmentManager.findFragmentByTag(name);
-        if (fragment != null) {
+        Fragment existingFragment = mFragmentManager.findFragmentByTag(name);
+        Fragment listFragment = (Fragment) getItem(position);
+        Fragment fragment;
+        if(existingFragment != null && listFragment != null && existingFragment != listFragment){
+        	fragment = resolveConflict(position, existingFragment, listFragment);
+        }else if(existingFragment != null){
+        	fragment = existingFragment;
+        }else{
+        	fragment = listFragment;
+        }
+        if (existingFragment == fragment) {
             if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + fragment);
             mCurTransaction.attach(fragment);
         } else {
-            fragment = (Fragment) getItem(position);
             if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
             mCurTransaction.add(container.getId(), fragment,
                     makeFragmentName(container.getId(), position));
@@ -181,4 +228,24 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter {
     private static String makeFragmentName(int viewId, int index) {
         return "android:switcher:" + viewId + ":" + index;
     }
+    
+	@Override
+	public CharSequence getPageTitle(int position) {
+		return getItem(position).getTitle();
+	}
+
+	@Override
+	public int getItemPosition(Object object) {
+		int pos = fragList.indexOf(object);
+		if(pos < 0){
+			return AwfulFragmentPagerAdapter.POSITION_NONE;
+		}else{
+			return pos;
+		}
+	}
+
+	@Override
+	public int getCount() {
+		return fragList.size();
+	}
 }

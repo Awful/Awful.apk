@@ -75,7 +75,6 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyFragment";
 
-
     public static final int REQUEST_POST = 5;
     public static final int RESULT_POSTED = 6;
     public static final int RESULT_CANCELLED = 7;

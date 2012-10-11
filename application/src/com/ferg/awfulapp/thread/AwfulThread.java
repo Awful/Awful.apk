@@ -612,13 +612,13 @@ public class AwfulThread extends AwfulPagedItem  {
 				if(tmp.length()>0){
 					tmp.append(" | ");
 				}
-				tmp.append("Last: "+data.getString(data.getColumnIndex(LASTPOSTER)));
+				tmp.append("Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
 			}
 			if(prefs.threadInfo_Author){
 				if(tmp.length()>0){
 					tmp.append(" | ");
 				}
-				tmp.append("OP: "+data.getString(data.getColumnIndex(AUTHOR)));
+				tmp.append("OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
 			}
 			info.setText(tmp.toString().trim());
 		}

@@ -312,7 +312,7 @@ public class AwfulProvider extends ContentProvider {
         
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
-        	switch(aOldVersion){
+        	switch(aOldVersion){//this switch intentionally falls through!
         	case 16:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
             	createPostTable(aDb);
@@ -322,6 +322,8 @@ public class AwfulProvider extends ContentProvider {
         	case 18:
         		aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
         		createEmoteTable(aDb);
+        		aDb.delete(TABLE_FORUM, AwfulForum.ID+"=?", int2StrArray(2));//we switched the hard-coded bookmark ID to something less retarded, 2 was the original
+        		break;//make sure to keep this break statement on the last case of this switch
     		default:
     			dropAllTables(aDb);
                 onCreate(aDb);
