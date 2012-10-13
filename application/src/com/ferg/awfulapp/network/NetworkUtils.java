@@ -28,6 +28,7 @@
 package com.ferg.awfulapp.network;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -47,8 +48,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
@@ -75,6 +78,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.os.Messenger;
@@ -256,6 +260,14 @@ public class NetworkUtils {
         
         Log.i(TAG, "Fetched " + location);
         return response;
+	}
+	
+	public static void delete(String aUrl) throws Exception{
+        Log.i(TAG, "DELETE: " + aUrl);
+		HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
+		if(hResponse.getStatusLine().getStatusCode() < 400){
+			throw new Exception("ERROR: "+hResponse.getStatusLine().getStatusCode());
+		}
 	}
 	
 	public static TagNode get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
