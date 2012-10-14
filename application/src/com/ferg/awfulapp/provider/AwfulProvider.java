@@ -169,6 +169,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulPost.EDIT_POST_ID,
 		AwfulPost.REPLY_ORIGINAL_CONTENT,
 		AwfulMessage.REPLY_CONTENT,
+		AwfulMessage.REPLY_ATTACHMENT,
 		UPDATED_TIMESTAMP
 	};
 
@@ -304,6 +305,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
                 AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
                 AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
+                AwfulMessage.REPLY_ATTACHMENT      + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
             
 
@@ -796,6 +798,7 @@ public class AwfulProvider extends ContentProvider {
 		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
 		sDraftProjectionMap.put(AwfulPost.EDIT_POST_ID, AwfulPost.EDIT_POST_ID);
 		sDraftProjectionMap.put(AwfulPost.REPLY_ORIGINAL_CONTENT, AwfulPost.REPLY_ORIGINAL_CONTENT);
+		sDraftProjectionMap.put(AwfulMessage.REPLY_ATTACHMENT, AwfulMessage.REPLY_ATTACHMENT);
 		sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
 		
 		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);

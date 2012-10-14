@@ -83,6 +83,7 @@ import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.reply.Reply;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 public class NetworkUtils {
@@ -328,9 +329,12 @@ public class NetworkUtils {
         MultipartEntity post = new MultipartEntity();
         ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
         for(NameValuePair data : paramdata ){
-            post.addPart(data.getName(), new StringBody(data.getValue()));
+        	if(data.getName() == "attachment"){
+        		post.addPart(data.getName(), new FileBody(new File(data.getValue())));
+        	}else{
+        		post.addPart(data.getName(), new StringBody(data.getValue()));
+        	}
         }
-        post.addPart("attachment", new FileBody(new File("")));
         httpPost.setEntity(post);
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
 

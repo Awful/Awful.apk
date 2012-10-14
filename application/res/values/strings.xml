@@ -155,5 +155,6 @@
 	<string name="send_username_in_report_summary">Attaches the forum username to crash reports.</string>
 	<string name="disable_gifs">Disable gif animation</string>
 	<string name="filter_emote_hint">Filter Emotes...</string>
-	<string name="add_attachment">Add file attachment</string>
+	<string name="add_attachment">Add File Attachment</string>
+	<string name="file_attached">Set File %s as Attachment</string>
 </resources>

@@ -156,8 +156,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             if (requestCode == ADD_ATTACHMENT) {
                 Uri selectedImageUri = data.getData();
                 mFileAttachment = getFilePath(selectedImageUri);
-                
-                getActivity().getContentResolver();
+                Toast attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), mFileAttachment), Toast.LENGTH_LONG);
+                attachmentToast.show();
             }
         }
 
@@ -561,6 +561,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	    	if(content.length() >0){
 	    		post.put(AwfulMessage.REPLY_CONTENT, content);
     		}
+	    	if(mFileAttachment != null){
+		    	post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+	    	}
 	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
 	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
 	    	}
