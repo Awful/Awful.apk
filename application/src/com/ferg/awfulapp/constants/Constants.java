@@ -145,6 +145,8 @@ public class Constants {
 	public static final int LOGIN_ACTIVITY_REQUEST = 99;
 
 	public static final int DEFAULT_FONT_SIZE = 16;
+	
+	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
 
 	/**
@@ -167,7 +169,7 @@ public class Constants {
 	public static boolean isWidescreen(Context cont){
 		if(cont != null){
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= 750;
+				return cont.getResources().getConfiguration().screenWidthDp >= WIDESCREEN_DPI;
 			}else{
 				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 			}
@@ -177,7 +179,7 @@ public class Constants {
 	}
 	public static boolean isWidescreen(Configuration newConfig) {
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-			return newConfig.screenWidthDp >= 750;
+			return newConfig.screenWidthDp >= WIDESCREEN_DPI;
 		}else{
 			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 		}

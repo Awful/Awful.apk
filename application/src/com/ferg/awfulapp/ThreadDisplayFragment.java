@@ -519,8 +519,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		if(mThreadView != null && dataLoaded && currentProgress > 99){
-			registerPreBlocks();
+		if(mThreadView != null && dataLoaded){
+			if(currentProgress > 99){
+				registerPreBlocks();
+			}
+			updateLayoutType();
 		}
 	}
 
@@ -589,6 +592,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     public boolean isSidebarVisible(){
     	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
+    }
+    
+    public void updateLayoutType(){
+    	if(mThreadView != null && getActivity() != null){
+			if(Constants.isWidescreen(getActivity())){
+				mThreadView.loadUrl("javascript:showTabletUI()");
+			}else{
+				mThreadView.loadUrl("javascript:showPhoneUI()");
+			}
+    	}
     }
     
     @Override

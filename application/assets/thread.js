@@ -118,3 +118,15 @@ function gifHide() {
 	});
 }
 
+function showTabletUI(){
+	$('.phone').hide();
+	$('.tablet').show();
+	$('.tablet-div').show();
+}
+
+function showPhoneUI(){
+	$('.tablet-div').hide();
+	$('.tablet').hide();
+	$('.phone').show();
+}
+
