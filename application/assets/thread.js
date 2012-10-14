@@ -119,14 +119,14 @@ function gifHide() {
 }
 
 function showTabletUI(){
-	$('.phone').hide();
-	$('.tablet').show();
-	$('.tablet-div').show();
+	$('.phone-tr').css('display','none');
+	$('.tablet-td').css('display','table-cell');
+	$('.tablet-div').css('display','block');
 }
 
 function showPhoneUI(){
-	$('.tablet-div').hide();
-	$('.tablet').hide();
-	$('.phone').show();
+	$('.tablet-div').css('display','none');
+	$('.tablet-td').css('display','none');
+	$('.phone-tr').css('display','table-row');
 }
 

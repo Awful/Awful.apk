@@ -410,6 +410,12 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append(".bbc-block h4 { border-top: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor2)+"; }\n");
         buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
         
+        if(isTablet){
+            buffer.append(".phone-tr {display:none;}\n");
+        }else{
+            buffer.append(".tablet-td {display:none;}\n");
+        }
+        
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("<div class='content' >\n");
@@ -455,7 +461,7 @@ public class AwfulThread extends AwfulPagedItem  {
             	light = !light;
             }
 
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' id='" + post.getId() + "' "+(isTablet?"style='display: none;'":"")+">\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone-tr' id='" + post.getId() + "' >\n");
             buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
             buffer.append("        <div class='avatar' "+((aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">\n");
             buffer.append("        </div>\n");
@@ -472,7 +478,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
-            buffer.append("<tr class='phone' "+(isTablet?"style='display: none;'":"")+">\n");
+            buffer.append("<tr class='phone-tr' >\n");
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
             buffer.append("        <div class='avatar-text-phone' style='display:none;float: left; width: 100%;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
             if(post.isEditable()){
@@ -495,7 +501,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<tr>\n");
             
             //tablet user column
-            buffer.append("    <td class='usercolumn tablet' style='background: " + background +(isTablet?"":";display: none;'")+";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
+            buffer.append("    <td class='usercolumn tablet-td' style='background: " + background +";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
             buffer.append("        	<div class='user-button' >\n");
             buffer.append("        		<div class='userinfo'>\n");
             buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
@@ -521,7 +527,7 @@ public class AwfulThread extends AwfulPagedItem  {
             
             //post content
             buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>\n");
-            buffer.append("       <div class='tablet-div' "+(isTablet?"":"style='display: none;'")+">\n");
+            buffer.append("       <div class='tablet-div' >\n");
             buffer.append("    		<div class='button-row' style='display: none; width: 100%;color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
             if(post.isEditable()){
             	buffer.append("        		<div class='edit_button inline-button' id='" + post.getId() + "' />\n");
