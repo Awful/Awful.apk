@@ -322,7 +322,10 @@ public class AwfulProvider extends ContentProvider {
         	case 18:
         		aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
         		createEmoteTable(aDb);
-        		aDb.delete(TABLE_FORUM, AwfulForum.ID+"=?", int2StrArray(2));//we switched the hard-coded bookmark ID to something less retarded, 2 was the original
+        		//fixing my stupid mistake hard-coding the bookmark ID at 2
+        		ContentValues forumFix = new ContentValues();
+        		forumFix.put(AwfulForum.ID, Constants.USERCP_ID);
+        		aDb.update(TABLE_FORUM, forumFix,AwfulForum.ID+"=?", int2StrArray(2));
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
     			dropAllTables(aDb);

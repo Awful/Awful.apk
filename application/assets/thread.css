@@ -6,6 +6,8 @@ body {
 
 td {
     border: 1px solid #c1c1c1;
+	border-left:0px;
+	border-right:0px;
     overflow: auto;
 }
 
