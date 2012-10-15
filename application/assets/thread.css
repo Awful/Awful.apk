@@ -23,6 +23,7 @@ table {
 
 .post-cell {
     vertical-align: top;
+	width:100%;
 }
 
 .content {
@@ -30,7 +31,11 @@ table {
 }
 
 #thread-body {
-    border: 1px solid #dddddd;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
 .bbc-block {
@@ -68,12 +73,12 @@ table {
 	margin-left: 5px;
 }
 
-.userinfo, .post-content, .avatar-text-phone {
+.userinfo, .post-content, .avatar-text {
     vertical-align: top;
 }
 
 .post-content {
-    padding: 5px 5px 1px;
+    margin: 5px 5px 1px;
 }
 
 .post-content img{
@@ -83,11 +88,25 @@ table {
 .action-button {
     float: right;
     vertical-align: middle;
+    padding-right: 12px;
+    padding-left: 25px;
+	display:inline-block;
 }
 
 .userinfo {
     vertical-align: top;
     padding: 5px;
+}
+
+.userinfo-row {
+    width:100%;
+    overflow: auto;
+    border-top-style: solid;
+    border-top-width:2px;
+    border-bottom-style: solid;
+    border-bottom-width:0px;
+    border-right-width:0px;
+    border-left-width:0px;
 }
 
 .avatar {
@@ -112,9 +131,23 @@ table {
     font-size: larger;
 }
 
+.post-buttons {
+    width:100%;
+    overflow: hidden;
+    border-top-width:0px;
+    border-bottom-style: solid;
+    border-bottom-width:2px;
+    border-right-width:0px;
+    border-left-width:0px;
+}
+
 .usercolumn {
     vertical-align: top;
-    width: 20%;
+    padding: 10px;
+    border-bottom: 1px solid #c1c1c1;
+    border-right: 1px solid #c1c1c1;
+	margin-right: 5px;
+	width:20%;
 }
 
 .quote-button {
@@ -129,4 +162,19 @@ table {
 
 .editedby {
     font-style: italic;
+}
+
+.phone .avatar {
+    padding: 0px;
+    margin: 0px;
+    float: left;
+	background-size:contain;
+	background-repeat:no-repeat;
+	background-position:center; 
+}
+
+.phone .userinfo, .phone .avatar-text {
+    padding: 3px;
+    float: left;
+    margin-left: 4px;
 }

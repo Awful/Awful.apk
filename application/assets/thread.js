@@ -1,4 +1,4 @@
-var prefs = JSON.parse(preferences);
+var prefs = '';
 
 $(document).ready(function() {
     $('.quote_button').live('click', function(event) {
@@ -32,7 +32,7 @@ $(document).ready(function() {
     }
 
 	$('.userinfo-row').click(function(event) {
-	  $(this).closest('tr').next().find('.avatar-text-phone').toggle();
+	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
 	$('.usercolumn').click(function(event) {
 	  $(this).closest('tr').find('.button-row').toggle();
@@ -119,14 +119,12 @@ function gifHide() {
 }
 
 function showTabletUI(){
-	$('.phone-tr').css('display','none');
-	$('.tablet-td').css('display','table-cell');
-	$('.tablet-div').css('display','block');
+	$('.phone').hide();
+	$('.tablet').show();
 }
 
 function showPhoneUI(){
-	$('.tablet-div').css('display','none');
-	$('.tablet-td').css('display','none');
-	$('.phone-tr').css('display','table-row');
+	$('.tablet').hide();
+	$('.phone').show();
 }
 
