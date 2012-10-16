@@ -240,11 +240,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						int pageNumber = Integer.parseInt(pageNum.replaceAll("\\D", ""));
+						int pageNumber = Constants.safeParseInt(pageNum.replaceAll("\\D", ""), 1);
 						int perPage = Constants.ITEMS_PER_PAGE;
 						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
 						if(paramPerPage != null && paramPerPage.matches("\\d+")){
-							perPage = Integer.parseInt(paramPerPage.replaceAll("\\D", ""));
+							perPage = Constants.safeParseInt(paramPerPage.replaceAll("\\D", ""), Constants.ITEMS_PER_PAGE);
 						}
 						if(perPage != mPrefs.postPerPage){
 							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
@@ -261,9 +261,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String forumId = link.getQueryParameter(Constants.PARAM_FORUM_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), Integer.parseInt(pageNum.replaceAll("\\D", "")));
+						displayForum(Constants.safeParseInt(forumId.replaceAll("\\D", ""),Constants.USERCP_ID), Constants.safeParseInt(pageNum.replaceAll("\\D", ""),1));
 					}else{
-						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), 1);
+						displayForum(Constants.safeParseInt(forumId.replaceAll("\\D", ""),Constants.USERCP_ID), 1);
 					}
 					return true;
 				}
@@ -519,8 +519,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		if(mThreadView != null && dataLoaded && currentProgress > 99){
-			registerPreBlocks();
+		if(mThreadView != null && dataLoaded){
+			if(currentProgress > 99){
+				registerPreBlocks();
+			}
+			updateLayoutType();
 		}
 	}
 
@@ -589,6 +592,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     public boolean isSidebarVisible(){
     	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
+    }
+    
+    public void updateLayoutType(){
+    	if(mThreadView != null && getActivity() != null){
+			if(!mPrefs.threadLayout.equalsIgnoreCase("phone") && (mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()))){
+				mThreadView.loadUrl("javascript:showTabletUI()");
+			}else{
+				mThreadView.loadUrl("javascript:showPhoneUI()");
+			}
+    	}
     }
     
     @Override
@@ -1054,7 +1067,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
             if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
-            	out.write(html.getBytes());
+            	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
             }
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", html, "text/html", "utf-8", null);

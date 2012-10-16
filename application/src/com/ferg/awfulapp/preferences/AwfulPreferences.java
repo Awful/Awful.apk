@@ -75,7 +75,12 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int postHeaderFontColor;
 	public int actionbarColor;
 	public int actionbarFontColor;
-	public String icon_theme;//for selecting icon set TODO rename setting to icon_theme
+	/**
+	 * for selecting icon set
+	 * light
+	 * dark
+	 */
+	public String icon_theme;
 	public String preferredFont;
 	public boolean alternateBackground;
 	
@@ -91,6 +96,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
 	public boolean disableGifs;
+	/**
+	 * forces threadview into specific layout, values: auto - phone - tablet 
+	 */
 	public String threadLayout;
 	
 	//FORUM STUFF
@@ -104,6 +112,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
 	public boolean staticThreadView;
+	
 
 	/**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.

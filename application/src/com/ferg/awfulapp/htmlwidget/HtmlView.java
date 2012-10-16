@@ -17,6 +17,8 @@
 package com.ferg.awfulapp.htmlwidget;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
@@ -24,6 +26,7 @@ import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 
 import android.content.Context;
 import android.content.Intent;

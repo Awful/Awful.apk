@@ -145,6 +145,8 @@ public class Constants {
 	public static final int LOGIN_ACTIVITY_REQUEST = 99;
 
 	public static final int DEFAULT_FONT_SIZE = 16;
+	
+	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
 
 	/**
@@ -167,7 +169,7 @@ public class Constants {
 	public static boolean isWidescreen(Context cont){
 		if(cont != null){
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= 750;
+				return cont.getResources().getConfiguration().screenWidthDp >= WIDESCREEN_DPI;
 			}else{
 				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 			}
@@ -177,9 +179,42 @@ public class Constants {
 	}
 	public static boolean isWidescreen(Configuration newConfig) {
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-			return newConfig.screenWidthDp >= 750;
+			return newConfig.screenWidthDp >= WIDESCREEN_DPI;
 		}else{
 			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
+		}
+	}
+	
+
+	/**
+	 * Similar to isWidescreen(), except will check to see if this device is large enough to be considered widescreen (700dp) in either orientation, even if it isn't in the current orientation.
+	 * @param cont
+	 * @return True if either width or height is large enough to count as widescreen.
+	 * @see WIDESCREEN_DPI
+	 */
+	public static boolean canBeWidescreen(Context cont){
+		if(cont != null){
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+				return cont.getResources().getConfiguration().screenWidthDp >= WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= WIDESCREEN_DPI;
+			}else{
+				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * Parse an int from the given string, falling back to the provided number in case of failure.
+	 * @param number String containing the int to be parsed.
+	 * @param fallback Number to return if parsing fails.
+	 * @return Either the parsed number or the fallback.
+	 */
+	public static int safeParseInt(String number, int fallback){
+		try{
+			return Integer.parseInt(number);
+		}catch(NumberFormatException nfe){
+			return fallback;
 		}
 	}
 

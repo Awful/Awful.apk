@@ -50,6 +50,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
@@ -83,7 +84,6 @@ import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.reply.Reply;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 public class NetworkUtils {
@@ -259,6 +259,14 @@ public class NetworkUtils {
         
         Log.i(TAG, "Fetched " + location);
         return response;
+	}
+	
+	public static void delete(String aUrl) throws Exception{
+        Log.i(TAG, "DELETE: " + aUrl);
+		HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
+		if(hResponse.getStatusLine().getStatusCode() < 400){
+			throw new Exception("ERROR: "+hResponse.getStatusLine().getStatusCode());
+		}
 	}
 	
 	public static TagNode get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {

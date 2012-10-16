@@ -1,4 +1,4 @@
-var prefs = JSON.parse(preferences);
+var prefs = '';
 
 
 $(document).ready(function() {
@@ -33,7 +33,7 @@ $(document).ready(function() {
     }
 
 	$('.userinfo-row').click(function(event) {
-	  $(this).closest('tr').next().find('.avatar-text-phone').toggle();
+	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
 	$('.usercolumn').click(function(event) {
 	  $(this).closest('tr').find('.button-row').toggle();
@@ -129,5 +129,15 @@ function gifHide() {
 			$(this).css("visibility", "visible");
 		}
 	});
+}
+
+function showTabletUI(){
+	$('.phone').hide();
+	$('.tablet').show();
+}
+
+function showPhoneUI(){
+	$('.tablet').hide();
+	$('.phone').show();
 }
 
