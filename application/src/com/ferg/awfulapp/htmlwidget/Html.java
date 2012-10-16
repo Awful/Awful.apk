@@ -38,12 +38,14 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Layout;
@@ -933,7 +935,11 @@ class HtmlToSpannedConverter {
         public String mHref;
 
         public Href(String href) {
-            mHref = href;
+        	if(Uri.parse(href).isRelative()){
+                mHref = Constants.BASE_URL+href;
+        	}else{
+        		mHref = href;
+        	}
         }
     }
 

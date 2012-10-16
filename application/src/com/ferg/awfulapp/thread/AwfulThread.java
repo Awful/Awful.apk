@@ -282,9 +282,11 @@ public class AwfulThread extends AwfulPagedItem  {
         
         ContentValues thread = new ContentValues();
         thread.put(ID, aThreadId);
-    	Elements tarTitle = response.getElementsByAttributeValue("class", "bclast");
+    	Elements tarTitle = response.getElementsByClass("bclast");
         if (tarTitle.size() > 0) {
-        	thread.put(TITLE, tarTitle.get(0).text().trim());
+        	thread.put(TITLE, tarTitle.first().text().trim());
+        }else{
+        	Log.e(TAG,"TITLE NOT FOUND!");
         }
             
         Elements replyAlts = response.getElementsByAttributeValue("alt", "Reply");

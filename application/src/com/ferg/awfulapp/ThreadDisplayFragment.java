@@ -240,11 +240,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String threadId = link.getQueryParameter(Constants.PARAM_THREAD_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						int pageNumber = Integer.parseInt(pageNum.replaceAll("\\D", ""));
+						int pageNumber = Constants.safeParseInt(pageNum.replaceAll("\\D", ""), 1);
 						int perPage = Constants.ITEMS_PER_PAGE;
 						String paramPerPage = link.getQueryParameter(Constants.PARAM_PER_PAGE);
 						if(paramPerPage != null && paramPerPage.matches("\\d+")){
-							perPage = Integer.parseInt(paramPerPage.replaceAll("\\D", ""));
+							perPage = Constants.safeParseInt(paramPerPage.replaceAll("\\D", ""), Constants.ITEMS_PER_PAGE);
 						}
 						if(perPage != mPrefs.postPerPage){
 							pageNumber = (int) Math.ceil((double)(pageNumber*perPage) / mPrefs.postPerPage);
@@ -261,9 +261,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 					String forumId = link.getQueryParameter(Constants.PARAM_FORUM_ID);
 					String pageNum = link.getQueryParameter(Constants.PARAM_PAGE);
 					if(pageNum != null && pageNum.matches("\\d+")){
-						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), Integer.parseInt(pageNum.replaceAll("\\D", "")));
+						displayForum(Constants.safeParseInt(forumId.replaceAll("\\D", ""),Constants.USERCP_ID), Constants.safeParseInt(pageNum.replaceAll("\\D", ""),1));
 					}else{
-						displayForum(Integer.parseInt(forumId.replaceAll("\\D", "")), 1);
+						displayForum(Constants.safeParseInt(forumId.replaceAll("\\D", ""),Constants.USERCP_ID), 1);
 					}
 					return true;
 				}
@@ -596,7 +596,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     public void updateLayoutType(){
     	if(mThreadView != null && getActivity() != null){
-			if(Constants.isWidescreen(getActivity())){
+			if(!mPrefs.threadLayout.equalsIgnoreCase("phone") && (mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()))){
 				mThreadView.loadUrl("javascript:showTabletUI()");
 			}else{
 				mThreadView.loadUrl("javascript:showPhoneUI()");

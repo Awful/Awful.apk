@@ -687,7 +687,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
         	//mCursorAdapter.swapCursor(aData);
         	combinedCursors[1] = aData;
-			if(mCursorAdapter != null){
+			if(mCursorAdapter != null && aData.moveToFirst()){
 	        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
 					mCursorAdapter.swapCursor(new MergeCursor(combinedCursors));
 				}else{

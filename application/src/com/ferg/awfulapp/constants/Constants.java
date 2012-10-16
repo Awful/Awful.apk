@@ -184,5 +184,38 @@ public class Constants {
 			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
 		}
 	}
+	
+
+	/**
+	 * Similar to isWidescreen(), except will check to see if this device is large enough to be considered widescreen (700dp) in either orientation, even if it isn't in the current orientation.
+	 * @param cont
+	 * @return True if either width or height is large enough to count as widescreen.
+	 * @see WIDESCREEN_DPI
+	 */
+	public static boolean canBeWidescreen(Context cont){
+		if(cont != null){
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+				return cont.getResources().getConfiguration().screenWidthDp >= WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= WIDESCREEN_DPI;
+			}else{
+				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * Parse an int from the given string, falling back to the provided number in case of failure.
+	 * @param number String containing the int to be parsed.
+	 * @param fallback Number to return if parsing fails.
+	 * @return Either the parsed number or the fallback.
+	 */
+	public static int safeParseInt(String number, int fallback){
+		try{
+			return Integer.parseInt(number);
+		}catch(NumberFormatException nfe){
+			return fallback;
+		}
+	}
 
 }
