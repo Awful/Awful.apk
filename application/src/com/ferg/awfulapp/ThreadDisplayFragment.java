@@ -96,6 +96,8 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.NumberPicker;
 
 /**
@@ -212,13 +214,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
-			if(aUrl.contains("http://next.next")){
-				goToPage(mPage+1);
-				return true;
-			}
-			if(aUrl.contains("http://refresh.refresh")){
-				refresh();
-				return true;
+			AwfulURL alink = AwfulURL.parse(aUrl);
+			switch(alink.getType()){
+			case FORUM:
+				displayForum(alink.getId(), alink.getPage());
+				break;
+			case THREAD:
+				if(alink.isRedirect()){
+					startPostRedirect(alink.getURL());
+				}else{
+					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment());
+				}
+				break;
+			case POST:
+				startPostRedirect(alink.getURL());
 			}
 			Uri link = Uri.parse(aUrl);
 			if(aUrl.contains(Constants.FUNCTION_THREAD)){

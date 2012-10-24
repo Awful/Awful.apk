@@ -48,9 +48,13 @@ public class Constants {
     public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
 	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
 
+	public static final String PATH_FORUM 				= "forumdisplay.php";
+    public static final String PATH_THREAD          	= "showthread.php";
+
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
     public static final String ACTION_NEW_MESSAGE         = "newmessage";
+	public static final String ACTION_SHOWPOST 			  = "showpost";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
@@ -149,6 +153,8 @@ public class Constants {
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
 
+
+
 	/**
 	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.
 	 * @return
@@ -213,6 +219,20 @@ public class Constants {
 	public static int safeParseInt(String number, int fallback){
 		try{
 			return Integer.parseInt(number);
+		}catch(NumberFormatException nfe){
+			return fallback;
+		}
+	}
+	
+	/**
+	 * Parse an long from the given string, falling back to the provided number in case of failure.
+	 * @param number String containing the long to be parsed.
+	 * @param fallback Number to return if parsing fails.
+	 * @return Either the parsed number or the fallback.
+	 */
+	public static long safeParseLong(String number, long fallback){
+		try{
+			return Long.parseLong(number);
 		}catch(NumberFormatException nfe){
 			return fallback;
 		}
