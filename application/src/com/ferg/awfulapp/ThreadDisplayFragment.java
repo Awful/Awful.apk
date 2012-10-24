@@ -1119,7 +1119,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(max > scrollCheckMaxBound || scrollCheckMaxBound < 0){
         		scrollCheckMaxBound = max;
         	}
-        	Log.e(TAG,"Register pre block: "+min+" - "+max+" - new min: "+scrollCheckMinBound+" new max: "+scrollCheckMaxBound);
+        	Log.i(TAG,"Register pre block: "+min+" - "+max+" - new min: "+scrollCheckMinBound+" new max: "+scrollCheckMaxBound);
         	//this array is going to be accessed very often during touch events, arraylist has too much processing overhead
         	if(scrollCheckBounds == null){
         		scrollCheckBounds = new int[2];
@@ -1540,7 +1540,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		scrollCheckBounds = null;
 		scrollCheckMinBound = -1;
 		scrollCheckMaxBound = -1;
-		if(mThreadView != null){
+		if(mThreadView != null && dataLoaded){
 			Log.e(TAG,"Queueing registerPreBlocks()");
 			mHandler.postDelayed(new Runnable(){
 				@Override

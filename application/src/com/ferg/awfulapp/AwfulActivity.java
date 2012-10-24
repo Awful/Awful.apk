@@ -279,6 +279,11 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	setSupportProgressBarIndeterminateVisibility(false);
 		setSupportProgress(percent*100);
 	}
+	
+	public void hideProgressBar(){
+		setSupportProgressBarVisibility(false);
+    	setSupportProgressBarIndeterminateVisibility(false);
+	}
 
 	/**
 	 * AwfulFragments have the capability to broadcast messages to other fragments on the same activity.
