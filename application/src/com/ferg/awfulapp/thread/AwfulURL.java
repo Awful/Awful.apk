@@ -1,7 +1,5 @@
 package com.ferg.awfulapp.thread;
 
-import java.util.HashMap;
-
 import android.net.Uri;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -10,8 +8,8 @@ import com.ferg.awfulapp.constants.Constants;
 public class AwfulURL {
 	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL};
 	private long id;
-	private long pageNum = Constants.ITEMS_PER_PAGE;
-	private int perPage;
+	private long pageNum = 1;
+	private int perPage = Constants.ITEMS_PER_PAGE;
 	private String externalURL;
 	private TYPE type;
 	private String gotoParam;
@@ -62,7 +60,7 @@ public class AwfulURL {
 	 * @return URL
 	 */
 	public String getURL(){
-		return getURL(Constants.ITEMS_PER_PAGE);
+		return getURL(perPage);
 	}
 	
 	public String getURL(int postPerPage){
@@ -76,16 +74,17 @@ public class AwfulURL {
 		case THREAD:
 			url = Uri.parse(Constants.FUNCTION_THREAD).buildUpon();
 			url.appendQueryParameter(Constants.PARAM_THREAD_ID, Long.toString(id));
+			url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 			if(gotoParam != null){
 				url.appendQueryParameter(Constants.PARAM_GOTO, gotoParam);//goto=newpost, ect
 			}else{
 				url.appendQueryParameter(Constants.PARAM_PAGE, Long.toString(convertPerPage(pageNum, perPage, postPerPage)));
-				url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 			}
 			break;
 		case POST:
 			url = Uri.parse(Constants.FUNCTION_THREAD).buildUpon();
 			url.appendQueryParameter(Constants.PARAM_GOTO, Constants.VALUE_POST);
+			url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(postPerPage));
 			url.appendQueryParameter(Constants.PARAM_POST_ID, Long.toString(id));
 			break;
 		case EXTERNAL:
@@ -114,15 +113,25 @@ public class AwfulURL {
 		return pageNum;
 	}
 	
+	public long getPage(int postPerPage){
+		return convertPerPage(pageNum, perPage, postPerPage);
+	}
+	
 	public long getPerPage(){
 		return perPage;
 	}
 	
 	public String getFragment(){
-		return fragment;
+		return (fragment != null ? fragment : "");
 	}
 
 	public boolean isRedirect() {
 		return gotoParam != null;
 	}
+
+	@Override
+	public String toString() {
+		return getURL();
+	}
+	
 }
