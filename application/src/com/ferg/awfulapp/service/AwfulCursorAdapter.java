@@ -82,6 +82,10 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	public void setSelected(int id){
 		selectedId = id;
 	}
+	
+	public void setId(int id){
+		mId = id;
+	}
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
