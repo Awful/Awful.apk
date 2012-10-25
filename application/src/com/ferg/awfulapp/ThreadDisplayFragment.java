@@ -766,9 +766,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         switch (aRequestCode) {
             case PostReplyFragment.REQUEST_POST:
             	if(aResultCode == PostReplyFragment.RESULT_POSTED){
-            		startPostRedirect(Constants.FUNCTION_THREAD+"?goto=lastpost&threadid="+getThreadId()+"&perpage="+mPrefs.postPerPage);
+            		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=lastpost&threadid="+getThreadId()+"&perpage="+mPrefs.postPerPage);
+            		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), mPrefs.postPerPage).getURL());
             	}else if(aResultCode > 100){//any result >100 it is a post id we edited
-            		startPostRedirect(Constants.FUNCTION_THREAD+"?goto=post&postid="+aResultCode+"&perpage="+mPrefs.postPerPage);
+            		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=post&postid="+aResultCode+"&perpage="+mPrefs.postPerPage);
+            		startPostRedirect(AwfulURL.post(aResultCode, mPrefs.postPerPage).getURL());
             	}
                 break;
         }

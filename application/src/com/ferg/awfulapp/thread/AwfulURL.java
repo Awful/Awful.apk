@@ -6,6 +6,7 @@ import com.ferg.awfulapp.constants.Constants;
 
 
 public class AwfulURL {
+	
 	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL};
 	private long id;
 	private long pageNum = 1;
@@ -14,6 +15,71 @@ public class AwfulURL {
 	private TYPE type;
 	private String gotoParam;
 	private String fragment;
+	
+	public static AwfulURL forum(long id){
+		return forum(id, 1);
+	}
+	
+	public static AwfulURL forum(long id, long pageNum){
+		AwfulURL aurl = new AwfulURL();
+		aurl.type = TYPE.FORUM;
+		aurl.id = id;
+		aurl.pageNum = pageNum;
+		if(id == Constants.SAMART_ID){
+			aurl.perPage = Constants.SAMART_PERPAGE;
+		}
+		return aurl;
+	}
+	
+	public static AwfulURL thread(long id){
+		return thread(id, 1, Constants.ITEMS_PER_PAGE, null);
+	}
+	
+	public static AwfulURL threadUnread(long id){
+		return thread(id, 1, Constants.ITEMS_PER_PAGE, null).setGoto(Constants.VALUE_NEWPOST);
+	}
+	
+	public static AwfulURL threadUnread(long id, int perPage){
+		return thread(id, 1, perPage, null).setGoto(Constants.VALUE_NEWPOST);
+	}
+	
+	public static AwfulURL threadLastPage(long id){
+		return thread(id, 1, Constants.ITEMS_PER_PAGE, null).setGoto(Constants.VALUE_LASTPOST);
+	}
+	
+	public static AwfulURL threadLastPage(long id, int perPage){
+		return thread(id, 1, perPage, null).setGoto(Constants.VALUE_LASTPOST);
+	}
+	
+	public static AwfulURL thread(long id, long pageNum){
+		return thread(id, pageNum, Constants.ITEMS_PER_PAGE, null);
+	}
+	
+	public static AwfulURL thread(long id, long pageNum, int perPage){
+		return thread(id, pageNum, perPage, null);
+	}
+	
+	public static AwfulURL thread(long id, long pageNum, int perPage, String goTo){
+		AwfulURL aurl = new AwfulURL();
+		aurl.type = TYPE.THREAD;
+		aurl.id = id;
+		aurl.pageNum = pageNum;
+		aurl.perPage = perPage;
+		aurl.gotoParam = goTo;
+		return aurl;
+	}
+	
+	public static AwfulURL post(long id){
+		return post(id, Constants.ITEMS_PER_PAGE);
+	}
+	
+	public static AwfulURL post(long id, int perPage){
+		AwfulURL aurl = new AwfulURL();
+		aurl.type = TYPE.POST;
+		aurl.id = id;
+		aurl.gotoParam = Constants.VALUE_POST;
+		return aurl;
+	}
 	
 	public static AwfulURL parse(String url){
 		AwfulURL aurl = new AwfulURL();
@@ -29,6 +95,9 @@ public class AwfulURL {
 				aurl.type = TYPE.FORUM;
 				if(uri.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
 					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID),1);
+					if(aurl.id == Constants.SAMART_ID){
+						aurl.perPage = Constants.SAMART_PERPAGE;
+					}
 				}
 			}else if(Constants.PATH_THREAD.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.THREAD;
@@ -46,6 +115,9 @@ public class AwfulURL {
 					aurl.type = TYPE.POST;
 					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID),0);
 				}
+			}else{
+				aurl.type = TYPE.EXTERNAL;
+				aurl.externalURL = url;
 			}
 			aurl.fragment = uri.getFragment();
 		}else{
@@ -70,6 +142,7 @@ public class AwfulURL {
 			url = Uri.parse(Constants.FUNCTION_FORUM).buildUpon();
 			url.appendQueryParameter(Constants.PARAM_FORUM_ID, Long.toString(id));
 			url.appendQueryParameter(Constants.PARAM_PAGE, Long.toString(pageNum));
+			url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(perPage));
 			break;
 		case THREAD:
 			url = Uri.parse(Constants.FUNCTION_THREAD).buildUpon();
@@ -132,6 +205,11 @@ public class AwfulURL {
 	@Override
 	public String toString() {
 		return getURL();
+	}
+	
+	public AwfulURL setGoto(String goTo){
+		gotoParam = goTo;
+		return this;
 	}
 	
 }

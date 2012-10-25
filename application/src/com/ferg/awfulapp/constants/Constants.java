@@ -72,6 +72,8 @@ public class Constants {
 	public static final String PARAM_POST_ID   = "postid";
 	
 	public static final String VALUE_POST 	   = "post";
+	public static final String VALUE_NEWPOST   = "newpost";
+	public static final String VALUE_LASTPOST  = "lastpost";
     
     public static final String FRAGMENT_PTI    = "pti";
 
@@ -151,6 +153,9 @@ public class Constants {
 	public static final int DEFAULT_FONT_SIZE = 16;
 	
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
+
+	public static final long SAMART_ID = 61;
+	public static final int SAMART_PERPAGE = 80;
 
 
 
