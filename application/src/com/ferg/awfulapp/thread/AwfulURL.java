@@ -25,9 +25,6 @@ public class AwfulURL {
 		aurl.type = TYPE.FORUM;
 		aurl.id = id;
 		aurl.pageNum = pageNum;
-		if(id == Constants.SAMART_ID){
-			aurl.perPage = Constants.SAMART_PERPAGE;
-		}
 		return aurl;
 	}
 	
@@ -95,9 +92,6 @@ public class AwfulURL {
 				aurl.type = TYPE.FORUM;
 				if(uri.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
 					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID),1);
-					if(aurl.id == Constants.SAMART_ID){
-						aurl.perPage = Constants.SAMART_PERPAGE;
-					}
 				}
 			}else if(Constants.PATH_THREAD.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.THREAD;

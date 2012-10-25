@@ -145,6 +145,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     //oh god i'm replicating core android functionality, this is a bad sign.
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
+	private boolean bypassBackStack = false;
     
     private int scrollCheckMinBound = -1;
     private int scrollCheckMaxBound = -1;
@@ -767,9 +768,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             case PostReplyFragment.REQUEST_POST:
             	if(aResultCode == PostReplyFragment.RESULT_POSTED){
             		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=lastpost&threadid="+getThreadId()+"&perpage="+mPrefs.postPerPage);
+            		bypassBackStack = true;
             		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), mPrefs.postPerPage).getURL());
             	}else if(aResultCode > 100){//any result >100 it is a post id we edited
             		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=post&postid="+aResultCode+"&perpage="+mPrefs.postPerPage);
+            		bypassBackStack = true;
             		startPostRedirect(AwfulURL.post(aResultCode, mPrefs.postPerPage).getURL());
             	}
                 break;
@@ -911,6 +914,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        	Log.e(TAG,"Message not handled: "+aMsg.what);
 	        	break;
     	}
+		bypassBackStack = false;
     }
 
     @Override
@@ -954,12 +958,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		if(aMsg.obj instanceof String){
     			AwfulURL result = AwfulURL.parse((String) aMsg.obj);
     			if(result.getType() == TYPE.THREAD){
-    				pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+    				if(bypassBackStack){
+    					openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+    				}else{
+    					pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+    				}
     			}else{
     				Log.e(TAG,"REDIRECT FAILED: "+aMsg.obj);
     				Toast.makeText(getActivity(), "Load Failed: Malformed URL", Toast.LENGTH_LONG).show();
     			}
     		}
+			bypassBackStack = false;
     		break;
         case AwfulSyncService.MSG_SYNC_THREAD:
         	if(aMsg.arg2 == getPage()){

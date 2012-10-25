@@ -154,9 +154,6 @@ public class Constants {
 	
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
-	public static final long SAMART_ID = 61;
-	public static final int SAMART_PERPAGE = 80;
-
 
 
 
