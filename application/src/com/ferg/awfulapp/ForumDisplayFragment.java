@@ -671,14 +671,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 						AwfulThread.CONTENT_URI_UCP, 
 						AwfulProvider.ThreadProjection, 
 						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
-						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)), 
+						AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)), 
 						(mPrefs.newThreadsFirst? AwfulThread.HAS_NEW_POSTS+" DESC" :AwfulThread.INDEX));
         	}else{
 	            return new CursorLoader(getActivity(), 
 	            						AwfulThread.CONTENT_URI, 
 	            						AwfulProvider.ThreadProjection, 
 	            						AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)),
+	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)),
 	            						AwfulThread.INDEX);
         	}
         }

@@ -326,6 +326,8 @@ public class AwfulProvider extends ContentProvider {
         		ContentValues forumFix = new ContentValues();
         		forumFix.put(AwfulForum.ID, Constants.USERCP_ID);
         		aDb.update(TABLE_FORUM, forumFix,AwfulForum.ID+"=?", int2StrArray(2));
+        		//clear out secondary forum pages to implement forum variable perPage sizes
+        		aDb.delete(TABLE_FORUM, AwfulThread.INDEX+">?", int2StrArray(30));
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
     			dropAllTables(aDb);

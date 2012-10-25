@@ -111,9 +111,10 @@ public class Constants {
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awfulapp.provider";
     
-    //default per-page, user configurable, 
-    //or reduce to speed processing time once auto-load is in
+    //default per-page, user configurable
     public static final int ITEMS_PER_PAGE = 40;
+    //we can have up to 80 threads per forum page (SAMart)
+    public static final int THREADS_PER_PAGE = 80;
 
     public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
     
