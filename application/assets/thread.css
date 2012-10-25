@@ -42,6 +42,7 @@ table {
 .bbc-block {
     margin: 12px 32px;
     border-bottom: 1px #999999 solid;
+    clear:right;
 }
 
 .bbc-block h4 {
@@ -84,6 +85,11 @@ table {
 
 .post-content img{
 	max-width: 100% !important;
+}
+
+.tablet .postdate{
+    font-style: italic;
+    font-size: smaller;
 }
 
 .action-button {

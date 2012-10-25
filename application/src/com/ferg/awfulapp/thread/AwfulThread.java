@@ -438,6 +438,7 @@ public class AwfulThread extends AwfulPagedItem  {
         String background = null;
 
         for (AwfulPost post : aPosts) {
+            boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
         
             if (post.isPreviouslyRead()) {
                 background = 
@@ -491,13 +492,13 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<tr>\n");
 
 
-            if (aPrefs.avatarsEnabled != false && post.getAvatar() != null) {
-                buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";'>\n");
+            buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");
+            if (avatar) {
                 buffer.append("            		<div class='avatar gif' style='background-image:url(" + post.getAvatar() + ");' />\n");
-                buffer.append("        		</td>\n");
             }
+            buffer.append("        		</td>\n");
 
-            buffer.append("    <td class='post-cell' colspan='2' style='background: " + background + ";'>\n");
+            buffer.append("    <td class='post-cell' style='background: " + background + ";'>\n");
             //tablet user column
             buffer.append("    <div class='usercolumn tablet' style='background: " + background +";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
             buffer.append("         <div class='userinfo'>\n");
