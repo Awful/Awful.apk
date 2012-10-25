@@ -34,9 +34,8 @@ $(document).ready(function() {
 	$('.userinfo-row').click(function(event) {
 	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
-	$('.usercolumn').click(function(event) {
-	  $(this).closest('tr').find('.button-row').toggle();
-	  $(this).find('.avatar-text').toggle();
+	$('.avatar-cell').click(function(event) {
+	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
     var salr = new SALR(prefs);
     

@@ -25,6 +25,7 @@ public class AwfulURL {
 		aurl.type = TYPE.FORUM;
 		aurl.id = id;
 		aurl.pageNum = pageNum;
+		aurl.perPage = Constants.THREADS_PER_PAGE;
 		return aurl;
 	}
 	
@@ -90,6 +91,7 @@ public class AwfulURL {
 			}
 			if(Constants.PATH_FORUM.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.FORUM;
+				aurl.perPage = Constants.THREADS_PER_PAGE;
 				if(uri.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
 					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID),1);
 				}
@@ -136,7 +138,6 @@ public class AwfulURL {
 			url = Uri.parse(Constants.FUNCTION_FORUM).buildUpon();
 			url.appendQueryParameter(Constants.PARAM_FORUM_ID, Long.toString(id));
 			url.appendQueryParameter(Constants.PARAM_PAGE, Long.toString(pageNum));
-			url.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(perPage));
 			break;
 		case THREAD:
 			url = Uri.parse(Constants.FUNCTION_THREAD).buildUpon();
