@@ -7,12 +7,12 @@ import com.ferg.awfulapp.constants.Constants;
 
 public class AwfulURL {
 	
-	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL};
+	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE};
 	private long id;
 	private long pageNum = 1;
 	private int perPage = Constants.ITEMS_PER_PAGE;
 	private String externalURL;
-	private TYPE type;
+	private TYPE type = TYPE.NONE;
 	private String gotoParam;
 	private String fragment;
 	

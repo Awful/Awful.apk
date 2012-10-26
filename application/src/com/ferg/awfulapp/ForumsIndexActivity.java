@@ -42,6 +42,8 @@ import android.view.ViewGroup;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulViewPager;
@@ -58,6 +60,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ThreadDisplayFragment mThreadFragment = null;
     private PostReplyFragment mReplyFragment = null;
     private boolean skipLoad = false;
+    private AwfulURL url = new AwfulURL();
     
     private Handler mHandler = new Handler();
     
@@ -66,6 +69,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ForumPagerAdapter pagerAdapter;
     
     private int mForumId = 0;
+    private int mForumPage = 1;
     private int mThreadId = 0;
     private int mThreadPage = 1;
     
@@ -73,12 +77,46 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
-        if(mForumId == 2){//workaround for old userCP ID, ugh.
-        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+        if(savedInstanceState != null){
+        	mForumId = savedInstanceState.getInt(Constants.FORUM_ID,0);
+        	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE,1);
+        	mThreadId = savedInstanceState.getInt(Constants.THREAD_ID,0);
+        	mThreadPage = savedInstanceState.getInt(Constants.THREAD_PAGE,1);
+        }else{
+        	if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
+        		url = AwfulURL.parse(getIntent().getDataString());
+        		switch(url.getType()){
+        		case FORUM:
+        			mForumId = (int) url.getId();
+        			mForumPage = (int) url.getPage();
+        			break;
+        		case THREAD:
+        			if(!url.isRedirect()){
+	        			mThreadId = (int) url.getId();
+	        			mThreadPage = (int) url.getPage();
+        			}
+        			break;
+        		case POST:
+        			break;
+       			default:
+       				mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
+                    mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, 1);
+                    mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+                    mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
+                    if(mForumId == 2){//workaround for old userCP ID, ugh.
+                    	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+                    }
+        		}
+        	}else{
+                mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
+                mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, 1);
+                mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+                mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
+                if(mForumId == 2){//workaround for old userCP ID, ugh.
+                	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+                }
+        	}
         }
-        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
-        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
         
         if(mForumId < 1){
         	skipLoad = true;
@@ -91,15 +129,22 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(isDualPane()){
 	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
 	        if(mForumId > 0){
-	        	setContentPane(mForumId);
+	        	setContentPane(mForumId, mForumPage);
 	        }
+        	if(url.getType() == TYPE.THREAD || url.isRedirect()){
+        		startActivity(new Intent(this, ThreadDisplayActivity.class).setData(getIntent().getData()));
+        	}else if(mThreadId > 0){
+        		startActivity(new Intent(this, ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, mThreadId).putExtra(Constants.THREAD_PAGE, mThreadPage));
+        	}
         }else{
         	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
         	mViewPager.setOffscreenPageLimit(2);
         	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         	pagerAdapter.addFragment(ForumsIndexFragment.newInstance());
-        	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, skipLoad));
-        	if(mThreadId > 0){
+        	pagerAdapter.addFragment(ForumDisplayFragment.newInstance(mForumId, mForumPage, skipLoad));
+        	if(url.isRedirect()){
+        		pagerAdapter.addFragment(new ThreadDisplayFragment());
+        	}else if(mThreadId > 0){
         		pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
         	}
 	        mViewPager.setAdapter(pagerAdapter);
@@ -109,7 +154,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        }else{
 	        	mForumId = Constants.USERCP_ID;
 	        }
-	        if(mThreadId > 0){
+	        if(mThreadId > 0 || url.isRedirect()){
 	        	mViewPager.setCurrentItem(2);
 	        }
 	        Uri data = getIntent().getData();
@@ -127,10 +172,24 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if(mForumFragment != null){
+			outState.putInt(Constants.FORUM_ID, mForumFragment.getForumId());
+			outState.putInt(Constants.FORUM_PAGE, mForumFragment.getPage());
+		}
+		if(mThreadFragment != null){
+			outState.putInt(Constants.THREAD_ID, mThreadFragment.getThreadId());
+			outState.putInt(Constants.THREAD_PAGE, mThreadFragment.getPage());
+		}
+	}
+
+
 	private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-            	setContentPane(Constants.USERCP_ID);
+            	setContentPane(Constants.USERCP_ID, 1);
             }
         }
     }
@@ -221,7 +280,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     
     @Override
     public void displayForum(int id, int page){
-    	setContentPane(id);
+    	setContentPane(id, page);
     	if (mViewPager != null) {
     		closeTempWindows();
     		mViewPager.setCurrentItem(1);
@@ -306,16 +365,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 	}
 
 
-	public void setContentPane(int aForumId) {
+	public void setContentPane(int aForumId, int aPage) {
     	mForumId = aForumId;
         if(mForumFragment == null && isDualPane()){
-            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, false);
+            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, aPage, false);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         	transaction.add(R.id.content, fragment);
             transaction.commit();
         	mForumFragment = fragment;
         }else if(mForumFragment != null){
-        	mForumFragment.openForum(aForumId, 1);
+        	mForumFragment.openForum(aForumId, aPage);
         }
     }
     
