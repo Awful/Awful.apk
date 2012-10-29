@@ -112,7 +112,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private long lastRefresh;
 
-    public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
+    public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
         if(aForum < 1){
         	aForum = Constants.USERCP_ID;
