@@ -112,7 +112,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private long lastRefresh;
 
-    public static ForumDisplayFragment newInstance(int aForum, boolean skipLoad) {
+    public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
         if(aForum < 1){
         	aForum = Constants.USERCP_ID;
@@ -265,6 +265,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onStart() {
         super.onStart(); Log.e(TAG, "Start");
+		refreshInfo();
     }
     
     @Override
@@ -272,7 +273,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         super.onResume(); Log.e(TAG, "Resume");
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
-		refreshInfo();
         if(skipLoad || !isFragmentVisible()){
         	skipLoad = false;//only skip the first time
         }else{
@@ -293,9 +293,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onPause() {
         super.onPause(); Log.e(TAG, "Pause");
-        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
 		getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
@@ -311,6 +308,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
     public void onStop() {
         super.onStop(); Log.e(TAG, "Stop");
+        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
+        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
     }
     @Override
     public void onDestroyView() {
@@ -609,16 +609,17 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public void openForum(int id, int page){
     	if(getActivity() != null){
 	    	getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
+	        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+	        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
     	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
     	mLastPage = 0;
     	lastRefresh = 0;
     	if(getActivity() != null){
-	    	mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
-	    	if(mListView != null){//if listview doesn't exist yet, we don't need to set the adapter, it'll happen during the lifecycle.
-	    		mListView.setAdapter(mCursorAdapter);
-	    	}
+    		if(mCursorAdapter != null){
+    			mCursorAdapter.setId(id);
+    		}
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
@@ -670,14 +671,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 						AwfulThread.CONTENT_URI_UCP, 
 						AwfulProvider.ThreadProjection, 
 						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
-						AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)), 
+						AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)), 
 						(mPrefs.newThreadsFirst? AwfulThread.HAS_NEW_POSTS+" DESC" :AwfulThread.INDEX));
         	}else{
 	            return new CursorLoader(getActivity(), 
 	            						AwfulThread.CONTENT_URI, 
 	            						AwfulProvider.ThreadProjection, 
 	            						AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.pageToIndex(getPage()),AwfulPagedItem.pageToIndex(getPage()+1)),
+	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)),
 	            						AwfulThread.INDEX);
         	}
         }
@@ -685,28 +686,29 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	//mCursorAdapter.swapCursor(aData);
-        	combinedCursors[1] = aData;
-			if(mCursorAdapter != null && aData.moveToFirst()){
-	        	if(combinedCursors[0]!=null && combinedCursors[1]!=null){
-					mCursorAdapter.swapCursor(new MergeCursor(combinedCursors));
-				}else{
-					mCursorAdapter.swapCursor(aData);
-				}
-			}
-			if(mPullRefreshListView != null){
-				mPullRefreshListView.onRefreshComplete();//TODO fixing thread list on jb
-			}
+        	mCursorAdapter.swapCursor(aData);
+//        	combinedCursors[1] = aData;
+//			if(mCursorAdapter != null && aData.moveToFirst()){
+//	        	if(combinedCursors[0]!=null && combinedCursors[1]!=null && !combinedCursors[0].isClosed() && !combinedCursors[1].isClosed()){
+//					mCursorAdapter.swapCursor(new MergeCursor(combinedCursors));
+//					if(mPullRefreshListView != null){
+//						mPullRefreshListView.onRefreshComplete();
+//					}
+//				}else{
+//					if(combinedCursors[1] != null && !combinedCursors[1].isClosed()){
+//						mCursorAdapter.swapCursor(combinedCursors[1]);
+//						if(mPullRefreshListView != null){
+//							mPullRefreshListView.onRefreshComplete();
+//						}
+//					}
+//				}
+//			}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			combinedCursors[1]=null;
-			if(combinedCursors[0]!=null){
-				mCursorAdapter.swapCursor(combinedCursors[0]);
-			}else{
-				mCursorAdapter.swapCursor(null);
-			}
+			mCursorAdapter.swapCursor(null);
 		}
 		
         @Override
@@ -732,27 +734,28 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	combinedCursors[0] = aData;
-			if(mCursorAdapter != null){
-				if(combinedCursors[0]!=null && combinedCursors[1]!=null){//only load a new cursor if one still exists.
-					mCursorAdapter.swapCursor(new MergeCursor(combinedCursors));
-				}else{
-					mCursorAdapter.swapCursor(combinedCursors[0]);
-				}
-			}
-			if(mPullRefreshListView != null){
-				mPullRefreshListView.onRefreshComplete();
-			}
+//        	combinedCursors[0] = aData;
+//			if(mCursorAdapter != null){
+//				if(combinedCursors[0]!=null && combinedCursors[1]!=null && !combinedCursors[0].isClosed() && !combinedCursors[1].isClosed()){//only load a new cursor if one still exists.
+//					mCursorAdapter.swapCursor(new MergeCursor(combinedCursors));
+//					if(mPullRefreshListView != null){
+//						mPullRefreshListView.onRefreshComplete();
+//					}
+//				}else{
+//					if(combinedCursors[0] != null && !combinedCursors[0].isClosed()){
+//						mCursorAdapter.swapCursor(combinedCursors[0]);
+//						if(mPullRefreshListView != null){
+//							mPullRefreshListView.onRefreshComplete();
+//						}
+//					}
+//				}
+//			}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			combinedCursors[0]=null;
-			if(combinedCursors[1]!=null){//only load a new cursor if one still exists.
-				mCursorAdapter.swapCursor(combinedCursors[1]);
-			}else{
-				mCursorAdapter.swapCursor(null);
-			}
+			mCursorAdapter.swapCursor(null);
 		}
     }
 	

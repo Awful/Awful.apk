@@ -141,9 +141,9 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		return (AwfulActivity) getActivity();
 	}
 	
-	protected void displayForum(int forumId, int page){
+	protected void displayForum(long forumId, long page){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().displayForum(forumId, page);
+			getAwfulActivity().displayForum((int)forumId, (int)page);
 		}
 	}
 	
@@ -160,10 +160,13 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
+		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
+			if(aa != null && isFragmentVisible()){
+				aa.hideProgressBar();
+			}
 		}else{
-			AwfulActivity aa = getAwfulActivity();
 			if(aa != null && isFragmentVisible()){
 				aa.setLoadProgress(percent);
 			}

@@ -156,7 +156,7 @@ public class AwfulForum extends AwfulPagedItem {
 	}
 	
 	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
-		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), forumId);
+		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), forumId);
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, forumId);
     	forumData.put(TITLE, AwfulForum.parseTitle(page));
@@ -167,7 +167,7 @@ public class AwfulForum extends AwfulPagedItem {
     	forumData.put(PAGE_COUNT, lastPage);
     	contentInterface.delete(AwfulThread.CONTENT_URI, 
     							AwfulThread.FORUM_ID+"= ? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-    							AwfulProvider.int2StrArray(forumId, AwfulPagedItem.pageToIndex(pageNumber), AwfulPagedItem.pageToIndex(pageNumber+1)));
+    							AwfulProvider.int2StrArray(forumId, AwfulPagedItem.forumPageToIndex(pageNumber), AwfulPagedItem.forumPageToIndex(pageNumber+1)));
 		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
 		}
@@ -175,9 +175,9 @@ public class AwfulForum extends AwfulPagedItem {
 	}
 	
 	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface) throws Exception{
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.pageToIndex(pageNumber), Constants.USERCP_ID);
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
-		int start_index = AwfulPagedItem.pageToIndex(pageNumber);
+		int start_index = AwfulPagedItem.forumPageToIndex(pageNumber);
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
 		for(ContentValues thread : threads){
 			ContentValues ucp_entry = new ContentValues();
@@ -198,7 +198,7 @@ public class AwfulForum extends AwfulPagedItem {
     	forumData.put(PAGE_COUNT, lastPage);
     	contentInterface.delete(AwfulThread.CONTENT_URI_UCP, 
 				AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-				AwfulProvider.int2StrArray(AwfulPagedItem.pageToIndex(pageNumber), AwfulPagedItem.pageToIndex(pageNumber+1)));
+				AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(pageNumber), AwfulPagedItem.forumPageToIndex(pageNumber+1)));
 		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
         	contentInterface.insert(CONTENT_URI, forumData);
 		}

@@ -25,7 +25,6 @@ table {
 
 .post-cell {
     vertical-align: top;
-	width:100%;
 }
 
 .content {
@@ -43,6 +42,7 @@ table {
 .bbc-block {
     margin: 12px 32px;
     border-bottom: 1px #999999 solid;
+    clear:right;
 }
 
 .bbc-block h4 {
@@ -91,6 +91,11 @@ table {
 	max-width: 100% !important;
 }
 
+.tablet .postdate{
+    font-style: italic;
+    font-size: smaller;
+}
+
 .action-button {
     float: right;
     vertical-align: middle;
@@ -120,6 +125,12 @@ table {
     text-align: center;
     margin-top: 15px;
     padding-bottom: 5px;
+	height: 100px;
+	width: 100px;
+}
+.avatar-cell {
+	vertical-align:top;
+	width: 100px;
 }
 
 
@@ -128,13 +139,11 @@ table {
 }
 
 .inline-button {
-	display: inline-block;
-	margin-left:5px;
-	margin-right:10px;
-    text-align: center;
-    vertical-align: middle;
+    vertical-align: top;
     float: right;
     font-size: larger;
+	padding-left:20px;
+	padding-bottom:10px;
 }
 
 .post-buttons {
@@ -149,11 +158,6 @@ table {
 
 .usercolumn {
     vertical-align: top;
-    padding: 10px;
-    border-bottom: 1px solid #c1c1c1;
-    border-right: 1px solid #c1c1c1;
-	margin-right: 5px;
-	width:20%;
 }
 
 .quote-button {
@@ -170,7 +174,7 @@ table {
     font-style: italic;
 }
 
-.phone .avatar {
+.avatar {
     padding: 0px;
     margin: 0px;
     float: left;

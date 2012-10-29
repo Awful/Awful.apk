@@ -48,9 +48,13 @@ public class Constants {
     public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
 	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
 
+	public static final String PATH_FORUM 				= "forumdisplay.php";
+    public static final String PATH_THREAD          	= "showthread.php";
+
     public static final String ACTION_PROFILE             = "getinfo";
     public static final String ACTION_SEARCH_POST_HISTORY = "do_search_posthistory";
     public static final String ACTION_NEW_MESSAGE         = "newmessage";
+	public static final String ACTION_SHOWPOST 			  = "showpost";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
@@ -68,6 +72,8 @@ public class Constants {
 	public static final String PARAM_POST_ID   = "postid";
 	
 	public static final String VALUE_POST 	   = "post";
+	public static final String VALUE_NEWPOST   = "newpost";
+	public static final String VALUE_LASTPOST  = "lastpost";
     
     public static final String FRAGMENT_PTI    = "pti";
 
@@ -105,9 +111,10 @@ public class Constants {
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awfulapp.provider";
     
-    //default per-page, user configurable, 
-    //or reduce to speed processing time once auto-load is in
+    //default per-page, user configurable
     public static final int ITEMS_PER_PAGE = 40;
+    //we can have up to 80 threads per forum page (SAMart)
+    public static final int THREADS_PER_PAGE = 80;
 
     public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
     
@@ -147,6 +154,8 @@ public class Constants {
 	public static final int DEFAULT_FONT_SIZE = 16;
 	
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
+
+
 
 
 	/**
@@ -213,6 +222,20 @@ public class Constants {
 	public static int safeParseInt(String number, int fallback){
 		try{
 			return Integer.parseInt(number);
+		}catch(NumberFormatException nfe){
+			return fallback;
+		}
+	}
+	
+	/**
+	 * Parse an long from the given string, falling back to the provided number in case of failure.
+	 * @param number String containing the long to be parsed.
+	 * @param fallback Number to return if parsing fails.
+	 * @return Either the parsed number or the fallback.
+	 */
+	public static long safeParseLong(String number, long fallback){
+		try{
+			return Long.parseLong(number);
 		}catch(NumberFormatException nfe){
 			return fallback;
 		}

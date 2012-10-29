@@ -85,6 +85,7 @@ import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.thread.AwfulURL;
 
 public class NetworkUtils {
     private static final String TAG = "NetworkUtils";
@@ -232,11 +233,16 @@ public class NetworkUtils {
 		return get(aUrl,aParams,null,0);
 	}
 	
+	public static Document getJSoup(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
+		return getJSoup(new URI(aUrl.getURL()), statusCallback, midpointPercent);
+	}
+	
 	public static Document getJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
+        return getJSoup(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
+	}
+	
+	public static Document getJSoup(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
 		Document response = null;
-        String parameters = getQueryStringParameters(aParams);
-        URI location = new URI(aUrl + parameters);
-
         Log.i(TAG, "Fetching " + location);
 
         HttpGet httpGet;

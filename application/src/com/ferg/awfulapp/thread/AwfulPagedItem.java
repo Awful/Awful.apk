@@ -89,8 +89,8 @@ public abstract class AwfulPagedItem {
 	 * @param page
 	 * @return starting index
 	 */
-	public static int pageToIndex(int page) {
-		return Math.max(1, (page-1)*Constants.ITEMS_PER_PAGE+1);
+	public static int forumPageToIndex(int page) {
+		return Math.max(1, (page-1)*Constants.THREADS_PER_PAGE+1);
 	}
 	
 
