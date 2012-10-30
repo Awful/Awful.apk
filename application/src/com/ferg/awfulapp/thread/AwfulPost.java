@@ -87,6 +87,7 @@ public class AwfulPost {
     public static final String POST_INDEX            = "post_index";
     public static final String THREAD_ID             = "thread_id";
     public static final String DATE                  = "date";
+	public static final String REGDATE				 = "regdate";
     public static final String USER_ID               = "user_id";
     public static final String USERNAME              = "username";
     public static final String PREVIOUSLY_READ       = "previously_read";
@@ -107,9 +108,11 @@ public class AwfulPost {
 
 
 
+
 	private int mThreadId;
     private String mId;
     private String mDate;
+    private String mRegDate;
     private String mUserId;
     private String mUsername;
     private String mAvatar;
@@ -168,6 +171,14 @@ public class AwfulPost {
 
     public void setDate(String aDate) {
         mDate = aDate;
+    }
+
+	public String getRegDate() {
+		return mRegDate;
+	}
+
+    public void setRegDate(String aRegDate) {
+        mRegDate = aRegDate;
     }
 
     public String getUserId() {
@@ -230,6 +241,7 @@ public class AwfulPost {
             int threadIdIndex = aCursor.getColumnIndex(THREAD_ID);
             int postIndexIndex = aCursor.getColumnIndex(POST_INDEX);//ooh, meta
             int dateIndex = aCursor.getColumnIndex(DATE);
+            int regdateIndex = aCursor.getColumnIndex(REGDATE);
             int userIdIndex = aCursor.getColumnIndex(USER_ID);
             int usernameIndex = aCursor.getColumnIndex(USERNAME);
             int previouslyReadIndex = aCursor.getColumnIndex(PREVIOUSLY_READ);
@@ -249,6 +261,7 @@ public class AwfulPost {
                 current.setId(aCursor.getString(idIndex));
                 current.setThreadId(aCursor.getInt(threadIdIndex));
                 current.setDate(aCursor.getString(dateIndex));
+                current.setRegDate(aCursor.getString(regdateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
                 current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0 ? true : false);
@@ -474,6 +487,10 @@ public class AwfulPost {
             	
             	if (type.contains("author")) {
 					post.put(USERNAME, entry.text().trim());
+				}
+            	
+            	if (type.contains("registered")) {
+					post.put(REGDATE, entry.text().trim());
 				}
 
 				if (type.contains("role-mod")) {

@@ -57,7 +57,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -132,6 +132,7 @@ public class AwfulProvider extends ContentProvider {
         AwfulPost.THREAD_ID,
         AwfulPost.POST_INDEX,
         AwfulPost.DATE,
+        AwfulPost.REGDATE,
         AwfulPost.USER_ID,
         AwfulPost.USERNAME,
         AwfulPost.PREVIOUSLY_READ,
@@ -257,6 +258,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.THREAD_ID             + " INTEGER,"        + 
                 AwfulPost.POST_INDEX            + " INTEGER,"        + 
                 AwfulPost.DATE                  + " VARCHAR,"        + 
+                AwfulPost.REGDATE               + " VARCHAR,"        + 
                 AwfulPost.USER_ID               + " INTEGER,"        + 
                 AwfulPost.USERNAME              + " VARCHAR,"        +
                 AwfulPost.PREVIOUSLY_READ       + " INTEGER,"        +
@@ -326,8 +328,15 @@ public class AwfulProvider extends ContentProvider {
         		ContentValues forumFix = new ContentValues();
         		forumFix.put(AwfulForum.ID, Constants.USERCP_ID);
         		aDb.update(TABLE_FORUM, forumFix,AwfulForum.ID+"=?", int2StrArray(2));
+        		
         		//clear out secondary forum pages to implement forum variable perPage sizes
         		aDb.delete(TABLE_FORUM, AwfulThread.INDEX+">?", int2StrArray(30));
+        	case 19:
+        		//added regdate to post table
+        		//post table is just cache, we can just wipe it
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+                createPostTable(aDb);
+                
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
     			dropAllTables(aDb);
@@ -730,6 +739,7 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
 		sPostProjectionMap.put(AwfulPost.POST_INDEX, AwfulPost.POST_INDEX);
 		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
+		sPostProjectionMap.put(AwfulPost.REGDATE, AwfulPost.REGDATE);
 		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
 		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
 		sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);

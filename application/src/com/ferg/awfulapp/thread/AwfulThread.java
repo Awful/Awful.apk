@@ -454,8 +454,10 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' id='" + post.getId() + "' >\n");
             buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
-            buffer.append("        <div class='avatar' "+((aPrefs.avatarsEnabled != false && post.getAvatar() != null)?"style='height: 100px; width: 100px; background-image:url("+post.getAvatar()+");'":"")+">\n");
-            buffer.append("        </div>\n");
+            if(aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0){
+	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
+	            buffer.append("        </div>\n");
+            }
             buffer.append("        <div class='userinfo'>\n");
             buffer.append("            <h4 class='username' >\n");
             buffer.append("                "+post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  +  "\n");
@@ -471,7 +473,15 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("</tr>\n");
             buffer.append("<tr class='phone' >\n");
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
-            buffer.append("        <div class='avatar-text' style='display:none;float: left; width: 100%;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
+            buffer.append("        <div class='avatar-text' style='display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
+            if(post.getRegDate() != null){
+	            buffer.append("         	<div class='postdate'>\n");
+	        	buffer.append("					Registered: "+post.getRegDate()+"<br/>\n");
+	            buffer.append("         	</div>\n");
+            }
+            if(post.getAvatarText()!= null){
+            	buffer.append(post.getAvatarText()+"<br/>\n");
+            }
             if(post.isEditable()){
             	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
                 buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
@@ -512,8 +522,16 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("           		     " + post.getDate());
             buffer.append("            		</div>\n");
             buffer.append("        		</div>\n");
-            buffer.append("         	<div class='avatar-text' style='display:none; overflow: hidden;'>"+(post.getAvatarText()!= null?post.getAvatarText()+"<br/>":""));
-           buffer.append("    				<hr />\n");
+            buffer.append("         	<div class='avatar-text' style='display:none; overflow: hidden;'>");
+            if(post.getRegDate()!= null){
+                buffer.append("         	<div class='postdate'>");
+            	buffer.append("					Registered: "+post.getRegDate()+"<br/>");
+                buffer.append("         	</div>");
+            }
+            if(post.getAvatarText()!= null){
+            	buffer.append(post.getAvatarText()+"<br/>");
+            }
+            buffer.append("    				<hr />\n");
             buffer.append("    			</div>\n");
             buffer.append("        </div>\n");
             buffer.append("    </div>\n");

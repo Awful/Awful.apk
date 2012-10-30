@@ -131,6 +131,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ListView mThreadListView;
     private AwfulCursorAdapter mCursorAdapter;
+    
+    private AwfulURL queueLoad = null;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -224,7 +226,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				if(alink.isRedirect()){
 					startPostRedirect(alink.getURL());
 				}else{
-					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment());
+					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment().replaceAll("\\D", ""));
 				}
 				break;
 			case POST:
@@ -1003,11 +1005,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
             		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
-            //if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
             	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
-            //}
+            }
             mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();

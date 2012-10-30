@@ -8,7 +8,7 @@
     <com.ferg.awfulapp.widget.AwfulProgressBar 
         android:id="@+id/progress_bar"
 		android:layout_width="fill_parent"
-		android:layout_height="2dp"
+		android:layout_height="4dp"
 		android:visibility="invisible"
        />
     <LinearLayout

@@ -56,6 +56,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hasPlatinum;
 	public boolean debugMode;
 	public boolean sendUsernameInReport;
+	public float scaleFactor;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
@@ -167,6 +168,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
 	private void updateValues(SharedPreferences prefs) {
 		Resources res = mContext.getResources();
+		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = mPrefs.getString("username", "Username");
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
 		postFontSizeDip             = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);

@@ -68,7 +68,11 @@ public class AwfulProgressBar extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.drawPaint(mClearColor);
-		canvas.drawRect(0, 0, (int)((mProgress/100.0)*getWidth()), getHeight(), mProgressColor);
+		if(getHeight() > 3){
+			canvas.drawRect(0, 0, (int)((mProgress/100.0)*getWidth()), getHeight()-2, mProgressColor);
+		}else{
+			canvas.drawRect(0, 0, (int)((mProgress/100.0)*getWidth()), getHeight(), mProgressColor);
+		}
 	}
 	
 	public void setProgress(int progress){
