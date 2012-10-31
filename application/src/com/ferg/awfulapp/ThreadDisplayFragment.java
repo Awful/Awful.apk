@@ -1175,7 +1175,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		if(DEBUG) Log.e(TAG,"onCreateActionMode");
 		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
-		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Show Image");
+		menu.add(Menu.NONE, R.id.icon_box, Menu.NONE, "Show Image");
 		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
 		return mActionModeURL != null;
 	}
@@ -1183,7 +1183,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
-		MenuItem inline = menu.findItem(R.id.content);
+		MenuItem inline = menu.findItem(R.id.icon_box);
 		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
 			Uri link = Uri.parse(mActionModeURL);
 			inline.setVisible(link.getLastPathSegment() != null 
@@ -1217,7 +1217,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 							.show();
 			}
 			break;
-		case R.id.content:
+		case R.id.icon_box:
 			if(mThreadView != null){
 				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
 			}

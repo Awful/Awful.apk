@@ -410,11 +410,22 @@ public class AwfulThread extends AwfulPagedItem  {
         }else{
             buffer.append(".tablet {display:none;}\n");
         }
+        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+            buffer.append(".read {display:none;}\n");
+        }else{
+            buffer.append(".toggleread {display:none;}\n");
+        }
         
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("<div class='content' >\n");
         buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
+        
+        buffer.append("<tr class='toggleread' >\n");
+        buffer.append("<div>\n");
+        buffer.append("<h3>Show Previous Posts</h3>\n");
+        buffer.append("</div>\n");
+        buffer.append("</tr>\n");
 
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
@@ -499,7 +510,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
-            buffer.append("<tr>\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+"' >\n");
 
 
             buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");

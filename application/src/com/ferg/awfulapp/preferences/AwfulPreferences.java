@@ -96,6 +96,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean showAllSpoilers;
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
+	public boolean hideOldPosts;
 	/**
 	 * forces threadview into specific layout, values: auto - phone - tablet 
 	 */
@@ -212,6 +213,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         staticThreadView	 	 = mPrefs.getBoolean("static_thread_view", false);
+        hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
        	 //TODO: I have never seen this before oh god
 	}
 }

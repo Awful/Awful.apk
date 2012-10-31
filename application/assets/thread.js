@@ -34,6 +34,10 @@ $(document).ready(function() {
 	$('.userinfo-row').click(function(event) {
 	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
+	$('.toggleread').click(function(event) {
+	  $('.read').toggle();
+	  $('.toggleread').toggle();
+	});
 	$('.avatar-cell').click(function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});

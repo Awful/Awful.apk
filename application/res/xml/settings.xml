@@ -53,6 +53,12 @@
             android:defaultValue="Username"
             />
 		<CheckBoxPreference 
+            android:key="hide_old_posts" 
+			android:title="@string/hide_old_posts"
+            android:summary="@string/hide_old_posts_summary"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
             android:key="user_quotes" 
 			android:title="@string/user_quote"
             android:summary="@string/user_quote_summary"

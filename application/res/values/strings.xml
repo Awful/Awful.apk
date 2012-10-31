@@ -101,6 +101,8 @@
 	<string name="unbookmark">Unbookmark</string>
 	<string name="rate_thread">Rate Thread</string>
 	<string name="find">Find on Page</string>
+	<string name="hide_old_posts">Hide Previously Read Posts</string>
+	<string name="hide_old_posts_summary"></string>
 	<string name="load_images">Load Images</string>
 	<string name="load_images_summary">If disabled, images are replaced with links.</string>
 	<string name="load_avatars">Show Avatars</string>

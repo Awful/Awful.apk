@@ -123,20 +123,20 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
         
         setContentView(R.layout.forum_index_activity);
-        mSecondPane = (findViewById(R.id.content)!= null);
+        mSecondPane = false;//(findViewById(R.id.content)!= null);
         setSupportProgressBarIndeterminateVisibility(false);
         
-        if(isDualPane()){
-	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
-	        if(mForumId > 0){
-	        	setContentPane(mForumId, mForumPage);
-	        }
-        	if(url.getType() == TYPE.THREAD || url.isRedirect()){
-        		startActivity(new Intent(this, ThreadDisplayActivity.class).setData(getIntent().getData()));
-        	}else if(mThreadId > 0){
-        		startActivity(new Intent(this, ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, mThreadId).putExtra(Constants.THREAD_PAGE, mThreadPage));
-        	}
-        }else{
+//        if(isDualPane()){
+//	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
+//	        if(mForumId > 0){
+//	        	setContentPane(mForumId, mForumPage);
+//	        }
+//        	if(url.getType() == TYPE.THREAD || url.isRedirect()){
+//        		startActivity(new Intent(this, ThreadDisplayActivity.class).setData(getIntent().getData()));
+//        	}else if(mThreadId > 0){
+//        		startActivity(new Intent(this, ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, mThreadId).putExtra(Constants.THREAD_PAGE, mThreadPage));
+//        	}
+//        }else{
         	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
         	mViewPager.setOffscreenPageLimit(2);
         	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
@@ -161,7 +161,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	        if(data != null && data.getLastPathSegment() != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
 	        	mViewPager.setCurrentItem(1);
 	        }
-        }
+//        }
         if(mIndexFragment != null && mForumId > 0){
         	mIndexFragment.setSelected(mForumId);
         }
@@ -366,14 +366,15 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 
 	public void setContentPane(int aForumId, int aPage) {
-    	mForumId = aForumId;
-        if(mForumFragment == null && isDualPane()){
-            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, aPage, false);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        	transaction.add(R.id.content, fragment);
-            transaction.commit();
-        	mForumFragment = fragment;
-        }else if(mForumFragment != null){
+//    	mForumId = aForumId;
+//        if(mForumFragment == null && isDualPane()){
+//            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, aPage, false);
+//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//        	transaction.add(R.id.content, fragment);
+//            transaction.commit();
+//        	mForumFragment = fragment;
+//        }else 
+		if(mForumFragment != null){
         	mForumFragment.openForum(aForumId, aPage);
         }
     }
