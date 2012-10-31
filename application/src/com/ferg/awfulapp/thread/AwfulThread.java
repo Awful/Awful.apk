@@ -362,7 +362,17 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, boolean threadLocked) {
-        StringBuffer buffer = new StringBuffer("<html>\n<head>\n");
+        int unreadCount = 0;
+        if(aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+        	for(AwfulPost ap : aPosts){
+        		if(!ap.isPreviouslyRead()){
+        			unreadCount++;
+        		}
+        	}
+        }
+    	
+    	
+    	StringBuffer buffer = new StringBuffer("<html>\n<head>\n");
         buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
@@ -375,6 +385,11 @@ public class AwfulThread extends AwfulPagedItem  {
         
         buffer.append("<script type='text/javascript'>\n");
         buffer.append("  window.JSON = null;");
+        if(isTablet){
+        	buffer.append("window.isTablet = true;");
+        }else{
+        	buffer.append("window.isTablet = false;");
+        }
         buffer.append("</script>\n");
         
         
@@ -397,6 +412,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
+        buffer.append(".content {font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'}");
         if(!aPrefs.postDividerEnabled){
             buffer.append(".userinfo-row {border-top-width:0px;}\n");
             buffer.append(".post-buttons {border-bottom-width:0px;}\n");
@@ -410,7 +426,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }else{
             buffer.append(".tablet {display:none;}\n");
         }
-        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+        if(aPrefs.hideOldPosts && unreadCount > 0){
             buffer.append(".read {display:none;}\n");
         }else{
             buffer.append(".toggleread {display:none;}\n");
@@ -418,14 +434,11 @@ public class AwfulThread extends AwfulPagedItem  {
         
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
-        buffer.append("<div class='content' >\n");
-        buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-        
-        buffer.append("<tr class='toggleread' >\n");
-        buffer.append("<div>\n");
-        buffer.append("<h3>Show Previous Posts</h3>\n");
-        buffer.append("</div>\n");
-        buffer.append("</tr>\n");
+        buffer.append("	  <div class='content' >\n");
+        buffer.append("		<a class='toggleread'>\n");
+        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+        buffer.append("		</a>\n");
+        buffer.append("    <table id='thread-body'>\n");
 
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
