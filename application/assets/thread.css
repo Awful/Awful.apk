@@ -186,8 +186,8 @@ table {
 }
 
 .toggleread {
+	display:block;
 	width:100%;
 	height:50px;
 	text-align:center;
-	vertical-align:middle;
 }
