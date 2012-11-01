@@ -58,10 +58,7 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 	}
 	
 	public void clearFragments(){
-		primary = null;
-		secondary = null;
-		primaryAPF = null;
-		secondaryAPF = null;
+		removeAllViews();
 	}
 	
 	private boolean hasView(){

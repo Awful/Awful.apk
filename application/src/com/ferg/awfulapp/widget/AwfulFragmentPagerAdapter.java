@@ -69,7 +69,7 @@ import android.view.ViewGroup;
 public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implements Iterable<AwfulFragmentPagerAdapter.AwfulPagerFragment> {
 
 	private static final String TAG = "FragmentPagerAdapter";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     
     private boolean splitMode = false;
 
@@ -102,12 +102,16 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	}
 	
 	public void deleteFragment(AwfulPagerFragment frag){
+		//TODO rewrite this before use to handle dualpaneview
+		assert(false);
 		fragList.remove(frag);
 		splitFragList.remove(frag);
 		notifyDataSetChanged();
 	}
 
 	public AwfulPagerFragment deletePage(int x) {
+		//TODO rewrite this before use
+		assert(false);
 		AwfulPagerFragment tmp = fragList.remove(x);
 		if(tmp instanceof AwfulDualPaneView){
 			splitFragList.remove(((AwfulDualPaneView)tmp).getFirst());
@@ -138,7 +142,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 		}else{
 			frag = fragList.get(position);
 		}
-		if(DEBUG) Log.e(TAG,"getItem "+position+" - "+frag.toString());
+		if(DEBUG) Log.w(TAG,"getItem "+position+" - "+frag.toString());
 		return frag;
 	}
 	
@@ -166,6 +170,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
     @Override
     public void startUpdate(ViewGroup container) {
+    	if(DEBUG) Log.w(TAG,"startUpdate: "+container);
     }
     
     protected abstract Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag);
@@ -195,10 +200,10 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         	existingFragment = mFragmentManager.findFragmentByTag(name);
         }
         if (existingFragment == listFragment) {
-            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + existingFragment);
+            if (DEBUG) Log.w(TAG, "Attaching item #" + position + ": f=" + existingFragment);
             mCurTransaction.attach(existingFragment);
         } else {
-            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragment);
+            if (DEBUG) Log.w(TAG, "Adding item #" + position + ": f=" + listFragment);
             if(listItem instanceof AwfulDualPaneView){
 	            mCurTransaction.add(listFragment, makeFragmentName(listFragment));
             }else{
@@ -208,10 +213,10 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         }
         if (listFragmentB != null){
         	if(existingFragmentB == listFragmentB) {
-	            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + existingFragmentB);
+	            if (DEBUG) Log.w(TAG, "Attaching item #" + position + ": f=" + existingFragmentB);
 	            mCurTransaction.attach(existingFragmentB);
 	        } else {
-	            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragmentB);
+	            if (DEBUG) Log.w(TAG, "Adding item #" + position + ": f=" + listFragmentB);
 	            mCurTransaction.add(listFragmentB,
 	                    makeFragmentName(listFragmentB));
 	        }
@@ -226,6 +231,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	        }
         }
 
+        if (DEBUG) Log.w(TAG, "instantiated" + position + ": f=" + listItem+" - c: "+container);
         return listItem;
     }
 
@@ -234,12 +240,14 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + object);
+        if (DEBUG) Log.w(TAG, "Detaching item #" + position + ": f=" + object);
         if(object instanceof AwfulDualPaneView){
-        	mCurTransaction.detach(getFrag(object, true));
-        	mCurTransaction.detach(getFrag(object, false));
+        	mCurTransaction.remove(getFrag(object, true));
+        	mCurTransaction.remove(getFrag(object, false));
+        	((AwfulDualPaneView)object).clearFragments();
+        	container.removeView((View) object);
         }else{
-        	mCurTransaction.detach((Fragment)object);
+        	mCurTransaction.remove((Fragment)object);
         }
     }
     
@@ -275,6 +283,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
     @Override
     public void finishUpdate(ViewGroup container) {
+    	if(DEBUG) Log.w(TAG,"finishUpdate: "+container);
         if (mCurTransaction != null) {
             mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
@@ -291,12 +300,18 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-    	if(object instanceof AwfulDualPaneView){
-    		AwfulDualPaneView adpv = (AwfulDualPaneView) object;
-    		return adpv == view || ((Fragment)adpv.getFirst()).getView() == view || ((Fragment)adpv.getSecond()).getView() == view;
-    	}else{
-    		return ((Fragment)object).getView() == view;
+    	if(DEBUG) Log.w(TAG,"isViewFromObject: "+view+" obj: "+object);
+    	if(!splitMode){
+    		if(object instanceof AwfulDualPaneView){
+    			AwfulDualPaneView adpw = (AwfulDualPaneView) object;
+    			return object == view || ((Fragment)adpw.getFirst()).getView() == view || ((Fragment)adpw.getSecond()).getView() == view;
+    		}else if(object instanceof Fragment){
+    			return ((Fragment)object).getView() == view;
+        	}
+    	}else if(object instanceof Fragment){
+			return ((Fragment)object).getView() == view;
     	}
+		return false;
     }
 
     @Override
@@ -357,6 +372,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	}
 	
 	public void setWidescreen(boolean widescreen){
+		Log.e(TAG, "setWidescreen: "+(widescreen?"true":"false")+" currently: "+(splitMode? "false" : "true"));
 		splitMode = !widescreen;
 		notifyDataSetChanged();
 	}
