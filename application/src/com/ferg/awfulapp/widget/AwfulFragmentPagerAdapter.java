@@ -288,12 +288,12 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
             mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
             mFragmentManager.executePendingTransactions();
-            if(!splitMode){
-	            for(AwfulPagerFragment apf : fragList){
-	            	if(apf instanceof AwfulDualPaneView){
-	            		((AwfulDualPaneView)apf).refreshChildren();
-	            	}
-	            }
+        }
+        if(!splitMode){
+            for(AwfulPagerFragment apf : fragList){
+            	if(apf instanceof AwfulDualPaneView){
+            		((AwfulDualPaneView)apf).refreshChildren();
+            	}
             }
         }
     }
@@ -341,18 +341,18 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 		if(splitMode){
 			pos = splitFragList.indexOf(object);
 		}else{
-			for(int ix=0;ix<fragList.size();ix++){
-				if(fragList.get(ix) instanceof AwfulDualPaneView){
-					AwfulDualPaneView adpw = (AwfulDualPaneView) fragList.get(ix);
-					if(adpw.getFirst() == object || adpw.getSecond() == object){
-						return ix;
-					}
-				}else{
-					if(object == fragList.get(ix)){
-						return ix;
-					}
-				}
-			}
+//			for(int ix=0;ix<fragList.size();ix++){
+//				if(fragList.get(ix) instanceof AwfulDualPaneView){
+//					AwfulDualPaneView adpw = (AwfulDualPaneView) fragList.get(ix);
+//					if(adpw.getFirst() == object || adpw.getSecond() == object){
+//						return ix;
+//					}
+//				}else{
+//					if(object == fragList.get(ix)){
+//						return ix;
+//					}
+//				}
+//			}
 			pos = fragList.indexOf(object);
 		}
 		if(pos < 0){

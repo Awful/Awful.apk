@@ -42,6 +42,7 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		int width = View.MeasureSpec.getSize(widthMeasureSpec);
 		int height = View.MeasureSpec.getSize(heightMeasureSpec);
+		Log.e(TAG,"onMeasure "+width+" x "+height);
 		if(getChildCount() == 2){
 			getChildAt(0).measure(MeasureSpec.makeMeasureSpec(2*width/5, MeasureSpec.EXACTLY), heightMeasureSpec);
 			getChildAt(1).measure(MeasureSpec.makeMeasureSpec(3*width/5, MeasureSpec.EXACTLY), heightMeasureSpec);
@@ -51,6 +52,7 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.e(TAG,"onLayout");
 		if(getChildCount() > 1){
 			getChildAt(0).layout(0, 0, 2*r/5, b);
 			getChildAt(1).layout(2*r/5, 0, r, b);
@@ -137,12 +139,15 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 	}
 
 	public void refreshChildren() {
-		if(primary != null && secondary != null){
+		if(primary != null && secondary != null && getChildCount() < 2){
 			View priView = primary.getView();
 			View secView = secondary.getView();
-			removeAllViews();
-			addView(priView);
-			addView(secView);
+			if(priView != null && secView != null){
+				removeAllViews();
+				addView(priView);
+				addView(secView);
+				requestLayout();
+			}
 		}
 	}
 
