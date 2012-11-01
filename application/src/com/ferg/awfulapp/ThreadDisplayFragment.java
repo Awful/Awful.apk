@@ -111,6 +111,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayFragment";
     private boolean DEBUG = false;
+    private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -1009,7 +1010,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
             		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
-            if(mPrefs.debugMode && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+            	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+mThreadId+"-"+mPage+".html"));
             	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
