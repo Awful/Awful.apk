@@ -70,47 +70,74 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
 	private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;
+    
+    private boolean splitMode = false;
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
     private Fragment mCurrentPrimaryItem = null;
     
     private ArrayList<AwfulPagerFragment> fragList;
+    private ArrayList<AwfulPagerFragment> splitFragList;
 
-    public AwfulFragmentPagerAdapter(FragmentManager fm) {
+    public AwfulFragmentPagerAdapter(FragmentManager fm, boolean widescreen) {
         mFragmentManager = fm;
 		fragList = new ArrayList<AwfulPagerFragment>();
+		splitFragList = new ArrayList<AwfulPagerFragment>();
+		splitMode = !widescreen;
     }
     
 
 	public void addFragment(AwfulPagerFragment frag){
 		if(!fragList.contains(frag)){
 			fragList.add(frag);
+			if(frag instanceof AwfulDualPaneView){
+				splitFragList.add(((AwfulDualPaneView)frag).getFirst());
+				splitFragList.add(((AwfulDualPaneView)frag).getSecond());
+			}else{
+				splitFragList.add(frag);
+			}
 			notifyDataSetChanged();
 		}
 	}
 	
 	public void deleteFragment(AwfulPagerFragment frag){
 		fragList.remove(frag);
+		splitFragList.remove(frag);
 		notifyDataSetChanged();
 	}
 
 	public AwfulPagerFragment deletePage(int x) {
 		AwfulPagerFragment tmp = fragList.remove(x);
+		if(tmp instanceof AwfulDualPaneView){
+			splitFragList.remove(((AwfulDualPaneView)tmp).getFirst());
+			splitFragList.remove(((AwfulDualPaneView)tmp).getSecond());
+		}else{
+			splitFragList.remove(tmp);
+		}
 		notifyDataSetChanged();
 		return tmp;
 	}
 	
     @Override
 	public Iterator<AwfulPagerFragment> iterator() {
-		return fragList.iterator();
+    	if(splitMode){
+    		return splitFragList.iterator();
+    	}else{
+    		return fragList.iterator();
+    	}
 	}
 
     /**
      * Return the Fragment associated with a specified position.
      */
 	public AwfulPagerFragment getItem(int position) {
-		AwfulPagerFragment frag = fragList.get(position);
+		AwfulPagerFragment frag;
+		if(splitMode){
+			frag = splitFragList.get(position);
+		}else{
+			frag = fragList.get(position);
+		}
 		if(DEBUG) Log.e(TAG,"getItem "+position+" - "+frag.toString());
 		return frag;
 	}
@@ -134,6 +161,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     	public boolean canScrollX(int dx, int y);
     	public int getProgressPercent();
     	public void fragmentMessage(String type, String contents);
+    	public boolean canSplitscreen();
     }
 
     @Override
@@ -150,30 +178,54 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
         // Do we already have this fragment?
         String name = makeFragmentName(container.getId(), position);
-        Fragment existingFragment = mFragmentManager.findFragmentByTag(name);
-        Fragment listFragment = (Fragment) getItem(position);
-        Fragment fragment;
-        if(existingFragment != null && listFragment != null && existingFragment != listFragment){
-        	fragment = resolveConflict(position, existingFragment, listFragment);
-        }else if(existingFragment != null){
-        	fragment = existingFragment;
-        }else{
-        	fragment = listFragment;
+        Fragment existingFragment = null;
+        Fragment existingFragmentB = null;
+        AwfulPagerFragment listItem = getItem(position);
+        Fragment listFragment = null,listFragmentB = null;
+        
+        if(listItem instanceof AwfulDualPaneView){
+        	existingFragment = mFragmentManager.findFragmentByTag(name+"A");
+        	existingFragmentB = mFragmentManager.findFragmentByTag(name+"B");
+        	listFragment = (Fragment) ((AwfulDualPaneView)listItem).getFirst();
+        	listFragmentB = (Fragment) ((AwfulDualPaneView)listItem).getSecond();
+        	container.addView((View) listItem);
+        }else if(listItem instanceof Fragment){
+        	listFragment = (Fragment) listItem;
+        	existingFragment = mFragmentManager.findFragmentByTag(name);
         }
-        if (existingFragment == fragment) {
-            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + fragment);
-            mCurTransaction.attach(fragment);
+        if (existingFragment == listFragment) {
+            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + existingFragment);
+            mCurTransaction.attach(existingFragment);
         } else {
-            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
-            mCurTransaction.add(container.getId(), fragment,
-                    makeFragmentName(container.getId(), position));
+            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragment);
+            if(listItem instanceof AwfulDualPaneView){
+	            mCurTransaction.add(listFragment, makeFragmentName(container.getId(), position)+"A");
+            }else{
+	            mCurTransaction.add(container.getId(), listFragment,
+	                    makeFragmentName(container.getId(), position)+"A");
+            }
         }
-        if (fragment != mCurrentPrimaryItem) {
-            fragment.setMenuVisibility(false);
-            fragment.setUserVisibleHint(false);
+        if (listFragmentB != null){
+        	if(existingFragmentB == listFragmentB) {
+	            if (DEBUG) Log.v(TAG, "Attaching item #" + position + ": f=" + existingFragmentB);
+	            mCurTransaction.attach(existingFragmentB);
+	        } else {
+	            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragmentB);
+	            mCurTransaction.add(listFragmentB,
+	                    makeFragmentName(container.getId(), position)+"B");
+	        }
+	        if (listFragmentB != mCurrentPrimaryItem) {
+	        	listFragmentB.setMenuVisibility(false);
+	        	listFragmentB.setUserVisibleHint(false);
+	        }
+        }else{
+	        if (listFragment != mCurrentPrimaryItem) {
+	        	listFragment.setMenuVisibility(false);
+	        	listFragment.setUserVisibleHint(false);
+	        }
         }
 
-        return fragment;
+        return listItem;
     }
 
     @Override
@@ -181,14 +233,32 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + object
-                + " v=" + ((Fragment)object).getView());
-        mCurTransaction.detach((Fragment)object);
+        if (DEBUG) Log.v(TAG, "Detaching item #" + position + ": f=" + object);
+        if(object instanceof AwfulDualPaneView){
+        	mCurTransaction.detach(getFrag(object, true));
+        	mCurTransaction.detach(getFrag(object, false));
+        }else{
+        	mCurTransaction.detach((Fragment)object);
+        }
+    }
+    
+    private Fragment getFrag(Object frag, boolean first){
+    	if(frag instanceof AwfulDualPaneView){
+    		if(first){
+    			return (Fragment) ((AwfulDualPaneView)frag).getFirst();
+    		}else{
+    			return (Fragment) ((AwfulDualPaneView)frag).getSecond();
+    		}
+    	}else if(frag instanceof Fragment){
+    		return (Fragment) frag;
+    	}else{
+    		return null;
+    	}
     }
 
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
-        Fragment fragment = (Fragment)object;
+        Fragment fragment = getFrag(object, true);
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
@@ -208,12 +278,24 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
             mCurTransaction.commitAllowingStateLoss();
             mCurTransaction = null;
             mFragmentManager.executePendingTransactions();
+            if(!splitMode){
+	            for(AwfulPagerFragment apf : fragList){
+	            	if(apf instanceof AwfulDualPaneView){
+	            		((AwfulDualPaneView)apf).refreshChildren();
+	            	}
+	            }
+            }
         }
     }
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return ((Fragment)object).getView() == view;
+    	if(object instanceof AwfulDualPaneView){
+    		AwfulDualPaneView adpv = (AwfulDualPaneView) object;
+    		return adpv == view || ((Fragment)adpv.getFirst()).getView() == view || ((Fragment)adpv.getSecond()).getView() == view;
+    	}else{
+    		return ((Fragment)object).getView() == view;
+    	}
     }
 
     @Override
@@ -236,7 +318,24 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
 	@Override
 	public int getItemPosition(Object object) {
-		int pos = fragList.indexOf(object);
+		int pos = AwfulFragmentPagerAdapter.POSITION_NONE;
+		if(splitMode){
+			pos = splitFragList.indexOf(object);
+		}else{
+			for(int ix=0;ix<fragList.size();ix++){
+				if(fragList.get(ix) instanceof AwfulDualPaneView){
+					AwfulDualPaneView adpw = (AwfulDualPaneView) fragList.get(ix);
+					if(adpw.getFirst() == object || adpw.getSecond() == object){
+						return ix;
+					}
+				}else{
+					if(object == fragList.get(ix)){
+						return ix;
+					}
+				}
+			}
+			pos = fragList.indexOf(object);
+		}
 		if(pos < 0){
 			return AwfulFragmentPagerAdapter.POSITION_NONE;
 		}else{
@@ -246,6 +345,15 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
 	@Override
 	public int getCount() {
-		return fragList.size();
+		if(splitMode){
+			return splitFragList.size();
+		}else{
+			return fragList.size();
+		}
+	}
+	
+	public void setWidescreen(boolean widescreen){
+		splitMode = !widescreen;
+		notifyDataSetChanged();
 	}
 }
