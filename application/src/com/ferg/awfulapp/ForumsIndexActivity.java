@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -37,14 +35,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
-import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.AwfulDualPaneView;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
@@ -128,41 +124,29 @@ public class ForumsIndexActivity extends AwfulActivity {
         mSecondPane = false;//(findViewById(R.id.content)!= null);
         setSupportProgressBarIndeterminateVisibility(false);
         
-//        if(isDualPane()){
-//	        mIndexFragment = (ForumsIndexFragment) getSupportFragmentManager().findFragmentById(R.id.forums_index);
-//	        if(mForumId > 0){
-//	        	setContentPane(mForumId, mForumPage);
-//	        }
-//        	if(url.getType() == TYPE.THREAD || url.isRedirect()){
-//        		startActivity(new Intent(this, ThreadDisplayActivity.class).setData(getIntent().getData()));
-//        	}else if(mThreadId > 0){
-//        		startActivity(new Intent(this, ThreadDisplayActivity.class).putExtra(Constants.THREAD_ID, mThreadId).putExtra(Constants.THREAD_PAGE, mThreadPage));
-//        	}
-//        }else{
-        	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
-        	mViewPager.setOffscreenPageLimit(2);
-        	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
-        	pagerAdapter.addFragment(new AwfulDualPaneView(this,ForumsIndexFragment.newInstance(),ForumDisplayFragment.newInstance(mForumId, mForumPage, skipLoad)));
-        	if(url.isRedirect()){
-        		pagerAdapter.addFragment(new ThreadDisplayFragment());
-        	}else if(mThreadId > 0){
-        		pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
-        	}
-	        mViewPager.setAdapter(pagerAdapter);
-	        mViewPager.setOnPageChangeListener(pagerAdapter);
-	        if(mForumId > 0){
-	        	mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
-	        }else{
-	        	mForumId = Constants.USERCP_ID;
-	        }
-	        if(mThreadId > 0 || url.isRedirect()){
-	        	mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
-	        }
-	        Uri data = getIntent().getData();
-	        if(data != null && data.getLastPathSegment() != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
-	        	mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
-	        }
-//        }
+    	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
+    	mViewPager.setOffscreenPageLimit(2);
+    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
+    	pagerAdapter.addFragment(new AwfulDualPaneView(this,ForumsIndexFragment.newInstance(),ForumDisplayFragment.newInstance(mForumId, mForumPage, skipLoad)));
+    	if(url.isRedirect()){
+    		pagerAdapter.addFragment(new ThreadDisplayFragment());
+    	}else if(mThreadId > 0){
+    		pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
+    	}
+        mViewPager.setAdapter(pagerAdapter);
+        mViewPager.setOnPageChangeListener(pagerAdapter);
+        if(mForumId > 0){
+        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
+        }else{
+        	mForumId = Constants.USERCP_ID;
+        }
+        if(mThreadId > 0 || url.isRedirect()){
+        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mThreadFragment));
+        }
+        Uri data = getIntent().getData();
+        if(data != null && data.getLastPathSegment() != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
+        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
+        }
         if(mIndexFragment != null && mForumId > 0){
         	mIndexFragment.setSelected(mForumId);
         }
@@ -301,7 +285,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     	setContentPane(id, page);
     	if (mViewPager != null) {
     		closeTempWindows(); 
-    		mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
+    		mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
         }
     }
 
@@ -384,14 +368,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 
 	public void setContentPane(int aForumId, int aPage) {
-//    	mForumId = aForumId;
-//        if(mForumFragment == null && isDualPane()){
-//            ForumDisplayFragment fragment = ForumDisplayFragment.newInstance(aForumId, aPage, false);
-//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        	transaction.add(R.id.content, fragment);
-//            transaction.commit();
-//        	mForumFragment = fragment;
-//        }else 
+		mForumId = aForumId;
+		mForumPage = aPage;
 		if(mForumFragment != null){
         	mForumFragment.openForum(aForumId, aPage);
         }
@@ -427,7 +405,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}else{
     			pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(id, page));
     		} 
-    		mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
+    		mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mThreadFragment));
     	}else{
     		super.displayThread(id, page, forumId, forumPg);
     	}

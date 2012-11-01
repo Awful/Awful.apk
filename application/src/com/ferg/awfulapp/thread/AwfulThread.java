@@ -413,7 +413,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append(".content {font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'}");
+        buffer.append(".bbc-block .code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+"}\n");
         if(!aPrefs.postDividerEnabled){
             buffer.append(".userinfo-row {border-top-width:0px;}\n");
             buffer.append(".post-buttons {border-bottom-width:0px;}\n");
@@ -439,7 +439,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("		<a class='toggleread'>\n");
         buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
         buffer.append("		</a>\n");
-        buffer.append("    <table id='thread-body'>\n");
+        buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
 
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
