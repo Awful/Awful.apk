@@ -271,7 +271,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	public void setActionbarTitle(String aTitle, Object requestor) {
     	if(requestor != null && mViewPager != null){
     		//This will only honor the request if the requestor is the currently active view.
-    		if(pagerAdapter.getItem(mViewPager.getCurrentItem()).equals(requestor)){
+    		if(pagerAdapter.getItemPosition(requestor) == mViewPager.getCurrentItem()){
 		    		super.setActionbarTitle(aTitle, requestor);
 			}else{
 				if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());

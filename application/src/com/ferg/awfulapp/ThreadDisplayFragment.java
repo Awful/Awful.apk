@@ -252,6 +252,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         DEBUG = mPrefs.debugMode;
         Bundle args = getArguments();
         if(savedInstanceState != null){
+        	Log.w(TAG, "Loading from savedInstanceState");
             mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, args.getInt(Constants.THREAD_ID));
     		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, args.getInt(Constants.THREAD_PAGE));
     		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
@@ -313,6 +314,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
         if(dataLoaded || savedScrollPosition > 0){
+        	Log.w(TAG, "Recovering posts");
         	refreshPosts();
         }
         updateSidebarHint(isDualPane(), isSidebarVisible());
@@ -409,7 +411,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        mCursorAdapter = null;
 	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
 	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-	    	refreshPosts();
+	        if(dataLoaded){
+	        	refreshPosts();
+	        }
 		}
 		if(mPrefs.staticThreadView && mThreadListView == null){
 			mThreadListView = new ListView(getActivity());
@@ -424,7 +428,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        }
 	        mThreadWindow.addView(mThreadListView,new ViewGroup.LayoutParams(
 	        			ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-            refreshPosts();
+	        refreshPosts();
     	}
     }
     
@@ -1554,7 +1558,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		scrollCheckMinBound = -1;
 		scrollCheckMaxBound = -1;
 		if(mThreadView != null && dataLoaded){
-			Log.e(TAG,"Queueing registerPreBlocks()");
 			mHandler.postDelayed(new Runnable(){
 				@Override
 				public void run() {

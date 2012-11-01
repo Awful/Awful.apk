@@ -51,7 +51,6 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.e(TAG, "onLayout - l: "+l+" t: "+t+" r: "+r+" b: "+b+" changed: "+(changed?"true":"false"));
 		if(getChildCount() > 1){
 			getChildAt(0).layout(0, 0, 2*r/5, b);
 			getChildAt(1).layout(2*r/5, 0, r, b);

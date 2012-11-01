@@ -112,15 +112,15 @@ public abstract class AwfulPagedItem {
 	 * @return true if error is found, false otherwise
 	 * @throws RemoteException
 	 */
-	public static boolean checkPageErrors(Document page, Messenger handler) throws RemoteException{
+	public static String checkPageErrors(Document page, Messenger handler) throws RemoteException{
         if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
         	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
-        	return true;
+        	return "Error - Not Logged In";
         }
         if(page.getElementById("closemsg") != null){
         	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERROR_FORUMS_CLOSED, 0, 0, page.getElementsByClass("reason").text()));
-        	return true;
+        	return "Error - Forums Closed (Site Down)";
         }
-        return false;
+        return null;
 	}
 }

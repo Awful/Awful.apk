@@ -177,15 +177,16 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         }
 
         // Do we already have this fragment?
-        String name = makeFragmentName(container.getId(), position);
+        AwfulPagerFragment listItem = getItem(position);
+        Fragment listFragment = getFrag(listItem, true),listFragmentB = getFrag(listItem, false);
+        String name = makeFragmentName(listFragment);
+        String nameB = makeFragmentName(listFragmentB);
         Fragment existingFragment = null;
         Fragment existingFragmentB = null;
-        AwfulPagerFragment listItem = getItem(position);
-        Fragment listFragment = null,listFragmentB = null;
         
         if(listItem instanceof AwfulDualPaneView){
-        	existingFragment = mFragmentManager.findFragmentByTag(name+"A");
-        	existingFragmentB = mFragmentManager.findFragmentByTag(name+"B");
+        	existingFragment = mFragmentManager.findFragmentByTag(name);
+        	existingFragmentB = mFragmentManager.findFragmentByTag(nameB);
         	listFragment = (Fragment) ((AwfulDualPaneView)listItem).getFirst();
         	listFragmentB = (Fragment) ((AwfulDualPaneView)listItem).getSecond();
         	container.addView((View) listItem);
@@ -199,10 +200,10 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         } else {
             if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragment);
             if(listItem instanceof AwfulDualPaneView){
-	            mCurTransaction.add(listFragment, makeFragmentName(container.getId(), position)+"A");
+	            mCurTransaction.add(listFragment, makeFragmentName(listFragment));
             }else{
 	            mCurTransaction.add(container.getId(), listFragment,
-	                    makeFragmentName(container.getId(), position)+"A");
+	                    makeFragmentName(listFragment));
             }
         }
         if (listFragmentB != null){
@@ -212,7 +213,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	        } else {
 	            if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + listFragmentB);
 	            mCurTransaction.add(listFragmentB,
-	                    makeFragmentName(container.getId(), position)+"B");
+	                    makeFragmentName(listFragmentB));
 	        }
 	        if (listFragmentB != mCurrentPrimaryItem) {
 	        	listFragmentB.setMenuVisibility(false);
@@ -249,7 +250,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     		}else{
     			return (Fragment) ((AwfulDualPaneView)frag).getSecond();
     		}
-    	}else if(frag instanceof Fragment){
+    	}else if(frag instanceof Fragment && first){
     		return (Fragment) frag;
     	}else{
     		return null;
@@ -307,8 +308,11 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     public void restoreState(Parcelable state, ClassLoader loader) {
     }
 
-    private static String makeFragmentName(int viewId, int index) {
-        return "android:switcher:" + viewId + ":" + index;
+    private static String makeFragmentName(Object fragment) {
+    	if(fragment == null){
+    		return "null";
+    	}
+        return "android:switcher:" + fragment.hashCode();
     }
     
 	@Override
