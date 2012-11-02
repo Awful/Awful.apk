@@ -341,19 +341,31 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 		if(splitMode){
 			pos = splitFragList.indexOf(object);
 		}else{
-//			for(int ix=0;ix<fragList.size();ix++){
-//				if(fragList.get(ix) instanceof AwfulDualPaneView){
-//					AwfulDualPaneView adpw = (AwfulDualPaneView) fragList.get(ix);
-//					if(adpw.getFirst() == object || adpw.getSecond() == object){
-//						return ix;
-//					}
-//				}else{
-//					if(object == fragList.get(ix)){
-//						return ix;
-//					}
-//				}
-//			}
 			pos = fragList.indexOf(object);
+		}
+		if(pos < 0){
+			return AwfulFragmentPagerAdapter.POSITION_NONE;
+		}else{
+			return pos;
+		}
+	}
+	
+	public int getRealItemPosition(Object object){
+		int pos = AwfulFragmentPagerAdapter.POSITION_NONE;
+		if(splitMode){
+			pos = splitFragList.indexOf(object);
+		}else{
+			pos = fragList.indexOf(object);
+			if(pos < 0){
+				for(int ix=0;ix<fragList.size();ix++){
+					if(fragList.get(ix) instanceof AwfulDualPaneView){
+						AwfulDualPaneView adpw = (AwfulDualPaneView) fragList.get(ix);
+						if(adpw.getFirst() == object || adpw.getSecond() == object){
+							return ix;
+						}
+					}
+				}
+			}
 		}
 		if(pos < 0){
 			return AwfulFragmentPagerAdapter.POSITION_NONE;

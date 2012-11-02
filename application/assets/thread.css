@@ -45,10 +45,20 @@ table {
     clear:right;
 }
 
-.bbc-block h4 {
+.bbc-block h4{
     border-top: 1px #999999 solid;
     padding: 8px 0 2px 0;
     font-style: italic;
+}
+
+.bbc-block h5 {
+    border-top: 1px #999999 solid;
+    font-style: italic;
+    margin-top: 0px;
+}
+
+.bbc-block.code {
+    margin-top: 0px;
 }
 
 .bbc-block blockquote {
