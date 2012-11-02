@@ -75,7 +75,6 @@ public class AwfulEmote {
 	
 	public static void getView(View current, AwfulPreferences aPref, Cursor data, AQuery aq) {
 		aq.recycle(current);//I love AQ
-		aq.backgroundColor(aPref.postBackgroundColor2);
 		aq.find(R.id.emote_text).text(Html.fromHtml(data.getString(data.getColumnIndex(TEXT)))).textColor(aPref.postFontColor);
 		aq.find(R.id.emote_icon).image(data.getString(data.getColumnIndex(URL)), true, true);
 	}

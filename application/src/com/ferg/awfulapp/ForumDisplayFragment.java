@@ -139,6 +139,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
+		Log.e(TAG,"Inflating into: "+aContainer);
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
 
         mListView = (ListView) result.findViewById(R.id.forum_list);
@@ -814,6 +815,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
 	public void skipLoad(boolean skip) {
 		skipLoad = skip;
+	}
+	
+	
+	@Override
+	public boolean canSplitscreen() {
+		return Constants.isWidescreen(getActivity());
 	}
 
 }

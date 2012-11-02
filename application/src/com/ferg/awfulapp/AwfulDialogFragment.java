@@ -237,6 +237,11 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
 	public void fragmentMessage(String type, String contents){	}
 	
 	@Override
+	public boolean canSplitscreen() {
+		return false;
+	}
+	
+	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}

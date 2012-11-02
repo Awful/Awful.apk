@@ -131,6 +131,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ListView mThreadListView;
     private AwfulCursorAdapter mCursorAdapter;
+    
+    private AwfulURL queueLoad = null;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -224,7 +226,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				if(alink.isRedirect()){
 					startPostRedirect(alink.getURL());
 				}else{
-					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment());
+					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment().replaceAll("\\D", ""));
 				}
 				break;
 			case POST:
@@ -250,6 +252,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         DEBUG = mPrefs.debugMode;
         Bundle args = getArguments();
         if(savedInstanceState != null){
+        	Log.w(TAG, "Loading from savedInstanceState");
             mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, args.getInt(Constants.THREAD_ID));
     		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, args.getInt(Constants.THREAD_PAGE));
     		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
@@ -311,6 +314,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
         if(dataLoaded || savedScrollPosition > 0){
+        	Log.w(TAG, "Recovering posts");
         	refreshPosts();
         }
         updateSidebarHint(isDualPane(), isSidebarVisible());
@@ -407,7 +411,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        mCursorAdapter = null;
 	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
 	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-	    	refreshPosts();
+	        if(dataLoaded){
+	        	refreshPosts();
+	        }
 		}
 		if(mPrefs.staticThreadView && mThreadListView == null){
 			mThreadListView = new ListView(getActivity());
@@ -422,7 +428,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        }
 	        mThreadWindow.addView(mThreadListView,new ViewGroup.LayoutParams(
 	        			ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-            refreshPosts();
+	        refreshPosts();
     	}
     }
     
@@ -1174,7 +1180,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		if(DEBUG) Log.e(TAG,"onCreateActionMode");
 		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
-		menu.add(Menu.NONE, R.id.content, Menu.NONE, "Show Image");
+		menu.add(Menu.NONE, R.id.icon_box, Menu.NONE, "Show Image");
 		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
 		return mActionModeURL != null;
 	}
@@ -1182,7 +1188,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
-		MenuItem inline = menu.findItem(R.id.content);
+		MenuItem inline = menu.findItem(R.id.icon_box);
 		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
 			Uri link = Uri.parse(mActionModeURL);
 			inline.setVisible(link.getLastPathSegment() != null 
@@ -1216,7 +1222,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 							.show();
 			}
 			break;
-		case R.id.content:
+		case R.id.icon_box:
 			if(mThreadView != null){
 				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
 			}
@@ -1553,7 +1559,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		scrollCheckMinBound = -1;
 		scrollCheckMaxBound = -1;
 		if(mThreadView != null && dataLoaded){
-			Log.e(TAG,"Queueing registerPreBlocks()");
 			mHandler.postDelayed(new Runnable(){
 				@Override
 				public void run() {

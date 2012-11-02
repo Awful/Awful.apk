@@ -35,6 +35,18 @@ $(document).ready(function() {
 	$('.userinfo-row').click(function(event) {
 	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
+	$('.toggleread').click(function(event) {
+	  	$('.read').show();
+		if(window.isTablet){
+	  		$('.tablet').show();
+	  		$('.phone').hide();
+	  	}else{
+	  		$('.phone').show();
+	  		$('.tablet').hide();
+  		}
+	  $('.toggleread').hide();
+	  window.setTimeout("scrollLastRead()", 500);
+	});
 	$('.avatar-cell').click(function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
@@ -50,7 +62,7 @@ $(document).ready(function() {
 
 $(window).load(function() {
 	//listener.debugMessage('load');
-	window.stop();
+	//window.stop();
 });
 
 
@@ -97,7 +109,7 @@ function scrollPost() {
 function scrollLastRead(){
 	//listener.debugMessage('scrollLastRead');
 	try{
-        $(window).scrollTop($('.unread').first().offset().top);
+        $(window).scrollTop($('.unread:visible').first().offset().top);
     }catch(error){
     }
 }
@@ -133,10 +145,12 @@ function gifHide() {
 function showTabletUI(){
 	$('.phone').hide();
 	$('.tablet').show();
+	window.isTablet = true;
 }
 
 function showPhoneUI(){
 	$('.tablet').hide();
 	$('.phone').show();
+	window.isTablet = false;
 }
 

@@ -91,7 +91,7 @@ table {
 	max-width: 100% !important;
 }
 
-.tablet .postdate{
+.postdate{
     font-style: italic;
     font-size: smaller;
 }
@@ -187,4 +187,11 @@ table {
     padding: 3px;
     float: left;
     margin-left: 4px;
+}
+
+.toggleread {
+	display:block;
+	width:100%;
+	height:50px;
+	text-align:center;
 }

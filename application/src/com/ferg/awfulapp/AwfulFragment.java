@@ -244,6 +244,11 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	 */
 	public void fragmentMessage(String type, String contents){	}
 	
+	@Override
+	public boolean canSplitscreen() {
+		return false;
+	}
+	
 	protected boolean isLoggedIn(){
 		return getAwfulActivity().isLoggedIn();
 	}
@@ -274,5 +279,6 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
+
     
 }

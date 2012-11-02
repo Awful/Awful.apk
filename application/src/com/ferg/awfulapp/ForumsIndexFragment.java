@@ -485,4 +485,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void refresh() {
 		syncForums();
 	}
+	
+	@Override
+	public boolean canSplitscreen() {
+		return Constants.isWidescreen(getActivity());
+	}
 }

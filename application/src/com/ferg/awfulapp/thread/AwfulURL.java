@@ -1,6 +1,7 @@
 package com.ferg.awfulapp.thread;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 
@@ -120,6 +121,7 @@ public class AwfulURL {
 			aurl.type = TYPE.EXTERNAL;
 			aurl.externalURL = url;
 		}
+		Log.e("AwfulURL","Parsed URL: "+aurl.getURL());
 		return aurl;
 	}
 	
@@ -158,15 +160,17 @@ public class AwfulURL {
 		case EXTERNAL:
 			return externalURL;
 		}
+		Log.e("AwfulURL","getUrl(): "+url.toString());
 		return (url == null? "" : url.toString());
 	}
 	
 	public static long convertPerPage(long originalPageNum, long originalPerPage, long newPerPage){
+		long pageNum = originalPageNum;
 		if(originalPerPage != newPerPage){
-			return (long) Math.ceil((double)(originalPageNum*originalPerPage) / newPerPage);
-		}else{
-			return originalPageNum;
+			pageNum = (long) Math.ceil((double)(originalPageNum*originalPerPage) / newPerPage);
 		}
+		Log.e("AwfulURL","convertPerPage()- original: "+originalPageNum+" result: "+pageNum+" perPage: "+originalPerPage+" newPerPage: "+newPerPage);
+		return pageNum;
 	}
 
 	public TYPE getType() {

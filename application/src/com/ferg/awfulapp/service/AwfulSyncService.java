@@ -177,7 +177,7 @@ public class AwfulSyncService extends Service {
     	updateStatus(client, aMessageType, aStatus, clientId, arg2, null);
     }
     public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2, Object obj) {
-        Log.i(TAG, "Send Message - id: "+clientId+" type: "+aMessageType+" status: "+aStatus+" arg2: "+arg2);
+        Log.i(TAG, "Send Message - id: "+clientId+" type: "+getMessageTypeFromId(aMessageType)+" status: "+getMessageStatusFromId(aStatus)+" arg2: "+arg2);
         if(client != null){
 	        try {
 	            Message msg = Message.obtain(null, aMessageType, aStatus, arg2, obj);
@@ -195,6 +195,7 @@ public class AwfulSyncService extends Service {
      * @param arg2
      */
     public void queueDelayedMessage(int msgId, int delayMillis, int arg1, int arg2){
+        Log.i(TAG, "Send Message - delay: "+delayMillis+" type: "+msgId+" arg1: "+arg1+" arg2: "+arg2);
     	mHandler.sendMessageDelayed(mHandler.obtainMessage(msgId, arg1, arg2), delayMillis);
     }
     
@@ -230,7 +231,7 @@ public class AwfulSyncService extends Service {
                     }
                     replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 100));
                 } catch (Exception e) {
-                    Log.i(TAG, "Sync error");
+                    Log.e(TAG, "Sync error");
                     e.printStackTrace();
                     return false;
                 }
@@ -298,27 +299,72 @@ public class AwfulSyncService extends Service {
 		}
 		return false;
 	}
+	
+	public static String getMessageTypeFromId(int what){
+		switch(what){
+		case MSG_SYNC_THREAD:
+			return "MSG_SYNC_THREAD";
+		case MSG_SYNC_FORUM:
+			return "MSG_SYNC_FORUM";
+		case MSG_SYNC_INDEX:
+			return "MSG_SYNC_INDEX";
+		case MSG_FETCH_PM_INDEX:
+			return "MSG_FETCH_PM_INDEX";
+		case MSG_ERR_NOT_LOGGED_IN:
+			return "MSG_ERR_NOT_LOGGED_IN";
+		case MSG_PROGRESS_PERCENT:
+			return "MSG_PROGRESS_PERCENT";
+		case MSG_PROGRESS_STATUS:
+			return "MSG_PROGRESS_STATUS";
+		case MSG_SET_BOOKMARK:
+			return "MSG_SET_BOOKMARK";
+		case MSG_FETCH_PM:
+			return "MSG_FETCH_PM";
+		case MSG_MARK_LASTREAD:
+			return "MSG_MARK_LASTREAD";
+		case MSG_MARK_UNREAD:
+			return "MSG_MARK_UNREAD";
+		case MSG_SEND_PM:
+			return "MSG_SEND_PM";
+		case MSG_VOTE:
+			return "MSG_VOTE";
+		case MSG_FETCH_POST_REPLY:
+			return "MSG_FETCH_POST_REPLY";
+		case MSG_SEND_POST:
+			return "MSG_SEND_POST";
+		case MSG_TRIM_DB:
+			return "MSG_TRIM_DB";
+		case MSG_GRAB_IMAGE:
+			return "MSG_GRAB_IMAGE";
+		case MSG_FETCH_EMOTES:
+			return "MSG_FETCH_EMOTES";
+		case MSG_TRANSLATE_REDIRECT:
+			return "MSG_TRANSLATE_REDIRECT";
+		case MSG_ERROR:
+			return "MSG_ERROR";
+		case MSG_ERROR_FORUMS_CLOSED:
+			return "MSG_ERROR_FORUMS_CLOSED";
+		default:
+			return what+"";
+		}
+	}
+	
+	public static String getMessageStatusFromId(int status){
+		switch(status){
+		case Status.WORKING:
+			return "WORKING";
+		case Status.ERROR:
+			return "ERROR";
+		case Status.OKAY:
+			return "OKAY";
+		default:
+			return status+"";
+		}
+	}
 
 	public static void debugLogReceivedMessage(String tag, Message aMsg) {
-		String msg = aMsg.what+" - ";
-		switch(aMsg.what){
-		case MSG_SYNC_THREAD:
-			msg += "MSG_SYNC_THREAD";
-			break;
-		case MSG_SYNC_FORUM:
-			msg += "MSG_SYNC_FORUM";
-			break;
-		case MSG_SYNC_INDEX:
-			msg += "MSG_SYNC_INDEX";
-			break;
-		case MSG_FETCH_PM_INDEX:
-			msg += "MSG_FETCH_PM_INDEX";
-			break;
-		case MSG_ERR_NOT_LOGGED_IN:
-			msg += "MSG_ERR_NOT_LOGGED_IN";
-			break;
-		}
-		Log.v(tag, tag+" Received: "+msg+" arg1: "+aMsg.arg1+" arg2: "+aMsg.arg2);
+		String msg = aMsg.what+" - "+getMessageTypeFromId(aMsg.what);
+		Log.i(tag, tag+" Received: "+msg+" arg1: "+getMessageStatusFromId(aMsg.arg1)+" arg2: "+aMsg.arg2);
 	}
 
 }
