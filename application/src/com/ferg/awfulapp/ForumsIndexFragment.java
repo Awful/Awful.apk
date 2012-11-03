@@ -28,6 +28,7 @@
 package com.ferg.awfulapp;
 
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,7 @@ import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +76,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     protected static String TAG = "ForumsIndex";
     private PullToRefreshExpandableListView mForumList;
+    private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
     private boolean DEBUG = false;
 
     public static ForumsIndexFragment newInstance() {
@@ -305,6 +308,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 	}
 	
+	private void syncForumsIfStale() {
+		if(getActivity() != null && lastUpdateTime < System.currentTimeMillis()-(60000*1440*7)){
+			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
+		}
+    }
+	
 	private void syncForums() {
 		if(getActivity() != null){
 			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
@@ -323,6 +332,13 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Index cursor: "+aData.getCount());
         	if(aData.moveToFirst() && !aData.isClosed()){
+        		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
+        		if(aData.moveToLast() && dateIndex > -1){
+        			Timestamp upDate = Timestamp.valueOf(aData.getString(dateIndex));
+        			lastUpdateTime = upDate.getTime();
+        			syncForumsIfStale();
+        	        mForumList.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
+        		}
     			mCursorAdapter.setCursor(aData);
         	}
         }

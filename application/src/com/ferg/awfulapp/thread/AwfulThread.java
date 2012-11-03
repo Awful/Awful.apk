@@ -436,7 +436,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("	  <div class='content' >\n");
-        buffer.append("		<a class='toggleread'>\n");
+        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
         buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
         buffer.append("		</a>\n");
         buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");

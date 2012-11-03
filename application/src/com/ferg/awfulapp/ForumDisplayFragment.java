@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,6 +50,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -114,7 +116,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
     
-    private long lastRefresh;
+    private long lastRefresh = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
 
     public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
@@ -518,8 +520,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		mPullRefreshListView.onRefreshComplete();
-        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 		
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
@@ -528,6 +528,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
+				mPullRefreshListView.onRefreshComplete();
+		        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
     			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
     			lastRefresh = System.currentTimeMillis();
     			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
@@ -672,6 +674,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
+        	if(aData.moveToFirst()){
+        		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
+        		if(dateIndex > -1){
+        			Timestamp upDate = Timestamp.valueOf(aData.getString(dateIndex));
+        			lastRefresh = upDate.getTime();
+        			syncForumsIfStale();
+        	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
+        		}
+        	}
         	mCursorAdapter.swapCursor(aData);
 //        	combinedCursors[1] = aData;
 //			if(mCursorAdapter != null && aData.moveToFirst()){

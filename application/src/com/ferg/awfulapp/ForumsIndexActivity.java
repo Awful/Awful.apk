@@ -361,7 +361,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	@Override
 	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
 		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
-			return awfulFragment.equals(pagerAdapter.getItem(mViewPager.getCurrentItem())); 
+			return pagerAdapter.getRealItemPosition(awfulFragment) == mViewPager.getCurrentItem(); 
 		}
 		return true;
 	}

@@ -193,6 +193,7 @@ public class AwfulForum extends AwfulPagedItem {
     	forumData.put(TITLE, "Bookmarks");
     	forumData.put(PARENT_ID, 0);
     	forumData.put(INDEX, 0);
+    	forumData.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
         int lastPage = AwfulPagedItem.parseLastPage(page);
         Log.i(TAG, "Last Page: " +lastPage);
     	forumData.put(PAGE_COUNT, lastPage);
