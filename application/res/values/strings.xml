@@ -30,6 +30,7 @@
     <string name="user_quote_summary">Allows the app to highlight when you\'re quoted in a post</string>
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     <string name="prefs_salr">SALR Preferences</string>
+    <string name="prefs_misc">Misc Preferences</string>
     <string name="inline_youtube">Embedded Youtube</string>
     <string name="inline_youtube_summary">EXPERIMENTAL! ICS/JB only. Might cause scroll lag/graphical glitches.</string>
     <string name="debug_mode">Debug Mode</string>
@@ -38,6 +39,7 @@
     
     <!-- Preferences -->
     <string name="prefs_thread_display">Thread Display Settings</string>
+    <string name="prefs_post_display">Post Settings</string>
     <string name="use_large_scrollbar">Use Large Scrollbar</string>
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
     <string name="default_post_font_size">Default Post Font Size</string>
@@ -70,12 +72,12 @@ wmbest2\n
 Glimm\n
 Geekner\n
 crazysim\n
-Sereri\n00
+Sereri\n
 spanky the dolphin\n
 \n
 Libraries:\n
-ActionBarSherlock - Jake Wharton\n
-Pull To Refresh for Android - Johan Nilsson\n
+ActionBarSherlock\n
+Pull To Refresh for Android\n
 ACRA / Bugsense\n
 Apache Commons-Lang3\n
 Apache HttpClient/HttpCore/HttpMime\n
@@ -105,7 +107,8 @@ AQuery</string>
 	<string name="threadinfo_author">Author</string>
 	<string name="threadinfo_killed">Killed By</string>
 	<string name="threadinfo_pages">Number of Pages</string>
-	<string name="threadinfo_tag">Thread Tag</string>
+	<string name="threadinfo_tag">Show Forum/Thread Tags</string>
+	<string name="threadinfo_tag_summary">Category Icons</string>
 	<string-array name="imgur_thumbnails">
 		<item>Don\'t replace pictures</item>
 		<item>Tiny (160px)</item>
@@ -149,7 +152,8 @@ AQuery</string>
 	<string name="show_smilies">Show Emotes</string>
 	<string name="show_smilies_summary">Show emotes or replace with :text: version.</string>
 	<string name="threadinfo">Thread info</string>
-	<string name="threadinfo_settings">Thread info Settings</string>
+	<string name="threadinfo_settings">Thread Subtext</string>
+	<string name="thread_settings">Thread Settings</string>
 	<string name="imgur_thumbnails">Imgur Thumbnails</string>
 	<string name="vote_failed">An error occured while voting, please try again</string>
 	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
@@ -163,6 +167,8 @@ AQuery</string>
     <string name="image_settings">Image Preferences</string>
     <string name="platinum">Platinum Account</string>
     <string name="platinum_summary">Enable platinum features (but they won\'t work without a platinum account)</string>
+    <string name="always_open_urls">Always Open Links</string>
+    <string name="always_open_urls_summary">When clicking links in a post.</string>
     <string name="post_sent">Hope it didn\'t suck...</string>
     <string name="login_message">Login with your Awful credentials.</string>
     <string name="password">Password</string>

@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -64,6 +66,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	Preference mInfoPreference;
 	Preference mColorsPreference;
 	Preference mFontSizePreference;
+	Preference mUsernamePreference;
 	Context mThis = this;
 	Dialog mFontSizeDialog;
 	TextView mFontSizeText;
@@ -93,7 +96,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		findPreference("inline_youtube").setEnabled(Constants.isICS());
-		findPreference("page_layout").setEnabled(Constants.canBeWidescreen(this));
 		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
@@ -105,6 +107,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+		
+		mUsernamePreference = getPreferenceScreen().findPreference("username");
 	}
 	
 	@Override
@@ -271,7 +275,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		setSummaries();
+		setSummaries(); 
 	}
 	
 	private void setSummaries() {
@@ -282,6 +286,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 			ListPreference p = (ListPreference) findPreference(key);
 			p.setSummary(p.getEntry());
 		}
+		mUsernamePreference.setSummary(mPrefs.getString("username", "Not Set"));
+		mColorsPreference.setSummary(WordUtils.capitalize(mPrefs.getString("themes", "Default"))+" Theme");
 	}
 
 }

@@ -98,9 +98,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean upperNextArrow;
 	public boolean hideOldPosts;
 	/**
+	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
 	 */
 	public String threadLayout;
+	public boolean alwaysOpenUrls;
 	
 	//FORUM STUFF
 	public boolean newThreadsFirst;
@@ -206,7 +208,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
-        threadLayout			 = mPrefs.getString("page_layout", "auto");
+        threadLayout			 = "auto";//mPrefs.getString("page_layout", "auto");//new autorotate code won't support this//TODO remove last traces
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
@@ -214,6 +216,31 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         staticThreadView	 	 = mPrefs.getBoolean("static_thread_view", false);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
+        alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
        	 //TODO: I have never seen this before oh god
+	}
+
+	public void setBooleanPreference(String key, boolean value) {
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putBoolean(key, value).apply();
+		}else{
+			mPrefs.edit().putBoolean(key, value).commit();
+		}
+	}
+
+	public void setStringPreference(String key, String value) {
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putString(key, value).apply();
+		}else{
+			mPrefs.edit().putString(key, value).commit();
+		}
+	}
+
+	public void setIntegerPreference(String key, int value) {
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putInt(key, value).apply();
+		}else{
+			mPrefs.edit().putInt(key, value).commit();
+		}
 	}
 }

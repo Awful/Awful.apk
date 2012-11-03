@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/prefs_global">
-        <ListPreference
-            android:key="orientation"
-            android:title="@string/orientation"
-            android:entries="@array/orientations"
-            android:entryValues="@array/orientation_values"
-            android:defaultValue="default"
-            />
         <Preference
             android:key="about"
             android:title="@string/about"
             android:summary="@string/about_summary"
             android:persistent="false"
+            />
+        <EditTextPreference
+            android:key="username"
+            android:title="@string/username_pref"
+            android:defaultValue="Username"
             />
         <CheckBoxPreference
             android:key="has_platinum"
@@ -20,43 +18,45 @@
             android:summary="@string/platinum_summary"
             android:defaultValue="true"
             />
-    </PreferenceCategory>
-	<PreferenceCategory android:title="@string/prefs_thread_display">
-		<com.ferg.awfulapp.preferences.NumericEditTextPreference
-			android:key="post_per_page"
-			android:title="@string/setting_posts_per_page"
-            android:summary="@string/setting_posts_per_page_summary"
-			android:defaultValue="40"
-			/>
-		<Preference 
-			android:key="default_post_font_size_dip" 
-			android:title="@string/default_post_font_size"
-			android:defaultValue="16"
-			/>
 		<Preference 
 			android:key="colors" 
 			android:title="@string/colors"
 			/>
         <Preference
             android:key="threadinfo"
-            android:title="@string/threadinfo"
+            android:title="@string/thread_settings"
             />
-	</PreferenceCategory>
-    <PreferenceCategory android:title="@string/prefs_salr">
-		<Preference 
-			android:key="image_settings" 
-			android:title="@string/image_settings"
+    </PreferenceCategory>
+	<PreferenceCategory android:title="@string/prefs_post_display">
+		<CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
+		<com.ferg.awfulapp.preferences.NumericEditTextPreference
+			android:key="post_per_page"
+			android:title="@string/setting_posts_per_page"
+            android:summary="@string/setting_posts_per_page_summary"
+			android:defaultValue="40"
 			/>
-        <EditTextPreference
-            android:key="username"
-            android:title="@string/username_pref"
-            android:defaultValue="Username"
-            />
 		<CheckBoxPreference 
             android:key="hide_old_posts" 
 			android:title="@string/hide_old_posts"
             android:summary="@string/hide_old_posts_summary"
 			android:defaultValue="false"
+			/>
+		<Preference 
+			android:key="default_post_font_size_dip" 
+			android:title="@string/default_post_font_size"
+			android:defaultValue="16"
+			/>
+		<CheckBoxPreference 
+            android:key="show_all_spoilers" 
+			android:title="@string/show_spoilers"
+			android:summary="@string/show_spoilers_summary"
+			android:defaultValue="false"
+			/>
+	</PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefs_salr">
+		<Preference 
+			android:key="image_settings" 
+			android:title="@string/image_settings"
 			/>
 		<CheckBoxPreference 
             android:key="user_quotes" 
@@ -70,42 +70,26 @@
             android:summary="@string/user_highlight_summary"
 			android:defaultValue="true"
 			/>
-		<CheckBoxPreference 
-            android:key="new_threads_first" 
-			android:title="@string/new_threads_first"
-			android:defaultValue="false"
-			/>
+	</PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefs_misc">
 		<CheckBoxPreference 
             android:key="upper_next_arrow" 
 			android:title="@string/show_next_page_button_at_top"
 			android:defaultValue="false"
 			/>
-			<!-- TODO: Move these to a submenu or something, it's getting crowded. -->
-		<CheckBoxPreference 
-            android:key="wrap_thread_titles" 
-			android:title="@string/wrap_titles"
-			android:summary="@string/wrap_titles_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="show_all_spoilers" 
-			android:title="@string/show_spoilers"
-			android:summary="@string/show_spoilers_summary"
-			android:defaultValue="false"
-			/>
-		<ListPreference
-            android:key="page_layout"
-            android:title="@string/page_layout"
-            android:entries="@array/page_layouts"
-            android:entryValues="@array/page_layout_values"
-			android:defaultValue="auto"
-            />
 		<CheckBoxPreference 
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
 			/>
+        <ListPreference
+            android:key="orientation"
+            android:title="@string/orientation"
+            android:entries="@array/orientations"
+            android:entryValues="@array/orientation_values"
+            android:defaultValue="default"
+            />
 		<CheckBoxPreference 
             android:key="send_username_in_report" 
 			android:title="@string/send_username_in_report"
@@ -117,6 +101,6 @@
 			android:title="UNFINISHED: Static Thread View"
 			android:summary="Disable GIF Animation - Reduce battery use"
 			android:defaultValue="false"
-			/>
+			android:enabled="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

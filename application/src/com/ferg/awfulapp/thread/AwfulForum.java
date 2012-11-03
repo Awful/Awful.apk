@@ -312,7 +312,7 @@ public class AwfulForum extends AwfulPagedItem {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
-		aq.find(R.id.title).textColor(aPrefs.postFontColor).text(Html.fromHtml(titleText));
+		aq.find(R.id.title).textColor(aPrefs.postFontColor).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
 		if(data.subtitle != null && data.subtitle.length() > 0){
 			aq.find(R.id.threadinfo).visible().textColor(aPrefs.postFontColor2).text(Html.fromHtml(data.subtitle)).getTextView().setSingleLine();
 		}else{

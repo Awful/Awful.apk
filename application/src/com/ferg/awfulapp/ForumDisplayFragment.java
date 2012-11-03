@@ -679,7 +679,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	if(aData.moveToFirst()){
         		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
         		if(dateIndex > -1){
-        			Timestamp upDate = Timestamp.valueOf(aData.getString(dateIndex));
+        			String timestamp = aData.getString(dateIndex);
+        			Timestamp upDate = new Timestamp(System.currentTimeMillis());
+        			if(timestamp != null && timestamp.length()>5){
+            			upDate = Timestamp.valueOf(timestamp);
+        			}
         			lastRefresh = upDate.getTime();
         			syncForumsIfStale();
         	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));

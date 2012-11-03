@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory android:title="@string/thread_settings">
+		<CheckBoxPreference 
+            android:key="threadinfo_tag" 
+			android:title="@string/threadinfo_tag"
+			android:summary="@string/threadinfo_tag_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="new_threads_first" 
+			android:title="@string/new_threads_first"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="wrap_thread_titles" 
+			android:title="@string/wrap_titles"
+			android:summary="@string/wrap_titles_summary"
+			android:defaultValue="true"
+			/>
+        </PreferenceCategory>
   <PreferenceCategory android:title="@string/threadinfo_settings">
 		<CheckBoxPreference 
             android:key="threadinfo_author" 
@@ -9,16 +28,11 @@
 		<CheckBoxPreference 
             android:key="threadinfo_killed" 
 			android:title="@string/threadinfo_killed"
-			android:defaultValue="false"
+			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
             android:key="threadinfo_pages" 
 			android:title="@string/threadinfo_pages"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="threadinfo_tag" 
-			android:title="@string/threadinfo_tag"
 			android:defaultValue="true"
 			/>
         </PreferenceCategory>

@@ -157,11 +157,7 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putBoolean("post_divider_enabled", false);
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.link_quote));
-						if(Constants.isWidescreen(getParent())){//TODO fix this, tablet mode will only be used in landscape on certain devices. this won't accommodate that.
-							prefEdit.putString("selected_theme", "light");
-						}else{
-							prefEdit.putString("selected_theme", "dark");
-						}
+						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("Default");
 						lastTheme = "default";

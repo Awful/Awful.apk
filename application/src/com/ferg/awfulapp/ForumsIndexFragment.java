@@ -78,6 +78,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private PullToRefreshExpandableListView mForumList;
     private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
     private boolean DEBUG = false;
+    
+    private boolean loadFailed = false;
 
     public static ForumsIndexFragment newInstance() {
         return new ForumsIndexFragment();
@@ -284,6 +286,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
     	mForumList.onRefreshComplete();
     	mForumList.setLastUpdatedLabel("Loading Failed!");
+    	loadFailed = true;
     }
     
     @Override
@@ -334,7 +337,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         	if(aData.moveToFirst() && !aData.isClosed()){
         		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
         		if(aData.moveToLast() && dateIndex > -1){
-        			Timestamp upDate = Timestamp.valueOf(aData.getString(dateIndex));
+        			String timestamp = aData.getString(dateIndex);
+        			Timestamp upDate = new Timestamp(System.currentTimeMillis());
+        			if(timestamp != null && timestamp.length()>5){
+            			upDate = Timestamp.valueOf(timestamp);
+        			}
         			lastUpdateTime = upDate.getTime();
         			syncForumsIfStale();
         	        mForumList.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
@@ -395,15 +402,20 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 					}
 					forums.put(forum.id, forum);
 				}while(data.moveToNext());
-				//do subforums after parent forums, in case we have subforums out of order
+				//do subforums after parent forums, in case we have subforums out of order, which will happen
 				for(ForumEntry sub : tmpSubforums){
 					ForumEntry parent = forums.get(sub.parentId);
 					if(parent != null){
-						parent.subforums.add(sub);
+						while(parent.parentId != 0 && parent != null){
+							parent = forums.get(parent.parentId);
+						}
+						if(parent != null){
+							parent.subforums.add(sub);
+						}
 					}
 				}
 				tmpSubforums.clear();
-	        	if(parentForums.size() < 5){
+	        	if(parentForums.size() < 5 && !loadFailed){
 	        		syncForums();
 	        	}
 			}

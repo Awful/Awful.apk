@@ -126,7 +126,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private TextView mPageCountText;
     private ViewGroup mThreadWindow;
     
-    private String mActionModeURL;
+//    private String mActionModeURL;
 
     private WebView mThreadView;
     
@@ -232,8 +232,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				startPostRedirect(alink.getURL());
 				break;
 			case EXTERNAL:
-				mActionModeURL = aUrl;
-				startActionMode();
+//				mActionModeURL = aUrl;
+				if(mPrefs.alwaysOpenUrls){
+					startUrlIntent(aUrl);
+				}else{
+					showUrlMenu(aUrl);
+				}
 			}
 			return true;
 		}
@@ -1239,81 +1243,118 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		}
 	}
-
-	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		if(DEBUG) Log.e(TAG,"onCreateActionMode");
-		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
-		menu.add(Menu.NONE, R.id.icon_box, Menu.NONE, "Show Image");
-		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
-		return mActionModeURL != null;
+	
+	private String[] urlMenuItems = new String[]{
+			"Open URL",
+			"Copy URL",
+			"Always Open URL"
+	};
+	
+	private void showUrlMenu(final String url){
+    	new AlertDialog.Builder(getActivity())
+        .setTitle(url)
+        .setItems(urlMenuItems, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface aDialog, int aItem) {
+            	switch(aItem){
+            	case 0:
+        			startUrlIntent(url);
+        			break;
+            	case 1:
+            		copyToClipboard(url);
+        			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+        			break;
+            	case 2:
+        			mPrefs.setBooleanPreference("always_open_urls", true);
+        			startUrlIntent(url);
+        			break;
+            	}
+            }
+        })
+        .show();
+		//startActionMode();
 	}
 
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
-		MenuItem inline = menu.findItem(R.id.icon_box);
-		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
-			Uri link = Uri.parse(mActionModeURL);
-			inline.setVisible(link.getLastPathSegment() != null 
-								&& (link.getLastPathSegment().contains(".jpg") 
-									|| link.getLastPathSegment().contains(".jpeg") 
-									|| link.getLastPathSegment().contains(".png") 
-									|| link.getLastPathSegment().contains(".gif")
-									)
-								);
+//	@Override
+//	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+//		if(DEBUG) Log.e(TAG,"onCreateActionMode");
+//		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
+//		menu.add(Menu.NONE, R.id.icon_box, Menu.NONE, "Show Image");
+//		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
+//		return mActionModeURL != null;
+//	}
+//
+//	@Override
+//	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+//		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
+//		MenuItem inline = menu.findItem(R.id.icon_box);
+//		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
+//			Uri link = Uri.parse(mActionModeURL);
+//			inline.setVisible(link.getLastPathSegment() != null 
+//								&& (link.getLastPathSegment().contains(".jpg") 
+//									|| link.getLastPathSegment().contains(".jpeg") 
+//									|| link.getLastPathSegment().contains(".png") 
+//									|| link.getLastPathSegment().contains(".gif")
+//									)
+//								);
+//		}
+//		return mActionModeURL != null;
+//	}
+	
+	private void copyToClipboard(String text){
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText("Copied URL", text);
+			clipboard.setPrimaryClip(clip);
+		} else {
+			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(text);
 		}
-		return mActionModeURL != null;
 	}
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		switch(item.getItemId()){
-		case R.id.normal:
-			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mActionModeURL));
-			PackageManager pacman = getActivity().getPackageManager();
-			List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
-					PackageManager.MATCH_DEFAULT_ONLY);
-			if (res.size() > 0) {
-				browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				getActivity().startActivity(browserIntent);
-			} else {
-				String[] split = mActionModeURL.split(":");
-				Toast.makeText(
-						getActivity(),
-						"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
-						Toast.LENGTH_LONG)
-							.show();
-			}
-			break;
-		case R.id.icon_box:
-			if(mThreadView != null){
-				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
-			}
-			break;
-		case R.id.copy_url:
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-				ClipData clip = ClipData.newPlainText("Copied URL", mActionModeURL);
-				clipboard.setPrimaryClip(clip);
-			} else {
-				android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-				clipboard.setText(mActionModeURL);
-			}
-			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
-			break;
-		default:
-			return false;
-			//TODO reimplement internal browser.
+	
+	private void startUrlIntent(String url){
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		PackageManager pacman = getActivity().getPackageManager();
+		List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,
+				PackageManager.MATCH_DEFAULT_ONLY);
+		if (res.size() > 0) {
+			browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			getActivity().startActivity(browserIntent);
+		} else {
+			String[] split = url.split(":");
+			Toast.makeText(
+					getActivity(),
+					"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
+					Toast.LENGTH_LONG)
+						.show();
 		}
-		mode.finish();
-		return true;
 	}
 
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {
-		mActionModeURL = null;
-	}
+//	@Override
+//	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+//		switch(item.getItemId()){
+//		case R.id.normal:
+//			startUrlIntent(mActionModeURL);
+//			break;
+//		case R.id.icon_box:
+//			if(mThreadView != null){
+//				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
+//			}
+//			break;
+//		case R.id.copy_url:
+//			copyToClipboard(mActionModeURL);
+//			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+//			break;
+//		default:
+//			return false;
+//		}
+//		mode.finish();
+//		return true;
+//	}
+//
+//	@Override
+//	public void onDestroyActionMode(ActionMode mode) {
+//		mActionModeURL = null;
+//	}
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
