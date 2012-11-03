@@ -109,6 +109,9 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs);
+		if(mProgressBar != null){
+			mProgressBar.setBackgroundColor(mPrefs.actionbarColor);
+		}
 	}
     
     @Override

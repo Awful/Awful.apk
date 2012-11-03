@@ -28,7 +28,9 @@
 package com.ferg.awfulapp;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -49,6 +51,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.Toast;
@@ -63,10 +66,14 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshExpandableListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     protected static String TAG = "ForumsIndex";
-    private ExpandableListView mForumList;
+    private PullToRefreshExpandableListView mForumList;
     private boolean DEBUG = false;
 
     public static ForumsIndexFragment newInstance() {
@@ -94,14 +101,26 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
         View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
 
-        mForumList = (ExpandableListView) result.findViewById(R.id.forum_list);
+        mForumList = (PullToRefreshExpandableListView) result.findViewById(R.id.forum_list);
         mForumList.setDrawingCacheEnabled(true);
         
         mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-        mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
-        mForumList.setOnChildClickListener(onForumSelected);
-        mForumList.setOnGroupClickListener(onParentForumSelected);
-        mForumList.setOnItemLongClickListener(onForumLongclick);
+        mForumList.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mForumList.getRefreshableView().setOnChildClickListener(onForumSelected);
+        mForumList.getRefreshableView().setOnGroupClickListener(onParentForumSelected);
+        mForumList.getRefreshableView().setOnItemLongClickListener(onForumLongclick);
+        mForumList.setOnRefreshListener(new OnRefreshListener<ExpandableListView>() {
+			
+			@Override
+			public void onRefresh(PullToRefreshBase<ExpandableListView> refreshView) {
+				syncForums();
+			}
+		});
+        mForumList.setDisableScrollingWhileRefreshing(false);
+        mForumList.setMode(Mode.PULL_DOWN_TO_REFRESH);
+        mForumList.setPullLabel("Pull to Refresh");
+        mForumList.setReleaseLabel("Release to Refresh");
+        mForumList.setRefreshingLabel("Loading...");
         return result;
     }
 
@@ -109,7 +128,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         mCursorAdapter = new AwfulExpandableListAdapter(getActivity());
-        mForumList.setAdapter(mCursorAdapter);
+        mForumList.getRefreshableView().setAdapter(mCursorAdapter);
     }
 
     @Override
@@ -168,7 +187,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
-        	mForumList.invalidateViews();
+        	mForumList.getRefreshableView().invalidateViews();
             if (getActivity() != null) {
                 getAwfulActivity().displayForum((int) id, 1);
             }
@@ -183,7 +202,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
             // If we've got two panes (tablet) then set the content pane, otherwise
             // push an activity as normal
         	setSelected((int) id);
-        	mForumList.invalidateViews();
+        	mForumList.getRefreshableView().invalidateViews();
             if (getActivity() != null) {
                 getAwfulActivity().displayForum((int) id, 1);
             }
@@ -200,10 +219,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			
 			if(ExpandableListView.getPackedPositionChild(id) < 0){
 				int gpos = mCursorAdapter.getGroupPosition(ExpandableListView.getPackedPositionGroup(id));
-				if(mForumList.isGroupExpanded(gpos)){
-					mForumList.collapseGroup(gpos);
+				if(mForumList.getRefreshableView().isGroupExpanded(gpos)){
+					mForumList.getRefreshableView().collapseGroup(gpos);
 				}else{
-					mForumList.expandGroup(gpos);
+					mForumList.getRefreshableView().expandGroup(gpos);
 				}
 			}
 			return true;
@@ -261,12 +280,16 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     	if(getActivity() != null){
         	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
         }
+    	mForumList.onRefreshComplete();
+    	mForumList.setLastUpdatedLabel("Loading Failed!");
     }
     
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
 		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+    	mForumList.onRefreshComplete();
+    	mForumList.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 	}
     
 	@Override
@@ -274,7 +297,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		super.onPreferenceChange(mPrefs);
 		if(mForumList != null){
 			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-			mForumList.setCacheColorHint(mPrefs.postBackgroundColor);
+			mForumList.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+			mForumList.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
 			if(mCursorAdapter != null){
 				mCursorAdapter.notifyDataSetChanged();
 			}

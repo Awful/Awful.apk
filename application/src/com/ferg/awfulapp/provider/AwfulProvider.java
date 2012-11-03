@@ -330,7 +330,7 @@ public class AwfulProvider extends ContentProvider {
         		aDb.update(TABLE_FORUM, forumFix,AwfulForum.ID+"=?", int2StrArray(2));
         		
         		//clear out secondary forum pages to implement forum variable perPage sizes
-        		aDb.delete(TABLE_FORUM, AwfulThread.INDEX+">?", int2StrArray(30));
+        		aDb.delete(TABLE_THREADS, AwfulThread.INDEX+">?", int2StrArray(30));
         	case 19:
         		//added regdate to post table
         		//post table is just cache, we can just wipe it

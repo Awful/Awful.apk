@@ -9,15 +9,15 @@
         android:id="@+id/progress_bar"
 		android:layout_width="fill_parent"
 		android:layout_height="4dp"
-		android:visibility="invisible"
+		android:visibility="gone"
        />
     
-	<com.markupartist.android.widget.PullToRefreshListView
+	<com.handmark.pulltorefresh.library.PullToRefreshListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="0dip"
         android:divider="#8c8c8c"
-        android:dividerHeight="1px"
+        android:dividerHeight="1dp"
 		android:cacheColorHint="@color/background"
         android:layout_weight="1"
 		/>

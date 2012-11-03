@@ -59,28 +59,28 @@
     <string name="dialog_color_picker">Select Color</string>
     <string name="about">About...</string>
     <string name="about_summary">Contributors and library licenses</string>
-	<string name="about_message">Contributors:
-Ferg
-1997
-brosmike
-big mean giraffe
-foghorn
-BullChicken
-wmbest2
-Glimm
-Geekner
-crazysim
-Sereri
-spanky the dolphin
-
-Libraries:
-ActionBarSherlock - Jake Wharton
-Pull To Refresh for Android - Johan Nilsson
-ACRA / Bugsense
-Apache Commons-Lang3
-Apache HttpClient/HttpCore/HttpMime
-HtmlCleaner
-JSoup
+	<string name="about_message">Contributors:\n
+Ferg\n
+1997\n
+brosmike\n
+big mean giraffe\n
+foghorn\n
+BullChicken\n
+wmbest2\n
+Glimm\n
+Geekner\n
+crazysim\n
+Sereri\n00
+spanky the dolphin\n
+\n
+Libraries:\n
+ActionBarSherlock - Jake Wharton\n
+Pull To Refresh for Android - Johan Nilsson\n
+ACRA / Bugsense\n
+Apache Commons-Lang3\n
+Apache HttpClient/HttpCore/HttpMime\n
+HtmlCleaner\n
+JSoup\n
 AQuery</string>
 	<string name="prefs_global">Global Settings</string>
 	<string name="orientation">Screen Orientation</string>

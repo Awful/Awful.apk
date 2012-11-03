@@ -132,8 +132,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ListView mThreadListView;
     private AwfulCursorAdapter mCursorAdapter;
-    
-    private AwfulURL queueLoad = null;
 
     private int mThreadId = 0;
     private int mUserId = 0;

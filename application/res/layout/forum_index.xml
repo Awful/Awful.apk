@@ -9,14 +9,14 @@
         android:id="@+id/progress_bar"
 		android:layout_width="fill_parent"
 		android:layout_height="2dp"
-		android:visibility="invisible"
+		android:visibility="gone"
        />
-	<ExpandableListView
+	<com.handmark.pulltorefresh.library.PullToRefreshExpandableListView
 		android:id="@+id/forum_list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
-        android:dividerHeight="1px"
+        android:dividerHeight="1dp"
         android:groupIndicator="@null"
 		android:drawSelectorOnTop="false"
 		android:cacheColorHint="@color/background"

@@ -75,10 +75,14 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.NumberPicker;
-import com.markupartist.android.widget.PullToRefreshListView;
-import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 /**
  * Uses intent extras:
@@ -90,9 +94,9 @@ import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
+    private static final boolean DEBUG = true;
     
     private PullToRefreshListView mPullRefreshListView;
-    private ListView mListView;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -134,28 +138,28 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG,"onCreate");
+		setRetainInstance(true);
         setHasOptionsMenu(!(getActivity() instanceof ThreadDisplayActivity));
     }
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-		Log.e(TAG,"Inflating into: "+aContainer);
+		if(DEBUG) Log.e(TAG,"onCreateView");
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
-
-        mListView = (ListView) result.findViewById(R.id.forum_list);
-        if(mListView instanceof PullToRefreshListView){
-        	mPullRefreshListView = (PullToRefreshListView) mListView;
-        }
-        mListView.setDrawingCacheEnabled(true);
-        if(mPullRefreshListView != null){
-	        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener() {
-				
-				@Override
-				public void onRefresh() {
-					syncForum();
-				}
-			});
-		}
+    	mPullRefreshListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
+        //mListView.setDrawingCacheEnabled(true);
+        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+			
+			@Override
+			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+				syncForum();
+			}
+		});
+        mPullRefreshListView.setDisableScrollingWhileRefreshing(false);
+        mPullRefreshListView.setMode(Mode.PULL_DOWN_TO_REFRESH);
+        mPullRefreshListView.setPullLabel("Pull to Refresh");
+        mPullRefreshListView.setReleaseLabel("Release to Refresh");
+        mPullRefreshListView.setRefreshingLabel("Loading...");
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -181,55 +185,39 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
+        super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG,"onActivityCreated");
 
-        setRetainInstance(false);
-
-        Bundle args = getArguments();
-        if(args != null){
-        	mForumId = args.getInt(Constants.FORUM_ID, 0);
-        }
-        
-        if(aSavedState != null){
+    	if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
         	mForumId = aSavedState.getInt(Constants.FORUM_ID, mForumId);
         	mPage = aSavedState.getInt(Constants.FORUM_PAGE, 1);
-        }
+        }else if(mForumId < 1){
+	    	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
+	    	mPage = getActivity().getIntent().getIntExtra(Constants.FORUM_PAGE, mPage);
+	    	
+	        Bundle args = getArguments();
+	    	Uri urldata = getActivity().getIntent().getData();
         
-        //parsing forum id
-        if(mForumId <1){//we might already have it from newInstance(id) or a saved state, that value overrides the intent values
-        	
-        	//if not, try the intent first.
-        	mForumId = getActivity().getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
-        	mPage = getActivity().getIntent().getIntExtra(Constants.FORUM_PAGE, mPage);
-        	
-        	//then try to see if we got a url intent (from browser/awful/chrome2phone/ect)
-        	Uri data = getActivity().getIntent().getData();
-            if (data != null && data.getScheme().equals("http")) {
-            	if(data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("bookmarkthreads")){
-            		mForumId = Constants.USERCP_ID;
-            	}else{
-                    String urlForumID = null;
-                    urlForumID = getActivity().getIntent().getData().getQueryParameter("forumid");
-        	        if (urlForumID != null) {
-        	        	mForumId = Integer.parseInt(urlForumID);
-        	        }
-            	}
-                String urlPage = data.getQueryParameter("pagenumber");
-                if(urlPage != null){
-    	        	mPage = Integer.parseInt(urlPage);
-                }
-            }
-        }
+	        if(urldata != null){
+	        	AwfulURL aurl = AwfulURL.parse(getActivity().getIntent().getDataString());
+	        	if(aurl.getType() == TYPE.FORUM){
+	        		mForumId = (int) aurl.getId();
+	        		mPage = (int) aurl.getPage();
+	        	}
+	        }else if(args != null){
+	        	mForumId = args.getInt(Constants.FORUM_ID, Constants.USERCP_ID);
+	        	mPage = args.getInt(Constants.FORUM_PAGE, 1);
+	        }
+    	}
         
 
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
-        mListView.setAdapter(mCursorAdapter);
-        mListView.setOnItemClickListener(onThreadSelected);
-        mListView.setBackgroundColor(mPrefs.postBackgroundColor);
-        mListView.setCacheColorHint(mPrefs.postBackgroundColor);
+        mPullRefreshListView.setAdapter(mCursorAdapter);
+        mPullRefreshListView.setOnItemClickListener(onThreadSelected);
+        mPullRefreshListView.setBackgroundColor(mPrefs.postBackgroundColor);
+        mPullRefreshListView.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
         
-        registerForContextMenu(mListView);
+        registerForContextMenu(mPullRefreshListView);
     }
 
 	public void updatePageBar(){
@@ -265,13 +253,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     @Override
     public void onStart() {
-        super.onStart(); Log.e(TAG, "Start");
+        super.onStart(); if(DEBUG) Log.e(TAG, "Start");
 		refreshInfo();
     }
     
     @Override
     public void onResume() {
-        super.onResume(); Log.e(TAG, "Resume");
+        super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
         if(skipLoad || !isFragmentVisible()){
@@ -293,34 +281,33 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void onPause() {
-        super.onPause(); Log.e(TAG, "Pause");
+        super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
 		getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
     @Override
 	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-    	Log.v(TAG,"onSaveInstanceState");
+		super.onSaveInstanceState(outState); if(DEBUG) Log.e(TAG,"onSaveInstanceState");
         outState.putInt(Constants.FORUM_PAGE, getPage());
     	outState.putInt(Constants.FORUM_ID, getForumId());
 	}
     
 	@Override
     public void onStop() {
-        super.onStop(); Log.e(TAG, "Stop");
+        super.onStop(); if(DEBUG) Log.e(TAG, "Stop");
         getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
     }
     @Override
     public void onDestroyView() {
-        super.onDestroyView(); Log.e(TAG, "DestroyView");
+        super.onDestroyView(); if(DEBUG) Log.e(TAG, "DestroyView");
     }
     
     @Override
     public void onDetach() {
-        super.onDetach(); Log.e(TAG, "Detach");
+        super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
     }
     
     @Override
@@ -465,11 +452,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                                 goToPage(pageInt);
                             }
                         } catch (NumberFormatException e) {
-                            Log.d(TAG, "Not a valid number: " + e.toString());
+                            Log.e(TAG, "Not a valid number: " + e.toString());
                             Toast.makeText(getActivity(),
                                 R.string.invalid_page, Toast.LENGTH_SHORT).show();
                         } catch (Exception e) {
-                            Log.d(TAG, e.toString());
+                            Log.e(TAG, e.toString());
                         }
                     }
                 })
@@ -524,22 +511,20 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
         Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        if(mPullRefreshListView != null){
-        	mPullRefreshListView.onRefreshComplete("Loading Failed!");//TODO fixing thread list on jb
-        }
+		mPullRefreshListView.onRefreshComplete();
+    	mPullRefreshListView.setLastUpdatedLabel("Loading Failed!");//TODO fixing thread list on jb
     }
 
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-        if(mPullRefreshListView != null){
-        	mPullRefreshListView.onRefreshComplete("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));//TODO fixing thread list on jb
-        }
+		mPullRefreshListView.onRefreshComplete();
+        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 		
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
     		if(isResumed() && isVisible()){
-    			mListView.invalidateViews();
+    			mPullRefreshListView.invalidate();
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
@@ -568,12 +553,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mListView!=null){
-			mListView.setBackgroundColor(prefs.postBackgroundColor);
-			mListView.setCacheColorHint(prefs.postBackgroundColor);
-			if(mPullRefreshListView != null){
-				mPullRefreshListView.setTextColors(prefs.postFontColor, prefs.postFontColor2);//TODO fixing thread list on jb
-			}
+		if(mPullRefreshListView!=null){
+			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
+			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
+			//mPullRefreshListView.setCacheColorHint(prefs.postBackgroundColor);
+//			if(mPullRefreshListView != null){
+//			}
 		}
 		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
