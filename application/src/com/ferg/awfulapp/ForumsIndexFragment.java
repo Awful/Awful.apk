@@ -100,9 +100,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState);
 
-        View result = aInflater.inflate(R.layout.forum_index, aContainer, false);
+        View result = inflateView(R.layout.forum_index, aContainer, aInflater);
 
         mForumList = (PullToRefreshExpandableListView) result.findViewById(R.id.forum_list);
         mForumList.setDrawingCacheEnabled(true);
@@ -280,9 +279,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-    	if(getActivity() != null){
-        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        }
+		if(aMsg.obj == null && getActivity() != null){
+			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		}
     	mForumList.onRefreshComplete();
     	mForumList.setLastUpdatedLabel("Loading Failed!");
     }
@@ -290,6 +289,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
+		setProgress(100);
 		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
     	mForumList.onRefreshComplete();
     	mForumList.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));

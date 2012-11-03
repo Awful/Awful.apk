@@ -51,8 +51,11 @@ public class IndexTask extends AwfulTask {
 	protected Boolean doInBackground(Void... params) {
 		if (!isCancelled()) {
             try {
+                replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 10));
                 TagNode response = NetworkUtils.get(Constants.BASE_URL);
+                replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 50));
                 AwfulForum.getForumsFromRemote(response, mContext.getContentResolver());
+                replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 90));
                 TagNode[] pmBlock = response.getElementsByAttValue("id", "pm", true, true);
                 try{
                     if(pmBlock.length >0){

@@ -498,7 +498,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("</tr>\n");
             buffer.append("<tr class='phone' >\n");
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
-            buffer.append("        <div class='avatar-text' style='display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
+            buffer.append("        <div class='avatar-text' style='width:98%;display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
             if(post.getRegDate() != null){
 	            buffer.append("         	<div class='postdate'>\n");
 	        	buffer.append("					Registered: "+post.getRegDate()+"<br/>\n");
@@ -537,7 +537,7 @@ public class AwfulThread extends AwfulPagedItem  {
             //tablet user column
             buffer.append("    <div class='usercolumn tablet' style='background: " + background +";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
             buffer.append("         <div class='userinfo'>\n");
-            buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >\n");
+            buffer.append("        		<div class='menu_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' lastreadurl='" + post.getLastReadUrl() + "' editable='"+(post.isEditable()?"true":"false")+"' >\n");
             buffer.append("        			<img src='file:///android_res/drawable/post_action_icon.png' />");
             buffer.append("        		</div>\n");
             buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");

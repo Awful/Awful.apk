@@ -36,6 +36,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.ActionMode;
@@ -62,8 +63,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
 	        	if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
 	        		AwfulActivity aa = getAwfulActivity();
-	            	aa.setSupportProgressBarIndeterminateVisibility(false);
-	        		aa.setSupportProgressBarVisibility(false);
+                    loadingFailed(aMsg);
 	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
 	        		loadingUpdate(aMsg);
@@ -205,6 +205,9 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
         if(aa != null){
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
+			if(aMsg.obj instanceof String){
+				Toast.makeText(aa, aMsg.obj.toString(), Toast.LENGTH_LONG).show();
+			}
         }
     }
 
@@ -212,6 +215,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     public void loadingStarted(Message aMsg) {
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
+			aa.setSupportProgressBarVisibility(false);
     		aa.setSupportProgressBarIndeterminateVisibility(true);
     	}
     }

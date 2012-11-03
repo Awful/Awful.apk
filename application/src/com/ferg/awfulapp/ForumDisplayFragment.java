@@ -512,7 +512,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-        Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null && getActivity() != null){
+			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		}
 		mPullRefreshListView.onRefreshComplete();
     	mPullRefreshListView.setLastUpdatedLabel("Loading Failed!");//TODO fixing thread list on jb
     }
