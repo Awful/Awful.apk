@@ -540,10 +540,10 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        		<div class='menu_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' lastreadurl='" + post.getLastReadUrl() + "' editable='"+(post.isEditable()?"true":"false")+"' >\n");
             buffer.append("        			<img src='file:///android_res/drawable/post_action_icon.png' />");
             buffer.append("        		</div>\n");
-            buffer.append("            		<div class='username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
+            buffer.append("            		<div class='tablet username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
             buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  + "</h4>\n");
             buffer.append("            		</div>");
-            buffer.append("            		<div class='postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
+            buffer.append("            		<div class='tablet postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
             buffer.append("           		     " + post.getDate());
             buffer.append("            		</div>\n");
             buffer.append("        		</div>\n");

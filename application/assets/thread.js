@@ -52,6 +52,12 @@ $(document).ready(function() {
 	$('.avatar-cell').click(function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
+	$('.tablet.username').click(function(event) {
+	  $(this).closest('tr').find('.avatar-text').toggle();
+	});
+	$('.tablet.postdate').click(function(event) {
+	  $(this).closest('tr').find('.avatar-text').toggle();
+	});
     var salr = new SALR(prefs);
     
     $("img[title*=':']").load(function(index) {
