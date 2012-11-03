@@ -339,6 +339,9 @@ public class AwfulProvider extends ContentProvider {
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
                 createPostTable(aDb);
                 
+                //added attachment to draft table
+                aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulMessage.REPLY_ATTACHMENT + " VARCHAR");
+                
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
     			dropAllTables(aDb);

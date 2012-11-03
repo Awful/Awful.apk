@@ -427,7 +427,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }else{
             buffer.append(".tablet {display:none;}\n");
         }
-        if(aPrefs.hideOldPosts && unreadCount > 0){
+        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
             buffer.append(".read {display:none;}\n");
         }else{
             buffer.append(".toggleread {display:none;}\n");
