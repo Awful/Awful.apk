@@ -67,7 +67,11 @@ table {
 }
 
 .post-content {
+/*  
     vertical-align: top;
+    //italics fix stolen from abraham linksys
+*/
+    vertical-align: text-bottom !important;
     border-width: 1px;
     border-collapse: collapse;
 }

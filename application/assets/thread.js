@@ -1,5 +1,6 @@
 var prefs = '';
 
+
 $(document).ready(function() {
     $('.quote_button').live('click', function(event) {
         listener.onQuoteClick($(this).attr('id'));
@@ -63,11 +64,17 @@ $(document).ready(function() {
     $("img[title*=':']").load(function(index) {
 	$(this).height(($(this).height() *  prefs.postFontSize / 15));
 	});
+	
 });
+
+
 
 $(window).load(function() {
 	//listener.debugMessage('load');
+	//window.stop();
 });
+
+
 
 $(window).ready(function() {
 	//listener.debugMessage('ready');
@@ -81,6 +88,7 @@ $(window).ready(function() {
 			});
 		}
 	});
+
 });
 
 function registerPreBlocks(){
@@ -117,12 +125,17 @@ function scrollLastRead(){
 
 function showInlineImage(url){
 	//listener.debugMessage('showInlineImage');
+	if(prefs.disableGifs && url.indexOf(".gif") == -1){
 	$('a[href="'+url+'"]').append(function(){
 		if($(this).children('img[src="'+url+'"]').length < 1){
 			return '<img src="'+url+'" />';
 		}
 		return "";
 		});
+	}else{
+		var alt = $('img[alt="'+url+'"]').attr('alt');
+		$('img[alt="'+url+'"]').attr('src', alt);
+	}
 }
 
 function gifHide() {

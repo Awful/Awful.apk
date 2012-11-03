@@ -97,6 +97,17 @@
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
+            android:key="debug_mode" 
+			android:title="@string/debug_mode"
+			android:summary="@string/debug_mode_summary"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="disable_gifs" 
+			android:title="@string/disable_gifs"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
             android:key="static_thread_view" 
 			android:title="UNFINISHED: Static Thread View"
 			android:summary="Disable GIF Animation - Reduce battery use"

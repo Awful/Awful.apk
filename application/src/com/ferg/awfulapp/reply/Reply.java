@@ -53,13 +53,14 @@ public class Reply {
     private static final String PARAM_FORM_COOKIE = "form_cookie";
     private static final String PARAM_MESSAGE     = "message";
     private static final String PARAM_BOOKMARK    = "bookmark";
+    private static final String PARAM_ATTACHMENT  = "attachment";
     
     private static final String VALUE_ACTION      = "postreply";
     private static final String VALUE_EDIT        = "updatepost";
     private static final String VALUE_POSTID      = "";
     private static final String VALUE_FORM_COOKIE = "formcookie";
 
-    public static final TagNode edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId) 
+    public static final TagNode edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId, String aAttachment) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -71,11 +72,14 @@ public class Reply {
         params.put(PARAM_MESSAGE, aMessage);
         params.put(PARAM_BOOKMARK, "yes");
         params.put(Constants.PARAM_PARSEURL, Constants.YES);
+        if(aAttachment != null){
+        	params.put(PARAM_ATTACHMENT, aAttachment);
+        }
 
         return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
     }
 
-    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId) 
+    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aAttachment) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -86,24 +90,27 @@ public class Reply {
         params.put(PARAM_FORM_COOKIE, aFormCookie);
         params.put(PARAM_MESSAGE, aMessage);
         params.put(Constants.PARAM_PARSEURL, Constants.YES);
+        if(aAttachment != null){
+        	params.put(PARAM_ATTACHMENT, aAttachment);
+        }
 
         return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
     }
 
-    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId,
-            Bitmap aImage) throws Exception 
-    {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, VALUE_ACTION);
-        params.put(PARAM_THREADID, aThreadId);
-        params.put(PARAM_POSTID, VALUE_POSTID);
-        params.put(PARAM_FORMKEY, aFormKey);
-        params.put(PARAM_FORM_COOKIE, aFormCookie);
-        params.put(PARAM_MESSAGE, aMessage);
-        params.put(Constants.PARAM_PARSEURL, Constants.YES);
-
-        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
-    }
+//    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId,
+//            Bitmap aImage) throws Exception 
+//    {
+//        HashMap<String, String> params = new HashMap<String, String>();
+//        params.put(PARAM_ACTION, VALUE_ACTION);
+//        params.put(PARAM_THREADID, aThreadId);
+//        params.put(PARAM_POSTID, VALUE_POSTID);
+//        params.put(PARAM_FORMKEY, aFormKey);
+//        params.put(PARAM_FORM_COOKIE, aFormCookie);
+//        params.put(PARAM_MESSAGE, aMessage);
+//        params.put(Constants.PARAM_PARSEURL, Constants.YES);
+//
+//        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
+//    }
     
     public static final ContentValues fetchPost(int threadId) throws Exception{
     	ContentValues newReply = new ContentValues();

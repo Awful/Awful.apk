@@ -28,7 +28,7 @@
 package com.ferg.awfulapp.network;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -48,7 +48,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -58,6 +57,7 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -78,7 +78,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.os.Messenger;
@@ -340,9 +339,17 @@ public class NetworkUtils {
 		Log.i(TAG, aUrl);
 
         HttpPost httpPost = new HttpPost(aUrl);
-        httpPost.setEntity(
-            new UrlEncodedFormEntity(getPostParameters(aParams)));  
 
+        MultipartEntity post = new MultipartEntity();
+        ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
+        for(NameValuePair data : paramdata ){
+        	if(data.getName() == "attachment"){
+        		post.addPart(data.getName(), new FileBody(new File(data.getValue())));
+        	}else{
+        		post.addPart(data.getName(), new StringBody(data.getValue()));
+        	}
+        }
+        httpPost.setEntity(post);
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
 
         HttpEntity entity = httpResponse.getEntity();

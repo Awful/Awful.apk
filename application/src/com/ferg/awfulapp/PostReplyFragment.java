@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -34,11 +35,14 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -74,6 +78,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public static final int REQUEST_POST = 5;
     public static final int RESULT_POSTED = 6;
     public static final int RESULT_CANCELLED = 7;
+    public static final int RESULT_EDITED = 8;
+    public static final int ADD_ATTACHMENT = 9;
 
     private EditText mMessage;
     private ProgressDialog mDialog;
@@ -84,6 +90,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private String mThreadTitle;
     private boolean sendSuccessful = false;
     private String originalReplyData = "";
+    private String mFileAttachment;
     
     private ReplyCallback mReplyDataCallback = new ReplyCallback(mHandler);
     private ThreadDataCallback mThreadLoaderCallback;
@@ -142,6 +149,35 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         refreshThreadInfo();
         
     }
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ADD_ATTACHMENT) {
+                Uri selectedImageUri = data.getData();
+                mFileAttachment = getFilePath(selectedImageUri);
+                Toast attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), mFileAttachment), Toast.LENGTH_LONG);
+                attachmentToast.show();
+            }
+        }
+
+    }
+    
+    public String getFilePath(Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = this.getActivity().getContentResolver().query(uri, projection, null, null, null);
+        if(cursor!=null)
+        {
+            //HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
+            //THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
+            int column_index = cursor
+            .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        }
+        else return null;
+    }
+
 
     @Override
     public void onResume() {
@@ -349,6 +385,13 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     	    	selectionStart = mMessage.getSelectionStart();
             	new EmoteFragment().show(getFragmentManager(), "emotes");
             	break;
+            case R.id.add_attachment:
+            	    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            	    intent.setType("image/*");
+            	    startActivityForResult(Intent.createChooser(intent,
+                            "Select Picture"), ADD_ATTACHMENT);
+
+            	break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -518,6 +561,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	    	if(content.length() >0){
 	    		post.put(AwfulMessage.REPLY_CONTENT, content);
     		}
+	    	if(mFileAttachment != null){
+		    	post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+	    	}
 	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
 	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
 	    	}
