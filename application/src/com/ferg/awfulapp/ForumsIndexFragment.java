@@ -46,6 +46,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,13 +144,13 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
     }
 
 	@Override
 	public void onPageVisible() {
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
 	}
 
@@ -161,7 +162,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_ID);
+		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_LOADER_ID);
     }
         
     @Override
@@ -293,7 +294,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
 		setProgress(100);
-		getLoaderManager().restartLoader(Constants.FORUM_INDEX_ID, null, mForumLoaderCallback);
+		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
     	mForumList.onRefreshComplete();
     	mForumList.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 	}
@@ -373,7 +374,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		private LayoutInflater inf;
 		private AQuery rowAq;
 		private ArrayList<ForumEntry> parentForums = new ArrayList<ForumEntry>();
-		private HashMap<Integer, ForumEntry> forums = new HashMap<Integer, ForumEntry>();
+		private SparseArray<ForumEntry> forums = new SparseArray<ForumEntry>();
 		
 		public AwfulExpandableListAdapter(Context parent){
 			rowAq = new AQuery(parent);

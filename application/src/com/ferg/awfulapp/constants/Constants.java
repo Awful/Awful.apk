@@ -134,6 +134,7 @@ public class Constants {
 	public static final int FORUM_THREADS_LOADER_ID = 890;
 	public static final int THREAD_INFO_LOADER_ID = 891;
 	public static final int POST_LOADER_ID = 892;
+	public static final int FORUM_INDEX_LOADER_ID = 893;
 
 	public static final String ACTION_DOSEND = "dosend";
 	public static final String DESTINATION_TOUSER = "touser";
