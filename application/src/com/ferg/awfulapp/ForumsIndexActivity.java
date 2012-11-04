@@ -76,7 +76,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         int initialPage = 0;
-        
 		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
