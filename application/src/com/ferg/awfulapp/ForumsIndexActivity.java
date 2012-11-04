@@ -109,11 +109,11 @@ public class ForumsIndexActivity extends AwfulActivity {
         	}
         }
         
-        if(getIntent().getIntExtra(Constants.FORUM_ID,0) < 1 || url.isForum()){
+        if(getIntent().getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
+        	initialPage = Constants.isWidescreen(this)? 0 : 1;
+        }else{
         	skipLoad = true;
         	initialPage = 0;
-        }else{
-        	initialPage = Constants.isWidescreen(this)? 0 : 1;
         }
         if(mThreadId > 0 || url.isRedirect() || url.isThread()){
         	initialPage = Constants.isWidescreen(this)? 1 : 2;

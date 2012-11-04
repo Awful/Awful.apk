@@ -65,6 +65,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
@@ -259,10 +260,24 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.d(TAG,"onCreateOptionsMenu");
-            inflater.inflate(R.menu.post_reply, menu);
+        inflater.inflate(R.menu.post_reply, menu);
+        MenuItem attach = menu.findItem(R.id.add_attachment);
+        if(attach != null && mPrefs != null){
+        	attach.setEnabled(mPrefs.hasPlatinum);
+        	attach.setVisible(mPrefs.hasPlatinum);
+        }
     }
-    
-    private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
+	
+    @Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		super.onPreferenceChange(prefs);
+		//refresh the menu to show/hide attach option (plat only)
+		getAwfulActivity().invalidateOptionsMenu();
+	}
+
+
+
+	private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
     	public String[] items = new String[]{
     			"Bold", "Italics", "Underline", "Strikeout", "URL", "Image", "Quote", "Spoiler", "Code"
     	};
