@@ -1,4 +1,4 @@
-var prefs = '';
+var prefs = JSON.parse(preferences);
 
 
 $(document).ready(function() {
@@ -56,7 +56,7 @@ $(document).ready(function() {
     var salr = new SALR(prefs);
     
     $("img[title*=':']").load(function(index) {
-	$(this).height(($(this).height() *  prefs.postFontSize / 15));
+    	$(this).height(($(this).height() *  prefs.postFontSize / 15));
 	});
 	
 });
