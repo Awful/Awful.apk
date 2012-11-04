@@ -66,7 +66,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private AwfulViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
-    private int mForumId = 0;
+    private int mForumId = Constants.USERCP_ID;
     private int mForumPage = 1;
     private int mThreadId = 0;
     private int mThreadPage = 1;
@@ -75,9 +75,18 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        int initialPage = 0;
+        
+		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
+        mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
+        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
+        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
+        if(mForumId == 2){//workaround for old userCP ID, ugh.
+        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+        }
         if(savedInstanceState != null){
-        	mForumId = savedInstanceState.getInt(Constants.FORUM_ID,0);
-        	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE,1);
+        	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
+        	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
         	mThreadId = savedInstanceState.getInt(Constants.THREAD_ID,0);
         	mThreadPage = savedInstanceState.getInt(Constants.THREAD_PAGE,1);
         }else{
@@ -97,27 +106,18 @@ public class ForumsIndexActivity extends AwfulActivity {
         		case POST:
         			break;
        			default:
-       				mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
-                    mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, 1);
-                    mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
-                    mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
-                    if(mForumId == 2){//workaround for old userCP ID, ugh.
-                    	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
-                    }
         		}
-        	}else{
-                mForumId = getIntent().getIntExtra(Constants.FORUM_ID, 0);
-                mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, 1);
-                mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
-                mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
-                if(mForumId == 2){//workaround for old userCP ID, ugh.
-                	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
-                }
         	}
         }
         
-        if(mForumId < 1){
+        if(getIntent().getIntExtra(Constants.FORUM_ID,0) < 1 || url.isForum()){
         	skipLoad = true;
+        	initialPage = 0;
+        }else{
+        	initialPage = Constants.isWidescreen(this)? 0 : 1;
+        }
+        if(mThreadId > 0 || url.isRedirect() || url.isThread()){
+        	initialPage = Constants.isWidescreen(this)? 1 : 2;
         }
         
         setContentView(R.layout.forum_index_activity);
@@ -135,21 +135,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
-        if(mForumId > 0){
-        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
-        }else{
-        	mForumId = Constants.USERCP_ID;
-        }
-        if(mThreadId > 0 || url.isRedirect()){
-        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mThreadFragment));
-        }
-        Uri data = getIntent().getData();
-        if(data != null && data.getLastPathSegment() != null && (data.getLastPathSegment().contains("usercp") || data.getLastPathSegment().contains("forumdisplay") || data.getLastPathSegment().contains("bookmarkthreads"))){
-        	mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
-        }
-        if(mIndexFragment != null && mForumId > 0){
-        	mIndexFragment.setSelected(mForumId);
-        }
+        mViewPager.setCurrentItem(initialPage);
         
         setActionBar();
         

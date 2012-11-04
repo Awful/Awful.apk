@@ -94,6 +94,7 @@
             android:key="disable_gifs" 
 			android:title="@string/disable_gifs"
 			android:defaultValue="false"
+			android:enabled="false"
 			/>
 		<CheckBoxPreference 
             android:key="send_username_in_report" 

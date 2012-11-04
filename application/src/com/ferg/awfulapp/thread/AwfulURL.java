@@ -218,5 +218,21 @@ public class AwfulURL {
 		gotoParam = goTo;
 		return this;
 	}
+
+	public boolean isForum() {
+		return type == TYPE.FORUM;
+	}
+
+	public boolean isThread() {
+		return type == TYPE.THREAD;
+	}
+
+	public boolean isPost() {
+		return type == TYPE.POST;
+	}
+
+	public boolean isExternal() {
+		return type == TYPE.EXTERNAL;
+	}
 	
 }
