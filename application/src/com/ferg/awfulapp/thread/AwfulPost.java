@@ -526,7 +526,7 @@ public class AwfulPost {
 							dontLink = true;
 						}
 
-						boolean replaceGif = (src.contains(".gif") && prefs.disableGifs && !img.hasAttr("title"));
+						boolean replaceGif = (prefs.disableGifs && src.contains(".gif") && !img.hasAttr("title"));
 						if(src.contains(".gif")){
 							img.attr("class", (img.hasAttr("class") ? img.attr("class")+" " : "") + "gif");
 							if(replaceGif){
