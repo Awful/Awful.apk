@@ -50,7 +50,6 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -68,13 +67,6 @@ public class AwfulLoginActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
 		Log.e(TAG,"onCreate"+(savedInstanceState != null?" savedInstanceState":""));
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/LoginActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
         setContentView(R.layout.login);
 

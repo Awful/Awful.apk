@@ -39,16 +39,10 @@ $(document).ready(function() {
 	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
 	$('.toggleread').click(function(event) {
-	  	$('.read').show();
-		if(window.isTablet){
-	  		$('.tablet').show();
-	  		$('.phone').hide();
-	  	}else{
-	  		$('.phone').show();
-	  		$('.tablet').hide();
-  		}
-	  $('.toggleread').hide();
-	  window.setTimeout("scrollLastRead()", 500);
+		window.hideRead = false;
+		refreshHidden();
+	  	$('.toggleread').hide();
+	  	window.setTimeout("scrollLastRead()", 500);
 	});
 	$('.avatar-cell').click(function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
@@ -152,14 +146,36 @@ function gifHide() {
 }
 
 function showTabletUI(){
-	$('.phone').hide();
-	$('.tablet').show();
 	window.isTablet = true;
+	refreshHidden();
 }
 
 function showPhoneUI(){
-	$('.tablet').hide();
-	$('.phone').show();
 	window.isTablet = false;
+	refreshHidden();
+}
+
+function refreshHidden(){
+	if(window.hideRead){
+		$('.toggleread').show();
+		$('.read').hide();
+		if(window.isTablet){
+			$('.unread.tablet').show();
+			$('.phone').hide();
+		}else{
+			$('.tablet').hide();
+			$('.unread.phone').show();
+		}
+  	}else{
+  		$('.read').show();
+	  	$('.toggleread').hide();
+		if(window.isTablet){
+			$('.tablet').show();
+			$('.phone').hide();
+		}else{
+			$('.tablet').hide();
+			$('.phone').show();
+		}
+	}
 }
 

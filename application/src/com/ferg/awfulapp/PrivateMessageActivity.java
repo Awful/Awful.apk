@@ -36,7 +36,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
@@ -44,13 +43,6 @@ public class PrivateMessageActivity extends AwfulActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/PrivateMessageActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

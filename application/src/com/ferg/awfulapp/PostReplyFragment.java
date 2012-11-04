@@ -70,7 +70,6 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyFragment";
@@ -106,13 +105,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);Log.e(TAG,"onCreate");
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyFragment");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
         setHasOptionsMenu(true);
         setRetainInstance(true);
         mThreadLoaderCallback = new ThreadDataCallback();

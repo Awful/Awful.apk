@@ -391,6 +391,11 @@ public class AwfulThread extends AwfulPagedItem  {
         }else{
         	buffer.append("window.isTablet = false;");
         }
+        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
+            buffer.append("window.hideRead = true;");
+        }else{
+            buffer.append("window.hideRead = false;");
+        }
         buffer.append("</script>\n");
         
         
@@ -496,7 +501,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
-            buffer.append("<tr class='phone' >\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' >\n");
             buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
             buffer.append("        <div class='avatar-text' style='width:98%;display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
             if(post.getRegDate() != null){

@@ -13,7 +13,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ColorSettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
@@ -24,13 +23,6 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/ColorSettingsActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate(); 

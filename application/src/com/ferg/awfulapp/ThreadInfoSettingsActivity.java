@@ -3,8 +3,6 @@ package com.ferg.awfulapp;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 public class ThreadInfoSettingsActivity extends PreferenceActivity {
 	ActivityConfigurator mConf;
 	
@@ -12,12 +10,6 @@ public class ThreadInfoSettingsActivity extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/ImageSettingsActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();

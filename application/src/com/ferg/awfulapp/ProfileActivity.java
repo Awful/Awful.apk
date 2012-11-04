@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.user.Profile;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class ProfileActivity extends AwfulActivity {
     private static final String TAG = "ProfileActivity";
@@ -46,8 +45,6 @@ public class ProfileActivity extends AwfulActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GoogleAnalyticsTracker.getInstance().trackPageView("/ProfileActivity");
-        GoogleAnalyticsTracker.getInstance().dispatch();
         //setContentView(R.layout.profile);
 
         mFetchTask = new FetchProfileTask();

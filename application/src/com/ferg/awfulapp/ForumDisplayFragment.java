@@ -96,7 +96,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadsActivity";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     
     private PullToRefreshListView mPullRefreshListView;
     private ImageButton mRefreshBar;
@@ -541,8 +541,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 	mRefreshBar.setColorFilter(0);
                 	mToggleSidebar.setColorFilter(0);
     			}
+    	    	loadFailed = false;
+    	    	break;
 		}
-    	loadFailed = false;
 	}
 	
 	@Override

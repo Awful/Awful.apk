@@ -407,7 +407,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				for(ForumEntry sub : tmpSubforums){
 					ForumEntry parent = forums.get(sub.parentId);
 					if(parent != null){
-						while(parent.parentId != 0 && parent != null){
+						while(parent != null && parent.parentId != 0){
 							parent = forums.get(parent.parentId);
 						}
 						if(parent != null){

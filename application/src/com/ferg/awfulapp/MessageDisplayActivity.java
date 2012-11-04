@@ -5,20 +5,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Window;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class MessageDisplayActivity extends AwfulActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/MessageDisplayActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
             requestWindowFeature(Window.FEATURE_NO_TITLE);

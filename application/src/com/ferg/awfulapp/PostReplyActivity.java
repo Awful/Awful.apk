@@ -34,7 +34,6 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class PostReplyActivity extends AwfulActivity {
     @Override
@@ -43,14 +42,6 @@ public class PostReplyActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
 
             requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            //requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/PostReplyActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
         setContentView(R.layout.post_reply_activity);
 

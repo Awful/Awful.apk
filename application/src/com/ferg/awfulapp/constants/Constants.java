@@ -30,6 +30,7 @@ package com.ferg.awfulapp.constants;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.util.Log;
 
 public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
@@ -242,6 +243,11 @@ public class Constants {
 		}catch(NumberFormatException nfe){
 			return fallback;
 		}
+	}
+	
+	public static String LogE(String tag, String message) {
+		Log.e(tag, message);
+		return message;
 	}
 
 }

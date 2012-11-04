@@ -69,7 +69,7 @@ import android.view.ViewGroup;
 public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implements Iterable<AwfulFragmentPagerAdapter.AwfulPagerFragment> {
 
 	private static final String TAG = "FragmentPagerAdapter";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     
     private boolean splitMode = false;
 

@@ -209,8 +209,12 @@ public class NetworkUtils {
     		Editor edit = prefs.edit();
     		edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
     		edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
-    		edit.putString(Constants.COOKIE_PREF_SESSIONID, sessionId);
-    		edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
+    		if(sessionId != null && sessionId.length()>0){
+    			edit.putString(Constants.COOKIE_PREF_SESSIONID, sessionId);
+    		}
+    		if(sessionHash != null && sessionHash.length()>0){
+    			edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
+    		}
     		edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
@@ -224,6 +228,26 @@ public class NetworkUtils {
     	
     	return false;
     }
+
+	public static String getCookieString(String type) {
+    	List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
+    	for(Cookie cookie : cookies) {
+    		if(cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
+    			if(cookie.getName().contains(type)) {
+    		    	
+    		    	StringBuilder oven = new StringBuilder();
+    		    	
+    		    	oven.append(type);
+    		    	oven.append("=");
+    		    	oven.append(cookie.getValue());
+    		    	oven.append("; domain=");
+    		    	oven.append(cookie.getDomain());
+    				return oven.toString();
+    			}
+    		}
+    	}
+		return "";
+	}
     
     public static TagNode get(String aUrl) throws Exception {
         return get(aUrl, null);
@@ -346,7 +370,9 @@ public class NetworkUtils {
         	if(data.getName() == "attachment"){
         		post.addPart(data.getName(), new FileBody(new File(data.getValue())));
         	}else{
-        		post.addPart(data.getName(), new StringBody(data.getValue()));
+        		if(data.getValue() != null){
+        			post.addPart(data.getName(), new StringBody(data.getValue()));
+        		}
         	}
         }
         httpPost.setEntity(post);
@@ -429,7 +455,7 @@ public class NetworkUtils {
 
             while (iter.hasNext()) {
                 Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
-
+                Log.e(TAG,"key: "+param.getKey()+" value: "+param.getValue());
                 result.add(new BasicNameValuePair(param.getKey(), param.getValue()));  
             }
         }

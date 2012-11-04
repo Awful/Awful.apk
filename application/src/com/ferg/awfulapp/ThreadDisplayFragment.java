@@ -70,6 +70,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
@@ -87,6 +89,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -442,6 +445,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         resumeWebView();
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
+        refreshSessionCookie();
     }
     
     public void resumeWebView(){
@@ -539,8 +543,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
     }
     
+    public void refreshSessionCookie(){
+        if(mThreadView != null){
+        	Log.e(TAG,"SETTING COOKIES");
+        	CookieManager ckiemonster = CookieManager.getInstance();
+        	ckiemonster.removeSessionCookie();
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID)));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH)));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID)));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD)));
+        	CookieSyncManager.getInstance().sync();
+        }
+    }
+    
     public boolean isDualPane(){
-    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isDualPane());
+    	return false;
     }
     
     public boolean isSidebarVisible(){
@@ -1453,6 +1470,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
+            refreshSessionCookie();
         	setProgress(50);
         	if(aData.isClosed()){
         		return;

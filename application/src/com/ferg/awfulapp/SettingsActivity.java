@@ -53,7 +53,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 /**
  * Simple, purely xml driven preferences. Access using
@@ -82,12 +81,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        new Thread(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker.getInstance().trackPageView("/SettingsActivity");
-                GoogleAnalyticsTracker.getInstance().dispatch();
-            }
-        }).start();
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();
