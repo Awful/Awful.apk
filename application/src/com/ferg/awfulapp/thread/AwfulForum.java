@@ -33,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.content.ContentResolver;
@@ -90,31 +91,31 @@ public class AwfulForum extends AwfulPagedItem {
 		result.add(bookmarks);
 		
 		int ix = 1;
-		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
-		for (Object current : forumObjects) {
+		Elements forumObjects = response.getElementById("forums").getAllElements();
+		for (Element current : forumObjects) {
 			try{
 				ContentValues forum = new ContentValues();
-				TagNode node = (TagNode) current;
+				Element node = current;
 				int forumId = 0;
 	            // First, grab the parent forum
-				TagNode title = node.findElementByAttValue("class", "forum", true, true);
+				Element title = node.getElementsByClass("forum").first();
 	            if (title != null) {
-	                TagNode parentForum = title;
-	                forum.put(TITLE,parentForum.getText().toString());
+	            	Element parentForum = title;
+	                forum.put(TITLE,parentForum.text());
 	                forum.put(PARENT_ID, 0);
 	                forum.put(INDEX, ix);
 	                ix++;
 	                // Just nix the part we don't need to get the forum ID
-	                String id = parentForum.getAttributeByName("href");
+	                String id = parentForum.attr("href");
 	                forumId=getForumId(id);
 	                forum.put(ID,forumId);
-	                forum.put(SUBTEXT,parentForum.getAttributeByName("title"));
+	                forum.put(SUBTEXT,parentForum.attr("title"));
 	            }
-	            TagNode tarIcon = node.findElementByAttValue("class", "icon", true, true);
+	            Element tarIcon = node.getElementsByClass("icon").first();
                 if (tarIcon != null) {
-                	TagNode imgTag = tarIcon.findElementByName("img", true);
-                	if(imgTag != null && imgTag.hasAttribute("src")){
-	                    String url = imgTag.getAttributeByName("src");
+                	Element imgTag = tarIcon.getElementsByTag("img").first();
+                	if(imgTag != null && imgTag.hasAttr("src")){
+	                    String url = imgTag.attr("src");
 	                    if(url != null){
 	                    	//thread tag stuff
 	        				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(url);
@@ -130,17 +131,17 @@ public class AwfulForum extends AwfulPagedItem {
 	
 	            // Now grab the subforums
 	            // we will see if the prior search found more than one link under the forum row, indicating subforums
-	            TagNode subforumBlock = node.findElementByAttValue("class", "subforums", true, true);
+	            Element subforumBlock = node.getElementsByClass("subforums").first();
 	            if(subforumBlock != null){
-		            TagNode[] subforums = subforumBlock.getElementsByName("a", true);
-	                for (int x=0;x<subforums.length;x++) {
+	            	Elements subforums = subforumBlock.getElementsByTag("a");
+	                for (int x=0;x<subforums.size();x++) {
 	                	ContentValues subforum = new ContentValues();
 	
-	                    TagNode subNode = subforums[x];
+	                	Element subNode = subforums.get(x);
 	
-	                    String id = subNode.getAttributeByName("href");
+	                    String id = subNode.attr("href");
 	
-	                    subforum.put(TITLE,subNode.getText().toString());
+	                    subforum.put(TITLE,subNode.text());
 	                    subforum.put(ID,getForumId(id));
 	                    subforum.put(PARENT_ID, forumId);
 	                    result.add(subforum);

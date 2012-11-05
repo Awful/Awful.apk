@@ -30,8 +30,9 @@ package com.ferg.awfulapp.thread;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.htmlcleaner.TagNode;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -43,7 +44,6 @@ import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 /**
@@ -136,29 +136,29 @@ public class AwfulMessage extends AwfulPagedItem {
 		}*/
 		
 		/**METHOD Two: Parse table structure, hard and quick to break.**/
-		TagNode[] messagesParent = data.getElementsByAttValue("name", "form", true, true);
-		if(messagesParent.length > 0){
-			TagNode[] messages = messagesParent[0].getElementsByName("tr", true);
-			for(TagNode msg : messages){
+		Elements messagesParent = data.getElementsByAttributeValue("name", "form");
+		if(messagesParent.size() > 0){
+			Elements messages = messagesParent.first().getElementsByTag("tr");
+			for(Element msg : messages){
 				ContentValues pm = new ContentValues();
 				//fuck i hate scraping shit.
 				//no usable identifiers on the PM list, no easy method to find author/post date.
 				//this will break if they change the display structure.
-				TagNode[] row = msg.getChildTags();
-				if(row != null && row.length > 4){
+				Elements row = msg.getAllElements();
+				if(row != null && row.size() > 4){
 					//TODO abandon hope, all ye who enter
 					//row[0] - icon, newpm.gif - sublevel
 					//row[1] - post icon TODO if we ever add icon support - sublevel
 					//row[2] - pm subject/link - sublevel
 					//row[3] - sender
 					//row[4] - date
-					TagNode href = row[2].getChildTags()[0];
-					pm.put(ID, Integer.parseInt(href.getAttributeByName("href").replaceAll("\\D", "")));
-					pm.put(TITLE, href.getText().toString());
-					pm.put(AUTHOR, row[3].getText().toString());
-					pm.put(DATE, row[4].getText().toString());
+					Element href = row.get(2).getAllElements().first();
+					pm.put(ID, Integer.parseInt(href.attr("href").replaceAll("\\D", "")));
+					pm.put(TITLE, href.text());
+					pm.put(AUTHOR, row.get(3).text());
+					pm.put(DATE, row.get(4).text());
 					pm.put(CONTENT, " ");
-					if(row[0].getChildTags()[0].getAttributeByName("src").contains("newpm.gif")){
+					if(row.first().getAllElements().first().attr("src").contains("newpm.gif")){
 						pm.put(UNREAD, 1);
 					}else{
 						pm.put(UNREAD, 0);
@@ -175,39 +175,39 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static ContentValues processMessage(Document data, int id) throws Exception{
 		ContentValues message = new ContentValues();
 		message.put(ID, id);
-		TagNode[] auth = data.getElementsByAttValue("class", "author", true, true);
-		if(auth.length > 0){
-			message.put(AUTHOR, auth[0].getText().toString());
+		Elements auth = data.getElementsByClass("author");
+		if(auth.size() > 0){
+			message.put(AUTHOR, auth.first().text());
 		}else{
 			throw new Exception("Failed parse: author.");
 		}
-		TagNode[] content = data.getElementsByAttValue("class", "postbody", true, true);
-		if(content.length > 0){
-			message.put(CONTENT, NetworkUtils.getAsString(content[0]));
+		Elements content = data.getElementsByClass("postbody");
+		if(content.size() > 0){
+			message.put(CONTENT, content.first().text());
 		}else{
 			throw new Exception("Failed parse: content.");
 		}
-		TagNode[] date = data.getElementsByAttValue("class", "postdate", true, true);
-		if(date.length > 0){
-			message.put(DATE, date[0].getText().toString().replaceAll("\"", "").trim());
+		Elements date = data.getElementsByClass("postdate");
+		if(date.size() > 0){
+			message.put(DATE, date.first().text().replaceAll("\"", "").trim());
 		}else{
 			throw new Exception("Failed parse: date.");
 		}
 		return message;
 	}
 
-	public static ContentValues processReplyMessage(TagNode pmReplyData, int id) {
+	public static ContentValues processReplyMessage(Document pmReplyData, int id) {
 		ContentValues reply = new ContentValues();
 		reply.put(ID, id);
 		reply.put(TYPE, TYPE_PM);
-		TagNode[] message = pmReplyData.getElementsByAttValue("name", "message", true, false);
-		if(message.length >0){
-			String quoteText = StringEscapeUtils.unescapeHtml4(message[0].getText().toString().replaceAll("[\\r\\f]", ""));
+		Elements message = pmReplyData.getElementsByAttributeValue("name", "message");
+		if(message.size() >0){
+			String quoteText = StringEscapeUtils.unescapeHtml4(message.first().text().replaceAll("[\\r\\f]", ""));
 			reply.put(REPLY_CONTENT, quoteText);
 		}
-		TagNode[] title = pmReplyData.getElementsByAttValue("name", "title", true, false);
-		if(title.length >0){
-			String quoteTitle = StringEscapeUtils.unescapeHtml4(title[0].getAttributeByName("value"));
+		Elements title = pmReplyData.getElementsByAttributeValue("name", "title");
+		if(title.size() >0){
+			String quoteTitle = StringEscapeUtils.unescapeHtml4(title.first().attr("value"));
 			reply.put(TITLE, quoteTitle);
 		}
 		return reply;
