@@ -214,16 +214,19 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forum_index_options, menu);
+    	if(menu.size() == 0){
+    		inflater.inflate(R.menu.forum_index_options, menu);
+    	}
     }
     
     @Override
     public void onPrepareOptionsMenu(Menu menu){
         MenuItem pm = menu.findItem(R.id.pm);
         Log.i(TAG, "Menu!!!!");
-
-        pm.setEnabled(mPrefs.hasPlatinum);
-        pm.setVisible(mPrefs.hasPlatinum);
+        if(pm != null){
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
     }
     
     @Override
@@ -512,8 +515,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public void handleItemClick(View view, Object id) {
 			ForumEntry data = (ForumEntry) id;
-			dataManager.expandDirectChildren(data);
-			Log.i(TAG, view+" - Clicked: "+data.id+" - "+data.title);
+			//dataManager.expandDirectChildren(data);
+			//Log.i(TAG, view+" - Clicked: "+data.id+" - "+data.title);
 			displayForum(data.id, 1);
 		}
 		
