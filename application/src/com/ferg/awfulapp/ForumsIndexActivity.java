@@ -80,7 +80,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
         mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
-        if(mForumId == 2){//workaround for old userCP ID, ugh.
+        if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
         	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
         }
         if(savedInstanceState != null){

@@ -29,3 +29,9 @@
 *.project
 *.settings
 bin
+/libraries/tree-view-list-android/.hg
+/libraries/tree-view-list-android/.checkstyle
+/libraries/tree-view-list-android/.fbprefs
+/libraries/tree-view-list-android/.hgignore
+/libraries/tree-view-list-android/.hgtags
+/libraries/tree-view-list-android/.pmd
