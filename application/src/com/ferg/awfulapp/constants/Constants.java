@@ -30,7 +30,9 @@ package com.ferg.awfulapp.constants;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.util.TypedValue;
 
 public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
@@ -248,6 +250,13 @@ public class Constants {
 	public static String LogE(String tag, String message) {
 		Log.e(tag, message);
 		return message;
+	}
+	
+	public static float getPixelsFromDIP(Context context, int dipValue) {
+		if(context != null){
+			return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, context.getResources().getDisplayMetrics());
+		}
+		return dipValue;
 	}
 
 }

@@ -155,7 +155,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         dataManager.setVisibleByDefault(false);
         mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
         mForumTree.setAdapter(mTreeAdapter);
-        //mForumList.getRefreshableView().setAdapter(mCursorAdapter);//TODO
     }
 
     @Override
@@ -206,57 +205,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onDetach() {
 		super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
 	}
-//
-//    private OnChildClickListener onForumSelected = new OnChildClickListener() {
-//        @Override
-//        public boolean onChildClick(ExpandableListView parent, View v,	int groupPosition, int childPosition, long id) {
-//        	if(DEBUG) Log.i(TAG, "gpos: "+groupPosition+"cpos: "+childPosition+" id: "+id);
-//            // If we've got two panes (tablet) then set the content pane, otherwise
-//            // push an activity as normal
-//        	setSelected((int) id);
-//        	mForumList.getRefreshableView().invalidateViews();
-//            if (getActivity() != null) {
-//                getAwfulActivity().displayForum((int) id, 1);
-//            }
-//            return true;
-//        }
-//    };
-    
-//    private OnGroupClickListener onParentForumSelected = new OnGroupClickListener() {
-//        @Override
-//        public boolean onGroupClick(ExpandableListView parent, View v,	int groupPosition, long id) {
-//        	if(DEBUG) Log.i(TAG, "gpos: "+groupPosition+" id: "+id);
-//            // If we've got two panes (tablet) then set the content pane, otherwise
-//            // push an activity as normal
-//        	setSelected((int) id);
-//        	mForumList.getRefreshableView().invalidateViews();
-//            if (getActivity() != null) {
-//                getAwfulActivity().displayForum((int) id, 1);
-//            }
-//            return true;
-//        }
-//    };
-	
-    
-//    private OnItemLongClickListener onForumLongclick = new OnItemLongClickListener(){
-//
-//		@Override
-//		public boolean onItemLongClick(AdapterView<?> parent, View v,
-//				int position, long id) {
-//			if(DEBUG) Log.i(TAG, "pos: "+position+" id: "+id+" unpId: "+ExpandableListView.getPackedPositionGroup(id)+" "+ExpandableListView.getPackedPositionChild(id));
-//			
-//			if(ExpandableListView.getPackedPositionChild(id) < 0){
-//				int gpos = mCursorAdapter.getGroupPosition(ExpandableListView.getPackedPositionGroup(id));
-//				if(mForumList.getRefreshableView().isGroupExpanded(gpos)){
-//					mForumList.getRefreshableView().collapseGroup(gpos);
-//				}else{
-//					mForumList.getRefreshableView().expandGroup(gpos);
-//				}
-//			}
-//			return true;
-//		}
-//    	
-//    };
 
     public void displayUserCP() {
     	if (getActivity() != null) {

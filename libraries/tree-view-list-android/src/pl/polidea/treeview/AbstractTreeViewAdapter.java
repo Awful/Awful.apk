@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -237,6 +238,8 @@ public abstract class AbstractTreeViewAdapter<T> extends BaseAdapter implements
         image.setBackgroundDrawable(getDrawableOrDefaultBackground(indicatorBackgroundDrawable));
         image.setScaleType(ScaleType.CENTER);
         image.setTag(nodeInfo.getId());
+        int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, layout.getContext().getResources().getDisplayMetrics());
+        image.setPadding(2*padding, padding, 2*padding, padding);
         if (nodeInfo.isWithChildren() && collapsible) {
             image.setOnClickListener(indicatorClickListener);
         } else {
@@ -255,7 +258,7 @@ public abstract class AbstractTreeViewAdapter<T> extends BaseAdapter implements
     }
 
     protected int calculateIndentation(final TreeNodeInfo<T> nodeInfo) {
-        return getIndentWidth() * (nodeInfo.getLevel() + (collapsible ? 1 : 0));
+        return getIndentWidth() * (nodeInfo.getLevel() + (collapsible ? 2 : 0));
     }
 
     protected Drawable getDrawable(final TreeNodeInfo<T> nodeInfo) {
