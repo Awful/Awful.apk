@@ -315,6 +315,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	menu.clear();
         if(menu.size() == 0){
         	inflater.inflate(R.menu.forum_display_menu, menu);
         }

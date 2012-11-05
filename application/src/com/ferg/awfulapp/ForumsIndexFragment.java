@@ -214,6 +214,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	menu.clear();
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.forum_index_options, menu);
     	}

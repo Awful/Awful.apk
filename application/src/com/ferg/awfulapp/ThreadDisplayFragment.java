@@ -577,6 +577,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
+    	menu.clear();
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
         	MenuItem share = menu.findItem(R.id.share_thread);

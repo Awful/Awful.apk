@@ -220,15 +220,12 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	            mCurTransaction.add(listFragmentB,
 	                    makeFragmentName(listFragmentB));
 	        }
-	        if (listFragmentB != mCurrentPrimaryItem) {
-	        	listFragmentB.setMenuVisibility(false);
-	        	listFragmentB.setUserVisibleHint(false);
-	        }
-        }else{
-	        if (listFragment != mCurrentPrimaryItem) {
-	        	listFragment.setMenuVisibility(false);
-	        	listFragment.setUserVisibleHint(false);
-	        }
+        	listFragmentB.setMenuVisibility(false);
+        	listFragmentB.setUserVisibleHint(false);
+        }
+        if (listFragment != mCurrentPrimaryItem) {
+        	listFragment.setMenuVisibility(false);
+        	listFragment.setUserVisibleHint(false);
         }
 
         if (DEBUG) Log.w(TAG, "instantiated" + position + ": f=" + listItem+" - c: "+container);
