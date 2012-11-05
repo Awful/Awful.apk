@@ -445,7 +445,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         resumeWebView();
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
-        refreshSessionCookie();
     }
     
     public void resumeWebView(){
@@ -546,6 +545,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void refreshSessionCookie(){
         if(mThreadView != null){
         	Log.e(TAG,"SETTING COOKIES");
+        	CookieSyncManager.createInstance(getActivity());
         	CookieManager ckiemonster = CookieManager.getInstance();
         	ckiemonster.removeSessionCookie();
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID)));
