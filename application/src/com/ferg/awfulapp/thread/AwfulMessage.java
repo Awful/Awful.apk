@@ -31,6 +31,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -113,7 +114,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static void processMessageList(ContentResolver contentInterface, TagNode data) throws Exception{
+	public static void processMessageList(ContentResolver contentInterface, Document data) throws Exception{
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
@@ -171,7 +172,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
-	public static ContentValues processMessage(TagNode data, int id) throws Exception{
+	public static ContentValues processMessage(Document data, int id) throws Exception{
 		ContentValues message = new ContentValues();
 		message.put(ID, id);
 		TagNode[] auth = data.getElementsByAttValue("class", "author", true, true);

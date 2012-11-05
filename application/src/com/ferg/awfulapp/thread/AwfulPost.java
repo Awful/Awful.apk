@@ -27,41 +27,32 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.security.acl.LastOwnerException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.ContentNode;
-import org.htmlcleaner.TagNode;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
-import org.xml.sax.XMLReader;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.Editable;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.HorizontalScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
@@ -292,7 +283,7 @@ public class AwfulPost {
     	}
     	return contentNode;
     }
-
+/*
 	private static TagNode convertVideos(TagNode contentNode) {
 		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
 		TagNode[] youtubeNodes = contentNode.getElementsByAttValue("class", "youtube-player", true, true);
@@ -381,7 +372,7 @@ public class AwfulPost {
 		
 		return contentNode;
 	}
-
+*/
 	public String getEdited() {
         return mEdited;
     }
@@ -609,168 +600,6 @@ public class AwfulPost {
         }
         Log.i(TAG, Integer.toString(posts.size())+" posts found, "+result.size()+" posts parsed.");
     	return result;
-    }
-    
-    public static ArrayList<ContentValues> parsePosts(TagNode aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-		boolean lastReadFound = false;
-		int index = startIndex;
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        Log.v(TAG,"Update time: "+update_time);
-        try {
-        	if(!Constants.isICS() || !prefs.inlineYoutube) {//skipping youtube support for now, it kinda sucks.
-        		aThread = convertVideos(aThread);
-    		}
-        	TagNode[] postNodes = aThread.getElementsByAttValue("class", "post", true, true);
-
-            for (TagNode node : postNodes) {
-            	//fyad status, to prevent processing postbody twice if we are in fyad
-                ContentValues post = new ContentValues();                
-                post.put(THREAD_ID, aThreadId);
-
-                // We'll just reuse the array of objects rather than create 
-                // a ton of them
-                int id = Integer.parseInt(node.getAttributeByName("id").replaceAll("post", ""));
-                post.put(ID, id);
-                post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-                post.put(POST_INDEX, index);
-                if(index > unreadIndex){
-                	post.put(PREVIOUSLY_READ, 0);
-                	lastReadFound = true;
-                }else{
-                	post.put(PREVIOUSLY_READ, 1);
-                }
-                index++;
-				post.put(IS_MOD, 0);
-                post.put(IS_ADMIN, 0);
-                TagNode[] postContent = node.getElementsHavingAttribute("class", true);
-                for(TagNode pc : postContent){
-					if (pc.getAttributeByName("class").contains("author")) {
-						post.put(USERNAME, pc.getText().toString().trim());
-					}
-
-					if (pc.getAttributeByName("class").contains("role-mod")) {
-						post.put(IS_MOD, 1);
-					}
-
-					if (pc.getAttributeByName("class").contains("role-admin")) {
-                        post.put(IS_ADMIN, 1);
-					}
-
-					if (pc.getAttributeByName("class").equalsIgnoreCase("title") && pc.getChildTags().length > 0) {
-						TagNode[] avatar = pc.getElementsByName("img", true);
-
-						if (avatar.length > 0) {
-							post.put(AVATAR, avatar[0].getAttributeByName("src"));
-						}
-						post.put(AVATAR_TEXT, pc.getText().toString().trim());
-					}
-
-					if (pc.getAttributeByName("class").equalsIgnoreCase("postbody") || pc.getAttributeByName("class").contains("complete_shit")) {
-						TagNode[] images = pc.getElementsByName("img", true);
-
-						for(TagNode img : images){
-							//don't alter video mock buttons
-							if((img.hasAttribute("class") && img.getAttributeByName("class").contains("videoPlayButton"))){
-								continue;
-							}
-							boolean dontLink = false;
-							TagNode parent = img.getParent();
-							String src = img.getAttributeByName("src");
-
-							if ((parent != null && parent.getName().equals("a")) || (img.hasAttribute("class") && img.getAttributeByName("class").contains("nolink"))) { //image is linked, don't override
-								dontLink = true;
-							}
-							if(src.contains(".gif")){
-								img.setAttribute("class", (img.hasAttribute("class") ? img.getAttributeByName("class")+" " : "") + "gif");
-							}
-
-							if (img.hasAttribute("title")) {
-								if (!prefs.showSmilies) { //kill all emotes
-									String name = img.getAttributeByName("title");
-									img.setName("p");
-									img.addChild(new ContentNode(name));
-								}
-							} else {
-								if (!lastReadFound && prefs.hideOldImages || !prefs.imagesEnabled) {
-									if (!dontLink) {
-										img.setName("a");
-										img.setAttribute("href", src);
-										img.addChild(new ContentNode(src));
-									} else {
-										img.setName("p");
-										img.addChild(new ContentNode(src));
-									}
-								} else {
-									if (!dontLink) {
-										img.setName("a");
-										img.setAttribute("href", src);
-										TagNode newimg = new TagNode("img");
-										if(!prefs.imgurThumbnails.equals("d") && src.contains("i.imgur.com")){
-											int lastSlash = src.lastIndexOf('/');
-											if(src.length()-lastSlash<=9){
-											int pos = src.length() - 4;
-												src = src.substring(0, pos) + prefs.imgurThumbnails + src.substring(pos);
-											}
-										}
-										newimg.setAttribute("src", src);
-										img.addChild(newimg);
-									}
-								}
-							}
-						}
-
-						StringBuffer fixedContent = new StringBuffer();
-						Matcher fixCharMatch = fixCharacters_regex.matcher(NetworkUtils.getAsString(pc));
-
-                        while (fixCharMatch.find()) {
-                            fixCharMatch.appendReplacement(fixedContent, "");
-                        }
-
-						fixCharMatch.appendTail(fixedContent);
-	                    post.put(CONTENT, fixedContent.toString());
-					}
-
-					if (pc.getAttributeByName("class").equalsIgnoreCase("postdate")) {
-						post.put(DATE, NetworkUtils.unencodeHtml(pc.getText().toString()).replaceAll("[^\\w\\s:,]", "").trim());
-					}
-					
-					if (pc.getAttributeByName("class").equalsIgnoreCase("profilelinks")) {
-						TagNode[] links = pc.getElementsHavingAttribute("href", true);
-
-						if (links.length > 0) {
-							String href = links[0].getAttributeByName("href").trim();
-                            String userId = href.substring(href.lastIndexOf("rid=") + 4);
-
-							post.put(USER_ID, userId);
-
-							if (Integer.toString(opId).equals(userId)) {//ugh
-                                post.put(IS_OP, 1);
-							} else {
-                                post.put(IS_OP, 0);
-                            }
-						}
-					}
-					if (pc.getAttributeByName("class").equalsIgnoreCase("editedby") && pc.getChildTags().length > 0) {
-						post.put(EDITED, "<i>" + pc.getChildTags()[0].getText().toString() + "</i>");
-					}
-				}
-				TagNode[] editImgs = node.getElementsByAttValue("alt", "Edit", true, true);
-
-                if (editImgs.length > 0) {
-                    post.put(EDITABLE, 1);
-                } else {
-                    post.put(EDITABLE, 0);
-                }
-                result.add(post);
-            }
-
-            Log.i(TAG, Integer.toString(postNodes.length)+" posts found, "+result.size()+" posts parsed.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return result;
     }
 
 	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {

@@ -27,15 +27,11 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.htmlcleaner.DomSerializer;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagNodeVisitor;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -137,11 +133,10 @@ class Html {
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
                                    TagHandler tagHandler, Context context) {
-        HtmlCleaner cleaner = new HtmlCleaner();
         
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        cleaner,context);
+                new HtmlToSpannedConverter(source, imageGetter, tagHandler
+                        ,context);
         return converter.convert();
     }
 
@@ -395,37 +390,24 @@ class HtmlToSpannedConverter {
     };
 
     private String mSource;
-    private HtmlCleaner mCleaner;
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
-    private DomSerializer mDomSerializer;
     private Context mContext;
 
     public HtmlToSpannedConverter(
-            String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            HtmlCleaner cleaner, Context context) {
+            String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler, Context context) {
         mSource = source;
 	   mContext = context;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
-        
-        mCleaner = cleaner;
-        mDomSerializer = new DomSerializer(cleaner.getProperties());
     }
 
     public Spanned convert() {
-    	TagNode rootTagNode = mCleaner.clean(mSource);
-    	Document root;
-		try {
-			root = mDomSerializer.createDOM(rootTagNode);
-		} catch (ParserConfigurationException e) {
-			// Shouldn't happen, so long as HtmlCleaner is valid
-			e.printStackTrace();
-			return null;
-		}
-    	traverse(root.getDocumentElement());
+    	Document rootTagNode = Jsoup.parse(mSource);
+    	
+    	traverse(rootTagNode.firstElementSibling());
     	
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
@@ -454,20 +436,15 @@ class HtmlToSpannedConverter {
     private void traverse(Element node) {
 		handleStartTag(node);
 		
-		NodeList children = node.getChildNodes();
-		int numChildren = children.getLength();
-		Node child;
+		Elements children = node.getAllElements();
+		int numChildren = children.size();
+		Element child;
 		for(int i=0;i<numChildren;i++) {
-			child = children.item(i);
-			switch(child.getNodeType()) {
-			case Node.ELEMENT_NODE:
+			child = children.get(i);
+			if(!child.hasText()) {
 				traverse((Element) child);
-				break;
-			case Node.TEXT_NODE:
-				characters(((Text) child).getData());
-				break;
-			default:
-				Log.w("Html", "Traversing non-text, non-element node");
+			}else{
+				characters(child.text());
 			}
 		}
 		
@@ -521,12 +498,12 @@ class HtmlToSpannedConverter {
     private int mNumTagsEnforcingTrueWhitespace = 0;
     
     private void handleStartTag(Element node) {
-    	String tag = node.getTagName();
+    	String tag = node.nodeName();
     	
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emit the linebreaks when we handle the close tag.
-        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.attr("class"))) {
         	handleP(mSpannableStringBuilder);
             start(mSpannableStringBuilder, new Italic());
             start(mSpannableStringBuilder, new Small());
@@ -577,7 +554,7 @@ class HtmlToSpannedConverter {
         } else if (tag.equalsIgnoreCase("img") && mImageGetter != null) {
             startImg(mSpannableStringBuilder, node, mImageGetter);
         } else if(tag.equalsIgnoreCase("span")){
-        	if(node.getAttribute("class").equals("bbc-spoiler")){
+        	if(node.attr("class").equals("bbc-spoiler")){
         		start(mSpannableStringBuilder, new Span());
         	}
         } else if (mTagHandler != null) {
@@ -586,11 +563,11 @@ class HtmlToSpannedConverter {
     }
 
     private void handleEndTag(Element node) {
-    	String tag = node.getTagName();
+    	String tag = node.tagName();
     	
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.getAttribute("class"))) {
+        } else if (tag.equalsIgnoreCase("p") && "editedby".equals(node.attr("class"))) {
         	handleP(mSpannableStringBuilder);
             end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
             end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
@@ -634,7 +611,7 @@ class HtmlToSpannedConverter {
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
         }else if (tag.equalsIgnoreCase("span")) {
-        	if(node.getAttribute("class").equals("bbc-spoiler")){
+        	if(node.attr("class").equals("bbc-spoiler")){
             endSpan(mSpannableStringBuilder,mContext);
         	}
         } else if (tag.length() == 2 &&
@@ -749,7 +726,7 @@ class HtmlToSpannedConverter {
     }
 
     private static void startImg(SpannableStringBuilder text, Element node, Html.ImageGetter img) {
-        String src = node.getAttribute("src");
+        String src = node.attr("src");
         Drawable d = null;
 
         if (img != null) {
@@ -768,8 +745,8 @@ class HtmlToSpannedConverter {
     }
 
     private static void startFont(SpannableStringBuilder text, Element node) {
-        String color = node.getAttribute("color");
-        String face = node.getAttribute("face");
+        String color = node.attr("color");
+        String face = node.attr("face");
 
         int len = text.length();
         text.setSpan(new Font(color, face), len, len, Spannable.SPAN_MARK_MARK);
@@ -843,7 +820,7 @@ class HtmlToSpannedConverter {
     }
 
     private static void startA(SpannableStringBuilder text, Element node) {
-        String href = node.getAttribute("href");
+        String href = node.attr("href");
 
         int len = text.length();
         text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);

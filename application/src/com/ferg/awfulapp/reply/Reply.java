@@ -29,12 +29,10 @@ package com.ferg.awfulapp.reply;
 
 import java.util.HashMap;
 
-import org.htmlcleaner.TagNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import android.content.ContentValues;
-import android.graphics.Bitmap;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -62,7 +60,7 @@ public class Reply {
     private static final String VALUE_POSTID      = "";
     private static final String VALUE_FORM_COOKIE = "formcookie";
 
-    public static final TagNode edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId, String aAttachment) 
+    public static final Document edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId, String aAttachment) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -81,7 +79,7 @@ public class Reply {
         return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
     }
 
-    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aAttachment) 
+    public static final Document post(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aAttachment) 
         throws Exception 
     {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -121,7 +119,7 @@ public class Reply {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "newreply");
         params.put(PARAM_THREADID, Integer.toString(threadId));
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
+        Document response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
         getReplyData(response, newReply);
         
     	return newReply;
@@ -134,7 +132,7 @@ public class Reply {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "newreply");
         params.put(PARAM_POSTID, Integer.toString(postId));
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
+        Document response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
         getReplyData(response, quote);
         quote.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         quote.put(AwfulPost.REPLY_ORIGINAL_CONTENT, quote.getAsString(AwfulMessage.REPLY_CONTENT));
@@ -148,23 +146,23 @@ public class Reply {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(PARAM_ACTION, "editpost");
         params.put(PARAM_POSTID, Integer.toString(postId));
-        TagNode response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
+        Document response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
         edit.put(AwfulPost.EDIT_POST_ID, postId);
     	return edit;
     }
     
-    public static final String getMessageContent(TagNode data) throws Exception{
-    	TagNode formContent = data.findElementByAttValue("name", "message", true, false);
-        return formContent.getText().toString().trim();
+    public static final String getMessageContent(Document data) throws Exception{
+    	Element formContent = data.getElementsByAttributeValue("name", "message").first();
+        return formContent.text().trim();
     }
 
-    public static final ContentValues getReplyData(TagNode data, ContentValues results) throws Exception {
-    	TagNode formKey = data.findElementByAttValue("name", "formkey", true, false);
-    	TagNode formCookie = data.findElementByAttValue("name", "form_cookie", true, false);
-    	results.put(AwfulPost.FORM_KEY, formKey.getAttributeByName("value"));
-    	results.put(AwfulPost.FORM_COOKIE, formCookie.getAttributeByName("value"));
+    public static final ContentValues getReplyData(Document data, ContentValues results) throws Exception {
+    	Element formKey = data.getElementsByAttributeValue("name", "formkey").first();
+    	Element formCookie = data.getElementsByAttributeValue("name", "form_cookie").first();
+    	results.put(AwfulPost.FORM_KEY, formKey.val());
+    	results.put(AwfulPost.FORM_COOKIE, formCookie.val());
         return results;
     }
     

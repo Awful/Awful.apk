@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.TagNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -102,7 +101,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 	
-    public static TagNode getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
+    public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_FORUM_ID, Integer.toString(aForumId));
 
@@ -113,59 +112,59 @@ public class AwfulThread extends AwfulPagedItem  {
         return NetworkUtils.get(Constants.FUNCTION_FORUM, params, statusCallback, 50);
 	}
 	
-    public static TagNode getUserCPThreads(int aPage, Messenger statusCallback) throws Exception {
+    public static Document getUserCPThreads(int aPage, Messenger statusCallback) throws Exception {
     	HashMap<String, String> params = new HashMap<String, String>();
 		params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params, statusCallback, 50);
 	}
 
-	public static ArrayList<ContentValues> parseForumThreads(TagNode aResponse, int start_index, int forumId) throws Exception{
+	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) throws Exception{
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-        TagNode[] threads = aResponse.getElementsByAttValue("id", "forum", true, true);
-        if(threads.length >1 || threads.length < 1){
+        Elements threads = aResponse.getElementsByAttributeValue("id", "forum");
+        if(threads.size() >1 || threads.size() < 1){
         	return null;
         }
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
-        TagNode[] tbody = threads[0].getElementsByName("tbody", false);
-		for(TagNode node : tbody[0].getChildTags()){
+        Elements tbody = threads.first().getElementsByTag("tbody");
+		for(Element node : tbody.first().getAllElements()){
             try {
     			ContentValues thread = new ContentValues();
-                String threadId = node.getAttributeByName("id");
+                String threadId = node.getElementsByTag("id").text();
                 thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
                 if(forumId != Constants.USERCP_ID){//we don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
                 	thread.put(INDEX, start_index);
                 	thread.put(FORUM_ID, forumId);
                 }
                 start_index++;
-            	TagNode[] tarThread = node.getElementsByAttValue("class", "thread_title", true, true);
-            	TagNode[] tarPostCount = node.getElementsByAttValue("class", "replies", true, true);
-            	if (tarPostCount.length > 0) {
-                    thread.put(POSTCOUNT, Integer.parseInt(tarPostCount[0].getText().toString().trim())+1);//this represents the number of replies, but the actual postcount includes OP
+                Elements tarThread = node.getElementsByClass("thread_title");
+                Elements tarPostCount = node.getElementsByClass("replies");
+            	if (tarPostCount.size() > 0) {
+                    thread.put(POSTCOUNT, Integer.parseInt(tarPostCount.first().text().trim())+1);//this represents the number of replies, but the actual postcount includes OP
                 }
-                if (tarThread.length > 0) {
-                    thread.put(TITLE, tarThread[0].getText().toString().trim());
+                if (tarThread.size() > 0) {
+                    thread.put(TITLE, tarThread.first().text().trim());
                 }
                 
-                if(node.hasAttribute("class") && node.getAttributeByName("class").contains("closed")){
+                if(node.hasAttr("class") && node.attr("class").contains("closed")){
                 	thread.put(LOCKED, 1);
                 }else{
                 	thread.put(LOCKED, 0);
                 }
                 	
 
-                TagNode[] killedBy = node.getElementsByAttValue("class", "lastpost", true, true);
-                thread.put(LASTPOSTER, killedBy[0].getElementsByAttValue("class", "author", true, true)[0].getText().toString());
-                TagNode[] tarSticky = node.getElementsByAttValue("class", "title title_sticky", true, true);
-                if (tarSticky.length > 0) {
+                Elements killedBy = node.getElementsByClass("lastpost");
+                thread.put(LASTPOSTER, killedBy.first().getElementsByClass("author").first().text());
+                Elements tarSticky = node.getElementsByClass("title title_sticky");
+                if (tarSticky.size() > 0) {
                     thread.put(STICKY,1);
                 } else {
                     thread.put(STICKY,0);
                 }
 
-                TagNode[] tarIcon = node.getElementsByAttValue("class", "icon", true, true);
-                if (tarIcon.length > 0 && tarIcon[0].getChildTags().length >0) {
-                    Matcher threadTagMatcher = urlId_regex.matcher(tarIcon[0].getChildTags()[0].getAttributeByName("src"));
+                Elements tarIcon = node.getElementsByClass("icon");
+                if (tarIcon.size() > 0 && tarIcon.first().getAllElements().size() >0) {
+                    Matcher threadTagMatcher = urlId_regex.matcher(tarIcon.first().getAllElements().first().attr("src"));
                     if(threadTagMatcher.find()){
                     	//thread tag stuff
         				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(threadTagMatcher.group(1));
@@ -179,34 +178,34 @@ public class AwfulThread extends AwfulPagedItem  {
                     }
                 }
 
-            	TagNode[] tarUser = node.getElementsByAttValue("class", "author", true, true);
-                if (tarUser.length > 0) {
+                Elements tarUser = node.getElementsByClass("author");
+                if (tarUser.size() > 0) {
                     // There's got to be a better way to do this
-                    thread.put(AUTHOR, tarUser[0].getText().toString().trim());
+                    thread.put(AUTHOR, tarUser.first().text().trim());
                     // And probably a much better way to do this
-                    thread.put(AUTHOR_ID,((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").substring(((TagNode)tarUser[0].getElementListHavingAttribute("href", true).get(0)).getAttributes().get("href").indexOf("userid=")+7));
+                    thread.put(AUTHOR_ID,tarUser.first().getElementsByAttribute("href").first().attr("href").substring(tarUser.first().getElementsByAttribute("href").first().attr("href").indexOf("userid=")+7));
                 }
 
-                TagNode[] tarCount = node.getElementsByAttValue("class", "count", true, true);
-                if (tarCount.length > 0 && tarCount[0].getChildTags().length >0) {
-                    thread.put(UNREADCOUNT, Integer.parseInt(tarCount[0].getChildTags()[0].getText().toString().trim()));
+                Elements tarCount = node.getElementsByClass("count");
+                if (tarCount.size() > 0 && tarCount.first().getAllElements().size() >0) {
+                    thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
                 } else {
-                	TagNode[] tarXCount = node.getElementsByAttValue("class", "x", true, true);
-					if (tarXCount.length > 0) {
+                	Elements tarXCount = node.getElementsByClass("x");
+					if (tarXCount.size() > 0) {
 						thread.put(UNREADCOUNT, 0);
 					} else {
 						thread.put(UNREADCOUNT,-1);
 					} 
                 }
-                TagNode[] tarStar = node.getElementsByAttValue("class", "star", true, true);
-                if(tarStar.length>0){
-                	TagNode[] tarStarImg = tarStar[0].getElementsByName("img", true);
-                	if(tarStarImg.length >0 && !tarStarImg[0].getAttributeByName("src").contains("star-off")){
-                		if(tarStarImg[0].getAttributeByName("src").contains("star0")){
+                Elements tarStar = node.getElementsByClass("star");
+                if(tarStar.size()>0){
+                	Elements tarStarImg = tarStar.first().getElementsByTag("img");
+                	if(tarStarImg.size() >0 && !tarStarImg.first().attr("src").contains("star-off")){
+                		if(tarStarImg.first().attr("src").contains("star0")){
                     		thread.put(BOOKMARKED, 1);
-                		}else if(tarStarImg[0].getAttributeByName("src").contains("star1")){
+                		}else if(tarStarImg.first().attr("src").contains("star1")){
                     		thread.put(BOOKMARKED, 2);
-                		}else if(tarStarImg[0].getAttributeByName("src").contains("star2")){
+                		}else if(tarStarImg.first().attr("src").contains("star2")){
                     		thread.put(BOOKMARKED, 3);
                 		}
                 	}else{
@@ -226,24 +225,23 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
 	}
 	
-	public static ArrayList<ContentValues> parseSubforums(TagNode aResponse, int parentForumId){
+	public static ArrayList<ContentValues> parseSubforums(Document aResponse, int parentForumId){
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-		TagNode[] subforums = aResponse.getElementsByAttValue("class", "subforum", true, false);
-        for(TagNode sf : subforums){
-        	TagNode[] href = sf.getElementsHavingAttribute("href", true);
-        	if(href.length <1){
+		Elements subforums = aResponse.getElementsByClass("subforum");
+        for(Element sf : subforums){
+        	Elements href = sf.getElementsByAttribute("href");
+        	if(href.size() <1){
         		continue;
         	}
-        	int id = Integer.parseInt(href[0].getAttributeByName("href").replaceAll("\\D", ""));
+        	int id = Integer.parseInt(href.first().attr("href").replaceAll("\\D", ""));
         	if(id > 0){
         		ContentValues tmp = new ContentValues();
         		tmp.put(AwfulForum.ID, id);
         		tmp.put(AwfulForum.PARENT_ID, parentForumId);
-        		tmp.put(AwfulForum.TITLE, href[0].getText().toString());
-        		TagNode[] subtext = sf.getElementsByName("dd", true);
-        		if(subtext.length >0){
-        			//Log.i(TAG,"parsed subtext: "+subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));
-        			tmp.put(AwfulForum.SUBTEXT, subtext[0].getText().toString().replaceAll("\"", "").trim().substring(2));//ugh
+        		tmp.put(AwfulForum.TITLE, href.first().text());
+        		Elements subtext = sf.getElementsByTag("dd");
+        		if(subtext.size() >0){
+        			tmp.put(AwfulForum.SUBTEXT, subtext.first().text().replaceAll("\"", "").trim().substring(2));//ugh
         		}
         		result.add(tmp);
         	}
@@ -271,7 +269,7 @@ public class AwfulThread extends AwfulPagedItem  {
         //notify user we are starting update
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
         
-        Document response = NetworkUtils.getJSoup(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
+        Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
 
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));

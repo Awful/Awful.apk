@@ -29,7 +29,7 @@ package com.ferg.awfulapp.task;
 
 import java.util.HashMap;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -67,7 +67,7 @@ public class SendPrivateMessageTask extends AwfulTask {
 	            para.put("savecopy", "yes");
 	            para.put("iconid", "0");
 	            para.put(Constants.PARAM_MESSAGE, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT)));
-				TagNode result = NetworkUtils.post(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+				Document result = NetworkUtils.post(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 			}else{
 				Log.e(TAG,"PM Send Failure: PM missing from DB "+mId);
 				return false;

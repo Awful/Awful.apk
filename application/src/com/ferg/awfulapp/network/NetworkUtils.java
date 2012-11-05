@@ -27,10 +27,8 @@
 
 package com.ferg.awfulapp.network;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -56,7 +54,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -72,7 +69,6 @@ import org.jsoup.nodes.Document;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Message;
 import android.os.Messenger;
@@ -243,19 +239,23 @@ public class NetworkUtils {
 		return "";
 	}
 	
-	public static Document getJSoup(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
-		return getJSoup(new URI(aUrl.getURL()), statusCallback, midpointPercent);
+	public static Document get(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
+		return get(new URI(aUrl.getURL()), statusCallback, midpointPercent);
 	}
 	
-	public static Document getJSoup(String aUrl, HashMap<String, String> aParams) throws Exception {
-        return getJSoup(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
+	public static Document get(String aUrl, HashMap<String, String> aParams) throws Exception {
+        return get(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
 	}
 	
-	public static Document getJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        return getJSoup(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
+	public static Document get(String aUrl) throws Exception {
+        return get(new URI(aUrl), null, 0);
 	}
 	
-	public static Document getJSoup(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
+	public static Document get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
+        return get(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
+	}
+	
+	public static Document get(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
 		Document response = null;
         Log.i(TAG, "Fetching " + location);
 
@@ -320,20 +320,20 @@ public class NetworkUtils {
         return httpResponse.getEntity().getContent();
 	}
 	
-	public static Document postJSoup(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
-		return postJSoup(new URI(aUrl.getURL()), statusCallback, midpointPercent);
+	public static Document post(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
+		return post(new URI(aUrl.getURL()), null, statusCallback, midpointPercent);
 	}
 	
-	public static Document postJSoup(String aUrl, HashMap<String, String> aParams) throws Exception {
-        return postJSoup(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
+	public static Document post(String aUrl, HashMap<String, String> aParams) throws Exception {
+        return post(new URI(aUrl), aParams, null, 0);
 	}
 	
-	public static Document postJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        return postJSoup(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
+	public static Document post(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
+        return post(new URI(aUrl), aParams, statusCallback, midpointPercent);
 	}
 
 	
-	public static Document postJSoup(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
+	public static Document post(URI location, HashMap<String, String> aParams,Messenger statusCallback, int midpointPercent) throws Exception {
         Document response = null;
 
 		Log.i(TAG, location.toString());
@@ -436,16 +436,16 @@ public class NetworkUtils {
             sHttpClient = new DefaultHttpClient(httpPar);
         }
 
-        sCleaner = new HtmlCleaner();
-        CleanerTransformations ct = new CleanerTransformations();
-        ct.addTransformation(new TagTransformation("script"));
-        ct.addTransformation(new TagTransformation("meta"));
-        ct.addTransformation(new TagTransformation("head"));
-        sCleaner.setTransformations(ct);
-        CleanerProperties properties = sCleaner.getProperties();
-        properties.setOmitComments(true);
-        properties.setRecognizeUnicodeChars(false);
-        properties.setUseEmptyElementTags(false);
+//        sCleaner = new HtmlCleaner();
+//        CleanerTransformations ct = new CleanerTransformations();
+//        ct.addTransformation(new TagTransformation("script"));
+//        ct.addTransformation(new TagTransformation("meta"));
+//        ct.addTransformation(new TagTransformation("head"));
+//        sCleaner.setTransformations(ct);
+//        CleanerProperties properties = sCleaner.getProperties();
+//        properties.setOmitComments(true);
+//        properties.setRecognizeUnicodeChars(false);
+//        properties.setUseEmptyElementTags(false);
     }
 
 	public static void logCookies() {

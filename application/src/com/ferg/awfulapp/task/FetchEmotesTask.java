@@ -54,7 +54,7 @@ public class FetchEmotesTask extends AwfulTask {
 		try {
 			HashMap<String, String> para = new HashMap<String, String>();
 			para.put(Constants.PARAM_ACTION, "showsmilies");
-			Document data = NetworkUtils.getJSoup(Constants.FUNCTION_MISC, para, replyTo, 50);
+			Document data = NetworkUtils.get(Constants.FUNCTION_MISC, para, replyTo, 50);
 			ArrayList<ContentValues> emotes = AwfulEmote.parseEmotes(data);
 			int resultCount = mContext.getContentResolver().bulkInsert(AwfulEmote.CONTENT_URI, emotes.toArray(new ContentValues[emotes.size()]));
 	        Log.i(TAG, "Inserted "+resultCount+" emotes into DB. "+emotes.size());

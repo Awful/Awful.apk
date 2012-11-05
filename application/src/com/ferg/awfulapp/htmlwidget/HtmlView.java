@@ -16,9 +16,7 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jsoup.nodes.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 
@@ -339,9 +337,9 @@ public final class HtmlView extends TextView {
     }
 
     private void handleEmbed(Element node, Editable output) {
-        String src = node.getAttribute("src");
-        String type = node.getAttribute("type");
-        boolean allowFullScreen = Boolean.parseBoolean(node.getAttribute("allowfullscreen"));
+        String src = node.attr("src");
+        String type = node.attr("type");
+        boolean allowFullScreen = Boolean.parseBoolean(node.attr("allowfullscreen"));
 
         Uri uri = null;
         int match = UriMatcher.NO_MATCH;
@@ -411,9 +409,9 @@ public final class HtmlView extends TextView {
     }
 
     private void handleImg(Element node, Editable output) {
-        String src = node.getAttribute("src");
-        String alt = node.getAttribute("alt");
-        String title = node.getAttribute("title");
+        String src = node.attr("src");
+        String alt = node.attr("alt");
+        String title = node.attr("title");
         
         int start = output.length();
         output.append("\uFFFC");
@@ -458,7 +456,7 @@ public final class HtmlView extends TextView {
              */
             @Override
             public void handleStartTag(Element node, Editable output) {
-                String tag = node.getTagName();
+                String tag = node.tagName();
                 
                 if (tag.equalsIgnoreCase("embed")) {
                     handleEmbed(node, output);
@@ -466,14 +464,14 @@ public final class HtmlView extends TextView {
                     if(imagesEnabled){
                         handleImg(node, output);
                     }else{
-                        if(node.getAttribute("title").equalsIgnoreCase("")){
+                        if(node.attr("title").equalsIgnoreCase("")){
                             int start = output.length();
-                            output.append(node.getAttribute("src"));
-                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            output.append(node.attr("src"));
+                            output.setSpan(new URLSpan(node.attr("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }else{
                             int start = output.length();
-                            output.append(node.getAttribute("title"));
-                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            output.append(node.attr("title"));
+                            output.setSpan(new URLSpan(node.attr("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }

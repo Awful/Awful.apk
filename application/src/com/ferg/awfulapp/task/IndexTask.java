@@ -30,7 +30,8 @@ package com.ferg.awfulapp.task;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import android.os.Message;
 import android.util.Log;
@@ -52,17 +53,17 @@ public class IndexTask extends AwfulTask {
 		if (!isCancelled()) {
             try {
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 10));
-                TagNode response = NetworkUtils.get(Constants.BASE_URL);
+                Document response = NetworkUtils.get(Constants.BASE_URL);
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 50));
                 AwfulForum.getForumsFromRemote(response, mContext.getContentResolver());
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 90));
-                TagNode[] pmBlock = response.getElementsByAttValue("id", "pm", true, true);
+                Elements pmBlock = response.getElementsByAttributeValue("id", "pm");
                 try{
-                    if(pmBlock.length >0){
-                    	TagNode[] bolded = pmBlock[0].getElementsByName("b", true);
-                    	if(bolded.length > 1){
-                    		String name = bolded[0].getText().toString().split("'")[0];
-                    		String unread = bolded[1].getText().toString();
+                    if(pmBlock.size() >0){
+                    	Elements bolded = pmBlock.first().getElementsByTag("b");
+                    	if(bolded.size() > 1){
+                    		String name = bolded.first().text().split("'")[0];
+                    		String unread = bolded.get(1).text();
                     		Pattern findUnread = Pattern.compile("(\\d+)\\s+unread");
                     		Matcher matchUnread = findUnread.matcher(unread);
                     		int unreadCount = -1;
