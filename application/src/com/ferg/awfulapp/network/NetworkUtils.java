@@ -66,11 +66,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.CleanerTransformations;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagTransformation;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -95,7 +90,6 @@ public class NetworkUtils {
     private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
 
     private static DefaultHttpClient sHttpClient;
-    private static HtmlCleaner sCleaner;
 
     /**
      * Attempts to initialize the HttpClient with cookie values
@@ -248,17 +242,13 @@ public class NetworkUtils {
     	}
 		return "";
 	}
-    
-    public static TagNode get(String aUrl) throws Exception {
-        return get(aUrl, null);
-    }
-
-	public static TagNode get(String aUrl, HashMap<String, String> aParams) throws Exception {
-		return get(aUrl,aParams,null,0);
-	}
 	
 	public static Document getJSoup(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
 		return getJSoup(new URI(aUrl.getURL()), statusCallback, midpointPercent);
+	}
+	
+	public static Document getJSoup(String aUrl, HashMap<String, String> aParams) throws Exception {
+        return getJSoup(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
 	}
 	
 	public static Document getJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
@@ -283,7 +273,6 @@ public class NetworkUtils {
         }
 	    
         if (entity != null) {
-            //response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
         	response = Jsoup.parse(entity.getContent(), CHARSET, Constants.BASE_URL);
         }
         
@@ -299,33 +288,7 @@ public class NetworkUtils {
 		}
 	}
 	
-	public static TagNode get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        TagNode response = null;
-        String parameters = getQueryStringParameters(aParams);
-        URI location = new URI(aUrl + parameters);
 
-        Log.i(TAG, "Fetching " + location);
-
-        HttpGet httpGet;
-        HttpResponse httpResponse;
-
-        httpGet = new HttpGet(location);
-        httpResponse = sHttpClient.execute(httpGet);
-
-        HttpEntity entity = httpResponse.getEntity();
-
-        if(statusCallback != null){
-	        //notify user we have gotten message body
-	        statusCallback.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, midpointPercent));
-        }
-	    
-        if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
-        }
-        
-        Log.i(TAG, "Fetched " + location);
-        return response;
-    }
 	
 	public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception{
         String redirect = null;
@@ -356,13 +319,26 @@ public class NetworkUtils {
         httpResponse = sHttpClient.execute(httpGet);
         return httpResponse.getEntity().getContent();
 	}
+	
+	public static Document postJSoup(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
+		return postJSoup(new URI(aUrl.getURL()), statusCallback, midpointPercent);
+	}
+	
+	public static Document postJSoup(String aUrl, HashMap<String, String> aParams) throws Exception {
+        return postJSoup(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
+	}
+	
+	public static Document postJSoup(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
+        return postJSoup(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
+	}
 
-	public static TagNode post(String aUrl, HashMap<String, String> aParams) throws Exception {
-        TagNode response = null;
+	
+	public static Document postJSoup(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
+        Document response = null;
 
-		Log.i(TAG, aUrl);
+		Log.i(TAG, location.toString());
 
-        HttpPost httpPost = new HttpPost(aUrl);
+        HttpPost httpPost = new HttpPost(location);
 
         MultipartEntity post = new MultipartEntity();
         ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
@@ -381,7 +357,7 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
+        	response = Jsoup.parse(entity.getContent(), CHARSET, Constants.BASE_URL);
         }
 
 		return response;
@@ -404,47 +380,6 @@ public class NetworkUtils {
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
         return httpResponse.getStatusLine().getStatusCode();
 	}
-
-    public static TagNode postImage(String aUrl, HashMap<String, String> aParams, String aBitmapKey, 
-            Bitmap aBitmap) throws Exception
-	{
-        TagNode response = null;
-
-        HttpPost httpPost = new HttpPost(aUrl);
-
-        MultipartEntity reqEntity = new MultipartEntity();
-
-        if (aBitmap != null) {
-            ByteArrayOutputStream bitmapOutputStream = new ByteArrayOutputStream();
-            aBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bitmapOutputStream);
-
-            ByteArrayBody bitmapBody = 
-                new ByteArrayBody(bitmapOutputStream.toByteArray(), "image/jpg", "snippet.jpg");
-
-            reqEntity.addPart(aBitmapKey, bitmapBody);
-        }
-		
-		// Now write the form data 
-		Iterator<?> iter = aParams.entrySet().iterator();
-
-		while (iter.hasNext()) {
-			@SuppressWarnings("unchecked")
-			Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
-
-			reqEntity.addPart(param.getKey(), new StringBody(param.getValue()));
-		}
-
-		httpPost.setEntity(reqEntity);
-
-        HttpResponse httpResponse = sHttpClient.execute(httpPost);
-        HttpEntity entity = httpResponse.getEntity();
-
-        if (entity != null) {
-            response = sCleaner.clean(new InputStreamReader(entity.getContent(), CHARSET));
-        }
-
-		return response;
-    }
 
     private static ArrayList<NameValuePair> getPostParameters(HashMap<String, String> aParams) {
         // Append parameters
@@ -522,8 +457,8 @@ public class NetworkUtils {
 		Log.i(TAG, "---END COOKIE DUMP---");
 	}
 
-	public static String getAsString(TagNode pc) {
-		return sCleaner.getInnerHtml(pc);
+	public static String getAsString(Document pc) {
+		return pc.text();
 	}
 	
 	/**

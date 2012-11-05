@@ -30,6 +30,8 @@ package com.ferg.awfulapp.reply;
 import java.util.HashMap;
 
 import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import android.content.ContentValues;
 import android.graphics.Bitmap;
@@ -163,6 +165,14 @@ public class Reply {
     	TagNode formCookie = data.findElementByAttValue("name", "form_cookie", true, false);
     	results.put(AwfulPost.FORM_KEY, formKey.getAttributeByName("value"));
     	results.put(AwfulPost.FORM_COOKIE, formCookie.getAttributeByName("value"));
+        return results;
+    }
+    
+    public static final ContentValues getReplyDataJSoup(Document data, ContentValues results) throws Exception {
+    	Element formKey = data.getElementsByAttributeValue("name", "formkey").first();
+    	Element formCookie = data.getElementsByAttributeValue("name", "form_cookie").first();
+    	results.put(AwfulPost.FORM_KEY, formKey.val());
+    	results.put(AwfulPost.FORM_COOKIE, formCookie.val());
         return results;
     }
 }
