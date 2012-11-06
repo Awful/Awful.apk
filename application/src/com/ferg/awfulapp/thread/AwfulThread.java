@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,13 +41,9 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Messenger;
@@ -58,7 +52,6 @@ import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -126,11 +119,11 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
-        Elements tbody = threads.first().getElementsByTag("tbody");
-		for(Element node : tbody.first().getAllElements()){
+        Elements tbody = threads.first().getElementsByTag("tbody").first().getAllElements();
+		for(Element node : tbody.first().getElementsByClass("thread")){
             try {
     			ContentValues thread = new ContentValues();
-                String threadId = node.getElementsByTag("id").text();
+                String threadId = node.id();
                 thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
                 if(forumId != Constants.USERCP_ID){//we don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
                 	thread.put(INDEX, start_index);
@@ -146,7 +139,7 @@ public class AwfulThread extends AwfulPagedItem  {
                     thread.put(TITLE, tarThread.first().text().trim());
                 }
                 
-                if(node.hasAttr("class") && node.attr("class").contains("closed")){
+                if(node.hasClass("closed")){
                 	thread.put(LOCKED, 1);
                 }else{
                 	thread.put(LOCKED, 0);
@@ -164,7 +157,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
                 Elements tarIcon = node.getElementsByClass("icon");
                 if (tarIcon.size() > 0 && tarIcon.first().getAllElements().size() >0) {
-                    Matcher threadTagMatcher = urlId_regex.matcher(tarIcon.first().getAllElements().first().attr("src"));
+                    Matcher threadTagMatcher = urlId_regex.matcher(tarIcon.first().getElementsByTag("img").first().attr("src"));
                     if(threadTagMatcher.find()){
                     	//thread tag stuff
         				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(threadTagMatcher.group(1));
@@ -669,7 +662,8 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 		title.setTypeface(null, Typeface.NORMAL);
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
-			title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+			title.setText(data.getString(data.getColumnIndex(TITLE)));
+			//title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
 			title.setTextColor(prefs.postFontColor);

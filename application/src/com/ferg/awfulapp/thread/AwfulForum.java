@@ -70,7 +70,7 @@ public class AwfulForum extends AwfulPagedItem {
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 
-	private static final String FORUM_ROW   = "//table[@id='forums']//tr";
+	//private static final String FORUM_ROW   = "//table[@id='forums']//tr";
 	//private static final String FORUM_TITLE = "//a[@class='forum']";
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
@@ -91,11 +91,10 @@ public class AwfulForum extends AwfulPagedItem {
 		result.add(bookmarks);
 		
 		int ix = 1;
-		Elements forumObjects = response.getElementById("forums").getAllElements();
-		for (Element current : forumObjects) {
+		Elements forumObjects = response.getElementById("forums").getElementsByTag("tr");
+		for (Element node : forumObjects) {
 			try{
 				ContentValues forum = new ContentValues();
-				Element node = current;
 				int forumId = 0;
 	            // First, grab the parent forum
 				Element title = node.getElementsByClass("forum").first();
@@ -134,10 +133,8 @@ public class AwfulForum extends AwfulPagedItem {
 	            Element subforumBlock = node.getElementsByClass("subforums").first();
 	            if(subforumBlock != null){
 	            	Elements subforums = subforumBlock.getElementsByTag("a");
-	                for (int x=0;x<subforums.size();x++) {
+	                for (Element subNode : subforums) {
 	                	ContentValues subforum = new ContentValues();
-	
-	                	Element subNode = subforums.get(x);
 	
 	                    String id = subNode.attr("href");
 	

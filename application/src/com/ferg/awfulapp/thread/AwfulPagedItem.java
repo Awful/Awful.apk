@@ -39,7 +39,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 public abstract class AwfulPagedItem {
