@@ -1022,7 +1022,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     }
 
-    private void populateThreadView(ArrayList<AwfulPost> aPosts) {
+    @SuppressWarnings("unused")
+	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		updatePageBar();
 
         try {
