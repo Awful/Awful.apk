@@ -187,4 +187,5 @@ AQuery</string>
 	<string name="filter_emote_hint">Filter Emotes...</string>
 	<string name="add_attachment">Add File Attachment</string>
 	<string name="file_attached">Set File %s as Attachment</string>
+	<string name="refreshFrog">Pull-Frog-to-Refresh</string>
 </resources>

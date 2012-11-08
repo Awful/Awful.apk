@@ -158,6 +158,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mPullRefreshListView.setPullLabel("Pull to Refresh");
         mPullRefreshListView.setReleaseLabel("Release to Refresh");
         mPullRefreshListView.setRefreshingLabel("Loading...");
+        if(mPrefs.refreshFrog){
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+        }else{
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+        }
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -571,6 +576,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
+        if(mPrefs.refreshFrog){
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+        }else{
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+        }
 	}
 	
 	public int getForumId(){
