@@ -259,4 +259,9 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	public String getTitle() {
 		return "Private Messages";
 	}
+	
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }

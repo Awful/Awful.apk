@@ -66,7 +66,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
-    protected static String TAG = "ForumsIndex";
+    private final static String TAG = "ForumsIndex";
     private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
     private boolean DEBUG = false;
     
@@ -534,5 +534,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	@Override
 	public boolean canSplitscreen() {
 		return Constants.isWidescreen(getActivity());
+	}
+	
+	@Override
+	public String getInternalId() {
+		return TAG;
 	}
 }

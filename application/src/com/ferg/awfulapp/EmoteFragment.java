@@ -55,6 +55,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulEmote;
 
 public class EmoteFragment extends AwfulDialogFragment implements OnClickListener, OnItemClickListener {
+	private final static String TAG = "EmoteFragment";
 	private EditText filterText;
 	private GridView emoteGrid;
 	private AwfulCursorAdapter adapter;
@@ -204,5 +205,10 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		Toast.makeText(getAwfulActivity(), tv.getText().toString().trim(), Toast.LENGTH_SHORT).show();
 		sendFragmentMessage("emote-selected", tv.getText().toString().trim());
 		dismiss();
+	}
+
+	@Override
+	public String getInternalId() {
+		return TAG;
 	}
 }

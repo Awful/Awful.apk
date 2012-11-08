@@ -752,5 +752,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		}
 	}
 	
-	
+
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }

@@ -1720,5 +1720,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		return false;
 	}
 	
-	
+
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }

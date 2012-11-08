@@ -74,7 +74,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        int initialPage = 0;
+        int initialPage = -1;
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
         	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
@@ -99,7 +99,9 @@ public class ForumsIndexActivity extends AwfulActivity {
     	}
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
-        mViewPager.setCurrentItem(initialPage);
+        if(initialPage >= 0){
+        	mViewPager.setCurrentItem(initialPage);
+        }
         
         setActionBar();
         
@@ -111,7 +113,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		super.onNewIntent(intent);
 		setIntent(intent);
 		int initialPage = parseNewIntent(intent);
-		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage){
+		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
 			mViewPager.setCurrentItem(initialPage);
 		}
 		if(mForumFragment != null){
@@ -127,7 +129,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	}
 	
 	private int parseNewIntent(Intent intent){
-        int initialPage = 0;
+        int initialPage = -1;
 		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
@@ -157,7 +159,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         	initialPage = Constants.isWidescreen(this)? 0 : 1;
         }else{
         	skipLoad = true;
-        	initialPage = 0;
         }
         if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
         	initialPage = Constants.isWidescreen(this)? 1 : 2;

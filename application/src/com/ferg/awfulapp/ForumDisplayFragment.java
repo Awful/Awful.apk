@@ -92,7 +92,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private static final String TAG = "ThreadsActivity";
+    private static final String TAG = "ForumDisplayFragment";
     private static final boolean DEBUG = false;
     
     private PullToRefreshListView mPullRefreshListView;
@@ -780,4 +780,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		return Constants.isWidescreen(getActivity());
 	}
 
+
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }
