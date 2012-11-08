@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
@@ -38,6 +39,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
     public void onCreate() {
         ACRA.init(this);
         super.onCreate();
+        //BugSenseHandler.setLogging(1000);
 
         mPref = new AwfulPreferences(this, this);
         onPreferenceChange(mPref);

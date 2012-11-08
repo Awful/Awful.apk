@@ -332,7 +332,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		mThreadView.setDrawingCacheEnabled(false);//TODO maybe
+		//mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
@@ -577,6 +577,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
+    	menu.clear();
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
         	MenuItem share = menu.findItem(R.id.share_thread);
@@ -1021,7 +1022,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     }
 
-    private void populateThreadView(ArrayList<AwfulPost> aPosts) {
+    @SuppressWarnings("unused")
+	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		updatePageBar();
 
         try {
@@ -1570,6 +1572,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void openThread(int id, int page, String postJump){
     	clearBackStack();
     	loadThread(id, page, postJump);
+	}
+	public void openThread(AwfulURL url) {
+    	clearBackStack();
+    	if(url.isRedirect()){
+    		startPostRedirect(url.getURL(mPrefs.postPerPage));
+    	}else{
+    		loadThread((int)url.getId(), (int)url.getPage(mPrefs.postPerPage), url.getFragment());
+    	}
 	}
 	
 	private void loadThread(int id, int page, String postJump) {

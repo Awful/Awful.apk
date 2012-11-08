@@ -390,7 +390,6 @@ public class NetworkUtils {
 
             while (iter.hasNext()) {
                 Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
-                Log.e(TAG,"key: "+param.getKey()+" value: "+param.getValue());
                 result.add(new BasicNameValuePair(param.getKey(), param.getValue()));  
             }
         }

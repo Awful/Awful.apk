@@ -105,8 +105,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private TextView mPageCountText;
 	private ImageButton mToggleSidebar;
     
-    private Cursor[] combinedCursors = new Cursor[2];
-    
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
@@ -311,10 +309,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
+        if(mCursorAdapter!=null){
+        	Log.e(TAG,"CURSOR PERSISTING BEYOND LIFECYCLE");
+        }
+        Log.e(TAG,"List Children: "+mPullRefreshListView.getChildCount());
     }
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	menu.clear();
         if(menu.size() == 0){
         	inflater.inflate(R.menu.forum_display_menu, menu);
         }
@@ -697,7 +700,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-			combinedCursors[1]=null;
+        	Log.i(TAG,"ForumContentsCallback - onLoaderReset");
 			mCursorAdapter.swapCursor(null);
 		}
 		

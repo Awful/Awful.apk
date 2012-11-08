@@ -107,13 +107,13 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     {
         super.onCreate(savedInstanceState);Log.e(TAG,"onCreate");
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+        setRetainInstance(false);
         mThreadLoaderCallback = new ThreadDataCallback();
         
 
-        mReplyType = getArguments().getInt(Constants.EDITING, mReplyType);
-        mPostId = getArguments().getInt(Constants.POST_ID, mPostId);
-        mThreadId = getArguments().getInt(Constants.THREAD_ID, mThreadId);
+        mReplyType = getArguments().getInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
+        mPostId = getArguments().getInt(Constants.POST_ID, 0);
+        mThreadId = getArguments().getInt(Constants.THREAD_ID, 0);
     }
     
     @Override
