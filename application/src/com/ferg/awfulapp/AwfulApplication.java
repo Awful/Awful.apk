@@ -7,11 +7,7 @@ import java.util.Set;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
-import org.acra.ReportField;
 import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
 
 import android.app.Application;
 import android.graphics.Typeface;
@@ -21,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 

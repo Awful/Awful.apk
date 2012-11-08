@@ -23,22 +23,12 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -65,7 +55,9 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
-import android.util.Log;
+
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 
 /**
  * This class processes HTML strings into displayable styled text.

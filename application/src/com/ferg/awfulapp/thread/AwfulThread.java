@@ -47,7 +47,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Messenger;
-import android.text.Html;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;

@@ -32,7 +32,6 @@ import java.util.HashMap;
 
 import org.jsoup.nodes.Document;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Message;
 import android.util.Log;

@@ -16,28 +16,22 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import org.jsoup.nodes.Element;
-import org.xml.sax.Attributes;
-import org.xml.sax.XMLReader;
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
-import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxStatus;
-import com.androidquery.callback.BitmapAjaxCallback;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
+import org.jsoup.nodes.Element;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriMatcher;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -54,17 +48,10 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.SoftReference;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.RejectedExecutionException;
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxStatus;
+import com.androidquery.callback.BitmapAjaxCallback;
+import com.ferg.awfulapp.R;
 
 /**
  * A light-weight alternative to {@link WebView}.

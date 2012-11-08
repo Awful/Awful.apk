@@ -19,8 +19,6 @@ package com.ferg.awfulapp.widget;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
-
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

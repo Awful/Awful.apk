@@ -1,13 +1,13 @@
 package com.ferg.awfulapp.widget;
 
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
-
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 	private static final String TAG = "AwfulDualPaneView";

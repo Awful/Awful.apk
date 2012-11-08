@@ -30,7 +30,6 @@ package com.ferg.awfulapp.constants;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
 

@@ -1,11 +1,5 @@
 package com.ferg.awfulapp.user;
 
-import java.util.HashMap;
-
-import android.util.Log;
-
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 
 public class Profile {
     public static final String TAG = "Profile";
