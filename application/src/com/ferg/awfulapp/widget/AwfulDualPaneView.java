@@ -91,11 +91,14 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 	@Override
 	public String getTitle() {
 		if(hasView()){
-			String title = secondaryAPF.getTitle();
-			if(title != null && title.length() > 0){
-				return title;
-			}else{
-				return primaryAPF.getTitle();
+			String titleA = primaryAPF.getTitle();
+			String titleB = secondaryAPF.getTitle();
+			if(titleA != null && titleB != null && titleA.length() > 0 && titleB.length() > 0){
+				return titleA+" - "+titleB;
+			}else if(titleB != null && titleB.length() > 0){
+				return titleB;
+			}else if(titleA != null){
+				return titleA;
 			}
 		}
 		return null;

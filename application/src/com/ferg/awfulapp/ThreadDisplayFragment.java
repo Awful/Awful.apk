@@ -332,7 +332,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		mThreadView.setDrawingCacheEnabled(false);//TODO maybe
+		//mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
@@ -1572,6 +1572,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void openThread(int id, int page, String postJump){
     	clearBackStack();
     	loadThread(id, page, postJump);
+	}
+	public void openThread(AwfulURL url) {
+    	clearBackStack();
+    	if(url.isRedirect()){
+    		startPostRedirect(url.getURL(mPrefs.postPerPage));
+    	}else{
+    		loadThread((int)url.getId(), (int)url.getPage(mPrefs.postPerPage), url.getFragment());
+    	}
 	}
 	
 	private void loadThread(int id, int page, String postJump) {

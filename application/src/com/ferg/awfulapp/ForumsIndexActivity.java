@@ -76,47 +76,13 @@ public class ForumsIndexActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         int initialPage = 0;
-		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
-        mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
-        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, 0);
-        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, 1);
-        if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
-        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
-        }
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
         	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
         	mThreadId = savedInstanceState.getInt(Constants.THREAD_ID,0);
         	mThreadPage = savedInstanceState.getInt(Constants.THREAD_PAGE,1);
         }else{
-        	if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
-        		url = AwfulURL.parse(getIntent().getDataString());
-        		switch(url.getType()){
-        		case FORUM:
-        			mForumId = (int) url.getId();
-        			mForumPage = (int) url.getPage();
-        			break;
-        		case THREAD:
-        			if(!url.isRedirect()){
-	        			mThreadId = (int) url.getId();
-	        			mThreadPage = (int) url.getPage();
-        			}
-        			break;
-        		case POST:
-        			break;
-       			default:
-        		}
-        	}
-        }
-        
-        if(getIntent().getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = Constants.isWidescreen(this)? 0 : 1;
-        }else{
-        	skipLoad = true;
-        	initialPage = 0;
-        }
-        if(mThreadId > 0 || url.isRedirect() || url.isThread()){
-        	initialPage = Constants.isWidescreen(this)? 1 : 2;
+        	initialPage = parseNewIntent(getIntent());
         }
         
         setContentView(R.layout.forum_index_activity);
@@ -141,6 +107,64 @@ public class ForumsIndexActivity extends AwfulActivity {
         checkIntentExtras();
     }
 
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		setIntent(intent);
+		int initialPage = parseNewIntent(intent);
+		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage){
+			mViewPager.setCurrentItem(initialPage);
+		}
+		if(mForumFragment != null){
+			mForumFragment.openForum(mForumId, mForumPage);
+		}
+		if(mThreadFragment != null){
+			if(url.isThread() || url.isPost()){
+				mThreadFragment.openThread(url);
+			}else if(mThreadFragment.getThreadId() != mThreadId || mThreadFragment.getPage() != mThreadPage){
+				mThreadFragment.openThread(mThreadId, mThreadPage);
+			}
+		}
+	}
+	
+	private int parseNewIntent(Intent intent){
+        int initialPage = 0;
+		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
+        mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
+        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
+        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage);
+        if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
+        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+        }
+    	if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
+    		url = AwfulURL.parse(getIntent().getDataString());
+    		switch(url.getType()){
+    		case FORUM:
+    			mForumId = (int) url.getId();
+    			mForumPage = (int) url.getPage();
+    			break;
+    		case THREAD:
+    			if(!url.isRedirect()){
+        			mThreadId = (int) url.getId();
+        			mThreadPage = (int) url.getPage();
+    			}
+    			break;
+    		case POST:
+    			break;
+   			default:
+    		}
+    	}
+        if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
+        	initialPage = Constants.isWidescreen(this)? 0 : 1;
+        }else{
+        	skipLoad = true;
+        	initialPage = 0;
+        }
+        if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
+        	initialPage = Constants.isWidescreen(this)? 1 : 2;
+        }
+        return initialPage;
+	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -240,7 +264,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	public void setActionbarTitle(String aTitle, Object requestor) {
     	if(requestor != null && mViewPager != null){
     		//This will only honor the request if the requestor is the currently active view.
-    		if(pagerAdapter.getItemPosition(requestor) == mViewPager.getCurrentItem()){
+    		if(requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)){
 		    		super.setActionbarTitle(aTitle, requestor);
 			}else{
 				if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());

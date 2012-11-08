@@ -449,12 +449,17 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			}else{
 				ArrayList<ForumEntry> newForums = updateForumTree(parentForums, forumsMap, data);
 				for(ForumEntry item : newForums){
-					if(item.parentId == 0){
+					if(item.parentId == 0 && !dataManager.isInTree(item)){
 						builder.sequentiallyAddNextNode(item, 0);
 					}else{
 						ForumEntry parent = forumsMap.get(item.parentId);
-						if(parent != null){
-							builder.addRelation(parent, item);
+						if(parent != null && !dataManager.isInTree(item)){
+							if(dataManager.isInTree(parent)){
+								builder.addRelation(parent, item);
+							}else{
+								builder.sequentiallyAddNextNode(parent, 0);
+								builder.addRelation(parent, item);
+							}
 						}
 					}
 				}
