@@ -166,6 +166,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     	public int getProgressPercent();
     	public void fragmentMessage(String type, String contents);
     	public boolean canSplitscreen();
+		public String getInternalId();
     }
 
     @Override
@@ -203,6 +204,9 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
             if (DEBUG) Log.w(TAG, "Attaching item #" + position + ": f=" + existingFragment);
             mCurTransaction.attach(existingFragment);
         } else {
+        	if(existingFragment != null){
+            	mCurTransaction.remove(existingFragment);
+        	}
             if (DEBUG) Log.w(TAG, "Adding item #" + position + ": f=" + listFragment);
             if(listItem instanceof AwfulDualPaneView){
 	            mCurTransaction.add(listFragment, makeFragmentName(listFragment));
@@ -264,6 +268,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
+    	if(DEBUG) Log.e(TAG,"setPrimaryItem "+object.toString());
         Fragment fragment = getFrag(object, true);
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
@@ -320,11 +325,13 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     public void restoreState(Parcelable state, ClassLoader loader) {
     }
 
-    private static String makeFragmentName(Object fragment) {
-    	if(fragment == null){
-    		return "null";
+    private static String makeFragmentName(Fragment fragment) {
+    	String name = "null";
+    	if(fragment instanceof AwfulPagerFragment){
+    		return "android:switcher:" + ((AwfulPagerFragment)fragment).getInternalId();
     	}
-        return "android:switcher:" + fragment.hashCode();
+    	if(DEBUG) Log.e(TAG, "makeFragmentName "+name);
+		return name;
     }
     
 	@Override

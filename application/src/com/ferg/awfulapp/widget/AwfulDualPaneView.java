@@ -154,4 +154,8 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 		}
 	}
 
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }

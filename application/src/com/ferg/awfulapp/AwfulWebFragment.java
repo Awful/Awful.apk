@@ -356,4 +356,9 @@ public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerF
 		}
 		return 100;
 	}
+
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
 }
