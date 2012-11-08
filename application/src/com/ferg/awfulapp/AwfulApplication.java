@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.acra.ACRA;
-import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
@@ -39,7 +38,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         mPref = new AwfulPreferences(this, this);
         onPreferenceChange(mPref);
         if(mPref.sendUsernameInReport){
-        	ErrorReporter.getInstance().putCustomData("SA Username", mPref.username);
+        	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
         }
     }
 
@@ -108,7 +107,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		currentFont = fonts.get(mPref.preferredFont);
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
         if(mPref.sendUsernameInReport){
-        	ErrorReporter.getInstance().putCustomData("SA Username", mPref.username);
+        	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
         }
 	}
 
