@@ -196,7 +196,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	
 	private void setActionBar() {
         ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
         action.setDisplayHomeAsUpEnabled(true);
     }
 	

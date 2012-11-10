@@ -140,11 +140,14 @@ public class AwfulMessage extends AwfulPagedItem {
 		if(messagesParent.size() > 0){
 			Elements messages = messagesParent.first().getElementsByTag("tr");
 			for(Element msg : messages){
+				if(msg == messages.get(0)){
+					continue;
+				}
 				ContentValues pm = new ContentValues();
 				//fuck i hate scraping shit.
 				//no usable identifiers on the PM list, no easy method to find author/post date.
 				//this will break if they change the display structure.
-				Elements row = msg.getAllElements();
+				Elements row = msg.getElementsByTag("td");
 				if(row != null && row.size() > 4){
 					//TODO abandon hope, all ye who enter
 					//row[0] - icon, newpm.gif - sublevel
@@ -152,7 +155,7 @@ public class AwfulMessage extends AwfulPagedItem {
 					//row[2] - pm subject/link - sublevel
 					//row[3] - sender
 					//row[4] - date
-					Element href = row.get(2).getAllElements().first();
+					Element href = row.get(2).getElementsByTag("a").first();
 					pm.put(ID, Integer.parseInt(href.attr("href").replaceAll("\\D", "")));
 					pm.put(TITLE, href.text());
 					pm.put(AUTHOR, row.get(3).text());
