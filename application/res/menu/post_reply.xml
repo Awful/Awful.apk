@@ -60,5 +60,10 @@
         android:showAsAction="never|withText"
         android:title="@string/add_attachment">
     </item>
-
+    <item
+        android:id="@+id/remove_attachment"
+        android:showAsAction="never|withText"
+        android:title="@string/remove_attachment"
+        android:visible="false">
+    </item>
 </menu>

@@ -151,6 +151,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 mFileAttachment = getFilePath(selectedImageUri);
                 Toast attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), mFileAttachment), Toast.LENGTH_LONG);
                 attachmentToast.show();
+                this.getAwfulActivity().invalidateOptionsMenu();
             }
         }
 
@@ -265,6 +266,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         if(attach != null && mPrefs != null){
         	attach.setEnabled(mPrefs.hasPlatinum);
         	attach.setVisible(mPrefs.hasPlatinum);
+        }
+        MenuItem remove = menu.findItem(R.id.remove_attachment);
+        if(remove != null && mPrefs != null){
+        	remove.setEnabled((mPrefs.hasPlatinum && this.mFileAttachment != null));
+        	remove.setVisible(mPrefs.hasPlatinum && this.mFileAttachment != null);
         }
     }
 	
@@ -399,6 +405,12 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                             "Select Picture"), ADD_ATTACHMENT);
 
             	break;
+            case R.id.remove_attachment:
+        	    this.mFileAttachment = null;
+        	    Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
+        	    removeToast.show();
+                this.getAwfulActivity().invalidateOptionsMenu();
+        	break;
             default:
                 return super.onOptionsItemSelected(item);
         }
