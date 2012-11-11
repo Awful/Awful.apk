@@ -169,6 +169,10 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         mTitle = (TextView) result.findViewById(R.id.message_title);
         mBackground = result;
         updateColors(result, mPrefs);
+        
+        if(pmId <=0){
+        	mDisplayText.setVisibility(View.GONE);
+        }
 
         return result;
     }
@@ -239,7 +243,9 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
     public void onStart() {
         super.onStart();
-        syncPM();
+        if(pmId >0){
+    		syncPM();
+    	}
     }
 	
 	private void syncPM() {
