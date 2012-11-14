@@ -30,7 +30,6 @@ package com.ferg.awfulapp.thread;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.TagNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -40,7 +39,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 public abstract class AwfulPagedItem {
@@ -48,15 +46,15 @@ public abstract class AwfulPagedItem {
     
 	private static final Pattern pageNumber_regex = Pattern.compile("Pages \\((\\d+)\\)");
 	
-    public static int parseLastPage(TagNode pagedItem){
-    	TagNode pages = pagedItem.findElementByAttValue("class", "pages", true, true);
-    	TagNode pages2 = pagedItem.findElementByAttValue("class", "pages top", true, true);
+    public static int parseLastPage(Document pagedItem){
+    	Element pages = pagedItem.getElementsByAttributeValue("class", "pages").first();
+    	Element pages2 = pagedItem.getElementsByAttributeValue("class", "pages top").first();
     	Matcher lastPageMatch = null;
     	if(pages != null){
-    		lastPageMatch = pageNumber_regex.matcher(pages.getText().toString());
+    		lastPageMatch = pageNumber_regex.matcher(pages.text());
     	}else{
     		if(pages2 != null){
-	    		lastPageMatch = pageNumber_regex.matcher(pages2.getText().toString());
+	    		lastPageMatch = pageNumber_regex.matcher(pages2.text());
 	    	}
     	}
     	if(lastPageMatch != null && lastPageMatch.find()){

@@ -32,8 +32,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -69,14 +70,14 @@ public class AwfulForum extends AwfulPagedItem {
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 
-	private static final String FORUM_ROW   = "//table[@id='forums']//tr";
+	//private static final String FORUM_ROW   = "//table[@id='forums']//tr";
 	//private static final String FORUM_TITLE = "//a[@class='forum']";
     //private static final String SUBFORUM    = "//div[@class='subforums']//a";
 
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern forumTitle_regex = Pattern.compile("(.+)-{1}.+$");
 
-	public static void getForumsFromRemote(TagNode response, ContentResolver contentInterface) throws XPatherException {
+	public static void getForumsFromRemote(Document response, ContentResolver contentInterface){
 		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
 
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
@@ -90,31 +91,30 @@ public class AwfulForum extends AwfulPagedItem {
 		result.add(bookmarks);
 		
 		int ix = 1;
-		Object[] forumObjects = response.evaluateXPath(FORUM_ROW);
-		for (Object current : forumObjects) {
+		Elements forumObjects = response.getElementById("forums").getElementsByTag("tr");
+		for (Element node : forumObjects) {
 			try{
 				ContentValues forum = new ContentValues();
-				TagNode node = (TagNode) current;
 				int forumId = 0;
 	            // First, grab the parent forum
-				TagNode title = node.findElementByAttValue("class", "forum", true, true);
+				Element title = node.getElementsByClass("forum").first();
 	            if (title != null) {
-	                TagNode parentForum = title;
-	                forum.put(TITLE,parentForum.getText().toString());
+	            	Element parentForum = title;
+	                forum.put(TITLE,parentForum.text());
 	                forum.put(PARENT_ID, 0);
 	                forum.put(INDEX, ix);
 	                ix++;
 	                // Just nix the part we don't need to get the forum ID
-	                String id = parentForum.getAttributeByName("href");
+	                String id = parentForum.attr("href");
 	                forumId=getForumId(id);
 	                forum.put(ID,forumId);
-	                forum.put(SUBTEXT,parentForum.getAttributeByName("title"));
+	                forum.put(SUBTEXT,parentForum.attr("title"));
 	            }
-	            TagNode tarIcon = node.findElementByAttValue("class", "icon", true, true);
+	            Element tarIcon = node.getElementsByClass("icon").first();
                 if (tarIcon != null) {
-                	TagNode imgTag = tarIcon.findElementByName("img", true);
-                	if(imgTag != null && imgTag.hasAttribute("src")){
-	                    String url = imgTag.getAttributeByName("src");
+                	Element imgTag = tarIcon.getElementsByTag("img").first();
+                	if(imgTag != null && imgTag.hasAttr("src")){
+	                    String url = imgTag.attr("src");
 	                    if(url != null){
 	                    	//thread tag stuff
 	        				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(url);
@@ -130,17 +130,15 @@ public class AwfulForum extends AwfulPagedItem {
 	
 	            // Now grab the subforums
 	            // we will see if the prior search found more than one link under the forum row, indicating subforums
-	            TagNode subforumBlock = node.findElementByAttValue("class", "subforums", true, true);
+	            Element subforumBlock = node.getElementsByClass("subforums").first();
 	            if(subforumBlock != null){
-		            TagNode[] subforums = subforumBlock.getElementsByName("a", true);
-	                for (int x=0;x<subforums.length;x++) {
+	            	Elements subforums = subforumBlock.getElementsByTag("a");
+	                for (Element subNode : subforums) {
 	                	ContentValues subforum = new ContentValues();
 	
-	                    TagNode subNode = subforums[x];
+	                    String id = subNode.attr("href");
 	
-	                    String id = subNode.getAttributeByName("href");
-	
-	                    subforum.put(TITLE,subNode.getText().toString());
+	                    subforum.put(TITLE,subNode.text());
 	                    subforum.put(ID,getForumId(id));
 	                    subforum.put(PARENT_ID, forumId);
 	                    result.add(subforum);
@@ -155,7 +153,7 @@ public class AwfulForum extends AwfulPagedItem {
         contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 	
-	public static void parseThreads(TagNode page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
+	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
 		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), forumId);
 		ContentValues forumData = new ContentValues();
     	forumData.put(ID, forumId);
@@ -174,7 +172,7 @@ public class AwfulForum extends AwfulPagedItem {
         contentInterface.bulkInsert(AwfulThread.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 	
-	public static void parseUCPThreads(TagNode page, int pageNumber, ContentResolver contentInterface) throws Exception{
+	public static void parseUCPThreads(Document page, int pageNumber, ContentResolver contentInterface) throws Exception{
 		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), Constants.USERCP_ID);
 		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
 		int start_index = AwfulPagedItem.forumPageToIndex(pageNumber);
@@ -242,9 +240,9 @@ public class AwfulForum extends AwfulPagedItem {
 		}
 	}
 
-	public static String parseTitle(TagNode data) {
-		TagNode[] result = data.getElementsByName("title", true);
-		String title = result[0].getText().toString();
+	public static String parseTitle(Document data) {
+		Elements result = data.getElementsByTag("title");
+		String title = result.first().text();
 		Matcher m = forumTitle_regex.matcher(title);
 		if(m.find()){
 			return m.group(1).trim();

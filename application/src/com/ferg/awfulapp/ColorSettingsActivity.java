@@ -12,8 +12,6 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-import com.ferg.awfulapp.constants.Constants;
-
 public class ColorSettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
 	SharedPreferences mPrefs;

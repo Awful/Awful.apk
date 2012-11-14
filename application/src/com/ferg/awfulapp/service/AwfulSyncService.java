@@ -29,7 +29,7 @@ package com.ferg.awfulapp.service;
 
 import java.util.Stack;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
 
 import android.app.Service;
 import android.content.Intent;
@@ -208,12 +208,12 @@ public class AwfulSyncService extends Service {
 			@Override
 			protected Boolean doInBackground(Void... params) {
 				try {
-					TagNode threads = null;
+					Document threads = null;
                     replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 25));
                     if(mId == Constants.USERCP_ID){
                     	threads = AwfulThread.getUserCPThreads(mArg1, replyTo);
                         replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
+                		if(threads.getElementById("notregistered") != null){
                         	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
                         	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
                         	return false;
@@ -222,7 +222,7 @@ public class AwfulSyncService extends Service {
                     }else{
                     	threads = AwfulThread.getForumThreads(mId, mArg1, replyTo);
                         replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                		if(threads.findElementByAttValue("id", "notregistered", true, false) != null){
+                		if(threads.getElementById("notregistered") != null){
                         	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
                         	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
                         	return false;

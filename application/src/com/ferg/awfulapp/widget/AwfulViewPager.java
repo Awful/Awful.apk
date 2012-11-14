@@ -1154,7 +1154,7 @@ public class AwfulViewPager extends ViewGroup {
 //	                    if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
 //	                            + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
 //	                            + "x" + child.getMeasuredHeight());
-	                    child.layout(childLeft, childTop,
+	                    child.layout(childLeft, childTop, 
 	                            childLeft + child.getMeasuredWidth(),
 	                            childTop + child.getMeasuredHeight());
 	                }

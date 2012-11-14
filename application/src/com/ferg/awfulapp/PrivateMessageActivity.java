@@ -28,18 +28,25 @@
 package com.ferg.awfulapp;
 
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
+    private TextView mTitleView;
+    private AwfulPreferences mPrefs;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,11 +55,19 @@ public class PrivateMessageActivity extends AwfulActivity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.fragment_pane);
+        mPrefs = new AwfulPreferences(this, this);
         
         ActionBar action = getSupportActionBar();
-        action.setBackgroundDrawable(getResources().getDrawable(R.drawable.bar));
-        action.setDisplayHomeAsUpEnabled(true);
-        action.setTitle("Awful - Private Messages");//TODO move to r.string
+        if(action != null){
+            action.setCustomView(R.layout.actionbar_title);
+            mTitleView = (TextView) action.getCustomView();
+            mTitleView.setMovementMethod(new ScrollingMovementMethod());
+	        action.setBackgroundDrawable(new ColorDrawable(mPrefs.actionbarColor));
+	        mTitleView.setTextColor(mPrefs.actionbarFontColor);
+	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
+	        action.setDisplayHomeAsUpEnabled(true);
+	        action.setDisplayShowCustomEnabled(true);
+        }
 
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
         	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);

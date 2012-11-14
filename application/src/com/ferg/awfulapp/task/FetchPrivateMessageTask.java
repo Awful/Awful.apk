@@ -29,7 +29,7 @@ package com.ferg.awfulapp.task;
 
 import java.util.HashMap;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -55,14 +55,14 @@ public class FetchPrivateMessageTask extends AwfulTask {
 			HashMap<String, String> para = new HashMap<String, String>();
             para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
             para.put(Constants.PARAM_ACTION, "show");
-			TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+			Document pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 			ContentResolver cr = mContext.getContentResolver();
 			ContentValues message = AwfulMessage.processMessage(pmData, mId);
 			if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI, mId), message, null, null)<1){
 				cr.insert(AwfulMessage.CONTENT_URI, message);
 			}
             para.put(Constants.PARAM_ACTION, "newmessage");
-			TagNode pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
+            Document pmReplyData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 			ContentValues reply = AwfulMessage.processReplyMessage(pmReplyData, mId);
 			reply.put(AwfulMessage.RECIPIENT,message.getAsString(AwfulMessage.AUTHOR));
 			//we remove the reply content so as not to override the existing reply.

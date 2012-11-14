@@ -40,7 +40,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,7 +49,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -79,7 +77,6 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.NumberPicker;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -161,6 +158,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mPullRefreshListView.setPullLabel("Pull to Refresh");
         mPullRefreshListView.setReleaseLabel("Release to Refresh");
         mPullRefreshListView.setRefreshingLabel("Loading...");
+        if(mPrefs.refreshFrog){
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+        }else{
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+        }
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -574,6 +576,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
+        if(mPrefs.refreshFrog){
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+        }else{
+        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+        }
 	}
 	
 	public int getForumId(){

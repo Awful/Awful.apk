@@ -1,13 +1,8 @@
 package com.ferg.awfulapp.htmlwidget;
 
-import android.graphics.Color;
-import android.os.Parcel;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Toast;
 
 public class SpoilerSpan extends ClickableSpan {
 

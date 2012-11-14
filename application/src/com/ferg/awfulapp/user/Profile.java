@@ -1,17 +1,5 @@
 package com.ferg.awfulapp.user;
 
-import java.util.HashMap;
-
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.SimpleHtmlSerializer;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
-
-import android.util.Log;
-
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 
 public class Profile {
     public static final String TAG = "Profile";
@@ -62,45 +50,46 @@ public class Profile {
 		long time = System.currentTimeMillis();
         Profile result = new Profile();
 
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_ACTION, "getinfo");
-        params.put(Constants.PARAM_USER_ID, aUserId);
-
-        HtmlCleaner cleaner = new HtmlCleaner();
-        CleanerProperties properties = cleaner.getProperties();
-        properties.setOmitComments(true);
-
-        try {
-            TagNode response = NetworkUtils.get(Constants.FUNCTION_MEMBER, params);
-
-            Object[] nodeList = response.evaluateXPath(USERNAME);
-            if (nodeList.length > 0) {
-                result.setUsername(((TagNode) nodeList[0]).getText().toString().trim());
-            }
-
-            nodeList = response.evaluateXPath(REGISTERED);
-            if (nodeList.length > 0) {
-                result.setRegistered(((TagNode) nodeList[0]).getText().toString().trim());
-            }
-
-            nodeList = response.evaluateXPath(AVATAR);
-            if (nodeList.length > 0) {
-                result.setRegistered(((TagNode) nodeList[0]).getAttributeByName("src"));
-            }
-
-            nodeList = response.evaluateXPath(INFO);
-            if (nodeList.length > 0) {
-                SimpleHtmlSerializer serializer = 
-                    new SimpleHtmlSerializer(cleaner.getProperties());
-
-                result.setInfo(serializer.getAsString((TagNode) nodeList[0]));
-            }
-        } catch (XPatherException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
+        //TODO: This needs some major workover
+//        HashMap<String, String> params = new HashMap<String, String>();
+//        params.put(Constants.PARAM_ACTION, "getinfo");
+//        params.put(Constants.PARAM_USER_ID, aUserId);
+//
+//        HtmlCleaner cleaner = new HtmlCleaner();
+//        CleanerProperties properties = cleaner.getProperties();
+//        properties.setOmitComments(true);
+//
+//        try {
+//            TagNode response = NetworkUtils.get(Constants.FUNCTION_MEMBER, params);
+//
+//            Object[] nodeList = response.evaluateXPath(USERNAME);
+//            if (nodeList.length > 0) {
+//                result.setUsername(((TagNode) nodeList[0]).getText().toString().trim());
+//            }
+//
+//            nodeList = response.evaluateXPath(REGISTERED);
+//            if (nodeList.length > 0) {
+//                result.setRegistered(((TagNode) nodeList[0]).getText().toString().trim());
+//            }
+//
+//            nodeList = response.evaluateXPath(AVATAR);
+//            if (nodeList.length > 0) {
+//                result.setRegistered(((TagNode) nodeList[0]).getAttributeByName("src"));
+//            }
+//
+//            nodeList = response.evaluateXPath(INFO);
+//            if (nodeList.length > 0) {
+//                SimpleHtmlSerializer serializer = 
+//                    new SimpleHtmlSerializer(cleaner.getProperties());
+//
+//                result.setInfo(serializer.getAsString((TagNode) nodeList[0]));
+//            }
+//        } catch (XPatherException e) {
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        Log.e(TAG, "Process Time: "+ (System.currentTimeMillis() - time));
         return result;
     }
 }

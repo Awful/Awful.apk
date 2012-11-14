@@ -27,7 +27,7 @@
 
 package com.ferg.awfulapp.task;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Document;
 
 import android.os.Message;
 import android.util.Log;
@@ -46,7 +46,7 @@ public class PrivateMessageIndexTask extends AwfulTask {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 		try {
-			TagNode pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
+			Document pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
 			AwfulMessage.processMessageList(mContext.getContentResolver(), pmData);
 		} catch (Exception e) {
 			Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));

@@ -16,30 +16,22 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.XMLReader;
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
-import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxStatus;
-import com.androidquery.callback.BitmapAjaxCallback;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
+import org.jsoup.nodes.Element;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriMatcher;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -56,17 +48,10 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.SoftReference;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.RejectedExecutionException;
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxStatus;
+import com.androidquery.callback.BitmapAjaxCallback;
+import com.ferg.awfulapp.R;
 
 /**
  * A light-weight alternative to {@link WebView}.
@@ -339,9 +324,9 @@ public final class HtmlView extends TextView {
     }
 
     private void handleEmbed(Element node, Editable output) {
-        String src = node.getAttribute("src");
-        String type = node.getAttribute("type");
-        boolean allowFullScreen = Boolean.parseBoolean(node.getAttribute("allowfullscreen"));
+        String src = node.attr("src");
+        String type = node.attr("type");
+        boolean allowFullScreen = Boolean.parseBoolean(node.attr("allowfullscreen"));
 
         Uri uri = null;
         int match = UriMatcher.NO_MATCH;
@@ -411,9 +396,9 @@ public final class HtmlView extends TextView {
     }
 
     private void handleImg(Element node, Editable output) {
-        String src = node.getAttribute("src");
-        String alt = node.getAttribute("alt");
-        String title = node.getAttribute("title");
+        String src = node.attr("src");
+        String alt = node.attr("alt");
+        String title = node.attr("title");
         
         int start = output.length();
         output.append("\uFFFC");
@@ -458,7 +443,7 @@ public final class HtmlView extends TextView {
              */
             @Override
             public void handleStartTag(Element node, Editable output) {
-                String tag = node.getTagName();
+                String tag = node.tagName();
                 
                 if (tag.equalsIgnoreCase("embed")) {
                     handleEmbed(node, output);
@@ -466,14 +451,14 @@ public final class HtmlView extends TextView {
                     if(imagesEnabled){
                         handleImg(node, output);
                     }else{
-                        if(node.getAttribute("title").equalsIgnoreCase("")){
+                        if(node.attr("title").equalsIgnoreCase("")){
                             int start = output.length();
-                            output.append(node.getAttribute("src"));
-                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            output.append(node.attr("src"));
+                            output.setSpan(new URLSpan(node.attr("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }else{
                             int start = output.length();
-                            output.append(node.getAttribute("title"));
-                            output.setSpan(new URLSpan(node.getAttribute("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            output.append(node.attr("title"));
+                            output.setSpan(new URLSpan(node.attr("src")), start, output.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
