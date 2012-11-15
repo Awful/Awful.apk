@@ -273,7 +273,9 @@ public class NetworkUtils {
         }
 	    
         if (entity != null) {
-        	response = Jsoup.parse(entity.getContent(), CHARSET, Constants.BASE_URL);
+        	InputStream entityStream = entity.getContent();
+        	response = Jsoup.parse(entityStream, CHARSET, Constants.BASE_URL);
+        	entityStream.close();
         }
         
         Log.i(TAG, "Fetched " + location);
@@ -357,7 +359,9 @@ public class NetworkUtils {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-        	response = Jsoup.parse(entity.getContent(), CHARSET, Constants.BASE_URL);
+        	InputStream entityStream = entity.getContent();
+        	response = Jsoup.parse(entityStream, CHARSET, Constants.BASE_URL);
+        	entityStream.close();
         }
 
 		return response;

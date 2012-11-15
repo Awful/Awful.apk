@@ -93,7 +93,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ForumDisplayFragment";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     
     private PullToRefreshListView mPullRefreshListView;
     private ImageButton mRefreshBar;

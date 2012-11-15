@@ -86,7 +86,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			AwfulForum.getSubforumView(current, aq, mPrefs, data, false);
+			assert(false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
 			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
@@ -105,7 +105,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulThread.getView(row, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulForum.getSubforumView(row, aq, mPrefs, data, false);
+			assert(false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
 			row = inf.inflate(R.layout.post_item, parent, false);
 			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);

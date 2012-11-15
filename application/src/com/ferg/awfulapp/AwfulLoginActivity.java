@@ -66,25 +66,15 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-		Log.e(TAG,"onCreate"+(savedInstanceState != null?" savedInstanceState":""));
 
         setContentView(R.layout.login);
 
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
-        mPassword.setOnKeyListener(new OnKeyListener() {
-			
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				Log.e(TAG,"keyevent: "+event.getKeyCode());
-				return false;
-			}
-		});
         mPassword.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				Log.e(TAG,"onEditorAction: "+actionId);
 				if(actionId == EditorInfo.IME_ACTION_DONE){
 					loginClick();
 				}
@@ -111,7 +101,7 @@ public class AwfulLoginActivity extends AwfulActivity {
     //Not sure if this needs a @Override since it worked without one
     public void onResume(){
     	super.onResume();
-		Log.e(TAG,"onResume");
+		Log.i(TAG,"onResume");
     	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
 		if (loggedIn) {
 			Log.e(TAG,"Already logged in! Closing AwfulLoginActivity!");

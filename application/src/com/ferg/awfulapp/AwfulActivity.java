@@ -115,7 +115,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     @Override
 	protected void onActivityResult(int request, int result, Intent intent) {
 		super.onActivityResult(request, result, intent);
-    	Log.e(TAG,"onActivityResult: " + request+" result: "+result);
+    	Log.w(TAG,"onActivityResult: " + request+" result: "+result);
 		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED){
 			finish();
 		}

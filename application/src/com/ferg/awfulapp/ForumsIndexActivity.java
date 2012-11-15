@@ -437,6 +437,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
 	protected void onActivityResult(int request, int result, Intent intent) {
+    	Log.e(TAG,"onActivityResult: " + request+" result: "+result);
 		super.onActivityResult(request, result, intent);
 		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
 			mHandler.postDelayed(new Runnable() {

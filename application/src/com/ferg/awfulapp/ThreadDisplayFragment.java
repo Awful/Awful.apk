@@ -112,7 +112,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayFragment";
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -543,14 +543,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     public void refreshSessionCookie(){
         if(mThreadView != null){
-        	Log.e(TAG,"SETTING COOKIES");
+        	if(DEBUG) Log.e(TAG,"SETTING COOKIES");
         	CookieSyncManager.createInstance(getActivity());
         	CookieManager ckiemonster = CookieManager.getInstance();
         	ckiemonster.removeSessionCookie();
-        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID)));
-        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH)));
-        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID)));
-        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, Constants.LogE(TAG, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD)));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
+        	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
         	CookieSyncManager.getInstance().sync();
         }
     }

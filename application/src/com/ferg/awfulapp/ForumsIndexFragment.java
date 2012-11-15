@@ -74,7 +74,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshTreeView;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private final static String TAG = "ForumsIndex";
     private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     
     private boolean loadFailed = false;
 
