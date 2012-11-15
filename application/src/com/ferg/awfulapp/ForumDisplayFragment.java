@@ -572,7 +572,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
 			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
 		}
-		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
+//		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}

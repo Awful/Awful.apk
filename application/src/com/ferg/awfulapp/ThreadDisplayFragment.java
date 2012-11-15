@@ -1386,9 +1386,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mPageBar != null){
-			mPageBar.setBackgroundColor(mPrefs.actionbarColor);
-		}
+//		if(mPageBar != null){
+//			mPageBar.setBackgroundColor(mPrefs.actionbarColor);
+//		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(mPrefs.actionbarFontColor);
 		}
