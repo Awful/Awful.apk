@@ -261,6 +261,11 @@ public class AwfulForum extends AwfulPagedItem {
 	 */	
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);
+		if(selected){
+			aq.backgroundColor(aPrefs.postBackgroundColor2);
+		}else{
+			aq.backgroundColor(aPrefs.postBackgroundColor);
+		}
 		aq.find(R.id.icon_box).gone();
 		aq.find(R.id.selector).gone();
 		aq.find(R.id.unread_count).gone();

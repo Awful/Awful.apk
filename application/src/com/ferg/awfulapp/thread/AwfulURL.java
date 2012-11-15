@@ -168,7 +168,6 @@ public class AwfulURL {
 		case EXTERNAL:
 			return externalURL;
 		}
-		Log.e("AwfulURL","getUrl(): "+url.toString());
 		return (url == null? "" : url.toString());
 	}
 	
@@ -177,7 +176,6 @@ public class AwfulURL {
 		if(originalPerPage != newPerPage){
 			pageNum = (long) Math.ceil((double)(originalPageNum*originalPerPage) / newPerPage);
 		}
-		Log.e("AwfulURL","convertPerPage()- original: "+originalPageNum+" result: "+pageNum+" perPage: "+originalPerPage+" newPerPage: "+newPerPage);
 		return pageNum;
 	}
 
@@ -233,6 +231,11 @@ public class AwfulURL {
 
 	public boolean isExternal() {
 		return type == TYPE.EXTERNAL;
+	}
+
+	public AwfulURL setPerPage(int postPerPage) {
+		perPage = postPerPage;
+		return this;
 	}
 	
 }

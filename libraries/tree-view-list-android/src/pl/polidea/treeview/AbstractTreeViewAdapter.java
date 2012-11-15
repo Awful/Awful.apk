@@ -226,6 +226,9 @@ public abstract class AbstractTreeViewAdapter<T> extends BaseAdapter implements
         final Drawable individualRowDrawable = getBackgroundDrawable(nodeInfo);
         layout.setBackgroundDrawable(individualRowDrawable == null ? getDrawableOrDefaultBackground(rowBackgroundDrawable)
                 : individualRowDrawable);
+        if(childView.getBackground() != null){
+        	layout.setBackground(childView.getBackground());
+        }
         final LinearLayout.LayoutParams indicatorLayoutParams = new LinearLayout.LayoutParams(
                 calculateIndentation(nodeInfo), LayoutParams.FILL_PARENT);
         final LinearLayout indicatorLayout = (LinearLayout) layout

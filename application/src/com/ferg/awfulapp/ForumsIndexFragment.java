@@ -271,8 +271,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
 			mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
 			mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
-			if(mTreeAdapter != null){
-				mTreeAdapter.notifyDataSetChanged();
+			if(dataManager != null){
+				dataManager.refresh();
 			}
 		}
 	}
@@ -335,39 +335,27 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 	}
 	
-	public static ArrayList<ForumEntry> updateForumTree(ArrayList<ForumEntry> primaryForums, SparseArray<ForumEntry> forumMap, Cursor data){
-		ArrayList<ForumEntry> newForums = new ArrayList<ForumEntry>();
+	public static void updateForumTree(ArrayList<ForumEntry> primaryForums, SparseArray<ForumEntry> forumMap, Cursor data){
+		primaryForums.clear();
+		forumMap.clear();
 		if(data != null && !data.isClosed() && data.moveToFirst()){
-			if(data.getCount() < forumMap.size()){
-				primaryForums.clear();
-				forumMap.clear();
-			}
 			LinkedList<ForumEntry> tmpSubforums = new LinkedList<ForumEntry>();
 			do{
 				if(data.getInt(data.getColumnIndex(AwfulForum.ID)) <= 0){
 					continue;
 				}
-				ForumEntry current = forumMap.get(data.getInt(data.getColumnIndex(AwfulForum.ID)));
-				if(current != null){
-					current.parentId = data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID));
-					current.title = data.getString(data.getColumnIndex(AwfulForum.TITLE));
-					current.subtitle = data.getString(data.getColumnIndex(AwfulForum.SUBTEXT));
-					current.tagUrl = data.getString(data.getColumnIndex(AwfulForum.TAG_URL));
+				ForumEntry forum = new ForumEntry(data.getInt(data.getColumnIndex(AwfulForum.ID)),
+											  data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)),
+											  data.getString(data.getColumnIndex(AwfulForum.TITLE)),
+											  data.getString(data.getColumnIndex(AwfulForum.SUBTEXT)),
+											  data.getString(data.getColumnIndex(AwfulForum.TAG_URL))
+											  );
+				if(forum.parentId != 0){
+					tmpSubforums.add(forum);
 				}else{
-					ForumEntry forum = new ForumEntry(data.getInt(data.getColumnIndex(AwfulForum.ID)),
-												  data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)),
-												  data.getString(data.getColumnIndex(AwfulForum.TITLE)),
-												  data.getString(data.getColumnIndex(AwfulForum.SUBTEXT)),
-												  data.getString(data.getColumnIndex(AwfulForum.TAG_URL))
-												  );
-					if(forum.parentId != 0){
-						tmpSubforums.add(forum);
-					}else{
-						primaryForums.add(forum);
-					}
-					forumMap.put(forum.id, forum);
-					newForums.add(forum);
+					primaryForums.add(forum);
 				}
+				forumMap.put(forum.id, forum);
 			}while(data.moveToNext());
 			//do subforums after parent forums, in case we have subforums out of order, which will happen
 			for(ForumEntry sub : tmpSubforums){
@@ -378,7 +366,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			}
 			tmpSubforums.clear();
 		}
-		return newForums;
 	}
 	
 	private class AwfulTreeListAdapter extends AbstractTreeViewAdapter<ForumEntry>{
@@ -396,8 +383,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 		
 		public void setCursor(Cursor data){
-			parentForums.clear();
-			forumsMap.clear();
 			updateForumTree(parentForums, forumsMap, data);
 			builder.clear();
         	for(ForumEntry parent : parentForums){
@@ -475,6 +460,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			//Log.i(TAG, view+" - Clicked: "+data.id+" - "+data.title);
 			selectedForum = data.id;
 			displayForum(data.id, 1);
+			dataManager.refresh();
 		}
 		
 	}

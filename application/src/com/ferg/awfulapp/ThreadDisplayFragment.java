@@ -225,13 +225,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				break;
 			case THREAD:
 				if(alink.isRedirect()){
-					startPostRedirect(alink.getURL());
+					startPostRedirect(alink.getURL(mPrefs.postPerPage));
 				}else{
 					pushThread((int)alink.getId(),(int)alink.getPage(),alink.getFragment().replaceAll("\\D", ""));
 				}
 				break;
 			case POST:
-				startPostRedirect(alink.getURL());
+				startPostRedirect(alink.getURL(mPrefs.postPerPage));
 				break;
 			case EXTERNAL:
 //				mActionModeURL = aUrl;
@@ -795,11 +795,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             	if(aResultCode == PostReplyFragment.RESULT_POSTED){
             		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=lastpost&threadid="+getThreadId()+"&perpage="+mPrefs.postPerPage);
             		bypassBackStack = true;
-            		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), mPrefs.postPerPage).getURL());
+            		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), mPrefs.postPerPage).getURL(mPrefs.postPerPage));
             	}else if(aResultCode > 100){//any result >100 it is a post id we edited
             		//startPostRedirect(Constants.FUNCTION_THREAD+"?goto=post&postid="+aResultCode+"&perpage="+mPrefs.postPerPage);
             		bypassBackStack = true;
-            		startPostRedirect(AwfulURL.post(aResultCode, mPrefs.postPerPage).getURL());
+            		startPostRedirect(AwfulURL.post(aResultCode, mPrefs.postPerPage).getURL(mPrefs.postPerPage));
             	}
                 break;
         }
@@ -973,7 +973,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     @Override
 	public void loadingUpdate(Message aMsg) {
-		super.loadingUpdate(aMsg);
+		//super.loadingUpdate(aMsg);
     	setProgress(aMsg.arg2/2);
 	}
 
@@ -984,6 +984,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
     		if(aMsg.obj instanceof String){
     			AwfulURL result = AwfulURL.parse((String) aMsg.obj);
+    			if(aMsg.obj.toString().contains(Constants.VALUE_LASTPOST)){
+    				//This is a workaround for how the forums handle the perPage value with goto=lastpost.
+    				//The redirected url is lacking the perpage=XX value.
+    				//We just override the assumed (40) with the number we requested when starting the redirect.
+    				//I gotta ask chooch to fix this at some point.
+    				result.setPerPage(mPrefs.postPerPage);
+    			}
     			if(result.getType() == TYPE.THREAD){
     				if(bypassBackStack){
     					openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
