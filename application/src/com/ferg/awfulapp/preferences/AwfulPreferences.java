@@ -206,7 +206,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
-        threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", false);
+        threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
