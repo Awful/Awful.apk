@@ -258,64 +258,17 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param data
 	 * @param selected 
 	 * @param mIsSidebar 
-	 */
-	public static void getSubforumView(View current, AQuery aq, AwfulPreferences aPrefs, Cursor data, boolean selected) {
-		aq.recycle(current);
-		TextView title = (TextView) current.findViewById(R.id.title);
-		TextView sub = (TextView) current.findViewById(R.id.threadinfo);
-		current.findViewById(R.id.icon_box).setVisibility(View.GONE);
-		current.findViewById(R.id.thread_tag).setVisibility(View.GONE);
-		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
-		if(aPrefs != null){
-			title.setTextColor(aPrefs.postFontColor);
-			sub.setTextColor(aPrefs.postFontColor2);
-		}
-		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
-		title.setTypeface(null, Typeface.BOLD);
-		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
-		if(subtext != null && subtext.length() > 0){
-			sub.setVisibility(View.VISIBLE);
-			sub.setText(subtext);
-		}else{
-			sub.setVisibility(View.GONE);
-		}
-		
-		String tagFile = data.getString(data.getColumnIndex(TAG_URL));
-		if(aPrefs.threadInfo_Tag && tagFile != null && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			aq.id(R.id.forum_tag).visible().image(tagFile, true, true);
-		}else{
-			aq.id(R.id.forum_tag).gone();
-		}
-	}
-	
+	 */	
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);
 		aq.find(R.id.icon_box).gone();
-		if(hasChildren){
-			aq.find(R.id.selector).visible().image(R.drawable.light_inline_more);
-		}else{
-			aq.find(R.id.selector).gone();
-		}
+		aq.find(R.id.selector).gone();
 		aq.find(R.id.unread_count).gone();
-		//if(selected){
-		//	aq.find(R.id.selector).visible();
-		//}else{
-		//	aq.find(R.id.selector).gone();
-		//}
 		TextView title = (TextView) current.findViewById(R.id.title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
 		aq.find(R.id.title).textColor(aPrefs.postFontColor).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
-		if(data.subtitle != null && data.subtitle.length() > 0){
-			aq.find(R.id.threadinfo).visible().textColor(aPrefs.postFontColor2).text(Html.fromHtml(data.subtitle)).getTextView().setSingleLine();
-		}else{
-			aq.find(R.id.threadinfo).gone();
-		}
+		aq.find(R.id.threadinfo).gone();
 		
 		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
 			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);
