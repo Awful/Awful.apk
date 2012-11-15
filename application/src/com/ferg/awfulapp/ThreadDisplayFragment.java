@@ -258,8 +258,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         Bundle args = getArguments();
         if(savedInstanceState != null){
         	Log.w(TAG, "Loading from savedInstanceState");
-            mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, args.getInt(Constants.THREAD_ID));
-    		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, args.getInt(Constants.THREAD_PAGE));
+            mThreadId = savedInstanceState.getInt(Constants.THREAD_ID, (args != null? args.getInt(Constants.THREAD_ID) : 0));
+    		mPage = savedInstanceState.getInt(Constants.THREAD_PAGE, (args != null? args.getInt(Constants.THREAD_PAGE) : 1));
     		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
         }else{
             Intent data = getActivity().getIntent();

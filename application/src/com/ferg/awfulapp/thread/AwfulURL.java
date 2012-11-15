@@ -83,7 +83,7 @@ public class AwfulURL {
 	public static AwfulURL parse(String url){
 		AwfulURL aurl = new AwfulURL();
 		Uri uri = Uri.parse(url);
-		if(uri.isRelative() || uri.getHost().contains("forums.somethingawful.com")){
+		if(uri.isRelative() || (uri.getHost() != null && uri.getHost().contains("forums.somethingawful.com"))){
 			if(uri.getQueryParameter(Constants.PARAM_PAGE) != null){
 				aurl.pageNum = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_PAGE), 1);
 			}
