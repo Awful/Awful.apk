@@ -112,7 +112,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
     private static final String TAG = "ThreadDisplayFragment";
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;

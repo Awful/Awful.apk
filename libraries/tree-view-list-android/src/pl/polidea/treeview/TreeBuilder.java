@@ -27,6 +27,7 @@ public class TreeBuilder<T> {
 
     public void clear() {
         manager.clear();
+        lastAddedId = null;
     }
 
     /**

@@ -74,9 +74,11 @@ import com.handmark.pulltorefresh.library.PullToRefreshTreeView;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private final static String TAG = "ForumsIndex";
     private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     
     private boolean loadFailed = false;
+    
+    private int selectedForum = 0;
 
     public static ForumsIndexFragment newInstance() {
         return new ForumsIndexFragment();
@@ -394,40 +396,31 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 		
 		public void setCursor(Cursor data){
-			if(forumsMap.size() == 0){
-				parentForums.clear();
-				forumsMap.clear();
-				updateForumTree(parentForums, forumsMap, data);
-				builder.clear();
-	        	for(ForumEntry parent : parentForums){
-	        		builder.sequentiallyAddNextNode(parent, 0);
-	        		addChildren(builder, parent, 1);
-	        	}
-			}else{
-				ArrayList<ForumEntry> newForums = updateForumTree(parentForums, forumsMap, data);
-				for(ForumEntry item : newForums){
-					if(item.parentId == 0 && !dataManager.isInTree(item)){
-						builder.sequentiallyAddNextNode(item, 0);
-					}else{
-						ForumEntry parent = forumsMap.get(item.parentId);
-						if(parent != null && !dataManager.isInTree(item)){
-							if(dataManager.isInTree(parent)){
-								builder.addRelation(parent, item);
-							}else{
-								builder.sequentiallyAddNextNode(parent, 0);
-								builder.addRelation(parent, item);
-							}
-						}
-					}
-				}
-			}
+			parentForums.clear();
+			forumsMap.clear();
+			updateForumTree(parentForums, forumsMap, data);
+			builder.clear();
+        	for(ForumEntry parent : parentForums){
+        		builder.sequentiallyAddNextNode(parent, 0);
+        		addChildren(builder, parent, 1);
+        	}
+			
         	if(forumsMap.size() < 5 && !loadFailed){
         		syncForums();
+        	}
+        	if(selectedForum > 0){
+        		ForumEntry forum = forumsMap.get(selectedForum);
+        		//iterate up the tree and show children as we go.
+        		//it's recursive to catch subsubforums in games
+        		while(forum != null && forum.parentId > 0 && forumsMap.get(forum.parentId) != null){
+        			forum = forumsMap.get(forum.parentId);
+        			dataManager.expandDirectChildren(forum);
+        		}
         	}
 		}
 		
 		private void addChildren(TreeBuilder<ForumEntry> builder, ForumEntry parent, int level){
-			Log.e(TAG, level+" - Adding children for #"+parent.id+" - "+parent.title+" - "+parent.subforums.size());
+			if(DEBUG) Log.e(TAG, level+" - Adding children for #"+parent.id+" - "+parent.title+" - "+parent.subforums.size());
     		for(ForumEntry child : parent.subforums){
         		builder.sequentiallyAddNextNode(child, level);
         		addChildren(builder, child, level+1);
@@ -448,7 +441,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 							   rowAq,
 							   mPrefs,
 							   data,
-							   selectedId > -1 && selectedId == data.id,
+							   selectedForum > 0 && selectedForum == data.id,
 							   false);
 			getAwfulActivity().setPreferredFont(row);
 			return row;
@@ -464,7 +457,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 							   rowAq,
 							   mPrefs,
 							   data,
-							   selectedId > -1 && selectedId == data.id,
+							   selectedForum > 0 && selectedForum == data.id,
 							   false);
 			getAwfulActivity().setPreferredFont(row);
 			return row;
@@ -480,20 +473,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			ForumEntry data = (ForumEntry) id;
 			//dataManager.expandDirectChildren(data);
 			//Log.i(TAG, view+" - Clicked: "+data.id+" - "+data.title);
+			selectedForum = data.id;
 			displayForum(data.id, 1);
 		}
 		
 	}
 	
-	private int selectedId = -1;
-	public void setSelected(int id){
-		selectedId = id;
-	}
-	
-	public int getSelected(){
-		return selectedId;
-	}
-
 	@Override
 	public String getTitle() {
 		if(getActivity() != null){
