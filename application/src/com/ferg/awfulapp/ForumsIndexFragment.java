@@ -29,7 +29,9 @@ package com.ferg.awfulapp;
 
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 
 import pl.polidea.treeview.AbstractTreeViewAdapter;
@@ -64,6 +66,10 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshTreeView;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private final static String TAG = "ForumsIndex";
@@ -76,7 +82,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         return new ForumsIndexFragment();
     }
     
-    private TreeViewList mForumTree;
+    private PullToRefreshTreeView mForumTree;
 //    private PullToRefreshExpandableListView mForumList;
     
     private AwfulTreeListAdapter mTreeAdapter;
@@ -101,10 +107,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
-        mForumTree = (TreeViewList) result.findViewById(R.id.index_tree_view);
+        mForumTree = (PullToRefreshTreeView) result.findViewById(R.id.index_pull_tree_view);
         
         mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
-        mForumTree.setCacheColorHint(mPrefs.postBackgroundColor);
+        mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
 
 //        mForumList = (PullToRefreshExpandableListView) result.findViewById(R.id.forum_list);
 //        mForumList.setDrawingCacheEnabled(true);
@@ -114,18 +120,18 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 //        mForumList.getRefreshableView().setOnChildClickListener(onForumSelected);
 //        mForumList.getRefreshableView().setOnGroupClickListener(onParentForumSelected);
 //        mForumList.getRefreshableView().setOnItemLongClickListener(onForumLongclick);
-//        mForumList.setOnRefreshListener(new OnRefreshListener<ExpandableListView>() {
-//			
-//			@Override
-//			public void onRefresh(PullToRefreshBase<ExpandableListView> refreshView) {
-//				syncForums();
-//			}
-//		});
-//        mForumList.setDisableScrollingWhileRefreshing(false);
-//        mForumList.setMode(Mode.PULL_DOWN_TO_REFRESH);
-//        mForumList.setPullLabel("Pull to Refresh");
-//        mForumList.setReleaseLabel("Release to Refresh");
-//        mForumList.setRefreshingLabel("Loading...");
+        mForumTree.setOnRefreshListener(new OnRefreshListener<TreeViewList>() {
+			
+			@Override
+			public void onRefresh(PullToRefreshBase<TreeViewList> refreshView) {
+				syncForums();
+			}
+		});
+        mForumTree.setDisableScrollingWhileRefreshing(false);
+        mForumTree.setMode(Mode.PULL_DOWN_TO_REFRESH);
+        mForumTree.setPullLabel("Pull to Refresh");
+        mForumTree.setReleaseLabel("Release to Refresh");
+        mForumTree.setRefreshingLabel("Loading...");
         return result;
     }
 
@@ -141,6 +147,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "Start");
+    	loadFailed = false;
     }
     
     @Override
@@ -241,8 +248,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		if(aMsg.obj == null && getActivity() != null){
 			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 		}
-//    	mForumList.onRefreshComplete();
-//    	mForumList.setLastUpdatedLabel("Loading Failed!");
+		mForumTree.onRefreshComplete();
+		mForumTree.setLastUpdatedLabel("Loading Failed!");
     	loadFailed = true;
     }
     
@@ -251,25 +258,25 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		super.loadingSucceeded(aMsg);
 		setProgress(100);
 		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
-//    	mForumList.onRefreshComplete();
-//    	mForumList.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
+    	mForumTree.onRefreshComplete();
+    	mForumTree.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
 	}
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
-//		if(mForumList != null){
-//			mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-//			mForumList.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-//			mForumList.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+		if(mForumTree != null){
+			mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
+			mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+			mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
 			if(mTreeAdapter != null){
 				mTreeAdapter.notifyDataSetChanged();
 			}
-//		}
+		}
 	}
 	
 	private void syncForumsIfStale() {
-		if(getActivity() != null && lastUpdateTime < System.currentTimeMillis()-(60000*1440*7)){
+		if(getActivity() != null && lastUpdateTime < System.currentTimeMillis()-(60000*1440)){
 			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
@@ -301,7 +308,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         			}
         			lastUpdateTime = upDate.getTime();
         			syncForumsIfStale();
-//        	        mForumList.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
+        			mForumTree.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
         		}
         		mTreeAdapter.setCursor(aData);
         	}
@@ -323,39 +330,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		public ArrayList<ForumEntry> subforums = new ArrayList<ForumEntry>();
 		public ForumEntry(int aId, int parent, String aTitle, String aSubtitle, String aTagUrl){
 			id = aId; parentId = parent; title = aTitle; subtitle = aSubtitle; tagUrl = aTagUrl;
-		}
-	}
-	
-	public static void parseForumTree(ArrayList<ForumEntry> primaryForums, SparseArray<ForumEntry> forumMap, Cursor data){
-		primaryForums.clear();
-		forumMap.clear();
-		if(data != null && !data.isClosed() && data.moveToFirst()){
-			LinkedList<ForumEntry> tmpSubforums = new LinkedList<ForumEntry>();
-			do{
-				if(data.getInt(data.getColumnIndex(AwfulForum.ID)) <= 0){
-					continue;
-				}
-				ForumEntry forum = new ForumEntry(data.getInt(data.getColumnIndex(AwfulForum.ID)),
-												  data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)),
-												  data.getString(data.getColumnIndex(AwfulForum.TITLE)),
-												  data.getString(data.getColumnIndex(AwfulForum.SUBTEXT)),
-												  data.getString(data.getColumnIndex(AwfulForum.TAG_URL))
-												  );
-				if(forum.parentId != 0){
-					tmpSubforums.add(forum);
-				}else{
-					primaryForums.add(forum);
-				}
-				forumMap.put(forum.id, forum);
-			}while(data.moveToNext());
-			//do subforums after parent forums, in case we have subforums out of order, which will happen
-			for(ForumEntry sub : tmpSubforums){
-				ForumEntry parent = forumMap.get(sub.parentId);
-				if(parent != null){
-					parent.subforums.add(sub);
-				}
-			}
-			tmpSubforums.clear();
 		}
 	}
 	
@@ -421,7 +395,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		
 		public void setCursor(Cursor data){
 			if(forumsMap.size() == 0){
-				parseForumTree(parentForums, forumsMap, data);
+				parentForums.clear();
+				forumsMap.clear();
+				updateForumTree(parentForums, forumsMap, data);
 				builder.clear();
 	        	for(ForumEntry parent : parentForums){
 	        		builder.sequentiallyAddNextNode(parent, 0);

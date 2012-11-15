@@ -11,21 +11,20 @@
 		android:layout_height="4dp"
 		android:visibility="gone"
        />
-    <pl.polidea.treeview.TreeViewList 
+    <!--  <pl.polidea.treeview.TreeViewList 
         android:id="@+id/index_tree_view" 
         android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:scrollbars="vertical" 
 		android:smoothScrollbar="true"
-		/>
-	<!--  <com.handmark.pulltorefresh.library.PullToRefreshExpandableListView
-		android:id="@+id/forum_list"
+		/>-->
+	<com.handmark.pulltorefresh.library.PullToRefreshTreeView
+	    android:id="@+id/index_pull_tree_view" 
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
         android:divider="#8c8c8c"
         android:dividerHeight="1dp"
-        android:groupIndicator="@null"
 		android:drawSelectorOnTop="false"
 		android:cacheColorHint="@color/background"
-		/> -->
+		/> 
 </LinearLayout>
