@@ -473,7 +473,7 @@ public class AwfulThread extends AwfulPagedItem  {
             	light = !light;
             }
 
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' id='" + post.getId() + "' >\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone " + post.getId() + "' id='" + post.getId() + "' >\n");
             buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
             if(aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0){
 	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
@@ -520,7 +520,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+"' id='" + post.getId() + "' >\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+" " + post.getId() + "' >\n");
 
 
             buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");

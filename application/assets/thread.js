@@ -74,7 +74,7 @@ $(window).ready(function() {
 	//listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
-		var id = this.hash.replace(/post/,'');
+		var id = this.hash.replace(/#post/,'.').concat(':visible');
 		if($(id).length > 0){
 			$(this).click(function(e){
 				$(window).scrollTop($(id).offset().top);
