@@ -54,7 +54,7 @@ public class ImageCacheTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try{
 		if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			File baseCacheDir;
@@ -100,17 +100,17 @@ public class ImageCacheTask extends AwfulTask {
 				}
 			}else{
 				Log.e(TAG, "IMAGE DECODING FAILED: CATEGORICALLY FOOLISH");
-				return false;
+				return LOADING_FAILED;
 			}
 		}else{
-			return false;
+			return LOADING_FAILED;
 		}
 		}catch(Exception e){
 			e.printStackTrace();
 			Log.e(TAG, "IMAGE CACHE FAILED: TOO EMOTIONAL");
-			return false;
+			return LOADING_FAILED;
 		}
-		return true;
+		return null;
 	}
 
 }

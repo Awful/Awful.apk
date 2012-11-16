@@ -241,7 +241,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static void getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates) throws Exception {
+    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
@@ -268,8 +268,7 @@ public class AwfulThread extends AwfulPagedItem  {
         
         String error = AwfulPagedItem.checkPageErrors(response, statusUpdates);
         if(error != null){
-        	statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_ERROR, 0, 0, error));
-        	throw new Exception(error);//errors found, skip processing.
+        	return error;
         }
         
         ContentValues thread = new ContentValues();
@@ -351,6 +350,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	
         //notify user we are done with this stage
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 100));
+        return null;
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, boolean threadLocked) {

@@ -38,8 +38,9 @@ import com.ferg.awfulapp.service.AwfulSyncService;
  * AwfulSyncService may avoid creating duplicate tasks if the new task's id and arg1 match any other pending task.
  * Can be extended as either separate class file or anonymous inner class.
  */
-public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
-	public static final String TAG = "AwfulTask";
+public abstract class AwfulTask extends AsyncTask<Void, Void, String> {
+	protected static final String TAG = "AwfulTask";
+	protected static final String LOADING_FAILED = "Loading Failed!";
 	protected int mId = 0;
 	protected int mArg1 = 0;
 	protected int TYPE;
@@ -78,12 +79,12 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, Boolean> {
 		}
 	}
 	@Override
-	public void onPostExecute(Boolean success){
+	public void onPostExecute(String error){
 		if(!isCancelled()){
-			if(success){
+			if(error == null){
 				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1, replyObject);
 			}else{
-				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1, replyObject);
+				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1, error);
 			}
 			mContext.taskFinished(this);
 		}

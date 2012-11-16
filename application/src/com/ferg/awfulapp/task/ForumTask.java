@@ -23,7 +23,7 @@ public class ForumTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			Document threads = null;
             replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 25));
@@ -32,8 +32,7 @@ public class ForumTask extends AwfulTask {
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
                 String error = AwfulPagedItem.checkPageErrors(threads, replyTo);
                 if(error != null){
-                	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERROR, 0, 0, error));
-                	return false;
+                	return error;
                 }
                 AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
             }else{
@@ -42,15 +41,13 @@ public class ForumTask extends AwfulTask {
                 String error = AwfulPagedItem.checkPageErrors(threads, replyTo);
                 if(error != null){
                 	Log.e(TAG,"Parsing Failed: "+error);
-                	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERROR, 0, 0, error));
-                	return false;
+                	return error;
                 }
         		String innerText = threads.getElementsByClass("inner").text();
         		if(innerText.contains("Specified forum was not found in the live forums.") || innerText.contains("You do not have permission to access this page.")){
                 	Log.e(TAG,"Parsing Failed: Forum "+mId+" not found, deleting entry.");
         			mContext.getContentResolver().delete(AwfulForum.CONTENT_URI, AwfulForum.ID+"=?", AwfulProvider.int2StrArray(mId));
-                	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERROR, 0, 0, "Error - Forum does not exist or you do not have permission to view it."));
-        			return false;
+        			return "Error - Forum does not exist or you do not have permission to view it.";
         		}
                 AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
             }
@@ -58,8 +55,8 @@ public class ForumTask extends AwfulTask {
         } catch (Exception e) {
             Log.e(TAG, "Sync error");
             e.printStackTrace();
-            return false;
+            return "Failed to load Forum!";
         }
-		return true;
+		return null;
 	}
 }

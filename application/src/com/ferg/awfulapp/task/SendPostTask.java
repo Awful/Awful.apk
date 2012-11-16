@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp.task;
 
+import java.io.IOException;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -46,7 +48,7 @@ public class SendPostTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try{
 			ContentResolver cr = mContext.getContentResolver();
 			Cursor postInfo = cr.query(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), AwfulProvider.DraftPostProjection, null, null, null);
@@ -59,7 +61,7 @@ public class SendPostTask extends AwfulTask {
 				int postId = postInfo.getInt(postInfo.getColumnIndex(AwfulPost.EDIT_POST_ID));
 				if(replyType != AwfulMessage.TYPE_EDIT && (formKey == null || message == null || formCookie == null || message.length()<1 || formCookie.length()<1 || formKey.length()<1)){
 					Log.e(TAG,"SEND POST FAILED: "+mId+" MISSING VARIABLES");
-					return false;
+					return LOADING_FAILED;
 				}
 				switch(replyType){
 					case AwfulMessage.TYPE_QUOTE:
@@ -70,18 +72,21 @@ public class SendPostTask extends AwfulTask {
 						Reply.edit(message, formKey, formCookie, Integer.toString(mId), Integer.toString(postId), attachment);
 						break;
 					default:
-						return false;
+						return LOADING_FAILED;
 				}
 				cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mId));
 			}else{
-				return false;
+				return LOADING_FAILED;
 			}
+		}catch (IOException e) {
+			e.printStackTrace();
+			return "Network failure!";
 		}catch(Exception e){
 			Log.e(TAG,"SEND POST FAILED: "+mId+" "+e.getMessage());
 			e.printStackTrace();
-			return false;
+			return LOADING_FAILED;
 		}
-		return true;
+		return null;
 	}
 
 }

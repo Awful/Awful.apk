@@ -49,7 +49,7 @@ public class MarkLastReadTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		if (!isCancelled()) {
             try {
             	HashMap<String, String> param = new HashMap<String, String>();
@@ -86,10 +86,10 @@ public class MarkLastReadTask extends AwfulTask {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return "Failed to mark position!";
             }
         }
-        return true;
+        return null;
 	}
 
 }

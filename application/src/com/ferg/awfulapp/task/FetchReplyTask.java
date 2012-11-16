@@ -50,7 +50,7 @@ public class FetchReplyTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try{
 			ContentResolver contentResolver = mContext.getContentResolver();
 			ContentValues reply;
@@ -72,7 +72,7 @@ public class FetchReplyTask extends AwfulTask {
 					reply = Reply.fetchEdit(mId, mArg1);
 					break;
 				default:
-					return false;
+					return "Internal Error: Unknown reply type!";
 			}
 			reply.put(AwfulProvider.UPDATED_TIMESTAMP, new Timestamp(System.currentTimeMillis()).toString());
 			if(contentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), reply, null, null)<1){
@@ -81,9 +81,9 @@ public class FetchReplyTask extends AwfulTask {
 			Log.i(TAG, "Reply loaded and saved: "+mId);
 		}catch(Exception e){
 			Log.e(TAG, "Reply Load Failure: "+mId+" - "+e.getMessage());
-			return false;
+			return "Failed to load reply!";
 		}
-		return true;
+		return null;
 	}
 
 }

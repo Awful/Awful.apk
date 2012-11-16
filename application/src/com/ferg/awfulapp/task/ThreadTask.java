@@ -45,17 +45,18 @@ public class ThreadTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
+		String error = null;
 		try {
-            AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId, replyTo);
+			error = AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId, replyTo);
             Log.i(TAG, "Sync complete");
         } catch (Exception e) {
             Log.e(TAG, "Sync error");
             e.printStackTrace();
-            return false;
+            return "Failed to load thread!";
         }
 		mContext.queueDelayedMessage(AwfulSyncService.MSG_TRIM_DB, 1000, 0, 7);
-		return true;
+		return error;
 	}
 
 }

@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp.task;
 
+import java.io.IOException;
+
 import android.os.Message;
 
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -40,14 +42,17 @@ public class RedirectTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			setReplyObject(NetworkUtils.getRedirect(mUrl, null));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "Network failure!";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return LOADING_FAILED;
 		}
-		return true;
+		return null;
 	}
 
 }

@@ -50,7 +50,7 @@ public class FetchPrivateMessageTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			HashMap<String, String> para = new HashMap<String, String>();
             para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
@@ -79,9 +79,9 @@ public class FetchPrivateMessageTask extends AwfulTask {
 			Log.v(TAG,"Fetched msg: "+mId);
 		} catch (Exception e) {
 			Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
-			return false;
+			return "Failed to load PMs!";
 		}
-		return true;
+		return null;
 	}
 
 }

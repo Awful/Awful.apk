@@ -53,7 +53,7 @@ public class BookmarkTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... p) {
+	protected String doInBackground(Void... p) {
 		if (!isCancelled()) {
         	HashMap<String, String> params = new HashMap<String, String>();
             params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
@@ -72,10 +72,10 @@ public class BookmarkTask extends AwfulTask {
                 cr.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(mId));
             } catch (Exception e) {
                 Log.i(TAG, e.toString());
-                return false;
+                return "Failed to set bookmark status!";
             }
         }
-        return true;
+        return null;
 	}
 
 }
