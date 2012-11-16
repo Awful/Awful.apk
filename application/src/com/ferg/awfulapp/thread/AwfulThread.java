@@ -520,7 +520,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("        </div>\n");
             buffer.append("    </td>\n");
             buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+"' >\n");
+            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+"' id='" + post.getId() + "' >\n");
 
 
             buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");
