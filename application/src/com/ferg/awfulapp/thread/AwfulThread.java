@@ -268,6 +268,7 @@ public class AwfulThread extends AwfulPagedItem  {
         
         String error = AwfulPagedItem.checkPageErrors(response, statusUpdates);
         if(error != null){
+        	statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_ERROR, 0, 0, error));
         	throw new Exception(error);//errors found, skip processing.
         }
         

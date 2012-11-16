@@ -58,12 +58,13 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     protected Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
-        	if(getActivity()!= null){
+    		AwfulActivity aa = getAwfulActivity();
+        	if(aa != null){
 	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-	        	if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
-	        		AwfulActivity aa = getAwfulActivity();
-	            	aa.setSupportProgressBarIndeterminateVisibility(false);
-	        		aa.setSupportProgressBarVisibility(false);
+	        	if(aMsg.what == AwfulSyncService.MSG_ERROR){
+                    loadingFailed(aMsg);
+	        	}else if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
+                    loadingFailed(aMsg);
 	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
 	        		loadingUpdate(aMsg);
@@ -200,6 +201,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     public void loadingFailed(Message aMsg) {
 		AwfulActivity aa = getAwfulActivity();
         if(aa != null){
+        	setProgress(100);
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
         }

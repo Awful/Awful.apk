@@ -56,7 +56,7 @@ public class TrimDBTask extends AwfulTask {
 		rowCount += dbInterface.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
 		rowCount += dbInterface.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
 		rowCount += dbInterface.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
-		rowCount += dbInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
+		//rowCount += dbInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
 		rowCount += dbInterface.delete(AwfulEmote.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-"+mArg1+" days')", null);
     	Log.i(TAG,"Trimming DB older than "+mArg1+" days, culled: "+rowCount);
 		return true;
