@@ -112,17 +112,17 @@ public class AwfulThread extends AwfulPagedItem  {
 
 	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) throws Exception{
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-        Elements threads = aResponse.getElementsByAttributeValue("id", "forum");
-        if(threads.size() >1 || threads.size() < 1){
-        	return null;
-        }
+        Element threads = aResponse.getElementById("forum");
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
-        Elements tbody = threads.first().getElementsByTag("tbody").first().getAllElements();
-		for(Element node : tbody.first().getElementsByClass("thread")){
+		for(Element node : threads.getElementsByClass("thread")){
             try {
     			ContentValues thread = new ContentValues();
                 String threadId = node.id();
+                if(threadId == null || threadId.length() < 1){
+                	//skip the table header
+                	continue;
+                }
                 thread.put(ID, Integer.parseInt(threadId.replaceAll("\\D", "")));
                 if(forumId != Constants.USERCP_ID){//we don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
                 	thread.put(INDEX, start_index);
