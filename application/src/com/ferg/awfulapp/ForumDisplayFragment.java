@@ -311,10 +311,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
-        if(mCursorAdapter!=null){
-        	Log.e(TAG,"CURSOR PERSISTING BEYOND LIFECYCLE");
-        }
-        Log.e(TAG,"List Children: "+mPullRefreshListView.getChildCount());
     }
     
     @Override
@@ -610,10 +606,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
     
     public void openForum(int id, int page){
-    	if(getActivity() != null){
-	    	getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
-	        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-    	}
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
     	mLastPage = 0;
@@ -626,7 +618,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
-			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
 			refreshInfo();
 			syncForum();
     	}
@@ -714,7 +705,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"Thread List update.");
-        	refreshInfo();
+        	//onChange triggers as the DB updates
+        	//but we don't want to trigger if we are in the middle of loading
+        	if(getProgressPercent() > 99){
+        		refreshInfo();
+        	}
         }
     }
 	
@@ -755,7 +750,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
-        	refreshInfo();
+        	//onChange triggers as the DB updates
+        	//but we don't want to trigger if we are in the middle of loading
+        	if(getProgressPercent() > 99){
+        		refreshInfo();
+        	}
         }
     }
 	

@@ -41,6 +41,8 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.thread.AwfulPagedItem;
+import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public class IndexTask extends AwfulTask {
 
@@ -49,11 +51,15 @@ public class IndexTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		if (!isCancelled()) {
             try {
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 10));
                 Document response = NetworkUtils.get(Constants.BASE_URL);
+                String error = AwfulPagedItem.checkPageErrors(response, replyTo);
+                if(error != null){
+                	return error;
+                }
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 50));
                 AwfulForum.getForumsFromRemote(response, mContext.getContentResolver());
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 90));
@@ -81,10 +87,10 @@ public class IndexTask extends AwfulTask {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return "Failed to load Forum List!";
             }
         }
-        return true;
+        return null;
 	}
 
 }

@@ -51,7 +51,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 
     private TextView mTitleView;
     
-    private AwfulPreferences mPrefs;
+    protected AwfulPreferences mPrefs;
     
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);

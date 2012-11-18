@@ -46,7 +46,7 @@ public class MarkUnreadTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... p) {
+	protected String doInBackground(Void... p) {
 		if (!isCancelled()) {
         	HashMap<String, String> params = new HashMap<String, String>();
             params.put(Constants.PARAM_THREAD_ID, Integer.toString(mId));
@@ -62,10 +62,10 @@ public class MarkUnreadTask extends AwfulTask {
                 mContext.getContentResolver().update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mId), unread, null, null);
             } catch (Exception e) {
                 e.printStackTrace();
-            	return false;
+            	return "Failed to mark unread!";
             }
         }
-		return true;
+		return null;
 	}
 
 }

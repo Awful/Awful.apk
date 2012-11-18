@@ -344,16 +344,13 @@ public class AwfulProvider extends ContentProvider {
                 
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
-    			dropAllTables(aDb);
-                onCreate(aDb);
+            	wipeRecreateTables(aDb);
         	}
         }
         
         @Override
-		public void onDowngrade(SQLiteDatabase aDb, int oldVersion,
-				int newVersion) {
-			dropAllTables(aDb);
-            onCreate(aDb);
+		public void onDowngrade(SQLiteDatabase aDb, int oldVersion,	int newVersion) {
+        	wipeRecreateTables(aDb);
 		}
 
 		private void dropAllTables(SQLiteDatabase aDb){
@@ -365,6 +362,11 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);//TODO we probably should not drop this table
         }
+		
+		public void wipeRecreateTables(SQLiteDatabase aDb){
+			dropAllTables(aDb);
+            onCreate(aDb);
+		}
     }
 
     private DatabaseHelper mDbHelper;

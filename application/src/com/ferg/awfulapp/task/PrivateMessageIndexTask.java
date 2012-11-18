@@ -44,15 +44,15 @@ public class PrivateMessageIndexTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			Document pmData = NetworkUtils.get(Constants.FUNCTION_PRIVATE_MESSAGE);
 			AwfulMessage.processMessageList(mContext.getContentResolver(), pmData);
 		} catch (Exception e) {
 			Log.e(TAG,"PM Load Failure: "+Log.getStackTraceString(e));
-			return false;
+			return "Failed to load PM list!";
 		}
-		return true;
+		return null;
 	}
 
 }

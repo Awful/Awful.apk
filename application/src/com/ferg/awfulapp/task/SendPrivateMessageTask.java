@@ -49,7 +49,7 @@ public class SendPrivateMessageTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			ContentResolver cr = mContext.getContentResolver();
 			Cursor pmInfo = cr.query(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mId), AwfulProvider.DraftProjection, null, null, null);
@@ -70,14 +70,14 @@ public class SendPrivateMessageTask extends AwfulTask {
 				Document result = NetworkUtils.post(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 			}else{
 				Log.e(TAG,"PM Send Failure: PM missing from DB "+mId);
-				return false;
+				return LOADING_FAILED;
 			}
 			
 		} catch (Exception e) {
 			Log.e(TAG,"PM Send Failure: "+Log.getStackTraceString(e));
-			return false;
+			return "Failed to send PM!";
 		}
-		return true;
+		return null;
 	}
 
 }

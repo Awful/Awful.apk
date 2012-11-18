@@ -234,7 +234,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				startPostRedirect(alink.getURL(mPrefs.postPerPage));
 				break;
 			case EXTERNAL:
-//				mActionModeURL = aUrl;
 				if(mPrefs.alwaysOpenUrls){
 					startUrlIntent(aUrl);
 				}else{
@@ -1035,8 +1034,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-            boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
-            		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
+            boolean useTabletLayout = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
+            		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()));
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
             if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
@@ -1270,6 +1269,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 	
+	private String[] imageUrlMenuItems = new String[]{
+			"Show Image Inline",
+			"Open URL",
+			"Copy URL",
+			"Always Open URL"
+	};
+	
 	private String[] urlMenuItems = new String[]{
 			"Open URL",
 			"Copy URL",
@@ -1277,19 +1283,30 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	};
 	
 	private void showUrlMenu(final String url){
+		final Uri link = Uri.parse(url);
+		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
+				|| link.getLastPathSegment().contains(".jpeg") 
+				|| link.getLastPathSegment().contains(".png") 
+				|| link.getLastPathSegment().contains(".gif")
+				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems(urlMenuItems, new DialogInterface.OnClickListener() {
+        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem){
+            	switch(aItem+(isImage?0:1)){
             	case 0:
-        			startUrlIntent(url);
+        			if(mThreadView != null){
+        				mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
+        			}
         			break;
             	case 1:
+        			startUrlIntent(url);
+        			break;
+            	case 2:
             		copyToClipboard(url);
         			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
         			break;
-            	case 2:
+            	case 3:
         			mPrefs.setBooleanPreference("always_open_urls", true);
         			startUrlIntent(url);
         			break;

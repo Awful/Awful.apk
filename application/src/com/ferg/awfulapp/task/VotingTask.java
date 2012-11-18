@@ -50,7 +50,7 @@ public class VotingTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... p) {
+	protected String doInBackground(Void... p) {
 		if (!isCancelled()) {
         	
 			HashMap<String, String> params = new HashMap<String, String>();
@@ -61,25 +61,10 @@ public class VotingTask extends AwfulTask {
             	NetworkUtils.postIgnoreBody(Constants.FUNCTION_RATE_THREAD, params);
             } catch (Exception e) {
                 e.printStackTrace();
-            	return false;
+            	return mContext.getString(R.string.vote_failed);
             }
         }
-        return true;
-	}
-
-	@Override
-	public void onPostExecute(Boolean success){
-		if(!isCancelled()){
-			if(success){
-				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.OKAY, mId, mArg1);
-				Toast successToast = Toast.makeText(ApplicationContext, String.format(this.mContext.getString(R.string.vote_succeeded), mArg1+1), Toast.LENGTH_LONG);
-				successToast.show();
-			}else{
-				mContext.updateStatus(replyTo, TYPE, AwfulSyncService.Status.ERROR, mId, mArg1);
-				Toast errorToast = Toast.makeText(ApplicationContext, R.string.vote_failed, Toast.LENGTH_LONG);
-				errorToast.show();
-			}
-			mContext.taskFinished(this);
-		}
+		Toast.makeText(ApplicationContext, String.format(this.mContext.getString(R.string.vote_succeeded), mArg1+1), Toast.LENGTH_LONG).show();
+        return null;
 	}
 }

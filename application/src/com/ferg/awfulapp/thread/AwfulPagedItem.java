@@ -116,8 +116,12 @@ public abstract class AwfulPagedItem {
         	return "Error - Not Logged In";
         }
         if(page.getElementById("closemsg") != null){
-        	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERROR_FORUMS_CLOSED, 0, 0, page.getElementsByClass("reason").text()));
-        	return "Error - Forums Closed (Site Down)";
+        	String msg = page.getElementsByClass("reason").text().trim();
+        	if(msg != null && msg.length() > 0){
+        		return "Forums Closed - "+msg;
+        	}else{
+        		return "Error - Forums Closed (Site Down)";
+        	}
         }
         return null;
 	}

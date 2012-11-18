@@ -159,6 +159,7 @@ public class AwfulForum extends AwfulPagedItem {
     	forumData.put(ID, forumId);
     	forumData.put(TITLE, AwfulForum.parseTitle(page));
 		ArrayList<ContentValues> newSubforums = AwfulThread.parseSubforums(page, forumId);
+		contentInterface.delete(AwfulForum.CONTENT_URI, PARENT_ID+"=?", AwfulProvider.int2StrArray(forumId));
 		contentInterface.bulkInsert(AwfulForum.CONTENT_URI, newSubforums.toArray(new ContentValues[newSubforums.size()]));
         int lastPage = AwfulPagedItem.parseLastPage(page);
         Log.i(TAG, "Last Page: " +lastPage);

@@ -89,6 +89,11 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		findPreference("inline_youtube").setEnabled(Constants.isICS());
+		boolean tab = Constants.canBeWidescreen(this);
+		findPreference("page_layout").setEnabled(tab);
+		if(!tab){
+			findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
+		}
 		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);

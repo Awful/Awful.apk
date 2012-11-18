@@ -57,6 +57,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ThreadDisplayFragment mThreadFragment = null;
     private PostReplyFragment mReplyFragment = null;
     private boolean skipLoad = false;
+    private boolean isTablet;
     private AwfulURL url = new AwfulURL();
     
     private Handler mHandler = new Handler();
@@ -74,6 +75,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        isTablet = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
+        		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(this));
         int initialPage = -1;
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
@@ -90,7 +93,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         
     	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
     	mViewPager.setOffscreenPageLimit(2);
-    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
+    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager(), isTablet);
     	pagerAdapter.addFragment(new AwfulDualPaneView(this,ForumsIndexFragment.newInstance(),ForumDisplayFragment.newInstance(mForumId, mForumPage, skipLoad)));
     	if(url.isRedirect()){
     		pagerAdapter.addFragment(new ThreadDisplayFragment());
@@ -156,12 +159,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}
     	}
         if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = Constants.isWidescreen(this)? 0 : 1;
+        	initialPage = isTablet? 0 : 1;
         }else{
         	skipLoad = true;
         }
         if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
-        	initialPage = Constants.isWidescreen(this)? 1 : 2;
+        	initialPage = isTablet? 1 : 2;
         }
         return initialPage;
 	}
@@ -189,8 +192,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
     
     public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
-    	public ForumPagerAdapter(FragmentManager fm) {
-			super(fm, Constants.isWidescreen(ForumsIndexActivity.this));
+    	public ForumPagerAdapter(FragmentManager fm, boolean tabletMode) {
+			super(fm, tabletMode);
 		}
 
 		private AwfulPagerFragment visible;
@@ -254,8 +257,10 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		if(pagerAdapter != null){
-			pagerAdapter.setWidescreen(Constants.isWidescreen(newConfig));
+		if(pagerAdapter != null && mPrefs != null){
+	        isTablet = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
+	        		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(newConfig));
+			pagerAdapter.setWidescreen(isTablet);
 		}
 	}
 

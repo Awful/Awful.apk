@@ -49,7 +49,7 @@ public class FetchEmotesTask extends AwfulTask {
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... params) {
+	protected String doInBackground(Void... params) {
 		try {
 			HashMap<String, String> para = new HashMap<String, String>();
 			para.put(Constants.PARAM_ACTION, "showsmilies");
@@ -59,9 +59,9 @@ public class FetchEmotesTask extends AwfulTask {
 	        Log.i(TAG, "Inserted "+resultCount+" emotes into DB. "+emotes.size());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return "Failed to load Emotes!";
 		}
-		return true;
+		return null;
 	}
 
 }

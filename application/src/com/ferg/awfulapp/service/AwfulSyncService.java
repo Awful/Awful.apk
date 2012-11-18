@@ -48,6 +48,7 @@ import com.ferg.awfulapp.task.BookmarkTask;
 import com.ferg.awfulapp.task.FetchEmotesTask;
 import com.ferg.awfulapp.task.FetchPrivateMessageTask;
 import com.ferg.awfulapp.task.FetchReplyTask;
+import com.ferg.awfulapp.task.ForumTask;
 import com.ferg.awfulapp.task.ImageCacheTask;
 import com.ferg.awfulapp.task.IndexTask;
 import com.ferg.awfulapp.task.MarkLastReadTask;
@@ -126,7 +127,7 @@ public class AwfulSyncService extends Service {
                     queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_SYNC_FORUM:
-                	syncForum(aMsg);
+                    queueUniqueThread(new ForumTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_SYNC_INDEX:
                 	backQueueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg, mPrefs));
@@ -197,47 +198,6 @@ public class AwfulSyncService extends Service {
     public void queueDelayedMessage(int msgId, int delayMillis, int arg1, int arg2){
         Log.i(TAG, "Send Message - delay: "+delayMillis+" type: "+msgId+" arg1: "+arg1+" arg2: "+arg2);
     	mHandler.sendMessageDelayed(mHandler.obtainMessage(msgId, arg1, arg2), delayMillis);
-    }
-    
-    private void syncForum(Message aMsg) {
-        Log.i(TAG, "Starting Forum sync:"+aMsg.arg1);
-        //tasks can be anon inner classes
-        //but why would i do this
-        queueUniqueThread(new AwfulTask(this, aMsg, mPrefs, MSG_SYNC_FORUM){
-
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				try {
-					Document threads = null;
-                    replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 25));
-                    if(mId == Constants.USERCP_ID){
-                    	threads = AwfulThread.getUserCPThreads(mArg1, replyTo);
-                        replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                		if(threads.getElementById("notregistered") != null){
-                        	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
-                        	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
-                        	return false;
-                		}
-                        AwfulForum.parseUCPThreads(threads, mArg1, mContext.getContentResolver());
-                    }else{
-                    	threads = AwfulThread.getForumThreads(mId, mArg1, replyTo);
-                        replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                		if(threads.getElementById("notregistered") != null){
-                        	NetworkUtils.clearLoginCookies(AwfulSyncService.this);
-                        	replyTo.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
-                        	return false;
-                        }
-                        AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
-                    }
-                    replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 100));
-                } catch (Exception e) {
-                    Log.e(TAG, "Sync error");
-                    e.printStackTrace();
-                    return false;
-                }
-				return true;
-			}
-        });
     }
 
     public static class Status {

@@ -83,6 +83,13 @@
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
 			/>
+		<ListPreference
+            android:key="page_layout"
+            android:title="@string/page_layout"
+            android:entries="@array/page_layouts"
+            android:entryValues="@array/page_layout_values"
+      		android:defaultValue="auto"
+            />
         <ListPreference
             android:key="orientation"
             android:title="@string/orientation"
@@ -94,7 +101,7 @@
             android:key="disable_gifs" 
 			android:title="@string/disable_gifs"
 			android:defaultValue="false"
-			android:enabled="false"
+			android:enabled="true"
 			/>
 		<CheckBoxPreference 
             android:key="send_username_in_report" 
