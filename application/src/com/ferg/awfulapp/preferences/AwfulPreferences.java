@@ -210,14 +210,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
-        threadLayout			 = "auto";//mPrefs.getString("page_layout", "auto");//new autorotate code won't support this//TODO remove last traces
+        threadLayout			 = (Constants.canBeWidescreen(mContext)? mPrefs.getString("page_layout", "auto") :"auto");
         newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         staticThreadView	 	 = false;//mPrefs.getBoolean("static_thread_view", false);
-        disableGifs	 			 = false;//mPrefs.getBoolean("disable_gifs", false);
+        disableGifs	 			 = mPrefs.getBoolean("disable_gifs", false);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
         refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);

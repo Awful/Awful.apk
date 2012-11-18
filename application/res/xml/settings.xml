@@ -83,6 +83,13 @@
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
 			/>
+		<ListPreference
+            android:key="page_layout"
+            android:title="@string/page_layout"
+            android:entries="@array/page_layouts"
+            android:entryValues="@array/page_layout_values"
+      		android:defaultValue="auto"
+            />
         <ListPreference
             android:key="orientation"
             android:title="@string/orientation"

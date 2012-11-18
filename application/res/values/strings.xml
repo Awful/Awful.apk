@@ -117,6 +117,7 @@ AQuery</string>
 		<item>Huge (1024px)</item>
 	</string-array>
 	<string name="page_layout">Thread Layout</string>
+	<string name="page_layout_summary_disabled">This screen is too small for Tablet mode.</string>
 	<string-array name="page_layouts">
 		<item>Auto (Size/Orientation)</item>
 		<item>Phone Layout</item>

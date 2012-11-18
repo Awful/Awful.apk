@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.task;
 
+import org.apache.http.conn.ConnectTimeoutException;
 import org.jsoup.nodes.Document;
 
 import android.os.Message;
@@ -52,10 +53,13 @@ public class ForumTask extends AwfulTask {
                 AwfulForum.parseThreads(threads, mId, mArg1, mContext.getContentResolver());
             }
             replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 100));
+        } catch (ConnectTimeoutException e) {
+            Log.e(TAG, "Network timeout");
+            return "Network timeout! Check your internet connection.";
         } catch (Exception e) {
             Log.e(TAG, "Sync error");
             e.printStackTrace();
-            return "Failed to load Forum!";
+            return "Failed to load forum!";
         }
 		return null;
 	}

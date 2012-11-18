@@ -234,7 +234,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				startPostRedirect(alink.getURL(mPrefs.postPerPage));
 				break;
 			case EXTERNAL:
-//				mActionModeURL = aUrl;
 				if(mPrefs.alwaysOpenUrls){
 					startUrlIntent(aUrl);
 				}else{
@@ -1035,8 +1034,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-            boolean useTabletLayout = mPrefs.threadLayout.equalsIgnoreCase("tablet") || 
-            		(mPrefs.threadLayout.equalsIgnoreCase("auto") && Constants.isWidescreen(getActivity()));
+            boolean useTabletLayout = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
+            		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()));
             String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, mPage, mLastPage, threadClosed);
             if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
