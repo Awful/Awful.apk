@@ -147,7 +147,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
                 Elements killedBy = node.getElementsByClass("lastpost");
                 thread.put(LASTPOSTER, killedBy.first().getElementsByClass("author").first().text());
-                Elements tarSticky = node.getElementsByClass("title title_sticky");
+                Elements tarSticky = node.getElementsByClass("title_sticky");
                 if (tarSticky.size() > 0) {
                     thread.put(STICKY,1);
                 } else {
