@@ -285,8 +285,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
-		getActivity().getContentResolver().unregisterContentObserver(mForumLoaderCallback);
-		getActivity().getContentResolver().unregisterContentObserver(mForumDataCallback);
     }
     
     @Override
@@ -299,9 +297,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
     public void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "Stop");
-        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.SUBFORUM_LOADER_ID);
+        closeLoaders();
     }
     @Override
     public void onDestroyView() {
@@ -568,7 +564,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
 			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
 		}
-//		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
+		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
@@ -606,6 +602,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
     
     public void openForum(int id, int page){
+    	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;
     	mLastPage = 0;
@@ -680,7 +677,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	if(aData.moveToFirst()){
+        	if(aData.moveToFirst() && !aData.isClosed()){
         		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
         		if(dateIndex > -1){
         			String timestamp = aData.getString(dateIndex);
@@ -692,13 +689,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         			syncForumsIfStale();
         	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
         		}
+            	mCursorAdapter.swapCursor(aData);
+            	mPullRefreshListView.getRefreshableView().setAdapter(mCursorAdapter);
         	}
-        	mCursorAdapter.swapCursor(aData);
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
         	Log.i(TAG,"ForumContentsCallback - onLoaderReset");
+        	mPullRefreshListView.getRefreshableView().setAdapter(null);
 			mCursorAdapter.swapCursor(null);
 		}
 		
@@ -762,6 +761,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
 	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+		}
+	}
+	
+	private void closeLoaders(){
+		if(getActivity() != null){
+	        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
+	        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
 		}
 	}
 	
