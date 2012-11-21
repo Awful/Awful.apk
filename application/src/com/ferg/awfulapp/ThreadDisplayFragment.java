@@ -75,6 +75,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
+import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -124,11 +125,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
-    private View mPageBar;
     private TextView mPageCountText;
     private ViewGroup mThreadWindow;
-    
-//    private String mActionModeURL;
 
     private WebView mThreadView;
     
@@ -308,7 +306,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
 		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
-		mPageBar = result.findViewById(R.id.page_indicator);
 		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
 		return result;
@@ -330,8 +327,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		//mThreadView.setDrawingCacheEnabled(false);//TODO maybe
 		mThreadView.getSettings().setJavaScriptEnabled(true);
+		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
@@ -1312,36 +1309,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			break;
             	}
             }
-        })
-        .show();
-		//startActionMode();
+        }).show();
 	}
-
-//	@Override
-//	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//		if(DEBUG) Log.e(TAG,"onCreateActionMode");
-//		menu.add(Menu.NONE, R.id.normal, Menu.NONE, "Open");
-//		menu.add(Menu.NONE, R.id.icon_box, Menu.NONE, "Show Image");
-//		menu.add(Menu.NONE, R.id.copy_url, Menu.NONE, "Copy URL");
-//		return mActionModeURL != null;
-//	}
-//
-//	@Override
-//	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//		if(DEBUG) Log.e(TAG,"onPrepareActionMode");
-//		MenuItem inline = menu.findItem(R.id.icon_box);
-//		if(inline != null && mActionModeURL != null){//TODO make this detection less retarded
-//			Uri link = Uri.parse(mActionModeURL);
-//			inline.setVisible(link.getLastPathSegment() != null 
-//								&& (link.getLastPathSegment().contains(".jpg") 
-//									|| link.getLastPathSegment().contains(".jpeg") 
-//									|| link.getLastPathSegment().contains(".png") 
-//									|| link.getLastPathSegment().contains(".gif")
-//									)
-//								);
-//		}
-//		return mActionModeURL != null;
-//	}
 	
 	private void copyToClipboard(String text){
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -1371,41 +1340,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 						.show();
 		}
 	}
-
-//	@Override
-//	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//		switch(item.getItemId()){
-//		case R.id.normal:
-//			startUrlIntent(mActionModeURL);
-//			break;
-//		case R.id.icon_box:
-//			if(mThreadView != null){
-//				mThreadView.loadUrl("javascript:showInlineImage('"+mActionModeURL+"')");
-//			}
-//			break;
-//		case R.id.copy_url:
-//			copyToClipboard(mActionModeURL);
-//			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
-//			break;
-//		default:
-//			return false;
-//		}
-//		mode.finish();
-//		return true;
-//	}
-//
-//	@Override
-//	public void onDestroyActionMode(ActionMode mode) {
-//		mActionModeURL = null;
-//	}
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-//		if(mPageBar != null){
-//			mPageBar.setBackgroundColor(mPrefs.actionbarColor);
-//		}
+		aq.find(R.id.pagebar).backgroundColor(mPrefs.actionbarColor);
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(mPrefs.actionbarFontColor);
 		}

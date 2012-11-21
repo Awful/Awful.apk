@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:id="@+id/page_indicator"
-    android:background="@drawable/page_bottom_bg" >
+    android:background="#000000" >
 
             <ImageButton
                  android:id="@+id/prev_page"
