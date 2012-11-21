@@ -220,6 +220,7 @@ public abstract class AbstractTreeViewAdapter<T> extends BaseAdapter implements
         }
     }
 
+    @SuppressWarnings("deprecation")
     public final LinearLayout populateTreeItem(final LinearLayout layout,
             final View childView, final TreeNodeInfo<T> nodeInfo,
             final boolean newChildView) {
@@ -227,7 +228,7 @@ public abstract class AbstractTreeViewAdapter<T> extends BaseAdapter implements
         layout.setBackgroundDrawable(individualRowDrawable == null ? getDrawableOrDefaultBackground(rowBackgroundDrawable)
                 : individualRowDrawable);
         if(childView.getBackground() != null){
-        	layout.setBackground(childView.getBackground());
+        	layout.setBackgroundDrawable(childView.getBackground());
         }
         final LinearLayout.LayoutParams indicatorLayoutParams = new LinearLayout.LayoutParams(
                 calculateIndentation(nodeInfo), LayoutParams.FILL_PARENT);
