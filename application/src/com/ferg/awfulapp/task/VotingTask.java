@@ -56,7 +56,7 @@ public class VotingTask extends AwfulTask {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put(Constants.PARAM_THREAD_ID, String.valueOf(mId));
 			params.put(Constants.PARAM_VOTE, String.valueOf(mArg1+1));
-
+			System.out.println("We are voting\n");
             try {
             	NetworkUtils.postIgnoreBody(Constants.FUNCTION_RATE_THREAD, params);
             } catch (Exception e) {
@@ -64,7 +64,6 @@ public class VotingTask extends AwfulTask {
             	return mContext.getString(R.string.vote_failed);
             }
         }
-		Toast.makeText(ApplicationContext, String.format(this.mContext.getString(R.string.vote_succeeded), mArg1+1), Toast.LENGTH_LONG).show();
-        return null;
+        return String.format(this.mContext.getString(R.string.vote_succeeded), mArg1+1);
 	}
 }
