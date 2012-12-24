@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.handmark.pulltorefresh.library;
+package com.ferg.awfulapp.widget;
 
+import com.handmark.pulltorefresh.library.OverscrollHelper;
+import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
 import pl.polidea.treeview.TreeViewList;
 import android.annotation.TargetApi;
 import android.content.Context;
