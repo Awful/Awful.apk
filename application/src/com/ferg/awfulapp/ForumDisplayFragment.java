@@ -628,7 +628,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 	
 	public void syncForumsIfStale() {
-		if(!loadFailed && lastRefresh < System.currentTimeMillis()-(1000*60*5)){
+		long currentTime = System.currentTimeMillis()-(1000*60*5);
+		if(!loadFailed && lastRefresh < currentTime){
 			syncForum();
 		}
 	}
@@ -687,7 +688,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             			upDate = Timestamp.valueOf(timestamp);
         			}
         			lastRefresh = upDate.getTime();
-        			syncForumsIfStale();
+        			// Commented out because it causes constant refreshing in the forums browser.
+        			//syncForumsIfStale();
         	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
         		}
             	mCursorAdapter.swapCursor(aData);
