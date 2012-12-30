@@ -22,10 +22,10 @@ import android.view.View;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 
 @TargetApi(9)
-final class OverscrollHelper {
+public final class OverscrollHelper {
 
-	static final String LOG_TAG = "OverscrollHelper";
-	static final float DEFAULT_OVERSCROLL_SCALE = 1f;
+	public static final String LOG_TAG = "OverscrollHelper";
+	public static final float DEFAULT_OVERSCROLL_SCALE = 1f;
 
 	/**
 	 * Helper method for Overscrolling that encapsulates all of the necessary
@@ -47,7 +47,7 @@ final class OverscrollHelper {
 	 *            - true if this scroll operation is the result of a touch
 	 *            event, passed through from from overScrollBy call
 	 */
-	static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
+	public static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
 			final boolean isTouchEvent) {
 		overScrollBy(view, deltaY, scrollY, 0, isTouchEvent);
 	}
@@ -71,7 +71,7 @@ final class OverscrollHelper {
 	 *            - true if this scroll operation is the result of a touch
 	 *            event, passed through from from overScrollBy call
 	 */
-	static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
+	public static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
 			final int scrollRange, final boolean isTouchEvent) {
 		overScrollBy(view, deltaY, scrollY, scrollRange, 0, DEFAULT_OVERSCROLL_SCALE, isTouchEvent);
 	}
@@ -100,7 +100,7 @@ final class OverscrollHelper {
 	 *            - true if this scroll operation is the result of a touch
 	 *            event, passed through from from overScrollBy call
 	 */
-	static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
+	public static void overScrollBy(final PullToRefreshBase<?> view, final int deltaY, final int scrollY,
 			final int scrollRange, final int fuzzyThreshold, final float scaleFactor, final boolean isTouchEvent) {
 
 		// Check that OverScroll is enabled
@@ -136,7 +136,7 @@ final class OverscrollHelper {
 		}
 	}
 
-	static boolean isAndroidOverScrollEnabled(View view) {
+	public static boolean isAndroidOverScrollEnabled(View view) {
 		return view.getOverScrollMode() != View.OVER_SCROLL_NEVER;
 	}
 }
