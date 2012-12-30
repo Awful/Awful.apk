@@ -687,9 +687,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         			if(timestamp != null && timestamp.length()>5){
             			upDate = Timestamp.valueOf(timestamp);
         			}
-        			lastRefresh = upDate.getTime();
-        			// Commented out because it causes constant refreshing in the forums browser.
-        			//syncForumsIfStale();
+        			lastRefresh = lastRefresh < upDate.getTime() ? upDate.getTime() : lastRefresh;
+        			syncForumsIfStale();
         	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
         		}
             	mCursorAdapter.swapCursor(aData);
