@@ -1,2 +1,0 @@
-language: java
-script: sh -c "cd application && ant debug"
