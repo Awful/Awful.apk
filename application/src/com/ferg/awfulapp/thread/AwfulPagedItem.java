@@ -47,20 +47,34 @@ public abstract class AwfulPagedItem {
 	private static final Pattern pageNumber_regex = Pattern.compile("Pages \\((\\d+)\\)");
 	
     public static int parseLastPage(Document pagedItem){
-    	Element pages = pagedItem.getElementsByAttributeValue("class", "pages").first();
-    	Element pages2 = pagedItem.getElementsByAttributeValue("class", "pages top").first();
-    	Matcher lastPageMatch = null;
-    	if(pages != null){
-    		lastPageMatch = pageNumber_regex.matcher(pages.text());
-    	}else{
-    		if(pages2 != null){
-	    		lastPageMatch = pageNumber_regex.matcher(pages2.text());
-	    	}
+    	int pagesTop, pagesBottom;
+    	try{
+    		Elements pages = pagedItem.getElementsByAttributeValue("class", "pages"); 
+    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("a").last().text().replaceAll("[^\\d.]", ""));
+    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("a").last().text().replaceAll("[^\\d.]", ""));
+       	}catch(NumberFormatException ex){
+    		return 1;
     	}
-    	if(lastPageMatch != null && lastPageMatch.find()){
-    		return Integer.parseInt(lastPageMatch.group(1));
+    	//Better too few pages than too many
+    	if(pagesBottom < pagesTop){
+    		return pagesBottom;
     	}
-		return 1;
+    	return pagesTop;
+    	
+    	//TODO: remove if above works
+//    	Element pages = pagedItem.getElementsByAttributeValue("class", "pages").first();
+//    	Element pages2 = pagedItem.getElementsByAttributeValue("class", "pages top").first();
+//    	Matcher lastPageMatch = null;
+//    	if(pages != null){
+//    		lastPageMatch = pageNumber_regex.matcher(pages.text());
+//    	}else{
+//    		if(pages2 != null){
+//	    		lastPageMatch = pageNumber_regex.matcher(pages2.text());
+//	    	}
+//    	}
+//    	if(lastPageMatch != null && lastPageMatch.find()){
+//    		return Integer.parseInt(lastPageMatch.group(1));
+//    	}
     }
     
     public static int parseLastPage(Element pagedItem){
