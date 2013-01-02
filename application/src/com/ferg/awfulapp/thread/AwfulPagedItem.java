@@ -37,6 +37,7 @@ import org.jsoup.select.Elements;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.service.AwfulSyncService;
@@ -49,10 +50,16 @@ public abstract class AwfulPagedItem {
     public static int parseLastPage(Document pagedItem){
     	int pagesTop, pagesBottom;
     	try{
-    		Elements pages = pagedItem.getElementsByAttributeValue("class", "pages"); 
-    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("a").last().text().replaceAll("[^\\d.]", ""));
-    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("a").last().text().replaceAll("[^\\d.]", ""));
+    		Elements pages = pagedItem.getElementsByClass("pages");
+    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("a").last().html().replaceAll("[^\\d.]", ""));
+    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("a").last().html().replaceAll("[^\\d.]", ""));
        	}catch(NumberFormatException ex){
+       		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
+       		ex.printStackTrace();
+    		return 1;
+    	}catch(NullPointerException ex){
+       		Log.e(TAG, "NullPointerException thrown while parseLastPage");
+       		ex.printStackTrace();
     		return 1;
     	}
     	//Better too few pages than too many

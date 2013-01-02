@@ -276,7 +276,7 @@ public class AwfulPost {
     
     private static Document convertVideos(Document contentNode){
     	for(Element node : contentNode.getElementsByClass("youtube-player")){
-    		node.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", node.attr("src")).text(node.attr("src")));
+    		node.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", node.attr("src").replace("youtube-nocookie.com", "youtube.com")).text(node.attr("src").replace("youtube-nocookie.com", "youtube.com")));
     	}
     	for(Element node : contentNode.getElementsByClass("bbcode_video")){
     		node.replaceWith(new Element(Tag.valueOf("p"),"").text(node.attr("DEBUG: DISABLED VIDEO CONVERSION")));//TODO
@@ -437,7 +437,9 @@ public class AwfulPost {
 		int index = startIndex;
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
-        convertVideos(aThread);
+        if(!Constants.isICS() || !prefs.inlineYoutube) {
+        	convertVideos(aThread);
+        }
         Elements posts = aThread.getElementsByClass("post");
         for(Element postData : posts){
         	ContentValues post = new ContentValues();
