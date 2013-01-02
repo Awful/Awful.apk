@@ -628,7 +628,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 	
 	public void syncForumsIfStale() {
-		if(!loadFailed && lastRefresh < System.currentTimeMillis()-(1000*60*5)){
+		long currentTime = System.currentTimeMillis()-(1000*60*5);
+		if(!loadFailed && lastRefresh < currentTime){
 			syncForum();
 		}
 	}
@@ -686,7 +687,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         			if(timestamp != null && timestamp.length()>5){
             			upDate = Timestamp.valueOf(timestamp);
         			}
-        			lastRefresh = upDate.getTime();
+        			lastRefresh = lastRefresh < upDate.getTime() ? upDate.getTime() : lastRefresh;
         			syncForumsIfStale();
         	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
         		}
