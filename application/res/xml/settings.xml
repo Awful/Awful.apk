@@ -109,5 +109,11 @@
 			android:summary="@string/send_username_in_report_summary"
 			android:defaultValue="true"
 			/>
+		<CheckBoxPreference 
+            android:key="lock_scrolling" 
+			android:title="@string/lock_scrolling"
+			android:summary="@string/lock_scrolling_summary"
+			android:defaultValue="false"
+			/>
     </PreferenceCategory>
 </PreferenceScreen>
