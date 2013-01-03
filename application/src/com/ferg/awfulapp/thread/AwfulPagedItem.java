@@ -55,12 +55,19 @@ public abstract class AwfulPagedItem {
     	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("a").last().html().replaceAll("[^\\d.]", ""));
        	}catch(NumberFormatException ex){
        		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-       		ex.printStackTrace();
-    		return 1;
+       		try{
+	    		Elements pages = pagedItem.getElementsByClass("pages");
+	    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("span").last().html().replaceAll("[^\\d.]", ""));
+	    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("span").last().html().replaceAll("[^\\d.]", ""));
+	       	}catch(NullPointerException exB){
+	       		Log.e(TAG, "Additional NullPointerException thrown while parseLastPage");
+	       		ex.printStackTrace();
+	    		return 1;
+    		}
     	}catch(NullPointerException ex){
-       		Log.e(TAG, "NullPointerException thrown while parseLastPage");
-       		ex.printStackTrace();
-    		return 1;
+           		Log.e(TAG, "NullPointerException thrown while parseLastPage");
+           		ex.printStackTrace();
+        		return 1;
     	}
     	//Better too few pages than too many
     	if(pagesBottom < pagesTop){
