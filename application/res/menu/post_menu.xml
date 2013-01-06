@@ -29,7 +29,7 @@
 				android:title="@string/copy_url"
 		        />
         	
-			<item android:id="@+id/share_thread" android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider" android:title="Share Thread" android:icon="@drawable/ic_menu_link"/>
+			<item android:id="@+id/share_thread" android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider" android:title="Share Thread" android:icon="@drawable/ic_menu_share"/>
 			
 			<item
 				android:id="@+id/refresh"
