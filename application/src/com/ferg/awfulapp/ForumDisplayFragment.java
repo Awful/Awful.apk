@@ -783,4 +783,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public String getInternalId() {
 		return TAG;
 	}
+	
+	@Override
+	public boolean canScrollX(int x, int y) {
+		if(mPrefs.lockScrolling){
+			return true;
+		}
+		return false;
+	}
 }

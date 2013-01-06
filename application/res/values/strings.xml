@@ -191,4 +191,7 @@ AQuery</string>
 	<string name="file_attached">Set File %s as Attachment</string>
 	<string name="file_removed">Attachment removed</string>
 	<string name="refreshFrog">Pull-Frog-to-Refresh</string>
+	<string name="lock_scrolling">Lock Scrolling</string>
+	<string name="lock_scrolling_summary">Locks Horizontal Scrolling to Navigate</string>
+	
 </resources>

@@ -77,6 +77,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int actionbarColor;
 	public int actionbarFontColor;
 	public boolean refreshFrog;
+	public boolean lockScrolling;
 	/**
 	 * for selecting icon set
 	 * light
@@ -221,6 +222,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
         refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);
+        lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
        	 //TODO: I have never seen this before oh god
 	}
 
