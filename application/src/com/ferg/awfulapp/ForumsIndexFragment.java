@@ -113,15 +113,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         
         mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
         mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-
-//        mForumList = (PullToRefreshExpandableListView) result.findViewById(R.id.forum_list);
-//        mForumList.setDrawingCacheEnabled(true);
-//        
-//        mForumList.setBackgroundColor(mPrefs.postBackgroundColor);
-//        mForumList.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-//        mForumList.getRefreshableView().setOnChildClickListener(onForumSelected);
-//        mForumList.getRefreshableView().setOnGroupClickListener(onParentForumSelected);
-//        mForumList.getRefreshableView().setOnItemLongClickListener(onForumLongclick);
         mForumTree.setOnRefreshListener(new OnRefreshListener<TreeViewList>() {
 			
 			@Override
@@ -160,6 +151,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public void onPageVisible() {
+		if(DEBUG) Log.e(TAG, "onPageVisible");
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
@@ -167,7 +159,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public void onPageHidden() {
-		
+		if(DEBUG) Log.e(TAG, "onPageHidden");
 	}
 	
     @Override

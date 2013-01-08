@@ -5,7 +5,7 @@ body {
 }
 
 td {
-    border: 1px solid #c1c1c1;
+    border: 1px solid transparent;
 	border-left:0px;
 	border-right:0px;
     overflow: auto;
@@ -205,4 +205,9 @@ table {
 	padding-top:12px;
 	padding-bottom:12px;
 	text-align:center;
+}
+
+.post-content img.timg{
+	border: 2px solid #2d9f09;
+    width: 20%;
 }

@@ -31,5 +31,11 @@
             android:entryValues="@array/imgur_thumbnails_values"
 			android:defaultValue="d"
             />
+		<CheckBoxPreference 
+            android:key="disable_timgs" 
+			android:title="@string/disable_timgs"
+			android:summary="@string/disable_timgs_summary"
+			android:defaultValue="true"
+			/>
         </PreferenceCategory>
 </PreferenceScreen>

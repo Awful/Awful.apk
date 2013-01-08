@@ -193,5 +193,7 @@ AQuery</string>
 	<string name="refreshFrog">Pull-Frog-to-Refresh</string>
 	<string name="lock_scrolling">Lock Scrolling</string>
 	<string name="lock_scrolling_summary">Locks Horizontal Scrolling to Navigate</string>
+	<string name="disable_timgs">Disable timgs</string>
+	<string name="disable_timgs_summary">Notice: Timgs are just resized images, not actual thumbnails</string>
 	
 </resources>

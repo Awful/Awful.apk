@@ -677,9 +677,11 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 		
 		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
-			aq.find(R.id.forum_tag).image(R.drawable.light_inline_link).visible().width(15);
+			aq.find(R.id.forum_tag).image(R.drawable.light_inline_lock).visible().width(15);
+			current.setBackgroundColor(prefs.postBackgroundColor2);
 		}else{
 			aq.find(R.id.forum_tag).gone();
+			current.setBackgroundDrawable(null);
 		}
 	}
 	

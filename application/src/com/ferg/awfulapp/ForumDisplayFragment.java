@@ -111,9 +111,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private boolean loadFailed = false;
     
-    private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
+    private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;//TODO move to theme area once we rewrite themes.
     
-    private long lastRefresh = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
+    private long lastRefresh = 0;
 
     public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
@@ -628,7 +628,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 	
 	public void syncForumsIfStale() {
-		if(!loadFailed && lastRefresh < System.currentTimeMillis()-(1000*60*5)){
+		long currentTime = System.currentTimeMillis()-(1000*60*5);
+		if(!loadFailed && lastRefresh < currentTime){
 			syncForum();
 		}
 	}
@@ -657,7 +658,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-        	Log.v(TAG,"Creating forum cursor: "+getForumId());
+			if(DEBUG) Log.e(TAG,"Creating forum cursor: "+getForumId());
         	if(isBookmark()){
 	        	return new CursorLoader(getActivity(), 
 						AwfulThread.CONTENT_URI_UCP, 
@@ -677,34 +678,25 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	if(aData.moveToFirst() && !aData.isClosed()){
-        		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
-        		if(dateIndex > -1){
-        			String timestamp = aData.getString(dateIndex);
-        			Timestamp upDate = new Timestamp(System.currentTimeMillis());
-        			if(timestamp != null && timestamp.length()>5){
-            			upDate = Timestamp.valueOf(timestamp);
-        			}
-        			lastRefresh = upDate.getTime();
-        			syncForumsIfStale();
-        	        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(upDate));
-        		}
+			if(DEBUG) Log.e(TAG,"Forum contents finished, populating: "+aData.getCount());
+        	if(!aData.isClosed() && aData.moveToFirst()){
             	mCursorAdapter.swapCursor(aData);
-            	mPullRefreshListView.getRefreshableView().setAdapter(mCursorAdapter);
+            	//mPullRefreshListView.getRefreshableView().setAdapter(mCursorAdapter);
+        	}else{
+            	mCursorAdapter.swapCursor(null);
         	}
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-        	Log.i(TAG,"ForumContentsCallback - onLoaderReset");
-        	mPullRefreshListView.getRefreshableView().setAdapter(null);
+			if(DEBUG) Log.e(TAG,"ForumContentsCallback - onLoaderReset");
+        	//mPullRefreshListView.getRefreshableView().setAdapter(null);
 			mCursorAdapter.swapCursor(null);
 		}
 		
         @Override
         public void onChange (boolean selfChange){
-        	Log.i(TAG,"Thread List update.");
+        	if(DEBUG) Log.e(TAG,"Thread List update.");
         	//onChange triggers as the DB updates
         	//but we don't want to trigger if we are in the middle of loading
         	if(getProgressPercent() > 99){
@@ -725,7 +717,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
+        	if(DEBUG) Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
         	if(!aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
                 mParentForumId = aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID));
@@ -749,7 +741,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
         @Override
         public void onChange (boolean selfChange){
-        	Log.e(TAG,"Thread Data update.");
+        	if(DEBUG) Log.e(TAG,"Thread Data update.");
         	//onChange triggers as the DB updates
         	//but we don't want to trigger if we are in the middle of loading
         	if(getProgressPercent() > 99){

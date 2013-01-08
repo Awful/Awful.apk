@@ -56,7 +56,6 @@ public class VotingTask extends AwfulTask {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put(Constants.PARAM_THREAD_ID, String.valueOf(mId));
 			params.put(Constants.PARAM_VOTE, String.valueOf(mArg1+1));
-			System.out.println("We are voting\n");
             try {
             	NetworkUtils.postIgnoreBody(Constants.FUNCTION_RATE_THREAD, params);
             } catch (Exception e) {
