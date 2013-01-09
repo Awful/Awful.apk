@@ -58,7 +58,12 @@ $(document).ready(function() {
     $("img[title*=':'],img[title*=';']").load(function(index) {
     	$(this).height(($(this).height() *  prefs.postFontSize / 15));
 	});
-	
+	$('.timg').click(function () {
+		$(this).removeClass('timg');
+		if(!$(this).parent().is('a')){
+			$(this).wrap('<a href="'+$(this).attr('src')+'" />');
+		}
+	});
 });
 
 

@@ -21,7 +21,7 @@
 			/>
 		<com.ferg.awfulapp.preferences.ColorPickerPreference
 		   	android:key="alternative_post_background_color"
-		   	android:title="@string/default_post_background_color"
+		   	android:title="@string/alt_post_background_color"
 		   	android:defaultValue="@color/background"
 		   	alphaSlider="false"
 			/>

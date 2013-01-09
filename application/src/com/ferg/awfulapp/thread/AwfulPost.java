@@ -512,6 +512,7 @@ public class AwfulPost {
 							continue;
 						}
 						boolean dontLink = false;
+						boolean isTimg = img.hasClass("timg");
 						Element parent = img.parent();
 						String src = img.attr("src");
 
@@ -521,7 +522,7 @@ public class AwfulPost {
 
 						boolean replaceGif = (prefs.disableGifs && src.contains(".gif") && !img.hasAttr("title"));
 						if(src.contains(".gif")){
-							img.attr("class", (img.hasAttr("class") ? img.attr("class")+" " : "") + "gif");
+							img.addClass("gif");
 							if(replaceGif){
 								img.attr("alt", src);
 								img.attr("src", "file:///android_res/drawable/gif.png");
@@ -554,7 +555,9 @@ public class AwfulPost {
 									if(replaceGif){
 										img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", img.attr("alt")).appendChild(new Element(Tag.valueOf("img"),"").attr("src", src).attr("alt", thumb)));
 									}else{
-										img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
+										if(prefs.disableTimgs || !isTimg){
+											img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
+										}
 									}
 								}
 							}
