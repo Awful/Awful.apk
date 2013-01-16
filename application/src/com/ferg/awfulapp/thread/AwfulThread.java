@@ -410,6 +410,9 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
         buffer.append(".bbc-block.code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+";overflow:auto;}\n");
+        if(!aPrefs.disableTimgs){
+            buffer.append(".timg {border-color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
+        }
         if(!aPrefs.postDividerEnabled){
             buffer.append(".userinfo-row {border-top-width:0px;}\n");
             buffer.append(".post-buttons {border-bottom-width:0px;}\n");

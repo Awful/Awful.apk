@@ -373,6 +373,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			}
 			
 		});
+
+        refreshSessionCookie();
 	}
 	
 	public void updatePageBar(){

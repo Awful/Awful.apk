@@ -563,17 +563,17 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
 			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
 			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
+	        if(mPrefs.refreshFrog){
+	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+	        }else{
+	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+	        }
 		}
 		aq.find(R.id.pagebar).backgroundColor(prefs.actionbarColor);
 		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(prefs.actionbarFontColor);
 		}
-        if(mPrefs.refreshFrog){
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-        }else{
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-        }
 	}
 	
 	public int getForumId(){
