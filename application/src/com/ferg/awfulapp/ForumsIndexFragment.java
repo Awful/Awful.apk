@@ -125,6 +125,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         mForumTree.setPullLabel("Pull to Refresh");
         mForumTree.setReleaseLabel("Release to Refresh");
         mForumTree.setRefreshingLabel("Loading...");
+        if(mPrefs.refreshFrog){
+        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+        }else{
+        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+        }
         return result;
     }
 
@@ -267,6 +272,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			if(dataManager != null){
 				dataManager.refresh();
 			}
+	        if(mPrefs.refreshFrog){
+	        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
+	        }else{
+	        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+	        }
 		}
 	}
 	
