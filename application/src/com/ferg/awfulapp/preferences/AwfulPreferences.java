@@ -109,7 +109,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean alwaysOpenUrls;
 	
 	//FORUM STUFF
-	public boolean newThreadsFirst;
+	public boolean newThreadsFirstUCP;
+	public boolean newThreadsFirstForum;
 	public boolean threadInfo_Author;
 	public boolean threadInfo_Killed;
 	public boolean threadInfo_Page;
@@ -213,7 +214,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         threadLayout			 = (Constants.canBeWidescreen(mContext)? mPrefs.getString("page_layout", "auto") :"auto");
-        newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
+        newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
+        newThreadsFirstForum	 = mPrefs.getBoolean("new_threads_first_forum", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
