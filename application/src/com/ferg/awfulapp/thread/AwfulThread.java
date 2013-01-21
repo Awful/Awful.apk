@@ -86,6 +86,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static final String LASTPOSTER = "killedby";
 	public static final String FORUM_TITLE = "forum_title";
 	public static final String HAS_NEW_POSTS = "has_new_posts";
+    public static final String HAS_VIEWED_THREAD = "has_viewed_thread";
 
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
@@ -182,12 +183,10 @@ public class AwfulThread extends AwfulPagedItem  {
                 if (tarCount.size() > 0 && tarCount.first().getAllElements().size() >0) {
                     thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
                 } else {
+					thread.put(UNREADCOUNT, 0);
                 	Elements tarXCount = node.getElementsByClass("x");
-					if (tarXCount.size() > 0) {
-						thread.put(UNREADCOUNT, 0);
-					} else {
-						thread.put(UNREADCOUNT,-1);
-					} 
+                	// If there are X's then the user has viewed the thread
+					thread.put(HAS_VIEWED_THREAD, (tarXCount.isEmpty()?0:1));
                 }
                 Elements tarStar = node.getElementsByClass("star");
                 if(tarStar.size()>0){
@@ -652,15 +651,18 @@ public class AwfulThread extends AwfulPagedItem  {
 		
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
-		if(unreadCount >=0){
+		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
+		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
-            if (unreadCount == 0){
-                unread.setBackgroundResource(R.drawable.unread_background_dim);
-            }else{
-                unread.setBackgroundResource(R.drawable.unread_background);
-            }
-		}else{
+            unread.setBackgroundResource(R.drawable.unread_background);
+		}
+		else if(hasViewedThread) {
+			unread.setVisibility(View.VISIBLE);
+			unread.setText("0");
+            unread.setBackgroundResource(R.drawable.unread_background_dim);
+        }
+		else {
 			unread.setVisibility(View.GONE);
 		}
 		title.setTypeface(null, Typeface.NORMAL);

@@ -109,7 +109,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean alwaysOpenUrls;
 	
 	//FORUM STUFF
-	public boolean newThreadsFirst;
+	public boolean newThreadsFirstUCP;
+	public boolean newThreadsFirstForum;
 	public boolean threadInfo_Author;
 	public boolean threadInfo_Killed;
 	public boolean threadInfo_Page;
@@ -119,6 +120,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
 	public boolean staticThreadView;
+	
+	private static final int PREFERENCES_VERSION = 1;
+	private int currPrefVersion;
 	
 
 	/**
@@ -132,6 +136,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
+		upgradePreferences();
 	}
 	
 	public AwfulPreferences(Context context, AwfulUpdateCallback updateCallback){
@@ -213,7 +218,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         threadLayout			 = (Constants.canBeWidescreen(mContext)? mPrefs.getString("page_layout", "auto") :"auto");
-        newThreadsFirst			 = mPrefs.getBoolean("new_threads_first", false);
+        newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
+        newThreadsFirstForum	 = mPrefs.getBoolean("new_threads_first_forum", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
@@ -225,6 +231,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
         disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
+        currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -249,6 +256,30 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			mPrefs.edit().putInt(key, value).apply();
 		}else{
 			mPrefs.edit().putInt(key, value).commit();
+		}
+	}
+	
+	public void upgradePreferences() {
+		if(currPrefVersion < PREFERENCES_VERSION) {
+			switch(currPrefVersion) {//this switch intentionally falls through!
+			case 0:
+				// Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
+				boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
+        		setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
+        		if(Constants.isGingerbread()){
+        			mPrefs.edit().remove("new_threads_first").apply();
+        		}else{
+        			mPrefs.edit().remove("new_threads_first").commit();
+        		}
+        		newThreadsFirstUCP = newPrefsFirst;
+				break;
+			default://make sure to keep this break statement on the last case of this switch
+				break;
+			}
+
+			//update the preferences so this doesn't run again
+    		setIntegerPreference("curr_pref_version", PREFERENCES_VERSION);
+    		currPrefVersion = PREFERENCES_VERSION;
 		}
 	}
 }

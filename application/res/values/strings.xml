@@ -164,7 +164,8 @@ AQuery</string>
 	<string name="draft_alert_discard">Discard Message</string>
 	<string name="draft_alert_title">Previous Reply Found</string>
 	<string name="reply_alert_save_draft">Save Draft</string>
-    <string name="new_threads_first">Sort UCP by new posts</string>
+    <string name="new_threads_first_ucp">Sort UCP by new posts</string>
+    <string name="new_threads_first_forum">Sort Forums by new posts</string>
     <string name="image_settings">Image Preferences</string>
     <string name="platinum">Platinum Account</string>
     <string name="platinum_summary">Enable platinum features (but they won\'t work without a platinum account)</string>
