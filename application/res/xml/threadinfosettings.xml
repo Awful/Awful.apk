@@ -8,10 +8,15 @@
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
-            android:key="new_threads_first" 
-			android:title="@string/new_threads_first"
+            android:key="new_threads_first_ucp" 
+			android:title="@string/new_threads_first_ucp"
 			android:defaultValue="false"
 			/>
+        <CheckBoxPreference 
+            android:key="new_threads_first_forum" 
+            android:title="@string/new_threads_first_forum"
+            android:defaultValue="false"
+            />
 		<CheckBoxPreference 
             android:key="wrap_thread_titles" 
 			android:title="@string/wrap_titles"
