@@ -99,7 +99,8 @@ public class AwfulForum extends AwfulPagedItem {
 	            // First, grab the parent forum
 				Element title = node.getElementsByClass("forum").first();
 	            if (title != null) {
-	            	Element parentForum = title;
+	            	//the title node also has a forum class, so we want the 2nd node with a forum class
+	            	Element parentForum = title.getElementsByClass("forum").get(1);
 	                forum.put(TITLE,parentForum.text());
 	                forum.put(PARENT_ID, 0);
 	                forum.put(INDEX, ix);
