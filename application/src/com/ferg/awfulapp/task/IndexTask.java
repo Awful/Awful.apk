@@ -55,7 +55,7 @@ public class IndexTask extends AwfulTask {
 		if (!isCancelled()) {
             try {
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, 10));
-                Document response = NetworkUtils.get(Constants.BASE_URL);
+                Document response = NetworkUtils.get(Constants.BASE_URL + "/");
                 String error = AwfulPagedItem.checkPageErrors(response, replyTo);
                 if(error != null){
                 	return error;
