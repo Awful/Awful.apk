@@ -1042,7 +1042,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
             }
-            mThreadView.loadDataWithBaseURL("http://forums.somethingawful.com", html, "text/html", "utf-8", null);
+            mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
