@@ -190,21 +190,15 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
                 Elements tarStar = node.getElementsByClass("star");
                 if(tarStar.size()>0){
-                	Elements tarStarImg = tarStar.first().getElementsByTag("img");
-                	if(tarStarImg.size() >0 && !tarStarImg.first().attr("src").contains("star-off")){
-                		if(tarStarImg.first().attr("src").contains("star0")){
-                    		thread.put(BOOKMARKED, 1);
-                		}else if(tarStarImg.first().attr("src").contains("star1")){
-                    		thread.put(BOOKMARKED, 2);
-                		}else if(tarStarImg.first().attr("src").contains("star2")){
-                    		thread.put(BOOKMARKED, 3);
-                		}
-                	}else{
-                		thread.put(BOOKMARKED, 0);
-                	}
+                    // Bookmarks can only be detected now by the presence of a "bm0" class - no star image, no bookmark type
+                    if(tarStar.size()>0){
+                        thread.put(BOOKMARKED, (tarStar.first().hasClass("bm0")?1:0));
+                    }else{
+                        thread.put(BOOKMARKED, 0);
+                    }
                 }else{
-            		thread.put(BOOKMARKED, 0);
-            	}
+                    thread.put(BOOKMARKED, 0);
+                }
         		thread.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
                 result.add(thread);
             } catch (NullPointerException e) {
