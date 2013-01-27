@@ -120,8 +120,8 @@ public abstract class AwfulPagedItem {
 	}
 	
 
-	public static int getLastReadPage(int unread, int total, int postPerPage) {
-		if(unread<0 || total < 1){
+	public static int getLastReadPage(int unread, int total, int postPerPage, int hasReadThread) {
+		if(unread<0 || total < 1 || hasReadThread == 0){
 			return 1;
 		}
 		if(unread == 0){

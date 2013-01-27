@@ -498,7 +498,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                     Log.i(TAG, "Thread ID: " + Long.toString(aId));
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
-                    												mPrefs.postPerPage);
+                    												mPrefs.postPerPage,
+                    												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
                     displayForumContents((int) aId);

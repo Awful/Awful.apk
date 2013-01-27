@@ -249,11 +249,12 @@ public class AwfulThread extends AwfulPagedItem  {
         
         ContentResolver contentResolv = aContext.getContentResolver();
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
-    	int totalReplies = 0, unread = -1, opId = 0, bookmarkStatus = 0;
+    	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0;
 		if(threadData.moveToFirst()){
 			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
 			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
 			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
+			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
 			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
 		}
         
@@ -323,7 +324,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	
     	thread.put(AwfulThread.POSTCOUNT, replycount);
     	int newUnread = Math.max(0, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1));
-    	if(unread >= 0){
+    	if(unread > 0){
         	newUnread = Math.min(unread, newUnread);
     	}
     	if(aPage == lastPage){
@@ -338,7 +339,7 @@ public class AwfulThread extends AwfulPagedItem  {
         AwfulPost.syncPosts(contentResolv, 
         					response, 
         					aThreadId, 
-        					(unread < 0 ? 0 : totalReplies-unread),
+        					((unread == 0 && hasViewedThread == 0) ? 0 : totalReplies-unread),
         					opId, 
         					aPrefs,
         					AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
