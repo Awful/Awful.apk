@@ -182,6 +182,7 @@ public class AwfulThread extends AwfulPagedItem  {
                 Elements tarCount = node.getElementsByClass("count");
                 if (tarCount.size() > 0 && tarCount.first().getAllElements().size() >0) {
                     thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
+					thread.put(HAS_VIEWED_THREAD, 1);
                 } else {
 					thread.put(UNREADCOUNT, 0);
                 	Elements tarXCount = node.getElementsByClass("x");
