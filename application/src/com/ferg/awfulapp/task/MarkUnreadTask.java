@@ -58,7 +58,8 @@ public class MarkUnreadTask extends AwfulTask {
                 last_read.put(AwfulPost.PREVIOUSLY_READ, 0);
                 mContext.getContentResolver().update(AwfulPost.CONTENT_URI, last_read, AwfulPost.THREAD_ID+"=?", new String[]{Integer.toString(mId)});
                 ContentValues unread = new ContentValues();
-                unread.put(AwfulThread.UNREADCOUNT, -1);
+                unread.put(AwfulThread.UNREADCOUNT, 0);
+                unread.put(AwfulThread.HAS_VIEWED_THREAD, 0);
                 mContext.getContentResolver().update(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mId), unread, null, null);
             } catch (Exception e) {
                 e.printStackTrace();
