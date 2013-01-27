@@ -124,7 +124,8 @@ function scrollLastRead(){
 
 function showInlineImage(url){
 	//listener.debugMessage('showInlineImage');
-	if(prefs.disableGifs && url.indexOf(".gif") == -1){
+	//If it's not a GIF, or if it is a GIF and the user has not disabled GIF animation, then load the image, else switch from gif.png to .gif
+	if(url.indexOf(".gif") == -1 || (url.indexOf(".gif") != -1 && !prefs.disableGifs)){
 	$('a[href="'+url+'"]').append(function(){
 		if($(this).children('img[src="'+url+'"]').length < 1){
 			return '<img src="'+url+'" />';
