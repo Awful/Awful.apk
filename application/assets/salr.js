@@ -39,6 +39,9 @@ SALR.prototype.init = function() {
         this.highlightOwnQuotes();
     }
 
+    //String to boolean fun
+    this.preferences.disableGifs = (this.preferences.disableGifs === "true");
+
     // if (this.preferences.inlineYoutube == "true") {
     //     this.inlineYoutubes();
     // }
