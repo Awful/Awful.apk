@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ferg.awfulapp.task.ThreadTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -242,7 +243,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates) throws Exception {
+    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates, ThreadTask parentTask) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
@@ -264,6 +265,10 @@ public class AwfulThread extends AwfulPagedItem  {
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
         
         Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
+
+        if(parentTask.isCancelled()){
+            return null;
+        }
 
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
