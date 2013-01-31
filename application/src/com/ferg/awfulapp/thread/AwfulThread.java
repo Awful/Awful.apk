@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ferg.awfulapp.task.ThreadTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -43,7 +42,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Message;
@@ -63,6 +66,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.ThreadTask;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -660,15 +664,24 @@ public class AwfulThread extends AwfulPagedItem  {
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
+		if(prefs.unreadCounterFontBlack){
+			unread.setTextColor(Color.BLACK);
+		}else{
+			unread.setTextColor(Color.WHITE);
+		}
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
-            unread.setBackgroundResource(R.drawable.unread_background);
+			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
+            counter.setColor(prefs.unreadCounterColor);
+            unread.setBackground(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
-			unread.setText("0");
-            unread.setBackgroundResource(R.drawable.unread_background_dim);
+			unread.setText(unreadCount+"");
+			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
+            counter.setColor(prefs.unreadCounterColorDim);
+            unread.setBackground(counter);
         }
 		else {
 			unread.setVisibility(View.GONE);

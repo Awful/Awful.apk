@@ -90,5 +90,22 @@
 		   	android:title="@string/hyperlink_font_quote_color"
 		   	android:defaultValue="@color/link_quote"
 		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:key="unread_posts"
+		   	android:title="@string/unread_posts"
+		   	android:defaultValue="@color/unread_posts"
+		   	/>
+		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		   	alphaSlider="false"
+		   	android:key="unread_posts_dim"
+		   	android:title="@string/unread_posts_dim"
+		   	android:defaultValue="@color/unread_posts_dim"
+		   	/>
+		<CheckBoxPreference 
+            android:key="unread_posts_font_black" 
+			android:title="@string/unread_posts_font_black"
+			android:defaultValue="false"
+			/>
 	</PreferenceCategory>
 </PreferenceScreen>

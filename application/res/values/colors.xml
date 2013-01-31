@@ -15,6 +15,8 @@
     <color name="actionbar_color">#000000</color>
     <color name="actionbar_font_color">#ffffff</color>
     
+    <color name="unread_posts">#00659a</color>
+    <color name="unread_posts_dim">#88aabb</color>
     
         
         

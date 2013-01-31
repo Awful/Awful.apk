@@ -8,9 +8,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="false"
-	    android:paddingBottom="8dip"
-	    android:paddingLeft="4dip"
-	    android:paddingTop="8dip">
+        android:paddingBottom="8dip"
+        android:paddingLeft="4dip"
+        android:paddingTop="8dip" >
 
         <ImageView
             android:id="@+id/sticky_icon"
@@ -27,7 +27,6 @@
             android:layout_below="@+id/sticky_icon"
             android:layout_marginRight="4dip"
             android:paddingTop="10dip"
-
             android:src="@drawable/ic_star_blue" />
     </RelativeLayout>
 
@@ -36,46 +35,49 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/icon_box"
         android:layout_toLeftOf="@+id/selector"
-	    android:paddingBottom="8dip"
-	    android:paddingLeft="4dip"
-	    android:paddingRight="4dip"
-	    android:paddingTop="8dip" >
-		<ImageView
+        android:layout_toRightOf="@+id/icon_box"
+        android:paddingBottom="8dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingTop="8dip" >
+
+        <ImageView
             android:id="@+id/forum_tag"
             android:layout_width="60dp"
             android:layout_height="15dp"
             android:layout_marginRight="6dip"
             android:layout_marginTop="4dip"
             android:visibility="gone" />
+
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/forum_tag"
-            android:layout_toLeftOf="@+id/unread_count"
             android:layout_alignWithParentIfMissing="true"
-            android:textColor="@color/default_post_font"
+            android:layout_toLeftOf="@+id/unread_count"
+            android:layout_toRightOf="@+id/forum_tag"
             android:gravity="left"
+            android:textColor="@color/default_post_font"
             android:textSize="18dip" />
 
         <ImageView
             android:id="@+id/thread_tag"
             android:layout_width="60dp"
             android:layout_height="15dp"
+            android:layout_below="@id/title"
             android:layout_marginRight="6dip"
             android:layout_marginTop="4dip"
-            android:layout_below="@id/title"
             android:visibility="gone" />
+
         <TextView
             android:id="@+id/threadinfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/thread_tag"
-            android:layout_toLeftOf="@+id/unread_count"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
+            android:layout_toLeftOf="@+id/unread_count"
+            android:layout_toRightOf="@id/thread_tag"
             android:textColor="@color/secondary_post_font"
             android:textSize="14dip" />
 
@@ -86,18 +88,21 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dip"
-            android:background="@drawable/unread_background"
+            android:text="151"
+            android:background="@drawable/unread_counter"
             android:textColor="#ffffff"
             android:textSize="14dip"
             android:textStyle="bold" />
+
     </RelativeLayout>
+
     <ImageView
         android:id="@+id/selector"
-        android:src="@drawable/ic_menu_arrowright"
-	     android:layout_width="wrap_content"
-	     android:layout_height="wrap_content"
-	     android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-    	android:visibility="gone"
-        />
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_menu_arrowright"
+        android:visibility="gone" />
+
 </RelativeLayout>

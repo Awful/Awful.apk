@@ -78,6 +78,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public int actionbarFontColor;
 	public boolean refreshFrog;
 	public boolean lockScrolling;
+	public int unreadCounterColor;
+	public int unreadCounterColorDim;
+	public boolean unreadCounterFontBlack;
 	/**
 	 * for selecting icon set
 	 * light
@@ -200,6 +203,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
       	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
       	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
       	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
+      	unreadCounterColor		 = mPrefs.getInt("unread_posts", res.getColor(R.color.unread_posts));
+      	unreadCounterColorDim	 = mPrefs.getInt("unread_posts_dim", res.getColor(R.color.unread_posts_dim));
+        unreadCounterFontBlack   = mPrefs.getBoolean("unread_posts_font_black", false);
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
