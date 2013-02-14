@@ -346,10 +346,9 @@ public class AwfulProvider extends ContentProvider {
         	case 20:
         		// Update the threads table
         		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.HAS_VIEWED_THREAD + " INTEGER");
-        		break;//make sure to keep this break statement on the last case of this switch
         	case 21:
             	wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
-            	break;
+        		break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
         	}
