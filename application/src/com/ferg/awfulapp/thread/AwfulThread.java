@@ -582,6 +582,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
+	@SuppressWarnings("deprecation")
 	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean selected) {
 		aq.recycle(current);
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
@@ -674,14 +675,14 @@ public class AwfulThread extends AwfulPagedItem  {
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
             counter.setColor(prefs.unreadCounterColor);
-            unread.setBackground(counter);
+            unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
             counter.setColor(prefs.unreadCounterColorDim);
-            unread.setBackground(counter);
+            unread.setBackgroundDrawable(counter);
         }
 		else {
 			unread.setVisibility(View.GONE);
