@@ -305,7 +305,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         	if(aData != null && aData.moveToFirst() && !aData.isClosed()){
             	Log.v(TAG,"Index cursor: "+aData.getCount());
         		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
-        		if(aData.move(5) && dateIndex > -1){
+        		if(aData.getCount() > 10 && aData.move(8) && dateIndex > -1){
         			String timestamp = aData.getString(dateIndex);
         			Timestamp upDate = new Timestamp(System.currentTimeMillis());
         			if(timestamp != null && timestamp.length()>5){
