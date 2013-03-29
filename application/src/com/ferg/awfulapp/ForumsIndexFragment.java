@@ -76,7 +76,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
     private boolean DEBUG = false;
     
-    private boolean loadFailed = false;
+    private boolean loadStarted = false;
     
     private int selectedForum = 0;
 
@@ -145,7 +145,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "Start");
-    	loadFailed = false;
     }
     
     @Override
@@ -249,7 +248,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 		mForumTree.onRefreshComplete();
 		mForumTree.setLastUpdatedLabel("Loading Failed!");
-    	loadFailed = true;
     }
     
     @Override
@@ -259,7 +257,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
     	mForumTree.onRefreshComplete();
     	mForumTree.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
-    	loadFailed = false;
 	}
     
 	@Override
@@ -282,12 +279,14 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	
 	private void syncForumsIfStale() {
 		if(getActivity() != null && lastUpdateTime < System.currentTimeMillis()-(60000*1440)){
+            loadStarted = true;
 			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
 	
 	private void syncForums() {
 		if(getActivity() != null){
+            loadStarted = true;
 			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
@@ -314,7 +313,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         			lastUpdateTime = upDate.getTime();
         			syncForumsIfStale();
         			mForumTree.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
-        		}else if(!loadFailed){
+        		}else if(!loadStarted){
             		syncForums();
         		}
         		mTreeAdapter.setCursor(aData);
@@ -395,7 +394,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         		addChildren(builder, parent, 1);
         	}
 			
-        	if(data != null && forumsMap.size() < 5 && !loadFailed){
+        	if(data != null && forumsMap.size() < 5 && !loadStarted){
         		syncForums();
         	}
         	if(selectedForum > 0){
