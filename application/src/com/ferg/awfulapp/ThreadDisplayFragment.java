@@ -731,6 +731,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
+
+    private void cancelOldSync(){
+        if(getActivity() != null){
+            getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_CANCEL_SYNC_THREAD, getThreadId(), getPage());
+        }
+    }
     
     private void markLastRead(int index) {
         if(getActivity() != null){
@@ -1373,6 +1379,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 			}
 	        syncThread();
+            cancelOldSync();
 		}
 	}
 	

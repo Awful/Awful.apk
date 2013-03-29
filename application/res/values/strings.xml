@@ -57,6 +57,9 @@
     <string name="actionbar_font_color">Actionbar Font Color</string>
     <string name="op_post_color">OP Post Color</string>
     <string name="hyperlink_font_quote_color">Quote / Link Font Color</string>
+    <string name="unread_posts">Unread Counter Color</string>
+    <string name="unread_posts_dim">Unread Counter Dim Color</string>
+    <string name="unread_posts_font_black">Black Unread Counter Font Color</string>
     <string name="press_color_to_apply">Press color to apply</string>
     <string name="dialog_color_picker">Select Color</string>
     <string name="about">About...</string>

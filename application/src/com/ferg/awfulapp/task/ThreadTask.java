@@ -46,9 +46,12 @@ public class ThreadTask extends AwfulTask {
 
 	@Override
 	protected String doInBackground(Void... params) {
+        if(isCancelled()){
+            return null;
+        }
 		String error = null;
 		try {
-			error = AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId, replyTo);
+			error = AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId, replyTo, this);
             Log.i(TAG, "Sync complete");
         } catch (Exception e) {
             Log.e(TAG, "Sync error");

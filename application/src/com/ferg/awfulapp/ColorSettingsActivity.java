@@ -123,6 +123,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
+						prefEdit.putInt("unread_posts", getResources().getColor(R.color.unread_posts));//TODO
+						prefEdit.putInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim));
+						prefEdit.putBoolean("unread_posts_font_black", false);
 						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("Dark");
@@ -147,6 +150,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putBoolean("post_divider_enabled", false);
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.link_quote));
+						prefEdit.putInt("unread_posts", getResources().getColor(R.color.unread_posts));//TODO
+						prefEdit.putInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim));
+						prefEdit.putBoolean("unread_posts_font_black", false);
 						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("Default");
@@ -172,6 +178,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putString("preferred_font", "fonts/terminus_mono.ttf.mp3");
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.yospos_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.yospos_link_quote));
+						prefEdit.putInt("unread_posts", getResources().getColor(R.color.unread_posts));//TODO
+						prefEdit.putInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim));
+						prefEdit.putBoolean("unread_posts_font_black", false);
 						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("yospos, bitch");
@@ -196,6 +205,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 						prefEdit.putInt("post_header_font_color", getResources().getColor(R.color.dark_header_font));//TODO
 						prefEdit.putInt("op_post_color", getResources().getColor(R.color.dark_op_post));
 						prefEdit.putInt("link_quote_color", getResources().getColor(R.color.dark_link_quote));
+						prefEdit.putInt("unread_posts", getResources().getColor(R.color.unread_posts));//TODO
+						prefEdit.putInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim));
+						prefEdit.putBoolean("unread_posts_font_black", false);
 						prefEdit.putString("selected_theme", "dark");
                         savePreferences(prefEdit);
 						p.setSummary("Darkish Blueish");
@@ -213,9 +225,13 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 							prefEdit.putInt("alternative_read_post_background_color", mPrefs.getInt("custom_alternative_read_post_background_color", getResources().getColor(R.color.alt_background_read)));
 							prefEdit.putInt("post_header_background_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.forums_blue)));//TODO
 							prefEdit.putInt("post_divider_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.background)));//TODO
+							prefEdit.putBoolean("post_divider_enabled", mPrefs.getBoolean("post_divider_enabled", false));
 							prefEdit.putInt("post_header_font_color", mPrefs.getInt("custom_default_post_font_color", getResources().getColor(R.color.forums_gray)));//TODO
 							prefEdit.putInt("op_post_color", mPrefs.getInt("custom_op_post_color", getResources().getColor(R.color.op_post)));
 							prefEdit.putInt("link_quote_color", mPrefs.getInt("custom_link_quote_color", getResources().getColor(R.color.link_quote)));
+							prefEdit.putInt("unread_posts",  mPrefs.getInt("unread_posts", getResources().getColor(R.color.unread_posts)));//TODO
+							prefEdit.putInt("unread_posts_dim",  mPrefs.getInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim)));
+							prefEdit.putBoolean("unread_posts_font_black", mPrefs.getBoolean("unread_posts_font_black", false));
                             savePreferences(prefEdit);
 							p.setSummary("Custom");
 							lastTheme = "custom";
@@ -240,6 +256,9 @@ public class ColorSettingsActivity extends PreferenceActivity implements OnShare
 		prefEdit.putInt("custom_post_header_font_color", mPrefs.getInt("post_header_font_color", getResources().getColor(R.color.forums_gray)));
 		prefEdit.putInt("custom_op_post_color", mPrefs.getInt("op_post_color", getResources().getColor(R.color.op_post)));
 		prefEdit.putInt("custom_link_quote_color", mPrefs.getInt("link_quote_color", getResources().getColor(R.color.link_quote)));
+		prefEdit.putInt("custom_unread_posts", mPrefs.getInt("unread_posts", getResources().getColor(R.color.unread_posts)));
+		prefEdit.putInt("custom_unread_posts_dim", mPrefs.getInt("unread_posts_dim", getResources().getColor(R.color.unread_posts_dim)));
+		prefEdit.putBoolean("custom_unread_posts_font_black", mPrefs.getBoolean("unread_posts_font_black", false));
         savePreferences(prefEdit);
 	}
 

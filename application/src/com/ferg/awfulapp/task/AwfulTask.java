@@ -63,12 +63,16 @@ public abstract class AwfulTask extends AsyncTask<Void, Void, String> {
 		TYPE = returnMessage;
 		replyTo = msg.replyTo;
 	}
-	public int getId(){
+	public int getArg1(){
 		return mId;
 	}
-	public int getArg1(){
+	public int getArg2(){
 		return mArg1;
 	}
+
+    public int getType(){
+        return TYPE;
+    }
 	public void setReplyObject(Object obj){
 		replyObject = obj;
 	}

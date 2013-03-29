@@ -27,9 +27,8 @@
 
 package com.ferg.awfulapp.service;
 
+import java.util.Iterator;
 import java.util.Stack;
-
-import org.jsoup.nodes.Document;
 
 import android.app.Service;
 import android.content.Intent;
@@ -40,8 +39,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulTask;
 import com.ferg.awfulapp.task.BookmarkTask;
@@ -60,8 +57,6 @@ import com.ferg.awfulapp.task.SendPrivateMessageTask;
 import com.ferg.awfulapp.task.ThreadTask;
 import com.ferg.awfulapp.task.TrimDBTask;
 import com.ferg.awfulapp.task.VotingTask;
-import com.ferg.awfulapp.thread.AwfulForum;
-import com.ferg.awfulapp.thread.AwfulThread;
 
 public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";
@@ -98,6 +93,7 @@ public class AwfulSyncService extends Service {
 	public static final int MSG_ERROR = 20;
     /** forums closed error message, (optional) obj=String - error message to display **/
 	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
+    public static final int MSG_CANCEL_SYNC_THREAD  = 22;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -171,6 +167,9 @@ public class AwfulSyncService extends Service {
                 case MSG_FETCH_EMOTES:
                 	queueUniqueThread(new FetchEmotesTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
+                case MSG_CANCEL_SYNC_THREAD:
+                    cancelTypeTasks(MSG_SYNC_THREAD, aMsg.arg2);
+                    break;
             }
         }
     }
@@ -222,7 +221,7 @@ public class AwfulSyncService extends Service {
 	 * @param threadTask
 	 */
 	private void queueUniqueThread(AwfulTask threadTask) {
-		if(!isThreadQueued(threadTask.getId(), threadTask.getArg1())){
+		if(!isThreadQueued(threadTask.getArg1(), threadTask.getArg2())){
 			queueThread(threadTask);
 		}
 	}
@@ -231,10 +230,31 @@ public class AwfulSyncService extends Service {
 	 * @param threadTask
 	 */
 	private void backQueueUniqueThread(AwfulTask threadTask) {
-		if(!isThreadQueued(threadTask.getId(), threadTask.getArg1())){
+		if(!isThreadQueued(threadTask.getArg1(), threadTask.getArg2())){
 			backQueueThread(threadTask);
 		}
 	}
+
+    /**
+     * Cancels all tasks of 'type', except any with an arg2 that matches the given argument.
+     * @param type
+     * @param excludeArg2
+     */
+    private void cancelTypeTasks(int type, int excludeArg2){
+        Iterator<AwfulTask> awfulTaskIterator = threadStack.iterator ();
+        while(awfulTaskIterator.hasNext()){
+            AwfulTask at = awfulTaskIterator.next();
+            if(at.getType() == type && excludeArg2 != at.getArg2()){
+                awfulTaskIterator.remove();
+            }
+        }
+        if(currentTask != null && currentTask.getType() == type && currentTask.getArg2() != excludeArg2){
+            currentTask.cancel(true);
+            currentTask = null;
+            startNextThread();
+        }
+    }
+
 	private void startNextThread() {
 		if(currentTask == null && !threadStack.isEmpty()){
 			currentTask = threadStack.pop();
@@ -243,18 +263,18 @@ public class AwfulSyncService extends Service {
 	}
 
 	public void taskFinished(AwfulTask task) {
-		if(currentTask.getId() == task.getId()){
+		if(currentTask.getArg1() == task.getArg1()){
 			currentTask = null;
 			startNextThread();
 		}
 	}
 	private boolean isThreadQueued(int targetId, int arg1) {
 		for(AwfulTask at : threadStack){
-			if(at.getId()== targetId && (arg1 == 0 || at.getArg1() == arg1)){//if arg1 is 0, we arn't using it
+			if(at.getArg1()== targetId && (arg1 == 0 || at.getArg2() == arg1)){//if arg1 is 0, we arn't using it
 				return true;
 			}
 		}
-		if(currentTask != null && currentTask.getId()== targetId && (arg1 == 0 || currentTask.getArg1() == arg1)){
+		if(currentTask != null && currentTask.getArg1()== targetId && (arg1 == 0 || currentTask.getArg2() == arg1)){
 			return true;
 		}
 		return false;

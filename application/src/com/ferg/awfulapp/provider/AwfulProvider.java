@@ -57,7 +57,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 22;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -346,6 +346,8 @@ public class AwfulProvider extends ContentProvider {
         	case 20:
         		// Update the threads table
         		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.HAS_VIEWED_THREAD + " INTEGER");
+        	case 21:
+            	wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -364,7 +366,7 @@ public class AwfulProvider extends ContentProvider {
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
             aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);//TODO we probably should not drop this table
+            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
         }
 		
 		public void wipeRecreateTables(SQLiteDatabase aDb){

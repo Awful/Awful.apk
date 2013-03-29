@@ -42,7 +42,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Message;
@@ -62,6 +66,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.ThreadTask;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -242,7 +247,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates) throws Exception {
+    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates, ThreadTask parentTask) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
         params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
@@ -264,6 +269,10 @@ public class AwfulThread extends AwfulPagedItem  {
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
         
         Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
+
+        if(parentTask.isCancelled()){
+            return null;
+        }
 
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
@@ -573,6 +582,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
+	@SuppressWarnings("deprecation")
 	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean selected) {
 		aq.recycle(current);
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
@@ -655,15 +665,24 @@ public class AwfulThread extends AwfulPagedItem  {
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
+		if(prefs.unreadCounterFontBlack){
+			unread.setTextColor(Color.BLACK);
+		}else{
+			unread.setTextColor(Color.WHITE);
+		}
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
-            unread.setBackgroundResource(R.drawable.unread_background);
+			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
+            counter.setColor(prefs.unreadCounterColor);
+            unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
-			unread.setText("0");
-            unread.setBackgroundResource(R.drawable.unread_background_dim);
+			unread.setText(unreadCount+"");
+			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
+            counter.setColor(prefs.unreadCounterColorDim);
+            unread.setBackgroundDrawable(counter);
         }
 		else {
 			unread.setVisibility(View.GONE);
