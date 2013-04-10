@@ -122,7 +122,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
-	public boolean staticThreadView;
 	
 	private static final int PREFERENCES_VERSION = 1;
 	private int currPrefVersion;
@@ -230,7 +229,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
-        staticThreadView	 	 = false;//mPrefs.getBoolean("static_thread_view", false);
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs", false);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);

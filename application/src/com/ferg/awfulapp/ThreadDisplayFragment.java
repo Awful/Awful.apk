@@ -130,9 +130,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ViewGroup mThreadWindow;
 
     private WebView mThreadView;
-    
-    private ListView mThreadListView;
-    private AwfulCursorAdapter mCursorAdapter;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -163,32 +160,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private int savedScrollPosition = 0;
 	
 	private ShareActionProvider shareProvider;
-	
-	private Handler buttonHandler = new Handler(){
-
-		@Override
-		public void handleMessage(Message msg) {
-			Log.i(TAG, "POST BUTTON HIT "+msg.arg1+" - "+msg.what);
-			switch(msg.what){
-			case R.id.post_quote_button:
-				clickInterface.onQuoteClickInt(msg.arg1);
-				break;
-			case R.id.post_edit_button:
-				clickInterface.onEditClickInt(msg.arg1);
-				break;
-			case R.id.post_last_read:
-				clickInterface.onLastReadClickInt(mCursorAdapter.getInt(msg.arg1, AwfulPost.POST_INDEX));
-				break;
-			case R.id.post_copyurl_button:
-				copyThreadURL(Integer.toString(msg.arg1));
-				break;
-			case R.id.post_userposts_button:
-				clickInterface.onUserPostsClickInt(mCursorAdapter.getInt(msg.arg1, AwfulPost.USER_ID));
-				break;
-			}
-		}
-	};
-	private Messenger buttonCallback = new Messenger(buttonHandler);
 
     public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -406,34 +377,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         //recreate that fucking webview if we don't have it yet
-		if(!mPrefs.staticThreadView && mThreadView == null){
+		if(mThreadView == null){
 	        mThreadView = new WebView(getActivity());
 	        mThreadView.setId(R.id.thread);
 	        initThreadViewProperties();
 	        mThreadWindow.removeAllViews();
-	        mThreadListView = null;
-	        mCursorAdapter = null;
 	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
 	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 	        if(dataLoaded){
 	        	refreshPosts();
 	        }
 		}
-		if(mPrefs.staticThreadView && mThreadListView == null){
-			mThreadListView = new ListView(getActivity());
-			mThreadListView.setBackgroundColor(mPrefs.postBackgroundColor);
-			mThreadListView.setCacheColorHint(mPrefs.postBackgroundColor);
-			mCursorAdapter = new AwfulCursorAdapter(getAwfulActivity(), null, buttonCallback);
-			mThreadListView.setAdapter(mCursorAdapter);
-	        mThreadWindow.removeAllViews();
-	        if(mThreadView != null){
-	        	mThreadView.destroy();
-	        	mThreadView = null;
-	        }
-	        mThreadWindow.addView(mThreadListView,new ViewGroup.LayoutParams(
-	        			ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-	        refreshPosts();
-    	}
     }
     
 
@@ -446,7 +400,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     public void resumeWebView(){
-    	if(getActivity() != null && !mPrefs.staticThreadView){
+    	if(getActivity() != null){
 	        if (mThreadView == null) {
 	            mThreadView = new WebView(getActivity());
 	            mThreadView.setId(R.id.thread);
@@ -463,9 +417,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	@Override
 	public void onPageVisible() {
-		if(mPrefs != null && !mPrefs.staticThreadView){
-			resumeWebView();
-		}
+        resumeWebView();
 	}
 	
 	
@@ -483,9 +435,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public void onPageHidden() {
-		if(mPrefs != null && !mPrefs.staticThreadView){
-			pauseWebView();
-		}
+        pauseWebView();
 	}
 	
     @Override
@@ -725,9 +675,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	outState.putInt(Constants.THREAD_ID, getThreadId());
     	if(mThreadView != null){
     		outState.putInt("scroll_position", mThreadView.getScrollY());
-    	}
-    	if(mThreadListView != null){
-    		outState.putInt("scroll_position", mThreadListView.getScrollY());
     	}
     }
     
@@ -1368,10 +1315,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
 		}
-		if(mThreadListView != null){
-			mThreadListView.setBackgroundColor(mPrefs.postBackgroundColor);
-			mThreadListView.setCacheColorHint(mPrefs.postBackgroundColor);
-		}
 	}
 
 	public void setPostJump(String postID) {
@@ -1458,10 +1401,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(aData.isClosed()){
         		return;
         	}
-        	if(mThreadListView != null && mCursorAdapter != null){
-        		mCursorAdapter.swapCursor(aData);
-        		setProgress(100);
-        	}
         	if(mThreadView != null){
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
@@ -1471,9 +1410,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-        	if(mCursorAdapter != null){
-        		mCursorAdapter.swapCursor(null);
-        	}
         }
     }
     
@@ -1625,9 +1561,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void pushThread(int id, int page, String postJump){
 		if(mThreadView != null && getThreadId() != 0){
 			backStack.addFirst(new AwfulStackEntry(getThreadId(), getPage(), mThreadView.getScrollY()));
-		}
-		if(mThreadListView != null && getThreadId() != 0){
-			backStack.addFirst(new AwfulStackEntry(getThreadId(), getPage(), mThreadListView.getScrollY()));
 		}
 		loadThread(id, page, postJump);
 	}
