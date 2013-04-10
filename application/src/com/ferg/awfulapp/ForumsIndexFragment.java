@@ -73,10 +73,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
     private final static String TAG = "ForumsIndex";
-    private long lastUpdateTime = System.currentTimeMillis();//This will be replaced with the correct time when we get the cursor.
-    private boolean DEBUG = false;
-    
-    private boolean loadStarted = false;
     
     private int selectedForum = 0;
 
@@ -140,6 +136,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         dataManager.setVisibleByDefault(false);
         mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
         mForumTree.setAdapter(mTreeAdapter);
+        syncForums();
     }
 
     @Override
@@ -277,16 +274,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 	}
 	
-	private void syncForumsIfStale() {
-		if(getActivity() != null && lastUpdateTime < System.currentTimeMillis()-(60000*1440)){
-            loadStarted = true;
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
-		}
-    }
-	
 	private void syncForums() {
 		if(getActivity() != null){
-            loadStarted = true;
 			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
 		}
     }
@@ -301,7 +290,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	if(aData != null && aData.moveToFirst() && !aData.isClosed()){
+        	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
             	Log.v(TAG,"Index cursor: "+aData.getCount());
         		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
         		if(aData.getCount() > 10 && aData.move(8) && dateIndex > -1){
@@ -310,11 +299,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         			if(timestamp != null && timestamp.length()>5){
             			upDate = Timestamp.valueOf(timestamp);
         			}
-        			lastUpdateTime = upDate.getTime();
-        			syncForumsIfStale();
         			mForumTree.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
-        		}else if(!loadStarted){
-            		syncForums();
         		}
         		mTreeAdapter.setCursor(aData);
         	}
@@ -392,10 +377,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         	for(ForumEntry parent : parentForums){
         		builder.sequentiallyAddNextNode(parent, 0);
         		addChildren(builder, parent, 1);
-        	}
-			
-        	if(data != null && forumsMap.size() < 5 && !loadStarted){
-        		syncForums();
         	}
         	if(selectedForum > 0){
         		ForumEntry forum = forumsMap.get(selectedForum);

@@ -142,6 +142,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
+    private boolean threadArchived = false;
     private boolean dataLoaded = false;
     
     //oh god i'm replicating core android functionality, this is a bad sign.
@@ -187,8 +188,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	};
 	private Messenger buttonCallback = new Messenger(buttonHandler);
-	
-	public static ThreadDisplayFragment newInstance(int id, int page) {
+
+    public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
 		Bundle args = new Bundle();
 		args.putInt(Constants.THREAD_ID, id);
@@ -597,7 +598,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
-        	bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            if(threadArchived){
+                bk.setTitle(getString(R.string.bookmarkarchived));
+            }else{
+                bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
+            }
+            bk.setEnabled(!threadArchived);
         }
         MenuItem re = menu.findItem(R.id.reply);
         if(re != null){
@@ -1481,6 +1487,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
         		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
+                threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
         		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();

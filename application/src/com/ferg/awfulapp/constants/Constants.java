@@ -34,6 +34,8 @@ import android.util.Log;
 import android.util.TypedValue;
 
 public class Constants {
+    public static final boolean DEBUG = false;
+
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
@@ -161,9 +163,7 @@ public class Constants {
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
 
-
-
-	/**
+    /**
 	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.
 	 * @return
 	 */

@@ -92,6 +92,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static final String FORUM_TITLE = "forum_title";
 	public static final String HAS_NEW_POSTS = "has_new_posts";
     public static final String HAS_VIEWED_THREAD = "has_viewed_thread";
+    public static final String ARCHIVED = "archived";
 
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";

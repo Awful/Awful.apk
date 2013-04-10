@@ -43,13 +43,16 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
-	protected static String TAG = "AwfulFragment";
+	protected static final String TAG = "AwfulFragment";
+    protected static final boolean DEBUG = Constants.DEBUG;
+
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
 	protected int currentProgress = 100;
