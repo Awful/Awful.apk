@@ -38,6 +38,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -111,7 +113,7 @@ import com.ferg.awfulapp.widget.NumberPicker;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshBase.OnRefreshListener2 {
     static{
         TAG = "ThreadDisplayFragment";
     }
@@ -127,9 +129,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
     private TextView mPageCountText;
-    private ViewGroup mThreadWindow;
 
+    private PullToRefreshWebView mThreadWindow;
     private WebView mThreadView;
+    private ViewGroup mThreadParent;
 
     private int mThreadId = 0;
     private int mUserId = 0;
@@ -278,8 +281,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
 		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
-		mThreadWindow = (FrameLayout) result.findViewById(R.id.thread_window);
+		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
+        mThreadView = mThreadWindow.getRefreshableView();
+        mThreadWindow.setOnRefreshListener(this);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
+        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
+        mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
+        initThreadViewProperties();
 		return result;
 	}
 
@@ -371,6 +379,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		} else {
 			mNextPage.setImageResource(R.drawable.ic_menu_arrowright);
 		}
+
+        if(mThreadWindow != null){
+            if(mPage < mLastPage){
+                mThreadWindow.setPullLabel("Pull for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+                mThreadWindow.setReleaseLabel("Release for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+            }else{
+                mThreadWindow.setPullLabel("Pull to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+                mThreadWindow.setReleaseLabel("Release to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+            }
+            mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+        }
 	}
 
     @Override
@@ -378,12 +397,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         //recreate that fucking webview if we don't have it yet
 		if(mThreadView == null){
-	        mThreadView = new WebView(getActivity());
-	        mThreadView.setId(R.id.thread);
-	        initThreadViewProperties();
-	        mThreadWindow.removeAllViews();
-	        mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
-	                    ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+            recreateWebview();
 	        if(dataLoaded){
 	        	refreshPosts();
 	        }
@@ -398,16 +412,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
     }
+
+    private void recreateWebview(){
+        mThreadWindow = new PullToRefreshWebView(getActivity());
+        mThreadWindow.setId(R.id.thread);
+        mThreadView = mThreadWindow.getRefreshableView();
+        mThreadParent.removeAllViews();
+        mThreadParent.addView(mThreadWindow, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
+        mThreadWindow.setOnRefreshListener(this);
+        initThreadViewProperties();
+    }
     
     public void resumeWebView(){
     	if(getActivity() != null){
-	        if (mThreadView == null) {
-	            mThreadView = new WebView(getActivity());
-	            mThreadView.setId(R.id.thread);
-	            initThreadViewProperties();
-	            mThreadWindow.removeAllViews();
-	            mThreadWindow.addView(mThreadView, new ViewGroup.LayoutParams(
-	                        ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+	        if (mThreadWindow == null || mThreadView == null) {
+	            recreateWebview();
 	        }else{
 	            mThreadView.onResume();
 	            mThreadView.resumeTimers();
@@ -458,27 +478,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         if (mThreadView != null && !Constants.isICS()) {
         	//SALT THE FUCKING EARTH
-        	mThreadView.stopLoading();
-        	savedScrollPosition = mThreadView.getScrollY();
-        	mThreadWindow.removeAllViews();
-        	mThreadView.destroy();
-        	mThreadView = null;
+            //There are a few bugs with specific 2.x phones where the webview will continue running after pausing (eating a ton of CPU)
+            //Burn them to the ground and recreate on resume.
+            destroyWebview();
         }
     }
     
     @Override
     public void onDestroyView(){
     	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-    	if(mThreadView != null){
-	        try {
-	            mThreadWindow.removeView(mThreadView);
-	            mThreadView.destroy();
-	            mThreadView = null;
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-    	}
+        destroyWebview();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
@@ -488,6 +499,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
+    }
+
+    public void destroyWebview(){
+        if(mThreadView != null && mThreadWindow != null){
+            try {
+                ((ViewGroup) mThreadView.getParent()).removeView(mThreadView);
+                ((ViewGroup) mThreadWindow.getParent()).removeView(mThreadWindow);
+                mThreadView.destroy();
+                mThreadView = null;
+                mThreadWindow = null;
+                mThreadParent.removeAllViews();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     public void refreshSessionCookie(){
@@ -875,6 +901,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
+        if(mThreadWindow != null){
+            mThreadWindow.onRefreshComplete();
+        }
         refreshInfo();
 		if(aMsg.obj == null && getActivity() != null){
 			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
@@ -905,6 +934,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void loadingStarted(Message aMsg) {
     	super.loadingStarted(aMsg);
+        if(mThreadWindow != null){
+            mThreadWindow.onRefreshComplete();
+        }
     	switch(aMsg.what){
 		case AwfulSyncService.MSG_SYNC_THREAD:
 	    	if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
@@ -1036,6 +1068,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         return result.toString();
     }
     private ClickInterface clickInterface = new ClickInterface();
+
+    @Override
+    public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+        refresh();
+    }
+
+    @Override
+    public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+        if(mPage < mLastPage){
+            goToPage(mPage+1);
+        }else{
+            refresh();
+        }
+    }
+
     private class ClickInterface {
         public static final int SEND_PM  = 0;
         public static final int COPY_URL = 1;
