@@ -92,8 +92,9 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private static final String TAG = "ForumDisplayFragment";
-    private static final boolean DEBUG = false;
+    static{
+        TAG = "ForumDisplayFragment";
+    }
     
     private PullToRefreshListView mPullRefreshListView;
     private ImageButton mRefreshBar;
@@ -142,7 +143,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-		if(DEBUG) Log.e(TAG,"onCreateView");
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
     	mPullRefreshListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
         //mListView.setDrawingCacheEnabled(true);
@@ -188,7 +188,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG,"onActivityCreated");
+        super.onActivityCreated(aSavedState);
 
     	if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
@@ -256,13 +256,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 
     @Override
     public void onStart() {
-        super.onStart(); if(DEBUG) Log.e(TAG, "Start");
+        super.onStart();
 		refreshInfo();
     }
     
     @Override
     public void onResume() {
-        super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
+        super.onResume();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
         if(skipLoad || !isFragmentVisible()){
@@ -284,7 +284,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     @Override
     public void onPause() {
-        super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
+        super.onPause();
     }
     
     @Override
@@ -604,6 +604,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
     
     public void openForum(int id, int page){
+        if(id == mForumId && page == mPage){
+            return;
+        }
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
     	mPage = page;

@@ -46,10 +46,7 @@ import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
-
-    private boolean DEVELOPER_MODE = false;
-    private boolean DEBUG = false;
-    private static final String TAG = "ForumsIndexActivity";
+    protected static String TAG = "ForumsIndexActivity";
 
     private boolean mSecondPane;
     private ForumsIndexFragment mIndexFragment = null;
@@ -113,7 +110,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
+		super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
 		setIntent(intent);
 		int initialPage = parseNewIntent(intent);
 		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
@@ -169,7 +166,20 @@ public class ForumsIndexActivity extends AwfulActivity {
         return initialPage;
 	}
 
-	@Override
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mForumFragment != null){
+            mForumId = mForumFragment.getForumId();
+            mForumPage = mForumFragment.getPage();
+        }
+        if(mThreadFragment != null){
+            mThreadId = mThreadFragment.getThreadId();
+            mThreadPage = mThreadFragment.getPage();
+        }
+    }
+
+    @Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if(mForumFragment != null){

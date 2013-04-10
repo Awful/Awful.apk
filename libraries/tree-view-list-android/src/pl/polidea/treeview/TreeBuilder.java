@@ -63,7 +63,6 @@ public class TreeBuilder<T> {
      *            its level
      */
     public synchronized void sequentiallyAddNextNode(final T id, final int level) {
-        Log.d(TAG, "Adding sequentiall node " + id + " at level " + level);
         if (lastAddedId == null) {
             addNodeToParentOneLevelDown(null, id, level);
         } else {

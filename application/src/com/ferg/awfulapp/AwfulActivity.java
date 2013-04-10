@@ -40,7 +40,8 @@ import com.ferg.awfulapp.service.AwfulSyncService;
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
 public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, AwfulUpdateCallback {
-    private static final String TAG = "AwfulActivity";
+    protected static String TAG = "AwfulActivity";
+    protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;
     private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
@@ -60,7 +61,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate");
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
@@ -73,14 +74,14 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 
     @Override
     protected void onStart() {
-        super.onStart();
+        super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         mConf.onStart();
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
     
     @Override
     protected void onResume() {
-        super.onResume();
+        super.onResume(); if(DEBUG) Log.e(TAG, "onResume");
         mConf.onResume();
         
         if (isLoggedIn()) {
@@ -94,20 +95,20 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     @Override
     protected void onPause() {
-        super.onPause();
+        super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
         mConf.onPause();
     }
     
     @Override
     protected void onStop() {
-        super.onStop();
+        super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
         unbindService(this);
     }
     
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mConf.onDestroy();
     }
 

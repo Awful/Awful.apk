@@ -299,7 +299,7 @@ public class AwfulThread extends AwfulPagedItem  {
         	thread.put(LOCKED, 0);
         }
 
-        Elements bkButtons = response.getElementsByAttributeValue("id", "button_bookmark");
+        Elements bkButtons = response.getElementsByClass("thread_bookmark");
         if (bkButtons.size() >0) {
         	String bkSrc = bkButtons.get(0).attr("src");
         	if(bkSrc != null && bkSrc.contains("unbookmark")){
@@ -309,6 +309,10 @@ public class AwfulThread extends AwfulPagedItem  {
         	}else{
         		thread.put(BOOKMARKED, 0);
         	}
+            thread.put(ARCHIVED, 0);
+        }else{
+            thread.put(BOOKMARKED, 0);
+            thread.put(ARCHIVED, 1);
         }
     	int forumId = -1;
     	for(Element breadcrumb : response.getElementsByClass("breadcrumbs")){

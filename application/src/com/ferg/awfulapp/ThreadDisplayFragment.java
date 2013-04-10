@@ -112,8 +112,9 @@ import com.ferg.awfulapp.widget.NumberPicker;
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
 public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private static final String TAG = "ThreadDisplayFragment";
-    private boolean DEBUG = false;
+    static{
+        TAG = "ThreadDisplayFragment";
+    }
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -252,7 +253,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState); Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
-        DEBUG = mPrefs.debugMode;
         Bundle args = getArguments();
         if(savedInstanceState != null){
         	Log.w(TAG, "Loading from savedInstanceState");
@@ -928,6 +928,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
+        refreshInfo();
 		if(aMsg.obj == null && getActivity() != null){
 			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 		}
@@ -990,6 +991,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
     public void loadingSucceeded(Message aMsg) {
     	super.loadingSucceeded(aMsg);
+        refreshInfo();
     	switch (aMsg.what) {
     	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
     		if(aMsg.obj instanceof String){
@@ -1397,6 +1399,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         return mPage;
 	}
 	public void setPage(int aPage){
+        if(DEBUG) Log.e(TAG, "setPage: "+aPage);
 		mPage = aPage;
 	}
 	public void setThreadId(int aThreadId){
@@ -1500,6 +1503,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());
         		}
+                getActivity().invalidateOptionsMenu();
         	}
         }
         
@@ -1562,6 +1566,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private void loadThread(int id, int page, String postJump) {
+        if(id == mThreadId && page == mPage && postJump == null){
+            return;
+        }
     	if(getActivity() != null){
 	        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
 	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);

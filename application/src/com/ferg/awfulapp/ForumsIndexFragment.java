@@ -72,7 +72,9 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
-    private final static String TAG = "ForumsIndex";
+    static{
+        TAG = "ForumsIndex";
+    }
     
     private int selectedForum = 0;
 
@@ -90,19 +92,19 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
     @Override
     public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate"+(savedInstanceState != null?" + saveState":""));
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
 
     @Override
     public void onAttach(Activity aActivity) {
-        super.onAttach(aActivity);
+        super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
     }
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-
+        if(DEBUG) Log.e(TAG, "onCreateView");
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
         mForumTree = (PullToRefreshTreeView) result.findViewById(R.id.index_pull_tree_view);
@@ -131,7 +133,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
+        super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
         mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
@@ -390,7 +392,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		}
 		
 		private void addChildren(TreeBuilder<ForumEntry> builder, ForumEntry parent, int level){
-			if(DEBUG) Log.e(TAG, level+" - Adding children for #"+parent.id+" - "+parent.title+" - "+parent.subforums.size());
+			//if(DEBUG) Log.e(TAG, level+" - Adding children for #"+parent.id+" - "+parent.title+" - "+parent.subforums.size());
     		for(ForumEntry child : parent.subforums){
         		builder.sequentiallyAddNextNode(child, level);
         		addChildren(builder, child, level+1);
