@@ -1486,7 +1486,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());
         		}
-                getActivity().invalidateOptionsMenu();
+                getAwfulActivity().invalidateOptionsMenu();
         	}
         }
         
