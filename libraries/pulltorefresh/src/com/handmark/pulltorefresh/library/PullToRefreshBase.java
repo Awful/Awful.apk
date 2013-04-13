@@ -1190,26 +1190,33 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 				break;
 		}
 
-		setHeaderScroll(newScrollValue);
 
 		if (newScrollValue != 0 && !isRefreshing()) {
 			float scale = Math.abs(newScrollValue) / (float) itemDimension;
 			switch (mCurrentMode) {
 				case PULL_FROM_END:
+                    setHeaderScroll(newScrollValue/3);
 					mFooterLayout.onPull(scale);
+                    if (mState != State.PULL_TO_REFRESH && itemDimension*3 >= Math.abs(newScrollValue)) {
+                        setState(State.PULL_TO_REFRESH);
+                    } else if (mState == State.PULL_TO_REFRESH && itemDimension*3 < Math.abs(newScrollValue)) {
+                        setState(State.RELEASE_TO_REFRESH);
+                    }
 					break;
 				case PULL_FROM_START:
 				default:
+                    setHeaderScroll(newScrollValue);
 					mHeaderLayout.onPull(scale);
+                    if (mState != State.PULL_TO_REFRESH && itemDimension >= Math.abs(newScrollValue)) {
+                        setState(State.PULL_TO_REFRESH);
+                    } else if (mState == State.PULL_TO_REFRESH && itemDimension < Math.abs(newScrollValue)) {
+                        setState(State.RELEASE_TO_REFRESH);
+                    }
 					break;
 			}
-
-			if (mState != State.PULL_TO_REFRESH && itemDimension >= Math.abs(newScrollValue)) {
-				setState(State.PULL_TO_REFRESH);
-			} else if (mState == State.PULL_TO_REFRESH && itemDimension < Math.abs(newScrollValue)) {
-				setState(State.RELEASE_TO_REFRESH);
-			}
-		}
+		}else{
+            setHeaderScroll(newScrollValue);
+        }
 	}
 
 	private LinearLayout.LayoutParams getLoadingLayoutLayoutParams() {
@@ -1293,7 +1300,24 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
         if(mHeaderLayout != null){
             mHeaderLayout.setTextColor(postFontColor, postFontColor2);
         }
+    }
 
+    public void setHeaderBackgroundColor(int color){
+        if(mFooterLayout != null){
+            mFooterLayout.setBackgroundColor(color);
+        }
+        if(mHeaderLayout != null){
+            mHeaderLayout.setBackgroundColor(color);
+        }
+    }
+
+    public void setHeaderBackground(Drawable background){
+        if(mFooterLayout != null){
+            mFooterLayout.setBackground(background);
+        }
+        if(mHeaderLayout != null){
+            mHeaderLayout.setBackground(background);
+        }
     }
 
     public static enum AnimationStyle {

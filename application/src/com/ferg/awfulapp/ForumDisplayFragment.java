@@ -563,6 +563,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(mPullRefreshListView!=null){
 			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
 			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
+            //mPullRefreshListView.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
 			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
 	        if(mPrefs.refreshFrog){
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
