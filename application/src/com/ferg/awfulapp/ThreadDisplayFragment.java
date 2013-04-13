@@ -388,7 +388,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 mThreadWindow.setPullLabel("Pull to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
                 mThreadWindow.setReleaseLabel("Release to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
             }
-            mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+            //TODO re-enable text color hack
+            //mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
         }
 	}
 

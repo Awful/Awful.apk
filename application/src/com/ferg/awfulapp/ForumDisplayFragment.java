@@ -562,7 +562,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		if(mPullRefreshListView!=null){
 			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
-			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
+            //TODO Re-enable color hack
+			//mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
 			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
 	        if(mPrefs.refreshFrog){
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));

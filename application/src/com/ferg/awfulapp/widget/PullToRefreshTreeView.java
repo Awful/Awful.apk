@@ -17,6 +17,7 @@ package com.ferg.awfulapp.widget;
 
 import com.handmark.pulltorefresh.library.OverscrollHelper;
 import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import pl.polidea.treeview.TreeViewList;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -42,7 +43,12 @@ public class PullToRefreshTreeView extends PullToRefreshAdapterViewBase<TreeView
 		super(context, mode);
 	}
 
-	@Override
+    @Override
+    public Orientation getPullToRefreshScrollDirection() {
+        return Orientation.VERTICAL;
+    }
+
+    @Override
 	public ContextMenuInfo getContextMenuInfo() {
 		return ((InternalTreeViewList) getRefreshableView()).getContextMenuInfo();
 	}
@@ -93,13 +99,14 @@ public class PullToRefreshTreeView extends PullToRefreshAdapterViewBase<TreeView
 		protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
 				int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
 
-			final boolean returnValue = super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX,
-					scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
+            final boolean returnValue = super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX,
+                    scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
 
-			// Does all of the hard work...
-			OverscrollHelper.overScrollBy(PullToRefreshTreeView.this, deltaY, scrollY, isTouchEvent);
+            // Does all of the hard work...
+            OverscrollHelper.overScrollBy(PullToRefreshTreeView.this, deltaX, scrollX, deltaY, scrollY,
+                    isTouchEvent);
 
-			return returnValue;
+            return returnValue;
 		}
 	}
 }
