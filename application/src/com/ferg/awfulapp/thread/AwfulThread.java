@@ -494,7 +494,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone " + post.getId() + "' id='" + post.getId() + "' >\n");
             buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
-            if(aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0 && (aPrefs.disableGifs && !post.getAvatar().contains(".gif"))){
+            if((aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0) && !(aPrefs.disableGifs && post.getAvatar().contains(".gif"))){
 	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
 	            buffer.append("        </div>\n");
             }
