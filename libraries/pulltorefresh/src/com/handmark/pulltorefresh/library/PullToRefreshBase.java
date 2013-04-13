@@ -1286,7 +1286,17 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 		});
 	}
 
-	public static enum AnimationStyle {
+    public void setTextColor(int postFontColor, int postFontColor2) {
+        if(mFooterLayout != null){
+            mFooterLayout.setTextColor(postFontColor, postFontColor2);
+        }
+        if(mHeaderLayout != null){
+            mHeaderLayout.setTextColor(postFontColor, postFontColor2);
+        }
+
+    }
+
+    public static enum AnimationStyle {
 		/**
 		 * This is the default for Android-PullToRefresh. Allows you to use any
 		 * drawable, which is automatically rotated and used as a Progress Bar.

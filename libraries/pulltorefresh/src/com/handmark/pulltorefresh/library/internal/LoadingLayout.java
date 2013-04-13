@@ -390,4 +390,12 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 		}
 	}
 
+    public void setTextColor(int text, int subtext) {
+        if (null != mHeaderText) {
+            mHeaderText.setTextColor(text);
+        }
+        if (null != mSubHeaderText) {
+            mSubHeaderText.setTextColor(subtext);
+        }
+    }
 }

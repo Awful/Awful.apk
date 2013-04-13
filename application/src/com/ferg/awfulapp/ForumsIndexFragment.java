@@ -264,8 +264,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		if(mForumTree != null){
 			mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
 			mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-            //TODO re-enable color hack
-			//mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+			mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
 			if(dataManager != null){
 				dataManager.refresh();
 			}
