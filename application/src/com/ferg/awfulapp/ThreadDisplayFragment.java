@@ -398,7 +398,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         //recreate that fucking webview if we don't have it yet
 		if(mThreadView == null){
-            recreateWebview();
+            //recreateWebview();
 	        if(dataLoaded){
 	        	refreshPosts();
 	        }
@@ -414,21 +414,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         refreshInfo();
     }
 
-    private void recreateWebview(){
-        mThreadWindow = new PullToRefreshWebView(getActivity());
-        mThreadWindow.setId(R.id.thread);
-        mThreadView = mThreadWindow.getRefreshableView();
-        mThreadParent.removeAllViews();
-        mThreadParent.addView(mThreadWindow, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
-        mThreadWindow.setOnRefreshListener(this);
-        initThreadViewProperties();
-    }
+//    private void recreateWebview(){
+//        mThreadWindow = new PullToRefreshWebView(getActivity());
+//        mThreadWindow.setId(R.id.thread);
+//        mThreadView = mThreadWindow.getRefreshableView();
+//        mThreadParent.removeAllViews();
+//        mThreadParent.addView(mThreadWindow, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+//        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
+//        mThreadWindow.setOnRefreshListener(this);
+//        initThreadViewProperties();
+//    }
     
     public void resumeWebView(){
     	if(getActivity() != null){
 	        if (mThreadWindow == null || mThreadView == null) {
-	            recreateWebview();
+	            //recreateWebview();
 	        }else{
 	            mThreadView.onResume();
 	            mThreadView.resumeTimers();
@@ -481,14 +481,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	//SALT THE FUCKING EARTH
             //There are a few bugs with specific 2.x phones where the webview will continue running after pausing (eating a ton of CPU)
             //Burn them to the ground and recreate on resume.
-            destroyWebview();
+            //destroyWebview();
         }
     }
     
     @Override
     public void onDestroyView(){
     	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-        destroyWebview();
+        //destroyWebview();
     }
 
     @Override
@@ -502,20 +502,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
     }
 
-    public void destroyWebview(){
-        if(mThreadView != null && mThreadWindow != null){
-            try {
-                ((ViewGroup) mThreadView.getParent()).removeView(mThreadView);
-                ((ViewGroup) mThreadWindow.getParent()).removeView(mThreadWindow);
-                mThreadView.destroy();
-                mThreadView = null;
-                mThreadWindow = null;
-                mThreadParent.removeAllViews();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void destroyWebview(){
+//        if(mThreadView != null && mThreadWindow != null){
+//            try {
+//                ((ViewGroup) mThreadView.getParent()).removeView(mThreadView);
+//                ((ViewGroup) mThreadWindow.getParent()).removeView(mThreadWindow);
+//                mThreadView.destroy();
+//                mThreadView = null;
+//                mThreadWindow = null;
+//                mThreadParent.removeAllViews();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
     
     public void refreshSessionCookie(){
         if(mThreadView != null){

@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import com.ferg.awfulapp.constants.Constants;
 
 /**
  * Implementation of {@link android.support.v4.view.PagerAdapter} that
@@ -67,9 +68,9 @@ import android.view.ViewGroup;
 public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implements Iterable<AwfulFragmentPagerAdapter.AwfulPagerFragment> {
 
 	private static final String TAG = "FragmentPagerAdapter";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Constants.DEBUG;
     
-    private boolean splitMode = false;
+    private boolean splitMode = true;
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
@@ -82,7 +83,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         mFragmentManager = fm;
 		fragList = new ArrayList<AwfulPagerFragment>();
 		splitFragList = new ArrayList<AwfulPagerFragment>();
-		splitMode = !widescreen;
+		//splitMode = !widescreen;
     }
     
 
@@ -387,7 +388,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	
 	public void setWidescreen(boolean widescreen){
 		Log.e(TAG, "setWidescreen: "+(widescreen?"true":"false")+" currently: "+(splitMode? "false" : "true"));
-		splitMode = !widescreen;
-		notifyDataSetChanged();
+		//splitMode = !widescreen;
+		//notifyDataSetChanged();
 	}
 }
