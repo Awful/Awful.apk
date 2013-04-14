@@ -519,16 +519,6 @@ public class AwfulPost {
 						if ((parent != null && parent.tagName().equalsIgnoreCase("a")) || (img.hasAttr("class") && img.attr("class").contains("nolink"))) { //image is linked, don't override
 							dontLink = true;
 						}
-
-						boolean replaceGif = (prefs.disableGifs && src.contains(".gif") && !img.hasAttr("title"));
-						if(src.contains(".gif")){
-							img.addClass("gif");
-							if(replaceGif){
-								img.attr("alt", src);
-								img.attr("src", "file:///android_res/drawable/gif.png");
-								src = img.attr("src");
-							}
-						}
 						if (img.hasAttr("title")) {
 							if (!prefs.showSmilies) { //kill all emotes
 								String name = img.attr("title");
@@ -544,7 +534,7 @@ public class AwfulPost {
 								}
 							} else {
 								if (!dontLink) {
-									String thumb = (replaceGif) ? img.attr("alt") : src;
+									String thumb = src;
 									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
 										int lastSlash = thumb.lastIndexOf('/');
 										if(src.length()-lastSlash<=9){
@@ -552,13 +542,9 @@ public class AwfulPost {
 											thumb = thumb.substring(0, pos) + prefs.imgurThumbnails + thumb.substring(pos);
 										}
 									}
-									if(replaceGif){
-										img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", img.attr("alt")).appendChild(new Element(Tag.valueOf("img"),"").attr("src", src).attr("alt", thumb)));
-									}else{
-										if(prefs.disableTimgs || !isTimg){
-											img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
-										}
-									}
+                                    if(prefs.disableTimgs || !isTimg){
+                                        img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
+                                    }
 								}
 							}
 						}

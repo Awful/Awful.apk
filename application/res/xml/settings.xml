@@ -26,6 +26,13 @@
             android:key="threadinfo"
             android:title="@string/thread_settings"
             />
+        <CheckBoxPreference
+            android:key="disable_gifs2"
+            android:title="@string/disable_gifs"
+            android:summary="@string/disable_gifs_summary"
+            android:defaultValue="true"
+            android:enabled="true"
+            />
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_post_display">
 		<CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
@@ -98,17 +105,17 @@
             android:defaultValue="default"
             />
 		<CheckBoxPreference 
-            android:key="disable_gifs" 
-			android:title="@string/disable_gifs"
-			android:defaultValue="false"
-			android:enabled="true"
-			/>
-		<CheckBoxPreference 
             android:key="send_username_in_report" 
 			android:title="@string/send_username_in_report"
 			android:summary="@string/send_username_in_report_summary"
 			android:defaultValue="true"
 			/>
+        <CheckBoxPreference
+            android:key="disable_pull_next"
+            android:title="@string/disable_pull_next"
+            android:summary="@string/disable_pull_next_summary"
+            android:defaultValue="false"
+            />
 		<CheckBoxPreference 
             android:key="lock_scrolling" 
 			android:title="@string/lock_scrolling"

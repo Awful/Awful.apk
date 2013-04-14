@@ -29,6 +29,10 @@ package com.ferg.awfulapp;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,6 +42,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
+import android.webkit.*;
+import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import org.json.JSONException;
@@ -72,14 +78,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -179,7 +179,25 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	
 	private WebViewClient callback = new WebViewClient(){
-		@Override
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
+                try {
+                    Log.e(TAG, "Opening Connection: "+url);
+                    URL target = new URL(url);
+                    URLConnection response = target.openConnection();
+                    Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
+                    return new WebResourceResponse(response.getContentType(),response.getContentEncoding(),new AwfulGifStripper(response.getInputStream(), target.getFile()));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return super.shouldInterceptRequest(view, url);
+        }
+
+        @Override
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
@@ -285,7 +303,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mThreadView = mThreadWindow.getRefreshableView();
         mThreadWindow.setOnRefreshListener(this);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
-        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
+        mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
 		return result;
@@ -381,12 +399,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
         if(mThreadWindow != null){
-            if(mPage < mLastPage){
+            if(mPage < mLastPage || mPrefs.disablePullNext){
                 mThreadWindow.setPullLabel("Pull for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
                 mThreadWindow.setReleaseLabel("Release for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+                mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
             }else{
-                mThreadWindow.setPullLabel("Pull to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
-                mThreadWindow.setReleaseLabel("Release to Refresh...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
+                mThreadWindow.setMode(PullToRefreshBase.Mode.DISABLED);
             }
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
             mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
@@ -1062,7 +1080,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("postjumpid", mPostJump);
             result.put("scrollPosition", savedScrollPosition);
-            result.put("disableGifs", Boolean.toString(aAppPrefs.disableGifs));
+            result.put("disableGifs", false);
         } catch (JSONException e) {
         }
 

@@ -122,12 +122,13 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
+    public boolean disablePullNext;
 	
 	private static final int PREFERENCES_VERSION = 1;
 	private int currPrefVersion;
-	
 
-	/**
+
+    /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
 	 */
@@ -229,13 +230,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
-        disableGifs	 			 = mPrefs.getBoolean("disable_gifs", false);
+        disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
         refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
         disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
+        disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
        	 //TODO: I have never seen this before oh god
 	}
 
