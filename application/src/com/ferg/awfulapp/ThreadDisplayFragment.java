@@ -399,7 +399,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
         if(mThreadWindow != null){
-            if(mPage < mLastPage || mPrefs.disablePullNext){
+            if(mPage < mLastPage && !mPrefs.disablePullNext){
                 mThreadWindow.setPullLabel("Pull for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
                 mThreadWindow.setReleaseLabel("Release for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
                 mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);

@@ -204,5 +204,15 @@ AQuery</string>
     <string name="disable_gifs_summary">Extends battery life significantly.</string>
     <string name="disable_pull_next">Disable Pull-For-Next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation.</string>
+    <string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
+        most devices. \n
+        \n
+        \n
+        If you wish to re-enable these animations, open Settings and uncheck the \"Disable Gif
+        Animation\" option.
+    </string>
+    <string name="alert_title_1">Please Note: GIFs</string>
+    <string name="alert_ok">Ok</string>
+    <string name="alert_settings">Settings</string>
 
 </resources>

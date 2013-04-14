@@ -123,6 +123,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
     public boolean disablePullNext;
+
+    public int alertIDShown;
 	
 	private static final int PREFERENCES_VERSION = 1;
 	private int currPrefVersion;
@@ -238,6 +240,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
+        alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
        	 //TODO: I have never seen this before oh god
 	}
 
