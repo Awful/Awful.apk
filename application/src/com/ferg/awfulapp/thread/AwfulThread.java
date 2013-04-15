@@ -257,10 +257,11 @@ public class AwfulThread extends AwfulPagedItem  {
         
         ContentResolver contentResolv = aContext.getContentResolver();
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
-    	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0;
+    	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
 		if(threadData.moveToFirst()){
 			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
 			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
+            postcount = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
 			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
 			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
 			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
@@ -336,9 +337,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		}else{
 			replycount = Math.max(totalReplies, AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0));
 		}
-    	Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
-    	
-    	thread.put(AwfulThread.POSTCOUNT, replycount);
+
     	int newUnread = Math.max(0, replycount-AwfulPagedItem.pageToIndex(aPage, aPageSize, aPageSize-1));
     	if(unread > 0){
         	newUnread = Math.min(unread, newUnread);
@@ -346,8 +345,14 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(aPage == lastPage){
     		newUnread = 0;
     	}
-    	thread.put(AwfulThread.UNREADCOUNT, newUnread);
-    	Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
+        if(postcount < replycount){
+            thread.put(AwfulThread.POSTCOUNT, replycount);
+            Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
+        }
+        if(postcount < replycount || newUnread < unread){
+            thread.put(AwfulThread.UNREADCOUNT, newUnread);
+            Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
+        }
 
         //notify user we have began processing posts
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 65));
