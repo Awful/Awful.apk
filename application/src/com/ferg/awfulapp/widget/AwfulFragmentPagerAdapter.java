@@ -70,7 +70,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = Constants.DEBUG;
     
-    private boolean splitMode = true;
+    private boolean splitMode = false;
 
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
@@ -83,7 +83,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         mFragmentManager = fm;
 		fragList = new ArrayList<AwfulPagerFragment>();
 		splitFragList = new ArrayList<AwfulPagerFragment>();
-		//splitMode = !widescreen;
+		splitMode = !widescreen;
     }
     
 
@@ -231,7 +231,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
         	listFragment.setUserVisibleHint(false);
         }
 
-        if (DEBUG) Log.w(TAG, "instantiated" + position + ": f=" + listItem+" - c: "+container);
+        if (DEBUG) Log.w(TAG, "instantiated " + position + ": f=" + listItem+" - c: "+container);
         return listItem;
     }
 
@@ -328,7 +328,9 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     	String name = "null";
     	if(fragment instanceof AwfulPagerFragment){
     		return "android:switcher:" + ((AwfulPagerFragment)fragment).getInternalId();
-    	}
+    	}else{
+            Log.e(TAG, "makeFragmentName - INVALID FRAGMENT");
+        }
     	if(DEBUG) Log.e(TAG, "makeFragmentName "+name);
 		return name;
     }
@@ -388,7 +390,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
 	
 	public void setWidescreen(boolean widescreen){
 		Log.e(TAG, "setWidescreen: "+(widescreen?"true":"false")+" currently: "+(splitMode? "false" : "true"));
-		//splitMode = !widescreen;
-		//notifyDataSetChanged();
+		splitMode = !widescreen;
+		notifyDataSetChanged();
 	}
 }

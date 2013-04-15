@@ -72,9 +72,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
-    static{
-        TAG = "ForumsIndex";
-    }
     
     private int selectedForum = 0;
 
@@ -89,7 +86,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	private InMemoryTreeStateManager<ForumEntry> dataManager;
 	
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
-    
+
+    public ForumsIndexFragment() {
+        TAG = "ForumsIndex";
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate"+(savedInstanceState != null?" + saveState":""));

@@ -92,9 +92,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
 public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
-    static{
-        TAG = "ForumDisplayFragment";
-    }
     
     private PullToRefreshListView mPullRefreshListView;
     private ImageButton mRefreshBar;
@@ -128,6 +125,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         fragment.skipLoad(skipLoad);//we don't care about persisting this
 
         return fragment;
+    }
+
+    public ForumDisplayFragment() {
+        TAG = "ForumDisplayFragment";
     }
 
 	private AwfulCursorAdapter mCursorAdapter;

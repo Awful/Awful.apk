@@ -240,7 +240,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			if(DEBUG) Log.i(TAG,"INSTANTIATING TAB:"+position);
+			if(DEBUG) Log.w(TAG,"INSTANTIATING TAB:"+position);
 			Object item = super.instantiateItem(container, position);
 			Fragment[] frags;
 			if(item instanceof Fragment){
@@ -288,6 +288,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		protected Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag) {
+            if(DEBUG) Log.e(TAG,"resolveConflict - old: "+oldFrag.toString()+" - new: "+newFrag.toString());
 			return newFrag;//just dump the old fragment and replace it
 		}
     	
@@ -299,7 +300,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 		if(pagerAdapter != null && mPrefs != null){
 	        isTablet = !mPrefs.threadLayout.equalsIgnoreCase("phone") &&
 	        		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(newConfig));
-			pagerAdapter.setWidescreen(false);
+            if(DEBUG) Log.e(TAG,"onConfigurationChanged "+(isTablet? "isTablet":""));
+			pagerAdapter.setWidescreen(isTablet);
 		}
 	}
 
@@ -321,6 +323,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	@Override
     public void onBackPressed() {
     	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+            if(DEBUG) Log.e(TAG,"onBackPressed: "+mViewPager.getCurrentItem()+" - size: "+pagerAdapter.getCount());
     		if(!pagerAdapter.getItem(mViewPager.getCurrentItem()).onBackPressed()){
     			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
     		}
@@ -328,80 +331,18 @@ public class ForumsIndexActivity extends AwfulActivity {
     		finish();
     	}
     }
-
-    public boolean isDualPane() {
-        return mSecondPane;
-    }
     
     @Override
     public void displayForum(int id, int page){
     	setContentPane(id, page);
     	if (mViewPager != null) {
-    		closeTempWindows(); 
     		mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
         }
-    }
-
-    @Override
-	public void displayQuickBrowser(String url) {
-    	if(mViewPager != null){
-    		AwfulPagerFragment apf = pagerAdapter.getItem(pagerAdapter.getCount()-1);
-    		if(apf instanceof AwfulWebFragment){
-    			((AwfulWebFragment) apf).loadUrl(url);
-    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
-    		}else{
-    			pagerAdapter.addFragment(AwfulWebFragment.newInstance(url));
-    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
-    		}
-    	}else{
-    		super.displayQuickBrowser(url);
-    	}
-	}
-
-    /*revert slider reply window I guess.
-	public void displayReplyWindow(int threadId, int postId, int type) {
-    	if(mViewPager != null){
-    		if(mReplyFragment != null){
-    			//TODO multiquote stuff
-    			//mReplyFragment.multiQuote(postId);
-    			mReplyFragment.newReply(threadId, postId, type);
-    			pagerAdapter.addFragment(mReplyFragment);
-    			Log.e(TAG,"Reusing existing reply: "+threadId+" - "+postId+" - "+ type);
-    		}else{
-    	    	Bundle args = new Bundle();
-    	        args.putInt(Constants.THREAD_ID, threadId);
-    	        args.putInt(Constants.EDITING, type);
-    	        args.putInt(Constants.POST_ID, postId);
-    			Log.e(TAG,"New reply: "+threadId+" - "+postId+" - "+ type);
-    			pagerAdapter.addFragment(PostReplyFragment.newInstance(args));
-    		}
-    		mHandler.post(new Runnable(){
-				@Override
-				public void run() {
-					//so it seems if you setCurrentItem() while an ActionbarSherlock submenu is visible, you'll crash. good to know.
-	    			mViewPager.setCurrentItem(pagerAdapter.getCount()-1);
-				}
-    		});
-    	}else{
-    		super.displayReplyWindow(threadId, postId, type);
-    	}
-	}
-     */
-    
-    private void closeTempWindows(){
-    	if(mViewPager != null){
-    		for(int ix=0; ix<pagerAdapter.getCount(); ix++){
-    			if(pagerAdapter.getItem(ix) instanceof ThreadDisplayFragment){//close anything after the thread display fragment
-    				while(pagerAdapter.getCount() > ix+1){
-    					pagerAdapter.deletePage(ix+1);
-    				}
-    			}
-    		}
-    	}
     }
     
 	@Override
 	public void fragmentClosing(AwfulFragment fragment) {
+        if(DEBUG) Log.e(TAG,"fragmentClosing: "+fragment.toString());
 		if(pagerAdapter != null){
 			pagerAdapter.deleteFragment(fragment);
 		}
@@ -450,7 +391,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void displayThread(int id, int page, int forumId, int forumPg){
     	if(mViewPager != null){
-    		closeTempWindows();
     		mThreadId = id;
     		mThreadPage = page;
     		if(mThreadFragment != null){

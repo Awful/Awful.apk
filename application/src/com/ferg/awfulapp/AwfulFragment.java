@@ -50,7 +50,7 @@ import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
-	protected static String TAG = "AwfulFragment";
+	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
 	protected AwfulPreferences mPrefs;
