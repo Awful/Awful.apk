@@ -57,6 +57,8 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 	public static final int SMOOTH_SCROLL_DURATION_MS = 200;
 	public static final int SMOOTH_SCROLL_LONG_DURATION_MS = 325;
 	static final int DEMO_SCROLL_INTERVAL = 225;
+    private static final double PULL_DOWN_RESISTANCE = 1.5;
+    private static final double PULL_UP_RESISTANCE = 3;
 
 	static final String STATE_STATE = "ptr_state";
 	static final String STATE_MODE = "ptr_mode";
@@ -65,7 +67,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 	static final String STATE_SHOW_REFRESHING_VIEW = "ptr_show_refreshing_view";
 	static final String STATE_SUPER = "ptr_super";
 
-	// ===========================================================
+    // ===========================================================
 	// Fields
 	// ===========================================================
 
@@ -1195,21 +1197,21 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 			float scale = Math.abs(newScrollValue) / (float) itemDimension;
 			switch (mCurrentMode) {
 				case PULL_FROM_END:
-                    setHeaderScroll(newScrollValue/3);
+                    setHeaderScroll((int)(newScrollValue/PULL_UP_RESISTANCE));
 					mFooterLayout.onPull(scale);
-                    if (mState != State.PULL_TO_REFRESH && itemDimension*3 >= Math.abs(newScrollValue)) {
+                    if (mState != State.PULL_TO_REFRESH && itemDimension*PULL_UP_RESISTANCE >= Math.abs(newScrollValue)) {
                         setState(State.PULL_TO_REFRESH);
-                    } else if (mState == State.PULL_TO_REFRESH && itemDimension*3 < Math.abs(newScrollValue)) {
+                    } else if (mState == State.PULL_TO_REFRESH && itemDimension*PULL_UP_RESISTANCE < Math.abs(newScrollValue)) {
                         setState(State.RELEASE_TO_REFRESH);
                     }
 					break;
 				case PULL_FROM_START:
 				default:
-                    setHeaderScroll(newScrollValue);
+                    setHeaderScroll((int)(newScrollValue/PULL_DOWN_RESISTANCE));
 					mHeaderLayout.onPull(scale);
-                    if (mState != State.PULL_TO_REFRESH && itemDimension >= Math.abs(newScrollValue)) {
+                    if (mState != State.PULL_TO_REFRESH && itemDimension*PULL_DOWN_RESISTANCE >= Math.abs(newScrollValue)) {
                         setState(State.PULL_TO_REFRESH);
-                    } else if (mState == State.PULL_TO_REFRESH && itemDimension < Math.abs(newScrollValue)) {
+                    } else if (mState == State.PULL_TO_REFRESH && itemDimension*PULL_DOWN_RESISTANCE < Math.abs(newScrollValue)) {
                         setState(State.RELEASE_TO_REFRESH);
                     }
 					break;
