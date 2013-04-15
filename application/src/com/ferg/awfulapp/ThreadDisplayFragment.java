@@ -400,11 +400,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 if(getPage() < mLastPage){
                     footer.setPullLabel("Pull for Next Page...");
                     footer.setReleaseLabel("Release for Next Page...");
-                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.light_inline_arrowup));
+                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_arrowup));
                 }else{
                     footer.setPullLabel("Pull to refresh...");
                     footer.setReleaseLabel("Release to refresh...");
-                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.light_inline_load));
+                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_load));
                 }
             }
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
@@ -1381,6 +1381,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
+            mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
 		}
 	}
 
