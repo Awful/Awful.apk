@@ -44,8 +44,11 @@ import java.util.TimeZone;
 
 import android.webkit.*;
 import com.ferg.awfulapp.util.AwfulGifStripper;
+import com.handmark.pulltorefresh.library.ILoadingLayout;
+import com.handmark.pulltorefresh.library.LoadingLayoutProxy;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import com.handmark.pulltorefresh.library.internal.LoadingLayout;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -389,12 +392,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
         if(mThreadWindow != null){
-            if(getPage() < mLastPage && !mPrefs.disablePullNext){
-                mThreadWindow.setPullLabel("Pull for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
-                mThreadWindow.setReleaseLabel("Release for Next Page...", PullToRefreshBase.Mode.PULL_UP_TO_REFRESH);
-                mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-            }else{
+            if(mPrefs.disablePullNext){
                 mThreadWindow.setMode(PullToRefreshBase.Mode.DISABLED);
+            }else{
+                mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+                ILoadingLayout footer = mThreadWindow.getLoadingLayoutProxy(false, true);
+                if(getPage() < mLastPage){
+                    footer.setPullLabel("Pull for Next Page...");
+                    footer.setReleaseLabel("Release for Next Page...");
+                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.light_inline_arrowup));
+                }else{
+                    footer.setPullLabel("Pull to refresh...");
+                    footer.setReleaseLabel("Release to refresh...");
+                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.light_inline_load));
+                }
             }
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
             mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);

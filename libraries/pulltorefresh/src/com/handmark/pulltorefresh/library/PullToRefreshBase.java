@@ -1195,11 +1195,14 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 			switch (mCurrentMode) {
 				case PULL_FROM_END:
                     setHeaderScroll((int)(itemDimension*(newScrollValue/(getHeight()/PULL_UP_RESISTANCE))));
-					mFooterLayout.onPull(scale);
                     if (mState != State.PULL_TO_REFRESH && getHeight()/PULL_UP_RESISTANCE >= Math.abs(newScrollValue)) {
                         setState(State.PULL_TO_REFRESH);
+                        mFooterLayout.onPull((float) (newScrollValue/(getHeight()/PULL_UP_RESISTANCE)));
                     } else if (mState == State.PULL_TO_REFRESH && getHeight()/PULL_UP_RESISTANCE < Math.abs(newScrollValue)) {
                         setState(State.RELEASE_TO_REFRESH);
+                        mFooterLayout.onPull(1.0f);
+                    }else if(mState != State.RELEASE_TO_REFRESH){
+                        mFooterLayout.onPull((float) (newScrollValue/(getHeight()/PULL_UP_RESISTANCE)));
                     }
 					break;
 				case PULL_FROM_START:
