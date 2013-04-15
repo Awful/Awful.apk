@@ -34,7 +34,7 @@ import android.util.Log;
 import android.util.TypedValue;
 
 public class Constants {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static final String BASE_URL = "http://forums.somethingawful.com";
 

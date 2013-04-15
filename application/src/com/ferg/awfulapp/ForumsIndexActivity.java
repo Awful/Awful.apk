@@ -173,23 +173,25 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onResume();
         switch(mPrefs.alertIDShown+1){
             case 1:
-                new AlertDialog.Builder(this).
-                        setTitle(getString(R.string.alert_title_1))
-                        .setMessage(getString(R.string.alert_message_1))
-                        .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
-                            }
-                        })
-                        .show();
+                if(Constants.isHoneycomb()){
+                    new AlertDialog.Builder(this).
+                            setTitle(getString(R.string.alert_title_1))
+                            .setMessage(getString(R.string.alert_message_1))
+                            .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
+                                }
+                            })
+                            .show();
+                }
                 mPrefs.setIntegerPreference("alert_id_shown", 1);
                 break;
         }
@@ -229,7 +231,24 @@ public class ForumsIndexActivity extends AwfulActivity {
             }
         }
     }
-    
+
+    public int getThreadId() {
+        return mThreadId;
+    }
+
+    public int getThreadPage() {
+        return mThreadPage;
+    }
+
+
+    public void setThreadId(int threadId) {
+        mThreadId = threadId;
+    }
+
+    public void setThreadPage(int page) {
+        mThreadPage = page;
+    }
+
     public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
     	public ForumPagerAdapter(FragmentManager fm, boolean tabletMode) {
 			super(fm, tabletMode);
@@ -288,7 +307,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 		@Override
 		protected Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag) {
-            if(DEBUG) Log.e(TAG,"resolveConflict - old: "+oldFrag.toString()+" - new: "+newFrag.toString());
+            if(DEBUG) Log.e(TAG, "resolveConflict - old: " + oldFrag.toString() + " - new: " + newFrag.toString());
 			return newFrag;//just dump the old fragment and replace it
 		}
     	

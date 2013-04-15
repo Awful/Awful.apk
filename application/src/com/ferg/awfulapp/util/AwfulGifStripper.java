@@ -63,7 +63,7 @@ public class AwfulGifStripper extends InputStream {
                         int delay = (peek(4) << 8) | peek(3);
                         if(DEBUG) Log.e(TAG, "DELAY: "+delay);
                         tweakPeek(3, 0xFF);
-                        tweakPeek(4, 0x20);
+                        tweakPeek(4, 0x70);
                         int pdelay = (peek(4) << 8) | peek(3);
                         if(DEBUG) Log.e(TAG, "POSTDELAY: " + pdelay);
                         return cur;
