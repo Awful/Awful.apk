@@ -27,10 +27,8 @@
 
 package com.ferg.awfulapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
@@ -40,12 +38,8 @@ public class PostReplyActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-            requestWindowFeature(Window.FEATURE_ACTION_BAR);
-
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.post_reply_activity);
-
-        setContentPane();
     }
 
     @Override
@@ -58,28 +52,12 @@ public class PostReplyActivity extends AwfulActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                returnHome();
+                finish();
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    public void returnHome() {
-        finish();
-        Intent i = new Intent(this, ForumsIndexActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
-    }
-
-	public void setContentPane() {
-		if (getSupportFragmentManager().findFragmentById(R.id.replycontent) == null) {
-			PostReplyFragment fragment = PostReplyFragment.newInstance(getIntent().getExtras());
-			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-			transaction.replace(R.id.replycontent, fragment);
-			transaction.commit();
-		}
-	}
 
 	@Override
 	public void fragmentClosing(AwfulFragment fragment) {

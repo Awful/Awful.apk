@@ -96,12 +96,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private ThreadDataCallback mThreadLoaderCallback;
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
-    public static PostReplyFragment newInstance(Bundle aArguments) {
-        PostReplyFragment fragment = new PostReplyFragment();
-        fragment.setArguments(aArguments);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -109,11 +103,14 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         setHasOptionsMenu(true);
         setRetainInstance(false);
         mThreadLoaderCallback = new ThreadDataCallback();
-        
 
-        mReplyType = getArguments().getInt(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
-        mPostId = getArguments().getInt(Constants.POST_ID, 0);
-        mThreadId = getArguments().getInt(Constants.THREAD_ID, 0);
+        Intent intent = getActivity().getIntent();
+        mReplyType = intent.getIntExtra(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
+        mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
+        mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
+        if(mPostId == 0 && mThreadId == 0){
+            getActivity().finish();
+        }
     }
     
     @Override
@@ -545,7 +542,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 		mDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
                 	}
                     saveReply();
-                    ((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+                    sendPost();
                 }
             })
         .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
@@ -561,6 +558,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             }
         })
         .show();
+    }
+
+    private void sendPost(){
+        ((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
     }
     
     private void deleteReply(){

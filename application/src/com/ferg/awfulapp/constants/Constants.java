@@ -162,6 +162,9 @@ public class Constants {
 	
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
+    public static final String REPLY_POST_ID = "reply_post_id";
+    public static final String REPLY_THREAD_ID = "reply_thread_id";
+
 
     /**
 	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.

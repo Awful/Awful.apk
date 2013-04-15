@@ -209,11 +209,12 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
     
 	public void displayReplyWindow(int threadId, int postId, int type) {
-    	Bundle args = new Bundle();
-        args.putInt(Constants.THREAD_ID, threadId);
-        args.putInt(Constants.EDITING, type);
-        args.putInt(Constants.POST_ID, postId);
-    	startActivityForResult(new Intent(this, PostReplyActivity.class).putExtras(args), PostReplyFragment.REQUEST_POST);
+    	startActivityForResult(
+                new Intent(this, PostReplyActivity.class)
+                    .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                    .putExtra(Constants.EDITING, type)
+                    .putExtra(Constants.REPLY_POST_ID, postId),
+                PostReplyFragment.REQUEST_POST);
 	}
     
     public void setActionbarTitle(String aTitle, Object requestor) {
