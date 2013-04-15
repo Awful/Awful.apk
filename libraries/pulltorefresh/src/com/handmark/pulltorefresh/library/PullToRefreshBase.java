@@ -23,12 +23,9 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
@@ -58,7 +55,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 	public static final int SMOOTH_SCROLL_LONG_DURATION_MS = 325;
 	static final int DEMO_SCROLL_INTERVAL = 225;
     private static final double PULL_DOWN_RESISTANCE = 1.5;
-    private static final double PULL_UP_RESISTANCE = 3;
+    private static final double PULL_UP_RESISTANCE = 4;
 
 	static final String STATE_STATE = "ptr_state";
 	static final String STATE_MODE = "ptr_mode";
@@ -101,7 +98,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 
 	private SmoothScrollRunnable mCurrentSmoothScrollRunnable;
 
-	// ===========================================================
+    // ===========================================================
 	// Constructors
 	// ===========================================================
 
@@ -1197,11 +1194,11 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
 			float scale = Math.abs(newScrollValue) / (float) itemDimension;
 			switch (mCurrentMode) {
 				case PULL_FROM_END:
-                    setHeaderScroll((int)(newScrollValue/PULL_UP_RESISTANCE));
+                    setHeaderScroll((int)(itemDimension*(newScrollValue/(getHeight()/PULL_UP_RESISTANCE))));
 					mFooterLayout.onPull(scale);
-                    if (mState != State.PULL_TO_REFRESH && itemDimension*PULL_UP_RESISTANCE >= Math.abs(newScrollValue)) {
+                    if (mState != State.PULL_TO_REFRESH && getHeight()/PULL_UP_RESISTANCE >= Math.abs(newScrollValue)) {
                         setState(State.PULL_TO_REFRESH);
-                    } else if (mState == State.PULL_TO_REFRESH && itemDimension*PULL_UP_RESISTANCE < Math.abs(newScrollValue)) {
+                    } else if (mState == State.PULL_TO_REFRESH && getHeight()/PULL_UP_RESISTANCE < Math.abs(newScrollValue)) {
                         setState(State.RELEASE_TO_REFRESH);
                     }
 					break;
