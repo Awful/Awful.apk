@@ -26,6 +26,13 @@
             android:key="threadinfo"
             android:title="@string/thread_settings"
             />
+        <CheckBoxPreference
+            android:key="disable_gifs2"
+            android:title="@string/disable_gifs"
+            android:summary="@string/disable_gifs_summary"
+            android:defaultValue="true"
+            android:enabled="true"
+            />
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_post_display">
 		<CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
