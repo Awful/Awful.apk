@@ -220,7 +220,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mPullRefreshListView.setBackgroundColor(mPrefs.postBackgroundColor);
         mPullRefreshListView.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
         
-        registerForContextMenu(mPullRefreshListView);
+        registerForContextMenu(mPullRefreshListView.getRefreshableView());
     }
 
 	public void updatePageBar(){
