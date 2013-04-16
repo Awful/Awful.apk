@@ -42,13 +42,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 
-import android.webkit.*;
-import com.ferg.awfulapp.util.AwfulGifStripper;
-import com.handmark.pulltorefresh.library.ILoadingLayout;
-import com.handmark.pulltorefresh.library.LoadingLayoutProxy;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
-import com.handmark.pulltorefresh.library.internal.LoadingLayout;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,7 +65,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -81,11 +73,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
-import android.widget.FrameLayout;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,7 +95,6 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -106,7 +102,11 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.widget.NumberPicker;
+import com.handmark.pulltorefresh.library.ILoadingLayout;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 
 /**
  * Uses intent extras:
@@ -1300,13 +1300,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			"Show Image Inline",
 			"Open URL",
 			"Copy URL",
+			"Share URL",
 			"Always Open URL"
 	};
 	
 	private String[] urlMenuItems = new String[]{
 			"Open URL",
 			"Copy URL",
-			"Always Open URL"
+			"Share URL",
+			"Always Open URL",
 	};
 	
 	private void showUrlMenu(final String url){
@@ -1319,6 +1321,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
         .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        	       	
+        	
             public void onClick(DialogInterface aDialog, int aItem) {
             	switch(aItem+(isImage?0:1)){
             	case 0:
@@ -1334,6 +1338,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
         			break;
             	case 3:
+            		startActivity(createShareIntent());
+            		break;
+            	case 4:
         			mPrefs.setBooleanPreference("always_open_urls", true);
         			startUrlIntent(url);
         			break;
