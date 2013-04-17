@@ -156,7 +156,7 @@ public final class OverscrollHelper {
 							view.setState(State.OVERSCROLLING);
 						}
 
-						view.setHeaderScroll((int) (scaleFactor * (currentScrollValue + newScrollValue - scrollRange)));
+						view.setHeaderScroll((int) ((currentScrollValue + newScrollValue - scrollRange)));
 					}
 				} else if (Math.abs(newScrollValue) <= fuzzyThreshold
 						|| Math.abs(newScrollValue - scrollRange) <= fuzzyThreshold) {
