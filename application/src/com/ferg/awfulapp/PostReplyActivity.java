@@ -67,7 +67,7 @@ public class PostReplyActivity extends AwfulActivity {
 	@Override
 	public void fragmentMessage(String type, String contents) {
 		super.fragmentMessage(type, contents);
-		Fragment replyWindow = getSupportFragmentManager().findFragmentById(R.id.replycontent);
+		Fragment replyWindow = getSupportFragmentManager().findFragmentById(R.id.replyfragment);
 		if (replyWindow instanceof PostReplyFragment) {
 			((PostReplyFragment)replyWindow).fragmentMessage(type, contents);
 		}
