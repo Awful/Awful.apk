@@ -61,6 +61,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -300,7 +301,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
         mThreadView = mThreadWindow.getRefreshableView();
         mThreadWindow.setOnRefreshListener(this);
-		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
+		mThreadWindow.setBackgroundColor(this.getResources().getColor(R.color.background));
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
@@ -321,7 +322,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
+		mThreadView.setBackgroundColor(this.getResources().getColor(R.color.background));
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
@@ -413,7 +414,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 }
             }
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-            mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+            mThreadWindow.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
         }
 	}
 
@@ -1079,9 +1080,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
             result.put("postFontSize", aAppPrefs.postFontSizePx);
-            result.put("postcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
-            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
-            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
+            result.put("postcolor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.default_post_font)));
+            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.background)));
+            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.link_quote)));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("postjumpid", mPostJump);
@@ -1387,13 +1388,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		aq.find(R.id.pagebar).backgroundColor(mPrefs.actionbarColor);
+		aq.find(R.id.pagebar).backgroundColor(Color.BLACK);
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(mPrefs.actionbarFontColor);
+			mPageCountText.setTextColor(Color.WHITE);
 		}
 		if(mThreadView != null){
-			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
-            mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
+			mThreadView.setBackgroundColor(this.getResources().getColor(R.color.background));
+            mThreadWindow.setBackgroundColor(this.getResources().getColor(R.color.background));
 		}
 	}
 
@@ -1415,7 +1416,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(mPrefs.postBackgroundColor)+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.background))+";'></body></html>";
 	}
 
     public int getLastPage() {

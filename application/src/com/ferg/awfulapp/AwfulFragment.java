@@ -28,6 +28,7 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -115,7 +116,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(mPrefs.actionbarColor);
+			mProgressBar.setBackgroundColor(Color.BLACK);
 		}
 	}
 

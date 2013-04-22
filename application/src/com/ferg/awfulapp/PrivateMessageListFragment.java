@@ -92,7 +92,7 @@ public class PrivateMessageListFragment extends AwfulFragment {
         setRetainInstance(true);
 
         
-        mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
+        mPMList.setCacheColorHint(this.getResources().getColor(R.color.background));
 
         mPMList.setOnItemClickListener(onPMSelected);
         
@@ -102,8 +102,8 @@ public class PrivateMessageListFragment extends AwfulFragment {
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(pref.postBackgroundColor);
-    		mPMList.setCacheColorHint(pref.postBackgroundColor);
+    		mPMList.setBackgroundColor(this.getResources().getColor(R.color.background));
+    		mPMList.setCacheColorHint(this.getResources().getColor(R.color.background));
     	}
     }
     

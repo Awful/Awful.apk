@@ -7,8 +7,10 @@ color:#00c0f4;
 }
 
 body {
-background-color:#eae9ea;
+background-color:#FFF;
 font-family:Roboto, userselected, Verdana, Arial, sans-serif;
+padding:0;
+margin:0;
 }
 
 div.avatar {
@@ -50,30 +52,40 @@ width:20px;
 }
 
 div.post {
-border-radius:.15em;
 background-color:#FFF;
-color:#828282;
-box-shadow:0 .15em 0 #dbdadb;
+color:#666;
 margin:0;
 padding:0;
 }
 
-div.post.op {
-background-color:#FEFFD9;
+div.post.op div.postheader {
+background-color:#199ed7;
+}
+
+div.post.op div.postoptions {
+background-color:#199ed7;
 }
 
 div.post.read {
-background-color:#F5F8FF;
+background-color:#ddeeff;
 }
 
-div.post.self {
-background-color:#ECFFD9;
+div.post.self div.postheader {
+background-color:#5BA611;
+}
+
+div.post.self div.postoptions {
+background-color:#5BA611;
+}
+
+div.postcontent {
+padding: 5px;
 }
 
 div.postcontent .bbc-block {
 border-left:2px solid #eae9ea;
-margin:5px 0;
-padding:5px 10px 5px 20px;
+margin:5px 0 5px 5px;
+padding:5px 10px 5px 15px;
 }
 
 div.postcontent .bbc-block h4 {
@@ -91,6 +103,7 @@ clear:left;
 overflow:hidden;
 border:0;
 background-color:#006699;
+color:#FFF;
 }
 
 div.postinfo {
@@ -117,8 +130,9 @@ width:10px;
 height:30px;
 background-repeat:no-repeat;
 background-size:15px 30px;
-background-image:url(images/ic_menu_overflow.png);
+background-image:url(file:///android_asset/images/ic_menu_overflow_white.png);
 padding:0 5px 0 0;
+margin-right:10px;
 }
 
 div.postoptions {
@@ -131,19 +145,19 @@ margin:0;
 }
 
 div.postoptions .edit {
-background-image:url(images/ic_menu_edit.png);
+background-image:url(file:///android_asset/images/ic_menu_edit.png);
 }
 
 div.postoptions .lastread {
-background-image:url(images/ic_menu_lastread.png);
+background-image:url(file:///android_asset/images/ic_menu_lastread.png);
 }
 
 div.postoptions .more {
-background-image:url(images/ic_menu_more.png);
+background-image:url(file:///android_asset/images/ic_menu_more.png);
 }
 
 div.postoptions .quote {
-background-image:url(images/ic_menu_quote.png);
+background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
 div.postoptions div {

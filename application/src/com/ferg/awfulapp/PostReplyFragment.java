@@ -131,8 +131,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);Log.e(TAG,"onActivityCreated");
 
-        mMessage.setBackgroundColor(mPrefs.postBackgroundColor);
-        mMessage.setTextColor(mPrefs.postFontColor);
+        mMessage.setBackgroundColor(this.getResources().getColor(R.color.background));
+        mMessage.setTextColor(this.getResources().getColor(R.color.default_post_font));
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();

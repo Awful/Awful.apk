@@ -178,23 +178,23 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
     }
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setBackgroundColor(prefs.postBackgroundColor2);
-        mRecipient.setBackgroundColor(prefs.postBackgroundColor2);
-        mSubject.setBackgroundColor(prefs.postBackgroundColor2);
-        mDisplayText.setBackgroundColor(prefs.postBackgroundColor);
-        mEditReply.setTextColor(prefs.postFontColor);
-        mRecipient.setTextColor(prefs.postFontColor);
-        mSubject.setTextColor(prefs.postFontColor);
+        mEditReply.setBackgroundColor(this.getResources().getColor(R.color.alt_background));
+        mRecipient.setBackgroundColor(this.getResources().getColor(R.color.alt_background));
+        mSubject.setBackgroundColor(this.getResources().getColor(R.color.alt_background));
+        mDisplayText.setBackgroundColor(this.getResources().getColor(R.color.background));
+        mEditReply.setTextColor(this.getResources().getColor(R.color.default_post_font));
+        mRecipient.setTextColor(this.getResources().getColor(R.color.default_post_font));
+        mSubject.setTextColor(this.getResources().getColor(R.color.default_post_font));
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
-        miscSubject.setBackgroundColor(prefs.postBackgroundColor);
-        miscRecip.setBackgroundColor(prefs.postBackgroundColor);
-        miscMess.setBackgroundColor(prefs.postBackgroundColor);
-        miscSubject.setTextColor(prefs.postFontColor2);
-        miscRecip.setTextColor(prefs.postFontColor2);
-        miscMess.setTextColor(prefs.postFontColor2);
-        v.setBackgroundColor(prefs.postBackgroundColor);
+        miscSubject.setBackgroundColor(this.getResources().getColor(R.color.background));
+        miscRecip.setBackgroundColor(this.getResources().getColor(R.color.background));
+        miscMess.setBackgroundColor(this.getResources().getColor(R.color.background));
+        miscSubject.setTextColor(this.getResources().getColor(R.color.secondary_post_font));
+        miscRecip.setTextColor(this.getResources().getColor(R.color.secondary_post_font));
+        miscMess.setTextColor(this.getResources().getColor(R.color.secondary_post_font));
+        v.setBackgroundColor(this.getResources().getColor(R.color.background));
         
 	}
 	

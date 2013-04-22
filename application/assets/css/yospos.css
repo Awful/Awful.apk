@@ -118,7 +118,7 @@ width:10px;
 height:30px;
 background-repeat:no-repeat;
 background-size:15px 30px;
-background-image:url(images/ic_menu_overflow_yps.png);
+background-image:url(file:///android_asset/images/ic_menu_overflow_yps.png);
 padding:0 5px 0 0;
 }
 
@@ -132,19 +132,19 @@ margin:-11px -15px 5px;
 }
 
 div.postoptions .edit {
-background-image:url(images/ic_menu_edit.png);
+background-image:url(file:///android_asset/images/ic_menu_edit.png);
 }
 
 div.postoptions .lastread {
-background-image:url(images/ic_menu_lastread.png);
+background-image:url(file:///android_asset/images/ic_menu_lastread.png);
 }
 
 div.postoptions .more {
-background-image:url(images/ic_menu_more.png);
+background-image:url(file:///android_asset/images/ic_menu_more.png);
 }
 
 div.postoptions .quote {
-background-image:url(images/ic_menu_quote.png);
+background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
 div.postoptions div {

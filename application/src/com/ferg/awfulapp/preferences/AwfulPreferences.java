@@ -61,26 +61,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//THEME STUFF
 	public int postFontSizeDip;
 	public int postFontSizePx;
-	public int postFontColor;
-	public int postFontColor2;
-	public int postBackgroundColor;
-	public int postBackgroundColor2;
-	public int postReadBackgroundColor;
-	public int postReadBackgroundColor2;
-	public int postReadFontColor;
-	public int postOPColor;
-	public int postLinkQuoteColor;
-	public int postDividerColor;
-	public boolean postDividerEnabled;
-	public int postHeaderBackgroundColor;
-	public int postHeaderFontColor;
-	public int actionbarColor;
-	public int actionbarFontColor;
 	public boolean refreshFrog;
 	public boolean lockScrolling;
-	public int unreadCounterColor;
-	public int unreadCounterColorDim;
-	public boolean unreadCounterFontBlack;
+	public String theme;
 	/**
 	 * for selecting icon set
 	 * light
@@ -190,24 +173,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
 		postFontSizeDip             = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
-		postFontColor            = mPrefs.getInt("default_post_font_color", res.getColor(R.color.default_post_font));
-		postFontColor2           = mPrefs.getInt("secondary_post_font_color", res.getColor(R.color.secondary_post_font));
-      	postBackgroundColor      = mPrefs.getInt("default_post_background_color", res.getColor(R.color.background));
-       	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", res.getColor(R.color.alt_background));
-    	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", res.getColor(R.color.background_read));
-    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", res.getColor(R.color.alt_background_read));
-    	postReadFontColor  		 = mPrefs.getInt("read_post_font_color", res.getColor(R.color.font_read));
-    	postOPColor              = mPrefs.getInt("op_post_color", res.getColor(R.color.op_post));
-    	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", res.getColor(R.color.link_quote));
-      	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", res.getColor(R.color.forums_blue));
-      	postHeaderFontColor      = mPrefs.getInt("post_header_font_color", res.getColor(R.color.forums_gray));
-      	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.abs__holo_blue_light));
-      	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
-      	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
-      	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
-      	unreadCounterColor		 = mPrefs.getInt("unread_posts", res.getColor(R.color.unread_posts));
-      	unreadCounterColorDim	 = mPrefs.getInt("unread_posts_dim", res.getColor(R.color.unread_posts_dim));
-        unreadCounterFontBlack   = mPrefs.getBoolean("unread_posts_font_black", false);
+		theme					 = mPrefs.getString("themes", "default.css");
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);

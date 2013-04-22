@@ -55,9 +55,9 @@ $(document).ready(function() {
 	});
     var salr = new SALR(prefs);
     
-    $("img[title*=':'],img[title*=';']").load(function(index) {
-    	$(this).height(($(this).height() *  prefs.postFontSize / 15));
-	});
+//    $("img[title*=':'],img[title*=';']").load(function(index) {
+//    	$(this).height(($(this).height() *  prefs.postFontSize / 15));
+//    });
 	$('.timg').click(function () {
 		$(this).removeClass('timg');
 		if(!$(this).parent().is('a')){

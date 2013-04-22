@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.http.HttpResponseCache;
@@ -143,8 +144,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(aPrefs.actionbarColor));
-	        mTitleView.setTextColor(aPrefs.actionbarFontColor);
+	        action.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+	        mTitleView.setTextColor(Color.WHITE);
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }

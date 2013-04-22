@@ -40,6 +40,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -218,8 +219,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
         mPullRefreshListView.setAdapter(mCursorAdapter);
         mPullRefreshListView.setOnItemClickListener(onThreadSelected);
-        mPullRefreshListView.setBackgroundColor(mPrefs.postBackgroundColor);
-        mPullRefreshListView.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mPullRefreshListView.setBackgroundColor(this.getResources().getColor(R.color.background));
+        mPullRefreshListView.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
         
         registerForContextMenu(mPullRefreshListView.getRefreshableView());
     }
@@ -562,20 +563,20 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		if(mPullRefreshListView!=null){
-			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
-			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
+			mPullRefreshListView.setBackgroundColor(this.getResources().getColor(R.color.background));
+			mPullRefreshListView.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
             //mPullRefreshListView.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
+			mPullRefreshListView.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
 	        if(mPrefs.refreshFrog){
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
 	        }else{
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
 	        }
 		}
-		aq.find(R.id.pagebar).backgroundColor(prefs.actionbarColor);
-		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
+		aq.find(R.id.pagebar).backgroundColor(Color.DKGRAY);
+		aq.find(R.id.page_indicator).backgroundColor(Color.RED);
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(prefs.actionbarFontColor);
+			mPageCountText.setTextColor(Color.WHITE);
 		}
 	}
 	

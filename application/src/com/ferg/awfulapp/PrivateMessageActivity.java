@@ -28,6 +28,7 @@
 package com.ferg.awfulapp;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -62,8 +63,8 @@ public class PrivateMessageActivity extends AwfulActivity {
             action.setCustomView(R.layout.actionbar_title);
             mTitleView = (TextView) action.getCustomView();
             mTitleView.setMovementMethod(new ScrollingMovementMethod());
-	        action.setBackgroundDrawable(new ColorDrawable(mPrefs.actionbarColor));
-	        mTitleView.setTextColor(mPrefs.actionbarFontColor);
+	        action.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+	        mTitleView.setTextColor(Color.WHITE);
 	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
 	        action.setDisplayHomeAsUpEnabled(true);
 	        action.setDisplayShowCustomEnabled(true);

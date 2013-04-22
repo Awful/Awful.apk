@@ -105,7 +105,7 @@ public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerF
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-		mWebView.setBackgroundColor(mPrefs.postBackgroundColor);
+		mWebView.setBackgroundColor(this.getResources().getColor(R.color.background));
 		mUrl = getArguments().getString("url");
 	}
 	

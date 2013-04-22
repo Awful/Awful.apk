@@ -110,8 +110,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         
         mForumTree = (PullToRefreshTreeView) result.findViewById(R.id.index_pull_tree_view);
         
-        mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
-        mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mForumTree.setBackgroundColor(this.getResources().getColor(R.color.background));
+        mForumTree.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
         mForumTree.setOnRefreshListener(new OnRefreshListener<TreeViewList>() {
 			
 			@Override
@@ -263,9 +263,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		if(mForumTree != null){
-			mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
-			mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-			mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+			mForumTree.setBackgroundColor(this.getResources().getColor(R.color.background));
+			mForumTree.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
+			mForumTree.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
             //mForumTree.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
 			if(dataManager != null){
 				dataManager.refresh();

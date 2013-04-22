@@ -385,12 +385,13 @@ public class AwfulThread extends AwfulPagedItem  {
         }
     	
     	
-    	StringBuffer buffer = new StringBuffer("<html>\n<head>\n");
-        buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />\n");
+    	StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+        buffer.append("<meta name=\"viewport\" content=\"width=width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         
-        buffer.append("<link rel='stylesheet' href='file:///android_asset/thread.css'>\n");
+        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
         if(!aPrefs.preferredFont.contains("default")){
         	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
@@ -415,6 +416,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/default.js' type='text/javascript'></script>\n");
         
 
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
@@ -426,21 +428,12 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         
         buffer.append("<style type='text/css'>\n");   
-        buffer.append("a:link {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+" }\n");
-        buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append(".bbc-block.code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+";overflow:auto;}\n");
+        //buffer.append(".bbc-block.code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+";overflow:auto;}\n");
         if(!aPrefs.disableTimgs){
-            buffer.append(".timg {border-color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
+            buffer.append(".timg {border-color: #FF0 }\n");
         }
-        if(!aPrefs.postDividerEnabled){
-            buffer.append(".userinfo-row {border-top-width:0px;}\n");
-            buffer.append(".post-buttons {border-bottom-width:0px;}\n");
-        }
-        buffer.append(".bbc-block { border-bottom: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; }\n");
-        buffer.append(".bbc-block h4 { border-top: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor2)+"; }\n");
-        buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
+
+        //buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
         
         if(isTablet){
             buffer.append(".phone {display:none;}\n");
@@ -456,20 +449,14 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("	  <div class='content' >\n");
-        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
-        buffer.append("		</a>\n");
-        buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-
+//        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
+//        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+//        buffer.append("		</a>\n");
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
-        buffer.append("    </table>");
 
-        if(page >= lastPage){
-        	buffer.append("<div class='unread' ></div>\n");
-        }else{
-        	//buffer.append("<a class='nextpage' href='http://next.next' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";border-top:1px;text-decoration:none;color:"+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor)+"; position:relative;display:block;text-align:center; width:100%; height:60px'><div style='font-size:32px;margin-top:-16px;text-decoration:none;position:absolute;text-align:center;top:50%;width:100%;'>"+(lastPage - page)+" Page"+(lastPage - page > 1? "s":"")+" Remaining</div></a>");
-        }
+        buffer.append("<div class='unread' ></div>\n");
+        
         buffer.append("</div>\n");
         buffer.append("</body>\n</html>\n");
 
@@ -479,114 +466,47 @@ public class AwfulThread extends AwfulPagedItem  {
     public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked, boolean isTablet) {
         StringBuffer buffer = new StringBuffer();
 
-        boolean light = true;
         String background = null;
 
         for (AwfulPost post : aPosts) {
             boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
-        
-            if (post.isPreviouslyRead()) {
-                background = 
-                    ColorPickerPreference.convertToARGB(light ? aPrefs.postReadBackgroundColor : aPrefs.postReadBackgroundColor2);
-            } else {
-                background = 
-                    ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
-            }
-
-            if(aPrefs.alternateBackground == true){
-            	light = !light;
-            }
-
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone " + post.getId() + "' id='" + post.getId() + "' >\n");
-            buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
-            if((aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0)){
-	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
-	            buffer.append("        </div>\n");
-            }
-            buffer.append("        <div class='userinfo'>\n");
-            buffer.append("            <h4 class='username' >\n");
-            buffer.append("                "+post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  +  "\n");
-            buffer.append("            </h4>");
-            buffer.append("            <div class='postdate' >\n");
-            buffer.append("                " + post.getDate());
-            buffer.append("            </div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("        <div class='action-button' >\n");
-            buffer.append("            <img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_more.png' />\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' >\n");
-            buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
-            buffer.append("        <div class='avatar-text' style='width:98%;display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
-            if(post.getRegDate() != null){
-	            buffer.append("         	<div class='postdate'>\n");
-	        	buffer.append("					Registered: "+post.getRegDate()+"<br/>\n");
-	            buffer.append("         	</div>\n");
-            }
-            if(post.getAvatarText()!= null){
-            	buffer.append(post.getAvatarText()+"<br/>\n");
-            }
-            if(post.isEditable()){
-            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
-                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
-                buffer.append("        		</div>\n");
-            }
-        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
-            buffer.append("\n        		</div>\n");
-            buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read\n");
-            buffer.append("        		</div>\n");
-            buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_more.png' style='position:relative;vertical-align:middle;' /> More\n");
-            buffer.append("        		</div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+" " + post.getId() + "' >\n");
-
-
-            buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");
-            if (avatar) {
-                buffer.append("            		<div class='avatar gif' style='background-image:url(" + post.getAvatar() + ");' />\n");
-            }
-            buffer.append("        		</td>\n");
-
-            buffer.append("    <td class='post-cell' style='background: " + background + ";'>\n");
-            //tablet user column
-            buffer.append("    <div class='usercolumn tablet' style='background: " + background +";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-            buffer.append("         <div class='userinfo'>\n");
-            buffer.append("        		<div class='menu_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' lastreadurl='" + post.getLastReadUrl() + "' editable='"+(post.isEditable()?"true":"false")+"' >\n");
-            buffer.append("        			<img src='file:///android_res/drawable/post_action_icon.png' />");
-            buffer.append("        		</div>\n");
-            buffer.append("            		<div class='tablet username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
-            buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  + "</h4>\n");
-            buffer.append("            		</div>");
-            buffer.append("            		<div class='tablet postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
-            buffer.append("           		     " + post.getDate());
-            buffer.append("            		</div>\n");
-            buffer.append("        		</div>\n");
-            buffer.append("         	<div class='avatar-text' style='display:none; overflow: hidden;'>");
-            if(post.getRegDate()!= null){
-                buffer.append("         	<div class='postdate'>");
-            	buffer.append("					Registered: "+post.getRegDate()+"<br/>");
-                buffer.append("         	</div>");
-            }
-            if(post.getAvatarText()!= null){
-            	buffer.append(post.getAvatarText()+"<br/>");
-            }
-            buffer.append("    				<hr />\n");
-            buffer.append("    			</div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </div>\n");
             
-            //post content
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB((post.isPreviouslyRead() ? aPrefs.postReadFontColor : aPrefs.postFontColor)) + ";'>\n");
-            buffer.append("            " + post.getContent());
-            buffer.append("\n        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
+        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : "")+(post.isOp()? " op" : "")+"'>");
+        	buffer.append("<div class='postheader'>");
+     		buffer.append("<div class='postinfo'>");
+     		if(avatar && post.getAvatar().length()>0){
+     		buffer.append("<div class='avatar-cell'>");
+     		buffer.append("<div class='avatar' style='background-image:url(\""+post.getAvatar()+"\");'>");
+     		buffer.append("<img class='avatarCorner' src='file:///android_asset/images/avatarCorner.png' alt=''/>");
+     		buffer.append("</div>");
+     		buffer.append("</div>");
+     		}
+     		buffer.append("<div class='postinfo-poster'>"+post.getUsername()+"</div>");
+     		buffer.append("<div class='postinfo-postdate'>"+post.getDate()+"</div>");
+			buffer.append("<div class='postinfo-regdate'>Reg Date: "+post.getRegDate()+"</div>");
+			buffer.append("<div class='postinfo-title'>"+post.getAvatarText()+"</div>");
+			buffer.append("</div>");
+			buffer.append("<div class='postmenu'></div>");
+			buffer.append("</div>");
+			buffer.append("<div class='postoptions'>");
+			buffer.append("<div class='more'>");
+			buffer.append("more");
+			buffer.append("</div>");
+			buffer.append("<div class='lastread'>");
+			buffer.append("last read");
+			buffer.append("</div>");
+			buffer.append("<div class='edit'>");
+			buffer.append("edit");
+			buffer.append("</div>");
+			buffer.append("<div class='quote'>");
+			buffer.append("quote");
+			buffer.append("</div>");
+			buffer.append("</div>");
+			buffer.append("<div class='postcontent'>");
+			buffer.append(post.getContent());
+			buffer.append("</div>");
+			buffer.append("</div>");
+
         }
 
         return buffer.toString();
@@ -675,23 +595,19 @@ public class AwfulThread extends AwfulPagedItem  {
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
-		if(prefs.unreadCounterFontBlack){
-			unread.setTextColor(Color.BLACK);
-		}else{
-			unread.setTextColor(Color.WHITE);
-		}
+		unread.setTextColor(Color.WHITE);
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(prefs.unreadCounterColor);
+            counter.setColor(current.getResources().getColor(R.color.unread_posts));
             unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(prefs.unreadCounterColorDim);
+            counter.setColor(current.getResources().getColor(R.color.unread_posts_dim));
             unread.setBackgroundDrawable(counter);
         }
 		else {
@@ -703,8 +619,8 @@ public class AwfulThread extends AwfulPagedItem  {
 			//title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
-			title.setTextColor(prefs.postFontColor);
-			info.setTextColor(prefs.postFontColor2);
+			title.setTextColor(Color.DKGRAY);
+			info.setTextColor(Color.GRAY);
 			title.setSingleLine(!prefs.wrapThreadTitles);
 			if(!prefs.wrapThreadTitles){
 				title.setEllipsize(TruncateAt.END);
@@ -715,7 +631,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		
 		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
 			aq.find(R.id.forum_tag).image(R.drawable.light_inline_lock).visible().width(15);
-			current.setBackgroundColor(prefs.postBackgroundColor2);
+			current.setBackgroundColor(Color.WHITE);
 		}else{
 			aq.find(R.id.forum_tag).gone();
 			current.setBackgroundDrawable(null);

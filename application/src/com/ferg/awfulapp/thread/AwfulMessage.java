@@ -37,6 +37,7 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
@@ -102,8 +103,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 
 		if(aPref != null){
-			title.setTextColor(aPref.postFontColor);
-			author.setTextColor(aPref.postFontColor2);
+			title.setTextColor(Color.DKGRAY);
+			author.setTextColor(Color.GRAY);
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
@@ -220,7 +221,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		//String content = data.getString(data.getColumnIndex(CONTENT));
 		if(content!=null){
 			StringBuffer buff = new StringBuffer(content.length());
-			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSizePx + ";'>");
+			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(Color.WHITE) + "; font-size: " + pref.postFontSizePx + ";'>");
 			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
 			buff.append("</div>");
 			return buff.toString();
