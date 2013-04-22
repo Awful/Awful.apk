@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import android.net.http.HttpResponseCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
@@ -39,6 +40,14 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         onPreferenceChange(mPref);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+        }
+
+        if(Constants.isICS()){
+            try {
+                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 52428800);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

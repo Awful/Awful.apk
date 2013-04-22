@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -104,6 +105,12 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
         unbindService(this);
+        if(Constants.isICS()){
+            HttpResponseCache cache = HttpResponseCache.getInstalled();
+            if(cache != null){
+                cache.flush();
+            }
+        }
     }
     
     @Override

@@ -31,6 +31,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -186,6 +187,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
                     URL target = new URL(url);
                     URLConnection response = target.openConnection();
+                    response.setReadTimeout(10000);
+                    response.setConnectTimeout(10000);
+                    response.connect();
                     if(DEBUG) Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
                     return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
                 } catch (MalformedURLException e) {
