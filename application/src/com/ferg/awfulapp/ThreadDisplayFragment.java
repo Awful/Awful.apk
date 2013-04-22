@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -182,11 +183,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
             if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
                 try {
-                    Log.e(TAG, "Opening Connection: "+url);
+                    if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
                     URL target = new URL(url);
                     URLConnection response = target.openConnection();
-                    Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
-                    return new WebResourceResponse(response.getContentType(),response.getContentEncoding(),new AwfulGifStripper(response.getInputStream(), target.getFile()));
+                    if(DEBUG) Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
+                    return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
