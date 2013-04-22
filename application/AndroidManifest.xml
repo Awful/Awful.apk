@@ -57,7 +57,7 @@
         </activity>
         <activity android:name="com.ferg.awfulapp.ProfileActivity" />
         <activity android:name="com.ferg.awfulapp.SettingsActivity" />
-        <activity android:name="com.ferg.awfulapp.ColorSettingsActivity" android:hardwareAccelerated="false"/>
+        <activity android:name="com.ferg.awfulapp.ThemeSettingsActivity" android:hardwareAccelerated="false"/>
         <activity 
             android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 

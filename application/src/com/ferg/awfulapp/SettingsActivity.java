@@ -188,7 +188,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	private OnPreferenceClickListener onColorsListener = new OnPreferenceClickListener() {
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			startActivity(new Intent().setClass(mThis, ColorSettingsActivity.class));
+			startActivity(new Intent().setClass(mThis, ThemeSettingsActivity.class));
 			return true;
 		}
 	};

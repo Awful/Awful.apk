@@ -7,11 +7,11 @@
         <item>landscape</item>
     </string-array>
     <string-array name="schemas_values">
-        <item>default</item>
-        <item>dark</item>
-        <item>darkblue</item>
-        <item>yospos</item>
-        <item>custom</item>
+        <item>default.css</item>
+        <item>dark.css</item>
+        <item>yospos.css</item>
+        <item>amberpos.css</item>
+        <item>classic.css</item>
     </string-array>
     <string-array name="icon_themes_values">
         <item>light</item>

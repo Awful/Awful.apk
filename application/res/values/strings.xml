@@ -98,11 +98,11 @@ AQuery</string>
 		<item>Landscape</item>
 	</string-array>
 	<string-array name="themes">
-		<item>Default</item>
-		<item>Dark</item>
-		<item>Dark-Blue (OLED-Optimized)</item>
-		<item>yospos</item>
-		<item>Custom</item>
+        <item>Default</item>
+        <item>Dark</item>
+        <item>yospos</item>
+        <item>amberpos</item>
+        <item>Classic</item>
 	</string-array>
 	<string-array name="icon_themes">
 		<item>Black</item>

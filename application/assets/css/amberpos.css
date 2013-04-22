@@ -1,0 +1,162 @@
+.passive {
+color:#5e5e5e;
+}
+
+a {
+color:#eacf4c;
+}
+
+body {
+background-color:#000;
+font-family: "consolas", monaco, monospace;
+}
+
+div.avatar {
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+vertical-align:bottom-text;
+text-align:right;
+height:50px;
+width:inherit;
+position:relative;
+margin:0;
+padding:0;
+}
+
+div.avatar img {
+position:absolute;
+bottom:0;
+right:0;
+}
+
+div.avatar-cell {
+vertical-align:top;
+width:50px;
+float:left;
+margin-right:10px;
+}
+
+div.avatar-cell.extended {
+width:100px;
+}
+
+div.avatar.extended {
+height:100px;
+}
+
+div.avatarCorner {
+width:20px;
+}
+
+div.post {
+background-color:#000;
+color:#eacf4c;
+margin:10px 5px;
+padding:15px;
+border: 1px solid #eacf4c;
+}
+
+div.post.op {
+background-color:#4A4D00;
+}
+
+div.post.read {
+background-color:#252600;
+}
+
+div.post.self {
+background-color:#1A4000;
+}
+
+div.postcontent .bbc-block {
+border-left:2px solid #eacf4c;
+margin:5px 0;
+padding:5px 10px 5px 20px;
+}
+
+div.postcontent .bbc-block h4 {
+font-style:italic;
+margin:2px 0 5px;
+}
+
+div.postcontent blockquote {
+margin:0;
+}
+
+div.postheader {
+vertical-align:top;
+clear:left;
+overflow:hidden;
+border:0;
+border-bottom:2px solid #eacf4c;
+margin:0 0 10px;
+padding:0 0 10px;
+}
+
+div.postinfo {
+font-size:1.1em;
+float:left;
+width:90%;
+overflow:hidden;
+display:inline-block;
+}
+
+div.postinfo-regdate,div.postinfo-title {
+display:none;
+}
+
+div.postinfo-regdate.extended,div.postinfo-title.extended {
+display:block;
+}
+
+div.postmenu {
+float:right;
+font-weight:bolder;
+font-size:1.5em;
+width:10px;
+height:30px;
+background-repeat:no-repeat;
+background-size:15px 30px;
+background-image:url(images/ic_menu_overflow_aps.png);
+padding:0 5px 0 0;
+}
+
+div.postoptions {
+background-color:#828282;
+color:#FFF;
+height:35px;
+display:none;
+padding-left:15px;
+margin:-11px -15px 5px;
+}
+
+div.postoptions .edit {
+background-image:url(images/ic_menu_edit.png);
+}
+
+div.postoptions .lastread {
+background-image:url(images/ic_menu_lastread.png);
+}
+
+div.postoptions .more {
+background-image:url(images/ic_menu_more.png);
+}
+
+div.postoptions .quote {
+background-image:url(images/ic_menu_quote.png);
+}
+
+div.postoptions div {
+float:left;
+margin-right:5px;
+height:15px;
+background-repeat:no-repeat;
+background-position:left top;
+background-size:30px 30px;
+padding:10px 0 10px 30px;
+}
+
+div.postoptions.extended {
+display:block;
+}
