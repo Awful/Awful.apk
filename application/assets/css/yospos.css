@@ -84,6 +84,10 @@ div.postcontent blockquote {
 margin:0;
 }
 
+.postcontent img, .postcontent iframe{
+max-width: 100% !important;
+}
+
 div.postheader {
 vertical-align:top;
 clear:left;
@@ -123,8 +127,8 @@ padding:0 5px 0 0;
 }
 
 div.postoptions {
-background-color:#828282;
-color:#FFF;
+background-color:#000;
+color:#0F0;
 height:35px;
 display:none;
 padding-left:15px;

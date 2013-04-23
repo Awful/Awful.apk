@@ -63,7 +63,11 @@ background-color:#FEFFD9;
 }
 
 div.post.read {
-background-color:#F5F8FF;
+background-color:#E6EDFF;
+}
+
+div.post.read div.postcontent {
+color:#eae9ea;
 }
 
 div.post.self {
@@ -74,6 +78,10 @@ div.postcontent .bbc-block {
 border-left:2px solid #eae9ea;
 margin:5px 0;
 padding:5px 10px 5px 20px;
+}
+
+.postcontent img, .postcontent iframe{
+max-width: 100% !important;
 }
 
 div.postcontent .bbc-block h4 {

@@ -97,6 +97,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
@@ -1388,13 +1389,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		aq.find(R.id.pagebar).backgroundColor(Color.BLACK);
+		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(mPrefs));
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(Color.WHITE);
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor(mPrefs));
 		}
 		if(mThreadView != null){
-			mThreadView.setBackgroundColor(this.getResources().getColor(R.color.background));
-            mThreadWindow.setBackgroundColor(this.getResources().getColor(R.color.background));
+			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+            mThreadWindow.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+            mThreadView.loadUrl("javascript:changeCSS('"+mPrefs.theme+"')");
 		}
 	}
 

@@ -2,22 +2,22 @@ var prefs = JSON.parse(preferences);
 
 
 $(document).ready(function() {
-    $('.quote_button').live('click', function(event) {
-        listener.onQuoteClick($(this).attr('id'));
+    $('.quote').live('click', function(event) {
+        listener.onQuoteClick($(this).parent().parent().attr('id'));
     });
-    $('.edit_button').live('click', function(event) {
-        listener.onEditClick($(this).attr('id'));
+    $('.edit').live('click', function(event) {
+        listener.onEditClick($(this).parent().parent().attr('id'));
     });
-    $('.more_button').live('click', function(event) {
-        listener.onMoreClick($(this).attr('id'), $(this).attr('username'), $(this).attr('userid'));
+    $('.more').live('click', function(event) {
+        listener.onMoreClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'));
     });
     $('.menu_button').live('click', function(event) {
-        listener.onMenuClick($(this).attr('id'), $(this).attr('username'), $(this).attr('userid'), $(this).attr('lastreadurl'), $(this).attr('editable'));
+        listener.onMenuClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'), $(this).attr('lastreadurl'), $(this).attr('editable'));
     });
     $('.sendpm_button').live('click', function(event) {
         listener.onSendPMClick($(this).attr('username'));
     });
-    $('.lastread_button').live('click', function(event) {
+    $('.lastread').live('click', function(event) {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
     $('.copyurl_button').live('click', function(event) {
@@ -79,7 +79,7 @@ $(window).ready(function() {
 	//listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
-		var id = this.hash.replace(/#post/,'.').concat(':visible');
+		var id = this.hash.replace(/#post/,'#').concat(':visible');
 		if($(id).length > 0){
 			$(this).click(function(e){
 				$(window).scrollTop($(id).offset().top);

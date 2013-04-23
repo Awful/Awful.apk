@@ -47,6 +47,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
+import com.ferg.awfulapp.preferences.ColorProvider;
 /**
  * SA Private Messages.
  * @author Geekner
@@ -103,8 +104,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 
 		if(aPref != null){
-			title.setTextColor(Color.DKGRAY);
-			author.setTextColor(Color.GRAY);
+			title.setTextColor(ColorProvider.getTextColor(aPref));
+			author.setTextColor(ColorProvider.getTextColor(aPref));
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);

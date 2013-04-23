@@ -64,6 +64,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.ThreadTask;
@@ -466,12 +467,10 @@ public class AwfulThread extends AwfulPagedItem  {
     public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked, boolean isTablet) {
         StringBuffer buffer = new StringBuffer();
 
-        String background = null;
-
         for (AwfulPost post : aPosts) {
             boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
             
-        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : "")+(post.isOp()? " op" : "")+"'>");
+        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : " unread")+(post.isOp()? " op" : "")+"'  id='" + post.getId() + "'>");
         	buffer.append("<div class='postheader'>");
      		buffer.append("<div class='postinfo'>");
      		if(avatar && post.getAvatar().length()>0){
@@ -481,7 +480,7 @@ public class AwfulThread extends AwfulPagedItem  {
      		buffer.append("</div>");
      		buffer.append("</div>");
      		}
-     		buffer.append("<div class='postinfo-poster'>"+post.getUsername()+"</div>");
+     		buffer.append("<div class='postinfo-poster'>"+post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")+"</div>");
      		buffer.append("<div class='postinfo-postdate'>"+post.getDate()+"</div>");
 			buffer.append("<div class='postinfo-regdate'>Reg Date: "+post.getRegDate()+"</div>");
 			buffer.append("<div class='postinfo-title'>"+post.getAvatarText()+"</div>");
@@ -495,9 +494,11 @@ public class AwfulThread extends AwfulPagedItem  {
 			buffer.append("<div class='lastread'>");
 			buffer.append("last read");
 			buffer.append("</div>");
+			if(post.isEditable()){
 			buffer.append("<div class='edit'>");
 			buffer.append("edit");
 			buffer.append("</div>");
+        	}
 			buffer.append("<div class='quote'>");
 			buffer.append("quote");
 			buffer.append("</div>");
@@ -595,19 +596,19 @@ public class AwfulThread extends AwfulPagedItem  {
 		TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
 		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
-		unread.setTextColor(Color.WHITE);
+		unread.setTextColor(ColorProvider.getUnreadColorFont(prefs));
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(current.getResources().getColor(R.color.unread_posts));
+            counter.setColor(ColorProvider.getUnreadColor(prefs));
             unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(unreadCount+"");
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(current.getResources().getColor(R.color.unread_posts_dim));
+            counter.setColor(ColorProvider.getUnreadColorDim(prefs));
             unread.setBackgroundDrawable(counter);
         }
 		else {
@@ -619,8 +620,8 @@ public class AwfulThread extends AwfulPagedItem  {
 			//title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
-			title.setTextColor(Color.DKGRAY);
-			info.setTextColor(Color.GRAY);
+			title.setTextColor(ColorProvider.getTextColor(prefs));
+			info.setTextColor(ColorProvider.getAltTextColor(prefs));
 			title.setSingleLine(!prefs.wrapThreadTitles);
 			if(!prefs.wrapThreadTitles){
 				title.setEllipsize(TruncateAt.END);
@@ -631,7 +632,7 @@ public class AwfulThread extends AwfulPagedItem  {
 		
 		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
 			aq.find(R.id.forum_tag).image(R.drawable.light_inline_lock).visible().width(15);
-			current.setBackgroundColor(Color.WHITE);
+			current.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
 		}else{
 			aq.find(R.id.forum_tag).gone();
 			current.setBackgroundDrawable(null);

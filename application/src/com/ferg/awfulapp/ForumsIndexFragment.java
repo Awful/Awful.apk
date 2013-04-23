@@ -64,6 +64,7 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -110,8 +111,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         
         mForumTree = (PullToRefreshTreeView) result.findViewById(R.id.index_pull_tree_view);
         
-        mForumTree.setBackgroundColor(this.getResources().getColor(R.color.background));
-        mForumTree.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
+        mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+        mForumTree.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
         mForumTree.setOnRefreshListener(new OnRefreshListener<TreeViewList>() {
 			
 			@Override
@@ -263,10 +264,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		if(mForumTree != null){
-			mForumTree.setBackgroundColor(this.getResources().getColor(R.color.background));
-			mForumTree.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
-			mForumTree.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
-            //mForumTree.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
+			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+			mForumTree.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+			mForumTree.setTextColor(ColorProvider.getTextColor(mPrefs), ColorProvider.getAltTextColor(mPrefs));
+            mForumTree.setHeaderBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 			if(dataManager != null){
 				dataManager.refresh();
 			}

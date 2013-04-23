@@ -50,6 +50,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
@@ -102,8 +103,8 @@ public class PrivateMessageListFragment extends AwfulFragment {
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(this.getResources().getColor(R.color.background));
-    		mPMList.setCacheColorHint(this.getResources().getColor(R.color.background));
+    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
     	}
     }
     

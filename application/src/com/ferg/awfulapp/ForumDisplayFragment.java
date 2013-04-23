@@ -70,6 +70,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
@@ -219,8 +220,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
         mPullRefreshListView.setAdapter(mCursorAdapter);
         mPullRefreshListView.setOnItemClickListener(onThreadSelected);
-        mPullRefreshListView.setBackgroundColor(this.getResources().getColor(R.color.background));
-        mPullRefreshListView.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
+        mPullRefreshListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+        mPullRefreshListView.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
         
         registerForContextMenu(mPullRefreshListView.getRefreshableView());
     }
@@ -563,20 +564,20 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		if(mPullRefreshListView!=null){
-			mPullRefreshListView.setBackgroundColor(this.getResources().getColor(R.color.background));
-			mPullRefreshListView.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
-            //mPullRefreshListView.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-			mPullRefreshListView.getRefreshableView().setCacheColorHint(this.getResources().getColor(R.color.background));
+			mPullRefreshListView.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+			mPullRefreshListView.setTextColor(ColorProvider.getTextColor(prefs), ColorProvider.getAltTextColor(prefs));
+            mPullRefreshListView.setHeaderBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+			mPullRefreshListView.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(prefs));
 	        if(mPrefs.refreshFrog){
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
 	        }else{
 	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
 	        }
 		}
-		aq.find(R.id.pagebar).backgroundColor(Color.DKGRAY);
-		aq.find(R.id.page_indicator).backgroundColor(Color.RED);
+		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(prefs));
+		aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(prefs));
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(Color.WHITE);
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor(prefs));
 		}
 	}
 	

@@ -257,4 +257,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     		currPrefVersion = PREFERENCES_VERSION;
 		}
 	}
+	
+	public Resources getResources(){
+		return mContext.getResources();
+	}
 }

@@ -30,6 +30,7 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 /**
@@ -144,8 +145,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-	        mTitleView.setTextColor(Color.WHITE);
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor(mPrefs)));
+	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor(mPrefs));
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }

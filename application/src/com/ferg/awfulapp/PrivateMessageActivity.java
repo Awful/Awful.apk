@@ -42,6 +42,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
@@ -63,8 +64,8 @@ public class PrivateMessageActivity extends AwfulActivity {
             action.setCustomView(R.layout.actionbar_title);
             mTitleView = (TextView) action.getCustomView();
             mTitleView.setMovementMethod(new ScrollingMovementMethod());
-	        action.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-	        mTitleView.setTextColor(Color.WHITE);
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor(mPrefs)));
+	        mTitleView.setTextColor(ColorProvider.getActionbarColor(mPrefs));
 	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
 	        action.setDisplayHomeAsUpEnabled(true);
 	        action.setDisplayShowCustomEnabled(true);

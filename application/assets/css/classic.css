@@ -97,6 +97,10 @@ div.postcontent blockquote {
 margin:0;
 }
 
+.postcontent img, .postcontent iframe{
+max-width: 100% !important;
+}
+
 div.postheader {
 vertical-align:top;
 clear:left;

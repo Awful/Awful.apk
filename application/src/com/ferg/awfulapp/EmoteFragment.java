@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
@@ -100,7 +101,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		View v = inflateView(R.layout.emote_view, container, inflater);
 		adapter = new AwfulCursorAdapter(getAwfulActivity(), null);
 		aq.find(R.id.delete_button).clicked(this);
-		filterText = aq.find(R.id.filter_text).textColor(this.getResources().getColor(R.color.default_post_font)).getEditText();
+		filterText = aq.find(R.id.filter_text).textColor(ColorProvider.getTextColor(mPrefs)).getEditText();
 		filterText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -112,7 +113,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 				updateFilter();
 			}
 		});
-		emoteGrid = aq.find(R.id.emote_grid).adapter(adapter).itemClicked(this).backgroundColor(this.getResources().getColor(R.color.background)).getGridView();
+		emoteGrid = aq.find(R.id.emote_grid).adapter(adapter).itemClicked(this).backgroundColor(ColorProvider.getBackgroundColor(mPrefs)).getGridView();
 		return v;
 	}
 

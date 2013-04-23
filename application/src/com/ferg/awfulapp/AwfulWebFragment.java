@@ -49,6 +49,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 
 public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerFragment {
@@ -105,7 +106,7 @@ public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerF
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-		mWebView.setBackgroundColor(this.getResources().getColor(R.color.background));
+		mWebView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 		mUrl = getArguments().getString("url");
 	}
 	

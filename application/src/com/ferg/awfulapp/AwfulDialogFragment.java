@@ -44,6 +44,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
@@ -112,7 +113,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
 		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(Color.BLACK);
+			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 		}
 	}
     

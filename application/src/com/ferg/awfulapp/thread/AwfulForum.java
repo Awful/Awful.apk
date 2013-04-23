@@ -53,6 +53,7 @@ import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
 
 public class AwfulForum extends AwfulPagedItem {
@@ -219,8 +220,8 @@ public class AwfulForum extends AwfulPagedItem {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.subtext);
 		if(mPrefs != null){
-			title.setTextColor(current.getResources().getColor(R.color.default_post_font));
-			sub.setTextColor(current.getResources().getColor(R.color.secondary_post_font));
+			title.setTextColor(ColorProvider.getTextColor(mPrefs));
+			sub.setTextColor(ColorProvider.getAltTextColor(mPrefs));
 		}
 		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
@@ -264,9 +265,9 @@ public class AwfulForum extends AwfulPagedItem {
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);
 		if(selected){
-			aq.backgroundColor(current.getResources().getColor(R.color.alt_background));
+			aq.backgroundColor(ColorProvider.getBackgroundColor(aPrefs));
 		}else{
-			aq.backgroundColor(current.getResources().getColor(R.color.background));
+			aq.backgroundColor(ColorProvider.getBackgroundColor(aPrefs));
 		}
 		aq.find(R.id.icon_box).gone();
 		aq.find(R.id.selector).gone();
@@ -274,7 +275,7 @@ public class AwfulForum extends AwfulPagedItem {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
-		aq.find(R.id.title).textColor(current.getResources().getColor(R.color.default_post_font)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
+		aq.find(R.id.title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
 		aq.find(R.id.threadinfo).gone();
 		
 		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
