@@ -28,11 +28,4 @@
 			android:defaultValue="false"
 			/>
         </PreferenceCategory>
-          <PreferenceCategory android:title="@string/alternate_backgrounds">
-                <CheckBoxPreference
-			android:key="alternate_backgrounds"
-			android:title="@string/alternate_backgrounds"
-			android:defaultValue="true"
-			/>
-		</PreferenceCategory>
 </PreferenceScreen>
