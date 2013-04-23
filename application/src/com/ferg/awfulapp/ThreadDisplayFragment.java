@@ -302,7 +302,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
         mThreadView = mThreadWindow.getRefreshableView();
         mThreadWindow.setOnRefreshListener(this);
-		mThreadWindow.setBackgroundColor(this.getResources().getColor(R.color.background));
+		mThreadWindow.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
@@ -323,7 +323,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setBackgroundColor(this.getResources().getColor(R.color.background));
+		mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
@@ -415,7 +415,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 }
             }
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-            mThreadWindow.setTextColor(this.getResources().getColor(R.color.default_post_font), this.getResources().getColor(R.color.secondary_post_font));
+            mThreadWindow.setTextColor(ColorProvider.getTextColor(mPrefs), ColorProvider.getAltTextColor(mPrefs));
         }
 	}
 
@@ -1418,7 +1418,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.background))+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(mPrefs))+";'></body></html>";
 	}
 
     public int getLastPage() {

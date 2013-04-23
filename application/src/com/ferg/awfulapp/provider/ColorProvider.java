@@ -7,16 +7,16 @@ public class ColorProvider {
 
 	public static int getTextColor(AwfulPreferences aPrefs){	
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.dark_default_post_font);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.default_post_font);
 		}
 		return aPrefs.getResources().getColor(R.color.default_post_font);
@@ -24,16 +24,16 @@ public class ColorProvider {
 	
 	public static int getAltTextColor(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.dark_secondary_post_font);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_secondary_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_secondary_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.secondary_post_font);
 		}
 		return aPrefs.getResources().getColor(R.color.secondary_post_font);
@@ -41,16 +41,16 @@ public class ColorProvider {
 	
 	public static int getBackgroundColor(AwfulPreferences aPrefs){
 		
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.dark_background);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_background);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_background);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.background);
 		}
 		return aPrefs.getResources().getColor(R.color.background);
@@ -58,16 +58,16 @@ public class ColorProvider {
 
 	public static int getUnreadColor(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts);
 		}
 		return aPrefs.getResources().getColor(R.color.unread_posts);
@@ -75,16 +75,16 @@ public class ColorProvider {
 
 	public static int getUnreadColorDim(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts_dim);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts_dim);
 		}
 		return aPrefs.getResources().getColor(R.color.unread_posts_dim);
@@ -92,16 +92,16 @@ public class ColorProvider {
 	
 	public static int getUnreadColorFont(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts_counter);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_background);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_background);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.unread_posts_counter);
 		}
 		return aPrefs.getResources().getColor(R.color.unread_posts_counter);
@@ -109,16 +109,16 @@ public class ColorProvider {
 	
 	public static int getActionbarColor(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.dark_background);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_background);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_background);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.actionbar_color);
 		}
 		return aPrefs.getResources().getColor(R.color.actionbar_color);
@@ -126,16 +126,16 @@ public class ColorProvider {
 	
 	public static int getActionbarFontColor(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(R.color.dark_default_post_font);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(R.color.actionbar_font_color);
 		}
 		return aPrefs.getResources().getColor(R.color.actionbar_font_color);
@@ -143,16 +143,16 @@ public class ColorProvider {
 	
 	public static int getProgressbarColor(AwfulPreferences aPrefs){
 
-		if("dark.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("dark.css")){
 			return aPrefs.getResources().getColor(android.R.color.holo_blue_light);
 		}
-		if("yospos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("yospos.css")){
 			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
-		if("amberpos.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("amberpos.css")){
 			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
-		if("classic.css".equals(aPrefs.theme)){
+		if(aPrefs.theme.endsWith("classic.css")){
 			return aPrefs.getResources().getColor(android.R.color.holo_blue_light);
 		}
 		return aPrefs.getResources().getColor(android.R.color.holo_blue_light);

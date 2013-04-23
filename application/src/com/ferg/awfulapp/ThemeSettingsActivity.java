@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -51,7 +52,11 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 					if(folderFile.canRead() && folderFile.getName() != null){
 						String[] fileName = folderFile.getName().split("\\.");
 						if("css".equals(fileName[fileName.length-1])){
-							themes.add(fileName[0]);
+							if(StringUtils.countMatches(folderFile.getName(), ".")>1){
+								themes.add(fileName[0]+" ("+fileName[fileName.length-2]+")");
+							}else{
+								themes.add(fileName[0]);
+							}
 							themeValues.add(folderFile.getName());
 						}
 					}
