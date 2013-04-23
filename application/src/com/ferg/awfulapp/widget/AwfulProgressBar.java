@@ -27,6 +27,9 @@
 
 package com.ferg.awfulapp.widget;
 
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
+
 import android.R;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -59,7 +62,7 @@ public class AwfulProgressBar extends View {
 	
 	private void setPaint(Context context){
 		mProgressColor = new Paint();
-		mProgressColor.setColor(context.getResources().getColor(R.color.holo_blue_light));
+		mProgressColor.setColor(ColorProvider.getProgressbarColor(new AwfulPreferences(context)));
 		mClearColor = new Paint();
 		mClearColor.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 	}

@@ -42,7 +42,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;

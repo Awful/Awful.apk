@@ -1,6 +1,7 @@
-package com.ferg.awfulapp.preferences;
+package com.ferg.awfulapp.provider;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 public class ColorProvider {
 
@@ -138,6 +139,23 @@ public class ColorProvider {
 			return aPrefs.getResources().getColor(R.color.actionbar_font_color);
 		}
 		return aPrefs.getResources().getColor(R.color.actionbar_font_color);
+	}
+	
+	public static int getProgressbarColor(AwfulPreferences aPrefs){
+
+		if("dark.css".equals(aPrefs.theme)){
+			return aPrefs.getResources().getColor(android.R.color.holo_blue_light);
+		}
+		if("yospos.css".equals(aPrefs.theme)){
+			return aPrefs.getResources().getColor(R.color.yospos_default_post_font);
+		}
+		if("amberpos.css".equals(aPrefs.theme)){
+			return aPrefs.getResources().getColor(R.color.amberpos_default_post_font);
+		}
+		if("classic.css".equals(aPrefs.theme)){
+			return aPrefs.getResources().getColor(android.R.color.holo_blue_light);
+		}
+		return aPrefs.getResources().getColor(android.R.color.holo_blue_light);
 	}
 	
 }

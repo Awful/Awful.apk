@@ -47,7 +47,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
-import com.ferg.awfulapp.preferences.ColorProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 /**
  * SA Private Messages.
  * @author Geekner

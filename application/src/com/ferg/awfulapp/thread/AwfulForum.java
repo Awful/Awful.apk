@@ -53,8 +53,8 @@ import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorProvider;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 
 public class AwfulForum extends AwfulPagedItem {
     private static final String TAG = "AwfulForum";
