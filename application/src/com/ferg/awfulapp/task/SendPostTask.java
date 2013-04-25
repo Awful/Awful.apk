@@ -57,6 +57,7 @@ public class SendPostTask extends AwfulTask {
 				String formCookie = postInfo.getString(postInfo.getColumnIndex(AwfulPost.FORM_COOKIE));
 				String formKey = postInfo.getString(postInfo.getColumnIndex(AwfulPost.FORM_KEY));
 				String attachment = postInfo.getString(postInfo.getColumnIndex(AwfulMessage.REPLY_ATTACHMENT));
+				String bookmark = postInfo.getString(postInfo.getColumnIndex(AwfulPost.FORM_BOOKMARK));
 				int replyType = postInfo.getInt(postInfo.getColumnIndex(AwfulMessage.TYPE));
 				int postId = postInfo.getInt(postInfo.getColumnIndex(AwfulPost.EDIT_POST_ID));
 				if(replyType != AwfulMessage.TYPE_EDIT && (formKey == null || message == null || formCookie == null || message.length()<1 || formCookie.length()<1 || formKey.length()<1)){
@@ -66,10 +67,10 @@ public class SendPostTask extends AwfulTask {
 				switch(replyType){
 					case AwfulMessage.TYPE_QUOTE:
 					case AwfulMessage.TYPE_NEW_REPLY:
-						Reply.post(message, formKey, formCookie, Integer.toString(mId), attachment);
+						Reply.post(message, formKey, formCookie, Integer.toString(mId), bookmark, attachment);
 						break;
 					case AwfulMessage.TYPE_EDIT:
-						Reply.edit(message, formKey, formCookie, Integer.toString(mId), Integer.toString(postId), attachment);
+						Reply.edit(message, formKey, formCookie, Integer.toString(mId), Integer.toString(postId), bookmark, attachment);
 						break;
 					default:
 						return LOADING_FAILED;
