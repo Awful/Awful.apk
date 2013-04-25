@@ -643,9 +643,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		case R.id.copy_url:
     			copyThreadURL(null);
     			break;
-    		//case R.id.find://TODO oops, broke this
-    		//	this.mThreadView.showFindDialog(null, true);
-    		//	break;
+    		case R.id.find:
+    			this.mThreadView.showFindDialog(null, true);
+    			break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
