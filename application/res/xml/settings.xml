@@ -7,6 +7,10 @@
             android:summary="@string/about_summary"
             android:persistent="false"
             />
+        <Preference
+            android:key="open_thread"
+            android:title="@string/open_thread"
+            android:summary="@string/open_thread_summary"/>
         <EditTextPreference
             android:key="username"
             android:title="@string/username_pref"

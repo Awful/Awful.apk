@@ -39,6 +39,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -61,6 +62,7 @@ import com.ferg.awfulapp.constants.Constants;
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
+	Preference mThreadPreference;
 	Preference mImagePreference;
 	Preference mInfoPreference;
 	Preference mColorsPreference;
@@ -97,6 +99,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		
 		mAboutPreference = getPreferenceScreen().findPreference("about");
 		mAboutPreference.setOnPreferenceClickListener(onAboutListener);
+		mThreadPreference = getPreferenceScreen().findPreference("open_thread");
+		mThreadPreference.setOnPreferenceClickListener(onThreadListener);
 		mColorsPreference = getPreferenceScreen().findPreference("colors");
 		mColorsPreference.setOnPreferenceClickListener(onColorsListener);
 		mImagePreference = getPreferenceScreen().findPreference("image_settings");
@@ -181,6 +185,15 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			showDialog(DIALOG_ABOUT);
+			return true;
+		}
+	};	
+	
+	private OnPreferenceClickListener onThreadListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_THREAD+'?'+Constants.PARAM_THREAD_ID+"="+Constants.AWFUL_THREAD_ID));
+			startActivity(openThread);
 			return true;
 		}
 	};
