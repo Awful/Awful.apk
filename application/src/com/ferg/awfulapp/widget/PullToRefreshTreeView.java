@@ -15,9 +15,6 @@
  *******************************************************************************/
 package com.ferg.awfulapp.widget;
 
-import com.handmark.pulltorefresh.library.OverscrollHelper;
-import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import pl.polidea.treeview.TreeViewList;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -27,6 +24,8 @@ import android.util.AttributeSet;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 
+import com.handmark.pulltorefresh.library.OverscrollHelper;
+import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
 import com.handmark.pulltorefresh.library.internal.EmptyViewMethodAccessor;
 
 public class PullToRefreshTreeView extends PullToRefreshAdapterViewBase<TreeViewList> {

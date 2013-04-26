@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
-import android.net.http.HttpResponseCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 import android.graphics.Typeface;
+import android.net.http.HttpResponseCache;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;

@@ -28,7 +28,6 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -46,8 +45,8 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
+import com.ferg.awfulapp.widget.AwfulProgressBar;
 
 public abstract class AwfulDialogFragment extends SherlockDialogFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
 	protected static String TAG = "AwfulFragment";

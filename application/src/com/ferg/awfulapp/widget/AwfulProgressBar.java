@@ -27,10 +27,6 @@
 
 package com.ferg.awfulapp.widget;
 
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.ColorProvider;
-
-import android.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -38,6 +34,9 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 
 public class AwfulProgressBar extends View {
 	private int mProgress = 100;

@@ -44,11 +44,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Message;
@@ -393,7 +390,8 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
-        if(StringUtils.countMatches(aPrefs.theme,".")>1 && new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme).canRead()){
+        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
+        if(StringUtils.countMatches(aPrefs.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
         	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
         }else{
             buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
@@ -434,7 +432,6 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         
         buffer.append("<style type='text/css'>\n");   
-        //buffer.append(".bbc-block.code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+";overflow:auto;}\n");
         if(!aPrefs.disableTimgs){
             buffer.append(".timg {border-color: #FF0 }\n");
         }
@@ -455,9 +452,9 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("	  <div class='content' >\n");
-//        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-//        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
-//        buffer.append("		</a>\n");
+        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(ColorProvider.getTextColor(aPrefs)) + ";'>\n");
+        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+        buffer.append("		</a>\n");
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
 
@@ -493,7 +490,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			buffer.append("<div class='postmenu'></div>");
 			buffer.append("</div>");
 			buffer.append("<div class='postoptions'>");
-			buffer.append("<div class='more'>");
+			buffer.append("<div class='more' username='" + post.getUsername() + "' userid='" + post.getUserId() + "'>");
 			buffer.append("more");
 			buffer.append("</div>");
 			buffer.append("<div class='lastread'>");
