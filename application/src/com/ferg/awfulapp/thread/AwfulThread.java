@@ -493,7 +493,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			buffer.append("<div class='more' username='" + post.getUsername() + "' userid='" + post.getUserId() + "'>");
 			buffer.append("more");
 			buffer.append("</div>");
-			buffer.append("<div class='lastread'>");
+			buffer.append("<div class='lastread' lastreadurl='" + post.getLastReadUrl() + "'>");
 			buffer.append("last read");
 			buffer.append("</div>");
 			if(post.isEditable()){
