@@ -63,11 +63,11 @@ background-color:#FEFFD9;
 }
 
 div.post.read {
-background-color:#E6EDFF;
+background-color:#EDF2FF;
 }
 
 div.post.read div.postcontent {
-color:#eae9ea;
+color:#AAAAAA;
 }
 
 div.post.self {
@@ -93,6 +93,10 @@ div.postcontent blockquote {
 margin:0;
 }
 
+div.postcontent .bbc-block.code, div.postcontent pre{
+overflow: scroll;
+}
+
 div.postheader {
 vertical-align:top;
 clear:left;
@@ -109,6 +113,10 @@ float:left;
 width:90%;
 overflow:hidden;
 display:inline-block;
+}
+
+div.postinfo-poster img {
+height: 1em;
 }
 
 div.postinfo-regdate,div.postinfo-title {
