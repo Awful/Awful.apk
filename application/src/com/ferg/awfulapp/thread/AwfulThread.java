@@ -472,7 +472,7 @@ public class AwfulThread extends AwfulPagedItem  {
         for (AwfulPost post : aPosts) {
             boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
             
-        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : " unread")+(post.isOp()? " op" : "")+"'  id='" + post.getId() + "'>");
+        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : " unread")+(post.isOp()? " op" : "")+(aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)? " self" : "")+"'  id='" + post.getId() + "'>");
         	buffer.append("<div class='postheader'>");
      		buffer.append("<div class='postinfo'>");
      		if(avatar && post.getAvatar().length()>0){

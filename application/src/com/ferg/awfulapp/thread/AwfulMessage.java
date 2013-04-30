@@ -222,7 +222,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		//String content = data.getString(data.getColumnIndex(CONTENT));
 		if(content!=null){
 			StringBuffer buff = new StringBuffer(content.length());
-			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(Color.WHITE) + "; font-size: " + pref.postFontSizePx + ";'>");
+			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(ColorProvider.getTextColor(pref)) + "; font-size: " + pref.postFontSizePx + ";'>");
 			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
 			buff.append("</div>");
 			return buff.toString();
