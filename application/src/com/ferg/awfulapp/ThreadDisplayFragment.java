@@ -186,8 +186,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
                     URL target = new URL(url);
                     URLConnection response = target.openConnection();
-                    response.setReadTimeout(10000);
-                    response.setConnectTimeout(10000);
+                    response.setReadTimeout(5000);
+                    response.setConnectTimeout(1000);
                     response.connect();
                     if(DEBUG) Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
                     return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
@@ -646,9 +646,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		case R.id.copy_url:
     			copyThreadURL(null);
     			break;
-    		//case R.id.find://TODO oops, broke this
-    		//	this.mThreadView.showFindDialog(null, true);
-    		//	break;
+    		case R.id.find:
+    			this.mThreadView.showFindDialog(null, true);
+    			break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
