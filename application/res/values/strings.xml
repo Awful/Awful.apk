@@ -88,6 +88,8 @@ Apache HttpClient/HttpCore/HttpMime\n
 HtmlCleaner\n
 JSoup\n
 AQuery</string>
+	<string name="open_thread">Go to the Awful thread</string>
+	<string name="open_thread_summary">The most Awful thread on the forums</string>
 	<string name="prefs_global">Global Settings</string>
 	<string name="orientation">Screen Orientation</string>
 	<string name="select_font">Select Font</string>
