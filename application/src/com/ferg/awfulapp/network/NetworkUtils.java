@@ -341,19 +341,25 @@ public class NetworkUtils {
 		Log.i(TAG, location.toString());
 
         HttpPost httpPost = new HttpPost(location);
-
-        MultipartEntity post = new MultipartEntity();
         ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
-        for(NameValuePair data : paramdata ){
-        	if(data.getName() == "attachment"){
-        		post.addPart(data.getName(), new FileBody(new File(data.getValue())));
-        	}else{
-        		if(data.getValue() != null){
-        			post.addPart(data.getName(), new StringBody(data.getValue()));
-        		}
-        	}
-        }
-        httpPost.setEntity(post);
+		if(location.equals(new URI(Constants.FUNCTION_LOGIN_SSL))){
+			UrlEncodedFormEntity post = new UrlEncodedFormEntity(paramdata, "CP1252");
+			httpPost.setEntity(post);
+		}else{
+		    MultipartEntity post = new MultipartEntity();
+		    for(NameValuePair data : paramdata ){
+		    	if("attachment".equals(data.getName())){
+		    		post.addPart(data.getName(), new FileBody(new File(data.getValue())));
+		    	}else{
+		    		if(data.getValue() != null){
+		    			post.addPart(data.getName(), new StringBody(data.getValue()));
+		    		}
+		    	}
+		    }
+		    httpPost.setEntity(post);
+		}
+        
+        
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
 
         HttpEntity entity = httpResponse.getEntity();

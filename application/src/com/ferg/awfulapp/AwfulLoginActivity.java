@@ -153,13 +153,7 @@ public class AwfulLoginActivity extends AwfulActivity {
 
 	private void loginClick(){
         String username = mUsername.getText().toString();
-        String password;
-        try {
-            password = URLEncoder.encode(mPassword.getText().toString(), "cp1252");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            password = mPassword.getText().toString();
-        }
+        String password = mPassword.getText().toString();
 
         mLoginTask = new LoginTask();
         mLoginTask.execute(new String[] {username, password});
