@@ -39,6 +39,7 @@ public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
+    public static final String FUNCTION_LOGIN_SSL       = "https://forums.somethingawful.com/account.php";
     public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
