@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 import android.app.Activity;
@@ -49,6 +51,7 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import org.apache.http.protocol.HTTP;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -150,7 +153,7 @@ public class AwfulLoginActivity extends AwfulActivity {
 	private void loginClick(){
         String username = mUsername.getText().toString();
         String password = mPassword.getText().toString();
-        
+
         mLoginTask = new LoginTask();
         mLoginTask.execute(new String[] {username, password});
     }
@@ -177,7 +180,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                 params.put(Constants.PARAM_ACTION, "login");
 
                 try {
-                    NetworkUtils.post(Constants.FUNCTION_LOGIN, params);
+                    NetworkUtils.post(Constants.FUNCTION_LOGIN_SSL, params);
                     result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
 
                     // Write username to preferences for SALR features

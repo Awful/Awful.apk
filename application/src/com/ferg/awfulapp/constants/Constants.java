@@ -39,6 +39,7 @@ public class Constants {
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
+    public static final String FUNCTION_LOGIN_SSL       = "https://forums.somethingawful.com/account.php";
     public static final String FUNCTION_BOOKMARK        = BASE_URL + "/bookmarkthreads.php";
     public static final String FUNCTION_USERCP          = BASE_URL + "/usercp.php";
     public static final String FUNCTION_FORUM           = BASE_URL + "/forumdisplay.php";
@@ -164,6 +165,8 @@ public class Constants {
 
     public static final String REPLY_POST_ID = "reply_post_id";
     public static final String REPLY_THREAD_ID = "reply_thread_id";
+    
+    public static final int AWFUL_THREAD_ID = 3391052;
 
 
     /**
