@@ -155,7 +155,7 @@ public class AwfulLoginActivity extends AwfulActivity {
         String username = mUsername.getText().toString();
         String password;
         try {
-            password = URLEncoder.encode(mPassword.getText().toString(), HTTP.ISO_8859_1);
+            password = URLEncoder.encode(mPassword.getText().toString(), "cp1252");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             password = mPassword.getText().toString();
