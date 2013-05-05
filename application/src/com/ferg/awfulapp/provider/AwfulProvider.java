@@ -312,7 +312,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
                 AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
                 AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
-                AwfulPost.FORM_BOOKMARK        + " VARCHAR"  +
+                AwfulPost.FORM_BOOKMARK        + " VARCHAR,"  +
                 AwfulMessage.REPLY_ATTACHMENT      + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
             
