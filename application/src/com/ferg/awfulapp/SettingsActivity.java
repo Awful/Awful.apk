@@ -41,6 +41,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Messenger;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -54,6 +56,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 /**
  * Simple, purely xml driven preferences. Access using
@@ -62,6 +65,7 @@ import com.ferg.awfulapp.constants.Constants;
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private static final int DIALOG_ABOUT = 1;
 	Preference mAboutPreference;
+	Preference mFeaturesPreference;
 	Preference mThreadPreference;
 	Preference mImagePreference;
 	Preference mInfoPreference;
@@ -109,6 +113,15 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+
+		String platinum = (mPrefs.getBoolean("has_platinum", false)) ? "Yes" : "No";
+		String archives = (mPrefs.getBoolean("has_archives", false)) ? "Yes" : "No";
+		String noAds = (mPrefs.getBoolean("has_no_ads", false)) ? "Yes" : "No";
+		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
+		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
+		mFeaturesPreference.setSummary("Platinum: "+platinum+" | Archives: "+archives+" | No Ads: "+noAds);
+		//TODO: remove later
+		mFeaturesPreference.setEnabled(false);
 		
 		mUsernamePreference = getPreferenceScreen().findPreference("username");
 	}
@@ -218,6 +231,15 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			startActivity(new Intent().setClass(mThis, ThreadInfoSettingsActivity.class));
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onFeaturesListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			//TODO: add something to refresh account features
+//			new AwfulActivity().sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0);
 			return true;
 		}
 	};

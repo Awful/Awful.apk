@@ -54,6 +54,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//GENERAL STUFF
 	public String username;
 	public boolean hasPlatinum;
+	public boolean hasArchives;
+	public boolean hasNoAds;
 	public boolean debugMode;
 	public boolean sendUsernameInReport;
 	public float scaleFactor;
@@ -187,8 +189,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = mPrefs.getString("username", "Username");
-		hasPlatinum              = mPrefs.getBoolean("has_platinum", true);
-		postFontSizeDip             = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
+		hasPlatinum              = mPrefs.getBoolean("has_platinum", false);
+		hasArchives              = mPrefs.getBoolean("has_archives", false);
+		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);
+		postFontSizeDip            = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		postFontColor            = mPrefs.getInt("default_post_font_color", res.getColor(R.color.default_post_font));
 		postFontColor2           = mPrefs.getInt("secondary_post_font_color", res.getColor(R.color.secondary_post_font));
@@ -217,7 +221,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-        debugMode            	 =false;//= mPrefs.getBoolean("debug_mode", false);
+        debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
