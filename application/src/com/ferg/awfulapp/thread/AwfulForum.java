@@ -42,7 +42,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Environment;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;

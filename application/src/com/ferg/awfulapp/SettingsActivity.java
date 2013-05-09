@@ -41,8 +41,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Messenger;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -56,7 +54,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.service.AwfulSyncService;
 
 /**
  * Simple, purely xml driven preferences. Access using

@@ -31,7 +31,6 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.os.Message;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
