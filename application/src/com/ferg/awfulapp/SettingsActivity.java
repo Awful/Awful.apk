@@ -172,6 +172,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	public void onResume() {
 		super.onResume();
 		mConf.onResume();
+        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		setSummaries();
 		
@@ -190,6 +191,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	public void onStop() {
 		super.onStop();
 		mConf.onStop();
+        unbindService(this);
 	}
 	
 	@Override

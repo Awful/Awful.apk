@@ -125,5 +125,10 @@
 			android:summary="@string/lock_scrolling_summary"
 			android:defaultValue="false"
 			/>
+		<CheckBoxPreference 
+            android:key="volume_scroll" 
+			android:title="@string/volume_scroll"
+			android:defaultValue="false"
+			/>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -106,6 +106,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean disableGifs;
 	public boolean hideOldPosts;
 	public boolean disableTimgs;
+	public boolean volumeScroll;
 	/**
 	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
@@ -245,6 +246,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
+        volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
        	 //TODO: I have never seen this before oh god
 	}
 
