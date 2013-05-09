@@ -62,7 +62,6 @@ public class FetchFeaturesTask extends AwfulTask {
 				
 				Elements feature_dts = features.getElementsByTag("dt");
 				if(feature_dts.size()  == 3){
-					System.out.println("loaded features");
 					premium = feature_dts.get(0).hasClass("enabled");
 					archives = feature_dts.get(1).hasClass("enabled");
 					noads = feature_dts.get(2).hasClass("enabled");
