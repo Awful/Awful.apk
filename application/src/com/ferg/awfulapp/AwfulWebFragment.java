@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -359,5 +360,25 @@ public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerF
 	@Override
 	public String getInternalId() {
 		return TAG;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+	    int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+	        switch (keyCode) {
+	        case KeyEvent.KEYCODE_VOLUME_UP:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mWebView.pageUp(false);   
+	            }
+	            return true;
+	        case KeyEvent.KEYCODE_VOLUME_DOWN:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mWebView.pageDown(false);
+	            }
+	            return true;
+	        default:
+	            return false;
+	        }
 	}
 }

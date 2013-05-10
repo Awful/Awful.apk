@@ -1727,7 +1727,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		return TAG;
 	}
 	
-	public boolean scrollWebview(KeyEvent event) {
+	public boolean volumeScroll(KeyEvent event) {
 	    int action = event.getAction();
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {

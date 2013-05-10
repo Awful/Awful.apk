@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -167,6 +168,7 @@ public abstract class AwfulFragmentPagerAdapter extends AwfulPagerAdapter implem
     	public void fragmentMessage(String type, String contents);
     	public boolean canSplitscreen();
 		public String getInternalId();
+		public boolean volumeScroll(KeyEvent event);
     }
 
     @Override

@@ -480,7 +480,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
     	// TODO Auto-generated method stub
-    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) == mThreadFragment && mThreadFragment.scrollWebview(event)){
+    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && pagerAdapter.getItem(mViewPager.getCurrentItem()).volumeScroll(event)){
     		return true;
     	}
     	return super.dispatchKeyEvent(event);

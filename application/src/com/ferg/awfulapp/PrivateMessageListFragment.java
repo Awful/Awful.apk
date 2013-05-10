@@ -38,6 +38,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -263,5 +264,11 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	@Override
 	public String getInternalId() {
 		return TAG;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		// I have no idea where this fragment is coming from, not the FIA anyway
+		return false;
 	}
 }
