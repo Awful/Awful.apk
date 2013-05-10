@@ -493,12 +493,14 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mForumTree.getRefreshableView().smoothScrollBy(-mForumTree.getHeight()/2, mForumTree.SMOOTH_SCROLL_DURATION_MS);
+	            	mForumTree.setPullToRefreshOverScrollEnabled(false);
+	            	mForumTree.getRefreshableView().smoothScrollBy(-mForumTree.getHeight()/2, 0);
+	            	mForumTree.setPullToRefreshOverScrollEnabled(true);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mForumTree.getRefreshableView().smoothScrollBy(mForumTree.getHeight()/2, mForumTree.SMOOTH_SCROLL_DURATION_MS);
+	            	mForumTree.getRefreshableView().smoothScrollBy(mForumTree.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:

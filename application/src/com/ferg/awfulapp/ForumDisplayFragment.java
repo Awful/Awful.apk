@@ -805,12 +805,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, mPullRefreshListView.SMOOTH_SCROLL_DURATION_MS);
+	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(false);
+	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, 0);
+	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(true);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, mPullRefreshListView.SMOOTH_SCROLL_DURATION_MS);
+	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:
