@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="login_label_padding">5dip</dimen>
+    <dimen name="app_defaultsize_w">632.0dip</dimen>
+	<dimen name="app_defaultsize_h">598.0dip</dimen>
+	<dimen name="app_minimumsize_w">632.0dip</dimen>
+	<dimen name="app_minimumsize_h">598.0dip</dimen>
 </resources>
