@@ -206,7 +206,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", res.getColor(R.color.link_quote));
       	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", res.getColor(R.color.forums_blue));
       	postHeaderFontColor      = mPrefs.getInt("post_header_font_color", res.getColor(R.color.forums_gray));
-      	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.abs__holo_blue_light));
+      	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.holo_blue_light));
       	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
       	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
       	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
