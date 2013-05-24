@@ -16,11 +16,10 @@
             android:title="@string/username_pref"
             android:defaultValue="Username"
             />
-        <CheckBoxPreference
-            android:key="has_platinum"
-            android:title="@string/platinum"
-            android:summary="@string/platinum_summary"
-            android:defaultValue="true"
+        <Preference
+            android:key="account_features"
+            android:title="@string/features"
+            android:summary="@string/features_summary"
             />
 		<Preference 
 			android:key="colors" 
@@ -117,6 +116,11 @@
             android:key="lock_scrolling" 
 			android:title="@string/lock_scrolling"
 			android:summary="@string/lock_scrolling_summary"
+			android:defaultValue="false"
+			/>
+		<CheckBoxPreference 
+            android:key="volume_scroll" 
+			android:title="@string/volume_scroll"
 			android:defaultValue="false"
 			/>
     </PreferenceCategory>

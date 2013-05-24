@@ -3,6 +3,7 @@ package com.ferg.awfulapp.widget;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -156,5 +157,11 @@ public class AwfulDualPaneView extends ViewGroup implements AwfulPagerFragment {
 	@Override
 	public String getInternalId() {
 		return TAG;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		// TODO I have no idea what I'm doing
+		return false;
 	}
 }

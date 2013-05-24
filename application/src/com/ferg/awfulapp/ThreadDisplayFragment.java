@@ -70,6 +70,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1727,4 +1728,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public String getInternalId() {
 		return TAG;
 	}
+	
+	public boolean volumeScroll(KeyEvent event) {
+	    int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+	        switch (keyCode) {
+	        case KeyEvent.KEYCODE_VOLUME_UP:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	                mThreadView.pageUp(false);   
+	            }
+	            return true;
+	        case KeyEvent.KEYCODE_VOLUME_DOWN:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mThreadView.pageDown(false);
+	            }
+	            return true;
+	        default:
+	            return false;
+	        }
+	    } 
 }

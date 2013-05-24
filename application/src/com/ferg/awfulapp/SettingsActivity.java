@@ -27,53 +27,94 @@
 
 package com.ferg.awfulapp;
 
+import java.util.LinkedList;
+
 import org.apache.commons.lang3.text.WordUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 /**
  * Simple, purely xml driven preferences. Access using
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
  */
-public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener, ServiceConnection {
+    protected static String TAG = "SettingsActivity";
 	private static final int DIALOG_ABOUT = 1;
-	Preference mAboutPreference;
-	Preference mThreadPreference;
-	Preference mImagePreference;
-	Preference mInfoPreference;
-	Preference mColorsPreference;
-	Preference mFontSizePreference;
-	Preference mUsernamePreference;
-	Context mThis = this;
-	Dialog mFontSizeDialog;
-	TextView mFontSizeText;
+	private Preference mAboutPreference;
+	private Preference mFeaturesPreference;
+	private Preference mThreadPreference;
+	private Preference mImagePreference;
+	private Preference mInfoPreference;
+	private Preference mColorsPreference;
+	private Preference mFontSizePreference;
+	private Preference mUsernamePreference;
+	protected SettingsActivity mThis = this;
+	private Dialog mFontSizeDialog;
+	private Dialog mFeatureFetchDialog;
+	private TextView mFontSizeText;
 	
-	SharedPreferences mPrefs;
-	ActivityConfigurator mConf;
+	private Handler fetchHandler= new Handler() {
+        @Override
+        public void handleMessage(Message aMsg) {
+
+	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
+	        	if(aMsg.what == AwfulSyncService.MSG_ERROR || aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
+                     Toast.makeText(mThis, "An error occured", Toast.LENGTH_LONG).show();
+	        	}else{
+		            switch (aMsg.arg1) {
+		                case AwfulSyncService.Status.WORKING:
+		                	break;
+		                case AwfulSyncService.Status.OKAY:
+		                	mFeatureFetchDialog.dismiss();
+		            		mThis.updateFeatures();
+		                    break;
+		                case AwfulSyncService.Status.ERROR:
+		                     Toast.makeText(mThis, "An error occured", Toast.LENGTH_LONG).show();
+		                    break;
+		            };
+	        	
+        	}
+        }
+	};
+	private SharedPreferences mPrefs;
+	private ActivityConfigurator mConf;
+	
+    private Messenger mService = null;
+    private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
 
 	// ---------------------------------------------- //
 	// ---------------- LIFECYCLE ------------------- //
@@ -89,6 +130,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		this.bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		findPreference("inline_youtube").setEnabled(Constants.isICS());
 		boolean tab = Constants.canBeWidescreen(this);
@@ -109,6 +152,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+
+		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
+		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
+		this.updateFeatures();
+		//TODO: remove later
+//		mFeaturesPreference.setEnabled(false);
 		
 		mUsernamePreference = getPreferenceScreen().findPreference("username");
 	}
@@ -123,6 +172,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	public void onResume() {
 		super.onResume();
 		mConf.onResume();
+        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		setSummaries();
 		
@@ -141,6 +191,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	public void onStop() {
 		super.onStop();
 		mConf.onStop();
+        unbindService(this);
 	}
 	
 	@Override
@@ -218,6 +269,16 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
 			startActivity(new Intent().setClass(mThis, ThreadInfoSettingsActivity.class));
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onFeaturesListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			//TODO: add something to refresh account features
+			mFeatureFetchDialog = ProgressDialog.show(mThis, "Loading", "Fetching Account Features", true);
+			mThis.sendMessage(new Messenger(fetchHandler), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0, null);
 			return true;
 		}
 	};
@@ -301,4 +362,45 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mColorsPreference.setSummary(WordUtils.capitalize(mPrefs.getString("themes", "Default"))+" Theme");
 	}
 
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.i(TAG, "Service Connected!");
+        mService = new Messenger(service);
+        for(Message msg : mMessageQueue){
+        	try {
+				mService.send(msg);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+        }
+        mMessageQueue.clear();
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+        Log.i(TAG, "Service Disconnected!");
+		mService = null;
+	}
+	
+	public void sendMessage(Messenger callback, int messageType, int id, int arg1, Object obj){
+		try {
+            Message msg = Message.obtain(null, messageType, id, arg1);
+            msg.replyTo = callback;
+            msg.obj = obj;
+    		if(mService != null){
+    			mService.send(msg);
+    		}else{
+    			mMessageQueue.add(msg);
+    		}
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+	}
+
+	public void updateFeatures(){
+		String platinum = (mPrefs.getBoolean("has_platinum", false)) ? "Yes" : "No";
+		String archives = (mPrefs.getBoolean("has_archives", false)) ? "Yes" : "No";
+		String noAds = (mPrefs.getBoolean("has_no_ads", false)) ? "Yes" : "No";
+		mFeaturesPreference.setSummary("Platinum: "+platinum+" | Archives: "+archives+" | No Ads: "+noAds);
+	}
 }

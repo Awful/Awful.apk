@@ -51,6 +51,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -484,5 +485,27 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+	        switch (keyCode) {
+	        case KeyEvent.KEYCODE_VOLUME_UP:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mForumTree.setPullToRefreshOverScrollEnabled(false);
+	            	mForumTree.getRefreshableView().smoothScrollBy(-mForumTree.getHeight()/2, 0);
+	            	mForumTree.setPullToRefreshOverScrollEnabled(true);
+	            }
+	            return true;
+	        case KeyEvent.KEYCODE_VOLUME_DOWN:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mForumTree.getRefreshableView().smoothScrollBy(mForumTree.getHeight()/2, 0);
+	            }
+	            return true;
+	        default:
+	            return false;
+	        }
 	}
 }

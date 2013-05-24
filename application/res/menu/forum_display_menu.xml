@@ -3,16 +3,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	>
 	<item android:id="@+id/user_cp" android:showAsAction="ifRoom" android:title="@string/usercp" android:icon="@drawable/ic_interface_bookmarks"></item>
-	
 	<item
 		android:id="@+id/go_to"
 		android:icon="@drawable/ic_menu_gotopage"
 		android:title="@string/go_to"
 		/>
-	<item
-		android:title="@string/logout"
-        android:id="@+id/logout"
-        android:icon="@drawable/ic_menu_logout"/>
 	<item
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_load"
@@ -21,5 +16,9 @@
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_menu_settings"
 		android:title="@string/settings" />
+	<item
+		android:title="@string/logout"
+        android:id="@+id/logout"
+        android:icon="@drawable/ic_menu_logout"/>
 	
 </menu>

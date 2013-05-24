@@ -48,6 +48,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -770,5 +771,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	@Override
 	public String getInternalId() {
 		return TAG;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		//I don't think that's necessary
+		return false;
 	}
 }
