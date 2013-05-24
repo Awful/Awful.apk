@@ -412,7 +412,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public View getNewChildView(TreeNodeInfo<ForumEntry> treeNodeInfo) {
 			ForumEntry data = treeNodeInfo.getId();
-			View row = inf.inflate(R.layout.thread_item, null, false);
+			View row = inf.inflate(R.layout.forum_item, null, false);
 			AwfulForum.getExpandableForumView(row,
 							   rowAq,
 							   mPrefs,
@@ -427,7 +427,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		public View updateView(View row, TreeNodeInfo<ForumEntry> treeNodeInfo) {
 			ForumEntry data = treeNodeInfo.getId();
 			if(row == null){
-				row = inf.inflate(R.layout.thread_item, null, false);
+				row = inf.inflate(R.layout.forum_item, null, false);
 			}
 			AwfulForum.getExpandableForumView(row,
 							   rowAq,

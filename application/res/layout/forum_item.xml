@@ -1,57 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/gradient_left"
-    >
-    <ImageView
-        android:id="@+id/sticky_icon"
-        android:layout_width="wrap_content"
+    android:layout_height="fill_parent">
+
+    <RelativeLayout
+        android:id="@+id/thread_box"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
-        android:layout_marginRight="4dip"
-        android:paddingLeft="8dip"
-        android:src="@drawable/ic_sticky"
-        android:visibility="gone"
-        />
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/sticky_icon"
         android:layout_toLeftOf="@+id/selector"
-    	android:padding="8dip"
-		>
-		<TextView
-			android:id="@+id/title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-			android:textSize="18dip"
-			android:textStyle="bold"
-			android:textColor="@color/forum_title"
-            android:layout_alignParentLeft="true"
-			/>
-		<TextView
-			android:id="@+id/subtext"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/title"
-			android:textSize="16dip"
-			android:textColor="@color/secondary_post_font"
-            android:layout_alignParentLeft="true"
-			/>
-	</RelativeLayout>
-    <ImageView
-        android:id="@+id/selector"
-        android:src="@drawable/ic_menu_arrowright"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_centerVertical="true"
-    	android:layout_alignParentRight="true"
-    	android:visibility="gone"
-        />
+        android:layout_toRightOf="@+id/icon_box"
+        android:paddingBottom="8dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingTop="8dip" >
+
+        <ImageView
+            android:id="@+id/forum_tag"
+            android:layout_width="60dp"
+            android:layout_height="15dp"
+            android:layout_marginRight="6dip"
+            android:layout_marginTop="4dip"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/forum_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_toLeftOf="@+id/unread_count"
+            android:layout_toRightOf="@+id/forum_tag"
+            android:gravity="left"
+            android:textColor="@color/default_post_font"
+            android:textSize="18dip" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
