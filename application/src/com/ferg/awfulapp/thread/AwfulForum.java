@@ -268,14 +268,10 @@ public class AwfulForum extends AwfulPagedItem {
 		}else{
 			aq.backgroundColor(ColorProvider.getBackgroundColor(aPrefs));
 		}
-		aq.find(R.id.icon_box).gone();
-		aq.find(R.id.selector).gone();
-		aq.find(R.id.unread_count).gone();
-		TextView title = (TextView) current.findViewById(R.id.title);
+		TextView title = (TextView) current.findViewById(R.id.forum_title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
-		aq.find(R.id.title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
-		aq.find(R.id.threadinfo).gone();
+		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
 		
 		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
 			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);

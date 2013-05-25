@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 import android.app.Activity;
@@ -36,6 +34,8 @@ import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -51,7 +51,7 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import org.apache.http.protocol.HTTP;
+import com.ferg.awfulapp.service.AwfulSyncService;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -206,6 +206,7 @@ public class AwfulLoginActivity extends AwfulActivity {
 
                 if(succeeded) {
                     setResult(Activity.RESULT_OK);
+                    sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0);
                     finish();
                 } else {
                     setResult(Activity.RESULT_CANCELED);

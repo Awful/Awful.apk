@@ -43,6 +43,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulTask;
 import com.ferg.awfulapp.task.BookmarkTask;
 import com.ferg.awfulapp.task.FetchEmotesTask;
+import com.ferg.awfulapp.task.FetchFeaturesTask;
 import com.ferg.awfulapp.task.FetchPrivateMessageTask;
 import com.ferg.awfulapp.task.FetchReplyTask;
 import com.ferg.awfulapp.task.ForumTask;
@@ -94,6 +95,7 @@ public class AwfulSyncService extends Service {
     /** forums closed error message, (optional) obj=String - error message to display **/
 	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
     public static final int MSG_CANCEL_SYNC_THREAD  = 22;
+    public static final int MSG_FETCH_FEATURES = 23;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -169,6 +171,9 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_CANCEL_SYNC_THREAD:
                     cancelTypeTasks(MSG_SYNC_THREAD, aMsg.arg2);
+                    break;
+                case MSG_FETCH_FEATURES:
+                    queueUniqueThread(new FetchFeaturesTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
             }
         }

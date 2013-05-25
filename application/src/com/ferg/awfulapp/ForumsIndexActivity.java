@@ -34,9 +34,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.Preference;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.view.MenuItem;
@@ -475,6 +477,13 @@ public class ForumsIndexActivity extends AwfulActivity {
 		}
 	}
     
-    
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+    	// TODO Auto-generated method stub
+    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && pagerAdapter.getItem(mViewPager.getCurrentItem()).volumeScroll(event)){
+    		return true;
+    	}
+    	return super.dispatchKeyEvent(event);
+    }
 }
 
