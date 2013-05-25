@@ -418,7 +418,8 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
-    			mTitle.setText(Html.fromHtml(title));
+//    			mTitle.setText(Html.fromHtml(title));
+        		mTitle.setText(title);
         		mDisplayText.loadData(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8");
 				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
@@ -429,9 +430,11 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         			mEditReply.setText("");
         		}
         		if(replyTitle != null){
-        			mSubject.setText(Html.fromHtml(replyTitle));
+//        			mSubject.setText(Html.fromHtml(replyTitle));
+        			mSubject.setText(replyTitle);
         		}else{
-        			mSubject.setText(Html.fromHtml(title));
+//        			mSubject.setText(Html.fromHtml(title));
+        			mSubject.setText(title);
         		}
         		String author = aData.getString(aData.getColumnIndex(AwfulMessage.AUTHOR));
 				mUsername.setText("Sender: " + author);

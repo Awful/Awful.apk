@@ -74,6 +74,10 @@ div.post.self {
 background-color:#ECFFD9;
 }
 
+div.postcontent {
+word-wrap: break-word;
+}
+
 div.postcontent .bbc-block {
 border-left:2px solid #eae9ea;
 margin:5px 0;
@@ -125,6 +129,13 @@ div.postinfo-poster img {
 height: 1em;
 }
 
+div.postinfo-postdate,div.postinfo-regdate,div.postinfo-title {
+font-size:0.85em;
+}
+
+div.postinfo-postdate,div.postinfo-regdate {
+font-style: italic;
+}
 div.postinfo-regdate,div.postinfo-title {
 display:none;
 }

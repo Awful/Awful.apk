@@ -734,6 +734,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     			if(mForumId == 0){
     				aq.find(R.id.second_titlebar).text(R.string.forums_title);
     			}else{
+//    				aq.find(R.id.second_titlebar).text(mTitle);
     				aq.find(R.id.second_titlebar).text(Html.fromHtml(mTitle));
     			}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));

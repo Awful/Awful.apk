@@ -596,8 +596,10 @@ public class AwfulPost {
 
 	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
 		aq.recycle(current);
-		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(current.getResources().getColor(R.color.default_post_font));
-		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
+//		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(current.getResources().getColor(R.color.default_post_font));
+		aq.find(R.id.post_author).visible().text(data.getString(data.getColumnIndex(USERNAME))).textColor(current.getResources().getColor(R.color.default_post_font));
+//		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
+		aq.find(R.id.post_date).visible().text(data.getString(data.getColumnIndex(DATE))).textColor(current.getResources().getColor(R.color.default_post_font));
 		int background = 0;
 		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
 			background = current.getResources().getColor(R.color.background_read);

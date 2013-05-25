@@ -70,6 +70,10 @@ div.post.self {
 background-color:#1A4000;
 }
 
+div.postcontent {
+word-wrap: break-word;
+}
+
 div.postcontent .bbc-block {
 border-left:2px solid #5e5e5e;
 margin:5px 0;
@@ -85,8 +89,19 @@ div.postcontent blockquote {
 margin:0;
 }
 
-.postcontent img, .postcontent iframe{
+div.postcontent .bbc-block.code, div.postcontent pre{
+overflow: scroll;
+}
+
+
+.postcontent img{
 max-width: 100% !important;
+}
+
+.postcontent iframe{
+max-width: 100% !important;
+width: auto !important;
+height: auto !important;
 }
 
 div.postheader {
@@ -107,6 +122,17 @@ overflow:hidden;
 display:inline-block;
 }
 
+div.postinfo-poster img {
+height: 1em;
+}
+
+div.postinfo-postdate,div.postinfo-regdate,div.postinfo-title {
+font-size:0.85em;
+}
+
+div.postinfo-postdate,div.postinfo-regdate {
+font-style: italic;
+}
 div.postinfo-regdate,div.postinfo-title {
 display:none;
 }

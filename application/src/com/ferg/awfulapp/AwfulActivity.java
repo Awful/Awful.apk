@@ -231,7 +231,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         	mTitleView = (TextView) action.getCustomView();
         }
     	if(aTitle != null && mTitleView != null && aTitle.length()>0){
-    		mTitleView.setText(Html.fromHtml(aTitle));
+//    		mTitleView.setText(Html.fromHtml(aTitle));
+    		mTitleView.setText(aTitle);
 			mTitleView.scrollTo(0, 0);
     	}else{
     		Log.e(TAG, "FAILED setActionbarTitle - "+aTitle);

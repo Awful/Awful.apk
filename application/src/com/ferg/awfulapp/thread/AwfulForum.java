@@ -222,7 +222,8 @@ public class AwfulForum extends AwfulPagedItem {
 			title.setTextColor(ColorProvider.getTextColor(mPrefs));
 			sub.setTextColor(ColorProvider.getAltTextColor(mPrefs));
 		}
-		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+//		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
+		title.setText(data.getString(data.getColumnIndex(TITLE)));
 		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
 		if(subtext == null || subtext.length() < 1){
 			sub.setVisibility(View.GONE);
@@ -271,7 +272,8 @@ public class AwfulForum extends AwfulPagedItem {
 		TextView title = (TextView) current.findViewById(R.id.forum_title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
-		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
+//		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
+		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(titleText).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
 		
 		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
 			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);
