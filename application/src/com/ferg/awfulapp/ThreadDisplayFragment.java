@@ -74,6 +74,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
@@ -130,6 +131,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
     private TextView mPageCountText;
+    
+    private View mProbationBar;
+	private TextView mProbationMessage;
+	private ImageButton mProbationButton;
 
     private PullToRefreshWebView mThreadWindow;
     private WebView mThreadView;
@@ -289,7 +294,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	
         View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-
+        
 		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
@@ -303,6 +308,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
+        
+		if(mPrefs.isOnProbation()){
+			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+			updateProbationBar();
+		}
 		return result;
 	}
 
@@ -414,6 +426,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
             mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
         }
+	}
+	
+	public void updateProbationBar(){
+		if(!mPrefs.isOnProbation()){
+			mProbationBar.setVisibility(View.GONE);
+			return;
+		}
+		mProbationBar.setVisibility(View.VISIBLE);
+		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
+		mProbationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				startActivity(openThread);
+			}
+		});
 	}
 
     @Override

@@ -54,6 +54,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -99,6 +100,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private ImageButton mPrevPage;
     private TextView mPageCountText;
 	private ImageButton mToggleSidebar;
+	
+	private View mProbationBar;
+	private TextView mProbationMessage;
+	private ImageButton mProbationButton;
     
     private int mForumId;
     private int mPage = 1;
@@ -184,6 +189,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}
 		}
 		updatePageBar();
+		if(mPrefs.isOnProbation()){
+			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+			updateProbationBar();
+		}
         return result;
     }
 
@@ -250,9 +261,24 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}else{
 				aq.find(R.id.move_up).invisible();
 			}
-
-			
 		}
+	}
+	
+	public void updateProbationBar(){
+		if(!mPrefs.isOnProbation()){
+			mProbationBar.setVisibility(View.GONE);
+			return;
+		}
+		mProbationBar.setVisibility(View.VISIBLE);
+		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
+		mProbationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				startActivity(openThread);
+			}
+		});
 	}
 
     @Override

@@ -28,6 +28,7 @@
 package com.ferg.awfulapp.preferences;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -53,6 +54,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	//GENERAL STUFF
 	public String username;
+	public int userId;
 	public boolean hasPlatinum;
 	public boolean hasArchives;
 	public boolean hasNoAds;
@@ -126,6 +128,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
     public boolean disablePullNext;
+    public long probationTime;
 
     public int alertIDShown;
 	
@@ -247,6 +250,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
+        probationTime			 = mPrefs.getLong("probation_time", 0);
+        userId					 = mPrefs.getInt("user_id", 0);
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -263,6 +268,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			mPrefs.edit().putString(key, value).apply();
 		}else{
 			mPrefs.edit().putString(key, value).commit();
+		}
+	}
+
+	public void setLongPreference(String key, long value) {
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putLong(key, value).apply();
+		}else{
+			mPrefs.edit().putLong(key, value).commit();
 		}
 	}
 
@@ -295,6 +308,18 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			//update the preferences so this doesn't run again
     		setIntegerPreference("curr_pref_version", PREFERENCES_VERSION);
     		currPrefVersion = PREFERENCES_VERSION;
+		}
+	}
+	
+	public boolean isOnProbation(){
+		if(probationTime == 0){
+			return false;
+		}else{
+			if(new Date().compareTo(new Date(probationTime)) < 0){
+				setLongPreference("probation_time", 0);
+				return false;
+			}
+			return true;
 		}
 	}
 }

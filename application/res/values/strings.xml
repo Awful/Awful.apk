@@ -219,5 +219,7 @@ AQuery</string>
     <string name="alert_settings">Settings</string>
     <string name="share_thread">Share Thread</string>
     <string name="thread_actions">Thread Actions</string>
+    <string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
+    <string name="probation_message">You have been put on probation until %s.</string>
 
 </resources>

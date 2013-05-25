@@ -27,6 +27,9 @@
 
 package com.ferg.awfulapp.thread;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +43,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
 public abstract class AwfulPagedItem {
@@ -138,7 +142,7 @@ public abstract class AwfulPagedItem {
 	 * @return true if error is found, false otherwise
 	 * @throws RemoteException
 	 */
-	public static String checkPageErrors(Document page, Messenger handler) throws RemoteException{
+	public static String checkPageErrors(Document page, Messenger handler, AwfulPreferences aPref) throws RemoteException{
         if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
         	handler.send(Message.obtain(null, AwfulSyncService.MSG_ERR_NOT_LOGGED_IN, 0, 0));
         	return "Error - Not Logged In";
@@ -150,6 +154,28 @@ public abstract class AwfulPagedItem {
         	}else{
         		return "Error - Forums Closed (Site Down)";
         	}
+        }
+        Element probation = page.getElementById("probation_warn");
+        if(probation != null){
+        	Element userlink = probation.getElementsByTag("a").first();
+        	int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
+        	aPref.setIntegerPreference("user_id", userId);
+			Pattern p = Pattern.compile("probation until (\\w+). You");
+			Matcher m = p.matcher(probation.textNodes().get(0).text());
+			String date = m.group(1);
+			//for example January 11, 2013 10:35 AM CST
+			SimpleDateFormat probationFormat = new SimpleDateFormat("LLLL d, yyyy hh:mm aa z");
+			Date probDate = null;
+			try {
+				probDate = probationFormat.parse(date);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(null != probDate){
+				long probTimestamp = probDate.getTime();
+				aPref.setLongPreference("probation_time", probTimestamp);
+			}
         }
         return null;
 	}

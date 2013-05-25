@@ -277,7 +277,7 @@ public class AwfulThread extends AwfulPagedItem  {
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
         
-        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates);
+        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates, aPrefs);
         if(error != null){
         	return error;
         }

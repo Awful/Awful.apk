@@ -44,6 +44,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.LoaderManager;
@@ -55,6 +56,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
@@ -85,6 +89,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
     private AwfulTreeListAdapter mTreeAdapter;
 	private InMemoryTreeStateManager<ForumEntry> dataManager;
+    
+	private View mProbationBar;
+	private TextView mProbationMessage;
+	private ImageButton mProbationButton;
+	
 	
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
 
@@ -130,6 +139,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         }else{
         	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
         }
+		if(mPrefs.isOnProbation()){
+			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+			updateProbationBar();
+		}
         return result;
     }
 
@@ -506,5 +521,22 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	        default:
 	            return false;
 	        }
+	}
+	
+	public void updateProbationBar(){
+		if(!mPrefs.isOnProbation()){
+			mProbationBar.setVisibility(View.GONE);
+			return;
+		}
+		mProbationBar.setVisibility(View.VISIBLE);
+		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
+		mProbationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				startActivity(openThread);
+			}
+		});
 	}
 }

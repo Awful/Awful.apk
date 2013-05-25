@@ -11,7 +11,10 @@
 		android:layout_height="4dp"
 		android:visibility="gone"
        />
-    
+    <include
+        android:id="@+id/probationbar"
+        layout="@layout/probationbar"
+        />
 	<com.handmark.pulltorefresh.library.PullToRefreshListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
