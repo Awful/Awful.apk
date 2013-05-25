@@ -8,6 +8,11 @@
             android:entryValues="@array/schemas_values"
 			android:defaultValue="default"
             />
+            <CheckBoxPreference
+			android:key="force_forum_themes"
+			android:title="@string/force_forum_themes"
+			android:defaultValue="true"
+			/>
             <ListPreference
             android:key="preferred_font"
             android:title="@string/select_font"

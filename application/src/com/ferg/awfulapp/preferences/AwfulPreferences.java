@@ -66,6 +66,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean refreshFrog;
 	public boolean lockScrolling;
 	public String theme;
+	public boolean forceForumThemes;
 	/**
 	 * for selecting icon set
 	 * light
@@ -213,6 +214,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
+        forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
        	 //TODO: I have never seen this before oh god
 	}
 

@@ -374,7 +374,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return null;
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, boolean threadLocked) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, int forumId, boolean threadLocked) {
         int unreadCount = 0;
         if(aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
         	for(AwfulPost ap : aPosts){
@@ -391,8 +391,25 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
-        if(StringUtils.countMatches(aPrefs.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
+        if(!aPrefs.forceForumThemes && StringUtils.countMatches(aPrefs.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
         	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
+        }else if(aPrefs.forceForumThemes){
+        	switch(forumId){
+				//TODO: No FYAD theme yet        	
+//    			case(26):
+//	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
+//	    			break;
+        		//RIP BYOB
+//        		case(208):
+//        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
+//        			break;
+        		case(219):
+        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
+        			break;
+        		default:
+        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+        			break;
+        	}
         }else{
             buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
         }
