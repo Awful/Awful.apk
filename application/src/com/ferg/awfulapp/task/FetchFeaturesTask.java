@@ -65,7 +65,7 @@ public class FetchFeaturesTask extends AwfulTask {
 					premium = feature_dts.get(0).hasClass("enabled");
 					archives = feature_dts.get(1).hasClass("enabled");
 					noads = feature_dts.get(2).hasClass("enabled");
-					mPrefs.setBooleanPreference("has_premium", premium);
+					mPrefs.setBooleanPreference("has_platinum", premium);
 					mPrefs.setBooleanPreference("has_archives", archives);
 					mPrefs.setBooleanPreference("has_no_ads", noads);
 				}
