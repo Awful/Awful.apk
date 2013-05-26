@@ -4,7 +4,8 @@
     <item
         android:id="@+id/submit_button"
         android:icon="@drawable/ic_menu_post"
-        android:showAsAction="always"/>
+        android:showAsAction="always"
+        android:title="@string/submit"/>
     <item
         android:id="@+id/bbcode"
         android:icon="@drawable/ic_actionbar_dropdown"

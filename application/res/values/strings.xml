@@ -186,6 +186,7 @@ AQuery</string>
     <string name="next_page">Next Page</string>
     <string name="awful_web_provider">AwfulWebProvider</string>
     <string name="bbcode">BBCode</string>
+    <string name="submit">Submit</string>    
     <string name="draft_discard_only">Discard and Cancel</string>
     <string name="show_next_page_button_at_top">Show Next Page Button at Top</string>
     <string name="menu_discard">Discard</string>
