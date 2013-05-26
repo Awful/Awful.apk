@@ -308,7 +308,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
-		mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
 		updateProbationBar();

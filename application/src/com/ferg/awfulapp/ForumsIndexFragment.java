@@ -139,7 +139,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         }else{
         	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
         }
-		mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+        
+		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
 		updateProbationBar();
