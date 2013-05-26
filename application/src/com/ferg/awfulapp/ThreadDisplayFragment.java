@@ -308,13 +308,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
-        
-		if(mPrefs.isOnProbation()){
-			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
-			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
-			updateProbationBar();
-		}
+		mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		updateProbationBar();
+
 		return result;
 	}
 
@@ -327,6 +325,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         updateSidebarHint(isDualPane(), isSidebarVisible());
 		updatePageBar();
+		updateProbationBar();
 	}
 
 	private void initThreadViewProperties() {
@@ -1075,6 +1074,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @SuppressWarnings("unused")
 	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		updatePageBar();
+		updateProbationBar();
 
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
@@ -1433,6 +1433,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(aPage > 0 && aPage <= getLastPage()){
 			setPage(aPage);
 			updatePageBar();
+			updateProbationBar();
 			mPostJump = "";
 			if(mThreadView != null){
 				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
@@ -1537,6 +1538,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
         		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
+        		updateProbationBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){
             		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
@@ -1627,6 +1629,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		mPostJump = "";
     	}
 		updatePageBar();
+		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
     			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
@@ -1649,6 +1652,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	mPostJump = "";
     	savedScrollPosition = thread.scrollPos;
 		updatePageBar();
+		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
     			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");

@@ -189,12 +189,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}
 		}
 		updatePageBar();
-		if(mPrefs.isOnProbation()){
-			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
-			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
-			updateProbationBar();
-		}
+		mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		updateProbationBar();
+		
         return result;
     }
 
@@ -622,6 +621,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(pageInt > 0 && pageInt <= mLastPage){
 			mPage = pageInt;
 			updatePageBar();
+			updateProbationBar();
 			refreshInfo();
 			syncForum();
 		}
@@ -765,6 +765,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	}
 
 			updatePageBar();
+			updateProbationBar();
         }
         
         @Override

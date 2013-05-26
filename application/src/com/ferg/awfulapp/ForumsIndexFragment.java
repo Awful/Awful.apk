@@ -139,12 +139,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         }else{
         	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
         }
-		if(mPrefs.isOnProbation()){
-			mProbationBar = (View) result.findViewById(R.id.probation_indicator);
-			mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-			mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
-			updateProbationBar();
-		}
+		mProbationBar = (View) result.findViewById(R.id.probation_indicator);
+		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		updateProbationBar();
         return result;
     }
 
@@ -167,6 +165,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
 		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		updateProbationBar();
     }
 
 	@Override

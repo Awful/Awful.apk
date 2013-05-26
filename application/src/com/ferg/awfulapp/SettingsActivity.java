@@ -156,8 +156,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
 		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
 		this.updateFeatures();
-		//TODO: remove later
-//		mFeaturesPreference.setEnabled(false);
 		
 		mUsernamePreference = getPreferenceScreen().findPreference("username");
 	}
