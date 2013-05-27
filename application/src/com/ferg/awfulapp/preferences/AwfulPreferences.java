@@ -27,9 +27,6 @@
 
 package com.ferg.awfulapp.preferences;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -37,10 +34,12 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
-
 import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -127,6 +126,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
+    public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
 
@@ -225,6 +225,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (Constants.isJellybean()?true:false));
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
