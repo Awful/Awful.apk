@@ -27,44 +27,16 @@
 
 package com.ferg.awfulapp;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
+import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -73,21 +45,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
+import android.view.ViewGroup;
+import android.webkit.*;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -98,17 +63,25 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPagedItem;
-import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.widget.NumberPicker;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Uses intent extras:
@@ -342,7 +315,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		if (Constants.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
-			if(!mPrefs.inlineYoutube){
+			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 			}
 		}

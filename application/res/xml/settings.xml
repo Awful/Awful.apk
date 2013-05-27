@@ -86,6 +86,12 @@
 			android:summary="@string/inline_youtube_summary"
 			android:defaultValue="false"
 			/>
+		<CheckBoxPreference 
+            android:key="enable_hardware_acceleration" 
+			android:title="@string/enable_hardware_acceleration"
+			android:summary="@string/enable_hardware_acceleration_summary"
+			android:defaultValue="false"
+			/>
 		<ListPreference
             android:key="page_layout"
             android:title="@string/page_layout"
