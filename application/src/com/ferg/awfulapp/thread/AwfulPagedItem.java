@@ -30,6 +30,7 @@ package com.ferg.awfulapp.thread;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -157,24 +158,37 @@ public abstract class AwfulPagedItem {
         }
         Element probation = page.getElementById("probation_warn");
         if(probation != null){
+			Date probDate = null;
+        	try {
         	Element userlink = probation.getElementsByTag("a").first();
         	int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
         	aPref.setIntegerPreference("user_id", userId);
-			Pattern p = Pattern.compile("probation until (\\w+). You");
-			Matcher m = p.matcher(probation.textNodes().get(0).text());
-			String date = m.group(1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	try {
+			Pattern p = Pattern.compile("(.*)until\\s(([\\s\\w:,])+).\\sYou(.*)");
+			Matcher m = p.matcher(probation.text());
+			m.find();
+			String date = m.group(2);
 			//for example January 11, 2013 10:35 AM CST
-			SimpleDateFormat probationFormat = new SimpleDateFormat("LLLL d, yyyy hh:mm aa z");
-			Date probDate = null;
-			try {
-				probDate = probationFormat.parse(date);
-			} catch (ParseException e) {
+			SimpleDateFormat probationFormat = new SimpleDateFormat("MMMM d, yyyy hh:mm aa z", Locale.US);
+			
+			probDate = probationFormat.parse(date);
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if(null != probDate){
 				long probTimestamp = probDate.getTime();
+				//FUCK PRE ICS
+				try {
 				aPref.setLongPreference("probation_time", probTimestamp);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
         }
         return null;

@@ -29,7 +29,7 @@
         android:textColor="#ff000000"
         android:textIsSelectable="false"
         android:text="@string/probation_title"
-        android:textSize="13sp"
+        android:textSize="12dip"
         android:visibility="visible"/>
 
     <TextView
@@ -41,7 +41,8 @@
         android:textColor="#ff000000"
         android:textIsSelectable="false"
         android:text="@string/probation_message"
-        android:textSize="12sp"
+        android:textSize="11dip"
+        android:singleLine="true"
         android:visibility="visible"/>
 
     <ImageButton

@@ -635,10 +635,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         MenuItem re = menu.findItem(R.id.reply);
         if(re != null){
-        	re.setEnabled(!threadClosed);
+        	re.setEnabled(!threadClosed && !mPrefs.isOnProbation());
         	if(threadClosed){
         		re.setTitle("Thread Locked");
-        	}else{
+        	}else {
         		re.setTitle(R.string.post_reply);
         	}
         }
@@ -1163,6 +1163,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             "Copy Post URL",
             "Read Posts by this User"
         };
+        
+        final CharSequence[] mProbatedItems = {
+            "Mark Last Read",
+            "Send Private Message",
+            "Copy Post URL",
+            "Read Posts by this User"
+        };
 
         public static final int MENU_EDIT = 0;
         public static final int MENU_QUOTE  = 1;
@@ -1224,12 +1231,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         public void onMenuClick(final String aPostId, final String aUsername, final String aUserId, final String index, final String editable) {
         	final boolean edit = editable != null && editable.contains("true");
+        	final boolean probated = mPrefs.isOnProbation();
         	new AlertDialog.Builder(getActivity())
             .setTitle("Select an Action")
-            .setItems((edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
+            .setItems((probated?mProbatedItems:edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aItem) {
                 	//the non-edit menu is one item shorter, so we just shift that aItem up by one to compensate
-                	onPostMenuItemSelected(aItem+(edit?0:1), aPostId, aUsername, aUserId, index);
+                	onPostMenuItemSelected(aItem+(probated?2:edit?0:1), aPostId, aUsername, aUserId, index);
                 }
             })
             .show();

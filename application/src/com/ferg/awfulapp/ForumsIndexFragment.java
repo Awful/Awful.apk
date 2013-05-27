@@ -323,6 +323,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         		}
         		mTreeAdapter.setCursor(aData);
         	}
+			updateProbationBar();
         }
 
 		@Override
@@ -450,6 +451,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 							   selectedForum > 0 && selectedForum == data.id,
 							   false);
 			getAwfulActivity().setPreferredFont(row);
+			updateProbationBar();
 			return row;
 		}
 

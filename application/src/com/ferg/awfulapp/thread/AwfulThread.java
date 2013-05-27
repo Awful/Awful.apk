@@ -525,14 +525,16 @@ public class AwfulThread extends AwfulPagedItem  {
             if(post.getAvatarText()!= null){
             	buffer.append(post.getAvatarText()+"<br/>\n");
             }
-            if(post.isEditable()){
-            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
-                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
-                buffer.append("        		</div>\n");
+            if(!aPrefs.isOnProbation()){
+	            if(post.isEditable()){
+	            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
+	                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
+	                buffer.append("        		</div>\n");
+	            }
+	        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
+	            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
+	            buffer.append("\n        		</div>\n");
             }
-        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
-            buffer.append("\n        		</div>\n");
             buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />\n");
             buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read\n");
             buffer.append("        		</div>\n");

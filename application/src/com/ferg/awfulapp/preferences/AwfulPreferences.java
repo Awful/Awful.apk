@@ -315,7 +315,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		if(probationTime == 0){
 			return false;
 		}else{
-			if(new Date().compareTo(new Date(probationTime)) < 0){
+			if(new Date(probationTime).compareTo(new Date()) < 0){
 				setLongPreference("probation_time", 0);
 				return false;
 			}
