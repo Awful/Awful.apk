@@ -29,6 +29,9 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.app.DownloadManager.Query;
+import android.app.DownloadManager.Request;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -1310,6 +1313,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 	
+	private String[] gBImageUrlMenuItems = new String[]{
+			"Download Image",
+			"Show Image Inline",
+			"Open URL",
+			"Copy URL",
+			"Share URL",
+			"Always Open URL"
+	};
+	
 	private String[] imageUrlMenuItems = new String[]{
 			"Show Image Inline",
 			"Open URL",
@@ -1325,6 +1337,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			"Always Open URL",
 	};
 	
+	
 	private void showUrlMenu(final String url){
 		final Uri link = Uri.parse(url);
 		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
@@ -1334,27 +1347,38 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage?Constants.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage?0:1)){
+            	switch(aItem+(isImage?Constants.isGingerbread()?0:1:2)){
             	case 0:
+        			Request request = new Request(link);
+        			if (!Constants.isHoneycomb()) {
+        				request.setShowRunningNotification(true);  
+        			} else {
+        				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        			}
+
+        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
+        	        dlMngr.enqueue(request);
+        			break;
+            	case 1:
         			if(mThreadView != null){
         				mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
         			}
         			break;
-            	case 1:
+            	case 2:
         			startUrlIntent(url);
         			break;
-            	case 2:
+            	case 3:
             		copyToClipboard(url);
         			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
         			break;
-            	case 3:
+            	case 4:
             		startActivity(createShareIntent());
             		break;
-            	case 4:
+            	case 5:
         			mPrefs.setBooleanPreference("always_open_urls", true);
         			startUrlIntent(url);
         			break;
