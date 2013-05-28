@@ -469,6 +469,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageVisible() {
         resumeWebView();
+        mThreadView.setKeepScreenOn(keepScreenOn);
 	}
 	
 	
@@ -487,6 +488,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageHidden() {
         pauseWebView();
+        mThreadView.setKeepScreenOn(false);
 	}
 	
     @Override
@@ -1792,7 +1794,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void toggleScreenOn() {
     	keepScreenOn = !keepScreenOn;
-		mThreadView.setKeepScreenOn(keepScreenOn);
+    	mThreadView.setKeepScreenOn(keepScreenOn);
 		Toast.makeText(getAwfulActivity(), keepScreenOn? "Screen stays on" :"Screen turns itself off", Toast.LENGTH_SHORT).show();
 	}
 }
