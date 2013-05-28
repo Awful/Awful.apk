@@ -30,6 +30,9 @@ package com.ferg.awfulapp.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -322,5 +325,17 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			}
 			return true;
 		}
+	}
+	
+	public boolean hasFlash(){
+		try {
+		  PackageManager pm =  mContext.getPackageManager();
+		  ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
+		  if (ai != null)
+		    return true;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
+		return false;
 	}
 }
