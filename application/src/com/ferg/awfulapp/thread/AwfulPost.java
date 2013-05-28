@@ -310,7 +310,8 @@ public class AwfulPost {
 					}
 				}
 			}
-		if(!inline || !hasFlash){
+//		if(!inline || !hasFlash){
+			if(!inline){
 			Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
 			for(Element node : videoNodes){
 				try{
