@@ -121,6 +121,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//FORUM STUFF
 	public boolean newThreadsFirstUCP;
 	public boolean newThreadsFirstForum;
+	public boolean threadInfo_Rating;
 	public boolean threadInfo_Author;
 	public boolean threadInfo_Killed;
 	public boolean threadInfo_Page;
@@ -232,6 +233,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
+        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
         threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);

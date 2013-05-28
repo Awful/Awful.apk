@@ -113,6 +113,7 @@ AQuery</string>
 		<item>White</item>
 	</string-array>
 	<string name="threadinfo_author">Author</string>
+	<string name="threadinfo_rating">Rating</string>
 	<string name="threadinfo_killed">Killed By</string>
 	<string name="threadinfo_pages">Number of Pages</string>
 	<string name="threadinfo_tag">Show Forum/Thread Tags</string>
@@ -226,5 +227,6 @@ AQuery</string>
     <string name="thread_actions">Thread Actions</string>
     <string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
     <string name="probation_message">You have been put on probation until %s.</string>
+    <string name="keep_screen_on">Toggle Auto Screen On</string>
 
 </resources>

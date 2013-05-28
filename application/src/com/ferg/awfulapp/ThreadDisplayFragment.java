@@ -126,6 +126,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadArchived = false;
     private boolean dataLoaded = false;
     
+    private boolean keepScreenOn = false;
+    
     //oh god i'm replicating core android functionality, this is a bad sign.
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
 	private boolean bypassBackStack = false;
@@ -279,6 +281,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
         mThreadView = mThreadWindow.getRefreshableView();
+        mThreadView.setKeepScreenOn(keepScreenOn);
         mThreadWindow.setOnRefreshListener(this);
 		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
@@ -653,14 +656,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		case R.id.find:
     			this.mThreadView.showFindDialog(null, true);
     			break;
+    		case R.id.keep_screen_on:
+    			this.toggleScreenOn();
     		default:
     			return super.onOptionsItemSelected(item);
     		}
 
     		return true;
     	}
-    
-    private String generateThreadUrl(String postId){
+
+	private String generateThreadUrl(String postId){
     	StringBuffer url = new StringBuffer();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
@@ -1783,4 +1788,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	            return false;
 	        }
 	    } 
+	
+    
+    private void toggleScreenOn() {
+    	keepScreenOn = !keepScreenOn;
+		mThreadView.setKeepScreenOn(keepScreenOn);
+		Toast.makeText(getAwfulActivity(), keepScreenOn? "Screen stays on" :"Screen turns itself off", Toast.LENGTH_SHORT).show();
+	}
 }
