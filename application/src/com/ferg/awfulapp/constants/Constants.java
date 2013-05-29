@@ -185,6 +185,9 @@ public class Constants {
 	public static boolean isICS(){
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	}
+	public static boolean isJellybean(){
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
 	
 	public static boolean isWidescreen(Context cont){
 		if(cont != null){

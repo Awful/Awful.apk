@@ -27,44 +27,19 @@
 
 package com.ferg.awfulapp;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.app.DownloadManager;
+import android.app.DownloadManager.Query;
+import android.app.DownloadManager.Request;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
+import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -73,20 +48,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
+import android.webkit.*;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -98,17 +67,25 @@ import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPagedItem;
-import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.widget.NumberPicker;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Uses intent extras:
@@ -131,6 +108,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
     private TextView mPageCountText;
+    
+    private View mProbationBar;
+	private TextView mProbationMessage;
+	private ImageButton mProbationButton;
 
     private PullToRefreshWebView mThreadWindow;
     private WebView mThreadView;
@@ -145,6 +126,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadBookmarked = false;
     private boolean threadArchived = false;
     private boolean dataLoaded = false;
+    
+    private boolean keepScreenOn = false;
     
     //oh god i'm replicating core android functionality, this is a bad sign.
     private LinkedList<AwfulStackEntry> backStack = new LinkedList<AwfulStackEntry>();
@@ -290,7 +273,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	
         View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-
+        
 		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
@@ -299,11 +282,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
         mThreadView = mThreadWindow.getRefreshableView();
+        mThreadView.setKeepScreenOn(keepScreenOn);
         mThreadWindow.setOnRefreshListener(this);
 		mThreadWindow.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
         mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
         mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
+		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		updateProbationBar();
+
 		return result;
 	}
 
@@ -316,6 +305,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         updateSidebarHint(isDualPane(), isSidebarVisible());
 		updatePageBar();
+		updateProbationBar();
 	}
 
 	private void initThreadViewProperties() {
@@ -332,7 +322,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 		if (Constants.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
-			if(!mPrefs.inlineYoutube){
+			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 			}
 		}
@@ -416,6 +406,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mThreadWindow.setTextColor(ColorProvider.getTextColor(mPrefs), ColorProvider.getAltTextColor(mPrefs));
         }
 	}
+	
+	public void updateProbationBar(){
+		if(!mPrefs.isOnProbation()){
+			mProbationBar.setVisibility(View.GONE);
+			return;
+		}
+		mProbationBar.setVisibility(View.VISIBLE);
+		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
+		mProbationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				startActivity(openThread);
+			}
+		});
+	}
 
     @Override
     public void onStart() {
@@ -463,6 +470,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageVisible() {
         resumeWebView();
+        mThreadView.setKeepScreenOn(keepScreenOn);
 	}
 	
 	
@@ -481,6 +489,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageHidden() {
         pauseWebView();
+        mThreadView.setKeepScreenOn(false);
 	}
 	
     @Override
@@ -608,10 +617,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         MenuItem re = menu.findItem(R.id.reply);
         if(re != null){
-        	re.setEnabled(!threadClosed);
+        	re.setEnabled(!threadClosed && !mPrefs.isOnProbation());
         	if(threadClosed){
         		re.setTitle("Thread Locked");
-        	}else{
+        	}else {
         		re.setTitle(R.string.post_reply);
         	}
         }
@@ -650,14 +659,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		case R.id.find:
     			this.mThreadView.showFindDialog(null, true);
     			break;
+    		case R.id.keep_screen_on:
+    			this.toggleScreenOn();
     		default:
     			return super.onOptionsItemSelected(item);
     		}
 
     		return true;
     	}
-    
-    private String generateThreadUrl(String postId){
+
+	private String generateThreadUrl(String postId){
     	StringBuffer url = new StringBuffer();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
@@ -1047,6 +1058,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @SuppressWarnings("unused")
 	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
 		updatePageBar();
+		updateProbationBar();
 
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
@@ -1135,6 +1147,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             "Copy Post URL",
             "Read Posts by this User"
         };
+        
+        final CharSequence[] mProbatedItems = {
+            "Mark Last Read",
+            "Send Private Message",
+            "Copy Post URL",
+            "Read Posts by this User"
+        };
 
         public static final int MENU_EDIT = 0;
         public static final int MENU_QUOTE  = 1;
@@ -1196,12 +1215,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         public void onMenuClick(final String aPostId, final String aUsername, final String aUserId, final String index, final String editable) {
         	final boolean edit = editable != null && editable.contains("true");
+        	final boolean probated = mPrefs.isOnProbation();
         	new AlertDialog.Builder(getActivity())
             .setTitle("Select an Action")
-            .setItems((edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
+            .setItems((probated?mProbatedItems:edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aItem) {
                 	//the non-edit menu is one item shorter, so we just shift that aItem up by one to compensate
-                	onPostMenuItemSelected(aItem+(edit?0:1), aPostId, aUsername, aUserId, index);
+                	onPostMenuItemSelected(aItem+(probated?2:edit?0:1), aPostId, aUsername, aUserId, index);
                 }
             })
             .show();
@@ -1301,6 +1321,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 	
+	private String[] gBImageUrlMenuItems = new String[]{
+			"Download Image",
+			"Show Image Inline",
+			"Open URL",
+			"Copy URL",
+			"Share URL",
+			"Always Open URL"
+	};
+	
 	private String[] imageUrlMenuItems = new String[]{
 			"Show Image Inline",
 			"Open URL",
@@ -1316,6 +1345,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			"Always Open URL",
 	};
 	
+	
 	private void showUrlMenu(final String url){
 		final Uri link = Uri.parse(url);
 		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
@@ -1325,27 +1355,38 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage?Constants.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage?0:1)){
+            	switch(aItem+(isImage?Constants.isGingerbread()?0:1:2)){
             	case 0:
+        			Request request = new Request(link);
+        			if (!Constants.isHoneycomb()) {
+        				request.setShowRunningNotification(true);  
+        			} else {
+        				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        			}
+
+        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
+        	        dlMngr.enqueue(request);
+        			break;
+            	case 1:
         			if(mThreadView != null){
         				mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
         			}
         			break;
-            	case 1:
+            	case 2:
         			startUrlIntent(url);
         			break;
-            	case 2:
+            	case 3:
             		copyToClipboard(url);
         			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
         			break;
-            	case 3:
+            	case 4:
             		startActivity(createShareIntent());
             		break;
-            	case 4:
+            	case 5:
         			mPrefs.setBooleanPreference("always_open_urls", true);
         			startUrlIntent(url);
         			break;
@@ -1406,6 +1447,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(aPage > 0 && aPage <= getLastPage()){
 			setPage(aPage);
 			updatePageBar();
+			updateProbationBar();
 			mPostJump = "";
 			if(mThreadView != null){
 				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
@@ -1510,6 +1552,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
         		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
+        		updateProbationBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		if(mReplyDraftSaved > 0){
             		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
@@ -1600,6 +1643,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		mPostJump = "";
     	}
 		updatePageBar();
+		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
     			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
@@ -1622,6 +1666,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	mPostJump = "";
     	savedScrollPosition = thread.scrollPos;
 		updatePageBar();
+		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
     			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
@@ -1747,4 +1792,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	            return false;
 	        }
 	    } 
+	
+    
+    private void toggleScreenOn() {
+    	keepScreenOn = !keepScreenOn;
+    	mThreadView.setKeepScreenOn(keepScreenOn);
+		Toast.makeText(getAwfulActivity(), keepScreenOn? "Screen stays on" :"Screen turns itself off", Toast.LENGTH_SHORT).show();
+	}
 }

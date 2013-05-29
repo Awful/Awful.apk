@@ -42,6 +42,9 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Message;
@@ -275,105 +278,103 @@ public class AwfulPost {
         return result;
     }
     
-    private static Document convertVideos(Document contentNode){
-    	for(Element node : contentNode.getElementsByClass("youtube-player")){
-    		node.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", node.attr("src").replace("youtube-nocookie.com", "youtube.com")).text(node.attr("src").replace("youtube-nocookie.com", "youtube.com")));
-    	}
-    	for(Element node : contentNode.getElementsByClass("bbcode_video")){
-    		node.replaceWith(new Element(Tag.valueOf("p"),"").text(node.attr("DEBUG: DISABLED VIDEO CONVERSION")));//TODO
-    	}
-    	return contentNode;
-    }
-/*
-	private static TagNode convertVideos(TagNode contentNode) {
-		TagNode[] videoNodes = contentNode.getElementsByAttValue("class", "bbcode_video", true, true);
-		TagNode[] youtubeNodes = contentNode.getElementsByAttValue("class", "youtube-player", true, true);
-		for(TagNode youTube : youtubeNodes){
-			String src = youTube.getAttributeByName("src");
-			int height = Integer.parseInt(youTube.getAttributeByName("height"));
-			int width = Integer.parseInt(youTube.getAttributeByName("width"));
-			Matcher youtube = youtubeHDId_regex.matcher(src);
-			if(youtube.find()){
-				String videoId = youtube.group(1);
-				String link = "http://www.youtube.com/watch?v=" + videoId;
-				String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-				youTube.setName("a");
-				youTube.setAttribute("href", link);
-				youTube.removeAttribute("type");
-				youTube.removeAttribute("frameborder");
-				youTube.removeAttribute("src");
-				youTube.removeAttribute("height");
-				youTube.removeAttribute("width");
-				youTube.setAttribute("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
-				TagNode img = new TagNode("img");
-				img.setAttribute("class", "nolink videoPlayButton");
-				img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
-				img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-16px;margin-left:-16px;");
-				youTube.addChild(img);
-			}
-		}
-		for(TagNode node : videoNodes){
-			try{
-				String src = null;
-				int height = 0;
-				int width = 0;
-				TagNode[] object = node.getElementsByName("object", false);
-				if(object.length > 0){
-					height = Integer.parseInt(object[0].getAttributeByName("height"));
-					width = Integer.parseInt(object[0].getAttributeByName("width"));
-					TagNode[] emb = object[0].getElementsByName("embed", true);
-					if(emb.length >0){
-						src = emb[0].getAttributeByName("src");
+    private static Document convertVideos(Document contentNode, boolean inline, boolean hasFlash){
+
+			Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
+		
+			for(Element youTube : youtubeNodes){
+				String src = youTube.attr("src");
+				int height = Integer.parseInt(youTube.attr("height"));
+				int width = Integer.parseInt(youTube.attr("width"));
+				Matcher youtubeMatcher = youtubeHDId_regex.matcher(src);
+				if(youtubeMatcher.find()){
+					String videoId = youtubeMatcher.group(1);
+					String link = "http://www.youtube.com/watch?v=" + videoId;
+					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+					if(!Constants.isICS() || !inline){
+						Element youtubeLink = new Element(Tag.valueOf("a"),"");
+						youtubeLink.attr("href", link);
+						youtubeLink.attr("style", "background-color:#000;background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
+						Element img = new Element(Tag.valueOf("img"),"");
+						img.attr("class", "nolink videoPlayButton");
+						img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
+						img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-16px;margin-left:-16px;");
+						youtubeLink.appendChild(img);
+						youTube.replaceWith(youtubeLink);
+					}else{
+						Element youtubeLink = new Element(Tag.valueOf("a"),"");
+						youtubeLink.text(link);
+						youtubeLink.attr("href", link);
+						youTube.after(youtubeLink);
+						youtubeLink.before(new Element(Tag.valueOf("br"),""));
 					}
 				}
-				if(src != null && height != 0 && width != 0){
-					String link = null, image = null;
-					Matcher youtube = youtubeId_regex.matcher(src);
-					Matcher vimeo = vimeoId_regex.matcher(src);
-					if(youtube.find()){//we'll leave in the old youtube code in case something gets reverted
-						String videoId = youtube.group(1);
-						link = "http://www.youtube.com/watch?v=" + videoId;
-						image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-					}else if(vimeo.find()){
-						String videoId = vimeo.group(1);
-						TagNode vimeoXML;
-						try {
-							vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
-						} catch (Exception e) {
-							e.printStackTrace();
+			}
+//		if(!inline || !hasFlash){
+			if(!inline){
+			Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
+			for(Element node : videoNodes){
+				try{
+					String src = null;
+					int height = 0;
+					int width = 0;
+					Elements object = node.getElementsByTag("object");
+					if(object.size() > 0){
+						height = Integer.parseInt(object.get(0).attr("height"));
+						width = Integer.parseInt(object.get(0).attr("width"));
+						Elements emb = object.get(0).getElementsByTag("embed");
+						if(emb.size() >0){
+							src = emb.get(0).attr("src");
+						}
+					}
+					if(src != null && height != 0 && width != 0){
+						String link = null, image = null;
+						Matcher youtube = youtubeId_regex.matcher(src);
+						Matcher vimeo = vimeoId_regex.matcher(src);
+						if(youtube.find()){//we'll leave in the old youtube code in case something gets reverted
+							String videoId = youtube.group(1);
+							link = "http://www.youtube.com/watch?v=" + videoId;
+							image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+						}else if(vimeo.find()){
+							String videoId = vimeo.group(1);
+							Element vimeoXML;
+							try {
+								vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
+							} catch (Exception e) {
+								e.printStackTrace();
+								continue;
+							}
+							if(vimeoXML.getElementsByTag("mobile_url").first() != null){
+								link = vimeoXML.getElementsByTag("mobile_url").first().text().toString();
+							}else{
+								link = vimeoXML.getElementsByTag("url").first().text().toString();
+							}
+							image = vimeoXML.getElementsByTag("thumbnail_large").first().text().toString();
+						}else{
+							node.empty();
+							Element ln = new Element(Tag.valueOf("a"),"");
+							ln.attr("href", src);
+							ln.appendChild(new Element(Tag.valueOf("src"),""));
+							node.appendChild(ln);
 							continue;
 						}
-						if(vimeoXML.findElementByName("mobile_url", true) != null){
-							link = vimeoXML.findElementByName("mobile_url", true).getText().toString();
-						}else{
-							link = vimeoXML.findElementByName("url", true).getText().toString();
-						}
-						image = vimeoXML.findElementByName("thumbnail_large", true).getText().toString();
-					}else{
-						node.removeAllChildren();
-						TagNode ln = new TagNode("a");
-						ln.setAttribute("href", src);
-						ln.addChild(new ContentNode(src));
-						node.addChild(ln);
-						continue;
+						node.empty();
+						node.attr("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
+						node.attr("onclick", "location.href=\""+link+"\"");
+						Element img = new Element(Tag.valueOf("img"),"");
+						img.attr("class", "nolink videoPlayButton");
+						img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
+						img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
+						node.appendChild(img);
 					}
-					node.removeAllChildren();
-					node.setAttribute("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
-					node.setAttribute("onclick", "location.href=\""+link+"\"");
-					TagNode img = new TagNode("img");
-					img.setAttribute("class", "nolink videoPlayButton");
-					img.setAttribute("src", "file:///android_res/drawable/ic_menu_video.png");
-					img.setAttribute("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
-					node.addChild(img);
+				}catch(Exception e){
+					continue;//if we fail to convert the video tag, we can still display the rest.
 				}
-			}catch(Exception e){
-				continue;//if we fail to convert the video tag, we can still display the rest.
 			}
 		}
-		
 		return contentNode;
 	}
-*/
+
 	public String getEdited() {
         return mEdited;
     }
@@ -438,9 +439,9 @@ public class AwfulPost {
 		int index = startIndex;
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG,"Update time: "+update_time);
-        if(!Constants.isICS() || !prefs.inlineYoutube) {
-        	convertVideos(aThread);
-        }
+                
+        convertVideos(aThread, prefs.inlineYoutube, prefs.hasFlash());
+        
         Elements posts = aThread.getElementsByClass("post");
         for(Element postData : posts){
         	ContentValues post = new ContentValues();

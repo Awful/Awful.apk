@@ -27,16 +27,8 @@
 
 package com.ferg.awfulapp;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -49,20 +41,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.util.Log;
-import android.view.ContextMenu;
+import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.View.OnClickListener;
+import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -84,6 +67,9 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Uses intent extras:
  *  TYPE - STRING ID - DESCRIPTION
@@ -100,6 +86,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     private ImageButton mPrevPage;
     private TextView mPageCountText;
 	private ImageButton mToggleSidebar;
+	
+	private View mProbationBar;
+	private TextView mProbationMessage;
+	private ImageButton mProbationButton;
     
     private int mForumId;
     private int mPage = 1;
@@ -185,6 +175,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}
 		}
 		updatePageBar();
+		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
+		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		updateProbationBar();
+		
         return result;
     }
 
@@ -251,9 +246,24 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			}else{
 				aq.find(R.id.move_up).invisible();
 			}
-
-			
 		}
+	}
+	
+	public void updateProbationBar(){
+		if(!mPrefs.isOnProbation()){
+			mProbationBar.setVisibility(View.GONE);
+			return;
+		}
+		mProbationBar.setVisibility(View.VISIBLE);
+		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
+		mProbationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				startActivity(openThread);
+			}
+		});
 	}
 
     @Override
@@ -597,6 +607,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(pageInt > 0 && pageInt <= mLastPage){
 			mPage = pageInt;
 			updatePageBar();
+			updateProbationBar();
 			refreshInfo();
 			syncForum();
 		}
@@ -741,6 +752,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         	}
 
 			updatePageBar();
+			updateProbationBar();
         }
         
         @Override
@@ -806,14 +818,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN) {
+	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
 	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(false);
 	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, 0);
 	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(true);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN) {
+	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
 	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, 0);
 	            }
 	            return true;

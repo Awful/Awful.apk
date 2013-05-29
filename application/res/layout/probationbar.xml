@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/probation_indicator"
+    android:layout_width="match_parent"
+    android:layout_height="50dip"
+    android:layout_centerVertical="true"
+    android:background="@drawable/probation_background"
+    android:paddingBottom="6dip"
+    android:paddingLeft="4dip"
+    android:paddingRight="4dip"
+    android:paddingTop="6dip"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/probation_icon"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginRight="2dip"
+        android:layout_marginTop="1dip"
+        android:src="@drawable/warning"/>
+
+    <TextView
+        android:id="@+id/probation_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/probation_icon"
+        android:gravity="left"
+        android:textStyle="bold"
+        android:textColor="#ff000000"
+        android:textIsSelectable="false"
+        android:text="@string/probation_title"
+        android:textSize="12dip"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/probation_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/probation_title"
+        android:gravity="left"
+        android:textColor="#ff000000"
+        android:textIsSelectable="false"
+        android:text="@string/probation_message"
+        android:textSize="11dip"
+        android:singleLine="true"
+        android:visibility="visible"/>
+
+    <ImageButton
+        android:id="@+id/go_to_LC"
+        style="@style/ActionBarButton"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_menu_arrowright" />
+
+</RelativeLayout>

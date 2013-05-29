@@ -27,19 +27,22 @@
 
 package com.ferg.awfulapp.preferences;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
-
 import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -53,6 +56,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	//GENERAL STUFF
 	public String username;
+	public int userId;
 	public boolean hasPlatinum;
 	public boolean hasArchives;
 	public boolean hasNoAds;
@@ -101,6 +105,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//FORUM STUFF
 	public boolean newThreadsFirstUCP;
 	public boolean newThreadsFirstForum;
+	public boolean threadInfo_Rating;
 	public boolean threadInfo_Author;
 	public boolean threadInfo_Killed;
 	public boolean threadInfo_Page;
@@ -109,7 +114,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
+    public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
+    public long probationTime;
 
     public int alertIDShown;
 	
@@ -189,9 +196,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (Constants.isJellybean()?true:false));
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
+        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", false);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
         threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
@@ -215,6 +224,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
         forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
+        probationTime			 = mPrefs.getLong("probation_time", 0);
+        userId					 = mPrefs.getInt("user_id", 0);
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -231,6 +242,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			mPrefs.edit().putString(key, value).apply();
 		}else{
 			mPrefs.edit().putString(key, value).commit();
+		}
+	}
+
+	public void setLongPreference(String key, long value) {
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putLong(key, value).apply();
+		}else{
+			mPrefs.edit().putLong(key, value).commit();
 		}
 	}
 
@@ -266,7 +285,32 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		}
 	}
 	
+
 	public Resources getResources(){
 		return mContext.getResources();
+	}
+	
+	public boolean isOnProbation(){
+		if(probationTime == 0){
+			return false;
+		}else{
+			if(new Date(probationTime).compareTo(new Date()) < 0){
+				setLongPreference("probation_time", 0);
+				return false;
+			}
+			return true;
+		}
+	}
+	
+	public boolean hasFlash(){
+		try {
+		  PackageManager pm =  mContext.getPackageManager();
+		  ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
+		  if (ai != null)
+		    return true;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
+		return false;
 	}
 }

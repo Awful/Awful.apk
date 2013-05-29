@@ -42,7 +42,11 @@
 				android:icon="@drawable/ic_menu_find"
 				android:title="@string/find" 
 				/>
-			
+			<item
+				android:id="@+id/keep_screen_on"
+				android:icon="@drawable/ic_menu_lastread"
+				android:title="@string/keep_screen_on" 
+				/>
         </menu>
 	</item>
 	<item

@@ -25,6 +25,11 @@
 			/>
         </PreferenceCategory>
   <PreferenceCategory android:title="@string/threadinfo_settings">
+      	<CheckBoxPreference 
+            android:key="threadinfo_rating" 
+			android:title="@string/threadinfo_rating"
+			android:defaultValue="false"
+			/>
 		<CheckBoxPreference 
             android:key="threadinfo_author" 
 			android:title="@string/threadinfo_author"

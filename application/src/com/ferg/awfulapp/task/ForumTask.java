@@ -16,7 +16,6 @@ import com.ferg.awfulapp.thread.AwfulThread;
 
 public class ForumTask extends AwfulTask {
 	private final static String TAG = "ForumTask";
-	
 
 	public ForumTask(AwfulSyncService sync, Message msg, AwfulPreferences aPrefs) {
 		super(sync, msg, aPrefs, AwfulSyncService.MSG_SYNC_FORUM);
@@ -30,7 +29,7 @@ public class ForumTask extends AwfulTask {
             if(mId == Constants.USERCP_ID){
             	threads = AwfulThread.getUserCPThreads(mArg1, replyTo);
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                String error = AwfulPagedItem.checkPageErrors(threads, replyTo);
+                String error = AwfulPagedItem.checkPageErrors(threads, replyTo, mPrefs);
                 if(error != null){
                 	return error;
                 }
@@ -38,7 +37,7 @@ public class ForumTask extends AwfulTask {
             }else{
             	threads = AwfulThread.getForumThreads(mId, mArg1, replyTo);
                 replyTo.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, mId, 75));
-                String error = AwfulPagedItem.checkPageErrors(threads, replyTo);
+                String error = AwfulPagedItem.checkPageErrors(threads, replyTo, mPrefs);
                 if(error != null){
                 	Log.e(TAG,"Parsing Failed: "+error);
                 	return error;
