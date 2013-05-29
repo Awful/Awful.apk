@@ -16,13 +16,13 @@ public class LogOutDialog extends AlertDialog {
         c = context;
         setTitle(context.getString(R.string.logout));
         setMessage(context.getString(R.string.logout_message));
-        setButton(context.getString(R.string.logout), new OnClickListener() {
+        setButton(AlertDialog.BUTTON_POSITIVE,context.getString(R.string.logout), new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 NetworkUtils.clearLoginCookies(getContext());
                 getContext().startActivity(new Intent().setClass(c, AwfulLoginActivity.class));
             }
         });
-        setButton2(context.getString(R.string.cancel), (OnClickListener) null);
+        setButton(AlertDialog.BUTTON_NEGATIVE,context.getString(R.string.cancel), (OnClickListener) null);
     }
 }

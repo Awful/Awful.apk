@@ -91,12 +91,14 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static final String HAS_NEW_POSTS = "has_new_posts";
     public static final String HAS_VIEWED_THREAD = "has_viewed_thread";
     public static final String ARCHIVED = "archived";
+	public static final String RATING = "rating";
 
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
 	
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
+
 	
     public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -157,6 +159,15 @@ public class AwfulThread extends AwfulPagedItem  {
                     thread.put(STICKY,1);
                 } else {
                     thread.put(STICKY,0);
+                }
+                
+                Element rating = node.getElementsByClass("rating").first();
+                if(rating.children().size() > 0){
+                	Element img = rating.children().first();
+                	int rate = Integer.parseInt(""+img.attr("src").charAt(img.attr("src").length()-10));
+                	thread.put(RATING, rate);
+                }else{
+                	thread.put(RATING,0);
                 }
 
                 Elements tarIcon = node.getElementsByClass("icon");
@@ -277,7 +288,7 @@ public class AwfulThread extends AwfulPagedItem  {
         //notify user we have gotten message body, this represents a large portion of this function
         statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
         
-        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates);
+        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates, aPrefs);
         if(error != null){
         	return error;
         }
@@ -525,14 +536,16 @@ public class AwfulThread extends AwfulPagedItem  {
             if(post.getAvatarText()!= null){
             	buffer.append(post.getAvatarText()+"<br/>\n");
             }
-            if(post.isEditable()){
-            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
-                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
-                buffer.append("        		</div>\n");
+            if(!aPrefs.isOnProbation()){
+	            if(post.isEditable()){
+	            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
+	                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
+	                buffer.append("        		</div>\n");
+	            }
+	        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
+	            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
+	            buffer.append("\n        		</div>\n");
             }
-        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
-            buffer.append("\n        		</div>\n");
             buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />\n");
             buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read\n");
             buffer.append("        		</div>\n");
@@ -598,6 +611,8 @@ public class AwfulThread extends AwfulPagedItem  {
 		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
 		TextView title = (TextView) current.findViewById(R.id.title);
 		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
+		info.setSingleLine(!prefs.wrapThreadTitles);
+		
 		if(stuck){
 			sticky.setImageResource(R.drawable.ic_sticky);
 			sticky.setVisibility(View.VISIBLE);
@@ -616,7 +631,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 		}
 
-		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page){
+		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page && !prefs.threadInfo_Rating){
 			info.setVisibility(View.GONE);
 		}else{
 			info.setVisibility(View.VISIBLE);
@@ -635,6 +650,33 @@ public class AwfulThread extends AwfulPagedItem  {
 					tmp.append(" | ");
 				}
 				tmp.append("OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
+			}
+			if(prefs.threadInfo_Rating && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+				String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+				if(tagFile != null){
+					switch(data.getInt(data.getColumnIndex(RATING))){
+					case(1):
+						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/1stars.gif", true, true);
+						break;
+					case(2):
+						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/2stars.gif", true, true);
+						break;
+					case(3):
+						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/3stars.gif", true, true);
+						break;
+					case(4):
+						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/4stars.gif", true, true);
+						break;
+					case(5):
+						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/5stars.gif", true, true);
+						break;
+					default:
+						aq.id(R.id.thread_rating).gone();
+						break;
+					}
+				}else{
+					aq.id(R.id.thread_rating).gone();
+				}
 			}
 			info.setText(tmp.toString().trim());
 		}

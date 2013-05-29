@@ -27,29 +27,16 @@
 
 package com.ferg.awfulapp;
 
-import java.util.LinkedList;
-
-import org.apache.commons.lang3.text.WordUtils;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.DialogInterface;
+import android.content.*;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
+import android.os.*;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -63,9 +50,11 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.LinkedList;
 
 /**
  * Simple, purely xml driven preferences. Access using
@@ -134,6 +123,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		this.bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		findPreference("inline_youtube").setEnabled(Constants.isICS());
+		findPreference("enable_hardware_acceleration").setEnabled(Constants.isHoneycomb());	
+		findPreference("enable_hardware_acceleration").setDefaultValue(Constants.isJellybean());		
 		boolean tab = Constants.canBeWidescreen(this);
 		findPreference("page_layout").setEnabled(tab);
 		if(!tab){
@@ -156,8 +147,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
 		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
 		this.updateFeatures();
-		//TODO: remove later
-//		mFeaturesPreference.setEnabled(false);
 		
 		mUsernamePreference = getPreferenceScreen().findPreference("username");
 	}

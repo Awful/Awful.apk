@@ -69,6 +69,17 @@
             android:layout_marginRight="6dip"
             android:layout_marginTop="4dip"
             android:visibility="gone" />
+        
+        <ImageView
+            android:id="@+id/thread_rating"
+            android:layout_width="40dp"
+            android:layout_height="15dp"
+            android:layout_below="@id/title"
+            android:layout_toRightOf="@+id/thread_tag"
+            android:layout_marginRight="6dip"
+            android:layout_marginLeft="-3dip"
+            android:layout_marginTop="4dip"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/threadinfo"
@@ -77,7 +88,7 @@
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
             android:layout_toLeftOf="@+id/unread_count"
-            android:layout_toRightOf="@id/thread_tag"
+            android:layout_toRightOf="@id/thread_rating"
             android:textColor="@color/secondary_post_font"
             android:textSize="14dip" />
 

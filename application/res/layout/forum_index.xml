@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="@color/background"
-    >
-    <com.ferg.awfulapp.widget.AwfulProgressBar 
+    android:background="@color/background"
+    android:orientation="vertical" >
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="4dp"
-		android:visibility="gone"
-       />
-    <!--  <pl.polidea.treeview.TreeViewList 
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/probationbar"
+        layout="@layout/probationbar" 
+        android:layout_height="40dp"/>
+    <!--
+          <pl.polidea.treeview.TreeViewList 
         android:id="@+id/index_tree_view" 
         android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:scrollbars="vertical" 
 		android:smoothScrollbar="true"
-		/>-->
-	<com.ferg.awfulapp.widget.PullToRefreshTreeView
-	    android:id="@+id/index_pull_tree_view" 
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
+		/>
+    -->
+
+    <com.ferg.awfulapp.widget.PullToRefreshTreeView
+        android:id="@+id/index_pull_tree_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:cacheColorHint="@color/background"
         android:divider="#8c8c8c"
         android:dividerHeight="1dp"
-		android:drawSelectorOnTop="false"
-		android:cacheColorHint="@color/background"
-		/> 
+        android:drawSelectorOnTop="false" />
+
 </LinearLayout>

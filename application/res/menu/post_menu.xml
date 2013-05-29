@@ -6,6 +6,7 @@
 		android:id="@+id/thread_actions"
 		android:icon="@drawable/ic_actionbar_dropdown"
         android:showAsAction="always"
+        android:title="@string/thread_actions"
 		>
 		<menu>
 			<item
@@ -29,12 +30,17 @@
 				android:title="@string/copy_url"
 		        />
         	
-			<item android:id="@+id/share_thread" android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider" android:title="Share Thread" android:icon="@drawable/ic_menu_share"/>
+			<item android:id="@+id/share_thread" android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider" android:title="@string/share_thread" android:icon="@drawable/ic_menu_share"/>
 			
 			<item
 				android:id="@+id/refresh"
 				android:icon="@drawable/ic_actionbar_load"
 				android:title="@string/refresh" 
+				/>
+			<item
+				android:id="@+id/keep_screen_on"
+				android:icon="@drawable/ic_menu_lastread"
+				android:title="@string/keep_screen_on" 
 				/>
 			
         </menu>

@@ -2,40 +2,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-	android:background="@color/background"
-    >
-    <com.ferg.awfulapp.widget.AwfulProgressBar 
+    android:background="@color/background"
+    android:orientation="vertical" >
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="4dp"
-		android:visibility="gone"
-       />
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/probationbar"
+        layout="@layout/probationbar" />
+
     <LinearLayout
         android:id="@+id/thread_container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_weight="1"
-        >
+        android:orientation="vertical" >
 
         <FrameLayout
             android:id="@+id/thread_window"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
-            
+
             <com.handmark.pulltorefresh.library.PullToRefreshWebView
-                android:background="@color/background"
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                />
+                android:background="@color/background" />
         </FrameLayout>
     </LinearLayout>
+
     <include
         android:id="@+id/pagebar"
         layout="@layout/pagebar" />
-
-
 
 </LinearLayout>

@@ -36,5 +36,7 @@ bin
 /libraries/tree-view-list-android/.hgtags
 /libraries/tree-view-list-android/.pmd
 
-/.idea
+
+*.idea/
 *.iml
+*.gradle

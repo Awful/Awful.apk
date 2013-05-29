@@ -27,6 +27,8 @@
 
 package com.ferg.awfulapp;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -146,8 +148,21 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ADD_ATTACHMENT) {
                 Uri selectedImageUri = data.getData();
-                mFileAttachment = getFilePath(selectedImageUri);
-                Toast attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), mFileAttachment), Toast.LENGTH_LONG);
+                File attachment = new File(getFilePath(selectedImageUri));
+                Toast attachmentToast;
+                if(attachment.isFile() && attachment.canRead()){
+                	if(attachment.length()>1048576){
+                		attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                		mFileAttachment = null;
+                	}else{
+                		mFileAttachment = getFilePath(selectedImageUri);
+                		attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                	}
+                }else{
+                	attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
+                	mFileAttachment = null;
+                }
+
                 attachmentToast.show();
                 this.getAwfulActivity().invalidateOptionsMenu();
             }

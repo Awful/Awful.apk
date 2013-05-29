@@ -57,7 +57,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 26;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -115,6 +115,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.HAS_NEW_POSTS,
 		AwfulThread.HAS_VIEWED_THREAD,
         AwfulThread.ARCHIVED,
+        AwfulThread.RATING,
 		UPDATED_TIMESTAMP };
 
 	public static final String[] ForumProjection = new String[]{
@@ -248,6 +249,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.TAG_CACHEFILE + " VARCHAR,"   +
                 AwfulThread.HAS_VIEWED_THREAD + " INTEGER, " +
                 AwfulThread.ARCHIVED + " INTEGER, " +
+                AwfulThread.RATING + " INTEGER, " +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
         public void createUCPTable(SQLiteDatabase aDb) {
@@ -354,7 +356,12 @@ public class AwfulProvider extends ContentProvider {
             	wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
         	case 23:
         		//added bookmark setting to draft table
-                aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulPost.FORM_BOOKMARK + " VARCHAR");        		
+                aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulPost.FORM_BOOKMARK + " VARCHAR");
+        	case 24:
+        		aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.RATING + " INTEGER");
+        	case 25:
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
+                createThreadTable(aDb);        		
         		break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -788,6 +795,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+ AwfulThread.HAS_NEW_POSTS);
 		sThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
         sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
+        sThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
 		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
 		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
@@ -815,6 +823,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+AwfulThread.HAS_NEW_POSTS);
 		sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, "1 AS " + AwfulThread.HAS_VIEWED_THREAD);
         sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
+        sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
 		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);

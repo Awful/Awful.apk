@@ -64,6 +64,21 @@ $(document).ready(function() {
 			$(this).wrap('<a href="'+$(this).attr('src')+'" />');
 		}
 	});
+	
+		  $('.post-content').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
+		    var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
+		    if (videoID === null) return
+		    videoID = videoID[1]
+		    var object = $(this).closest('object')
+		    $(this).closest('div.bbcode_video').replaceWith($('<iframe/>', {
+		      src: "http://player.vimeo.com/video/" + videoID + "?byline=0&portrait=0",
+		      width: object.attr('width'),
+		      height: object.attr('height'),
+		      frameborder: 0,
+		      webkitAllowFullScreen: '',
+		      allowFullScreen: ''
+		    }))
+		  })		
 });
 
 

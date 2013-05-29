@@ -2,6 +2,8 @@
 <resources>
     <color name="forums_blue">#006699</color>
     <color name="forums_gray">#f4f4f4</color>
+    <color name="holo_blue_light">#ff33b5e5</color>
+    
     <color name="default_post_font">#777777</color>
     <color name="forum_title">#484848</color>
     <color name="secondary_post_font">#989898</color>
