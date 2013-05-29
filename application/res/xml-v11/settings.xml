@@ -91,13 +91,13 @@
             android:key="inline_youtube" 
 			android:title="@string/inline_youtube"
 			android:summary="@string/inline_youtube_summary"
-			android:defaultValue="false"
+			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
             android:key="enable_hardware_acceleration" 
 			android:title="@string/enable_hardware_acceleration"
 			android:summary="@string/enable_hardware_acceleration_summary"
-			android:defaultValue="false"
+			android:defaultValue="true"
 			/>
 		<ListPreference
             android:key="page_layout"
