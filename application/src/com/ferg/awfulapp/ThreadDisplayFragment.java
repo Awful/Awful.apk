@@ -469,7 +469,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageVisible() {
         resumeWebView();
-        mThreadView.setKeepScreenOn(keepScreenOn);
+        if(mThreadView != null){
+        	mThreadView.setKeepScreenOn(keepScreenOn);
+        }
 	}
 	
 	
