@@ -47,6 +47,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -527,8 +528,7 @@ public class AwfulPost {
 								img.replaceWith(new Element(Tag.valueOf("p"),"").text(name));
 							}
 						} else {
-
-							if (!lastReadFound && prefs.hideOldImages || !prefs.imagesEnabled) {
+							if (!lastReadFound && prefs.hideOldImages || !prefs.canLoadImages()) {
 								if (!dontLink) {
 									img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).text(src));
 								} else {

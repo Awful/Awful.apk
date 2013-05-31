@@ -34,6 +34,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
@@ -99,6 +101,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//THREAD STUFF
 	public int postPerPage;
 	public boolean imagesEnabled;
+	public boolean no3gImages;
 	public boolean avatarsEnabled;
 	public boolean showSmilies;
 	public boolean hideOldImages;
@@ -221,6 +224,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
       	unreadCounterColorDim	 = mPrefs.getInt("unread_posts_dim", res.getColor(R.color.unread_posts_dim));
         unreadCounterFontBlack   = mPrefs.getBoolean("unread_posts_font_black", false);
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
+        no3gImages	             = mPrefs.getBoolean("no_3g_images", false);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
@@ -339,5 +343,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			return false;
 		}
 		return false;
+	}
+
+	public boolean canLoadImages() {
+		ConnectivityManager conman = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		return imagesEnabled && !(no3gImages && !conman.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+	}
+	
+	public boolean canLoadAvatars(){
+		return avatarsEnabled && canLoadImages();
 	}
 }

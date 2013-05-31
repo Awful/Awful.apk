@@ -492,7 +492,7 @@ public class AwfulThread extends AwfulPagedItem  {
         String background = null;
 
         for (AwfulPost post : aPosts) {
-            boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
+            boolean avatar = aPrefs.canLoadAvatars() && post.getAvatar() != null;
         
             if (post.isPreviouslyRead()) {
                 background = 
@@ -508,7 +508,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
             buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone " + post.getId() + "' id='" + post.getId() + "' >\n");
             buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
-            if((aPrefs.avatarsEnabled != false && post.getAvatar() != null && post.getAvatar().length()>0)){
+            if((aPrefs.canLoadAvatars() && post.getAvatar() != null && post.getAvatar().length()>0)){
 	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
 	            buffer.append("        </div>\n");
             }
