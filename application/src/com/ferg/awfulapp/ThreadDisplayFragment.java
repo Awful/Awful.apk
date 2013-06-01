@@ -490,7 +490,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onPageHidden() {
         pauseWebView();
-        mThreadView.setKeepScreenOn(false);
+        if(mThreadView != null){
+        	mThreadView.setKeepScreenOn(false);
+        }
 	}
 	
     @Override
