@@ -4,6 +4,8 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.util.Log;
+
 /**
  * Author: Matthew Shepard
  * Date: 4/13/13 - 1:56 PM
@@ -38,7 +40,9 @@ public class AwfulGifStripper extends FilterInputStream {
         for(int ix = offset; ix < length-4; ix++){
             if(buffer[ix] == animFlag[0] && buffer[ix+1] == animFlag[1] && buffer[ix+2] == animFlag[2]){
                 buffer[ix+4] = (byte) 0xFF;
-                buffer[ix+5] = (byte) 0x70;
+                if(buffer.length >= ix+4){
+                	buffer[ix+5] = (byte) 0x70;
+                }
             }
         }
     }

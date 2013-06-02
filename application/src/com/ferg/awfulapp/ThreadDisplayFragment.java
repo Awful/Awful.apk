@@ -77,6 +77,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -162,8 +163,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	
 	private WebViewClient callback = new WebViewClient(){
+        int tries = 0;
+        String lastUrl = "";
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        	if(DEBUG) Log.e(TAG, "Opening Connection: "+url+" Try :" + 0);
             if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
                 try {
                     if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
@@ -176,10 +180,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    if(!lastUrl.equals(url) || tries < 2){
+                        tries++;
+                        return shouldInterceptRequest(view, url);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            		
             }
+            tries = 0;
             return super.shouldInterceptRequest(view, url);
         }
 

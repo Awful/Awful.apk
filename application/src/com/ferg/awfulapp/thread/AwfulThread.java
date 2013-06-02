@@ -677,6 +677,8 @@ public class AwfulThread extends AwfulPagedItem  {
 				}else{
 					aq.id(R.id.thread_rating).gone();
 				}
+			}else{
+				aq.id(R.id.thread_rating).gone();
 			}
 			info.setText(tmp.toString().trim());
 		}
