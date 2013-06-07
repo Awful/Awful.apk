@@ -24,6 +24,7 @@
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
     <string name="always">Always</string>
+    <string name="dont_show_again">Don\'t show again</string>
     <string name="threads">Threads</string>
     <string name="username_pref">Username</string>
     <string name="user_quote">Highlight your quotes</string>
