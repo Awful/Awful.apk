@@ -40,24 +40,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.task.AwfulTask;
-import com.ferg.awfulapp.task.BookmarkTask;
-import com.ferg.awfulapp.task.FetchEmotesTask;
-import com.ferg.awfulapp.task.FetchFeaturesTask;
-import com.ferg.awfulapp.task.FetchPrivateMessageTask;
-import com.ferg.awfulapp.task.FetchReplyTask;
-import com.ferg.awfulapp.task.ForumTask;
-import com.ferg.awfulapp.task.ImageCacheTask;
-import com.ferg.awfulapp.task.IndexTask;
-import com.ferg.awfulapp.task.MarkLastReadTask;
-import com.ferg.awfulapp.task.MarkUnreadTask;
-import com.ferg.awfulapp.task.PrivateMessageIndexTask;
-import com.ferg.awfulapp.task.RedirectTask;
-import com.ferg.awfulapp.task.SendPostTask;
-import com.ferg.awfulapp.task.SendPrivateMessageTask;
-import com.ferg.awfulapp.task.ThreadTask;
-import com.ferg.awfulapp.task.TrimDBTask;
-import com.ferg.awfulapp.task.VotingTask;
+import com.ferg.awfulapp.task.*;
 
 public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";
@@ -96,6 +79,8 @@ public class AwfulSyncService extends Service {
 	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
     public static final int MSG_CANCEL_SYNC_THREAD  = 22;
     public static final int MSG_FETCH_FEATURES = 23;
+    public static final int MSG_FETCH_PROFILE = 24;
+    public static final int MSG_IGNORE_USER = 25;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -174,6 +159,12 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_FETCH_FEATURES:
                     queueUniqueThread(new FetchFeaturesTask(AwfulSyncService.this, aMsg, mPrefs));
+                    break;
+                case MSG_FETCH_PROFILE:
+                    queueUniqueThread(new FetchProfileTask(AwfulSyncService.this, aMsg, mPrefs));
+                    break;
+                case MSG_IGNORE_USER:
+                    queueUniqueThread(new IgnoreUserTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
             }
         }

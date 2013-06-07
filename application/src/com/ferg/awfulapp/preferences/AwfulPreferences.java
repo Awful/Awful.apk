@@ -34,6 +34,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
@@ -83,6 +85,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//THREAD STUFF
 	public int postPerPage;
 	public boolean imagesEnabled;
+	public boolean no3gImages;
 	public boolean avatarsEnabled;
 	public boolean showSmilies;
 	public boolean hideOldImages;
@@ -117,6 +120,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
+	public boolean showIgnoreWarning;
+	public String ignoreFormkey;
 
     public int alertIDShown;
 	
@@ -188,6 +193,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		theme					 = mPrefs.getString("themes", "default.css");
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
+        no3gImages	             = mPrefs.getBoolean("no_3g_images", false);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
@@ -226,6 +232,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
         probationTime			 = mPrefs.getLong("probation_time", 0);
         userId					 = mPrefs.getInt("user_id", 0);
+        showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
+        ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -312,5 +320,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			return false;
 		}
 		return false;
+	}
+
+	public boolean canLoadImages() {
+		ConnectivityManager conman = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		return imagesEnabled && !(no3gImages && !conman.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+	}
+	
+	public boolean canLoadAvatars(){
+		return avatarsEnabled && canLoadImages();
 	}
 }

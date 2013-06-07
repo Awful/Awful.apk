@@ -164,7 +164,7 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
                 
                 Element rating = node.getElementsByClass("rating").first();
-                if(rating.children().size() > 0){
+                if(rating != null && rating.children().size() > 0){
                 	Element img = rating.children().first();
                 	int rate = Integer.parseInt(""+img.attr("src").charAt(img.attr("src").length()-10));
                 	thread.put(RATING, rate);
@@ -498,7 +498,9 @@ public class AwfulThread extends AwfulPagedItem  {
         StringBuffer buffer = new StringBuffer();
 
         for (AwfulPost post : aPosts) {
-            boolean avatar = aPrefs.avatarsEnabled != false && post.getAvatar() != null;
+
+            boolean avatar = aPrefs.canLoadAvatars() && post.getAvatar() != null;
+        
             
         	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : " unread")+(post.isOp()? " op" : "")+(aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)? " self" : "")+"'  id='" + post.getId() + "'>");
         	buffer.append("<div class='postheader'>");
@@ -619,6 +621,8 @@ public class AwfulThread extends AwfulPagedItem  {
 				}else{
 					aq.id(R.id.thread_rating).gone();
 				}
+			}else{
+				aq.id(R.id.thread_rating).gone();
 			}
 			info.setText(tmp.toString().trim());
 		}
