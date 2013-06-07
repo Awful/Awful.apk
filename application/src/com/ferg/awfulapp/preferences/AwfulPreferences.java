@@ -136,6 +136,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
+	public boolean showIgnoreWarning;
+	public String ignoreFormkey;
 
     public int alertIDShown;
 	
@@ -262,6 +264,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
         probationTime			 = mPrefs.getLong("probation_time", 0);
         userId					 = mPrefs.getInt("user_id", 0);
+        showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
+        ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
        	 //TODO: I have never seen this before oh god
 	}
 

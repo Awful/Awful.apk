@@ -39,52 +39,38 @@ import org.jsoup.select.Elements;
 
 import java.util.HashMap;
 
-public class FetchFeaturesTask extends AwfulTask {
-	public FetchFeaturesTask(AwfulSyncService sync, Message msg,
+public class FetchProfileTask extends AwfulTask {
+
+	String mUsername;
+
+	public FetchProfileTask(AwfulSyncService sync, Message msg,
 			AwfulPreferences aPrefs) {
 		super(sync, msg, aPrefs, AwfulSyncService.MSG_FETCH_FEATURES);
+		mUsername = (String) msg.obj;
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
 		try {
-			// TODO: put this somewhere else?
+
 			HashMap<String, String> para = new HashMap<String, String>();
-			para.put(Constants.PARAM_ACTION, "accountfeatures");
+			para.put(Constants.PARAM_USERNAME,
+					(mUsername == null || mUsername.equals("0")) ? mPrefs.username : mUsername);
+			para.put(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);
 			Document data = NetworkUtils.get(Constants.FUNCTION_MEMBER, para,
 					replyTo, 50);
-			Element features = data.getElementsByClass("features").first();
-			boolean premium = false;
-			boolean archives = false;
-			boolean noads = false;
-			if (features != null) {
-
-				Elements feature_dts = features.getElementsByTag("dt");
-				if (feature_dts.size() == 3) {
-					premium = feature_dts.get(0).hasClass("enabled");
-					archives = feature_dts.get(1).hasClass("enabled");
-					noads = feature_dts.get(2).hasClass("enabled");
-					try {
-						mPrefs.setBooleanPreference("has_platinum", premium);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					try {
-						mPrefs.setBooleanPreference("has_archives", archives);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					try {
-						mPrefs.setBooleanPreference("has_no_ads", noads);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+			//TODO: Do something other than get the ignore key.
+			Element formkey = data.getElementsByAttributeValue("name", "formkey").first();
+			if (formkey != null) {
+				try {
+					mPrefs.setStringPreference("ignore_formkey", formkey.val());
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+
 			} else {
-				throw new Exception("Feature page did not load");
+				throw new Exception("Profile page did not load");
 			}
-			Log.i(TAG, "Updated account features P:" + premium + " A:"
-					+ archives + " NA:" + noads);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Failed to load account features!";

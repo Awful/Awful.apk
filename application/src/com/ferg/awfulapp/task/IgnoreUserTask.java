@@ -27,68 +27,43 @@
 
 package com.ferg.awfulapp.task;
 
+import java.util.HashMap;
+
 import android.os.Message;
-import android.util.Log;
+
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.util.HashMap;
+public class IgnoreUserTask extends AwfulTask {
 
-public class FetchFeaturesTask extends AwfulTask {
-	public FetchFeaturesTask(AwfulSyncService sync, Message msg,
-			AwfulPreferences aPrefs) {
-		super(sync, msg, aPrefs, AwfulSyncService.MSG_FETCH_FEATURES);
+	int userId = 0;
+	AwfulPreferences mPrefs;
+
+	public IgnoreUserTask(AwfulSyncService sync, Message aMsg, AwfulPreferences aPrefs) {
+		super(sync, aMsg, null, AwfulSyncService.MSG_SEND_POST);
+		userId = aMsg.arg1;
+		mPrefs = aPrefs;
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
-		try {
-			// TODO: put this somewhere else?
-			HashMap<String, String> para = new HashMap<String, String>();
-			para.put(Constants.PARAM_ACTION, "accountfeatures");
-			Document data = NetworkUtils.get(Constants.FUNCTION_MEMBER, para,
-					replyTo, 50);
-			Element features = data.getElementsByClass("features").first();
-			boolean premium = false;
-			boolean archives = false;
-			boolean noads = false;
-			if (features != null) {
-
-				Elements feature_dts = features.getElementsByTag("dt");
-				if (feature_dts.size() == 3) {
-					premium = feature_dts.get(0).hasClass("enabled");
-					archives = feature_dts.get(1).hasClass("enabled");
-					noads = feature_dts.get(2).hasClass("enabled");
-					try {
-						mPrefs.setBooleanPreference("has_platinum", premium);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					try {
-						mPrefs.setBooleanPreference("has_archives", archives);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					try {
-						mPrefs.setBooleanPreference("has_no_ads", noads);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
-				throw new Exception("Feature page did not load");
+		if (!isCancelled()) {
+			HashMap<String, String> parameters = new HashMap<String, String>();
+			parameters.put(Constants.PARAM_ACTION, Constants.ACTION_ADDLIST);
+			parameters.put(Constants.PARAM_USERLIST, Constants.USERLIST_IGNORE);
+			parameters.put(Constants.FORMKEY, mPrefs.ignoreFormkey);
+			parameters.put(Constants.PARAM_USER_ID, String.valueOf(userId));
+			try {
+				NetworkUtils.postIgnoreBody(Constants.FUNCTION_MEMBER2,
+						parameters);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "Failed to ignore user";
 			}
-			Log.i(TAG, "Updated account features P:" + premium + " A:"
-					+ archives + " NA:" + noads);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Failed to load account features!";
 		}
 		return null;
 	}
+
 }

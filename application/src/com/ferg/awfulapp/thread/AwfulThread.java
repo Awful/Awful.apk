@@ -162,7 +162,7 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
                 
                 Element rating = node.getElementsByClass("rating").first();
-                if(rating.children().size() > 0){
+                if(rating != null && rating.children().size() > 0){
                 	Element img = rating.children().first();
                 	int rate = Integer.parseInt(""+img.attr("src").charAt(img.attr("src").length()-10));
                 	thread.put(RATING, rate);

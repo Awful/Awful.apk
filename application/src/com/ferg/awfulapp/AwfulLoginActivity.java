@@ -207,6 +207,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                 if(succeeded) {
                     setResult(Activity.RESULT_OK);
                     sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0);
+                    sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
                     finish();
                 } else {
                     setResult(Activity.RESULT_CANCELED);

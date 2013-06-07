@@ -163,11 +163,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	
 	private WebViewClient callback = new WebViewClient(){
-        int tries = 0;
-        String lastUrl = "";
+        String lastUrl="";
+        
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-        	if(DEBUG) Log.e(TAG, "Opening Connection: "+url+" Try :" + 0);
+        	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
             if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
                 try {
                     if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
@@ -181,16 +181,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (FileNotFoundException e) {
-                    if(!lastUrl.equals(url) || tries < 2){
-                        tries++;
-                        return shouldInterceptRequest(view, url);
-                    }
+                	if(!lastUrl.equals(url)){
+                        mThreadView.clearCache(true);
+                        lastUrl=url;
+                        return shouldInterceptRequest(view, url);                		
+                	}
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            		
             }
-            tries = 0;
             return super.shouldInterceptRequest(view, url);
         }
 
@@ -200,6 +199,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			setProgress(100);
 			registerPreBlocks();
 		}
+       
 
 		public void onLoadResource(WebView view, String url) {
 			Log.i(TAG,"onLoadResource: "+url);
@@ -367,7 +367,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				if(DEBUG) Log.e(TAG,"onProgressChanged: "+newProgress);
 				setProgress(newProgress/2+50);//second half of progress bar
 			}
-			
 		});
 
         refreshSessionCookie();
@@ -455,16 +454,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         refreshInfo();
     }
 
-//    private void recreateWebview(){
-//        mThreadWindow = new PullToRefreshWebView(getActivity());
-//        mThreadWindow.setId(R.id.thread);
-//        mThreadView = mThreadWindow.getRefreshableView();
-//        mThreadParent.removeAllViews();
-//        mThreadParent.addView(mThreadWindow, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-//        mThreadWindow.setMode(PullToRefreshBase.Mode.BOTH);
-//        mThreadWindow.setOnRefreshListener(this);
-//        initThreadViewProperties();
-//    }
     
     public void resumeWebView(){
     	if(getActivity() != null){
@@ -549,20 +538,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
     }
 
-//    public void destroyWebview(){
-//        if(mThreadView != null && mThreadWindow != null){
-//            try {
-//                ((ViewGroup) mThreadView.getParent()).removeView(mThreadView);
-//                ((ViewGroup) mThreadWindow.getParent()).removeView(mThreadWindow);
-//                mThreadView.destroy();
-//                mThreadView = null;
-//                mThreadWindow = null;
-//                mThreadParent.removeAllViews();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
     
     public void refreshSessionCookie(){
         if(mThreadView != null){
@@ -725,23 +700,58 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 
-    	private void rateThread() {
+	private void rateThread() {
 
-    		final CharSequence[] items = { "1", "2", "3", "4", "5" };
+		final CharSequence[] items = { "1", "2", "3", "4", "5" };
 
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-    		builder.setTitle("Rate this thread");
-    		builder.setItems(items, new DialogInterface.OnClickListener() {
-    			public void onClick(DialogInterface dialog, int item) {
-    				if (getActivity() != null) {
-    					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
-    				}
-    			}
-    		});
-    		AlertDialog alert = builder.create();
-    		alert.show();
-    	}
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		builder.setTitle("Rate this thread");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				if (getActivity() != null) {
+					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
+				}
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
 
+	
+	private void ignoreUser(final String aUserId) {
+		if(mPrefs.ignoreFormkey == null){
+			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+		}
+		if(mPrefs.showIgnoreWarning){
+		AlertDialog ignoreDialog = new AlertDialog.Builder(getAwfulActivity()).create();
+		ignoreDialog.setButton(AlertDialog.BUTTON_POSITIVE, getActivity().getString(R.string.confirm), new android.content.DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+			}
+		});
+		ignoreDialog.setButton(AlertDialog.BUTTON_NEGATIVE,getActivity().getString(R.string.cancel), (android.content.DialogInterface.OnClickListener) null);
+		ignoreDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getActivity().getString(R.string.always), new android.content.DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+				try{
+				mPrefs.setBooleanPreference("show_ignore_warning", false);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		});
+		ignoreDialog.setTitle(R.string.ignore_title);
+		ignoreDialog.setMessage(getActivity().getString(R.string.ignore_message));
+		ignoreDialog.show();
+		
+		}else{
+			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+		}
+	}
     
     @Override
     public void onSaveInstanceState(Bundle outState){
@@ -1138,11 +1148,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int SEND_PM  = 0;
         public static final int COPY_URL = 1;
         public static final int USER_POSTS = 2;
+        public static final int IGNORE_USER = 3;
 		
         final CharSequence[] mPostItems = {
             "Send Private Message",
             "Copy Post URL",
-            "Read Posts by this User"
+            "Read Posts by this User",
+            "Ignore User"
         };
 		
         final CharSequence[] mEditMenuItems = {
@@ -1151,7 +1163,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             "Mark Last Read",
             "Send Private Message",
             "Copy Post URL",
-            "Read Posts by this User"
+            "Read Posts by this User",
+            "Ignore User"
         };
 		
         final CharSequence[] mMenuItems = {
@@ -1159,14 +1172,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             "Mark Last Read",
             "Send Private Message",
             "Copy Post URL",
-            "Read Posts by this User"
+            "Read Posts by this User",
+            "Ignore User"
         };
         
         final CharSequence[] mProbatedItems = {
             "Mark Last Read",
             "Send Private Message",
             "Copy Post URL",
-            "Read Posts by this User"
+            "Read Posts by this User",
+            "Ignore User"
         };
 
         public static final int MENU_EDIT = 0;
@@ -1175,6 +1190,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int MENU_SEND_PM  = 3;
         public static final int MENU_COPY_URL = 4;
         public static final int MENU_USER_POSTS = 5;
+        public static final int MENU_USER_IGNORE = 6;
         
         public void onQuoteClick(final String aPostId) {
         	onQuoteClickInt(Integer.parseInt(aPostId));
@@ -1252,6 +1268,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onUserPostsClick(final String aUserId) {
         	onUserPostsClickInt(Integer.parseInt(aUserId));
         }
+        
         public void onUserPostsClickInt(final int aUserId) {
         	if(mUserId >0){
         		deselectUser();
@@ -1259,7 +1276,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		selectUser(aUserId);
         	}
         }
-        
+
+		public void onIgnoreUserClick(final String aUserId) {
+			// TODO Auto-generated method stub
+			ignoreUser(aUserId);
+		}
+		
         public void addCodeBounds(final String minBound, final String maxBound){
         	int min = Integer.parseInt(minBound);
         	int max = Integer.parseInt(maxBound);
@@ -1286,6 +1308,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	scrollCheckBounds[scrollCheckBounds.length-1] = max;
         	Arrays.sort(scrollCheckBounds);
         }
+
     }
     
 	private void onPostMenuItemSelected(int aItem, String aPostId, String aUsername, String aUserId, String lastread) {
@@ -1311,7 +1334,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        	}else{
 	        		selectUser(Integer.parseInt(aUserId));
 	        	}
-				break;
+			break;
+			case ClickInterface.MENU_USER_IGNORE:
+	        	clickInterface.onIgnoreUserClick(aUserId);
+			break;
 		}
 	}
     
@@ -1332,9 +1358,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		selectUser(Integer.parseInt(aUserId));
         	}
 			break;
+		case ClickInterface.IGNORE_USER:
+        	ignoreUser(aUserId);
+			break;
 		}
 	}
-	
+
 	private String[] gBImageUrlMenuItems = new String[]{
 			"Download Image",
 			"Show Image Inline",
