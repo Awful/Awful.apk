@@ -143,6 +143,8 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch( RuntimeException e){
+			e.printStackTrace();
 		}
 		onPreferenceChange(mPref);
 	}
