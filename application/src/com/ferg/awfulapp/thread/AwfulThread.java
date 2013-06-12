@@ -28,8 +28,10 @@
 package com.ferg.awfulapp.thread;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -505,8 +507,19 @@ public class AwfulThread extends AwfulPagedItem  {
         Template postTemplate = null;
 
         try {
-			postTemplate = Mustache.compiler().compile(new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache")));
-		} catch (IOException e) {
+        	Reader templateReader;
+        	if(!"default".equals(aPrefs.layout)){
+        		File template = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.layout);
+        		if(template.exists() && template.isFile() && template.canRead()){
+            		templateReader = new FileReader(template);
+        		}else{
+            		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
+            	}
+        	}else{
+        		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
+        	}
+        	postTemplate = Mustache.compiler().compile(templateReader);
+			} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "";

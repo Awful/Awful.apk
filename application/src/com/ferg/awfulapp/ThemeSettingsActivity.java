@@ -35,8 +35,10 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		lastTheme = mPrefs.getString("themes","default");
 		addPreferencesFromResource(R.xml.themesettings);
-		ListPreference p = (ListPreference) findPreference("themes");
-		p.setSummary(p.getEntry());
+		ListPreference themePref = (ListPreference) findPreference("themes");
+		ListPreference layoutPref = (ListPreference) findPreference("layouts");
+		themePref.setSummary(themePref.getEntry());
+		layoutPref.setSummary(layoutPref.getEntry());
 		
 		File[] SDcard = Environment.getExternalStorageDirectory().listFiles();
 		
@@ -45,8 +47,12 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 				File[] files = folder.listFiles();
 				ArrayList<CharSequence> themes = new ArrayList<CharSequence>();
 				ArrayList<CharSequence> themeValues = new ArrayList<CharSequence>();
-				themes.addAll(Arrays.asList(p.getEntries()));
-				themeValues.addAll(Arrays.asList(p.getEntryValues()));
+				ArrayList<CharSequence> layouts = new ArrayList<CharSequence>();
+				ArrayList<CharSequence> layoutValues = new ArrayList<CharSequence>();
+				themes.addAll(Arrays.asList(themePref.getEntries()));
+				themeValues.addAll(Arrays.asList(themePref.getEntryValues()));
+				layouts.addAll(Arrays.asList(layoutPref.getEntries()));
+				layoutValues.addAll(Arrays.asList(layoutPref.getEntryValues()));
 				for(File folderFile: files){
 					if(folderFile.canRead() && folderFile.getName() != null){
 						String[] fileName = folderFile.getName().split("\\.");
@@ -58,10 +64,17 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 							}
 							themeValues.add(folderFile.getName());
 						}
+						if("mustache".equals(fileName[fileName.length-1])){
+							layouts.add(fileName[0]);
+							layoutValues.add(folderFile.getName());
+						}
 					}
 				}
-				p.setEntries(themes.toArray(new CharSequence[themes.size()]));
-				p.setEntryValues(themeValues.toArray(new CharSequence[themeValues.size()]));
+				layoutPref.setEntries(layouts.toArray(new CharSequence[layouts.size()]));
+				layoutPref.setEntryValues(layoutValues.toArray(new CharSequence[layoutValues.size()]));
+
+				themePref.setEntries(themes.toArray(new CharSequence[themes.size()]));
+				themePref.setEntryValues(themeValues.toArray(new CharSequence[themeValues.size()]));
 			}
 		}
 		

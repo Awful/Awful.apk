@@ -73,6 +73,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean lockScrolling;
 	public String theme;
 	public boolean forceForumThemes;
+	public String layout;
 	/**
 	 * for selecting icon set
 	 * light
@@ -192,6 +193,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		postFontSizeDip            = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		theme					 = mPrefs.getString("themes", "default.css");
+		layout					 = mPrefs.getString("layouts", "default");
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         no3gImages	             = mPrefs.getBoolean("no_3g_images", false);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);

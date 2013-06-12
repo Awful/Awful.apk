@@ -13,6 +13,9 @@
         <item>amberpos.css</item>
         <item>classic.css</item>
     </string-array>
+    <string-array name="layouts_values">
+        <item>default</item>
+    </string-array>
     <string-array name="icon_themes_values">
         <item>light</item>
         <item>dark</item>

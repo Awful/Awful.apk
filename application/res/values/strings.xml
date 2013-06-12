@@ -49,6 +49,7 @@
     <string name="default_post_font_size">Default Post Font Size</string>
     <string name="colors">Change Colors and Fonts</string>
     <string name="themes">Choose Theme</string>
+    <string name="layouts">Choose Layout</string>
     <string name="alternate_backgrounds">Alternate Post BG Colors</string>
     <string name="default_post_font_color">Default Post Font Color</string>
     <string name="secondary_post_font_color">Alternative Font Color</string>
@@ -109,6 +110,9 @@ AQuery</string>
         <item>yospos</item>
         <item>amberpos</item>
         <item>Classic</item>
+	</string-array>
+	<string-array name="layouts">
+        <item>Default</item>
 	</string-array>
 	<string-array name="icon_themes">
 		<item>Black</item>
