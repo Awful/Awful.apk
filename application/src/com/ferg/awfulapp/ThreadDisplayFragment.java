@@ -679,6 +679,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 		return url.toString();
     }
+	
+	private String generatePostUrl(String postId){
+    	StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_GOTO);
+		url.append("=");
+		url.append(Constants.VALUE_POST);
+		url.append("&");
+		url.append(Constants.PARAM_POST_ID);
+		url.append("=");
+		url.append(postId);
+		return url.toString();
+    }
     
     private Intent createShareIntent(){
     	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
@@ -1271,7 +1285,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         public void onUserPostsClickInt(final int aUserId) {
         	if(mUserId >0){
-        		deselectUser();
+        		deselectUser("0");
         	}else{
         		selectUser(aUserId);
         	}
@@ -1330,7 +1344,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				break;
 			case ClickInterface.MENU_USER_POSTS:
 				if(mUserId >0){
-	        		deselectUser();
+	        		deselectUser(aPostId);
 	        	}else{
 	        		selectUser(Integer.parseInt(aUserId));
 	        	}
@@ -1353,7 +1367,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		case ClickInterface.USER_POSTS:
 			if(mUserId >0){
-        		deselectUser();
+        		deselectUser(aPostId);
         	}else{
         		selectUser(Integer.parseInt(aUserId));
         	}
@@ -1533,15 +1547,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         syncThread();
 	}
 	
-	public void deselectUser(){
-		mUserId = 0;
-		setPage(savedPage);
-		mLastPage = 0;
-		mPostJump = "";
+	public void deselectUser(String postId){
 		if(mThreadView != null){
 			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 		}
-        syncThread();
+		if("0".equals(postId)){
+			mUserId = 0;
+			setPage(savedPage);
+			mLastPage = 0;
+			mPostJump = "";
+			syncThread();
+		}else{
+	        openThread(AwfulURL.parse(generatePostUrl(postId)));
+		}
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
