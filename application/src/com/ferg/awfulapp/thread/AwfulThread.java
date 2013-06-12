@@ -28,9 +28,12 @@
 package com.ferg.awfulapp.thread;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +70,9 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.ThreadTask;
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.MustacheException;
+import com.samskivert.mustache.Template;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -496,52 +502,43 @@ public class AwfulThread extends AwfulPagedItem  {
 
     public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked, boolean isTablet) {
         StringBuffer buffer = new StringBuffer();
+        Template postTemplate = null;
+
+        try {
+			postTemplate = Mustache.compiler().compile(new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "";
+		}
+
 
         for (AwfulPost post : aPosts) {
 
-            boolean avatar = aPrefs.canLoadAvatars() && post.getAvatar() != null;
-        
-            
-        	buffer.append("<div class='post"+(post.isPreviouslyRead() ? " read" : " unread")+(post.isOp()? " op" : "")+(aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)? " self" : "")+"'  id='" + post.getId() + "'>");
-        	buffer.append("<div class='postheader'>");
-     		buffer.append("<div class='postinfo'>");
-     		if(avatar && post.getAvatar().length()>0){
-	     		buffer.append("<div class='avatar-cell'>");
-	     		buffer.append("<div class='avatar' style='background-image:url(\""+post.getAvatar()+"\");'>");
-	     		buffer.append("<img class='avatarCorner' src='file:///android_asset/images/avatarCorner.png' alt=''/>");
-	     		buffer.append("</div>");
-	     		buffer.append("</div>");
-     		}
-     		buffer.append("<div class='postinfo-poster'>"+post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")+"</div>");
-     		buffer.append("<div class='postinfo-postdate'>"+post.getDate()+"</div>");
-			buffer.append("<div class='postinfo-regdate'>Reg Date: "+post.getRegDate()+"</div>");
-			buffer.append("<div class='postinfo-title'>"+post.getAvatarText()+"</div>");
-			buffer.append("</div>");
-			buffer.append("<div class='postmenu'></div>");
-			buffer.append("</div>");
-			buffer.append("<div class='postoptions'>");
-			buffer.append("<div class='more' username='" + post.getUsername() + "' userid='" + post.getUserId() + "'>");
-			buffer.append("more");
-			buffer.append("</div>");
-			buffer.append("<div class='lastread' lastreadurl='" + post.getLastReadUrl() + "'>");
-			buffer.append("last read");
-			buffer.append("</div>");
-			if(!aPrefs.isOnProbation()){
-				if(post.isEditable()){
-					buffer.append("<div class='edit'>");
-					buffer.append("edit");
-					buffer.append("</div>");
-	        	}
-				buffer.append("<div class='quote'>");
-				buffer.append("quote");
-				buffer.append("</div>");
-			}
-			buffer.append("</div>");
-			buffer.append("<div class='postcontent'>");
-			buffer.append(post.getContent());
-			buffer.append("</div>");
-			buffer.append("</div>");
-
+        	Map<String, String> postData = new HashMap<String, String>();
+        	
+        	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
+        	postData.put("isOP", (post.isOp())?"op":null);
+        	postData.put("postID", post.getId());
+        	postData.put("isSelf", (aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)) ? "self" : null);
+        	postData.put("avatarURL", (aPrefs.canLoadAvatars() && post.getAvatar() != null &&  post.getAvatar().length()>0) ? post.getAvatar() : null);
+        	postData.put("username", post.getUsername());
+        	postData.put("userID", post.getUserId());
+        	postData.put("postDate", post.getDate());
+        	postData.put("regDate", post.getRegDate());
+        	postData.put("mod", (post.isMod())?"mod":null);
+        	postData.put("admin", (post.isAdmin())?"admin":null);
+        	postData.put("avatarText", post.getAvatarText());
+        	postData.put("lastReadUrl",  post.getLastReadUrl());
+        	postData.put("notOnProbation", (aPrefs.isOnProbation())?null:"notOnProbation");
+        	postData.put("editable", (post.isEditable())?"editable":null);
+        	postData.put("postcontent",  post.getContent());
+        	
+        	try{
+        		buffer.append(postTemplate.execute(postData));
+        	}catch(MustacheException e){
+        		e.printStackTrace();
+        	}
         }
 
         return buffer.toString();

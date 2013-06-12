@@ -1,0 +1,39 @@
+<div class="post {{ seen }} {{# isOP }}op{{/isOP }} {{# isSelf }}self{{/isSelf }}"  id="{{ postID }}">
+	<div class="postheader">
+     		<div class="postinfo">
+     			{{# avatarURL }}
+	     		<div class="avatar-cell">
+	     		<div class="avatar" style="background-image:url('{{ . }}')">
+	     		<img class="avatarCorner" src="file:///android_asset/images/avatarCorner.png" alt=""/>
+	     		</div>
+	     		</div>
+     			{{/avatarURL }}
+     			<div class="postinfo-poster">{{ username }} {{# mod }}<img src="file:///android_res/drawable/ic_star_blue.png" />{{/mod }} {{# admin }}<img src="file:///android_res/drawable/ic_star_red.png" />{{/admin }} </div>
+     			<div class="postinfo-postdate">{{ postDate }}</div>
+			<div class="postinfo-regdate">Reg Date: {{ regDate }}</div>
+			<div class="postinfo-title">{{{ avatarText }}}</div>
+		</div>
+		<div class="postmenu"></div>
+		</div>
+		<div class="postoptions">
+			<div class="more" username="{{ username }}" userid="{{ userID }}">
+				more
+			</div>
+			<div class="lastread" lastreadurl="{{ lastReadUrl }}">
+				last read
+			</div>
+			{{# notOnProbation }}
+				{{# editable }}
+					<div class="edit">
+						edit
+					</div>
+	        	{{/editable }}
+				<div class="quote">
+					quote
+				</div>
+			{{/notOnProbation }}
+		</div>
+	<div class="postcontent">
+		{{{ postcontent }}}
+	</div>
+</div>
