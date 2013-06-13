@@ -453,7 +453,6 @@ public class AwfulThread extends AwfulPagedItem  {
         
         
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/default.js' type='text/javascript'></script>\n");
@@ -474,11 +473,6 @@ public class AwfulThread extends AwfulPagedItem  {
 
         //buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
         
-        if(isTablet){
-            buffer.append(".phone {display:none;}\n");
-        }else{
-            buffer.append(".tablet {display:none;}\n");
-        }
         if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
             buffer.append(".read {display:none;}\n");
         }else{
