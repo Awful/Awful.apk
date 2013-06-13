@@ -27,35 +27,44 @@
 
 package com.ferg.awfulapp.widget;
 
+import org.acra.ACRA;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
+import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
+import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 
-public class AwfulProgressBar extends View {
+public class AwfulProgressBar extends View implements AwfulUpdateCallback {
 	private int mProgress = 100;
 	private Paint mProgressColor;
 	private Paint mClearColor;
+	private AwfulPreferences aPrefs;
 	
 
 	public AwfulProgressBar(Context context) {
 		super(context);
+		aPrefs = new AwfulPreferences(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		aPrefs = new AwfulPreferences(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		aPrefs = new AwfulPreferences(this.getContext(), this);
 		setPaint(context);
 	}
 	
@@ -85,5 +94,23 @@ public class AwfulProgressBar extends View {
 			setVisibility(View.GONE);
 		}
 	}
+	
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+			this.setPaint(getContext());
+	}
+
+	@Override
+	public void loadingFailed(Message aMsg) {}
+
+	@Override
+	public void loadingStarted(Message aMsg) {}
+
+	@Override
+	public void loadingUpdate(Message aMsg) {}
+
+	@Override
+	public void loadingSucceeded(Message aMsg) {}
 
 }
