@@ -30,6 +30,7 @@ package com.ferg.awfulapp.task;
 import java.util.HashMap;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -60,16 +61,20 @@ public class ReportTask extends AwfulTask {
 	            para.put(Constants.PARAM_COMMENTS, mComments);
 	            para.put(Constants.PARAM_POST_ID, String.valueOf(mId));
 				Document result = NetworkUtils.post(Constants.FUNCTION_REPORT, para);
-				if(result.getElementById("bla") != null){
-					return null;
-				}else{
-					return "Someone has already reported this thread recently";
-				}
-			
-		} catch (Exception e) {
+				if(result.getElementById("content") != null){
+					Element standard = result.getElementsByClass("standard").first();
+					if(standard != null && standard.hasText()){
+						if(standard.text().contains("Thank you, but this thread has already been reported recently!")){
+							return "Someone has already reported this thread recently";
+						}else if(standard.text().contains("Thank you, but your princess is in another castle")){
+							return "Thank you for your report";
+						}
+					}
+				}	
+				return null;
+				} catch (Exception e) {
 			Log.e(TAG,"PM Send Failure: "+Log.getStackTraceString(e));
 			return "Failed to send report!";
 		}
 	}
-
 }
