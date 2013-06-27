@@ -85,10 +85,12 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static View getView(View current, AwfulPreferences aPref, Cursor data, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		String t = data.getString(data.getColumnIndex(TITLE));
+		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
+		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
 		if(t != null){
 			title.setText(t);
 		}
-		TextView author = (TextView) current.findViewById(R.id.subtext);
+		TextView author = (TextView) current.findViewById(R.id.threadinfo);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
 		String date = data.getString(data.getColumnIndex(AUTHOR));
 		if(auth != null && date != null){
