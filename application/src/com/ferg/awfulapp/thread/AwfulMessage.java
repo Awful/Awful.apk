@@ -107,7 +107,7 @@ public class AwfulMessage extends AwfulPagedItem {
 
 		if(aPref != null){
 			title.setTextColor(ColorProvider.getTextColor(aPref));
-			author.setTextColor(ColorProvider.getTextColor(aPref));
+			author.setTextColor(ColorProvider.getAltTextColor(aPref));
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
