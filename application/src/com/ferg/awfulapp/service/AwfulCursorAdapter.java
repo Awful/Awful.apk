@@ -110,7 +110,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.post_item, parent, false);
 			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
-			row = inf.inflate(R.layout.forum_item, parent, false);
+			row = inf.inflate(R.layout.thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			row = inf.inflate(R.layout.emote_grid_item, parent, false);

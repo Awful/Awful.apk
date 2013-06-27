@@ -24,8 +24,7 @@
 		android:name="com.ferg.awfulapp.AwfulApplication"
 		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
-        android:theme="@style/Theme.Sherlock"
-		android:debuggable="true">
+        android:theme="@style/Theme.Sherlock">
         <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask">
             <intent-filter>
