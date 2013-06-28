@@ -93,14 +93,8 @@ div.postcontent .bbc-block.code, div.postcontent pre{
 overflow: scroll;
 }
 
-.postcontent img{
+.postcontent img, .postcontent iframe{
 max-width: 100% !important;
-}
-
-.postcontent iframe{
-max-width: 100% !important;
-width: auto !important;
-height: auto !important;
 }
 
 div.postheader {
@@ -178,7 +172,7 @@ background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
 div.postoptions div {
-float:left;
+float:right;
 margin-right:5px;
 height:15px;
 background-repeat:no-repeat;

@@ -84,14 +84,8 @@ margin:5px 0;
 padding:5px 10px 5px 20px;
 }
 
-.postcontent img{
+.postcontent img, .postcontent iframe{
 max-width: 100% !important;
-}
-
-.postcontent iframe{
-max-width: 100% !important;
-width: auto !important;
-height: auto !important;
 }
 
 div.postcontent .bbc-block h4 {
@@ -182,7 +176,7 @@ background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
 div.postoptions div {
-float:left;
+float:right;
 margin-right:5px;
 height:15px;
 background-repeat:no-repeat;

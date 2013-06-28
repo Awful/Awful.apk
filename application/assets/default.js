@@ -20,10 +20,11 @@ function changeCSS(theme){
 }
 
 $('document').ready(function(){
-$('.postinfo').click(function(){
-toggleinfo($(this));
-});
-$('.postmenu').click(function(){
-toggleoptions($(this));
-});
+	$('.postinfo').click(function(){
+		toggleinfo($(this));
+	});
+	$('.postmenu').click(function(){
+		toggleoptions($(this));
+	});
+	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
 });
