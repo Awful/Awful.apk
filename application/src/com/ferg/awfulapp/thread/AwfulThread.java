@@ -436,6 +436,7 @@ public class AwfulThread extends AwfulPagedItem  {
         	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/jquery.ba-resize.min.js' type='text/javascript'></script>\n");
         
         buffer.append("<script type='text/javascript'>\n");
         buffer.append("  window.JSON = null;");
@@ -455,7 +456,6 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/default.js' type='text/javascript'></script>\n");
         
 
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
