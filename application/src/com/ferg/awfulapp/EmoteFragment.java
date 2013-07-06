@@ -100,7 +100,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflateView(R.layout.emote_view, container, inflater);
-		adapter = new AwfulCursorAdapter(getAwfulActivity(), null);
+		adapter = new AwfulCursorAdapter(getAwfulActivity(), null, null);
 		aq.find(R.id.delete_button).clicked(this);
 		filterText = aq.find(R.id.filter_text).textColor(ColorProvider.getTextColor(mPrefs)).getEditText();
 		filterText.addTextChangedListener(new TextWatcher() {

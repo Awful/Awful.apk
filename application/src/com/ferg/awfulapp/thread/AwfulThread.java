@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.android.volley.toolbox.NetworkImageView;
+import com.ferg.awfulapp.AwfulFragment;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -552,54 +554,46 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
 	@SuppressWarnings("deprecation")
-	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean selected) {
+	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, AwfulFragment parent) {
 		aq.recycle(current);
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
-		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
-		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
 		TextView title = (TextView) current.findViewById(R.id.title);
+        TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
+        int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
+        boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
 		info.setSingleLine(!prefs.wrapThreadTitles);
-		
-		if(stuck){
-			sticky.setImageResource(R.drawable.ic_sticky);
-			sticky.setVisibility(View.VISIBLE);
-		}else{
-			sticky.setVisibility(View.GONE);
-		}
-		
+
+        NetworkImageView threadTag = (NetworkImageView) current.findViewById(R.id.thread_tag);
 		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			aq.id(R.id.thread_tag).gone();
+            threadTag.setVisibility(View.GONE);
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 			if(tagFile != null){
-				aq.id(R.id.thread_tag).visible().image(data.getString(data.getColumnIndex(TAG_URL)), true, true);
+                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
 			}else{
-				aq.id(R.id.thread_tag).gone();
+                threadTag.setVisibility(View.GONE);
 			}
 		}
 
 		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page && !prefs.threadInfo_Rating){
-			info.setVisibility(View.GONE);
+            info.setVisibility(View.VISIBLE);
+			info.setText("");
 		}else{
 			info.setVisibility(View.VISIBLE);
 			StringBuilder tmp = new StringBuilder();
 			if(prefs.threadInfo_Page){
-				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");	
+				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");
 			}
-			if(prefs.threadInfo_Killed){
-				if(tmp.length()>0){
-					tmp.append(" | ");
-				}
-				tmp.append("Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
-			}
-			if(prefs.threadInfo_Author){
-				if(tmp.length()>0){
-					tmp.append(" | ");
-				}
-				tmp.append("OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
-			}
-			if(prefs.threadInfo_Rating && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+            if(hasViewedThread){
+                tmp.append(" | Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
+            }else{
+                tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
+            }
+
+            //TODO update to work with new layout
+            //TODO also, update to use local assets
+			if(prefs.threadInfo_Rating && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){//TODO how does this need external media? AQ doesn't require it, it'll revert to memcache
 				String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 				if(tagFile != null){
 					switch(data.getInt(data.getColumnIndex(RATING))){
@@ -630,52 +624,27 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 			info.setText(tmp.toString().trim());
 		}
-		int mark = data.getInt(data.getColumnIndex(BOOKMARKED));
-		if(mark > 1 || (!hideBookmark && mark == 1)){
-			switch(mark){
-			case 1:
-				bookmark.setImageResource(R.drawable.ic_star_blue);
-				break;
-			case 2:
-				bookmark.setImageResource(R.drawable.ic_star_red);
-				break;
-			case 3:
-				bookmark.setImageResource(R.drawable.ic_star_gold);
-				break;
-			}
-			bookmark.setVisibility(View.VISIBLE);
-			if(!stuck){
-				bookmark.setPadding(0, 5, 4, 0);
-			}
-		}else{
-			if(!stuck){
-				bookmark.setVisibility(View.GONE);
-			}else{
-				bookmark.setVisibility(View.INVISIBLE);
-			}
-			
-		}
-		
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
-		
-		TextView unread = (TextView) current.findViewById(R.id.unread_count);
-		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
-		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
+        if(stuck){
+            info.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_sticky, 0, 0, 0);
+        }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
+            //don't show lock if sticky, aka: every rules thread
+            info.setCompoundDrawablesWithIntrinsicBounds(R.drawable.light_inline_lock,0,0,0);
+            current.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        }else{
+            info.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        }
+
 		unread.setTextColor(ColorProvider.getUnreadColorFont(prefs));
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
-			unread.setText(unreadCount+"");
+			unread.setText(Integer.toString(unreadCount));
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
             counter.setColor(ColorProvider.getUnreadColor(prefs));
             unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
-			unread.setText(unreadCount+"");
+			unread.setText(Integer.toString(unreadCount));
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
             counter.setColor(ColorProvider.getUnreadColorDim(prefs));
             unread.setBackgroundDrawable(counter);
@@ -686,7 +655,6 @@ public class AwfulThread extends AwfulPagedItem  {
 		title.setTypeface(null, Typeface.NORMAL);
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
 			title.setText(data.getString(data.getColumnIndex(TITLE)));
-			//title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
 			title.setTextColor(ColorProvider.getTextColor(prefs));
@@ -697,14 +665,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			}else{
 				title.setEllipsize(null);
 			}
-		}
-		
-		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
-			aq.find(R.id.forum_tag).image(R.drawable.light_inline_lock).visible().width(15);
-			current.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-		}else{
-			aq.find(R.id.forum_tag).gone();
-			current.setBackgroundDrawable(null);
 		}
 	}
 	

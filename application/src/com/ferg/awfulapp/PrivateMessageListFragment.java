@@ -98,7 +98,7 @@ public class PrivateMessageListFragment extends AwfulFragment {
 
         mPMList.setOnItemClickListener(onPMSelected);
         
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, this);
         mPMList.setAdapter(mCursorAdapter);
     }
     

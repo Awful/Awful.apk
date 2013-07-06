@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.util.LRUImageCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
@@ -29,6 +34,10 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 	private AwfulPreferences mPref;
 	private HashMap<String, Typeface> fonts = new HashMap<String, Typeface>();
 
+    private RequestQueue networkQueue;
+    private ImageLoader imageLoader;
+    private LRUImageCache imageCache;
+
 	private Typeface currentFont;
     @Override
     public void onCreate() {
@@ -49,6 +58,10 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
                 e.printStackTrace();
             }
         }
+
+        networkQueue = Volley.newRequestQueue(this);
+        imageCache = new LRUImageCache();
+        imageLoader = new ImageLoader(networkQueue, imageCache);
     }
 
 	public void setFontFromPreference(TextView textView, int flags){
@@ -154,6 +167,16 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
-	
-	
+
+    public void queueRequest(Request request){
+        networkQueue.add(request);
+    }
+
+    public void cancelRequests(Object tag){
+        networkQueue.cancelAll(tag);
+    }
+
+    public ImageLoader getImageLoader(){
+        return imageLoader;
+    }
 }

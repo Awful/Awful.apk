@@ -56,6 +56,7 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
@@ -122,7 +123,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         TAG = "ForumDisplayFragment";
     }
 
-	private AwfulCursorAdapter mCursorAdapter;
+	private ThreadCursorAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
@@ -211,7 +212,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	}
         
 
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
+        mCursorAdapter = new ThreadCursorAdapter((AwfulActivity) getActivity(), null, this);
         mPullRefreshListView.setAdapter(mCursorAdapter);
         mPullRefreshListView.setOnItemClickListener(onThreadSelected);
         mPullRefreshListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
@@ -628,9 +629,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-    		if(mCursorAdapter != null){
-    			mCursorAdapter.setId(id);
-    		}
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}

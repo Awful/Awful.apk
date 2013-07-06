@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="4dp"
+    android:paddingBottom="6dp">
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/unread_count"
+        android:textColor="@color/default_post_font"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="2dp"
+        android:textSize="18dip" />
+
+    <com.android.volley.toolbox.NetworkImageView
+        android:id="@+id/thread_tag"
+        android:layout_width="60dp"
+        android:layout_height="15dp"
+        android:layout_below="@id/title"
+        android:layout_marginLeft="8dp" />
+
+    <TextView
+        android:id="@+id/threadinfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_toRightOf="@+id/thread_tag"
+        android:layout_toLeftOf="@+id/unread_count"
+        android:layout_alignTop="@+id/thread_tag"
+        android:includeFontPadding="false"
+        android:layout_marginLeft="4dp"
+        android:textColor="@color/secondary_post_font"
+        android:textSize="12dip" />
+
+    <TextView
+        android:id="@+id/unread_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dip"
+        android:layout_marginRight="4dip"
+        android:minWidth="30dp"
+        android:gravity="center_horizontal"
+        android:text="151"
+        android:background="@drawable/unread_counter"
+        android:textColor="#ffffff"
+        android:textSize="14dip"
+        android:textStyle="bold" />
+
+</RelativeLayout>

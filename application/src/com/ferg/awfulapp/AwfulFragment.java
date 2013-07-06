@@ -42,6 +42,8 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request;
+import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -324,5 +326,35 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
 
-    
+    protected AwfulApplication getAwfulApplication(){
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            return (AwfulApplication) act.getApplication();
+        }
+        return null;
+    }
+
+    protected void queueRequest(Request request, boolean cancelOnDestroy){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null && request != null){
+            if(cancelOnDestroy){
+                request.setTag(this);
+            }
+            app.queueRequest(request);
+        }
+    }
+
+    protected void cancelNetworkRequests(){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null){
+            app.cancelRequests(this);
+        }
+    }
+
+    public ImageLoader getImageLoader(){
+        if(getAwfulApplication() != null){
+            return getAwfulApplication().getImageLoader();
+        }
+        return null;
+    }
 }
