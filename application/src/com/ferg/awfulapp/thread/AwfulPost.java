@@ -538,11 +538,8 @@ public class AwfulPost {
 								if (!dontLink) {
 									String thumb = src;
 									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
-										int lastSlash = thumb.lastIndexOf('/');
-										if(src.length()-lastSlash<=9){
-											int pos = thumb.length() - 4;
-											thumb = thumb.substring(0, pos) + prefs.imgurThumbnails + thumb.substring(pos);
-										}
+										int lastDot = thumb.lastIndexOf('.');
+										thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
 									}
                                     if(prefs.disableTimgs || !isTimg){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
