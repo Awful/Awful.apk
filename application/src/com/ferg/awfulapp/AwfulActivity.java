@@ -3,6 +3,9 @@ package com.ferg.awfulapp;
 import java.io.File;
 import java.util.LinkedList;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -31,6 +34,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -56,6 +60,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     protected AwfulPreferences mPrefs;
     
+	protected PullToRefreshAttacher mP2RAttacher;
+    
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
@@ -72,6 +78,10 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
+    	Options p2roptions = new Options();
+    	p2roptions.headerTransformer = new AwfulHeaderTransformer();
+    	p2roptions.refreshOnUp = true;
+    	mP2RAttacher = new PullToRefreshAttacher(this, p2roptions);
     }
 
     @Override
@@ -312,4 +322,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
+	
+	
+	PullToRefreshAttacher getPullToRefreshAttacher() {
+        return mP2RAttacher;
+    }
 }

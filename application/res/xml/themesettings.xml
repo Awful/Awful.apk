@@ -34,10 +34,5 @@
             android:entryValues="@array/icon_themes_values"
 			android:defaultValue="light"
             />
-            <CheckBoxPreference
-			android:key="refresh_frog"
-			android:title="@string/refreshFrog"
-			android:defaultValue="false"
-			/>
         </PreferenceCategory>
 </PreferenceScreen>

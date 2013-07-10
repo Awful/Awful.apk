@@ -25,7 +25,7 @@
 		/>
     -->
 
-    <com.ferg.awfulapp.widget.PullToRefreshTreeView
+    <pl.polidea.treeview.TreeViewList
         android:id="@+id/index_pull_tree_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

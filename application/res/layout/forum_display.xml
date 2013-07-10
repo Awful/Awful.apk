@@ -15,7 +15,7 @@
         android:id="@+id/probationbar"
         layout="@layout/probationbar"
         />
-	<com.handmark.pulltorefresh.library.PullToRefreshListView
+	<ListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
 		android:layout_height="0dip"

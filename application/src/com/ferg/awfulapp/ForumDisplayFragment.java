@@ -61,14 +61,15 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 import com.ferg.awfulapp.widget.NumberPicker;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
 
 /**
  * Uses intent extras:
@@ -78,14 +79,15 @@ import java.util.Date;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
-    private PullToRefreshListView mPullRefreshListView;
+    private ListView mListView;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
     private TextView mPageCountText;
 	private ImageButton mToggleSidebar;
+	private PullToRefreshAttacher mP2RAttacher;
 	
 	private View mProbationBar;
 	private TextView mProbationMessage;
@@ -136,25 +138,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
-    	mPullRefreshListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
+    	mListView = (ListView) result.findViewById(R.id.forum_list);
         //mListView.setDrawingCacheEnabled(true);
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-			
-			@Override
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				syncForum();
-			}
-		});
-        mPullRefreshListView.setDisableScrollingWhileRefreshing(false);
-        mPullRefreshListView.setMode(Mode.PULL_DOWN_TO_REFRESH);
-        mPullRefreshListView.setPullLabel("Pull to Refresh");
-        mPullRefreshListView.setReleaseLabel("Release to Refresh");
-        mPullRefreshListView.setRefreshingLabel("Loading...");
-        if(mPrefs.refreshFrog){
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-        }else{
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-        }
+
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -212,12 +199,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         
 
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
-        mPullRefreshListView.setAdapter(mCursorAdapter);
-        mPullRefreshListView.setOnItemClickListener(onThreadSelected);
-        mPullRefreshListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-        mPullRefreshListView.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+        mListView.setAdapter(mCursorAdapter);
+        mListView.setOnItemClickListener(onThreadSelected);
+        mListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+        mListView.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
         
-        registerForContextMenu(mPullRefreshListView.getRefreshableView());
+        registerForContextMenu(mListView);
     }
 
 	public void updatePageBar(){
@@ -287,6 +274,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
 	public void onPageVisible() {
 		syncForumsIfStale();
+        if(mP2RAttacher != null){
+        	mP2RAttacher.setEnabled(true);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setRefreshableView(mListView, this);
+        }
 	}
 	
 	@Override
@@ -526,8 +518,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(aMsg.obj == null && getActivity() != null){
 			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 		}
-		mPullRefreshListView.onRefreshComplete();
-    	mPullRefreshListView.setLastUpdatedLabel("Loading Failed!");
 		lastRefresh = System.currentTimeMillis();
 		loadFailed = true;
     }
@@ -539,12 +529,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
     		if(isResumed() && isVisible()){
-    			mPullRefreshListView.invalidate();
+    			mListView.invalidate();
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
-				mPullRefreshListView.onRefreshComplete();
-		        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
     			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
     			lastRefresh = System.currentTimeMillis();
     			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
@@ -572,16 +560,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mPullRefreshListView!=null){
-			mPullRefreshListView.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-			mPullRefreshListView.setTextColor(ColorProvider.getTextColor(prefs), ColorProvider.getAltTextColor(prefs));
-            mPullRefreshListView.setHeaderBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-			mPullRefreshListView.getRefreshableView().setCacheColorHint(ColorProvider.getBackgroundColor(prefs));
-	        if(mPrefs.refreshFrog){
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-	        }else{
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-	        }
+		if(mListView!=null){
+			mListView.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+			mListView.setCacheColorHint(ColorProvider.getBackgroundColor(prefs));
 		}
 		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(prefs));
 		aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(prefs));
@@ -819,18 +800,22 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
 	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(false);
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, 0);
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(true);
+	            	mListView.smoothScrollBy(-mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
 	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, 0);
+	            	mListView.smoothScrollBy(mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:
 	            return false;
 	        }
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+		mP2RAttacher.setRefreshComplete();
+		syncForum();
 	}
 }
