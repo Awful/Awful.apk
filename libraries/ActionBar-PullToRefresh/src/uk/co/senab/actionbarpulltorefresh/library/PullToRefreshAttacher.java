@@ -334,15 +334,15 @@ public class PullToRefreshAttacher implements View.OnTouchListener {
                 }
 
                 if (mIsBeingDragged) {
-                    final float yDx = y - mLastMotionY;
+                    final float yDx = isPulledFromBottom() ? (- mLastMotionY -y ): (y - mLastMotionY);
 
                     /**
                      * Check to see if the user is scrolling the right direction.
                      * We allow a small scroll up which is the check against negative touch slop.
                      */
-                    
+
                     if(isPulledFromBottom()){
-                        if (yDx >= mTouchSlop) {
+                        if (yDx < mTouchSlop) {
                             onPull(y);
                             // Only record the y motion if the user has scrolled up.
                             if (yDx < 0f) {
@@ -447,7 +447,11 @@ public class PullToRefreshAttacher implements View.OnTouchListener {
 
     private boolean checkScrollForRefresh() {
         if (mIsBeingDragged && mRefreshOnUp) {
-            if (mLastMotionY - mPullBeginY >= getScrollNeededForRefresh()) {
+            if (!isPulledFromBottom() && (mLastMotionY - mPullBeginY >= getScrollNeededForRefresh())) {
+                setRefreshingInt(true, true);
+                return true;
+            }
+            if (isPulledFromBottom() && (-mLastMotionY + mPullBeginY >= getScrollNeededForRefresh())) {
                 setRefreshingInt(true, true);
                 return true;
             }
