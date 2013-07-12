@@ -82,7 +82,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     
     private TreeViewList mForumTree;
 //    private PullToRefreshExpandableListView mForumList;
-    private PullToRefreshAttacher mP2RAttacher;
     
     private AwfulTreeListAdapter mTreeAdapter;
 	private InMemoryTreeStateManager<ForumEntry> dataManager;
@@ -518,7 +517,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	@Override
 	public void onRefreshStarted(View view) {
-		mP2RAttacher.setRefreshComplete();
 		syncForums();
 	}
 }

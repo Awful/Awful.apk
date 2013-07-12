@@ -116,7 +116,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
 
-    private PullToRefreshAttacher mP2RAttacher;
     private WebView mThreadView;
     private ViewGroup mThreadParent;
 
@@ -1150,7 +1149,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 	@Override
 	public void onRefreshStarted(View view) {
-		mP2RAttacher.setRefreshComplete();
         if(getPage() < mLastPage){
             goToPage(getPage()+1);
         }else{
