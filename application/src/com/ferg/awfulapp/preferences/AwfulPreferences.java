@@ -69,7 +69,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	//THEME STUFF
 	public int postFontSizeDip;
 	public int postFontSizePx;
-	public boolean refreshFrog;
 	public boolean lockScrolling;
 	public String theme;
 	public boolean forceForumThemes;
@@ -224,7 +223,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
-        refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
         disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
