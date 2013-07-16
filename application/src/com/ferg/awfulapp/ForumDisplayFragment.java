@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.ContentObserver;
@@ -70,6 +71,7 @@ import java.util.Date;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
 
 /**
@@ -141,7 +143,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	mListView = (ListView) result.findViewById(R.id.forum_list);
         //mListView.setDrawingCacheEnabled(true);
 
-    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mListView,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
+        }
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -169,6 +175,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		
         return result;
     }
+	
+	@Override
+	public void onAttach(Activity aActivity) {
+		super.onAttach(aActivity);
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+	}
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
@@ -275,11 +287,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
 	public void onPageVisible() {
 		syncForumsIfStale();
-        if(mP2RAttacher != null){
-        	mP2RAttacher.setEnabled(true);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setRefreshableView(mListView, this);
-        }
 	}
 	
 	@Override

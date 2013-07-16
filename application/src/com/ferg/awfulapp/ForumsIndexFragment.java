@@ -107,6 +107,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
     }
 
     @Override
@@ -115,10 +116,11 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
         mForumTree = (TreeViewList) result.findViewById(R.id.index_pull_tree_view);
-    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        mP2RAttacher.setRefreshableView(mForumTree, new AbsListViewDelegate(), this);
-        mP2RAttacher.setEnabled(true);
-        mP2RAttacher.setPullFromBottom(false);
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
+        }
         mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
         mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
 
@@ -157,11 +159,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
-        if(mP2RAttacher != null){
-        	mP2RAttacher.setEnabled(true);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setRefreshableView(mForumTree, this);
-        }
 	}
 	
 	@Override

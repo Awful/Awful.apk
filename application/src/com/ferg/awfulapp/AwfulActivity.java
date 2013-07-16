@@ -81,7 +81,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	Options p2roptions = new Options();
     	p2roptions.headerTransformer = new AwfulHeaderTransformer();
     	p2roptions.refreshOnUp = true;
-    	mP2RAttacher = new PullToRefreshAttacher(this, p2roptions);
+    	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
     @Override
