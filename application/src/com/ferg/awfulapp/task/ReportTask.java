@@ -66,7 +66,7 @@ public class ReportTask extends AwfulTask {
 					if(standard != null && standard.hasText()){
 						if(standard.text().contains("Thank you, but this thread has already been reported recently!")){
 							return "Someone has already reported this thread recently";
-						}else if(standard.text().contains("Thank you, but your princess is in another castle")){
+						}else if(standard.text().contains("Your alert has been submitted to the Moderators.")){
 							return "Thank you for your report";
 						}
 					}
