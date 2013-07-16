@@ -57,6 +57,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Messenger;
+import android.sax.StartElementListener;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
@@ -576,7 +577,7 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 		}
 
-		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page && !prefs.threadInfo_Rating){
+		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page){
             info.setVisibility(View.VISIBLE);
 			info.setText("");
 		}else{
@@ -591,39 +592,39 @@ public class AwfulThread extends AwfulPagedItem  {
                 tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
             }
 
-            //TODO update to work with new layout
-            //TODO also, update to use local assets
-			if(prefs.threadInfo_Rating && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){//TODO how does this need external media? AQ doesn't require it, it'll revert to memcache
-				String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-				if(tagFile != null){
-					switch(data.getInt(data.getColumnIndex(RATING))){
-					case(1):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/1stars.gif", true, true);
-						break;
-					case(2):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/2stars.gif", true, true);
-						break;
-					case(3):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/3stars.gif", true, true);
-						break;
-					case(4):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/4stars.gif", true, true);
-						break;
-					case(5):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/5stars.gif", true, true);
-						break;
-					default:
-						aq.id(R.id.thread_rating).gone();
-						break;
-					}
-				}else{
+			info.setText(tmp.toString().trim());
+		}
+		
+		if(prefs.threadInfo_Rating){
+			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+			if(tagFile != null){
+				switch(data.getInt(data.getColumnIndex(RATING))){
+				case(1):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_1stars));
+					break;
+				case(2):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_2stars));
+					break;
+				case(3):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_3stars));
+					break;
+				case(4):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_4stars));
+					break;
+				case(5):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_5stars));
+					break;
+				default:
 					aq.id(R.id.thread_rating).gone();
+					break;
 				}
 			}else{
 				aq.id(R.id.thread_rating).gone();
 			}
-			info.setText(tmp.toString().trim());
+		}else{
+			aq.id(R.id.thread_rating).gone();
 		}
+		
         if(stuck){
             info.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_sticky, 0, 0, 0);
         }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){

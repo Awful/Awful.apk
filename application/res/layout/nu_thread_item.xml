@@ -22,13 +22,24 @@
         android:layout_height="15dp"
         android:layout_below="@id/title"
         android:layout_marginLeft="8dp" />
+    
+            
+    <ImageView
+            android:id="@+id/thread_rating"
+            android:layout_width="40dp"
+            android:layout_height="15dp"
+            android:layout_below="@id/title"
+            android:layout_toRightOf="@+id/thread_tag"
+        	android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:visibility="gone" />
 
     <TextView
         android:id="@+id/threadinfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
-        android:layout_toRightOf="@+id/thread_tag"
+        android:layout_toRightOf="@+id/thread_rating"
         android:layout_toLeftOf="@+id/unread_count"
         android:layout_alignTop="@+id/thread_tag"
         android:includeFontPadding="false"
