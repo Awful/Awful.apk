@@ -407,7 +407,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	
     	
     	StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
-        buffer.append("<meta name=\"viewport\" content=\"width=width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
