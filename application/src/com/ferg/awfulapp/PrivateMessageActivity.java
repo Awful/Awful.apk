@@ -52,9 +52,6 @@ public class PrivateMessageActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.fragment_pane);
         mPrefs = new AwfulPreferences(this, this);
         

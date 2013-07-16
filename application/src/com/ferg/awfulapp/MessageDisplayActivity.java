@@ -11,10 +11,6 @@ public class MessageDisplayActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-            requestWindowFeature(Window.FEATURE_ACTION_BAR);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.user_cp_activity);
         setContentPane();
     }
