@@ -821,7 +821,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
 		sUCPThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+AwfulThread.HAS_NEW_POSTS);
-		sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, "1 AS " + AwfulThread.HAS_VIEWED_THREAD);
+		sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
         sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
         sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
