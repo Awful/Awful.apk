@@ -17,6 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,7 +40,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends SherlockDialogFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateCallback, OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -274,6 +275,8 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 
 	@Override
 	public void onResume(){
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.hide();
 		super.onResume();
 		try {
 			if(paused){
@@ -287,6 +290,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 		if(pmId > 0){
 			syncPM();
 		}
+
 	}
 	
 	@Override
@@ -307,6 +311,8 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onStop(){
 		super.onStop();
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.show();
 	}
 
 	@Override
@@ -465,4 +471,41 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         	}
         }
     }
+
+
+	@Override
+	public void onPageVisible() {}
+
+	@Override
+	public void onPageHidden() {}
+
+	@Override
+	public String getTitle() {
+		return mTitle.getText().toString();
+	}
+
+	@Override
+	public String getInternalId() {
+		return null;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+	    int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+	        switch (keyCode) {
+	        case KeyEvent.KEYCODE_VOLUME_UP:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mDisplayText.pageUp(false);   
+	            }
+	            return true;
+	        case KeyEvent.KEYCODE_VOLUME_DOWN:
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mDisplayText.pageDown(false);
+	            }
+	            return true;
+	        default:
+	            return false;
+	        }
+	    } 
 }
