@@ -28,6 +28,9 @@
 package com.ferg.awfulapp;
 
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -58,7 +61,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class PrivateMessageListFragment extends AwfulFragment {
+public class PrivateMessageListFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
 	
 
     private static final String TAG = "PrivateMessageList";
@@ -75,6 +78,12 @@ public class PrivateMessageListFragment extends AwfulFragment {
     }
 
     @Override
+    public void onAttach(Activity aActivity) {
+    	super.onAttach(aActivity);
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+    }
+    
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
@@ -83,7 +92,12 @@ public class PrivateMessageListFragment extends AwfulFragment {
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
-        
+
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
+        }
         return result;
     }
     
@@ -93,7 +107,6 @@ public class PrivateMessageListFragment extends AwfulFragment {
 
         setRetainInstance(true);
 
-        
         mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
 
         mPMList.setOnItemClickListener(onPMSelected);
@@ -271,5 +284,10 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	public boolean volumeScroll(KeyEvent event) {
 		// I have no idea where this fragment is coming from, not the FIA anyway
 		return false;
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+    	syncPMs();
 	}
 }

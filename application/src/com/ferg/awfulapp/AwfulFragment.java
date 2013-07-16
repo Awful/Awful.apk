@@ -81,6 +81,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	        	}else{
 		            switch (aMsg.arg1) {
 		                case AwfulSyncService.Status.WORKING:
+			        		mP2RAttacher.setRefreshComplete();
 		                    loadingStarted(aMsg);
 		                    break;
 		                case AwfulSyncService.Status.OKAY:
