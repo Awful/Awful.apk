@@ -400,6 +400,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 
         if(mThreadView != null){
+        	if(mP2RAttacher == null){
+        		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        	}
             if(mPrefs.disablePullNext){
                 mP2RAttacher.setEnabled(false);
             }else{
@@ -475,6 +478,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
+        mP2RAttacher.setPullFromBottom(true);
 	}
 	
 	
@@ -496,6 +500,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
         }
+        mP2RAttacher.setPullFromBottom(false);
 	}
 	
     @Override
