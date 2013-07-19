@@ -27,24 +27,39 @@
 
 package com.ferg.awfulapp.preferences;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
+
 import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-
-import java.util.ArrayList;
-import java.util.Date;
+import com.google.gson.Gson;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -52,9 +67,14 @@ import java.util.Date;
  *
  */
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
+
+    private static final String TAG = "AwfulPreferences";
+	
+	private static AwfulPreferences mSelf;
+	
 	private SharedPreferences mPrefs;
 	private Context mContext;
-	private ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
+	private static ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
 	
 	//GENERAL STUFF
 	public String username;
@@ -127,13 +147,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	private static final int PREFERENCES_VERSION = 1;
 	private int currPrefVersion;
+	
+	HashSet<String> longKeys;
 
 
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
 	 */
-	public AwfulPreferences(Context context) {
+	private AwfulPreferences(Context context) {
 		mContext = context;
 
 		PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
@@ -141,11 +163,26 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 		upgradePreferences();
+		
+		longKeys = new HashSet<String>();
+		longKeys.add("probation_time");
+	}
+
+	
+	public static AwfulPreferences getInstance(){
+		return mSelf;
 	}
 	
-	public AwfulPreferences(Context context, AwfulUpdateCallback updateCallback){
-		this(context);
+	public static AwfulPreferences getInstance(Context context){
+		if(mSelf == null){
+			mSelf = new AwfulPreferences(context);
+		}
+		return mSelf;
+	}
+	
+	public static AwfulPreferences getInstance(Context context, AwfulUpdateCallback updateCallback){
 		mCallback.add(updateCallback);
+		return getInstance(context);
 	}
 
 	public void unRegisterListener(){
@@ -329,5 +366,67 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	public boolean canLoadAvatars(){
 		return avatarsEnabled && canLoadImages();
+	}
+	
+	public void exportSettings(){
+		Map settings = mPrefs.getAll();
+		Calendar date = Calendar.getInstance();
+		Gson gson = new Gson();
+		String settingsJson = gson.toJson(settings);
+	    try {
+		PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+
+			if(Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
+				
+				if(!awfulFolder.exists()){
+					awfulFolder.mkdir();
+				}
+				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
+
+	        	FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), "awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings"));
+	        	out.write(settingsJson.getBytes());
+	        	out.close();
+	        }
+	    }
+	    catch (IOException e) {
+			e.printStackTrace();
+	    } catch (NameNotFoundException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void importSettings(File settingsFile){
+		Log.i(TAG, "importing settings from file: "+settingsFile.getName());
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(settingsFile));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		
+		Gson gson = new Gson();
+		Map settings = gson.fromJson(br, mPrefs.getAll().getClass());
+		for (Object setting : settings.entrySet()) {
+			HashMap.Entry entry = (HashMap.Entry) setting;
+			String classname = entry.getValue().getClass().getSimpleName();
+			if("Boolean".equals(classname)){
+				System.out.println("writing Boolean:"+entry.toString());
+				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
+			}else if("String".equals(classname)){
+				System.out.println("writing String:"+entry.toString());
+				setStringPreference((String)entry.getKey(), (String)entry.getValue());
+			}else{
+				if(longKeys.contains((String)entry.getKey())){
+					System.out.println("writing Long:"+entry.toString());
+					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());
+				}else{
+					System.out.println("writing Integer:"+entry.toString());
+					setIntegerPreference((String)entry.getKey(), ((Double)entry.getValue()).intValue());
+				}
+			}
+		}
 	}
 }

@@ -52,7 +52,7 @@ public class ThreadCursorAdapter extends CursorAdapter {
 
 	public ThreadCursorAdapter(AwfulActivity context, Cursor c, AwfulFragment fragment) {
 		super(context, c, 0);
-		mPrefs = new AwfulPreferences(context);
+		mPrefs = AwfulPreferences.getInstance(context);
 		inf = LayoutInflater.from(context);
 		mParent = context;
 		aq = new AQuery(context);

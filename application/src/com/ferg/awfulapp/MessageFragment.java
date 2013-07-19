@@ -152,7 +152,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 	
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = AwfulPreferences.getInstance(getActivity());
         
         setRetainInstance(true);
         

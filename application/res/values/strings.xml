@@ -237,5 +237,7 @@ AQuery</string>
     <string name="keep_screen_on">Toggle Keep Screen On</string>
     <string name="ignore_title">Ignore User</string>
     <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
+    <string name="export_settings">Export settings</string>
+    <string name="import_settings">Import settings</string>
 
 </resources>

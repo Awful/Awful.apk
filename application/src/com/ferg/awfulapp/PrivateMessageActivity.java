@@ -53,7 +53,7 @@ public class PrivateMessageActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.fragment_pane);
-        mPrefs = new AwfulPreferences(this, this);
+        mPrefs = AwfulPreferences.getInstance(this, this);
         
         ActionBar action = getSupportActionBar();
         if(action != null){

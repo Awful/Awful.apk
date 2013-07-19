@@ -78,7 +78,7 @@ public class AwfulWebFragment extends AwfulDialogFragment implements AwfulPagerF
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState); Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
-		mPrefs = new AwfulPreferences(getActivity());
+		mPrefs = AwfulPreferences.getInstance(getActivity());
 		setStyle(STYLE_NO_FRAME, R.style.Theme_Sherlock_Light);
 	}
 

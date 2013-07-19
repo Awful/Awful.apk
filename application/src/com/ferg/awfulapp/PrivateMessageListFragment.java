@@ -87,7 +87,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
-        mPrefs = new AwfulPreferences(this.getActivity());
+        mPrefs = AwfulPreferences.getInstance(this.getActivity());
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 

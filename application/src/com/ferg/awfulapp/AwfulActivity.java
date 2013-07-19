@@ -73,7 +73,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mPrefs = new AwfulPreferences(this, this);
+        mPrefs = AwfulPreferences.getInstance(this, this);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);

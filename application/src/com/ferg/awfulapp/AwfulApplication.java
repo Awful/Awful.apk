@@ -45,7 +45,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         super.onCreate();
         //BugSenseHandler.setLogging(1000);
 
-        mPref = new AwfulPreferences(this, this);
+        mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);

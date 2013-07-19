@@ -52,25 +52,25 @@ public class AwfulProgressBar extends View implements AwfulUpdateCallback {
 
 	public AwfulProgressBar(Context context) {
 		super(context);
-		aPrefs = new AwfulPreferences(this.getContext(), this);
+		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		aPrefs = new AwfulPreferences(this.getContext(), this);
+		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		aPrefs = new AwfulPreferences(this.getContext(), this);
+		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 	
 	private void setPaint(Context context){
 		mProgressColor = new Paint();
-		mProgressColor.setColor(ColorProvider.getProgressbarColor(new AwfulPreferences(context)));
+		mProgressColor.setColor(ColorProvider.getProgressbarColor(AwfulPreferences.getInstance(context)));
 		mClearColor = new Paint();
 		mClearColor.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 	}

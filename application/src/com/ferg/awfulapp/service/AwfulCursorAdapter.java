@@ -63,7 +63,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	}
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar, Messenger messageCallback, AwfulFragment fragment) {
 		super(context, c, 0);
-		mPrefs = new AwfulPreferences(context);
+		mPrefs = AwfulPreferences.getInstance(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
 		mId = id;
