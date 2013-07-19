@@ -27,9 +27,11 @@
 
 package com.ferg.awfulapp.thread;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -39,6 +41,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -190,7 +193,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 		Elements content = data.getElementsByClass("postbody");
 		if(content.size() > 0){
-			message.put(CONTENT, content.first().text());
+			message.put(CONTENT, content.first().html());
 		}else{
 			throw new Exception("Failed parse: content.");
 		}
@@ -221,13 +224,29 @@ public class AwfulMessage extends AwfulPagedItem {
 	}
 	
 	public static String getMessageHtml(String content, AwfulPreferences pref){
-		//String content = data.getString(data.getColumnIndex(CONTENT));
 		if(content!=null){
-			StringBuffer buff = new StringBuffer(content.length());
-			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(ColorProvider.getTextColor(pref)) + "; font-size: " + pref.postFontSizePx + ";'>");
-			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
-			buff.append("</div>");
-			return buff.toString();
+			StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+	        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+	        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
+	        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
+	        buffer.append("<meta name='format-detection' content='address=no' />\n");
+	        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+pref.theme);
+	       
+	        if(StringUtils.countMatches(pref.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
+	        	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+pref.theme+"'>\n");
+	        }else{
+	            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+pref.theme+"'>\n");
+	        }
+	        if(!pref.preferredFont.contains("default")){
+	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+pref.preferredFont+"'); }</style>\n");
+	        }
+	        buffer.append("</head><body>");
+	        buffer.append("<div class='post'><div class='postcontent'>");
+			buffer.append(content);//babbys first CSS hack
+			buffer.append("</div></div>");
+			buffer.append("</body></html>");
+
+			return buffer.toString();
 		}
 		return "";
 	}

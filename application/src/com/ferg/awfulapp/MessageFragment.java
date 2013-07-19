@@ -34,7 +34,9 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
@@ -187,6 +189,9 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         mEditReply.setTextColor(ColorProvider.getTextColor(prefs));
         mRecipient.setTextColor(ColorProvider.getTextColor(prefs));
         mSubject.setTextColor(ColorProvider.getTextColor(prefs));
+        mUsername.setTextColor(ColorProvider.getTextColor(prefs));
+        mPostdate.setTextColor(ColorProvider.getTextColor(prefs));
+        mTitle.setTextColor(ColorProvider.getTextColor(prefs));
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
@@ -278,15 +283,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
         action.hide();
 		super.onResume();
-		try {
-			if(paused){
-				Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-	            mDisplayText.resumeTimers();
-				paused = false;
-			}
-        } catch (Exception e) {
-        }
+		resumeWebView();
 		if(pmId > 0){
 			syncPM();
 		}
@@ -299,13 +296,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 		if(pmId>0){
 			saveReply();
 		}
-		try {
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-            paused = true;
-            mDisplayText.pauseTimers();
-        } catch (Exception e) {
-        }
+        pauseWebView();
 	}
 
 	@Override
@@ -423,10 +414,12 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
+    			if(mDisplayText != null){
+    				mDisplayText.loadData(getBlankPage(), "text/html", "utf-8");
+    			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
-//    			mTitle.setText(Html.fromHtml(title));
         		mTitle.setText(title);
-        		mDisplayText.loadData(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8");
+        		mDisplayText.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
 				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
@@ -436,10 +429,8 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         			mEditReply.setText("");
         		}
         		if(replyTitle != null){
-//        			mSubject.setText(Html.fromHtml(replyTitle));
         			mSubject.setText(replyTitle);
         		}else{
-//        			mSubject.setText(Html.fromHtml(title));
         			mSubject.setText(title);
         		}
         		String author = aData.getString(aData.getColumnIndex(AwfulMessage.AUTHOR));
@@ -493,19 +484,41 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 	public boolean volumeScroll(KeyEvent event) {
 	    int action = event.getAction();
 	    int keyCode = event.getKeyCode();    
-	        switch (keyCode) {
-	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mDisplayText.pageUp(false);   
-	            }
-	            return true;
-	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mDisplayText.pageDown(false);
-	            }
-	            return true;
-	        default:
-	            return false;
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_VOLUME_UP:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageUp(false);   
+            }
+            return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageDown(false);
+            }
+            return true;
+        default:
+            return false;
+        }
+    }
+	
+	private String getBlankPage(){
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(mPrefs))+";'></body></html>";
+	}
+	
+    private void pauseWebView(){
+        if (mDisplayText != null) {
+        	mDisplayText.pauseTimers();
+        	mDisplayText.onPause();
+        }
+    }
+    
+    public void resumeWebView(){
+    	if(getActivity() != null){
+	        if (mDisplayText == null) {
+	            //recreateWebview();
+	        }else{
+	        	mDisplayText.onResume();
+	        	mDisplayText.resumeTimers();
 	        }
-	    } 
+    	}
+    }
 }
