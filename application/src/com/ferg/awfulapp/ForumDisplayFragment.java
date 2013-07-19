@@ -543,10 +543,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         case AwfulSyncService.MSG_SYNC_FORUM:
     			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
     			lastRefresh = System.currentTimeMillis();
-    			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-                	mRefreshBar.setColorFilter(0);
-                	mToggleSidebar.setColorFilter(0);
-    			}
+                mRefreshBar.setColorFilter(0);
+                mToggleSidebar.setColorFilter(0);
     	    	loadFailed = false;
     	    	break;
 		}
@@ -557,10 +555,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		super.loadingUpdate(aMsg);
 		switch (aMsg.what) {
 			case AwfulSyncService.MSG_SYNC_FORUM:
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-		        	mRefreshBar.setColorFilter(buttonSelectedColor);
-		        	mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}
+		        mRefreshBar.setColorFilter(buttonSelectedColor);
+		        mToggleSidebar.setColorFilter(buttonSelectedColor);
 				break;
 		}
 	}
@@ -804,12 +800,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
+	            if (action == KeyEvent.ACTION_DOWN) {
 	            	mListView.smoothScrollBy(-mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
+	            if (action == KeyEvent.ACTION_DOWN) {
 	            	mListView.smoothScrollBy(mListView.getHeight()/2, 0);
 	            }
 	            return true;

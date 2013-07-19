@@ -481,12 +481,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
+	            if (action == KeyEvent.ACTION_DOWN) {
 	            	mForumTree.smoothScrollBy(-mForumTree.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
+	            if (action == KeyEvent.ACTION_DOWN) {
 	            	mForumTree.smoothScrollBy(mForumTree.getHeight()/2, 0);
 	            }
 	            return true;

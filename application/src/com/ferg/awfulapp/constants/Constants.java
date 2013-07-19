@@ -177,12 +177,9 @@ public class Constants {
 
 
     /**
-	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.
+	 * I guess this should really be named "isGingerbreadOrAbove()" but I suck at function naming.
 	 * @return
 	 */
-	public static boolean isFroyo() {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
-	}
 	public static boolean isGingerbread(){
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
 	}

@@ -330,7 +330,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
+        if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
@@ -993,11 +993,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	switch (aMsg.what) {
 	        case AwfulSyncService.MSG_SYNC_THREAD:
 	        	refreshPosts();
-	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	    			mNextPage.setColorFilter(0);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	            }
+	    		mNextPage.setColorFilter(0);
+	    		mPrevPage.setColorFilter(0);
+	    		mRefreshBar.setColorFilter(0);
 	            break;
 	        case AwfulSyncService.MSG_SET_BOOKMARK:
 	        	refreshInfo();
@@ -1021,21 +1019,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
     	switch(aMsg.what){
 		case AwfulSyncService.MSG_SYNC_THREAD:
-	    	if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	    		if(getPage() == getLastPage()){
-	    			mNextPage.setColorFilter(buttonSelectedColor);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	    		}else if(getPage() <= 1){
-	    			mPrevPage.setColorFilter(buttonSelectedColor);
-	    			mNextPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	    		}else{
-	    			mRefreshBar.setColorFilter(buttonSelectedColor);
-	    			mPrevPage.setColorFilter(0);
-	    			mNextPage.setColorFilter(0);
-	    		}
-	        }
+    		if(getPage() == getLastPage()){
+    			mNextPage.setColorFilter(buttonSelectedColor);
+    			mPrevPage.setColorFilter(0);
+    			mRefreshBar.setColorFilter(0);
+    		}else if(getPage() <= 1){
+    			mPrevPage.setColorFilter(buttonSelectedColor);
+    			mNextPage.setColorFilter(0);
+    			mRefreshBar.setColorFilter(0);
+    		}else{
+    			mRefreshBar.setColorFilter(buttonSelectedColor);
+    			mPrevPage.setColorFilter(0);
+    			mNextPage.setColorFilter(0);
+    		}
 	        break;
         default:
         	Log.e(TAG,"Message not handled: "+aMsg.what);
@@ -1081,11 +1077,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(aMsg.arg2 == getPage()){
 	        	setProgress(50);
 	        	refreshPosts();
-	            if(Constants.isFroyo()){
-	    			mNextPage.setColorFilter(0);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	            }
+	    		mNextPage.setColorFilter(0);
+	    		mPrevPage.setColorFilter(0);
+	    		mRefreshBar.setColorFilter(0);
         	}
             break;
         case AwfulSyncService.MSG_SET_BOOKMARK:
@@ -1784,13 +1778,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			if(mShowSidebarIcon){
 				mToggleSidebar.setVisibility(View.VISIBLE);
 				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
-	    		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-					if(sidebarVisible){
-						mToggleSidebar.setColorFilter(buttonSelectedColor);
-					}else{
-						mToggleSidebar.setColorFilter(0);
-					}
-	    		}
+				if(sidebarVisible){
+					mToggleSidebar.setColorFilter(buttonSelectedColor);
+				}else{
+					mToggleSidebar.setColorFilter(0);
+				}
 			}else{
 				mToggleSidebar.setVisibility(View.VISIBLE);
 				mToggleSidebar.setImageDrawable(null);
