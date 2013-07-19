@@ -402,7 +402,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		try {
 			br = new BufferedReader(new FileReader(settingsFile));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
 		}
@@ -413,20 +412,17 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			HashMap.Entry entry = (HashMap.Entry) setting;
 			String classname = entry.getValue().getClass().getSimpleName();
 			if("Boolean".equals(classname)){
-				System.out.println("writing Boolean:"+entry.toString());
 				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
 			}else if("String".equals(classname)){
-				System.out.println("writing String:"+entry.toString());
 				setStringPreference((String)entry.getKey(), (String)entry.getValue());
 			}else{
 				if(longKeys.contains((String)entry.getKey())){
-					System.out.println("writing Long:"+entry.toString());
 					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());
 				}else{
-					System.out.println("writing Integer:"+entry.toString());
 					setIntegerPreference((String)entry.getKey(), ((Double)entry.getValue()).intValue());
 				}
 			}
 		}
+		updateValues(mPrefs);
 	}
 }

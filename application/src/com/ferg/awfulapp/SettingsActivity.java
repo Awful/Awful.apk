@@ -429,7 +429,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	
    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	   System.out.println("onActivityResult");
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SETTINGS_FILE) {
     			Toast.makeText(mThis, "importing settings", Toast.LENGTH_SHORT).show();
@@ -446,7 +445,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     }
    
    public String getFilePath(Uri uri) {
-	   System.out.println("getFilePath: "+uri.toString());
 	   try{
 	       String[] projection = { MediaStore.Images.Media.DATA };
 	       Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
