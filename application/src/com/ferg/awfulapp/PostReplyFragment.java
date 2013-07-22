@@ -550,7 +550,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void postReply() {
     	new AlertDialog.Builder(getActivity())
-        .setTitle("Confirm Post?")
+    	.setTitle((mReplyType == AwfulMessage.TYPE_EDIT)?"Confirm Edit?":"Confirm Post?")
         .setPositiveButton(R.string.post_reply,
             new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aWhich) {
