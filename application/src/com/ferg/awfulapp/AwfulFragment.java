@@ -81,7 +81,9 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	        	}else{
 		            switch (aMsg.arg1) {
 		                case AwfulSyncService.Status.WORKING:
-			        		mP2RAttacher.setRefreshComplete();
+		                	if(mP2RAttacher != null){
+		                		mP2RAttacher.setRefreshComplete();
+		                	}
 		                    loadingStarted(aMsg);
 		                    break;
 		                case AwfulSyncService.Status.OKAY:
@@ -155,7 +157,6 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mPrefs.unregisterCallback(this);
-        mPrefs.unRegisterListener();
     }
 
     @Override

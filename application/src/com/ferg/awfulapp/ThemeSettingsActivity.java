@@ -8,21 +8,24 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
 
 //TODO: Make this a preferenceFragment some day.
-public class ThemeSettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUpdateCallback {
 	private Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
-	SharedPreferences mPrefs;
+	AwfulPreferences mPrefs;
 	ActivityConfigurator mConf;
 	String lastTheme;
 	
@@ -32,8 +35,8 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate(); 
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		lastTheme = mPrefs.getString("themes","default");
+		mPrefs = AwfulPreferences.getInstance(this,this);
+		lastTheme = mPrefs.theme;
 		addPreferencesFromResource(R.xml.themesettings);
 		ListPreference themePref = (ListPreference) findPreference("themes");
 		ListPreference layoutPref = (ListPreference) findPreference("layouts");
@@ -108,16 +111,12 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 	public void onResume() {
 		super.onResume();
 		mConf.onResume();
-		
-		mPrefs.registerOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
 		mConf.onPause();
-		
-		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
@@ -136,29 +135,24 @@ public class ThemeSettingsActivity extends PreferenceActivity implements OnShare
 		"themes",
 		"selected_theme"
 	};
-	
+
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
-			if(valueSummaryKey.equals(key)) {
-				if("selected_theme".equals(key)){
-					ListPreference p = (ListPreference) findPreference(key);
-					p.setSummary(p.getEntry());
-				}
-				if("themes".equals(key)){
-					ListPreference p = (ListPreference) findPreference(key);
-					p.setSummary(p.getEntry());
-				}
-			}
-		}
+	public void loadingFailed(Message aMsg) {}
+
+	@Override
+	public void loadingStarted(Message aMsg) {}
+
+	@Override
+	public void loadingUpdate(Message aMsg) {}
+
+	@Override
+	public void loadingSucceeded(Message aMsg) {}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		ListPreference pIconTheme = (ListPreference) findPreference("selected_theme");
+		pIconTheme.setSummary(prefs.icon_theme);
+		ListPreference pTheme = (ListPreference) findPreference("themes");
+		pTheme.setSummary(prefs.theme);
 	}
-
-
-    private void savePreferences(Editor aPrefs) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            aPrefs.apply();
-        } else {
-            aPrefs.commit();
-        }
-    }
 }

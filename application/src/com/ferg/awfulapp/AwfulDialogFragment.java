@@ -120,7 +120,6 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     public void onDestroy() {
     	super.onDestroy();
         mPrefs.unregisterCallback(this);
-        mPrefs.unRegisterListener();
     }
     
     protected void displayForumIndex(){

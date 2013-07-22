@@ -85,6 +85,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean debugMode;
 	public boolean sendUsernameInReport;
 	public float scaleFactor;
+	public String orientation;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
@@ -271,6 +272,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         userId					 = mPrefs.getInt("user_id", 0);
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
+        orientation				 = mPrefs.getString("orientation", "default");
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -424,5 +426,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			}
 		}
 		updateValues(mPrefs);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		unRegisterListener();
+		super.finalize();
 	}
 }

@@ -151,7 +151,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     @Override
     public void onDetach() {
         super.onDetach();
-        mPrefs.unRegisterListener();
     }
     
     @Override

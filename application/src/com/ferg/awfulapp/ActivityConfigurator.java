@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
+import android.os.Message;
 import android.preference.PreferenceManager;
 
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 /**
  * Responsible for setting activity preferences which need to affect every activity in the app.
@@ -16,13 +18,13 @@ import com.ferg.awfulapp.network.NetworkUtils;
  * their own.
  *  
  */
-public class ActivityConfigurator implements OnSharedPreferenceChangeListener {
+public class ActivityConfigurator implements AwfulUpdateCallback {
 	private Activity mActivity;
-	private SharedPreferences mPrefs;
+	private AwfulPreferences mPrefs;
 	
 	public ActivityConfigurator(Activity activity) {
 		mActivity = activity;
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+		mPrefs = AwfulPreferences.getInstance(activity,this);
 	}
 	
 	public void onCreate() {}
@@ -31,28 +33,16 @@ public class ActivityConfigurator implements OnSharedPreferenceChangeListener {
 		NetworkUtils.restoreLoginCookies(mActivity);
 	}
 	
-	public void onResume() {
-		setOrientation();
-		mPrefs.registerOnSharedPreferenceChangeListener(this);
-	}
+	public void onResume() {setOrientation();}
 	
-	public void onPause() {
-		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-	}
+	public void onPause() {	}
 	
 	public void onStop() {}
 	
 	public void onDestroy() {}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		if(key.equals("orientation")) {
-			setOrientation();
-		}
-	}
 	
 	private void setOrientation() {
-		String orientationStr = mPrefs.getString("orientation", "default");
+		String orientationStr = mPrefs.orientation;
 		int orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 		if(orientationStr.equals("portrait")) {
 			orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
@@ -62,5 +52,22 @@ public class ActivityConfigurator implements OnSharedPreferenceChangeListener {
 			orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 		}
 		mActivity.setRequestedOrientation(orientation);
+	}
+
+	@Override
+	public void loadingFailed(Message aMsg) {}
+
+	@Override
+	public void loadingStarted(Message aMsg) {}
+
+	@Override
+	public void loadingUpdate(Message aMsg) {}
+
+	@Override
+	public void loadingSucceeded(Message aMsg) {}
+
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		setOrientation();
 	}
 }

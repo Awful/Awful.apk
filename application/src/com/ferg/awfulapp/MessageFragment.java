@@ -195,6 +195,8 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
+        View header = v.findViewById(R.id.message_header);
+        header.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
         miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
         miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
         miscMess.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
@@ -317,9 +319,6 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 	@Override
 	public void onDetach(){
 		super.onDetach();
-		if(mPrefs != null){
-			mPrefs.unRegisterListener();
-		}
 		if(mDialog!= null){
 			mDialog.dismiss();
 			mDialog = null;

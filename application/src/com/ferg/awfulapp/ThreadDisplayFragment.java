@@ -185,7 +185,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     e.printStackTrace();
                 } catch (FileNotFoundException e) {
                 	if(!lastUrl.equals(url)){
-                        mThreadView.clearCache(true);
                         lastUrl=url;
                         return shouldInterceptRequest(view, url);                		
                 	}
