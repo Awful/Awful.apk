@@ -1110,6 +1110,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
             }
+            refreshSessionCookie();
             mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();
@@ -1859,4 +1860,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	mThreadView.setKeepScreenOn(keepScreenOn);
 		Toast.makeText(getAwfulActivity(), keepScreenOn? "Screen stays on" :"Screen turns itself off", Toast.LENGTH_SHORT).show();
 	}
+    
+    @Override
+    public void onLowMemory() {
+    	super.onLowMemory();
+    	mThreadView.freeMemory();
+    }
 }
