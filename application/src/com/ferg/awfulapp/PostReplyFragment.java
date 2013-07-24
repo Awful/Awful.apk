@@ -171,6 +171,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
     
     public String getFilePath(Uri uri) {
+    	try{
         String[] projection = { MediaStore.Images.Media.DATA };
         Cursor cursor = this.getActivity().getContentResolver().query(uri, projection, null, null, null);
         if(cursor!=null)
@@ -182,7 +183,15 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             cursor.moveToFirst();
             return cursor.getString(column_index);
         }
-        else return null;
+        else{
+        	Toast.makeText(this.getActivity(), "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
+        	return null;
+        }
+    	}catch(NullPointerException e){
+    		Toast.makeText(this.getActivity(), "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
+    		e.printStackTrace();
+    		return null;
+    	}
     }
 
 
@@ -550,7 +559,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void postReply() {
     	new AlertDialog.Builder(getActivity())
-        .setTitle("Confirm Post?")
+    	.setTitle((mReplyType == AwfulMessage.TYPE_EDIT)?"Confirm Edit?":"Confirm Post?")
         .setPositiveButton(R.string.post_reply,
             new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aWhich) {
