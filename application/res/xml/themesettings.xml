@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
   <PreferenceCategory android:title="@string/themes">
             <ListPreference
-            android:key="themes"
+            android:key="theme"
             android:title="@string/themes"
             android:entries="@array/themes"
             android:entryValues="@array/schemas_values"

@@ -229,7 +229,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);
 		postFontSizeDip            = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
-		theme					 = mPrefs.getString("themes", "default.css");
+		theme					 = mPrefs.getString("theme", "default.css");
 		layout					 = mPrefs.getString("layouts", "default");
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         no3gImages	             = mPrefs.getBoolean("no_3g_images", false);
