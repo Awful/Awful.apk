@@ -477,7 +477,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
-        mP2RAttacher.setPullFromBottom(true);
+        if(mP2RAttacher != null){
+        	mP2RAttacher.setPullFromBottom(true);
+        }
 	}
 	
 	
@@ -499,7 +501,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
         }
-        mP2RAttacher.setPullFromBottom(false);
+        if(mP2RAttacher != null){
+        	mP2RAttacher.setPullFromBottom(false);
+        }
 	}
 	
     @Override
