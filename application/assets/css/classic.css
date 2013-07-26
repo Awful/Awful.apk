@@ -51,62 +51,62 @@ div.avatarCorner {
 width:20px;
 }
 
-div.post {
+article {
 background-color:#FFF;
 color:#666;
 margin:0;
 padding:0;
 }
 
-div.post.op div.postheader {
+article.op div.postheader {
 background-color:#199ed7;
 }
 
-div.post.op div.postoptions {
+article.op div.postoptions {
 background-color:#199ed7;
 }
 
-div.post.read {
+article.read {
 background-color:#ddeeff;
 }
 
-div.post.self div.postheader {
+article.self div.postheader {
 background-color:#5BA611;
 }
 
-div.post.self div.postoptions {
+article.self div.postoptions {
 background-color:#5BA611;
 }
 
-div.postcontent {
+section.postcontent {
 word-wrap: break-word;
 padding: 5px;
 }
 
-div.postcontent .bbc-block {
+section.postcontent .bbc-block {
 border-left:2px solid #eae9ea;
 margin:5px 0 5px 5px;
 padding:5px 10px 5px 15px;
 }
 
-div.postcontent .bbc-block h4 {
+section.postcontent .bbc-block h4 {
 font-style:italic;
 margin:2px 0 5px;
 }
 
-div.postcontent blockquote {
+section.postcontent blockquote {
 margin:0;
 }
 
-div.postcontent .bbc-block.code, div.postcontent pre{
+section.postcontent .bbc-block.code, div.postcontent pre{
 overflow: scroll;
 }
 
-.postcontent img, .postcontent iframe{
+section.postcontent img, section.postcontent iframe{
 max-width: 100% !important;
 }
 
-div.postheader {
+header {
 vertical-align:top;
 clear:left;
 overflow:hidden;
@@ -115,7 +115,7 @@ background-color:#006699;
 color:#FFF;
 }
 
-div.postinfo {
+section.postinfo {
 font-size:1.1em;
 float:left;
 width:90%;
@@ -123,26 +123,26 @@ overflow:hidden;
 display:inline-block;
 }
 
-div.postinfo-poster img {
+aside.postinfo-poster img {
 height: 1em;
 }
 
-div.postinfo-postdate,div.postinfo-regdate,div.postinfo-title {
+time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
 font-size:0.85em;
 }
 
-div.postinfo-postdate,div.postinfo-regdate {
+time.postinfo-postdate,time.postinfo-regdate {
 font-style: italic;
 }
-div.postinfo-regdate,div.postinfo-title {
+time.postinfo-regdate,aside.postinfo-title {
 display:none;
 }
 
-div.postinfo-regdate.extended,div.postinfo-title.extended {
+time.postinfo-regdate.extended,aside.postinfo-title.extended {
 display:block;
 }
 
-div.postmenu {
+nav.postmenu {
 float:right;
 font-weight:bolder;
 font-size:1.5em;
@@ -155,7 +155,7 @@ padding:0 5px 0 0;
 margin-right:10px;
 }
 
-div.postoptions {
+ul.postoptions {
 background-color:#006699;
 color:#FFF;
 height:35px;
@@ -164,23 +164,23 @@ padding-left:15px;
 margin:0;
 }
 
-div.postoptions .edit {
+ul.postoptions .edit {
 background-image:url(file:///android_asset/images/ic_menu_edit.png);
 }
 
-div.postoptions .lastread {
+ul.postoptions .lastread {
 background-image:url(file:///android_asset/images/ic_menu_lastread.png);
 }
 
-div.postoptions .more {
+ul.postoptions .more {
 background-image:url(file:///android_asset/images/ic_menu_more.png);
 }
 
-div.postoptions .quote {
+ul.postoptions .quote {
 background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
-div.postoptions div {
+ul.postoptions li {
 float:right;
 margin-right:5px;
 height:15px;
@@ -188,8 +188,9 @@ background-repeat:no-repeat;
 background-position:left top;
 background-size:30px 30px;
 padding:10px 0 10px 30px;
+list-style-type: none;
 }
 
-div.postoptions.extended {
+ul.postoptions.extended {
 display:block;
 }
