@@ -49,7 +49,7 @@ div.avatarCorner {
 width:20px;
 }
 
-div.post {
+article {
 border-radius:.15em;
 background-color:#282828;
 color:#b0b0b0;
@@ -58,47 +58,47 @@ margin:10px 5px;
 padding:15px;
 }
 
-div.post.op {
+article.op {
 background-color:#4A4D00;
 }
 
-div.post.read {
+article.read {
 background-color:#141E33;
 }
 
-div.post.self {
+article.self {
 background-color:#1A4000;
 }
 
-div.postcontent {
+section.postcontent {
 word-wrap: break-word;
 }
 
-div.postcontent .bbc-block {
+section.postcontent .bbc-block {
 border-left:2px solid #5e5e5e;
 margin:5px 0;
 padding:5px 10px 5px 20px;
 }
 
-div.postcontent .bbc-block h4 {
+section.postcontent .bbc-block h4 {
 font-style:italic;
 margin:2px 0 5px;
 }
 
-div.postcontent blockquote {
+section.postcontent blockquote {
 margin:0;
 }
 
-div.postcontent .bbc-block.code, div.postcontent pre{
+section.postcontent .bbc-block.code, section.postcontent pre{
 overflow: scroll;
 }
 
 
-.postcontent img, .postcontent iframe{
+section.postcontent img, section.postcontent iframe{
 max-width: 100% !important;
 }
 
-div.postheader {
+header {
 vertical-align:top;
 clear:left;
 overflow:hidden;
@@ -108,7 +108,7 @@ margin:0 0 10px;
 padding:0 0 10px;
 }
 
-div.postinfo {
+section.postinfo {
 font-size:1.1em;
 float:left;
 width:90%;
@@ -116,26 +116,26 @@ overflow:hidden;
 display:inline-block;
 }
 
-div.postinfo-poster img {
+aside.postinfo-poster img {
 height: 1em;
 }
 
-div.postinfo-postdate,div.postinfo-regdate,div.postinfo-title {
+time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
 font-size:0.85em;
 }
 
-div.postinfo-postdate,div.postinfo-regdate {
+time.postinfo-postdate,time.postinfo-regdate {
 font-style: italic;
 }
-div.postinfo-regdate,div.postinfo-title {
+time.postinfo-regdate,aside.postinfo-title {
 display:none;
 }
 
-div.postinfo-regdate.extended,div.postinfo-title.extended {
+time.postinfo-regdate.extended,aside.postinfo-title.extended {
 display:block;
 }
 
-div.postmenu {
+nav.postmenu {
 float:right;
 font-weight:bolder;
 font-size:1.5em;
@@ -147,7 +147,7 @@ background-image:url(file:///android_asset/images/ic_menu_overflow.png);
 padding:0 5px 0 0;
 }
 
-div.postoptions {
+ul.postoptions {
 background-color:#828282;
 color:#FFF;
 height:35px;
@@ -156,23 +156,23 @@ padding-left:15px;
 margin:-11px -15px 5px;
 }
 
-div.postoptions .edit {
+ul.postoptions .edit {
 background-image:url(file:///android_asset/images/ic_menu_edit.png);
 }
 
-div.postoptions .lastread {
+ul.postoptions .lastread {
 background-image:url(file:///android_asset/images/ic_menu_lastread.png);
 }
 
-div.postoptions .more {
+ul.postoptions .more {
 background-image:url(file:///android_asset/images/ic_menu_more.png);
 }
 
-div.postoptions .quote {
+ul.postoptions .quote {
 background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
-div.postoptions div {
+ul.postoptions li {
 float:right;
 margin-right:5px;
 height:15px;
@@ -180,8 +180,9 @@ background-repeat:no-repeat;
 background-position:left top;
 background-size:30px 30px;
 padding:10px 0 10px 30px;
+list-style-type: none;
 }
 
-div.postoptions.extended {
+ul.postoptions.extended {
 display:block;
 }

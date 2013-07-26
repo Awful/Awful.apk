@@ -38,7 +38,7 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 		mPrefs = AwfulPreferences.getInstance(this,this);
 		lastTheme = mPrefs.theme;
 		addPreferencesFromResource(R.xml.themesettings);
-		ListPreference themePref = (ListPreference) findPreference("themes");
+		ListPreference themePref = (ListPreference) findPreference("theme");
 		ListPreference layoutPref = (ListPreference) findPreference("layouts");
 		themePref.setSummary(themePref.getEntry());
 		layoutPref.setSummary(layoutPref.getEntry());
@@ -132,7 +132,7 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 	}
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
-		"themes",
+		"theme",
 		"selected_theme"
 	};
 
@@ -152,7 +152,7 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		ListPreference pIconTheme = (ListPreference) findPreference("selected_theme");
 		pIconTheme.setSummary(prefs.icon_theme);
-		ListPreference pTheme = (ListPreference) findPreference("themes");
+		ListPreference pTheme = (ListPreference) findPreference("theme");
 		pTheme.setSummary(prefs.theme);
 	}
 }
