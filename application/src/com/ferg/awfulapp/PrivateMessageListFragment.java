@@ -28,6 +28,9 @@
 package com.ferg.awfulapp;
 
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -52,12 +55,13 @@ import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class PrivateMessageListFragment extends AwfulFragment {
+public class PrivateMessageListFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
 	
 
     private static final String TAG = "PrivateMessageList";
@@ -74,15 +78,26 @@ public class PrivateMessageListFragment extends AwfulFragment {
     }
 
     @Override
+    public void onAttach(Activity aActivity) {
+    	super.onAttach(aActivity);
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+    }
+    
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
-        mPrefs = new AwfulPreferences(this.getActivity());
+        mPrefs = AwfulPreferences.getInstance(this.getActivity());
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
-        
+
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
+        }
         return result;
     }
     
@@ -92,19 +107,18 @@ public class PrivateMessageListFragment extends AwfulFragment {
 
         setRetainInstance(true);
 
-        
-        mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
+        mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
 
         mPMList.setOnItemClickListener(onPMSelected);
         
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, this);
         mPMList.setAdapter(mCursorAdapter);
     }
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(pref.postBackgroundColor);
-    		mPMList.setCacheColorHint(pref.postBackgroundColor);
+    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
     	}
     }
     
@@ -137,7 +151,6 @@ public class PrivateMessageListFragment extends AwfulFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mPrefs.unRegisterListener();
     }
     
     @Override
@@ -270,5 +283,10 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	public boolean volumeScroll(KeyEvent event) {
 		// I have no idea where this fragment is coming from, not the FIA anyway
 		return false;
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+    	syncPMs();
 	}
 }

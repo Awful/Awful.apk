@@ -4,7 +4,7 @@
     <color name="forums_gray">#f4f4f4</color>
     <color name="holo_blue_light">#ff33b5e5</color>
     
-    <color name="default_post_font">#777777</color>
+    <color name="default_post_font">#555555</color>    
     <color name="forum_title">#484848</color>
     <color name="secondary_post_font">#989898</color>
     <color name="background">#f4f4f4</color>
@@ -12,13 +12,15 @@
     <color name="background_read">#ddeeff</color>
     <color name="font_read">#777777</color>
     <color name="alt_background_read">#c0e0ff</color>
-    <color name="op_post">#199ed7</color>
-    <color name="link_quote">#0000ff</color>
+    
+    <color name="link_quote">#00c0f4</color>
+    
     <color name="actionbar_color">#000000</color>
     <color name="actionbar_font_color">#ffffff</color>
     
     <color name="unread_posts">#00659a</color>
     <color name="unread_posts_dim">#88aabb</color>
+    <color name="unread_posts_counter">#ffffff</color>
     
         
         
@@ -41,8 +43,13 @@
     <color name="yospos_alt_background">#111111</color>
     <color name="yospos_background_read">#002211</color>
     <color name="yospos_alt_background_read">#113322</color>
-    <color name="yospos_op_post">#329332</color>
-    <color name="yospos_link_quote">#00FF00</color>
+    
+    <color name="amberpos_default_post_font">#eacf4c</color>
+    <color name="amberpos_secondary_post_font">#6C6F22</color>
+    <color name="amberpos_background">#000000</color>
+    <color name="amberpos_alt_background">#111111</color>
+    <color name="amberpos_background_read">#252600</color>
+    <color name="amberpos_alt_background_read">#363711</color>
     
     <color name="profile_column">#e7eff5</color>
     <color name="selected_item">#33eeeeee</color>

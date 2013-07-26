@@ -17,6 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,12 +34,15 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends SherlockDialogFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateCallback, OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -150,7 +154,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = AwfulPreferences.getInstance(getActivity());
         
         setRetainInstance(true);
         
@@ -178,23 +182,28 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
     }
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setBackgroundColor(prefs.postBackgroundColor2);
-        mRecipient.setBackgroundColor(prefs.postBackgroundColor2);
-        mSubject.setBackgroundColor(prefs.postBackgroundColor2);
-        mDisplayText.setBackgroundColor(prefs.postBackgroundColor);
-        mEditReply.setTextColor(prefs.postFontColor);
-        mRecipient.setTextColor(prefs.postFontColor);
-        mSubject.setTextColor(prefs.postFontColor);
+        mEditReply.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        mRecipient.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        mSubject.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        mDisplayText.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        mEditReply.setTextColor(ColorProvider.getTextColor(prefs));
+        mRecipient.setTextColor(ColorProvider.getTextColor(prefs));
+        mSubject.setTextColor(ColorProvider.getTextColor(prefs));
+        mUsername.setTextColor(ColorProvider.getTextColor(prefs));
+        mPostdate.setTextColor(ColorProvider.getTextColor(prefs));
+        mTitle.setTextColor(ColorProvider.getTextColor(prefs));
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
-        miscSubject.setBackgroundColor(prefs.postBackgroundColor);
-        miscRecip.setBackgroundColor(prefs.postBackgroundColor);
-        miscMess.setBackgroundColor(prefs.postBackgroundColor);
-        miscSubject.setTextColor(prefs.postFontColor2);
-        miscRecip.setTextColor(prefs.postFontColor2);
-        miscMess.setTextColor(prefs.postFontColor2);
-        v.setBackgroundColor(prefs.postBackgroundColor);
+        View header = v.findViewById(R.id.message_header);
+        header.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        miscMess.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        miscSubject.setTextColor(ColorProvider.getAltTextColor(prefs));
+        miscRecip.setTextColor(ColorProvider.getAltTextColor(prefs));
+        miscMess.setTextColor(ColorProvider.getAltTextColor(prefs));
+        v.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
         
 	}
 	
@@ -273,19 +282,14 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 
 	@Override
 	public void onResume(){
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.hide();
 		super.onResume();
-		try {
-			if(paused){
-				Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-	            mDisplayText.resumeTimers();
-				paused = false;
-			}
-        } catch (Exception e) {
-        }
+		resumeWebView();
 		if(pmId > 0){
 			syncPM();
 		}
+
 	}
 	
 	@Override
@@ -294,18 +298,14 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 		if(pmId>0){
 			saveReply();
 		}
-		try {
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-            paused = true;
-            mDisplayText.pauseTimers();
-        } catch (Exception e) {
-        }
+        pauseWebView();
 	}
 
 	@Override
 	public void onStop(){
 		super.onStop();
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.show();
 	}
 
 	@Override
@@ -319,9 +319,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onDetach(){
 		super.onDetach();
-		if(mPrefs != null){
-			mPrefs.unRegisterListener();
-		}
 		if(mDialog!= null){
 			mDialog.dismiss();
 			mDialog = null;
@@ -416,9 +413,12 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
+    			if(mDisplayText != null){
+    				mDisplayText.loadData(getBlankPage(), "text/html", "utf-8");
+    			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
-    			mTitle.setText(Html.fromHtml(title));
-        		mDisplayText.loadData(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8");
+        		mTitle.setText(title);
+        		mDisplayText.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
 				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
@@ -428,9 +428,9 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         			mEditReply.setText("");
         		}
         		if(replyTitle != null){
-        			mSubject.setText(Html.fromHtml(replyTitle));
+        			mSubject.setText(replyTitle);
         		}else{
-        			mSubject.setText(Html.fromHtml(title));
+        			mSubject.setText(title);
         		}
         		String author = aData.getString(aData.getColumnIndex(AwfulMessage.AUTHOR));
 				mUsername.setText("Sender: " + author);
@@ -460,5 +460,64 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         		getActivity().getSupportLoaderManager().restartLoader(pmId, null, this);
         	}
         }
+    }
+
+
+	@Override
+	public void onPageVisible() {}
+
+	@Override
+	public void onPageHidden() {}
+
+	@Override
+	public String getTitle() {
+		return mTitle.getText().toString();
+	}
+
+	@Override
+	public String getInternalId() {
+		return null;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+	    int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_VOLUME_UP:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageUp(false);   
+            }
+            return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageDown(false);
+            }
+            return true;
+        default:
+            return false;
+        }
+    }
+	
+	private String getBlankPage(){
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(mPrefs))+";'></body></html>";
+	}
+	
+    private void pauseWebView(){
+        if (mDisplayText != null) {
+        	mDisplayText.pauseTimers();
+        	mDisplayText.onPause();
+        }
+    }
+    
+    public void resumeWebView(){
+    	if(getActivity() != null){
+	        if (mDisplayText == null) {
+	            //recreateWebview();
+	        }else{
+	        	mDisplayText.onResume();
+	        	mDisplayText.resumeTimers();
+	        }
+    	}
     }
 }

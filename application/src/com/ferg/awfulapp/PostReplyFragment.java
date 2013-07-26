@@ -70,6 +70,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
@@ -134,8 +135,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);Log.e(TAG,"onActivityCreated");
 
-        mMessage.setBackgroundColor(mPrefs.postBackgroundColor);
-        mMessage.setTextColor(mPrefs.postFontColor);
+        mMessage.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+        mMessage.setTextColor(ColorProvider.getTextColor(mPrefs));
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();

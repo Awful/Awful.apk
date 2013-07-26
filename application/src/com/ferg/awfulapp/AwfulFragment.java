@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,9 +43,12 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request;
+import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
@@ -57,6 +61,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
+	protected PullToRefreshAttacher mP2RAttacher;
 	
 
     protected Handler mHandler = new Handler() {
@@ -71,10 +76,14 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
                     loadingFailed(aMsg);
 	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
+	        		mP2RAttacher.setRefreshComplete();
 	        		loadingUpdate(aMsg);
 	        	}else{
 		            switch (aMsg.arg1) {
 		                case AwfulSyncService.Status.WORKING:
+		                	if(mP2RAttacher != null){
+		                		mP2RAttacher.setRefreshComplete();
+		                	}
 		                    loadingStarted(aMsg);
 		                    break;
 		                case AwfulSyncService.Status.OKAY:
@@ -97,7 +106,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     	if(!(aActivity instanceof AwfulActivity)){
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
-        mPrefs = new AwfulPreferences(getAwfulActivity(), this);
+        mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
     }
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
@@ -115,7 +124,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(mPrefs.actionbarColor);
+			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 		}
 	}
 
@@ -148,7 +157,6 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mPrefs.unregisterCallback(this);
-        mPrefs.unRegisterListener();
     }
 
     @Override
@@ -323,5 +331,35 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
 
-    
+    protected AwfulApplication getAwfulApplication(){
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            return (AwfulApplication) act.getApplication();
+        }
+        return null;
+    }
+
+    protected void queueRequest(Request request, boolean cancelOnDestroy){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null && request != null){
+            if(cancelOnDestroy){
+                request.setTag(this);
+            }
+            app.queueRequest(request);
+        }
+    }
+
+    protected void cancelNetworkRequests(){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null){
+            app.cancelRequests(this);
+        }
+    }
+
+    public ImageLoader getImageLoader(){
+        if(getAwfulApplication() != null){
+            return getAwfulApplication().getImageLoader();
+        }
+        return null;
+    }
 }

@@ -58,12 +58,7 @@ public class ImageCacheTask extends AwfulTask {
 		try{
 		if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			File baseCacheDir;
-			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO){
-				baseCacheDir = new File(Environment.getExternalStorageDirectory(),"Android/data/com.ferg.awfulapp/cache/");
-				Log.v(TAG,"CACHE DIR: "+baseCacheDir.toString());
-			}else{
-				baseCacheDir = mContext.getExternalCacheDir();
-			}
+			baseCacheDir = mContext.getExternalCacheDir();
 			String folder = null;
 			String fileName = null;
 			String imgUrl = null;

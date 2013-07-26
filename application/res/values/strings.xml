@@ -49,6 +49,7 @@
     <string name="default_post_font_size">Default Post Font Size</string>
     <string name="colors">Change Colors and Fonts</string>
     <string name="themes">Choose Theme</string>
+    <string name="layouts">Choose Layout</string>
     <string name="alternate_backgrounds">Alternate Post BG Colors</string>
     <string name="default_post_font_color">Default Post Font Color</string>
     <string name="secondary_post_font_color">Alternative Font Color</string>
@@ -85,7 +86,7 @@ JingleBells\n
 \n
 Libraries:\n
 ActionBarSherlock\n
-Pull To Refresh for Android\n
+ActionBar Pull To Refresh\n
 ACRA / Bugsense\n
 Apache Commons-Lang3\n
 Apache HttpClient/HttpCore/HttpMime\n
@@ -104,11 +105,14 @@ AQuery</string>
 		<item>Landscape</item>
 	</string-array>
 	<string-array name="themes">
-		<item>Default</item>
-		<item>Dark</item>
-		<item>Dark-Blue (OLED-Optimized)</item>
-		<item>yospos</item>
-		<item>Custom</item>
+        <item>Default</item>
+        <item>Dark</item>
+        <item>yospos</item>
+        <item>amberpos</item>
+        <item>Classic</item>
+	</string-array>
+	<string-array name="layouts">
+        <item>Default</item>
 	</string-array>
 	<string-array name="icon_themes">
 		<item>Black</item>
@@ -207,7 +211,6 @@ AQuery</string>
 	<string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached.</string>
 	<string name="file_unreadable">File %s could not be accessed</string>
 	<string name="file_removed">Attachment removed</string>
-	<string name="refreshFrog">Pull-Frog-to-Refresh</string>
 	<string name="lock_scrolling">Lock Scrolling</string>
 	<string name="lock_scrolling_summary">Locks Horizontal Scrolling to Navigate</string>
 	<string name="disable_timgs">Disable timgs</string>
@@ -228,10 +231,13 @@ AQuery</string>
     <string name="alert_settings">Settings</string>
     <string name="share_thread">Share Thread</string>
     <string name="thread_actions">Thread Actions</string>
+    <string name="force_forum_themes">Force Forum Themes (YOSPOS etc)</string>
     <string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
     <string name="probation_message">You have been put on probation until %s.</string>
     <string name="keep_screen_on">Toggle Keep Screen On</string>
     <string name="ignore_title">Ignore User</string>
     <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
+    <string name="export_settings">Export settings</string>
+    <string name="import_settings">Import settings</string>
 
 </resources>
