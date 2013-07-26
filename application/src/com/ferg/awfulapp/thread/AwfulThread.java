@@ -626,13 +626,16 @@ public class AwfulThread extends AwfulPagedItem  {
 		}
 		
         if(stuck){
-            info.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_sticky, 0, 0, 0);
+            aq.id(R.id.thread_sticky).visible().image(current.getResources().getDrawable(R.drawable.ic_sticky));
+        	aq.id(R.id.thread_locked).gone();
         }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
-            info.setCompoundDrawablesWithIntrinsicBounds(R.drawable.light_inline_lock,0,0,0);
+        	aq.id(R.id.thread_sticky).gone();
+        	aq.id(R.id.thread_locked).visible().image(current.getResources().getDrawable(R.drawable.light_inline_lock));
             current.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
         }else{
-            info.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        	aq.id(R.id.thread_locked).gone();
+        	aq.id(R.id.thread_sticky).gone();
         }
 
 		unread.setTextColor(ColorProvider.getUnreadColorFont(prefs));
