@@ -27,24 +27,39 @@
 
 package com.ferg.awfulapp.preferences;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.TypedValue;
+
 import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-
-import java.util.ArrayList;
-import java.util.Date;
+import com.google.gson.Gson;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -52,9 +67,14 @@ import java.util.Date;
  *
  */
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
+
+    private static final String TAG = "AwfulPreferences";
+	
+	private static AwfulPreferences mSelf;
+	
 	private SharedPreferences mPrefs;
 	private Context mContext;
-	private ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
+	private static ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
 	
 	//GENERAL STUFF
 	public String username;
@@ -65,30 +85,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean debugMode;
 	public boolean sendUsernameInReport;
 	public float scaleFactor;
+	public String orientation;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
 	public int postFontSizePx;
-	public int postFontColor;
-	public int postFontColor2;
-	public int postBackgroundColor;
-	public int postBackgroundColor2;
-	public int postReadBackgroundColor;
-	public int postReadBackgroundColor2;
-	public int postReadFontColor;
-	public int postOPColor;
-	public int postLinkQuoteColor;
-	public int postDividerColor;
-	public boolean postDividerEnabled;
-	public int postHeaderBackgroundColor;
-	public int postHeaderFontColor;
-	public int actionbarColor;
-	public int actionbarFontColor;
-	public boolean refreshFrog;
 	public boolean lockScrolling;
-	public int unreadCounterColor;
-	public int unreadCounterColorDim;
-	public boolean unreadCounterFontBlack;
+	public String theme;
+	public boolean forceForumThemes;
+	public String layout;
 	/**
 	 * for selecting icon set
 	 * light
@@ -143,13 +148,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	private static final int PREFERENCES_VERSION = 1;
 	private int currPrefVersion;
+	
+	HashSet<String> longKeys;
 
 
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
 	 */
-	public AwfulPreferences(Context context) {
+	private AwfulPreferences(Context context) {
 		mContext = context;
 
 		PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
@@ -157,11 +164,26 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 		upgradePreferences();
+		
+		longKeys = new HashSet<String>();
+		longKeys.add("probation_time");
+	}
+
+	
+	public static AwfulPreferences getInstance(){
+		return mSelf;
 	}
 	
-	public AwfulPreferences(Context context, AwfulUpdateCallback updateCallback){
-		this(context);
+	public static AwfulPreferences getInstance(Context context){
+		if(mSelf == null){
+			mSelf = new AwfulPreferences(context);
+		}
+		return mSelf;
+	}
+	
+	public static AwfulPreferences getInstance(Context context, AwfulUpdateCallback updateCallback){
 		mCallback.add(updateCallback);
+		return getInstance(context);
 	}
 
 	public void unRegisterListener(){
@@ -207,24 +229,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);
 		postFontSizeDip            = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
-		postFontColor            = mPrefs.getInt("default_post_font_color", res.getColor(R.color.default_post_font));
-		postFontColor2           = mPrefs.getInt("secondary_post_font_color", res.getColor(R.color.secondary_post_font));
-      	postBackgroundColor      = mPrefs.getInt("default_post_background_color", res.getColor(R.color.background));
-       	postBackgroundColor2     = mPrefs.getInt("alternative_post_background_color", res.getColor(R.color.alt_background));
-    	postReadBackgroundColor  = mPrefs.getInt("read_post_background_color", res.getColor(R.color.background_read));
-    	postReadBackgroundColor2 = mPrefs.getInt("alternative_read_post_background_color", res.getColor(R.color.alt_background_read));
-    	postReadFontColor  		 = mPrefs.getInt("read_post_font_color", res.getColor(R.color.font_read));
-    	postOPColor              = mPrefs.getInt("op_post_color", res.getColor(R.color.op_post));
-    	postLinkQuoteColor       = mPrefs.getInt("link_quote_color", res.getColor(R.color.link_quote));
-      	postHeaderBackgroundColor      = mPrefs.getInt("post_header_background_color", res.getColor(R.color.forums_blue));
-      	postHeaderFontColor      = mPrefs.getInt("post_header_font_color", res.getColor(R.color.forums_gray));
-      	postDividerColor      	 = mPrefs.getInt("post_divider_color", res.getColor(R.color.holo_blue_light));
-      	postDividerEnabled     	 = mPrefs.getBoolean("post_divider_enabled", false);
-      	actionbarColor      	 = mPrefs.getInt("actionbar_color", res.getColor(R.color.actionbar_color));
-      	actionbarFontColor       = mPrefs.getInt("actionbar_font_color", res.getColor(R.color.actionbar_font_color));
-      	unreadCounterColor		 = mPrefs.getInt("unread_posts", res.getColor(R.color.unread_posts));
-      	unreadCounterColorDim	 = mPrefs.getInt("unread_posts_dim", res.getColor(R.color.unread_posts_dim));
-        unreadCounterFontBlack   = mPrefs.getBoolean("unread_posts_font_black", false);
+		theme					 = mPrefs.getString("theme", "default.css");
+		layout					 = mPrefs.getString("layouts", "default");
         imagesEnabled            = mPrefs.getBoolean("images_enabled", true);
         no3gImages	             = mPrefs.getBoolean("no_3g_images", false);
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
@@ -255,17 +261,18 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);
         hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
-        refreshFrog				 = mPrefs.getBoolean("refresh_frog", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
         disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
+        forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
         probationTime			 = mPrefs.getLong("probation_time", 0);
         userId					 = mPrefs.getInt("user_id", 0);
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
+        orientation				 = mPrefs.getString("orientation", "default");
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -325,6 +332,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		}
 	}
 	
+
+	public Resources getResources(){
+		return mContext.getResources();
+	}
+	
 	public boolean isOnProbation(){
 		if(probationTime == 0){
 			return false;
@@ -356,5 +368,69 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	public boolean canLoadAvatars(){
 		return avatarsEnabled && canLoadImages();
+	}
+	
+	public void exportSettings(){
+		Map settings = mPrefs.getAll();
+		Calendar date = Calendar.getInstance();
+		Gson gson = new Gson();
+		String settingsJson = gson.toJson(settings);
+	    try {
+		PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+
+			if(Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
+				
+				if(!awfulFolder.exists()){
+					awfulFolder.mkdir();
+				}
+				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
+
+	        	FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), "awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings"));
+	        	out.write(settingsJson.getBytes());
+	        	out.close();
+	        }
+	    }
+	    catch (IOException e) {
+			e.printStackTrace();
+	    } catch (NameNotFoundException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void importSettings(File settingsFile){
+		Log.i(TAG, "importing settings from file: "+settingsFile.getName());
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(settingsFile));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		Gson gson = new Gson();
+		Map settings = gson.fromJson(br, mPrefs.getAll().getClass());
+		for (Object setting : settings.entrySet()) {
+			HashMap.Entry entry = (HashMap.Entry) setting;
+			String classname = entry.getValue().getClass().getSimpleName();
+			if("Boolean".equals(classname)){
+				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
+			}else if("String".equals(classname)){
+				setStringPreference((String)entry.getKey(), (String)entry.getValue());
+			}else{
+				if(longKeys.contains((String)entry.getKey())){
+					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());
+				}else{
+					setIntegerPreference((String)entry.getKey(), ((Double)entry.getValue()).intValue());
+				}
+			}
+		}
+		updateValues(mPrefs);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		unRegisterListener();
+		super.finalize();
 	}
 }

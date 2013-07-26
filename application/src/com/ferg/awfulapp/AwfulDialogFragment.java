@@ -43,6 +43,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
@@ -93,7 +94,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     	if(!(aActivity instanceof AwfulActivity)){
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
-        mPrefs = new AwfulPreferences(getAwfulActivity(), this);
+        mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
     }
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
@@ -111,7 +112,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
 		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(mPrefs.actionbarColor);
+			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
 		}
 	}
     
@@ -119,7 +120,6 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
     public void onDestroy() {
     	super.onDestroy();
         mPrefs.unregisterCallback(this);
-        mPrefs.unRegisterListener();
     }
     
     protected void displayForumIndex(){

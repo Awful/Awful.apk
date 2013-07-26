@@ -92,7 +92,7 @@ public class AwfulSyncService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-    	mPrefs = new AwfulPreferences(this);
+    	mPrefs = AwfulPreferences.getInstance(this);
         return mMessenger.getBinder();
     }
 

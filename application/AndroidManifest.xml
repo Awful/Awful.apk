@@ -5,7 +5,7 @@
       android:versionName="2.4.4"
       android:installLocation="auto">
     <uses-sdk 
-		android:minSdkVersion="7" 
+		android:minSdkVersion="8" 
 		android:targetSdkVersion="14" 
 		/>
     <supports-screens 
@@ -24,8 +24,7 @@
 		android:name="com.ferg.awfulapp.AwfulApplication"
 		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
-        android:theme="@style/Theme.Sherlock"
-		android:debuggable="true">
+        android:theme="@style/Theme.Sherlock">
         <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask">
             <intent-filter>
@@ -58,7 +57,7 @@
         </activity>
         <activity android:name="com.ferg.awfulapp.ProfileActivity" />
         <activity android:name="com.ferg.awfulapp.SettingsActivity" />
-        <activity android:name="com.ferg.awfulapp.ColorSettingsActivity" android:hardwareAccelerated="false"/>
+        <activity android:name="com.ferg.awfulapp.ThemeSettingsActivity" android:hardwareAccelerated="false"/>
         <activity 
             android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 

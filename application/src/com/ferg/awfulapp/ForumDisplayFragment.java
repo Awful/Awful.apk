@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.ContentObserver;
@@ -53,21 +54,25 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 import com.ferg.awfulapp.widget.NumberPicker;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
 
 /**
  * Uses intent extras:
@@ -77,9 +82,9 @@ import java.util.Date;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
-    private PullToRefreshListView mPullRefreshListView;
+    private ListView mListView;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -121,7 +126,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         TAG = "ForumDisplayFragment";
     }
 
-	private AwfulCursorAdapter mCursorAdapter;
+	private ThreadCursorAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
@@ -135,24 +140,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
-    	mPullRefreshListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
+    	mListView = (ListView) result.findViewById(R.id.forum_list);
         //mListView.setDrawingCacheEnabled(true);
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-			
-			@Override
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				syncForum();
-			}
-		});
-        mPullRefreshListView.setDisableScrollingWhileRefreshing(false);
-        mPullRefreshListView.setMode(Mode.PULL_DOWN_TO_REFRESH);
-        mPullRefreshListView.setPullLabel("Pull to Refresh");
-        mPullRefreshListView.setReleaseLabel("Release to Refresh");
-        mPullRefreshListView.setRefreshingLabel("Loading...");
-        if(mPrefs.refreshFrog){
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-        }else{
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
+
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mListView,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
         }
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
@@ -181,6 +175,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		
         return result;
     }
+	
+	@Override
+	public void onAttach(Activity aActivity) {
+		super.onAttach(aActivity);
+    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+	}
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
@@ -210,13 +210,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	}
         
 
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
-        mPullRefreshListView.setAdapter(mCursorAdapter);
-        mPullRefreshListView.setOnItemClickListener(onThreadSelected);
-        mPullRefreshListView.setBackgroundColor(mPrefs.postBackgroundColor);
-        mPullRefreshListView.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mCursorAdapter = new ThreadCursorAdapter((AwfulActivity) getActivity(), null, this);
+        mListView.setAdapter(mCursorAdapter);
+        mListView.setOnItemClickListener(onThreadSelected);
+        mListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+        mListView.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+
         
-        registerForContextMenu(mPullRefreshListView.getRefreshableView());
+        registerForContextMenu(mListView);
     }
 
 	public void updatePageBar(){
@@ -525,8 +526,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		if(aMsg.obj == null && getActivity() != null){
 			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
 		}
-		mPullRefreshListView.onRefreshComplete();
-    	mPullRefreshListView.setLastUpdatedLabel("Loading Failed!");
 		lastRefresh = System.currentTimeMillis();
 		loadFailed = true;
     }
@@ -538,18 +537,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
     		if(isResumed() && isVisible()){
-    			mPullRefreshListView.invalidate();
+    			mListView.invalidate();
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
-				mPullRefreshListView.onRefreshComplete();
-		        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
     			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
     			lastRefresh = System.currentTimeMillis();
-    			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-                	mRefreshBar.setColorFilter(0);
-                	mToggleSidebar.setColorFilter(0);
-    			}
+                mRefreshBar.setColorFilter(0);
+                mToggleSidebar.setColorFilter(0);
     	    	loadFailed = false;
     	    	break;
 		}
@@ -560,10 +555,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		super.loadingUpdate(aMsg);
 		switch (aMsg.what) {
 			case AwfulSyncService.MSG_SYNC_FORUM:
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-		        	mRefreshBar.setColorFilter(buttonSelectedColor);
-		        	mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}
+		        mRefreshBar.setColorFilter(buttonSelectedColor);
+		        mToggleSidebar.setColorFilter(buttonSelectedColor);
 				break;
 		}
 	}
@@ -571,21 +564,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mPullRefreshListView!=null){
-			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
-			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
-            //mPullRefreshListView.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
-	        if(mPrefs.refreshFrog){
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-	        }else{
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-	        }
+		if(mListView!=null){
+			mListView.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+			mListView.setCacheColorHint(ColorProvider.getBackgroundColor(prefs));
 		}
-		aq.find(R.id.pagebar).backgroundColor(prefs.actionbarColor);
-		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
+		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(prefs));
+		aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(prefs));
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(prefs.actionbarFontColor);
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor(prefs));
 		}
 	}
 	
@@ -627,9 +613,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-    		if(mCursorAdapter != null){
-    			mCursorAdapter.setId(id);
-    		}
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
@@ -744,6 +727,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     			if(mForumId == 0){
     				aq.find(R.id.second_titlebar).text(R.string.forums_title);
     			}else{
+//    				aq.find(R.id.second_titlebar).text(mTitle);
     				aq.find(R.id.second_titlebar).text(Html.fromHtml(mTitle));
     			}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
@@ -816,19 +800,22 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(false);
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, 0);
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(true);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mListView.smoothScrollBy(-mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, 0);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mListView.smoothScrollBy(mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:
 	            return false;
 	        }
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+		syncForum();
 	}
 }
