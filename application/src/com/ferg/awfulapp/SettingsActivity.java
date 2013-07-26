@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -35,6 +36,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
 import android.preference.ListPreference;
@@ -42,6 +44,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -50,19 +53,24 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
+
 import org.apache.commons.lang3.text.WordUtils;
 
+import java.io.File;
 import java.util.LinkedList;
 
 /**
  * Simple, purely xml driven preferences. Access using
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
  */
-public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener, ServiceConnection {
+public class SettingsActivity extends PreferenceActivity implements AwfulUpdateCallback, ServiceConnection {
     protected static String TAG = "SettingsActivity";
 	private static final int DIALOG_ABOUT = 1;
+	private static final int SETTINGS_FILE = 2;
 	private Preference mAboutPreference;
 	private Preference mFeaturesPreference;
 	private Preference mThreadPreference;
@@ -71,6 +79,8 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	private Preference mColorsPreference;
 	private Preference mFontSizePreference;
 	private Preference mUsernamePreference;
+	private Preference mExportPreference;
+	private Preference mImportPreference;
 	protected SettingsActivity mThis = this;
 	private Dialog mFontSizeDialog;
 	private Dialog mFeatureFetchDialog;
@@ -99,7 +109,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
         	}
         }
 	};
-	private SharedPreferences mPrefs;
+	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
 	
     private Messenger mService = null;
@@ -118,7 +128,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mConf.onCreate();
 		
 		addPreferencesFromResource(R.xml.settings);
-		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mPrefs = AwfulPreferences.getInstance(this,this);
 		
 		this.bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
@@ -143,6 +153,10 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+		mExportPreference = getPreferenceScreen().findPreference("export_settings");
+		mExportPreference.setOnPreferenceClickListener(onExportListener);
+		mImportPreference = getPreferenceScreen().findPreference("import_settings");
+		mImportPreference.setOnPreferenceClickListener(onImportListener);
 
 		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
 		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
@@ -164,16 +178,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
         bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		setSummaries();
-		
-		mPrefs.registerOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
 		mConf.onPause();
-		
-		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
@@ -227,6 +237,26 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 			showDialog(DIALOG_ABOUT);
 			return true;
 		}
+	};
+	
+	private OnPreferenceClickListener onExportListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			AwfulPreferences.getInstance().exportSettings();
+			Toast.makeText(mThis, "Settings exported", Toast.LENGTH_LONG).show();
+			return true;
+		}
+	};	
+	
+	private OnPreferenceClickListener onImportListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+    	    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    	    intent.setType("file/*");
+    	    startActivityForResult(Intent.createChooser(intent,
+                    "Select Settings File"), SETTINGS_FILE);
+			return true;
+		}
 	};	
 	
 	private OnPreferenceClickListener onThreadListener = new OnPreferenceClickListener() {
@@ -241,7 +271,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	private OnPreferenceClickListener onColorsListener = new OnPreferenceClickListener() {
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			startActivity(new Intent().setClass(mThis, ColorSettingsActivity.class));
+			startActivity(new Intent().setClass(mThis, ThemeSettingsActivity.class));
 			return true;
 		}
 	};
@@ -297,9 +327,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 				
 				@Override
 				public void onStopTrackingTouch(SeekBar seekBar) {
-					Editor sizeEdit = mPrefs.edit();
-					sizeEdit.putInt("default_post_font_size_dip", seekBar.getProgress()+10);
-					sizeEdit.commit();
+					mPrefs.setIntegerPreference("default_post_font_size_dip", seekBar.getProgress()+10);
 				}
 				
 				@Override
@@ -312,7 +340,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 			        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+10));
 				}
 			});
-	        bar.setProgress(mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE)-10);
+	        bar.setProgress(mPrefs.postFontSizeDip-10);
 	        mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
 	        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+10));
 	        mFontSizeDialog.show();
@@ -321,34 +349,28 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	};
 	
 	// All keys representing int values whose Summaries should be set to their values
-	private static final String[] VALUE_SUMMARY_KEYS_INT = { 
-		"default_post_font_size_dip",
-		"post_per_page"
-		};
-	private static final int[] VALUE_SUMMARY_DEFAULTS_INT = { 
-		Constants.DEFAULT_FONT_SIZE,
-		Constants.ITEMS_PER_PAGE
-		};
+//	private static final String[] VALUE_SUMMARY_KEYS_INT = { 
+//		"default_post_font_size_dip",
+//		"post_per_page"
+//		};
+//	private static final int[] VALUE_SUMMARY_DEFAULTS_INT = { 
+//		Constants.DEFAULT_FONT_SIZE,
+//		Constants.ITEMS_PER_PAGE
+//		};
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
 		"orientation"
 	};
 	
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		setSummaries(); 
-	}
-	
 	private void setSummaries() {
-		for(int x=0;x<VALUE_SUMMARY_KEYS_INT.length;x++) {
-			findPreference(VALUE_SUMMARY_KEYS_INT[x]).setSummary(String.valueOf(mPrefs.getInt(VALUE_SUMMARY_KEYS_INT[x], VALUE_SUMMARY_DEFAULTS_INT[x])));
-		}
+		findPreference("default_post_font_size_dip").setSummary(String.valueOf(mPrefs.postFontSizeDip));
+		findPreference("post_per_page").setSummary(String.valueOf(mPrefs.postPerPage));
 		for(String key : VALUE_SUMMARY_KEYS_LIST) {
 			ListPreference p = (ListPreference) findPreference(key);
 			p.setSummary(p.getEntry());
 		}
-		mUsernamePreference.setSummary(mPrefs.getString("username", "Not Set"));
-		mColorsPreference.setSummary(WordUtils.capitalize(mPrefs.getString("themes", "Default"))+" Theme");
+		mUsernamePreference.setSummary(mPrefs.username);
+		mColorsPreference.setSummary(WordUtils.capitalize(mPrefs.theme)+" Theme");
 	}
 
 	@Override
@@ -387,9 +409,67 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
 	}
 
 	public void updateFeatures(){
-		String platinum = (mPrefs.getBoolean("has_platinum", false)) ? "Yes" : "No";
-		String archives = (mPrefs.getBoolean("has_archives", false)) ? "Yes" : "No";
-		String noAds = (mPrefs.getBoolean("has_no_ads", false)) ? "Yes" : "No";
+		String platinum = (mPrefs.hasPlatinum) ? "Yes" : "No";
+		String archives = (mPrefs.hasArchives) ? "Yes" : "No";
+		String noAds = (mPrefs.hasNoAds) ? "Yes" : "No";
 		mFeaturesPreference.setSummary("Platinum: "+platinum+" | Archives: "+archives+" | No Ads: "+noAds);
+	}
+	
+   @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SETTINGS_FILE) {
+    			Toast.makeText(mThis, "importing settings", Toast.LENGTH_SHORT).show();
+                Uri selectedSetting = data.getData();
+                String path = getFilePath(selectedSetting);
+                if(path != null){
+	                File settingsfile = new File(path);
+	                AwfulPreferences.getInstance(this).importSettings(settingsfile);
+	                this.finish();
+                }
+            }
+        }
+
+    }
+   
+   public String getFilePath(Uri uri) {
+	   try{
+	       String[] projection = { MediaStore.Images.Media.DATA };
+	       Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
+	       if(cursor!=null)
+	       {
+	           //HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
+	           //THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
+	           int column_index = cursor
+	           .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	           cursor.moveToFirst();
+	           return cursor.getString(column_index);
+	       }
+	       else{
+			   Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
+	    	   return null;
+	       }
+	   }catch(NullPointerException e){
+		   Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
+		   e.printStackTrace();
+		   return null;
+	   }
+   }
+
+	@Override
+	public void loadingFailed(Message aMsg) {}
+	
+	@Override
+	public void loadingStarted(Message aMsg) {}
+	
+	@Override
+	public void loadingUpdate(Message aMsg) {}
+	
+	@Override
+	public void loadingSucceeded(Message aMsg) {}
+	
+	@Override
+	public void onPreferenceChange(AwfulPreferences prefs) {
+		setSummaries(); 
 	}
 }

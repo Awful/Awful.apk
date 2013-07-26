@@ -1,23 +1,44 @@
 var prefs = JSON.parse(preferences);
 
+function toggleinfo(info){
+	if($(info).children('.postinfo-regdate').hasClass('extended')){
+		$(info).children('.avatar-cell').removeClass('extended');
+		$(info).children('.avatar-cell').children('.avatar').removeClass('extended');
+		$(info).children('.postinfo-regdate').removeClass('extended');
+		$(info).children('.postinfo-title').removeClass('extended');
+	}else{
+		$(info).children('.avatar-cell').addClass('extended');
+		$(info).children('.avatar-cell').children('.avatar').addClass('extended');
+		$(info).children('.postinfo-regdate').addClass('extended');
+		$(info).children('.postinfo-title').addClass('extended');
+	}
+}
+function toggleoptions(menu){
+	$(menu).parent().parent().children('.postoptions').toggleClass('extended');
+}
+
+function changeCSS(theme){
+	$('head').children('link').first().attr('href','file:///android_asset/css/'+theme);
+}
+
 
 $(document).ready(function() {
-    $('.quote_button').live('click', function(event) {
-        listener.onQuoteClick($(this).attr('id'));
+    $('.quote').live('click', function(event) {
+        listener.onQuoteClick($(this).parent().parent().attr('id'));
     });
-    $('.edit_button').live('click', function(event) {
-        listener.onEditClick($(this).attr('id'));
+    $('.edit').live('click', function(event) {
+        listener.onEditClick($(this).parent().parent().attr('id'));
     });
-    $('.more_button').live('click', function(event) {
-        listener.onMoreClick($(this).attr('id'), $(this).attr('username'), $(this).attr('userid'));
+    $('.more').live('click', function(event) {
+        listener.onMoreClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'));
     });
     $('.menu_button').live('click', function(event) {
-        listener.onMenuClick($(this).attr('id'), $(this).attr('username'), $(this).attr('userid'), $(this).attr('lastreadurl'), $(this).attr('editable'));
+        listener.onMenuClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'), $(this).attr('lastreadurl'), $(this).attr('editable'));
     });
     $('.sendpm_button').live('click', function(event) {
         listener.onSendPMClick($(this).attr('username'));
     });
-    $('.lastread_button').live('click', function(event) {
+    $('.lastread').live('click', function(event) {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
     $('.copyurl_button').live('click', function(event) {
@@ -53,11 +74,37 @@ $(document).ready(function() {
 	$('.tablet.postdate').click(function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
+	
+	$('.postinfo').click(function(){
+		toggleinfo($(this));
+	});
+	$('.postmenu').click(function(){
+		toggleoptions($(this));
+	});
+	
+	$('.postcontent').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
+	    var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
+	    if (videoID === null) return
+	    videoID = videoID[1]
+	    var object = $(this).closest('object')
+	    $(this).closest('div.bbcode_video').replaceWith($('<iframe/>', {
+	      src: "http://player.vimeo.com/video/" + videoID + "?byline=0&portrait=0",
+	      width: object.attr('width'),
+	      height: object.attr('height'),
+	      frameborder: 0,
+	      webkitAllowFullScreen: '',
+	      allowFullScreen: ''
+	    }))
+	  })	
+	
+	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
+	
+	$('iframe').resize(function() {
+    	$(this).height($(this).width()/16*9);
+	});
+	
     var salr = new SALR(prefs);
     
-    $("img[title*=':'],img[title*=';']").load(function(index) {
-    	$(this).height(($(this).height() *  prefs.postFontSize / 15));
-	});
 	$('.timg').click(function () {
 		$(this).removeClass('timg');
 		if(!$(this).parent().is('a')){
@@ -65,20 +112,7 @@ $(document).ready(function() {
 		}
 	});
 	
-		  $('.post-content').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
-		    var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
-		    if (videoID === null) return
-		    videoID = videoID[1]
-		    var object = $(this).closest('object')
-		    $(this).closest('div.bbcode_video').replaceWith($('<iframe/>', {
-		      src: "http://player.vimeo.com/video/" + videoID + "?byline=0&portrait=0",
-		      width: object.attr('width'),
-		      height: object.attr('height'),
-		      frameborder: 0,
-		      webkitAllowFullScreen: '',
-		      allowFullScreen: ''
-		    }))
-		  })		
+	
 });
 
 
@@ -94,7 +128,7 @@ $(window).ready(function() {
 	//listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
-		var id = this.hash.replace(/#post/,'.').concat(':visible');
+		var id = this.hash.replace(/#post/,'#').concat(':visible');
 		if($(id).length > 0){
 			$(this).click(function(e){
 				$(window).scrollTop($(id).offset().top);

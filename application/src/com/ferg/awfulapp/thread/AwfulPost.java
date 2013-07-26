@@ -594,13 +594,15 @@ public class AwfulPost {
 
 	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
 		aq.recycle(current);
-		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(mPrefs.postHeaderFontColor);
-		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(mPrefs.postHeaderFontColor);
+//		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(current.getResources().getColor(R.color.default_post_font));
+		aq.find(R.id.post_author).visible().text(data.getString(data.getColumnIndex(USERNAME))).textColor(current.getResources().getColor(R.color.default_post_font));
+//		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
+		aq.find(R.id.post_date).visible().text(data.getString(data.getColumnIndex(DATE))).textColor(current.getResources().getColor(R.color.default_post_font));
 		int background = 0;
 		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
-			background = mPrefs.postReadBackgroundColor;
+			background = current.getResources().getColor(R.color.background_read);
 		}else{
-			background = mPrefs.postBackgroundColor;
+			background = current.getResources().getColor(R.color.background);
 		}
 //		final Drawable frog = current.getContext().getResources().getDrawable(R.drawable.icon);
 //		Spanned postContent = Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)),null,new TagHandler() {
@@ -612,13 +614,13 @@ public class AwfulPost {
 //				
 //			}
 //		});
-		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(mPrefs.postFontColor).backgroundColor(background).getView();
+		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(current.getResources().getColor(R.color.default_post_font)).backgroundColor(background).getView();
 		contentView.cancelTasks();
 		contentView.setMovementMethod(LinkMovementMethod.getInstance());
 		contentView.setHtml(data.getString(data.getColumnIndex(CONTENT)), true);
 		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
-		aq.find(R.id.post_avatar_text).text(data.getString(data.getColumnIndex(AVATAR_TEXT))).textColor(mPrefs.postHeaderFontColor).gone();
-		aq.find(R.id.post_header).backgroundColor(mPrefs.postHeaderBackgroundColor);
+		aq.find(R.id.post_avatar_text).text(data.getString(data.getColumnIndex(AVATAR_TEXT))).textColor(current.getResources().getColor(R.color.default_post_font)).gone();
+		aq.find(R.id.post_header).backgroundColor(current.getResources().getColor(R.color.forums_blue));
 		OnClickListener buttonClick = new OnClickListener(){
 			private int id = data.getInt(data.getColumnIndex(ID));
 			private Messenger notify = buttonCallback;
@@ -652,7 +654,7 @@ public class AwfulPost {
 				buttonContainer.scrollTo(buttonContainer.getWidth(), 0);
 			}
 		});
-		aq.find(R.id.post_button_scoller).backgroundColor(mPrefs.postHeaderBackgroundColor).gone();
+		aq.find(R.id.post_button_scoller).backgroundColor(current.getResources().getColor(R.color.background)).gone();
 	}
 
 }

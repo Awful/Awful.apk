@@ -40,3 +40,5 @@ bin
 *.idea/
 *.iml
 *.gradle
+tests
+out

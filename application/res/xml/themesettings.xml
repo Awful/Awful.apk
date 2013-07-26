@@ -2,10 +2,22 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
   <PreferenceCategory android:title="@string/themes">
             <ListPreference
-            android:key="themes"
+            android:key="theme"
             android:title="@string/themes"
             android:entries="@array/themes"
             android:entryValues="@array/schemas_values"
+			android:defaultValue="default"
+            />
+            <CheckBoxPreference
+			android:key="force_forum_themes"
+			android:title="@string/force_forum_themes"
+			android:defaultValue="true"
+			/>
+            <ListPreference
+            android:key="layouts"
+            android:title="@string/layouts"
+            android:entries="@array/layouts"
+            android:entryValues="@array/layouts_values"
 			android:defaultValue="default"
             />
             <ListPreference
@@ -22,17 +34,5 @@
             android:entryValues="@array/icon_themes_values"
 			android:defaultValue="light"
             />
-            <CheckBoxPreference
-			android:key="refresh_frog"
-			android:title="@string/refreshFrog"
-			android:defaultValue="false"
-			/>
         </PreferenceCategory>
-          <PreferenceCategory android:title="@string/alternate_backgrounds">
-                <CheckBoxPreference
-			android:key="alternate_backgrounds"
-			android:title="@string/alternate_backgrounds"
-			android:defaultValue="true"
-			/>
-		</PreferenceCategory>
 </PreferenceScreen>

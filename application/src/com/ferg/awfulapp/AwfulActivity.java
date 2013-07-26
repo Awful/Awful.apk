@@ -3,6 +3,9 @@ package com.ferg.awfulapp;
 import java.io.File;
 import java.util.LinkedList;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -29,7 +32,9 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -55,6 +60,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     protected AwfulPreferences mPrefs;
     
+	protected PullToRefreshAttacher mP2RAttacher;
+    
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
@@ -66,11 +73,15 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mPrefs = new AwfulPreferences(this, this);
+        mPrefs = AwfulPreferences.getInstance(this, this);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
+    	Options p2roptions = new Options();
+    	p2roptions.headerTransformer = new AwfulHeaderTransformer();
+    	p2roptions.refreshOnUp = true;
+    	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
     @Override
@@ -143,8 +154,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(aPrefs.actionbarColor));
-	        mTitleView.setTextColor(aPrefs.actionbarFontColor);
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor(mPrefs)));
+	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor(mPrefs));
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }
@@ -230,7 +241,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         	mTitleView = (TextView) action.getCustomView();
         }
     	if(aTitle != null && mTitleView != null && aTitle.length()>0){
-    		mTitleView.setText(Html.fromHtml(aTitle));
+//    		mTitleView.setText(Html.fromHtml(aTitle));
+    		mTitleView.setText(aTitle);
 			mTitleView.scrollTo(0, 0);
     	}else{
     		Log.e(TAG, "FAILED setActionbarTitle - "+aTitle);
@@ -310,4 +322,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
+	
+	
+	PullToRefreshAttacher getPullToRefreshAttacher() {
+        return mP2RAttacher;
+    }
 }

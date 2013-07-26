@@ -184,7 +184,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                     result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
 
                     // Write username to preferences for SALR features
-                    AwfulPreferences prefs = new AwfulPreferences(AwfulLoginActivity.this);
+                    AwfulPreferences prefs = AwfulPreferences.getInstance(AwfulLoginActivity.this);
                     prefs.setUsername(aParams[0]);
                 } catch (Exception e) {
                     e.printStackTrace();

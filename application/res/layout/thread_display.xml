@@ -27,7 +27,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
 
-            <com.handmark.pulltorefresh.library.PullToRefreshWebView
+            <WebView
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"

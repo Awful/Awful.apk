@@ -11,6 +11,12 @@
             android:key="open_thread"
             android:title="@string/open_thread"
             android:summary="@string/open_thread_summary"/>
+        <Preference
+            android:key="export_settings"
+            android:title="@string/export_settings"/>
+        <Preference
+            android:key="import_settings"
+            android:title="@string/import_settings"/>
         <EditTextPreference
             android:key="username"
             android:title="@string/username_pref"
