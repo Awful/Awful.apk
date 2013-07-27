@@ -32,9 +32,6 @@ $(document).ready(function() {
     $('.more').live('click', function(event) {
         listener.onMoreClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'));
     });
-    $('.menu_button').live('click', function(event) {
-        listener.onMenuClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'), $(this).attr('lastreadurl'), $(this).attr('editable'));
-    });
     $('.sendpm_button').live('click', function(event) {
         listener.onSendPMClick($(this).attr('username'));
     });

@@ -1169,46 +1169,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int IGNORE_USER = 3;
 		
         final CharSequence[] mPostItems = {
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Ignore User"
-        };
-		
-        final CharSequence[] mEditMenuItems = {
-            "Edit",
-            "Quote",
-            "Mark Last Read",
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Ignore User"
-        };
-		
-        final CharSequence[] mMenuItems = {
-            "Quote",
-            "Mark Last Read",
-            "Send Private Message",
             "Copy Post URL",
             "Read Posts by this User",
             "Ignore User"
         };
         
-        final CharSequence[] mProbatedItems = {
-            "Mark Last Read",
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Ignore User"
-        };
-
-        public static final int MENU_EDIT = 0;
-        public static final int MENU_QUOTE  = 1;
-        public static final int MENU_LASTREAD = 2;
-        public static final int MENU_SEND_PM  = 3;
-        public static final int MENU_COPY_URL = 4;
-        public static final int MENU_USER_POSTS = 5;
-        public static final int MENU_USER_IGNORE = 6;
+        final CharSequence[] mPlatPostItems = {
+                "Send Private Message",
+                "Copy Post URL",
+                "Read Posts by this User",
+                "Ignore User"
+            };
+		
         
         public void onQuoteClick(final String aPostId) {
         	onQuoteClickInt(Integer.parseInt(aPostId));
@@ -1253,23 +1225,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId) {
         	new AlertDialog.Builder(getActivity())
             .setTitle("Select an Action")
-            .setItems(mPostItems, new DialogInterface.OnClickListener() {
+            .setItems(mPrefs.hasPlatinum?mPlatPostItems:mPostItems, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aItem) {
-                    onPostActionItemSelected(aItem, aPostId, aUsername, aUserId);
-                }
-            })
-            .show();
-        }
-        
-        public void onMenuClick(final String aPostId, final String aUsername, final String aUserId, final String index, final String editable) {
-        	final boolean edit = editable != null && editable.contains("true");
-        	final boolean probated = mPrefs.isOnProbation();
-        	new AlertDialog.Builder(getActivity())
-            .setTitle("Select an Action")
-            .setItems((probated?mProbatedItems:edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aItem) {
-                	//the non-edit menu is one item shorter, so we just shift that aItem up by one to compensate
-                	onPostMenuItemSelected(aItem+(probated?2:edit?0:1), aPostId, aUsername, aUserId, index);
+                    onPostActionItemSelected(mPrefs.hasPlatinum?aItem:aItem+1, aPostId, aUsername, aUserId);
                 }
             })
             .show();
@@ -1328,36 +1286,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
 
     }
-    
-	private void onPostMenuItemSelected(int aItem, String aPostId, String aUsername, String aUserId, String lastread) {
-		switch(aItem){
-			case ClickInterface.MENU_QUOTE:
-				clickInterface.onQuoteClick(aPostId);
-				break;
-			case ClickInterface.MENU_EDIT:
-				clickInterface.onEditClick(aPostId);
-				break;
-			case ClickInterface.MENU_LASTREAD:
-				clickInterface.onLastReadClick(lastread);
-				break;
-			case ClickInterface.MENU_SEND_PM:
-				clickInterface.onSendPMClick(aUsername);
-				break;
-			case ClickInterface.MENU_COPY_URL:
-	        	clickInterface.onCopyUrlClick(aPostId);
-				break;
-			case ClickInterface.MENU_USER_POSTS:
-				if(mUserId >0){
-	        		deselectUser(aPostId);
-	        	}else{
-	        		selectUser(Integer.parseInt(aUserId));
-	        	}
-			break;
-			case ClickInterface.MENU_USER_IGNORE:
-	        	clickInterface.onIgnoreUserClick(aUserId);
-			break;
-		}
-	}
     
 	private void onPostActionItemSelected(int aItem,
 			String aPostId, String aUsername, String aUserId) {
