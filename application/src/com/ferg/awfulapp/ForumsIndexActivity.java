@@ -76,8 +76,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        isTablet = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
-        		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(this));
+        isTablet = Constants.isWidescreen(this);
         int initialPage = -1;
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
@@ -319,8 +318,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if(pagerAdapter != null && mPrefs != null){
-	        isTablet = !mPrefs.threadLayout.equalsIgnoreCase("phone") &&
-	        		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(newConfig));
+	        isTablet = Constants.isWidescreen(newConfig);
             if(DEBUG) Log.e(TAG,"onConfigurationChanged "+(isTablet? "isTablet":""));
 			pagerAdapter.setWidescreen(isTablet);
 		}

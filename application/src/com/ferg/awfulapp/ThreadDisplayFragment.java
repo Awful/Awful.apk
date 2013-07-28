@@ -491,7 +491,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			if(currentProgress > 99){
 				registerPreBlocks();
 			}
-			updateLayoutType();
 		}
 	}
 
@@ -571,16 +570,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public boolean isSidebarVisible(){
     	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
     }
-    
-    public void updateLayoutType(){
-    	if(mThreadView != null && getActivity() != null){
-			if(!mPrefs.threadLayout.equalsIgnoreCase("phone") && (mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()))){
-				mThreadView.loadUrl("javascript:showTabletUI()");
-			}else{
-				mThreadView.loadUrl("javascript:showPhoneUI()");
-			}
-    	}
-    }
+ 
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
@@ -1106,9 +1096,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         try {
             mThreadView.addJavascriptInterface(clickInterface, "listener");
             mThreadView.addJavascriptInterface(getSerializedPreferences(AwfulPreferences.getInstance(getActivity())), "preferences");
-            boolean useTabletLayout = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
-            		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()));
-            String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), useTabletLayout, getPage(), mLastPage, mParentForumId, threadClosed);
+
+            String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
             if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+getThreadId()+"-"+getPage()+".html"));

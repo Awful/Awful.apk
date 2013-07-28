@@ -24,13 +24,13 @@ function changeCSS(theme){
 
 $(document).ready(function() {
     $('.quote').live('click', function(event) {
-        listener.onQuoteClick($(this).parent().parent().attr('id'));
+        listener.onQuoteClick($(this).parent().parent().attr('postid'));
     });
     $('.edit').live('click', function(event) {
-        listener.onEditClick($(this).parent().parent().attr('id'));
+        listener.onEditClick($(this).parent().parent().attr('postid'));
     });
     $('.more').live('click', function(event) {
-        listener.onMoreClick($(this).parent().parent().attr('id'), $(this).attr('username'), $(this).attr('userid'));
+        listener.onMoreClick($(this).parent().parent().attr('postid'), $(this).attr('username'), $(this).attr('userid'));
     });
     $('.sendpm_button').live('click', function(event) {
         listener.onSendPMClick($(this).attr('username'));
@@ -39,10 +39,10 @@ $(document).ready(function() {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
     $('.copyurl_button').live('click', function(event) {
-        listener.onCopyUrlClick($(this).attr('id'));
+        listener.onCopyUrlClick($(this).attr('postid'));
     });
     $('.userposts_button').live('click', function(event) {
-        listener.onUserPostsClick($(this).attr('id'));
+        listener.onUserPostsClick($(this).attr('postid'));
     });
     if(prefs.showSpoilers){
     $('.bbc-spoiler').removeAttr('onmouseover');
@@ -93,12 +93,13 @@ $(document).ready(function() {
 	      allowFullScreen: ''
 	    }))
 	  })	
-	
+	$(window).bind('reorient', function() {
+		$('iframe').each(function() {
+	    	$(this).height($(this).width()/16*9);
+		});
+	});
 	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
 	
-	$('iframe').resize(function() {
-    	$(this).height($(this).width()/16*9);
-	});
 	
     var salr = new SALR(prefs);
     
@@ -108,16 +109,16 @@ $(document).ready(function() {
 			$(this).wrap('<a href="'+$(this).attr('src')+'" />');
 		}
 	});
-	
+	$.reorient.start();
 	
 });
 
 
 
-$(window).load(function() {
-	//listener.debugMessage('load');
-	//window.stop();
-});
+//$(window).load(function() {
+//	//listener.debugMessage('load');
+//	//window.stop();
+//});
 
 
 
@@ -163,7 +164,7 @@ function scrollPost() {
 function scrollLastRead(){
 	//listener.debugMessage('scrollLastRead');
 	try{
-        $(window).scrollTop($('.unread:visible').first().offset().top);
+		window.scrollTo(0, $('.unread').first().offset().top );
     }catch(error){
     }
 }
@@ -197,37 +198,13 @@ function gifHide() {
 	});
 }
 
-function showTabletUI(){
-	window.isTablet = true;
-	refreshHidden();
-}
-
-function showPhoneUI(){
-	window.isTablet = false;
-	refreshHidden();
-}
-
 function refreshHidden(){
 	if(window.hideRead){
 		$('.toggleread').show();
 		$('.read').hide();
-		if(window.isTablet){
-			$('.unread.tablet').show();
-			$('.phone').hide();
-		}else{
-			$('.tablet').hide();
-			$('.unread.phone').show();
-		}
   	}else{
   		$('.read').show();
 	  	$('.toggleread').hide();
-		if(window.isTablet){
-			$('.tablet').show();
-			$('.phone').hide();
-		}else{
-			$('.tablet').hide();
-			$('.phone').show();
-		}
 	}
 }
 
