@@ -1,49 +1,69 @@
 package com.ferg.awfulapp.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+import com.ferg.awfulapp.AwfulFragment;
+
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.util.Log;
 
 /**
  * Author: Matthew Shepard
  * Date: 4/13/13 - 1:56 PM
  */
-public class AwfulGifStripper extends FilterInputStream {
+public class AwfulGifStripper extends ByteArrayInputStream {
     private String TAG = "AwfulGif-";
-    private static final byte[] animFlag = {(byte) 0x21, (byte) 0xF9,(byte) 0x04};
+    private String mUrl;
+    private int done = 0;
+    private ByteArrayInputStream realIS;
 
-    public AwfulGifStripper(InputStream wrapped, String name){
-        super(wrapped);
-        TAG = TAG + name;
+    public AwfulGifStripper(String url, AwfulFragment fragment){
+    	super(new byte[0]);
+        TAG = TAG + url;
+        mUrl = url;
+        Listener<Bitmap> success = new Listener<Bitmap>() {
+
+			@Override
+			public void onResponse(Bitmap response) {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+				response.compress(CompressFormat.PNG, 100, baos);
+				realIS = new ByteArrayInputStream(baos.toByteArray());
+				done = 1;
+			}
+		};
+		ErrorListener failure = new ErrorListener() {
+
+			@Override
+			public void onErrorResponse(VolleyError error) {
+				done = -1;
+				Log.e(TAG, "loading "+mUrl+" failed");
+			}
+		};
+		
+        ImageRequest get = new ImageRequest(url, success, 0, 0, Config.RGB_565, failure);
+        fragment.queueRequest(get, true);
     }
-
+    
     @Override
-    public void close() throws IOException {
-        super.close();
-    }
+    public int read(byte[] buffer) throws IOException {
+    	while(done == 0){
+    		
+    	}
+    	if(done == -1){
+    		return done;
+    	}
+        return realIS.read(buffer);
 
-    @Override
-    public int read(byte[] buffer, int offset, int length) throws IOException {
-        try{
-            int len = super.read(buffer, offset, length);
-            scanReplace(buffer, offset, len);
-            return len;
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    private void scanReplace(byte[] buffer, int offset, int length) throws IOException {
-        for(int ix = offset; ix < length-4; ix++){
-            if(buffer[ix] == animFlag[0] && buffer[ix+1] == animFlag[1] && buffer[ix+2] == animFlag[2]){
-                buffer[ix+4] = (byte) 0xFF;
-                if(buffer.length >= ix+4){
-                	buffer[ix+5] = (byte) 0x70;
-                }
-            }
-        }
     }
 }

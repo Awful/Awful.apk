@@ -56,10 +56,13 @@ import android.webkit.WebSettings.RenderPriority;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -72,6 +75,7 @@ import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 import com.ferg.awfulapp.widget.NumberPicker;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -151,6 +155,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private ShareActionProvider shareProvider;
 
     private ForumsIndexActivity parent;
+    
+    private ThreadDisplayFragment mSelf = this;
 
     public static ThreadDisplayFragment newInstance(int id, int page) {
 		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
@@ -166,33 +172,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	
 	private WebViewClient callback = new WebViewClient(){
-        String lastUrl="";
         
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-            if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
-                try {
-                    if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-                    URL target = new URL(url);
-                    URLConnection response = target.openConnection();
-                    response.setReadTimeout(5000);
-                    response.setConnectTimeout(1000);
-                    response.connect();
-                    if(DEBUG) Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
-                    return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (FileNotFoundException e) {
-                	if(!lastUrl.equals(url)){
-                        lastUrl=url;
-                        return shouldInterceptRequest(view, url);                		
-                	}
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if(mPrefs.disableGifs && url != null && url.endsWith(".gif") && !url.contains("ytimg.") && !(!mPrefs.imgurThumbnails.equalsIgnoreCase("d") && url.contains("http://i.imgur.com/"))){
+                    return new WebResourceResponse("image/png","png", new AwfulGifStripper(url, mSelf));
             }
-            return super.shouldInterceptRequest(view, url);
+            return null;
         }
 
         @Override
