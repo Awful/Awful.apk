@@ -329,6 +329,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
@@ -1413,6 +1414,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
             mThreadView.loadUrl("javascript:changeCSS('"+mPrefs.theme+"')");
+            mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
 		}
 	}
 
