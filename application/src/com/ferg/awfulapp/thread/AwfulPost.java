@@ -537,7 +537,7 @@ public class AwfulPost {
 							} else {
 								if (!dontLink) {
 									String thumb = src;
-									if(( !prefs.imgurThumbnails.equals("d") || prefs.disableGifs) && thumb.contains("i.imgur.com")){
+									if(( !prefs.imgurThumbnails.equals("d") || (prefs.disableGifs && thumb.toLowerCase().contains(".gif"))) && thumb.contains("i.imgur.com")){
 										int lastDot = thumb.lastIndexOf('.');
 										thumb = thumb.substring(0, lastDot) + (prefs.imgurThumbnails.equals("d")?"h":prefs.imgurThumbnails) + thumb.substring(lastDot);
 										img.attr("src", thumb);
