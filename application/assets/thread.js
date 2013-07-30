@@ -129,7 +129,7 @@ $(window).ready(function() {
 		var id = this.hash.replace(/#post/,'#').concat(':visible');
 		if($(id).length > 0){
 			$(this).click(function(e){
-				$(window).scrollTop($(id).offset().top);
+				window.scrollTo(0,$(id).offset().top);
 				e.preventDefault();
 			});
 		}
@@ -147,11 +147,11 @@ function registerPreBlocks(){
 function scrollPost() {
 	//listener.debugMessage('scrollPost');
 	if(prefs.scrollPosition > 0){
-		$(window).scrollTop(prefs.scrollPosition);
+		window.scrollTo(0,prefs.scrollPosition);
 	}else{
 	    if (prefs.postjumpid != "") {
 	    	try{
-	    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+	    		window.scrollTo(0,$("#".concat(prefs.postjumpid)).first().offset().top);
 	    	}catch(error){
 	    		scrollLastRead();
 	    	}
