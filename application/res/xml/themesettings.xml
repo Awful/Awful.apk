@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-  <PreferenceCategory android:title="@string/themes">
+  <PreferenceCategory android:title="@string/theme_settings">
             <ListPreference
             android:key="theme"
             android:title="@string/themes"
@@ -11,6 +11,7 @@
             <CheckBoxPreference
 			android:key="force_forum_themes"
 			android:title="@string/force_forum_themes"
+			android:summary="@string/force_forum_themes_summary"
 			android:defaultValue="true"
 			/>
             <ListPreference
