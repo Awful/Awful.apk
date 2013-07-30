@@ -459,7 +459,7 @@ public class AwfulThread extends AwfulPagedItem  {
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
         if(AwfulActivity.isHoneycomb()){
 	        buffer.append("<script type='text/javascript'>\n");
-	        buffer.append("$(window).scroll(gifHide);");
+	        buffer.append("$(window).on('scroll', gifHide);");
 	        buffer.append("$(window).ready(gifHide);");
 	        buffer.append("</script>\n");
         }
