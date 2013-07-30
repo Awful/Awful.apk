@@ -88,6 +88,11 @@ section.postcontent img, section.postcontent iframe{
 max-width: 100% !important;
 }
 
+section.postcontent img.timg{
+border: 2px solid #00c0f4;
+width: 20%;
+}
+
 section.postcontent .bbc-block h4 {
 font-style:italic;
 margin:2px 0 5px;
@@ -99,6 +104,7 @@ margin:0;
 
 section.postcontent .bbc-block.code, section.postcontent pre{
 overflow: scroll;
+word-wrap: normal;
 }
 
 header {

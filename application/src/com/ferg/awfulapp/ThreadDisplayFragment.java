@@ -176,7 +176,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-            if(mPrefs.disableGifs && url != null && url.endsWith(".gif") && !url.contains("ytimg.") && !(!mPrefs.imgurThumbnails.equalsIgnoreCase("d") && url.contains("http://i.imgur.com/"))){
+            if(mPrefs.disableGifs && url != null && url.endsWith(".gif") && !url.contains("ytimg.") && !url.contains("i.imgur.com")){
                     return new WebResourceResponse("image/png","png", new AwfulGifStripper(url, mSelf));
             }
             return null;
@@ -258,7 +258,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 }
             }
         }
-        
+         
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
         
