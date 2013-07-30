@@ -66,12 +66,6 @@ $(document).ready(function() {
 	$('.avatar-cell').on('click', function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
-	$('.tablet.username').on('click',function(event) {
-	  $(this).closest('tr').find('.avatar-text').toggle();
-	});
-	$('.tablet.postdate').on('click',function(event) {
-	  $(this).closest('tr').find('.avatar-text').toggle();
-	});
 	
 	$('.postinfo').on('click',function(){
 		toggleinfo($(this));
@@ -94,23 +88,23 @@ $(document).ready(function() {
 	      allowFullScreen: ''
 	    }))
 	  })	
-	$(window).bind('reorient', function() {
-		$('iframe').each(function() {
-	    	$(this).height($(this).width()/16*9);
-		});
-	});
-	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
-	
-	
+	  
     var salr = new SALR(prefs);
-    
-	$('.timg').click(function () {
+	
+	$('.timg').on('click',function () {
 		$(this).removeClass('timg');
 		if(!$(this).parent().is('a')){
 			$(this).wrap('<a href="'+$(this).attr('src')+'" />');
 		}
 	});
+	
+	$(window).bind('reorient', function() {
+		$('iframe').each(function() {
+	    	$(this).height($(this).width()/16*9);
+		});
+	});
 	$.reorient.start();
+	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
 	
 });
 

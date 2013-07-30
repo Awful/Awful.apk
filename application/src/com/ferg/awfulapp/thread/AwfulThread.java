@@ -439,6 +439,7 @@ public class AwfulThread extends AwfulPagedItem  {
         	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
         
         buffer.append("<script type='text/javascript'>\n");
