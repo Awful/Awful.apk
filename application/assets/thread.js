@@ -23,26 +23,27 @@ function changeCSS(theme){
 
 
 $(document).ready(function() {
-    $('.quote').live('click', function(event) {
-        listener.onQuoteClick($(this).parent().parent().attr('postid'));
+	console.log($('.quote'));
+    $('.quote').on('click', function(event) {
+    	listener.onQuoteClick($(this).parent().parent().attr('id').replace(/post/,''));
     });
-    $('.edit').live('click', function(event) {
-        listener.onEditClick($(this).parent().parent().attr('postid'));
+    $('.edit').on('click', function(event) {
+        listener.onEditClick($(this).parent().parent().attr('id').replace(/post/,''));
     });
-    $('.more').live('click', function(event) {
-        listener.onMoreClick($(this).parent().parent().attr('postid'), $(this).attr('username'), $(this).attr('userid'));
+    $('.more').on('click', function(event) {
+        listener.onMoreClick($(this).parent().parent().attr('id').replace(/post/,''), $(this).attr('username'), $(this).attr('userid'));
     });
-    $('.sendpm_button').live('click', function(event) {
+    $('.sendpm_button').on('click', function(event) {
         listener.onSendPMClick($(this).attr('username'));
     });
-    $('.lastread').live('click', function(event) {
+    $('.lastread').on('click', function(event) {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
-    $('.copyurl_button').live('click', function(event) {
-        listener.onCopyUrlClick($(this).attr('postid'));
+    $('.copyurl_button').on('click', function(event) {
+        listener.onCopyUrlClick($(this).attr('id').replace(/#post/,''));
     });
-    $('.userposts_button').live('click', function(event) {
-        listener.onUserPostsClick($(this).attr('postid'));
+    $('.userposts_button').on('click', function(event) {
+        listener.onUserPostsClick($(this).attr('id').replace(/#post/,''));
     });
     if(prefs.showSpoilers){
     $('.bbc-spoiler').removeAttr('onmouseover');
@@ -62,20 +63,20 @@ $(document).ready(function() {
 	  	$('.toggleread').hide();
 	  	window.setTimeout("scrollLastRead()", 500);
 	});
-	$('.avatar-cell').click(function(event) {
+	$('.avatar-cell').on('click', function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
-	$('.tablet.username').click(function(event) {
+	$('.tablet.username').on('click',function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
-	$('.tablet.postdate').click(function(event) {
+	$('.tablet.postdate').on('click',function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
 	
-	$('.postinfo').click(function(){
+	$('.postinfo').on('click',function(){
 		toggleinfo($(this));
 	});
-	$('.postmenu').click(function(){
+	$('.postmenu').on('click',function(){
 		toggleoptions($(this));
 	});
 	
@@ -115,7 +116,7 @@ $(document).ready(function() {
 
 
 
-//$(window).load(function() {
+//$(window).on('load', function() {
 //	//listener.debugMessage('load');
 //	//window.stop();
 //});
@@ -126,13 +127,16 @@ $(window).ready(function() {
 	//listener.debugMessage('ready');
     window.setTimeout("scrollPost()", 1000);
     $('.quote_link').each(function(){
-		var id = this.hash.replace(/#post/,'#').concat(':visible');
-		if($(id).length > 0){
+		var id = this.hash;
+    	try{
+		if($(id).size() > 0 && $(id).css("visibility") !== "none"){
 			$(this).click(function(e){
-				$(window).scrollTop($(id).offset().top);
+				window.scrollTo(0,$(id).offset().top);
 				e.preventDefault();
 			});
 		}
+    	}catch(error){
+    	}
 	});
 
 });
@@ -147,11 +151,11 @@ function registerPreBlocks(){
 function scrollPost() {
 	//listener.debugMessage('scrollPost');
 	if(prefs.scrollPosition > 0){
-		$(window).scrollTop(prefs.scrollPosition);
+		window.scrollTo(0,prefs.scrollPosition);
 	}else{
 	    if (prefs.postjumpid != "") {
 	    	try{
-	    		$(window).scrollTop($("#".concat(prefs.postjumpid)).first().offset().top);
+	    		window.scrollTo(0,$("#post"+prefs.postjumpid).first().offset().top);
 	    	}catch(error){
 	    		scrollLastRead();
 	    	}
@@ -171,18 +175,8 @@ function scrollLastRead(){
 
 function showInlineImage(url){
 	//listener.debugMessage('showInlineImage');
-	//If it's not a GIF, or if it is a GIF and the user has not disabled GIF animation, then load the image, else switch from gif.png to .gif
-	if(url.indexOf(".gif") == -1 || (url.indexOf(".gif") != -1 && !prefs.disableGifs)){
-	$('a[href="'+url+'"]').append(function(){
-		if($(this).children('img[src="'+url+'"]').length < 1){
-			return '<img src="'+url+'" />';
-		}
-		return "";
-		});
-	}else{
-		var alt = $('img[alt="'+url+'"]').attr('alt');
-		$('img[alt="'+url+'"]').attr('src', alt);
-	}
+	image = ($('a[href="'+url+'"]').children('img[src="'+url+'"]').size() < 1)?'<img src="'+url+'" />':'';
+	$('a[href="'+url+'"]').append(image);
 }
 
 function gifHide() {

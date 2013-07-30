@@ -29,7 +29,7 @@
             />
 		<Preference 
 			android:key="colors" 
-			android:title="@string/colors"
+			android:title="@string/theme_settings"
 			/>
         <Preference
             android:key="threadinfo"
