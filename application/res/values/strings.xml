@@ -33,8 +33,8 @@
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
     <string name="prefs_salr">SALR Preferences</string>
     <string name="prefs_misc">Misc Preferences</string>
-    <string name="inline_youtube">Embedded Youtube</string>
-    <string name="inline_youtube_summary">Might cause scroll lag/graphical glitches. ICS+</string>
+    <string name="inline_videos">Embedded videos</string>
+    <string name="inline_videos_summary">Might cause scroll lag/graphical glitches. ICS+</string>
     <string name="enable_hardware_acceleration">Hardware Acceleration</string>
     <string name="enable_hardware_acceleration_summary">Might cause or solve scroll lag/graphical glitches. HC+</string>
     <string name="debug_mode">Debug Mode</string>

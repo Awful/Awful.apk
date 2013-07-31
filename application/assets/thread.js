@@ -23,7 +23,6 @@ function changeCSS(theme){
 
 
 $(document).ready(function() {
-	console.log($('.quote'));
     $('.quote').on('click', function(event) {
     	listener.onQuoteClick($(this).parent().parent().attr('id').replace(/post/,''));
     });
