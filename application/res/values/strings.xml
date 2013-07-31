@@ -48,7 +48,7 @@
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
     <string name="default_post_font_size">Default Post Font Size</string>
     <string name="theme_settings">Theme Settings</string>
-    <string name="themes">Choose Theme</string>
+    <string name="theme">Choose Theme</string>
     <string name="layouts">Choose Layout</string>
     <string name="alternate_backgrounds">Alternate Post BG Colors</string>
     <string name="default_post_font_color">Default Post Font Color</string>
@@ -104,7 +104,7 @@ AQuery</string>
 		<item>Portrait</item>
 		<item>Landscape</item>
 	</string-array>
-	<string-array name="themes">
+	<string-array name="theme">
         <item>Default</item>
         <item>Dark</item>
         <item>yospos</item>
