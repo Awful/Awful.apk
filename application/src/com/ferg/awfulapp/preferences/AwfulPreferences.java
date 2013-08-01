@@ -123,7 +123,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
 	 */
-	public String threadLayout;
 	public boolean alwaysOpenUrls;
 	
 	//FORUM STUFF
@@ -251,7 +250,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
-        threadLayout			 = (Constants.canBeWidescreen(mContext)? mPrefs.getString("page_layout", "auto") :"auto");
         newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
         newThreadsFirstForum	 = mPrefs.getBoolean("new_threads_first_forum", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");

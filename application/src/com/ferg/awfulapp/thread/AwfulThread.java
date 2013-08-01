@@ -396,7 +396,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return null;
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, int forumId, boolean threadLocked) {
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
         int unreadCount = 0;
         if(aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
         	for(AwfulPost ap : aPosts){
@@ -438,16 +438,12 @@ public class AwfulThread extends AwfulPagedItem  {
         if(!aPrefs.preferredFont.contains("default")){
         	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
-        buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/jquery.ba-resize.min.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
         
         buffer.append("<script type='text/javascript'>\n");
         buffer.append("  window.JSON = null;");
-        if(isTablet){
-        	buffer.append("window.isTablet = true;");
-        }else{
-        	buffer.append("window.isTablet = false;");
-        }
         if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
             buffer.append("window.hideRead = true;");
         }else{
@@ -464,7 +460,7 @@ public class AwfulThread extends AwfulPagedItem  {
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
         if(AwfulActivity.isHoneycomb()){
 	        buffer.append("<script type='text/javascript'>\n");
-	        buffer.append("$(window).scroll(gifHide);");
+	        buffer.append("$(window).on('scroll', gifHide);");
 	        buffer.append("$(window).ready(gifHide);");
 	        buffer.append("</script>\n");
         }
@@ -489,7 +485,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
         buffer.append("		</a>\n");
 
-        buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
+        buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
         buffer.append("<div class='unread' ></div>\n");
         
@@ -499,7 +495,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked, boolean isTablet) {
+    public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer();
         Template postTemplate = null;
 

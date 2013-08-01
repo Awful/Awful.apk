@@ -241,9 +241,9 @@ public class AwfulMessage extends AwfulPagedItem {
 	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+pref.preferredFont+"'); }</style>\n");
 	        }
 	        buffer.append("</head><body>");
-	        buffer.append("<div class='post'><div class='postcontent'>");
+	        buffer.append("<article><section class='postcontent'>");
 			buffer.append(content);//babbys first CSS hack
-			buffer.append("</div></div>");
+			buffer.append("</section></article>");
 			buffer.append("</body></html>");
 
 			return buffer.toString();
