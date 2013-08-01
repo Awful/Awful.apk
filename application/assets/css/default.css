@@ -120,6 +120,11 @@ font-style:italic;
 font-size: 0.7em;
 }
 
+section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
+color: #828282;
+background: #828282;
+}
+
 header {
 vertical-align:top;
 clear:left;

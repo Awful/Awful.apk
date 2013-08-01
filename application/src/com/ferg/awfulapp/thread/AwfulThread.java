@@ -460,7 +460,7 @@ public class AwfulThread extends AwfulPagedItem  {
         
 
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
-        if(AwfulActivity.isHoneycomb()){
+        if(AwfulActivity.isHoneycomb() && !aPrefs.disableGifs){
 	        buffer.append("<script type='text/javascript'>\n");
 	        buffer.append("$(window).on('scroll', gifHide);");
 	        buffer.append("$(window).ready(gifHide);");
@@ -468,18 +468,11 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         
         buffer.append("<style type='text/css'>\n");   
-        if(!aPrefs.disableTimgs){
-            buffer.append(".timg {border-color: #FF0 }\n");
-        }
-
-        //buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
-        
         if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
             buffer.append(".read {display:none;}\n");
         }else{
             buffer.append(".toggleread {display:none;}\n");
         }
-        
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("	  <div class='content' >\n");
