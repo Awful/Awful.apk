@@ -339,7 +339,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
         return null;
     }
 
-    protected void queueRequest(Request request, boolean cancelOnDestroy){
+    public void queueRequest(Request request, boolean cancelOnDestroy){
         AwfulApplication app = getAwfulApplication();
         if(app != null && request != null){
             if(cancelOnDestroy){

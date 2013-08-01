@@ -96,6 +96,12 @@ overflow: scroll;
 
 section.postcontent img, section.postcontent iframe{
 max-width: 100% !important;
+word-wrap: normal;
+}
+
+section.postcontent img.timg{
+border: 2px solid #00c0f4;
+width: 20%;
 }
 
 header {

@@ -292,7 +292,7 @@ public class AwfulPost {
 					String videoId = youtubeMatcher.group(1);
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-					if(!Constants.isICS() || !inline){
+					if(!Constants.isICS()){
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
 						youtubeLink.attr("href", link);
 						youtubeLink.attr("style", "background-color:#000;background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
@@ -301,6 +301,11 @@ public class AwfulPost {
 						img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
 						img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-16px;margin-left:-16px;");
 						youtubeLink.appendChild(img);
+						youTube.replaceWith(youtubeLink);
+					}else if(!inline){
+						Element youtubeLink = new Element(Tag.valueOf("a"),"");
+						youtubeLink.text(link);
+						youtubeLink.attr("href", link);
 						youTube.replaceWith(youtubeLink);
 					}else{
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
@@ -312,7 +317,7 @@ public class AwfulPost {
 				}
 			}
 //		if(!inline || !hasFlash){
-			if(!inline){
+			
 			Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
 			for(Element node : videoNodes){
 				try{
@@ -332,11 +337,13 @@ public class AwfulPost {
 						String link = null, image = null;
 						Matcher youtube = youtubeId_regex.matcher(src);
 						Matcher vimeo = vimeoId_regex.matcher(src);
-						if(youtube.find()){//we'll leave in the old youtube code in case something gets reverted
-							String videoId = youtube.group(1);
-							link = "http://www.youtube.com/watch?v=" + videoId;
-							image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-						}else if(vimeo.find()){
+						//we'll leave in the old youtube code in case something gets reverted
+//						if(youtube.find()){
+//							String videoId = youtube.group(1);
+//							link = "http://www.youtube.com/watch?v=" + videoId;
+//							image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+//						}else
+						if(vimeo.find()){
 							String videoId = vimeo.group(1);
 							Element vimeoXML;
 							try {
@@ -351,28 +358,40 @@ public class AwfulPost {
 								link = vimeoXML.getElementsByTag("url").first().text().toString();
 							}
 							image = vimeoXML.getElementsByTag("thumbnail_large").first().text().toString();
+							src = link;
 						}else{
 							node.empty();
 							Element ln = new Element(Tag.valueOf("a"),"");
 							ln.attr("href", src);
-							ln.appendChild(new Element(Tag.valueOf("src"),""));
-							node.appendChild(ln);
+							ln.text(src);
+							node.replaceWith(ln);
 							continue;
 						}
-						node.empty();
-						node.attr("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
-						node.attr("onclick", "location.href=\""+link+"\"");
-						Element img = new Element(Tag.valueOf("img"),"");
-						img.attr("class", "nolink videoPlayButton");
-						img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
-						img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
-						node.appendChild(img);
+						if(inline && !Constants.isICS()){
+							node.empty();
+							node.attr("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
+							node.attr("onclick", "location.href=\""+link+"\"");
+							Element img = new Element(Tag.valueOf("img"),"");
+							img.attr("class", "nolink videoPlayButton");
+							img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
+							img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
+							node.appendChild(img);
+						}else if(inline && Constants.isICS()){
+							//do nothing, let JS do that
+						
+						}else{
+							node.empty();
+							Element ln = new Element(Tag.valueOf("a"),"");
+							ln.attr("href", link);
+							ln.text(link);
+							node.replaceWith(ln);
+						}
 					}
 				}catch(Exception e){
 					continue;//if we fail to convert the video tag, we can still display the rest.
 				}
 			}
-		}
+		
 		return contentNode;
 	}
 
@@ -537,9 +556,10 @@ public class AwfulPost {
 							} else {
 								if (!dontLink) {
 									String thumb = src;
-									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
+									if(( !prefs.imgurThumbnails.equals("d") || (prefs.disableGifs && thumb.toLowerCase().contains(".gif"))) && thumb.contains("i.imgur.com")){
 										int lastDot = thumb.lastIndexOf('.');
-										thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
+										thumb = thumb.substring(0, lastDot) + (prefs.imgurThumbnails.equals("d")?"h":prefs.imgurThumbnails) + thumb.substring(lastDot);
+										img.attr("src", thumb);
 									}
                                     if(prefs.disableTimgs || !isTimg){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));

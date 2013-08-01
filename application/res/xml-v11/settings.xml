@@ -29,7 +29,7 @@
             />
 		<Preference 
 			android:key="colors" 
-			android:title="@string/colors"
+			android:title="@string/theme_settings"
 			/>
         <Preference
             android:key="threadinfo"
@@ -95,8 +95,8 @@
 			/>
 		<CheckBoxPreference 
             android:key="inline_youtube" 
-			android:title="@string/inline_youtube"
-			android:summary="@string/inline_youtube_summary"
+			android:title="@string/inline_videos"
+			android:summary="@string/inline_videos_summary"
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
