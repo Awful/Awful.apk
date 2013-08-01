@@ -40,7 +40,7 @@ SALR.prototype.init = function() {
     }
 
     //String to boolean fun
-    this.preferences.disableGifs = (this.preferences.disableGifs === "true");
+//    this.preferences.disableGifs = (this.preferences.disableGifs === "true");
 
     // if (this.preferences.inlineYoutube == "true") {
     //     this.inlineYoutubes();
@@ -55,210 +55,210 @@ SALR.prototype.init = function() {
     // this.highlightModAdminShowThread();
 };
 
-SALR.prototype.imagesAsLinks = function() {
-    var that = this;
+//SALR.prototype.imagesAsLinks = function() {
+//    var that = this;
+//
+//    $('.post-content').each(function() {
+//        $('img', this).each(function() {
+//        if( false == $(this).hasClass("noLink")){
+//	            var url = $(this).attr('src');
+//	            var imgHtml = '<img src="' + url + '" />';
+//	
+//	            if (that.preferences.imagesEnabled == "true") {
+//	                $(this).replaceWith('<a href="' + url + '">' + imgHtml + '</a>');
+//	            } else {
+//	                $(this).replaceWith('<a href="' + url + '">' + url + '</a>');
+//	            }
+//            }
+//        });
+//    });
+//};
 
-    $('.post-content').each(function() {
-        $('img', this).each(function() {
-        if( false == $(this).hasClass("noLink")){
-	            var url = $(this).attr('src');
-	            var imgHtml = '<img src="' + url + '" />';
-	
-	            if (that.preferences.imagesEnabled == "true") {
-	                $(this).replaceWith('<a href="' + url + '">' + imgHtml + '</a>');
-	            } else {
-	                $(this).replaceWith('<a href="' + url + '">' + url + '</a>');
-	            }
-            }
-        });
-    });
-};
+//SALR.prototype.modifyImages = function() {
+//	// fix timg, because it's broken
+//	if(this.preferences.fixTimg == 'true') this.fixTimg(this.preferences.forceTimg == 'true');
+//	
+//	// Replace Links with Images
+//	if (this.preferences.replaceLinksWithImages == 'true') {
+//
+//		var subset = $('.postbody a');
+//
+//		//NWS/NMS links
+//		if(this.preferences.dontReplaceLinkNWS == 'true')
+//		{
+//			subset = subset.not(".postbody:has(img[title=':nws:']) a").not(".postbody:has(img[title=':nms:']) a");
+//		}
+//
+//		// spoiler'd links
+//		if(this.preferences.dontReplaceLinkSpoiler == 'true') {
+//			subset = subset.not('.bbc-spoiler a');	
+//		}
+//
+//		// seen posts
+//		if(this.preferences.dontReplaceLinkRead == 'true') {
+//			subset = subset.not('.seen1 a').not('.seen2 a');
+//		}
+//
+//		subset.each(function() {
+//
+//			var match = $(this).attr('href').match(/https?\:\/\/(?:[-_0-9a-zA-Z]+\.)+[a-z]{2,6}(?:\/[^/#?]+)+\.(?:jpe?g|gif|png|bmp)/);
+//			if(match != null) {
+//				$(this).after("<img src='" + match[0] + "' />");
+//				$(this).remove();
+//			}
+//		});
+//	}
+//
+//	if (this.preferences.restrictImageSize == 'true') {
+//		$('.postbody img').each(function() {
+//            var width = $(this).width();
+//            var height = $(this).height();
+//
+//            $(this).click(function() {
+//                if ($(this).width() == '800') {
+//                    $(this).css({
+//                        'max-width': width + 'px',
+//                    });
+//                } else {
+//                    $(this).css({'max-width': '800px'});
+//                }
+//            });
+//
+//            if ($(this).width() > '800') {
+//                $(this).css({
+//                    'max-width': '800px',
+//                    'border': '1px dashed gray'
+//                });
+//            }
+//        });
+//	}
+//};
+//
+//SALR.prototype.replaceImagesWithLinks = function() {
+//    var subset = $('.post-content img');
+//    
+//    subset = subset.not('img[src*=http://i.somethingawful.com/forumsystem/emoticons/]');
+//    subset = subset.not('img[src*=http://fi.somethingawful.com/images/smilies/]');
+//
+//    subset.each(function() {
+//        var source = $(this).attr('src');
+//        $(this).after("<a href='" + source + "'>" + source + "</a>");
+//        $(this).remove();
+//    });
+//};
 
-SALR.prototype.modifyImages = function() {
-	// fix timg, because it's broken
-	if(this.preferences.fixTimg == 'true') this.fixTimg(this.preferences.forceTimg == 'true');
-	
-	// Replace Links with Images
-	if (this.preferences.replaceLinksWithImages == 'true') {
-
-		var subset = $('.postbody a');
-
-		//NWS/NMS links
-		if(this.preferences.dontReplaceLinkNWS == 'true')
-		{
-			subset = subset.not(".postbody:has(img[title=':nws:']) a").not(".postbody:has(img[title=':nms:']) a");
-		}
-
-		// spoiler'd links
-		if(this.preferences.dontReplaceLinkSpoiler == 'true') {
-			subset = subset.not('.bbc-spoiler a');	
-		}
-
-		// seen posts
-		if(this.preferences.dontReplaceLinkRead == 'true') {
-			subset = subset.not('.seen1 a').not('.seen2 a');
-		}
-
-		subset.each(function() {
-
-			var match = $(this).attr('href').match(/https?\:\/\/(?:[-_0-9a-zA-Z]+\.)+[a-z]{2,6}(?:\/[^/#?]+)+\.(?:jpe?g|gif|png|bmp)/);
-			if(match != null) {
-				$(this).after("<img src='" + match[0] + "' />");
-				$(this).remove();
-			}
-		});
-	}
-
-	if (this.preferences.restrictImageSize == 'true') {
-		$('.postbody img').each(function() {
-            var width = $(this).width();
-            var height = $(this).height();
-
-            $(this).click(function() {
-                if ($(this).width() == '800') {
-                    $(this).css({
-                        'max-width': width + 'px',
-                    });
-                } else {
-                    $(this).css({'max-width': '800px'});
-                }
-            });
-
-            if ($(this).width() > '800') {
-                $(this).css({
-                    'max-width': '800px',
-                    'border': '1px dashed gray'
-                });
-            }
-        });
-	}
-};
-
-SALR.prototype.replaceImagesWithLinks = function() {
-    var subset = $('.post-content img');
-    
-    subset = subset.not('img[src*=http://i.somethingawful.com/forumsystem/emoticons/]');
-    subset = subset.not('img[src*=http://fi.somethingawful.com/images/smilies/]');
-
-    subset.each(function() {
-        var source = $(this).attr('src');
-        $(this).after("<a href='" + source + "'>" + source + "</a>");
-        $(this).remove();
-    });
-};
-
-SALR.prototype.inlineYoutubes = function() {
-    var that = this;
-
-	//sort out youtube links
-	$('.post-content a[href*="youtube.com"]').each(function() {
-        $(this).css("background-color", that.preferences.youtubeHighlight).addClass("salr-video");
-	
-        var match = $(this).attr('href').match(/^http\:\/\/((?:www|[a-z]{2})\.)?youtube\.com\/watch\?v=([-_0-9a-zA-Z]+)/); //get youtube video id
-        var videoId = match[2];
-
-        $(this).append('<iframe class="salr-player youtube-player"></iframe>');
-        $(".salr-player").attr("src", "http://www.youtube.com/embed/" + videoId);
-        $(".salr-player").attr("width","640");
-        $(".salr-player").attr("height","385");
-        $(".salr-player").attr("type","text/html");
-        $(".salr-player").attr("frameborder","0");
-	});
-
-    return false;
-};
-
-/**
- * Highlight the posts of friends
- */
-SALR.prototype.highlightFriendPosts = function() {
-    var that = this;
-    if (!this.preferences.friendsList)
-        return;
-    var friends = JSON.parse(this.preferences.friendsList);
-    var selector = '';
-
-    if (friends == 0) {
-        return;
-    }
-
-    $(friends).each(function() {
-        if (selector != '') {
-            selector += ', ';
-        }
-        selector += "dt.author:econtains('" +  this + "')";
-    });
-
-    $('table.post:has('+selector+') td').each(function () {
-        $(this).css({
-            'border-collapse' : 'collapse',
-            'background-color' : that.preferences.highlightFriendsColor
-        });
-    });
-};
-
-/**
- * Highlight the posts by the OP
- */
-SALR.prototype.highlightOPPosts = function() {
-    var that = this;
-
-    $('table.post:has(dt.author.op) td').each(function () {
-        $(this).css({
-            'border-collapse' : 'collapse',
-            'background-color' : that.preferences.highlightOPColor
-        });
-    });
-    $('dt.author.op').each(function() {
-        $(this).after(
-            '<dd style="color: #07A; font-weight: bold; ">Thread Poster</dd>'
-        );
-    });
-};
-
-/**
- * Highlight the posts by one self
- */
-SALR.prototype.highlightOwnPosts = function() {
-    var that = this;
-
-    $("table.post:has(dt.author:econtains('"+that.preferences.username+"')) td").each(function () {
-        $(this).css({
-            'border-collapse' : 'collapse',
-            'background-color' : that.preferences.highlightSelfColor
-        });
-    });
-};
-
-/**
- * Highlight the posts by moderators and admins
- * on the who posted page
- */
-SALR.prototype.highlightModAdminWhoPosted = function() {
-    var that = this;
-
-    if (this.preferences.modList == null)
-        return;
-
-    var modList = JSON.parse(this.preferences.modList);
-
-    $('a[href*=member.php]').each(function() {
-        var userid = $(this).attr('href').split('userid=')[1];
-        if (modList[userid] != null) {
-            var color;
-            switch (modList[userid].mod) {
-                case 'M':
-                    color = that.preferences.highlightModeratorColor;
-                    break;
-                case 'A':
-                    color = that.preferences.highlightAdminColor;
-                    break;
-            }
-            $(this).css('color', color);
-            $(this).css('font-weight', 'bold');
-        }
-    });
-};
+//SALR.prototype.inlineYoutubes = function() {
+//    var that = this;
+//
+//	//sort out youtube links
+//	$('.post-content a[href*="youtube.com"]').each(function() {
+//        $(this).css("background-color", that.preferences.youtubeHighlight).addClass("salr-video");
+//	
+//        var match = $(this).attr('href').match(/^http\:\/\/((?:www|[a-z]{2})\.)?youtube\.com\/watch\?v=([-_0-9a-zA-Z]+)/); //get youtube video id
+//        var videoId = match[2];
+//
+//        $(this).append('<iframe class="salr-player youtube-player"></iframe>');
+//        $(".salr-player").attr("src", "http://www.youtube.com/embed/" + videoId);
+//        $(".salr-player").attr("width","640");
+//        $(".salr-player").attr("height","385");
+//        $(".salr-player").attr("type","text/html");
+//        $(".salr-player").attr("frameborder","0");
+//	});
+//
+//    return false;
+//};
+//
+///**
+// * Highlight the posts of friends
+// */
+//SALR.prototype.highlightFriendPosts = function() {
+//    var that = this;
+//    if (!this.preferences.friendsList)
+//        return;
+//    var friends = JSON.parse(this.preferences.friendsList);
+//    var selector = '';
+//
+//    if (friends == 0) {
+//        return;
+//    }
+//
+//    $(friends).each(function() {
+//        if (selector != '') {
+//            selector += ', ';
+//        }
+//        selector += "dt.author:econtains('" +  this + "')";
+//    });
+//
+//    $('table.post:has('+selector+') td').each(function () {
+//        $(this).css({
+//            'border-collapse' : 'collapse',
+//            'background-color' : that.preferences.highlightFriendsColor
+//        });
+//    });
+//};
+//
+///**
+// * Highlight the posts by the OP
+// */
+//SALR.prototype.highlightOPPosts = function() {
+//    var that = this;
+//
+//    $('table.post:has(dt.author.op) td').each(function () {
+//        $(this).css({
+//            'border-collapse' : 'collapse',
+//            'background-color' : that.preferences.highlightOPColor
+//        });
+//    });
+//    $('dt.author.op').each(function() {
+//        $(this).after(
+//            '<dd style="color: #07A; font-weight: bold; ">Thread Poster</dd>'
+//        );
+//    });
+//};
+//
+///**
+// * Highlight the posts by one self
+// */
+//SALR.prototype.highlightOwnPosts = function() {
+//    var that = this;
+//
+//    $("table.post:has(dt.author:econtains('"+that.preferences.username+"')) td").each(function () {
+//        $(this).css({
+//            'border-collapse' : 'collapse',
+//            'background-color' : that.preferences.highlightSelfColor
+//        });
+//    });
+//};
+//
+///**
+// * Highlight the posts by moderators and admins
+// * on the who posted page
+// */
+//SALR.prototype.highlightModAdminWhoPosted = function() {
+//    var that = this;
+//
+//    if (this.preferences.modList == null)
+//        return;
+//
+//    var modList = JSON.parse(this.preferences.modList);
+//
+//    $('a[href*=member.php]').each(function() {
+//        var userid = $(this).attr('href').split('userid=')[1];
+//        if (modList[userid] != null) {
+//            var color;
+//            switch (modList[userid].mod) {
+//                case 'M':
+//                    color = that.preferences.highlightModeratorColor;
+//                    break;
+//                case 'A':
+//                    color = that.preferences.highlightAdminColor;
+//                    break;
+//            }
+//            $(this).css('color', color);
+//            $(this).css('font-weight', 'bold');
+//        }
+//    });
+//};
 
 /**
  * Highlight the user's username in posts

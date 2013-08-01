@@ -1107,8 +1107,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         try {
             result.put("username", aAppPrefs.username);
-            result.put("userQuote", "#a2cd5a");
-            result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
             result.put("postFontSize", aAppPrefs.postFontSizePx);
