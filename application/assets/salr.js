@@ -283,15 +283,15 @@ SALR.prototype.highlightOwnUsername = function() {
 
     var that = this;
 
-    var selector = '.post-content:contains("' + this.preferences.username + '")';
+    var selector = '.postcontent:contains("' + this.preferences.username + '")';
     
     var re = new RegExp(this.preferences.username, 'g');
-    var styled = '<span class="usernameHighlight" style="font-weight: bold; color: ' + that.preferences.usernameHighlight + ';">' + that.preferences.username + '</span>';
+    var styled = '<span class="usernameHighlight">' + that.preferences.username + '</span>';
     $(selector).each(function() {
         getTextNodesIn(this).forEach(function(node) {
             if(node.wholeText.match(re)) {
                 newNode = node.ownerDocument.createElement("span");
-                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight" style="font-weight: bold; color: ' + that.preferences.usernameHighlight + ';">' + that.preferences.username + '</span>'));
+                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight">' + that.preferences.username + '</span>'));
                 node.parentNode.replaceChild(newNode, node);
             }
         });
@@ -308,12 +308,12 @@ SALR.prototype.highlightOwnQuotes = function() {
     $('.bbc-block h4:contains(' + usernameQuoteMatch + ')').each(function() {
         if ($(this).text() != usernameQuoteMatch)
             return;
-        $(this).parent().css("background-color", that.preferences.userQuote);
-
+        $(this).parent().addClass("self");
+        console.log($(this).parent().html());
         // Replace the styling from username highlighting
         var previous = $(this);
         $('.usernameHighlight', previous).each(function() {
-            $(this).css('color', '#555');
+            $(this).removeClass('usernameHighlight');
         });
     });
 };
