@@ -274,6 +274,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onResume() {
         super.onResume();
+		updateColors();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
         if(skipLoad || !isFragmentVisible()){
@@ -603,6 +604,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+    	updateColors();
     	mPage = page;
     	mLastPage = 0;
     	lastRefresh = 0;
