@@ -107,7 +107,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
         setRetainInstance(true);
 
-        mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+        mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
         mPMList.setOnItemClickListener(onPMSelected);
         
@@ -117,8 +117,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor());
+    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
     	}
     }
     

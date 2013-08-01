@@ -70,7 +70,7 @@ public class AwfulProgressBar extends View implements AwfulUpdateCallback {
 	
 	private void setPaint(Context context){
 		mProgressColor = new Paint();
-		mProgressColor.setColor(ColorProvider.getProgressbarColor(AwfulPreferences.getInstance(context)));
+		mProgressColor.setColor(ColorProvider.getProgressbarColor());
 		mClearColor = new Paint();
 		mClearColor.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 	}

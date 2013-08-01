@@ -112,7 +112,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
 		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
 		}
 	}
     

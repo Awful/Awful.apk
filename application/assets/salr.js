@@ -309,7 +309,6 @@ SALR.prototype.highlightOwnQuotes = function() {
         if ($(this).text() != usernameQuoteMatch)
             return;
         $(this).parent().addClass("self");
-        console.log($(this).parent().html());
         // Replace the styling from username highlighting
         var previous = $(this);
         $('.usernameHighlight', previous).each(function() {

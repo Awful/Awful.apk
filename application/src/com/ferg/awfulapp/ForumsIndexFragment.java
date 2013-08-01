@@ -121,8 +121,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
             mP2RAttacher.setPullFromBottom(false);
         	mP2RAttacher.setEnabled(true);
         }
-        mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-        mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+        mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -259,8 +259,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		if(mForumTree != null){
-			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
+			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
+			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 			if(dataManager != null){
 				dataManager.refresh();
 			}

@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.AwfulFragment;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -66,6 +67,7 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -413,8 +415,8 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
-        if(!aPrefs.forceForumThemes && StringUtils.countMatches(aPrefs.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
-        	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
+        if(!(aPrefs.forceForumThemes && forumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+        	buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
         }else if(aPrefs.forceForumThemes){
         	switch(forumId){
 				//TODO: No FYAD theme yet        	
@@ -481,7 +483,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("</style>\n");
         buffer.append("</head>\n<body>\n");
         buffer.append("	  <div class='content' >\n");
-        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(ColorProvider.getTextColor(aPrefs)) + ";'>\n");
+        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()) + ";'>\n");
         buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
         buffer.append("		</a>\n");
 
@@ -553,6 +555,12 @@ public class AwfulThread extends AwfulPagedItem  {
 	@SuppressWarnings("deprecation")
 	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, AwfulFragment parent) {
 		aq.recycle(current);
+		String ForumName = null;
+		if(prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)){
+			if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_YOSPOS){
+				ForumName = ColorProvider.YOSPOS;
+			}
+		}
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		TextView title = (TextView) current.findViewById(R.id.title);
         TextView unread = (TextView) current.findViewById(R.id.unread_count);
@@ -628,25 +636,25 @@ public class AwfulThread extends AwfulPagedItem  {
             //don't show lock if sticky, aka: every rules thread
         	aq.id(R.id.thread_sticky).gone();
         	aq.id(R.id.thread_locked).visible().image(current.getResources().getDrawable(R.drawable.light_inline_lock));
-            current.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+            current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }else{
         	aq.id(R.id.thread_locked).gone();
         	aq.id(R.id.thread_sticky).gone();
         }
 
-		unread.setTextColor(ColorProvider.getUnreadColorFont(prefs));
+		unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
 		if(unreadCount > 0) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(Integer.toString(unreadCount));
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(ColorProvider.getUnreadColor(prefs));
+            counter.setColor(ColorProvider.getUnreadColor(ForumName));
             unread.setBackgroundDrawable(counter);
 		}
 		else if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(Integer.toString(unreadCount));
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(ColorProvider.getUnreadColorDim(prefs));
+            counter.setColor(ColorProvider.getUnreadColorDim(ForumName));
             unread.setBackgroundDrawable(counter);
         }
 		else {
@@ -657,8 +665,8 @@ public class AwfulThread extends AwfulPagedItem  {
 			title.setText(data.getString(data.getColumnIndex(TITLE)));
 		}
 		if(prefs != null){
-			title.setTextColor(ColorProvider.getTextColor(prefs));
-			info.setTextColor(ColorProvider.getAltTextColor(prefs));
+			title.setTextColor(ColorProvider.getTextColor(ForumName));
+			info.setTextColor(ColorProvider.getAltTextColor(ForumName));
 			title.setSingleLine(!prefs.wrapThreadTitles);
 			if(!prefs.wrapThreadTitles){
 				title.setEllipsize(TruncateAt.END);

@@ -311,7 +311,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
+		mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
@@ -1112,8 +1112,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
             result.put("postFontSize", aAppPrefs.postFontSizePx);
-            result.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor(aAppPrefs)));
-            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(aAppPrefs)));
+            result.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()));
+            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor()));
             result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.link_quote)));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
@@ -1394,13 +1394,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(mPrefs));
+		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor(mPrefs));
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
 		if(mThreadView != null){
-			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-            mThreadView.loadUrl("javascript:changeCSS('"+mPrefs.theme+"')");
+			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
+            mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
 		}
 	}
@@ -1424,7 +1424,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(mPrefs))+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}
 
     public int getLastPage() {
@@ -1772,6 +1772,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onLowMemory() {
     	super.onLowMemory();
     	mThreadView.freeMemory();
+    }
+    
+    private String determineCSS(){
+        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
+        if(!(mPrefs.forceForumThemes && mParentForumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+        	return "file:///"+Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme;
+        }else if(mPrefs.forceForumThemes){
+        	switch(mParentForumId){
+				//TODO: No FYAD theme yet        	
+//    			case(26):
+//	    			return "file:///android_asset/css/fyad.css");
+        		//RIP BYOB
+//        		case(208):
+//        			return "file:///android_asset/css/byob.css";
+        		case(219):
+        			return "file:///android_asset/css/yospos.css";
+        		default:
+        			return "file:///android_asset/css/"+mPrefs.theme;
+        	}
+        }else{
+            return "file:///android_asset/css/"+mPrefs.theme;
+        }
     }
 
 }
