@@ -10,7 +10,7 @@
  			{{/avatarURL }}
  			<aside class="postinfo-poster">{{ username }} {{# mod }}<img src="file:///android_res/drawable/ic_star_blue.png" />{{/mod }} {{# admin }}<img src="file:///android_res/drawable/ic_star_red.png" />{{/admin }} </aside>
  			<time class="postinfo-postdate">{{ postDate }}</time>
-			<time class="postinfo-regdate">Reg Date: {{ regDate }}</time>
+			{{# regDate }}<time class="postinfo-regdate">Reg Date: {{ regDate }}</time>{{/regDate}}
 			<aside class="postinfo-title">{{{ avatarText }}}</aside>
 		</section >
 		<nav class="postmenu"></nav>

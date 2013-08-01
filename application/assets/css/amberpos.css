@@ -58,12 +58,12 @@ padding:15px;
 border: 1px solid #eacf4c;
 }
 
-article.op {
-background-color:#4A4D00;
-}
-
 article.read {
 background-color:#252600;
+}
+
+article.op {
+background-color:#4A4D00;
 }
 
 article.self {
@@ -78,6 +78,14 @@ section.postcontent .bbc-block {
 border-left:2px solid #eacf4c;
 margin:5px 0;
 padding:5px 10px 5px 20px;
+}
+
+section.postcontent .self {
+background-color: #1A4000;
+}
+
+section.postcontent .usernameHighlight {
+background-color: #eacf4c;
 }
 
 section.postcontent .bbc-block h4 {
@@ -101,6 +109,11 @@ max-width: 100% !important;
 section.postcontent img.timg{
 border: 2px solid #eacf4c;
 width: 20%;
+}
+
+section.postcontent .editedby {
+font-style:italic;
+font-size: 0.7em;
 }
 
 header {
