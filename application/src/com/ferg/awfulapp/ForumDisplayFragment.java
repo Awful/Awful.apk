@@ -213,9 +213,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         mCursorAdapter = new ThreadCursorAdapter((AwfulActivity) getActivity(), null, this);
         mListView.setAdapter(mCursorAdapter);
         mListView.setOnItemClickListener(onThreadSelected);
-        mListView.setBackgroundColor(ColorProvider.getBackgroundColor(mPrefs));
-        mListView.setCacheColorHint(ColorProvider.getBackgroundColor(mPrefs));
-
+        
+        updateColors();
         
         registerForContextMenu(mListView);
     }
@@ -275,6 +274,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onResume() {
         super.onResume();
+		updateColors();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
         if(skipLoad || !isFragmentVisible()){
@@ -286,6 +286,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	@Override
 	public void onPageVisible() {
+		updateColors();
 		syncForumsIfStale();
 	}
 	
@@ -563,16 +564,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mListView!=null){
-			mListView.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-			mListView.setCacheColorHint(ColorProvider.getBackgroundColor(prefs));
-		}
-		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(prefs));
-		aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(prefs));
-		if(mPageCountText != null){
-			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor(prefs));
-		}
+		getAwfulActivity().setPreferredFont(mPageCountText);	
+		updateColors();
 	}
 	
 	public int getForumId(){
@@ -600,6 +593,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
     private void setForumId(int aForum) {
 		mForumId = aForum;
+		if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+			onPreferenceChange(mPrefs);
+		}
 	}
     
     public void openForum(int id, int page){
@@ -608,6 +604,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+    	updateColors();
     	mPage = page;
     	mLastPage = 0;
     	lastRefresh = 0;
@@ -812,7 +809,32 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	        default:
 	            return false;
 	        }
+
 	}
+	
+	private void updateColors(){
+		if(mListView != null){
+	        if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));        	
+	        }else{
+	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor());
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
+	        }
+		}
+		if(aq != null){
+			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
+			}else{
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
+			}
+		}
+		if(mPageCountText != null){
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
+		}
+	}	
 
 	@Override
 	public void onRefreshStarted(View view) {

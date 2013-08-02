@@ -174,6 +174,9 @@ public class Constants {
     public static final String REPLY_THREAD_ID = "reply_thread_id";
     
     public static final int AWFUL_THREAD_ID = 3391052;
+    public static final int FORUM_ID_YOSPOS = 219;
+    public static final int FORUM_ID_FYAD = 26;
+    public static final int FORUM_ID_FYAD_SUB = 154;
 
 
     /**

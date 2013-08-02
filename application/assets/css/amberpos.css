@@ -70,6 +70,11 @@ article.self {
 background-color:#1A4000;
 }
 
+article.toggleread {
+text-align: center;
+padding:5px;
+}
+
 section.postcontent {
 word-wrap: break-word;
 }
@@ -85,7 +90,7 @@ background-color: #1A4000;
 }
 
 section.postcontent .usernameHighlight {
-background-color: #eacf4c;
+color: #eacf4c;
 }
 
 section.postcontent .bbc-block h4 {
@@ -114,6 +119,11 @@ width: 20%;
 section.postcontent .editedby {
 font-style:italic;
 font-size: 0.7em;
+}
+
+section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
+color: #eacf4c;
+background: #eacf4c;
 }
 
 header {

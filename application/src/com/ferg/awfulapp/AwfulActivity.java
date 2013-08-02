@@ -154,8 +154,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor(mPrefs)));
-	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor(mPrefs));
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor());
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }

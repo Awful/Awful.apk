@@ -17,8 +17,8 @@ function toggleoptions(menu){
 	$(menu).parent().parent().children('.postoptions').toggleClass('extended');
 }
 
-function changeCSS(theme){
-	$('head').children('link').first().attr('href','file:///android_asset/css/'+theme);
+function changeCSS(file){
+	$('head').children('link').first().attr('href',file);
 }
 
 

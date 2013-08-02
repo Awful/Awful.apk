@@ -60,8 +60,8 @@ public class PrivateMessageActivity extends AwfulActivity {
             action.setCustomView(R.layout.actionbar_title);
             mTitleView = (TextView) action.getCustomView();
             mTitleView.setMovementMethod(new ScrollingMovementMethod());
-	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor(mPrefs)));
-	        mTitleView.setTextColor(ColorProvider.getActionbarColor(mPrefs));
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        mTitleView.setTextColor(ColorProvider.getActionbarColor());
 	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
 	        action.setDisplayHomeAsUpEnabled(true);
 	        action.setDisplayShowCustomEnabled(true);

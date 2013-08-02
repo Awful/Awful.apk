@@ -51,8 +51,8 @@ width:20px;
 
 article {
 border-radius:.15em;
-background-color:#282828;
-color:#b0b0b0;
+background-color: #282828;
+color: #b0b0b0;
 box-shadow:0 .15em 0 #5e5e5e;
 margin:10px 5px;
 padding:15px;
@@ -70,6 +70,11 @@ article.self {
 background-color:#1A4000;
 }
 
+article.toggleread {
+text-align: center;
+padding:5px;
+}
+
 section.postcontent {
 word-wrap: break-word;
 }
@@ -85,7 +90,7 @@ background-color: #1A4000;
 }
 
 section.postcontent .usernameHighlight {
-background-color: #00c0f4;
+color: #00c0f4;
 }
 
 section.postcontent .bbc-block h4 {
@@ -115,6 +120,11 @@ width: 20%;
 section.postcontent .editedby {
 font-style:italic;
 font-size: 0.7em;
+}
+
+section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
+color: #b0b0b0;
+background: #b0b0b0;
 }
 
 header {
