@@ -74,6 +74,11 @@ article.self {
 background-color:#ECFFD9;
 }
 
+article.toggleread {
+text-align: center;
+padding:5px;
+}
+
 section.postcontent {
 word-wrap: break-word;
 }
