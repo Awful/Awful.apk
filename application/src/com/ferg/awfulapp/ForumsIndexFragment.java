@@ -42,15 +42,15 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -59,11 +59,9 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
-import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 import pl.polidea.treeview.*;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 import java.sql.Timestamp;
@@ -75,10 +73,6 @@ import java.util.LinkedList;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
     private int selectedForum = 0;
-
-    public static ForumsIndexFragment newInstance() {
-        return new ForumsIndexFragment();
-    }
     
     private TreeViewList mForumTree;
 //    private PullToRefreshExpandableListView mForumList;
@@ -165,7 +159,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPageHidden() {
 		if(DEBUG) Log.e(TAG, "onPageHidden");
 	}
-	
+
+    @Override
+    public String getInternalId() {
+        return TAG;
+    }
+
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
@@ -455,24 +454,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	public void refresh() {
 		syncForums();
-	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return Constants.isWidescreen(getActivity());
-	}
-	
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
-	
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		return false;
 	}
 
 	@Override

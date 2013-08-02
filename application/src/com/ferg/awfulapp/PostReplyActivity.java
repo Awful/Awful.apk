@@ -28,10 +28,8 @@
 package com.ferg.awfulapp;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 
 public class PostReplyActivity extends AwfulActivity {
     @Override
@@ -57,19 +55,5 @@ public class PostReplyActivity extends AwfulActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-	@Override
-	public void fragmentClosing(AwfulFragment fragment) {
-		finish();
-	}
-
-	@Override
-	public void fragmentMessage(String type, String contents) {
-		super.fragmentMessage(type, contents);
-		Fragment replyWindow = getSupportFragmentManager().findFragmentById(R.id.replyfragment);
-		if (replyWindow instanceof PostReplyFragment) {
-			((PostReplyFragment)replyWindow).fragmentMessage(type, contents);
-		}
-	}
 	
 }

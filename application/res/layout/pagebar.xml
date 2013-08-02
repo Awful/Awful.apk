@@ -13,7 +13,8 @@
                  android:layout_width="wrap_content"
                  android:visibility="invisible"
                  android:layout_weight="1"
-                 style="@style/ActionBarButton"/>
+                 style="@style/ActionBarButton"/>
+
             
             <ImageButton
                 android:id="@+id/refresh"
@@ -23,7 +24,8 @@
                  android:scaleType="fitCenter"
                 android:layout_weight="1"
                 android:src="@drawable/ic_actionbar_load"
-                 />
+                 />
+
             <TextView
                 android:id="@+id/page_count"
                 android:layout_width="wrap_content"
@@ -33,7 +35,7 @@
 			    android:paddingBottom="6dp"
                 android:gravity="center"
                 android:textColor="#CCFFFFFF"
-                android:textSize="@dimen/abs__action_bar_title_text_size"
+                android:textSize="@dimen/abc_action_bar_title_text_size"
                  android:layout_weight="1"
                 android:clickable="true" />
             

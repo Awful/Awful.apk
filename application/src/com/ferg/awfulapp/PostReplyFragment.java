@@ -52,6 +52,9 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -63,9 +66,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -165,7 +165,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 }
 
                 attachmentToast.show();
-                this.getAwfulActivity().invalidateOptionsMenu();
+                invalidateOptionsMenu();
             }
         }
 
@@ -207,7 +207,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     		if(imm != null && getView() != null){
     			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
     		}
-    		getAwfulActivity().fragmentClosing(this);
+            getAwfulActivity().finish();
     	}
     }
     
@@ -301,12 +301,12 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(prefs);
 		//refresh the menu to show/hide attach option (plat only)
-		getAwfulActivity().invalidateOptionsMenu();
+        invalidateOptionsMenu();
+		getAwfulActivity().supportInvalidateOptionsMenu();
 	}
 
 
-
-	private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
+    private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
     	public String[] items = new String[]{
     			"Bold", "Italics", "Underline", "Strikeout", "URL", "Image", "Quote", "Spoiler", "Code"
     	};
@@ -419,7 +419,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             	break;
             case R.id.emotes:
     	    	selectionStart = mMessage.getSelectionStart();
-            	new EmoteFragment().show(getFragmentManager(), "emotes");
+            	new EmoteFragment(this).show(getFragmentManager(), "emotes");
             	break;
             case R.id.add_attachment:
             	    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -432,7 +432,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	    this.mFileAttachment = null;
         	    Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
         	    removeToast.show();
-                this.getAwfulActivity().invalidateOptionsMenu();
+                invalidateOptionsMenu();
         	break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -784,11 +784,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		setTitle(getTitle());
 	}
 
-	@Override
-	public void fragmentMessage(String type, String contents) {
-		if(type.equalsIgnoreCase("emote-selected")){
+	public void selectEmote(String contents) {
 			insertEmote(contents);
-		}
 	}
 	
 

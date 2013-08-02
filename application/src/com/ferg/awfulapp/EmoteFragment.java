@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Message;
@@ -62,10 +63,21 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	private GridView emoteGrid;
 	private AwfulCursorAdapter adapter;
 	private EmoteDataCallback emoteLoader = new EmoteDataCallback();
+
+    private PostReplyFragment parent;
 	
 	private boolean loadFailed = false;
 
-	@Override
+    public EmoteFragment(PostReplyFragment parent) {
+        super();
+        this.parent = parent;
+    }
+
+    public EmoteFragment() {
+        super();
+    }
+
+    @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 		getDialog().setTitle("Emotes");
@@ -128,14 +140,6 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public void onStop() {
 		super.onStop();
 		getLoaderManager().destroyLoader(Constants.EMOTE_LOADER_ID);
-	}
-
-	@Override
-	public void onPageVisible() {
-	}
-
-	@Override
-	public void onPageHidden() {
 	}
 
 	@Override
@@ -205,13 +209,8 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public void onItemClick(AdapterView<?> arg0, View v, int arg2, long arg3) {
 		TextView tv = (TextView) v.findViewById(R.id.emote_text);
 		Toast.makeText(getAwfulActivity(), tv.getText().toString().trim(), Toast.LENGTH_SHORT).show();
-		sendFragmentMessage("emote-selected", tv.getText().toString().trim());
+        parent.selectEmote(tv.getText().toString().trim());
 		dismiss();
-	}
-
-	@Override
-	public String getInternalId() {
-		return TAG;
 	}
 
 	@Override
