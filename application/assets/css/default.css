@@ -74,6 +74,11 @@ article.self {
 background-color:#ECFFD9;
 }
 
+article.toggleread {
+text-align: center;
+padding:5px;
+}
+
 section.postcontent {
 word-wrap: break-word;
 }
@@ -89,7 +94,7 @@ background-color: #ECFFD9;
 }
 
 section.postcontent .usernameHighlight {
-background-color: #00c0f4;
+color: #00c0f4;
 }
 
 section.postcontent img, section.postcontent iframe{
@@ -118,6 +123,11 @@ word-wrap: normal;
 section.postcontent .editedby {
 font-style:italic;
 font-size: 0.7em;
+}
+
+section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
+color: #828282;
+background: #828282;
 }
 
 header {

@@ -109,8 +109,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 
 		if(aPref != null){
-			title.setTextColor(ColorProvider.getTextColor(aPref));
-			author.setTextColor(ColorProvider.getAltTextColor(aPref));
+			title.setTextColor(ColorProvider.getTextColor());
+			author.setTextColor(ColorProvider.getAltTextColor());
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);

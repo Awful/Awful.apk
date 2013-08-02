@@ -182,28 +182,28 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
     }
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        mRecipient.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        mSubject.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        mDisplayText.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        mEditReply.setTextColor(ColorProvider.getTextColor(prefs));
-        mRecipient.setTextColor(ColorProvider.getTextColor(prefs));
-        mSubject.setTextColor(ColorProvider.getTextColor(prefs));
-        mUsername.setTextColor(ColorProvider.getTextColor(prefs));
-        mPostdate.setTextColor(ColorProvider.getTextColor(prefs));
-        mTitle.setTextColor(ColorProvider.getTextColor(prefs));
+        mEditReply.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mRecipient.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mDisplayText.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mEditReply.setTextColor(ColorProvider.getTextColor());
+        mRecipient.setTextColor(ColorProvider.getTextColor());
+        mSubject.setTextColor(ColorProvider.getTextColor());
+        mUsername.setTextColor(ColorProvider.getTextColor());
+        mPostdate.setTextColor(ColorProvider.getTextColor());
+        mTitle.setTextColor(ColorProvider.getTextColor());
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
         View header = v.findViewById(R.id.message_header);
-        header.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        miscMess.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
-        miscSubject.setTextColor(ColorProvider.getAltTextColor(prefs));
-        miscRecip.setTextColor(ColorProvider.getAltTextColor(prefs));
-        miscMess.setTextColor(ColorProvider.getAltTextColor(prefs));
-        v.setBackgroundColor(ColorProvider.getBackgroundColor(prefs));
+        header.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscMess.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscSubject.setTextColor(ColorProvider.getAltTextColor());
+        miscRecip.setTextColor(ColorProvider.getAltTextColor());
+        miscMess.setTextColor(ColorProvider.getAltTextColor());
+        v.setBackgroundColor(ColorProvider.getBackgroundColor());
         
 	}
 	
@@ -500,7 +500,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
     }
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor(mPrefs))+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}
 	
     private void pauseWebView(){

@@ -219,8 +219,8 @@ public class AwfulForum extends AwfulPagedItem {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		TextView sub = (TextView) current.findViewById(R.id.subtext);
 		if(mPrefs != null){
-			title.setTextColor(ColorProvider.getTextColor(mPrefs));
-			sub.setTextColor(ColorProvider.getAltTextColor(mPrefs));
+			title.setTextColor(ColorProvider.getTextColor());
+			sub.setTextColor(ColorProvider.getAltTextColor());
 		}
 //		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		title.setText(data.getString(data.getColumnIndex(TITLE)));
@@ -265,15 +265,15 @@ public class AwfulForum extends AwfulPagedItem {
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);
 		if(selected){
-			aq.backgroundColor(ColorProvider.getBackgroundColor(aPrefs));
+			aq.backgroundColor(ColorProvider.getBackgroundColor());
 		}else{
-			aq.backgroundColor(ColorProvider.getBackgroundColor(aPrefs));
+			aq.backgroundColor(ColorProvider.getBackgroundColor());
 		}
 		TextView title = (TextView) current.findViewById(R.id.forum_title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
 //		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
-		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(titleText).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
+		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor()).text(titleText).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
 		
 		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
 			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);
