@@ -32,15 +32,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -48,7 +48,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulDialogFragment extends SherlockDialogFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
+public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
@@ -193,7 +193,7 @@ public abstract class AwfulDialogFragment extends SherlockDialogFragment impleme
 	
 	protected void startActionMode(){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().startActionMode(this);
+			getAwfulActivity().startSupportActionMode(this);
 		}
 	}
 	

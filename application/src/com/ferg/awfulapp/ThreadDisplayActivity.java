@@ -30,11 +30,11 @@ package com.ferg.awfulapp;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 
 public class ThreadDisplayActivity extends AwfulActivity implements OnClickListener {
@@ -98,7 +98,7 @@ public class ThreadDisplayActivity extends AwfulActivity implements OnClickListe
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
     	if(mainWindowFrag != null){
-    		mainWindowFrag.onCreateOptionsMenu(menu, getSupportMenuInflater());
+    		mainWindowFrag.onCreateOptionsMenu(menu, getMenuInflater());
     		return true;
     	}
 		return super.onCreateOptionsMenu(menu);

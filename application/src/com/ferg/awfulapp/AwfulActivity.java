@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -19,15 +20,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.Html;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Window;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -45,7 +45,7 @@ import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, AwfulUpdateCallback {
+public class AwfulActivity extends ActionBarActivity implements ServiceConnection, AwfulUpdateCallback {
     protected static String TAG = "AwfulActivity";
     protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;
@@ -74,9 +74,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mPrefs = AwfulPreferences.getInstance(this, this);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_PROGRESS);
+        supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_PROGRESS);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
     	Options p2roptions = new Options();
     	p2roptions.headerTransformer = new AwfulHeaderTransformer();
@@ -117,7 +117,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         mConf.onStop();
         unbindService(this);
         if(Constants.isICS()){
-            HttpResponseCache cache = HttpResponseCache.getInstalled();
+            @SuppressLint("NewApi") HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null){
                 cache.flush();
             }
@@ -219,11 +219,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     public void displayForumIndex(){
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
-				  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-    }
-    
-    public void displayQuickBrowser(String url){
-        AwfulWebFragment.newInstance(url).show(getSupportFragmentManager().beginTransaction(), "awful_web_dialog");
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
     
 	public void displayReplyWindow(int threadId, int postId, int type) {
