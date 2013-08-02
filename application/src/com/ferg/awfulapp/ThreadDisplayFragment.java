@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -43,10 +44,16 @@ import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -57,10 +64,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.constants.Constants;
@@ -158,12 +161,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ThreadDisplayFragment mSelf = this;
 
-    public static ThreadDisplayFragment newInstance(int id, int page) {
-		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-        return fragment;
-	}
-
     public ThreadDisplayFragment() {
+        super();
         TAG = "ThreadDisplayFragment";
     }
 
@@ -303,7 +302,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	Log.w(TAG, "Recovering posts");
         	refreshPosts();
         }
-        updateSidebarHint(isDualPane(), isSidebarVisible());
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -366,7 +364,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void updatePageBar(){
 		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
 		if(getActivity() != null){
-			getAwfulActivity().invalidateOptionsMenu();
+			invalidateOptionsMenu();
 		}
 		mRefreshBar.setVisibility(View.VISIBLE);
 		mPrevPage.setVisibility(View.VISIBLE);
@@ -550,25 +548,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	CookieSyncManager.getInstance().sync();
         }
     }
-    
-    public boolean isDualPane(){
-    	return false;
-    }
-    
-    public boolean isSidebarVisible(){
-    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
-    }
  
     
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
     	menu.clear();
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
         	MenuItem share = menu.findItem(R.id.share_thread);
-        	if(share != null && share.getActionProvider() instanceof ShareActionProvider){
-        		shareProvider = (ShareActionProvider) share.getActionProvider();
+        	if(share != null && MenuItemCompat.getActionProvider(share) instanceof ShareActionProvider){
+        		shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
         		shareProvider.setShareIntent(createShareIntent());
         	}
     	}
@@ -583,6 +573,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         MenuItem nextArrow = menu.findItem(R.id.next_page);
         if(nextArrow != null){
         	nextArrow.setVisible(mPrefs.upperNextArrow);
+        }
+        MenuItem find = menu.findItem(R.id.find);
+        if(find != null){
+            find.setVisible(Constants.isHoneycomb());
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -604,6 +598,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
     }
     
+    @SuppressLint("NewApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -635,6 +630,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     			copyThreadURL(null);
     			break;
     		case R.id.find:
+                //Find button is hidden in onPrepareOptionsMenu for anything pre-Honeycomb
     			this.mThreadView.showFindDialog(null, true);
     			break;
     		case R.id.keep_screen_on:
@@ -885,17 +881,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 	displayPagePicker();
                 	break;
                 case R.id.toggle_sidebar:
-                	if(mShowSidebarIcon){
-	                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
-	                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
-	                	}
-                	}else{
-                		if (getPage() == getLastPage()) {
-                			refresh();
-                		} else {
-                        	goToPage(getPage() + 1);
-                		}
-                	}
+                    if (getPage() == getLastPage()) {
+                        refresh();
+                    } else {
+                        goToPage(getPage() + 1);
+                    }
                 	break;
             }
         }
@@ -1135,7 +1125,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }		
 	}
 
-  
+
 
     private class ClickInterface {
         public static final int SEND_PM  = 0;
@@ -1530,7 +1520,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());
         		}
-                getAwfulActivity().invalidateOptionsMenu();
+                invalidateOptionsMenu();
         	}
         }
         
@@ -1679,24 +1669,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			return false;
 		}
 	}
-
-	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
-		mShowSidebarIcon = showIcon;
-		if(mToggleSidebar != null){
-			if(mShowSidebarIcon){
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
-				if(sidebarVisible){
-					mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}else{
-					mToggleSidebar.setColorFilter(0);
-				}
-			}else{
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageDrawable(null);
-			}
-		}
-	}
 	
 	private void registerPreBlocks() {
 		scrollCheckBounds = null;
@@ -1714,26 +1686,26 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		if(mThreadView == null || scrollCheckBounds == null){
-			return false;
-		}
-		y = y+mThreadView.getScrollY()+mThreadView.getTop();
-		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
-			return false;
-		}
-		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
-			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
-				return true;
-			}
-		}
-		return false;
-	}
-	
+//	@Override
+//	public boolean canScrollX(int x, int y) {
+//		if(mPrefs.lockScrolling){
+//			return true;
+//		}
+//		if(mThreadView == null || scrollCheckBounds == null){
+//			return false;
+//		}
+//		y = y+mThreadView.getScrollY()+mThreadView.getTop();
+//		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
+//			return false;
+//		}
+//		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
+//			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+
 
 	@Override
 	public String getInternalId() {

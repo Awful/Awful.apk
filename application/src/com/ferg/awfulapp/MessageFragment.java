@@ -15,10 +15,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Html;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -29,11 +32,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
@@ -42,7 +40,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulFragment implements AwfulUpdateCallback, OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -120,16 +118,13 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
         	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+        		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
         	}
         }
     };
 
     public static MessageFragment newInstance(String aUser, int aId) {
         MessageFragment fragment = new MessageFragment(aUser, aId);
-
-        fragment.setShowsDialog(false);
-        fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
         return fragment;
     }
@@ -326,7 +321,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
 	}
 	
 	private void newMessage(){
-		getActivity().getSupportLoaderManager().destroyLoader(pmId);
+		getLoaderManager().destroyLoader(pmId);
 		pmId = -1;//TODO getNextId();
 		recipient = null;
 		mEditReply.setText("");
@@ -457,7 +452,7 @@ public class MessageFragment extends AwfulDialogFragment implements AwfulUpdateC
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
         	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, this);
+        		getLoaderManager().restartLoader(pmId, null, this);
         	}
         }
     }
