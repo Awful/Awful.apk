@@ -35,6 +35,7 @@ import android.os.Messenger;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,10 +46,9 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
+public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, ActionMode.Callback{
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
@@ -228,24 +228,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
     public void loadingUpdate(Message aMsg) {
     	setProgress(aMsg.arg2);
     }
-
-	public void sendFragmentMessage(String type, String contents){
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.fragmentMessage(type, contents);
-    	}
-	}
-	
-	/**
-	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
-	 */
-	public void fragmentMessage(String type, String contents){	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return false;
-	}
-	
+    
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
@@ -259,10 +242,11 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
 		return false;
 	}
 
-	@Override
-	public boolean canScrollX(int x, int y) {
-		return false;
-	}
+    public abstract String getTitle();
+
+    public boolean volumeScroll(KeyEvent event) {
+        return false;
+    }
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {

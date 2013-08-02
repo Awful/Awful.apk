@@ -161,12 +161,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ThreadDisplayFragment mSelf = this;
 
-    public static ThreadDisplayFragment newInstance(int id, int page) {
-		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-        return fragment;
-	}
-
     public ThreadDisplayFragment() {
+        super();
         TAG = "ThreadDisplayFragment";
     }
 
@@ -306,7 +302,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	Log.w(TAG, "Recovering posts");
         	refreshPosts();
         }
-        updateSidebarHint(isDualPane(), isSidebarVisible());
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -552,14 +547,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD));
         	CookieSyncManager.getInstance().sync();
         }
-    }
-    
-    public boolean isDualPane(){
-    	return false;
-    }
-    
-    public boolean isSidebarVisible(){
-    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
     }
  
     
@@ -894,17 +881,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 	displayPagePicker();
                 	break;
                 case R.id.toggle_sidebar:
-                	if(mShowSidebarIcon){
-	                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
-	                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
-	                	}
-                	}else{
-                		if (getPage() == getLastPage()) {
-                			refresh();
-                		} else {
-                        	goToPage(getPage() + 1);
-                		}
-                	}
+                    if (getPage() == getLastPage()) {
+                        refresh();
+                    } else {
+                        goToPage(getPage() + 1);
+                    }
                 	break;
             }
         }
@@ -1144,7 +1125,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }		
 	}
 
-  
+
 
     private class ClickInterface {
         public static final int SEND_PM  = 0;
@@ -1688,24 +1669,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			return false;
 		}
 	}
-
-	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
-		mShowSidebarIcon = showIcon;
-		if(mToggleSidebar != null){
-			if(mShowSidebarIcon){
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
-				if(sidebarVisible){
-					mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}else{
-					mToggleSidebar.setColorFilter(0);
-				}
-			}else{
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageDrawable(null);
-			}
-		}
-	}
 	
 	private void registerPreBlocks() {
 		scrollCheckBounds = null;
@@ -1723,26 +1686,26 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		if(mThreadView == null || scrollCheckBounds == null){
-			return false;
-		}
-		y = y+mThreadView.getScrollY()+mThreadView.getTop();
-		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
-			return false;
-		}
-		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
-			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
-				return true;
-			}
-		}
-		return false;
-	}
-	
+//	@Override
+//	public boolean canScrollX(int x, int y) {
+//		if(mPrefs.lockScrolling){
+//			return true;
+//		}
+//		if(mThreadView == null || scrollCheckBounds == null){
+//			return false;
+//		}
+//		y = y+mThreadView.getScrollY()+mThreadView.getTop();
+//		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
+//			return false;
+//		}
+//		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
+//			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+
 
 	@Override
 	public String getInternalId() {

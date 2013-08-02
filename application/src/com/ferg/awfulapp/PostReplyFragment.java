@@ -207,7 +207,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     		if(imm != null && getView() != null){
     			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
     		}
-    		getAwfulActivity().fragmentClosing(this);
+            getAwfulActivity().finish();
     	}
     }
     
@@ -419,7 +419,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
             	break;
             case R.id.emotes:
     	    	selectionStart = mMessage.getSelectionStart();
-            	new EmoteFragment().show(getFragmentManager(), "emotes");
+            	new EmoteFragment(this).show(getFragmentManager(), "emotes");
             	break;
             case R.id.add_attachment:
             	    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -784,11 +784,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		setTitle(getTitle());
 	}
 
-	@Override
-	public void fragmentMessage(String type, String contents) {
-		if(type.equalsIgnoreCase("emote-selected")){
+	public void selectEmote(String contents) {
 			insertEmote(contents);
-		}
 	}
 	
 

@@ -110,14 +110,15 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
         super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
         mConf.onPause();
     }
-    
+
+    @SuppressLint("NewApi")
     @Override
     protected void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
         unbindService(this);
         if(Constants.isICS()){
-            @SuppressLint("NewApi") HttpResponseCache cache = HttpResponseCache.getInstalled();
+            HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null){
                 cache.flush();
             }
@@ -202,7 +203,7 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
     }
     
     public void displayThread(int id, int page, int forumId, int forumPage){
-    	startActivity(new Intent().setClass(this, ThreadDisplayActivity.class)
+    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
     							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     							  .putExtra(Constants.THREAD_ID, id)
     							  .putExtra(Constants.THREAD_PAGE, page)
@@ -289,8 +290,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
 	@Override
 	public void loadingUpdate(Message aMsg) {}
 
-	public void fragmentClosing(AwfulFragment fragment) {}
-
 	public void setLoadProgress(int percent) {
 		setSupportProgressBarVisibility(percent<100);
     	setSupportProgressBarIndeterminateVisibility(false);
@@ -301,14 +300,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
 		setSupportProgressBarVisibility(false);
     	setSupportProgressBarIndeterminateVisibility(false);
 	}
-
-	/**
-	 * AwfulFragments have the capability to broadcast messages to other fragments on the same activity.
-	 * Override this method, then pass these Strings to any internal fragments.
-	 * @param type
-	 * @param contents
-	 */
-	public void fragmentMessage(String type, String contents) {	}//subclasses should implement this
 
 	
 

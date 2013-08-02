@@ -31,27 +31,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
-import com.ferg.awfulapp.widget.AwfulDualPaneView;
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter;
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
-import com.ferg.awfulapp.widget.AwfulViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static String TAG = "ForumsIndexActivity";
 
-    private boolean mSecondPane;
     private ForumsIndexFragment mIndexFragment = null;
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
@@ -63,7 +58,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private Handler mHandler = new Handler();
     
     
-    private AwfulViewPager mViewPager;
+    private ViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
     private int mForumId = Constants.USERCP_ID;
@@ -87,18 +82,11 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
         
         setContentView(R.layout.forum_index_activity);
-        mSecondPane = false;//(findViewById(R.id.content)!= null);
         setSupportProgressBarIndeterminateVisibility(false);
         
-    	mViewPager = (AwfulViewPager) findViewById(R.id.forum_index_pager);
+    	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
     	mViewPager.setOffscreenPageLimit(2);
-    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager(), isTablet);
-    	pagerAdapter.addFragment(new AwfulDualPaneView(this,ForumsIndexFragment.newInstance(),ForumDisplayFragment.newInstance(mForumId, mForumPage, skipLoad)));
-    	if(url.isRedirect()){
-    		pagerAdapter.addFragment(new ThreadDisplayFragment());
-    	}else if(mThreadId > 0){
-    		pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(mThreadId, mThreadPage));
-    	}
+    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
         if(initialPage >= 0){
@@ -227,7 +215,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 	private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-            	setContentPane(Constants.USERCP_ID, 1);
+            	displayForum(Constants.USERCP_ID, 1);
             }
         }
     }
@@ -249,40 +237,13 @@ public class ForumsIndexActivity extends AwfulActivity {
         mThreadPage = page;
     }
 
-    public class ForumPagerAdapter extends AwfulFragmentPagerAdapter implements AwfulViewPager.OnPageChangeListener{
-    	public ForumPagerAdapter(FragmentManager fm, boolean tabletMode) {
-			super(fm, tabletMode);
+    public class ForumPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener{
+    	public ForumPagerAdapter(FragmentManager fm) {
+			super(fm);
 		}
 
-		private AwfulPagerFragment visible;
-		
+		private AwfulFragment visible;
 
-		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
-			if(DEBUG) Log.w(TAG,"INSTANTIATING TAB:"+position);
-			Object item = super.instantiateItem(container, position);
-			Fragment[] frags;
-			if(item instanceof Fragment){
-				frags = new Fragment[]{(Fragment) item};
-			}else{
-				frags = new Fragment[]{(Fragment) ((AwfulDualPaneView) item).getFirst(),(Fragment) ((AwfulDualPaneView) item).getSecond()};
-			}
-			for(Fragment frag : frags){
-				if(frag instanceof ForumsIndexFragment){
-					mIndexFragment = (ForumsIndexFragment) frag;
-				}
-				if(frag instanceof ForumDisplayFragment){
-					mForumFragment = (ForumDisplayFragment) frag;
-				}
-				if(frag instanceof ThreadDisplayFragment){
-					mThreadFragment = (ThreadDisplayFragment) frag;
-				}
-				if(frag instanceof PostReplyFragment){
-					mReplyFragment = (PostReplyFragment) frag;
-				}
-			}
-			return item;
-		}
 
 		@Override
 		public void onPageSelected(int arg0) {
@@ -290,7 +251,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 			if(visible != null){
 				visible.onPageHidden();
 			}
-			AwfulPagerFragment apf = getItem(arg0);
+			AwfulFragment apf = (AwfulFragment) getItem(arg0);
 			if(apf != null){
 				setActionbarTitle(apf.getTitle(), null);
 				apf.onPageVisible();
@@ -305,23 +266,48 @@ public class ForumsIndexActivity extends AwfulActivity {
 		@Override
 		public void onPageScrollStateChanged(int state) {}
 
-		@Override
-		protected Fragment resolveConflict(int position, Fragment oldFrag, Fragment newFrag) {
-            if(DEBUG) Log.e(TAG, "resolveConflict - old: " + oldFrag.toString() + " - new: " + newFrag.toString());
-			return newFrag;//just dump the old fragment and replace it
-		}
-    	
+        @Override
+        public Fragment getItem(int ix) {
+            switch(ix){
+                case 0:
+                    if(mIndexFragment == null){
+                        mIndexFragment = new ForumsIndexFragment();
+                    }
+                    return mIndexFragment;
+                case 1:
+                    if(mForumFragment == null){
+                        mForumFragment = new ForumDisplayFragment(mForumId, mForumPage, skipLoad);
+                    }
+                    return mForumFragment;
+                case 2:
+                    if(mThreadFragment == null){
+                        mThreadFragment = new ThreadDisplayFragment();
+                    }
+                    return mThreadFragment;
+            }
+            Log.e(TAG, "ERROR: asked for too many fragments in ForumPagerAdapter.getItem");
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            if(mIndexFragment != null && mIndexFragment.equals(object)){
+                return 0;
+            }
+            if(mForumFragment != null && mForumFragment.equals(object)){
+                return 1;
+            }
+            if(mThreadFragment != null && mThreadFragment.equals(object)){
+                return 2;
+            }
+            return super.getItemPosition(object);
+        }
     }
-    
-    @Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		if(pagerAdapter != null && mPrefs != null){
-	        isTablet = Constants.isWidescreen(newConfig);
-            if(DEBUG) Log.e(TAG,"onConfigurationChanged "+(isTablet? "isTablet":""));
-			pagerAdapter.setWidescreen(isTablet);
-		}
-	}
 
 
 	@Override
@@ -341,51 +327,34 @@ public class ForumsIndexActivity extends AwfulActivity {
 	@Override
     public void onBackPressed() {
     	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-            if(DEBUG) Log.e(TAG,"onBackPressed: "+mViewPager.getCurrentItem()+" - size: "+pagerAdapter.getCount());
-    		if(!pagerAdapter.getItem(mViewPager.getCurrentItem()).onBackPressed()){
+    		if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
     			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
     		}
     	}else{
-    		finish();
+    		super.onBackPressed();
     	}
     }
     
     @Override
     public void displayForum(int id, int page){
-    	setContentPane(id, page);
-    	if (mViewPager != null) {
-    		mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mForumFragment));
+        mForumId = id;
+        mForumPage = page;
+        if(mForumFragment != null){
+            mForumFragment.openForum(id, page);
+            if (mViewPager != null) {
+                mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
+            }
         }
     }
-    
-	@Override
-	public void fragmentClosing(AwfulFragment fragment) {
-        if(DEBUG) Log.e(TAG,"fragmentClosing: "+fragment.toString());
-		if(pagerAdapter != null){
-			pagerAdapter.deleteFragment(fragment);
-		}
-		if(fragment instanceof PostReplyFragment && mThreadFragment != null){
-			mThreadFragment.onActivityResult(PostReplyFragment.REQUEST_POST, 0, null);
-		}
-	}
 
 
 	@Override
 	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
 		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
-			return pagerAdapter.getRealItemPosition(awfulFragment) == mViewPager.getCurrentItem(); 
+			return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
 		}
 		return true;
 	}
-
-
-	public void setContentPane(int aForumId, int aPage) {
-		mForumId = aForumId;
-		mForumPage = aPage;
-		if(mForumFragment != null){
-        	mForumFragment.openForum(aForumId, aPage);
-        }
-    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -413,10 +382,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     		mThreadPage = page;
     		if(mThreadFragment != null){
     			mThreadFragment.openThread(id, page);
-    		}else{
-    			pagerAdapter.addFragment(ThreadDisplayFragment.newInstance(id, page));
-    		} 
-    		mViewPager.setCurrentItem(pagerAdapter.getRealItemPosition(mThreadFragment));
+    		}
+    		mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
     	}else{
     		super.displayThread(id, page, forumId, forumPg);
     	}
@@ -456,28 +423,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 			mThreadFragment.onActivityResult(request, result, intent);
 		}
 	}
-
-
-	@Override
-	public void fragmentMessage(String type, String contents) {
-		if(pagerAdapter != null){
-			for(AwfulPagerFragment f : pagerAdapter){
-				f.fragmentMessage(type, contents);
-			}
-		}else{
-			if(mIndexFragment != null){
-				mIndexFragment.fragmentMessage(type, contents);
-			}
-			if(mForumFragment != null){
-				mForumFragment.fragmentMessage(type, contents);
-			}
-		}
-	}
     
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
     	// TODO Auto-generated method stub
-    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && pagerAdapter.getItem(mViewPager.getCurrentItem()).volumeScroll(event)){
+    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
     		return true;
     	}
     	return super.dispatchKeyEvent(event);

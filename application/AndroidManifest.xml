@@ -46,15 +46,6 @@
         <activity
                 android:name="com.ferg.awfulapp.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.AppCompat.Light" android:launchMode="singleTop"/>
-        <activity 
-            android:name="com.ferg.awfulapp.ThreadDisplayActivity"
-          	android:configChanges="orientation|keyboardHidden|screenSize">
-            <intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-			</intent-filter>
-        </activity>
         <activity android:name="com.ferg.awfulapp.ProfileActivity" />
         <activity android:name="com.ferg.awfulapp.SettingsActivity" />
         <activity android:name="com.ferg.awfulapp.ThemeSettingsActivity" android:hardwareAccelerated="false"/>

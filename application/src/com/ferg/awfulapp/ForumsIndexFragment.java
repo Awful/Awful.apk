@@ -73,10 +73,6 @@ import java.util.LinkedList;
 public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
     private int selectedForum = 0;
-
-    public static ForumsIndexFragment newInstance() {
-        return new ForumsIndexFragment();
-    }
     
     private TreeViewList mForumTree;
 //    private PullToRefreshExpandableListView mForumList;
@@ -163,7 +159,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPageHidden() {
 		if(DEBUG) Log.e(TAG, "onPageHidden");
 	}
-	
+
+    @Override
+    public String getInternalId() {
+        return TAG;
+    }
+
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
@@ -453,24 +454,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
 	public void refresh() {
 		syncForums();
-	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return Constants.isWidescreen(getActivity());
-	}
-	
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
-	
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		return false;
 	}
 
 	@Override
