@@ -822,12 +822,14 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
 	        }
 		}
-		if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
-			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
-			aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
-		}else{
-			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
-			aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
+		if(aq != null){
+			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
+			}else{
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
+			}
 		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
