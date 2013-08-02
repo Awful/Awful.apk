@@ -5,7 +5,8 @@
     android:layout_gravity="center_horizontal"
     android:padding="8dp"
     android:text="Test"
-    android:textAppearance="@style/TextAppearance.Sherlock.Widget.TextView.SpinnerItem" 
+    android:textSize="16sp"
+    android:textStyle="normal"
     >
 
 </TextView>

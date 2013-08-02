@@ -33,16 +33,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.android.volley.Request;
 import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
@@ -50,10 +51,9 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
+public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback{
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -238,7 +238,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	
 	protected void startActionMode(){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().startActionMode(this);
+			getAwfulActivity().startSupportActionMode(this);
 		}
 	}
 	
@@ -282,34 +282,12 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
-	
-	public void sendFragmentMessage(String type, String contents){
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.fragmentMessage(type, contents);
-    	}
-	}
-	
-	/**
-	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
-	 */
-	public void fragmentMessage(String type, String contents){	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return false;
-	}
-	
+
 	protected boolean isLoggedIn(){
 		return getAwfulActivity().isLoggedIn();
 	}
 	
 	public boolean onBackPressed() {
-		return false;
-	}
-
-	@Override
-	public boolean canScrollX(int x, int y) {
 		return false;
 	}
 
@@ -362,4 +340,20 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
         }
         return null;
     }
+
+
+
+    protected void invalidateOptionsMenu() {
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            act.supportInvalidateOptionsMenu();
+        }
+    }
+
+    public abstract String getTitle();
+    public abstract void onPageVisible();
+    public abstract void onPageHidden();
+    public abstract String getInternalId();
+
+    public abstract boolean volumeScroll(KeyEvent event);
 }

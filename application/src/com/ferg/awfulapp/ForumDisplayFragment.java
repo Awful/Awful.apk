@@ -47,9 +47,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -108,21 +105,20 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private long lastRefresh = 0;
 
-    public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
-        ForumDisplayFragment fragment = new ForumDisplayFragment();
-        if(aForum < 1){
-        	aForum = Constants.USERCP_ID;
+    public ForumDisplayFragment(int forumId, int page, boolean skip) {
+        super();
+        if(forumId < 1){
+            mForumId = Constants.USERCP_ID;
+        }else{
+            mForumId = forumId;
         }
-        Bundle args = new Bundle();
-        args.putInt(Constants.FORUM_ID, aForum);
-        fragment.setArguments(args);
-        
-        fragment.skipLoad(skipLoad);//we don't care about persisting this
-
-        return fragment;
+        mPage = page;
+        skipLoad = skip;
+        TAG = "ForumDisplayFragment";
     }
 
     public ForumDisplayFragment() {
+        super();
         TAG = "ForumDisplayFragment";
     }
 
@@ -135,7 +131,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG,"onCreate");
 		setRetainInstance(true);
-        setHasOptionsMenu(!(getActivity() instanceof ThreadDisplayActivity));
+        setHasOptionsMenu(true);
     }
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -160,13 +156,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
-		if(getAwfulActivity() instanceof ThreadDisplayActivity){
-			View v = result.findViewById(R.id.secondary_title_bar);
-			if(v != null){
-				v.setVisibility(View.VISIBLE);
-				aq.find(R.id.move_up).clicked(onButtonClick);
-			}
-		}
 		updatePageBar();
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -770,25 +759,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void skipLoad(boolean skip) {
 		skipLoad = skip;
 	}
-	
-	
-	@Override
-	public boolean canSplitscreen() {
-		return Constants.isWidescreen(getActivity());
-	}
-
 
 	@Override
 	public String getInternalId() {
 		return TAG;
-	}
-	
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		return false;
 	}
 
 	@Override
