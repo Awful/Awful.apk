@@ -398,96 +398,69 @@ public class AwfulThread extends AwfulPagedItem  {
         return null;
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-        int unreadCount = 0;
-        if(aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
-        	for(AwfulPost ap : aPosts){
-        		if(!ap.isPreviouslyRead()){
-        			unreadCount++;
-        		}
-        	}
-        }
-    	
-    	
-    	StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+    public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
+        StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
         buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
         if(!(aPrefs.forceForumThemes && forumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
-        	buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
+            buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
         }else if(aPrefs.forceForumThemes){
-        	switch(forumId){
-				//TODO: No FYAD theme yet        	
+            switch(forumId){
+                //TODO: No FYAD theme yet
 //    			case(26):
 //	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
 //	    			break;
-        		//RIP BYOB
+                //RIP BYOB
 //        		case(208):
 //        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
 //        			break;
-        		case(219):
-        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
-        			break;
-        		default:
-        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
-        			break;
-        	}
+                case(219):
+                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
+                    break;
+                default:
+                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+                    break;
+            }
         }else{
             buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
         }
         if(!aPrefs.preferredFont.contains("default")){
-        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
+            buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
-        
-        buffer.append("<script type='text/javascript'>\n");
-        buffer.append("  window.JSON = null;");
-        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
-            buffer.append("window.hideRead = true;");
-        }else{
-            buffer.append("window.hideRead = false;");
-        }
-        buffer.append("</script>\n");
-        
-        
+
+
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
-        
 
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
-        if(AwfulActivity.isHoneycomb() && !aPrefs.disableGifs){
-	        buffer.append("<script type='text/javascript'>\n");
-	        buffer.append("$(window).on('scroll', gifHide);");
-	        buffer.append("$(window).ready(gifHide);");
-	        buffer.append("</script>\n");
-        }
+//        if(AwfulActivity.isHoneycomb() && !aPrefs.disableGifs){
+//            buffer.append("<script type='text/javascript'>\n");
+//            buffer.append("$(window).on('scroll', gifHide);");
+//            buffer.append("$(window).ready(gifHide);");
+//            buffer.append("</script>\n");
+//        }
+        buffer.append("</head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
+        return buffer.toString();
+    }
+
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
+    	StringBuffer buffer = new StringBuffer(1024);
         
-        buffer.append("<style type='text/css'>\n");   
-        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
-            buffer.append(".read {display:none;}\n");
-        }else{
-            buffer.append(".toggleread {display:none;}\n");
-        }
-        buffer.append("</style>\n");
-        buffer.append("</head>\n<body>\n");
-        buffer.append("	  <div class='content' >\n");
-        buffer.append("		<article class='toggleread unread'>");
-        buffer.append("			<a>\n");
-        buffer.append("				<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
-        buffer.append("			</a>\n");
-        buffer.append("		</article>");
+
+        buffer.append("<div class='content' >\n");
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
         buffer.append("<div class='unread' ></div>\n");
         
         buffer.append("</div>\n");
-        buffer.append("</body>\n</html>\n");
 
         return buffer.toString();
     }

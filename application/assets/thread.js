@@ -22,7 +22,7 @@ function changeCSS(file){
 }
 
 
-$(document).ready(function() {
+function pageinit() {
     $('.quote').on('click', function(event) {
     	listener.onQuoteClick($(this).parent().parent().attr('id').replace(/post/,''));
     });
@@ -105,7 +105,7 @@ $(document).ready(function() {
 	$.reorient.start();
 	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
 	
-});
+};
 
 
 
@@ -133,6 +133,12 @@ $(window).ready(function() {
 	});
 
 });
+
+function loadpagehtml(){
+    var html=listener.getBodyHtml();
+    document.getElementById("container").innerHTML=html;
+    pageinit();
+}
 
 function registerPreBlocks(){
 	$('pre').each(function(){

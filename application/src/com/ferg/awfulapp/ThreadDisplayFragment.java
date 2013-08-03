@@ -111,9 +111,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
-
-    private ImageButton mToggleSidebar;
-	private boolean mShowSidebarIcon;
     
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -125,7 +122,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private ImageButton mProbationButton;
 
     private WebView mThreadView;
-    private ViewGroup mThreadParent;
 
     private int mUserId = 0;
     private int mLastPage = 0;
@@ -161,6 +157,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private ThreadDisplayFragment mSelf = this;
 
+
+    private String bodyHtml = "";
+
     public ThreadDisplayFragment() {
         super();
         TAG = "ThreadDisplayFragment";
@@ -185,7 +184,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		public void onPageFinished(WebView view, String url) {
 			Log.i(TAG,"PageFinished");
 			setProgress(100);
-			registerPreBlocks();
 		}
        
 
@@ -275,7 +273,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
 		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
 		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
 		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
@@ -285,7 +282,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             mP2RAttacher.setPullFromBottom(true);
         	mP2RAttacher.setEnabled(true);
         }
-        mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
         initThreadViewProperties();
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -358,7 +354,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			}
 		});
 
+        mThreadView.addJavascriptInterface(clickInterface, "listener");
+        mThreadView.addJavascriptInterface(getSerializedPreferences(AwfulPreferences.getInstance(getActivity())), "preferences");
+
         refreshSessionCookie();
+        mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
 	}
 	
 	public void updatePageBar(){
@@ -466,18 +466,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mP2RAttacher != null){
         	mP2RAttacher.setPullFromBottom(true);
         }
-	}
-	
-	
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		if(mThreadView != null && dataLoaded){
-			if(currentProgress > 99){
-				registerPreBlocks();
-			}
-		}
 	}
 
 	@Override
@@ -849,7 +837,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     public void refresh() {
     	if(mThreadView != null){
-    		mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            bodyHtml = "";
+            mThreadView.loadUrl("javascript:loadpagehtml()");
+    		//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     	}
         syncThread();
     }
@@ -1013,7 +1003,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
 	public void loadingUpdate(Message aMsg) {
 		//super.loadingUpdate(aMsg);
-    	setProgress(aMsg.arg2/2);
+    	setProgress(2*aMsg.arg2/3);
 	}
 
 	@Override
@@ -1046,7 +1036,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		break;
         case AwfulSyncService.MSG_SYNC_THREAD:
         	if(aMsg.arg2 == getPage()){
-	        	setProgress(50);
+	        	setProgress(75);
 	        	refreshPosts();
 	    		mNextPage.setColorFilter(0);
 	    		mPrevPage.setColorFilter(0);
@@ -1072,8 +1062,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
 
         try {
-            mThreadView.addJavascriptInterface(clickInterface, "listener");
-            mThreadView.addJavascriptInterface(getSerializedPreferences(AwfulPreferences.getInstance(getActivity())), "preferences");
 
             String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
             if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
@@ -1083,7 +1071,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             	out.close();
             }
             refreshSessionCookie();
-            mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
+            bodyHtml = html;
+            mThreadView.loadUrl("javascript:loadpagehtml()");
+            setProgress(100);
+            //mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1145,13 +1136,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 "Read Posts by this User",
                 "Ignore User"
             };
-		
-        
+
+        @JavascriptInterface
         public void onQuoteClick(final String aPostId) {
         	onQuoteClickInt(Integer.parseInt(aPostId));
         }
         
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onQuoteClickInt(final int aPostId){
             if(mReplyDraftSaved >0){
             	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId,AwfulMessage.TYPE_QUOTE);
@@ -1159,26 +1151,31 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
             }
         }
-        
+
+        @JavascriptInterface
         public void onLastReadClick(final String index) {
         	markLastRead(Integer.parseInt(index));
         }
         
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onLastReadClickInt(final int index) {
         	markLastRead(index);
         }
 
+        @JavascriptInterface
         public void onSendPMClick(final String aUsername) {
         	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
         }
 
         // Post ID is the item tapped
+        @JavascriptInterface
         public void onEditClick(final String aPostId) {
         	onEditClickInt(Integer.parseInt(aPostId));
         }
 
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onEditClickInt(final int aPostId) {
             if(mReplyDraftSaved >0){
             	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
@@ -1186,7 +1183,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
             }
         }
-        
+
+        @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId) {
         	new AlertDialog.Builder(getActivity())
             .setTitle("Select an Action")
@@ -1197,19 +1195,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             })
             .show();
         }
-        
+
+        @JavascriptInterface
         public void onCopyUrlClick(final String aPostId) {
         	copyThreadURL(aPostId);
         }
-        
+
+        @JavascriptInterface
         public void debugMessage(final String msg) {
         	Log.e(TAG,"Awful DEBUG: "+msg);
         }
-        
+
+        @JavascriptInterface
         public void onUserPostsClick(final String aUserId) {
         	onUserPostsClickInt(Integer.parseInt(aUserId));
         }
-        
+
+        @JavascriptInterface
         public void onUserPostsClickInt(final int aUserId) {
         	if(mUserId >0){
         		deselectUser("0");
@@ -1218,11 +1220,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	}
         }
 
+        @JavascriptInterface
 		public void onIgnoreUserClick(final String aUserId) {
 			// TODO Auto-generated method stub
 			ignoreUser(aUserId);
 		}
-		
+
+        @JavascriptInterface
         public void addCodeBounds(final String minBound, final String maxBound){
         	int min = Integer.parseInt(minBound);
         	int max = Integer.parseInt(maxBound);
@@ -1248,6 +1252,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	scrollCheckBounds[scrollCheckBounds.length-2] = min;
         	scrollCheckBounds[scrollCheckBounds.length-1] = max;
         	Arrays.sort(scrollCheckBounds);
+        }
+
+        @JavascriptInterface
+        public String getBodyHtml(){
+            return bodyHtml;
         }
 
     }
@@ -1403,8 +1412,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			updatePageBar();
 			updateProbationBar();
 			mPostJump = "";
+            bodyHtml = "";
 			if(mThreadView != null){
-				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
+				//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 			}
 	        syncThread();
             cancelOldSync();
@@ -1412,7 +1423,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
+		return AwfulThread.getContainerHtml(mPrefs, getParentForumId());
 	}
 
     public int getLastPage() {
@@ -1477,7 +1488,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             refreshSessionCookie();
-        	setProgress(50);
+        	setProgress(90);
         	if(aData.isClosed()){
         		return;
         	}
@@ -1604,7 +1615,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
-    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
+    			//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     		}
 			refreshInfo();
 			syncThread();
@@ -1620,6 +1632,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mUserId = 0;
     	setPage(thread.page);
     	dataLoaded = false;
+        bodyHtml = "";
     	mLastPage = 1;
     	mPostJump = "";
     	savedScrollPosition = thread.scrollPos;
@@ -1627,7 +1640,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
-    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
+    			//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     		}
 			refreshInfo();
 			refreshPosts();
@@ -1667,22 +1681,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			return true;
 		}else{
 			return false;
-		}
-	}
-	
-	private void registerPreBlocks() {
-		scrollCheckBounds = null;
-		scrollCheckMinBound = -1;
-		scrollCheckMaxBound = -1;
-		if(mThreadView != null && dataLoaded){
-			mHandler.postDelayed(new Runnable(){
-				@Override
-				public void run() {
-					if(mThreadView != null){
-						mThreadView.loadUrl("javascript:registerPreBlocks()");
-					}
-				}
-			}, 2000);
 		}
 	}
 
