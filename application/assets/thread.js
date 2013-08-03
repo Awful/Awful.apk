@@ -72,6 +72,19 @@ function pageinit() {
 	$('.postmenu').on('click',function(){
 		toggleoptions($(this));
 	});
+
+    $('.quote_link').each(function(){
+		var id = this.hash;
+    	try{
+		if($(id).size() > 0 && $(id).css("visibility") !== "none"){
+			$(this).click(function(e){
+				window.scrollTo(0,$(id).offset().top);
+				e.preventDefault();
+			});
+		}
+    	}catch(error){
+    	}
+	});
 	
 	$('.postcontent').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
 	    var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
@@ -114,30 +127,11 @@ function pageinit() {
 //	//window.stop();
 //});
 
-
-
-$(window).ready(function() {
-	//listener.debugMessage('ready');
-    window.setTimeout("scrollPost()", 1000);
-    $('.quote_link').each(function(){
-		var id = this.hash;
-    	try{
-		if($(id).size() > 0 && $(id).css("visibility") !== "none"){
-			$(this).click(function(e){
-				window.scrollTo(0,$(id).offset().top);
-				e.preventDefault();
-			});
-		}
-    	}catch(error){
-    	}
-	});
-
-});
-
 function loadpagehtml(){
     var html=listener.getBodyHtml();
     document.getElementById("container").innerHTML=html;
     pageinit();
+    window.setTimeout("scrollLastRead()", 1000);
 }
 
 function registerPreBlocks(){
@@ -167,8 +161,26 @@ function scrollPost() {
 function scrollLastRead(){
 	//listener.debugMessage('scrollLastRead');
 	try{
-		window.scrollTo(0, $('.unread').first().offset().top );
+	    window.topScrollPos = $('.unread').first().offset().top;
+	    window.topScrollCount = 5;
+		window.scrollTo(0, window.topScrollPos);
+	  	window.setTimeout("scrollUpdate()", 500);
     }catch(error){
+    }
+}
+
+function scrollUpdate(){
+	try{
+	    if(window.topScrollCount > 0){
+            var newpos = $('.unread').first().offset().top;
+            window.topScrollCount = 0;
+            window.scrollBy(0, newpos-window.topScrollPos);
+            window.topScrollPos = newpos;
+            window.topScrollCount--;
+            window.setTimeout("scrollUpdate()", 500);
+	    }
+    }catch(error){
+        window.topScrollAttempts = 0;
     }
 }
 
