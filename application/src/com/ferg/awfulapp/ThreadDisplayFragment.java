@@ -497,18 +497,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-        if (mThreadView != null && !Constants.isICS()) {
-        	//SALT THE FUCKING EARTH
-            //There are a few bugs with specific 2.x phones where the webview will continue running after pausing (eating a ton of CPU)
-            //Burn them to the ground and recreate on resume.
-            //destroyWebview();
-        }
     }
     
     @Override
     public void onDestroyView(){
     	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-        //destroyWebview();
     }
 
     @Override
@@ -1257,6 +1250,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         @JavascriptInterface
         public String getBodyHtml(){
             return bodyHtml;
+        }
+
+        @JavascriptInterface
+        public String getPostJump(){
+            return mPostJump;
         }
 
     }

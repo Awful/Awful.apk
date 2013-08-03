@@ -307,6 +307,21 @@ public class ForumsIndexActivity extends AwfulActivity {
             }
             return super.getItemPosition(object);
         }
+
+        @Override
+        public float getPageWidth(int position) {
+            if(isTablet){
+                switch(position){
+                    case 0:
+                        return 0.4f;
+                    case 1:
+                        return 0.6f;
+                    case 2:
+                        return 1f;
+                }
+            }
+            return super.getPageWidth(position);
+        }
     }
 
 

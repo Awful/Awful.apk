@@ -128,10 +128,16 @@ function pageinit() {
 //});
 
 function loadpagehtml(){
+    if(window.topScrollID){
+        window.clearTimeout(window.topScrollID);
+    }
+    window.topScrollItem = null;
+    window.topScrollPos = 0;
+    window.topScrollCount = 0;
     var html=listener.getBodyHtml();
     document.getElementById("container").innerHTML=html;
     pageinit();
-    window.setTimeout("scrollLastRead()", 1000);
+    window.topScrollID = window.setTimeout(scrollPost, 1000);
 }
 
 function registerPreBlocks(){
@@ -142,45 +148,48 @@ function registerPreBlocks(){
 }
 
 function scrollPost() {
-	//listener.debugMessage('scrollPost');
-	if(prefs.scrollPosition > 0){
-		window.scrollTo(0,prefs.scrollPosition);
-	}else{
-	    if (prefs.postjumpid != "") {
-	    	try{
-	    		window.scrollTo(0,$("#post"+prefs.postjumpid).first().offset().top);
-	    	}catch(error){
-	    		scrollLastRead();
-	    	}
-	    } else {
-		    scrollLastRead();
-	    }
-	}
+    var postjump = listener.getPostJump();
+    if (postjump != "") {
+        try{
+            window.topScrollItem = $("#post"+postjump).first();
+            window.topScrollPos = window.topScrollItem.offset().top;
+            window.scrollTo(0,window.topScrollPos);
+	        window.topScrollCount = 200;
+	  	    window.topScrollID = window.setTimeout(scrollUpdate, 500);
+        }catch(error){
+            scrollLastRead();
+        }
+    } else {
+        scrollLastRead();
+    }
 }
 
 function scrollLastRead(){
-	//listener.debugMessage('scrollLastRead');
 	try{
-	    window.topScrollPos = $('.unread').first().offset().top;
-	    window.topScrollCount = 5;
+	    window.topScrollItem = $('.unread').first();
+	    window.topScrollPos = window.topScrollItem.offset().top;
+	    window.topScrollCount = 200;
 		window.scrollTo(0, window.topScrollPos);
-	  	window.setTimeout("scrollUpdate()", 500);
+	  	window.topScrollID = window.setTimeout(scrollUpdate, 500);
     }catch(error){
+	    window.topScrollCount = 0;
+	    window.topScrollItem = null;
     }
 }
 
 function scrollUpdate(){
 	try{
-	    if(window.topScrollCount > 0){
-            var newpos = $('.unread').first().offset().top;
+	    if(window.topScrollCount > 0 && window.topScrollItem){
+            var newpos = window.topScrollItem.offset().top;
             window.topScrollCount = 0;
             window.scrollBy(0, newpos-window.topScrollPos);
             window.topScrollPos = newpos;
             window.topScrollCount--;
-            window.setTimeout("scrollUpdate()", 500);
+            window.topScrollID = window.setTimeout(scrollUpdate, 100);
 	    }
     }catch(error){
-        window.topScrollAttempts = 0;
+        window.topScrollCount = 0;
+	    window.topScrollItem = null;
     }
 }
 
