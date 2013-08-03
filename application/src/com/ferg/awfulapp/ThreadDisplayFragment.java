@@ -1257,6 +1257,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             return mPostJump;
         }
 
+        @JavascriptInterface
+        public String getCSS(){
+            return determineCSS();
+        }
+
     }
     
 	private void onPostActionItemSelected(int aItem,
