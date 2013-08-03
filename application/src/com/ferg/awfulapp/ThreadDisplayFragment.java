@@ -47,6 +47,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -131,7 +132,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
     private boolean threadArchived = false;
-    private boolean dataLoaded = false;
     
     private boolean keepScreenOn = false;
     
@@ -182,8 +182,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         @Override
 		public void onPageFinished(WebView view, String url) {
-			Log.i(TAG,"PageFinished");
+			Log.e(TAG,"PageFinished");
 			setProgress(100);
+            if(bodyHtml != null && bodyHtml.length() > 0){
+                mThreadView.loadUrl("javascript:loadpagehtml()");
+            }
 		}
        
 
@@ -232,8 +235,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         setHasOptionsMenu(true);
         if(savedInstanceState != null){
         	Log.w(TAG, "Loading from savedInstanceState");
-            setThreadId(savedInstanceState.getInt(Constants.THREAD_ID, getThreadId()));
-            setPage(savedInstanceState.getInt(Constants.THREAD_PAGE, getPage()));
+            if(savedInstanceState.containsKey("threadHtml")){
+                bodyHtml = savedInstanceState.getString("threadHtml");
+            }
     		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
         }else{
             Intent data = getActivity().getIntent();
@@ -259,7 +263,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
         
-        if(getThreadId() > 0 && savedScrollPosition < 1){
+        if(getThreadId() > 0 && TextUtils.isEmpty(bodyHtml)){
         	syncThread();
         }
     }
@@ -294,10 +298,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-        if(dataLoaded || savedScrollPosition > 0){
-        	Log.w(TAG, "Recovering posts");
-        	refreshPosts();
-        }
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -427,13 +427,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
-        //recreate that fucking webview if we don't have it yet
-		if(mThreadView == null){
-            //recreateWebview();
-	        if(dataLoaded){
-	        	refreshPosts();
-	        }
-		}
     }
     
 
@@ -737,8 +730,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
     	if(DEBUG) Log.v(TAG,"onSaveInstanceState");
-        outState.putInt(Constants.THREAD_PAGE, getPage());
-    	outState.putInt(Constants.THREAD_ID, getThreadId());
+        if(bodyHtml != null && bodyHtml.length() > 0){
+            outState.putString("threadHtml", bodyHtml);
+        }
     	if(mThreadView != null){
     		outState.putInt("scroll_position", mThreadView.getScrollY());
     	}
@@ -746,7 +740,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void syncThread() {
         if(getActivity() != null){
-        	dataLoaded = false;
+        	bodyHtml = "";
         	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
@@ -1418,7 +1412,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             bodyHtml = "";
 			if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
-				//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
 			}
 	        syncThread();
             cancelOldSync();
@@ -1453,15 +1446,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		setPage(1);
 		mLastPage = 1;
 		mPostJump = "";
+        bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            mThreadView.loadUrl("javascript:loadpagehtml()");
 		}
         syncThread();
 	}
 	
 	public void deselectUser(String postId){
+        bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            mThreadView.loadUrl("javascript:loadpagehtml()");
 		}
 		if("0".equals(postId)){
 			mUserId = 0;
@@ -1498,7 +1493,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	if(mThreadView != null){
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
-            dataLoaded = true;
 			savedScrollPosition = 0;
         }
 
@@ -1597,7 +1591,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private void loadThread(int id, int page, String postJump) {
-        if(id == getThreadId() && page == getPage() && postJump == null){
+        if(parent == null || (id == getThreadId() && page == getPage() && TextUtils.isEmpty(postJump))){
             return;
         }
     	if(getActivity() != null){
@@ -1607,7 +1601,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
     	setPage(page);
-    	dataLoaded = false;
+    	bodyHtml = "";
     	mLastPage = 1;
     	if(postJump != null){
     		mPostJump = postJump;
@@ -1634,7 +1628,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	setThreadId(thread.id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
     	setPage(thread.page);
-    	dataLoaded = false;
         bodyHtml = "";
     	mLastPage = 1;
     	mPostJump = "";

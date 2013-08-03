@@ -91,7 +91,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
-    
+
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
