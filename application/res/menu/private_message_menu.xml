@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/new_pm" android:id="@+id/new_pm" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_reply"></item>
-    <item android:title="@string/refresh" android:id="@+id/refresh" android:icon="@drawable/ic_menu_load" android:showAsAction="never"></item>
-    <item android:title="Send PM" android:id="@+id/send_pm" android:showAsAction="never" android:icon="@drawable/ic_menu_mail"></item>
-    <item android:id="@+id/settings" android:title="@string/settings" android:showAsAction="never" android:icon="@drawable/ic_menu_settings"></item>
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:title="@string/new_pm" android:id="@+id/new_pm" app:showAsAction="ifRoom" android:icon="@drawable/ic_menu_reply"></item>
+    <item android:title="@string/refresh" android:id="@+id/refresh" android:icon="@drawable/ic_menu_load" app:showAsAction="never"></item>
+    <item android:title="Send PM" android:id="@+id/send_pm" app:showAsAction="never" android:icon="@drawable/ic_menu_mail"></item>
+    <item android:id="@+id/settings" android:title="@string/settings" app:showAsAction="never" android:icon="@drawable/ic_menu_settings"></item>
 </menu>
