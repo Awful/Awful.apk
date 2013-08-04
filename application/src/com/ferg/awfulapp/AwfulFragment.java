@@ -76,7 +76,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
                     loadingFailed(aMsg);
 	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
-	        		mP2RAttacher.setRefreshComplete();
+                    if(mP2RAttacher != null){
+                        mP2RAttacher.setRefreshComplete();
+                    }
 	        		loadingUpdate(aMsg);
 	        	}else{
 		            switch (aMsg.arg1) {
@@ -209,13 +211,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-			if(aa != null && isFragmentVisible()){
-				aa.hideProgressBar();
-			}
-		}else{
-			if(aa != null && isFragmentVisible()){
-				aa.setLoadProgress(percent);
-			}
+            aa.hideProgressBar();
 		}
 	}
 	

@@ -22,7 +22,7 @@ function changeCSS(file){
 }
 
 
-$(document).ready(function() {
+function pageinit() {
     $('.quote').on('click', function(event) {
     	listener.onQuoteClick($(this).parent().parent().attr('id').replace(/post/,''));
     });
@@ -72,6 +72,19 @@ $(document).ready(function() {
 	$('.postmenu').on('click',function(){
 		toggleoptions($(this));
 	});
+
+    $('.quote_link').each(function(){
+		var id = this.hash;
+    	try{
+		if($(id).size() > 0 && $(id).css("visibility") !== "none"){
+			$(this).click(function(e){
+				window.scrollTo(0,$(id).offset().top);
+				e.preventDefault();
+			});
+		}
+    	}catch(error){
+    	}
+	});
 	
 	$('.postcontent').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
 	    var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
@@ -105,7 +118,7 @@ $(document).ready(function() {
 	$.reorient.start();
 	$('iframe').each(function(){$(this).height($(this).width()/16*9)});
 	
-});
+};
 
 
 
@@ -114,25 +127,19 @@ $(document).ready(function() {
 //	//window.stop();
 //});
 
-
-
-$(window).ready(function() {
-	//listener.debugMessage('ready');
-    window.setTimeout("scrollPost()", 1000);
-    $('.quote_link').each(function(){
-		var id = this.hash;
-    	try{
-		if($(id).size() > 0 && $(id).css("visibility") !== "none"){
-			$(this).click(function(e){
-				window.scrollTo(0,$(id).offset().top);
-				e.preventDefault();
-			});
-		}
-    	}catch(error){
-    	}
-	});
-
-});
+function loadpagehtml(){
+    if(window.topScrollID){
+        window.clearTimeout(window.topScrollID);
+    }
+    window.topScrollItem = null;
+    window.topScrollPos = 0;
+    window.topScrollCount = 0;
+    changeCSS(listener.getCSS());
+    var html=listener.getBodyHtml();
+    document.getElementById("container").innerHTML=html;
+    pageinit();
+    window.topScrollID = window.setTimeout(scrollPost, 1000);
+}
 
 function registerPreBlocks(){
 	$('pre').each(function(){
@@ -142,27 +149,48 @@ function registerPreBlocks(){
 }
 
 function scrollPost() {
-	//listener.debugMessage('scrollPost');
-	if(prefs.scrollPosition > 0){
-		window.scrollTo(0,prefs.scrollPosition);
-	}else{
-	    if (prefs.postjumpid != "") {
-	    	try{
-	    		window.scrollTo(0,$("#post"+prefs.postjumpid).first().offset().top);
-	    	}catch(error){
-	    		scrollLastRead();
-	    	}
-	    } else {
-		    scrollLastRead();
-	    }
-	}
+    var postjump = listener.getPostJump();
+    if (postjump != "") {
+        try{
+            window.topScrollItem = $("#post"+postjump).first();
+            window.topScrollPos = window.topScrollItem.offset().top;
+            window.scrollTo(0,window.topScrollPos);
+	        window.topScrollCount = 200;
+	  	    window.topScrollID = window.setTimeout(scrollUpdate, 500);
+        }catch(error){
+            scrollLastRead();
+        }
+    } else {
+        scrollLastRead();
+    }
 }
 
 function scrollLastRead(){
-	//listener.debugMessage('scrollLastRead');
 	try{
-		window.scrollTo(0, $('.unread').first().offset().top );
+	    window.topScrollItem = $('.unread').first();
+	    window.topScrollPos = window.topScrollItem.offset().top;
+	    window.topScrollCount = 200;
+		window.scrollTo(0, window.topScrollPos);
+	  	window.topScrollID = window.setTimeout(scrollUpdate, 500);
     }catch(error){
+	    window.topScrollCount = 0;
+	    window.topScrollItem = null;
+    }
+}
+
+function scrollUpdate(){
+	try{
+	    if(window.topScrollCount > 0 && window.topScrollItem){
+            var newpos = window.topScrollItem.offset().top;
+            window.topScrollCount = 0;
+            window.scrollBy(0, newpos-window.topScrollPos);
+            window.topScrollPos = newpos;
+            window.topScrollCount--;
+            window.topScrollID = window.setTimeout(scrollUpdate, 100);
+	    }
+    }catch(error){
+        window.topScrollCount = 0;
+	    window.topScrollItem = null;
     }
 }
 

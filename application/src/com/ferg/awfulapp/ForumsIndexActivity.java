@@ -40,6 +40,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
@@ -77,6 +78,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
         	mThreadId = savedInstanceState.getInt(Constants.THREAD_ID,0);
         	mThreadPage = savedInstanceState.getInt(Constants.THREAD_PAGE,1);
+            initialPage = savedInstanceState.getInt("viewPage",-1);
         }else{
         	initialPage = parseNewIntent(getIntent());
         }
@@ -112,7 +114,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		if(mThreadFragment != null){
 			if(url.isThread() || url.isPost()){
 				mThreadFragment.openThread(url);
-			}else if(mThreadFragment.getThreadId() != mThreadId || mThreadFragment.getPage() != mThreadPage){
+			}else{
 				mThreadFragment.openThread(mThreadId, mThreadPage);
 			}
 		}
@@ -146,12 +148,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}
     	}
         if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = isTablet? 0 : 1;
+        	initialPage = 0;
         }else{
-        	skipLoad = true;
+        	skipLoad = !isTablet;
         }
         if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
-        	initialPage = isTablet? 1 : 2;
+        	initialPage = 2;
         }
         return initialPage;
 	}
@@ -192,23 +194,18 @@ public class ForumsIndexActivity extends AwfulActivity {
             mForumId = mForumFragment.getForumId();
             mForumPage = mForumFragment.getPage();
         }
-        if(mThreadFragment != null){
-            mThreadId = mThreadFragment.getThreadId();
-            mThreadPage = mThreadFragment.getPage();
-        }
     }
 
     @Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if(mForumFragment != null){
-			outState.putInt(Constants.FORUM_ID, mForumFragment.getForumId());
-			outState.putInt(Constants.FORUM_PAGE, mForumFragment.getPage());
-		}
-		if(mThreadFragment != null){
-			outState.putInt(Constants.THREAD_ID, mThreadFragment.getThreadId());
-			outState.putInt(Constants.THREAD_PAGE, mThreadFragment.getPage());
-		}
+        outState.putInt(Constants.FORUM_ID, mForumId);
+        outState.putInt(Constants.FORUM_PAGE, mForumPage);
+        outState.putInt(Constants.THREAD_ID, mThreadId);
+        outState.putInt(Constants.THREAD_PAGE, mThreadPage);
+        if(mViewPager != null){
+            outState.putInt("viewPage", mViewPager.getCurrentItem());
+        }
 	}
 
 
@@ -290,6 +287,21 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Object frag = super.instantiateItem(container, position);
+            if(frag instanceof ForumsIndexFragment){
+                mIndexFragment = (ForumsIndexFragment) frag;
+            }
+            if(frag instanceof ForumDisplayFragment){
+                mForumFragment = (ForumDisplayFragment) frag;
+            }
+            if(frag instanceof ThreadDisplayFragment){
+                mThreadFragment = (ThreadDisplayFragment) frag;
+            }
+            return frag;
+        }
+
+        @Override
         public int getCount() {
             return 3;
         }
@@ -306,6 +318,21 @@ public class ForumsIndexActivity extends AwfulActivity {
                 return 2;
             }
             return super.getItemPosition(object);
+        }
+
+        @Override
+        public float getPageWidth(int position) {
+            if(isTablet){
+                switch(position){
+                    case 0:
+                        return 0.4f;
+                    case 1:
+                        return 0.6f;
+                    case 2:
+                        return 1f;
+                }
+            }
+            return super.getPageWidth(position);
         }
     }
 
@@ -351,7 +378,12 @@ public class ForumsIndexActivity extends AwfulActivity {
 	@Override
 	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
 		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
-			return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
+            if(isTablet){
+                int itemPos = pagerAdapter.getItemPosition(awfulFragment);
+                return  itemPos == mViewPager.getCurrentItem() || itemPos == mViewPager.getCurrentItem()+1;
+            }else{
+                return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
+            }
 		}
 		return true;
 	}
@@ -378,11 +410,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void displayThread(int id, int page, int forumId, int forumPg){
     	if(mViewPager != null){
-    		mThreadId = id;
-    		mThreadPage = page;
     		if(mThreadFragment != null){
     			mThreadFragment.openThread(id, page);
-    		}
+    		}else{
+                mThreadId = id;
+                mThreadPage = page;
+            }
     		mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
     	}else{
     		super.displayThread(id, page, forumId, forumPg);
