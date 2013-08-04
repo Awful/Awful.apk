@@ -40,6 +40,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
@@ -283,6 +284,21 @@ public class ForumsIndexActivity extends AwfulActivity {
             }
             Log.e(TAG, "ERROR: asked for too many fragments in ForumPagerAdapter.getItem");
             return null;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Object frag = super.instantiateItem(container, position);
+            if(frag instanceof ForumsIndexFragment){
+                mIndexFragment = (ForumsIndexFragment) frag;
+            }
+            if(frag instanceof ForumDisplayFragment){
+                mForumFragment = (ForumDisplayFragment) frag;
+            }
+            if(frag instanceof ThreadDisplayFragment){
+                mThreadFragment = (ThreadDisplayFragment) frag;
+            }
+            return frag;
         }
 
         @Override
