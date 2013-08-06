@@ -40,7 +40,6 @@ import android.os.Messenger;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.ImageLoader;
@@ -244,7 +243,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
 			if(aMsg.obj instanceof String){
-				Toast.makeText(aa, aMsg.obj.toString(), Toast.LENGTH_LONG).show();
+                displayAlert(aMsg.obj.toString());
 			}
         }
     }
