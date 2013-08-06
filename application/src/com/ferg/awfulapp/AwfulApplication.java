@@ -53,7 +53,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 
         if(Constants.isICS()){
             try {
-                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 52428800);
+                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -130,6 +130,8 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+        }else{
+            ACRA.getErrorReporter().removeCustomData("SA Username");
         }
 	}
 
@@ -178,5 +180,24 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 
     public ImageLoader getImageLoader(){
         return imageLoader;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if(level != Application.TRIM_MEMORY_UI_HIDDEN && level != Application.TRIM_MEMORY_BACKGROUND && imageCache != null){
+            imageCache.clear();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if(imageCache != null){
+            imageCache.clear();
+        }
+        if(networkQueue != null && networkQueue.getCache() != null){
+            networkQueue.getCache().clear();
+        }
     }
 }

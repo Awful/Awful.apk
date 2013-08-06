@@ -148,7 +148,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}
     	}
         if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = 0;
+        	initialPage = isTablet ? 0 : 1;
         }else{
         	skipLoad = !isTablet;
         }

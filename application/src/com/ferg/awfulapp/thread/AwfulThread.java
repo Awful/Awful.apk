@@ -451,14 +451,29 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-    	StringBuffer buffer = new StringBuffer(1024);
-        
-
+        StringBuffer buffer = new StringBuffer(1024);
         buffer.append("<div class='content' >\n");
+
+        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+            int unreadCount = 0;
+            for(AwfulPost ap : aPosts){
+                if(!ap.isPreviouslyRead()){
+                    unreadCount++;
+                }
+            }
+            buffer.append("    <article class='toggleread'>");
+            buffer.append("      <a>\n");
+            buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+            buffer.append("      </a>\n");
+            buffer.append("    </article>");
+
+        }
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
-        buffer.append("<div class='unread' ></div>\n");
+        if(page == lastPage){
+            buffer.append("<div class='unread' ></div>\n");
+        }
         
         buffer.append("</div>\n");
 
