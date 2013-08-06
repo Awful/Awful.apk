@@ -174,7 +174,7 @@ function scrollLastRead(){
 	try{
 	    window.topScrollItem = $('.unread').first();
 	    window.topScrollPos = window.topScrollItem.offset().top;
-	    window.topScrollCount = 200;
+	    window.topScrollCount = 100;
 		window.scrollTo(0, window.topScrollPos);
 	  	window.topScrollID = window.setTimeout(scrollUpdate, 500);
     }catch(error){
@@ -187,11 +187,10 @@ function scrollUpdate(){
 	try{
 	    if(window.topScrollCount > 0 && window.topScrollItem){
             var newpos = window.topScrollItem.offset().top;
-            window.topScrollCount = 0;
             window.scrollBy(0, newpos-window.topScrollPos);
             window.topScrollPos = newpos;
             window.topScrollCount--;
-            window.topScrollID = window.setTimeout(scrollUpdate, 100);
+            window.topScrollID = window.setTimeout(scrollUpdate, 200);
 	    }
     }catch(error){
         window.topScrollCount = 0;

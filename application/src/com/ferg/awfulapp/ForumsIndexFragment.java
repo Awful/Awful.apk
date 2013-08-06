@@ -64,7 +64,6 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -74,7 +73,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private int selectedForum = 0;
     
     private TreeViewList mForumTree;
-//    private PullToRefreshExpandableListView mForumList;
     
     private AwfulTreeListAdapter mTreeAdapter;
 	private InMemoryTreeStateManager<ForumEntry> dataManager;

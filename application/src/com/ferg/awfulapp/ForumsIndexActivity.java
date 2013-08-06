@@ -43,7 +43,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static String TAG = "ForumsIndexActivity";
@@ -59,7 +61,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private Handler mHandler = new Handler();
     
     
-    private ViewPager mViewPager;
+    private ToggleViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
     private int mForumId = Constants.USERCP_ID;
@@ -86,7 +88,8 @@ public class ForumsIndexActivity extends AwfulActivity {
         setContentView(R.layout.forum_index_activity);
         setSupportProgressBarIndeterminateVisibility(false);
         
-    	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
+    	mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
+        mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
     	mViewPager.setOffscreenPageLimit(2);
     	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
@@ -464,6 +467,14 @@ public class ForumsIndexActivity extends AwfulActivity {
     		return true;
     	}
     	return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onPreferenceChange(AwfulPreferences prefs) {
+        super.onPreferenceChange(prefs);
+        if(mViewPager != null){
+            mViewPager.setSwipeEnabled(!prefs.lockScrolling);
+        }
     }
 }
 
