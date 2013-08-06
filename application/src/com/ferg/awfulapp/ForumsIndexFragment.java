@@ -50,7 +50,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -242,8 +241,8 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null){
+			displayAlert("Loading Failed!");
 		}
     }
     

@@ -27,6 +27,10 @@
 
 package com.ferg.awfulapp;
 
+import android.text.TextUtils;
+import android.view.*;
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
@@ -36,12 +40,6 @@ import android.os.Messenger;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -350,6 +348,69 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     public abstract void onPageVisible();
     public abstract void onPageHidden();
     public abstract String getInternalId();
-
     public abstract boolean volumeScroll(KeyEvent event);
+
+
+    private static final int ALERT_DISPLAY_MILLIS = 3000;
+    protected void displayAlert(int titleRes){
+        if(getActivity() != null){
+            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+        }
+    }
+
+    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
+        if(getActivity() != null){
+            if(subtitleRes != 0){
+                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+            }else{
+                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+            }
+        }
+    }
+
+    protected void displayAlert(String title){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, int iconRes){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+    }
+
+    protected void displayAlert(String title, String subtext){
+        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+        if(getActivity() == null){
+            return;
+        }
+        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        AQuery aq = new AQuery(popup);
+        aq.find(R.id.popup_title).text(title);
+        if(TextUtils.isEmpty(subtext)){
+            aq.find(R.id.popup_subtitle).gone();
+        }else{
+            aq.find(R.id.popup_subtitle).visible().text(subtext);
+        }
+        if(iconRes != 0){
+            if(animate != null){
+                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+            }else{
+                aq.find(R.id.popup_icon).image(iconRes);
+            }
+        }
+        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
+        final PopupWindow alert = new PopupWindow(popup, popupDimen, popupDimen);
+        alert.setBackgroundDrawable(null);
+        alert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        if(timeoutMillis > 0){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO fade out
+                    alert.dismiss();
+                }
+            }, timeoutMillis);
+        }
+    }
 }

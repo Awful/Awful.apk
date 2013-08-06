@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu 
 	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 	>
 	<item
 		android:id="@+id/thread_actions"
 		android:icon="@drawable/ic_actionbar_dropdown"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/thread_actions"
 		>
 		<menu>
@@ -30,7 +31,11 @@
 				android:title="@string/copy_url"
 		        />
         	
-			<item android:id="@+id/share_thread" android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider" android:title="@string/share_thread" android:icon="@drawable/ic_menu_share"/>
+			<item
+                android:id="@+id/share_thread"
+                app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+                android:title="@string/share_thread"
+                android:icon="@drawable/ic_menu_share"/>
 			
 			<item
 				android:id="@+id/refresh"
@@ -53,7 +58,7 @@
 		android:id="@+id/next_page"
         android:title="@string/next_page"
 		android:icon="@drawable/ic_menu_arrowright"
-       	android:showAsAction="always"
+        app:showAsAction="always"
         />
     <item
 		android:id="@+id/go_to"

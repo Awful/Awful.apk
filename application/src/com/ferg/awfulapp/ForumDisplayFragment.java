@@ -416,9 +416,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
 			clipboard.setPrimaryClip(clip);
 
-			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
-					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
-			successToast.show();
+            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 		} else {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
 
@@ -513,8 +511,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null){
+			displayAlert("Loading Failed!");
 		}
 		lastRefresh = System.currentTimeMillis();
 		loadFailed = true;
