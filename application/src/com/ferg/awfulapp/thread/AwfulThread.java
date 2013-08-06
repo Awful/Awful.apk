@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.text.TextUtils;
 import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.AwfulFragment;
 
@@ -553,14 +554,14 @@ public class AwfulThread extends AwfulPagedItem  {
 		info.setSingleLine(!prefs.wrapThreadTitles);
 
         NetworkImageView threadTag = (NetworkImageView) current.findViewById(R.id.thread_tag);
-		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+		if(!prefs.threadInfo_Tag){
             threadTag.setVisibility(View.GONE);
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(tagFile != null){
-                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
-			}else{
+			if(TextUtils.isEmpty(tagFile)){
                 threadTag.setVisibility(View.GONE);
+			}else{
+                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
 			}
 		}
 
