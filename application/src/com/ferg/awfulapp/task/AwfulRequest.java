@@ -119,7 +119,7 @@ public abstract class AwfulRequest<T> {
             handle.post(new Runnable() {
                 @Override
                 public void run() {
-                    progressListener.progressUpdate(AwfulRequest.this, percent);
+                    progressListener.requestUpdate(AwfulRequest.this, percent);
                 }
             });
         }
@@ -164,8 +164,27 @@ public abstract class AwfulRequest<T> {
         }
 
         @Override
+        public void setRequestQueue(RequestQueue requestQueue) {
+            super.setRequestQueue(requestQueue);
+            if(progressListener != null){
+                progressListener.requestStarted(AwfulRequest.this);
+            }
+        }
+
+        @Override
         protected void deliverResponse(T response) {
             success.onResponse(response);
+            if(progressListener != null){
+                progressListener.requestEnded(AwfulRequest.this);
+            }
+        }
+
+        @Override
+        public void deliverError(VolleyError error) {
+            super.deliverError(error);
+            if(progressListener != null){
+                progressListener.requestEnded(AwfulRequest.this);
+            }
         }
 
         @Override
@@ -180,7 +199,14 @@ public abstract class AwfulRequest<T> {
         }
     }
 
+    /**
+     * Utility callbacks for AwfulRequest status updates.
+     * This is for updating the actionbar within AwfulFragment.
+     * You shouldn't need to use these, look at the AwfulResultCallback interface for success/failure results.
+     */
     public static interface ProgressListener{
-        public void progressUpdate(AwfulRequest req, int percent);
+        public void requestStarted(AwfulRequest req);
+        public void requestUpdate(AwfulRequest req, int percent);
+        public void requestEnded(AwfulRequest req);
     }
 }

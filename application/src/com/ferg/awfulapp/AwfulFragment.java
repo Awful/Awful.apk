@@ -210,7 +210,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-            aa.hideProgressBar();
+            if(aa != null){
+                aa.hideProgressBar();
+            }
 		}
 	}
 	
@@ -278,8 +280,29 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     }
 
     @Override
-    public void progressUpdate(AwfulRequest req, int percent) {
+    public void requestStarted(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarVisibility(false);
+            aa.setSupportProgressBarIndeterminateVisibility(true);
+        }
+    }
+
+    @Override
+    public void requestUpdate(AwfulRequest req, int percent) {
         setProgress(percent);
+    }
+
+    @Override
+    public void requestEnded(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarIndeterminateVisibility(false);
+            aa.setSupportProgressBarVisibility(false);
+        }
+        if(mP2RAttacher != null){
+            mP2RAttacher.setRefreshComplete();
+        }
     }
 
     @Override
