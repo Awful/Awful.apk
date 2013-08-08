@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import com.android.volley.*;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.ferg.awfulapp.constants.Constants;
@@ -14,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -127,12 +129,14 @@ public abstract class AwfulRequest<T> {
         private Response.Listener<T> success;
         public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
             super(Method.GET, url, errorListener);
+            if(Constants.DEBUG) Log.e("AwfulRequest", "Created request: " + url);
             success = successListener;
         }
 
         @Override
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try{
+                if(Constants.DEBUG) Log.i("AwfulRequest", "Starting parse: " + getUrl());
                 updateProgress(25);
                 Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), HttpHeaderParser.parseCharset(response.headers), Constants.BASE_URL);
                 updateProgress(50);
@@ -145,9 +149,11 @@ public abstract class AwfulRequest<T> {
                 }
                 T result = handleResponse(doc);
                 updateProgress(100);
+                if(Constants.DEBUG) Log.i("AwfulRequest", "Successful parse: " + getUrl());
                 return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
             }catch(Exception e){
                 updateProgress(100);
+                if(Constants.DEBUG) Log.i("AwfulRequest", "Failed parse: " + getUrl());
                 return Response.error(new ParseError(e));
             }
         }
@@ -157,12 +163,16 @@ public abstract class AwfulRequest<T> {
             success.onResponse(response);
         }
 
-//        @Override
-//        public Map<String, String> getHeaders() throws AuthFailureError {
-//            Map<String, String> headers = super.getHeaders();
-//            NetworkUtils.setCookieHeaders(headers);
-//            return headers;
-//        }
+        @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+            Map<String, String> headers = super.getHeaders();
+            if(headers == null || headers.size() < 1){
+                headers = new HashMap<String, String>();
+            }
+            NetworkUtils.setCookieHeaders(headers);
+            if(Constants.DEBUG) Log.i("AwfulRequest", "getHeaders: "+headers.toString());
+            return headers;
+        }
     }
 
     public static interface ProgressListener{

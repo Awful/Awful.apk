@@ -70,7 +70,7 @@ public class AwfulError extends VolleyError{
     public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
         AwfulError error = null;
         if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
-            //error = new AwfulError(ERROR_LOGGED_OUT);
+            error = new AwfulError(ERROR_LOGGED_OUT);
         }
         if(page.getElementById("closemsg") != null){
             String msg = page.getElementsByClass("reason").text().trim();
