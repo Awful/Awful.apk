@@ -30,9 +30,9 @@ public class ThreadListRequest extends AwfulRequest<Void> {
     protected Void handleResponse(Document doc) throws AwfulError {
         try {
             if(forumId == Constants.USERCP_ID){
-                AwfulForum.parseThreads(doc, forumId, page, getContentResolver());
-            }else{
                 AwfulForum.parseUCPThreads(doc, page, getContentResolver());
+            }else{
+                AwfulForum.parseThreads(doc, forumId, page, getContentResolver());
             }
         } catch (Exception e) {
             e.printStackTrace();
