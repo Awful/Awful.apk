@@ -756,7 +756,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     mRefreshBar.setColorFilter(0);
                 }
             }));
-        	//getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
 

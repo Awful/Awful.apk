@@ -45,7 +45,7 @@ public class FetchProfileTask extends AwfulTask {
 
 	public FetchProfileTask(AwfulSyncService sync, Message msg,
 			AwfulPreferences aPrefs) {
-		super(sync, msg, aPrefs, AwfulSyncService.MSG_FETCH_FEATURES);
+		super(sync, msg, aPrefs, AwfulSyncService.MSG_FETCH_PROFILE);
 		mUsername = (String) msg.obj;
 	}
 

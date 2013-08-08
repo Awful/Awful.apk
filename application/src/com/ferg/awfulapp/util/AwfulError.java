@@ -31,6 +31,9 @@ public class AwfulError extends VolleyError{
     public AwfulError(int code) {
         this(code, null);
     }
+    public AwfulError(String message){
+        this(AwfulError.ERROR_GENERIC_FAILURE, message);
+    }
     public AwfulError(int code, String message) {
         errorCode = code;
         errorMessage = message;

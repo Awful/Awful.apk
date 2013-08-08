@@ -583,11 +583,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;
-                            if (error instanceof AwfulError){
-                                displayAlert((AwfulError) error);
-                            }else{
-                                displayAlert(R.string.loading_failed);
-                            }
                         }
                     }
             ));

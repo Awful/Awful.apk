@@ -34,20 +34,20 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
 /**
@@ -315,11 +315,83 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
     }
 
     @Override
-    public void requestEnded(AwfulRequest req) {
+    public void requestEnded(AwfulRequest req, VolleyError error) {
         AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             aa.setSupportProgressBarIndeterminateVisibility(false);
             aa.setSupportProgressBarVisibility(false);
+        }
+        if(error instanceof AwfulError){
+            displayAlert((AwfulError) error);
+        }else if(error != null){
+            displayAlert(R.string.loading_failed);
+        }
+    }
+
+    private static final int ALERT_DISPLAY_MILLIS = 3000;
+    protected void displayAlert(int titleRes){
+        if(getActivity() != null){
+            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+        }
+    }
+
+    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
+        if(getActivity() != null){
+            if(subtitleRes != 0){
+                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+            }else{
+                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+            }
+        }
+    }
+
+    protected void displayAlert(AwfulError error){
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
+    }
+
+    protected void displayAlert(String title){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, int iconRes){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+    }
+
+    protected void displayAlert(String title, String subtext){
+        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+        if(getActivity() == null){
+            return;
+        }
+        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        AQuery aq = new AQuery(popup);
+        aq.find(R.id.popup_title).text(title);
+        if(TextUtils.isEmpty(subtext)){
+            aq.find(R.id.popup_subtitle).gone();
+        }else{
+            aq.find(R.id.popup_subtitle).visible().text(subtext);
+        }
+        if(iconRes != 0){
+            if(animate != null){
+                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+            }else{
+                aq.find(R.id.popup_icon).image(iconRes);
+            }
+        }
+        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
+        final PopupWindow alert = new PopupWindow(popup, popupDimen, popupDimen);
+        alert.setBackgroundDrawable(null);
+        alert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        if(timeoutMillis > 0){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO fade out
+                    alert.dismiss();
+                }
+            }, timeoutMillis);
         }
     }
     

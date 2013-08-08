@@ -176,7 +176,7 @@ public abstract class AwfulRequest<T> {
         protected void deliverResponse(T response) {
             success.onResponse(response);
             if(progressListener != null){
-                progressListener.requestEnded(AwfulRequest.this);
+                progressListener.requestEnded(AwfulRequest.this, null);
             }
         }
 
@@ -184,7 +184,7 @@ public abstract class AwfulRequest<T> {
         public void deliverError(VolleyError error) {
             super.deliverError(error);
             if(progressListener != null){
-                progressListener.requestEnded(AwfulRequest.this);
+                progressListener.requestEnded(AwfulRequest.this, error);
             }
         }
 
@@ -208,6 +208,6 @@ public abstract class AwfulRequest<T> {
     public static interface ProgressListener{
         public void requestStarted(AwfulRequest req);
         public void requestUpdate(AwfulRequest req, int percent);
-        public void requestEnded(AwfulRequest req);
+        public void requestEnded(AwfulRequest req, VolleyError error);
     }
 }
