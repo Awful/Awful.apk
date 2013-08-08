@@ -67,7 +67,7 @@ public abstract class AwfulRequest<T> {
 
     /**
      * Generate the URL to use in the request here. This includes any query arguments.
-     * A Uri.Builder is provided with the base URL if a base URL is provided in the constructor.
+     * A Uri.Builder is provided with the base URL already processed if a base URL is provided in the constructor.
      * @param urlBuilder A Uri.Builder instance with the provided base URL. If no URL is provided in the constructor, this will be null.
      * @return String containing the full request URL.
      */
@@ -79,7 +79,7 @@ public abstract class AwfulRequest<T> {
      * @param doc The document containing the data from the request.
      * @return Any value returned will be provided to the Response.Listener callback.
      */
-    protected abstract T handleResponse(Document doc);
+    protected abstract T handleResponse(Document doc) throws AwfulError;
 
     /**
      * Before a response is handled, it will be checked against AwfulError.checkPageErrors().
@@ -147,10 +147,15 @@ public abstract class AwfulRequest<T> {
                         return Response.error(error);
                     }
                 }
-                T result = handleResponse(doc);
-                updateProgress(100);
-                if(Constants.DEBUG) Log.i("AwfulRequest", "Successful parse: " + getUrl());
-                return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
+                try{
+                    T result = handleResponse(doc);
+                    updateProgress(100);
+                    if(Constants.DEBUG) Log.i("AwfulRequest", "Successful parse: " + getUrl());
+                    return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
+                }catch(AwfulError ae){
+                    updateProgress(100);
+                    return Response.error(ae);
+                }
             }catch(Exception e){
                 updateProgress(100);
                 if(Constants.DEBUG) Log.i("AwfulRequest", "Failed parse: " + getUrl());

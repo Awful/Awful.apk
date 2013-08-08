@@ -279,7 +279,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
                 public void failure(VolleyError error) {
                     getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                     if (error instanceof AwfulError) {
-                        displayAlert(error.getMessage());
+                        displayAlert((AwfulError) error);
                     }else{
                         displayAlert(R.string.loading_failed);
                     }

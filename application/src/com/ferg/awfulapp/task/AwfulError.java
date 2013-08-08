@@ -2,7 +2,9 @@ package com.ferg.awfulapp.task;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.animation.Animation;
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,27 +28,32 @@ public class AwfulError extends VolleyError{
         this(code, null);
     }
     public AwfulError(int code, String message) {
-            errorCode = code;
-            errorMessage = message;
-        if(TextUtils.isEmpty(message)){
-            Log.e("AwfulError", "Error: "+code+" - "+getErrorMessage(code));
-        }else{
-            Log.e("AwfulError", "Error: "+code+" - "+message);
-        }
+        errorCode = code;
+        errorMessage = message;
+        Log.e("AwfulError", "Error: "+code+" - "+getMessage());
     }
 
     /**
      * If a custom message is registered with a code, it will be returned here.
      * If no custom message is provided, a generic message for that error type is provided.
-     * See getErrorMessage() for generic messages.
      * @return A user-friendly error message.
      */
     @Override
     public String getMessage(){
-        if(TextUtils.isEmpty(errorMessage)){
-            return getErrorMessage(errorCode);
+        if(!TextUtils.isEmpty(errorMessage)){
+            return errorMessage;
         }
-        return errorMessage;
+        switch (errorCode){
+            case ERROR_LOGGED_OUT:
+                return "Error - Not Logged In";
+            case ERROR_FORUM_CLOSED:
+                return "Error - Forums Closed (Site Down)";
+            case ERROR_PROBATION:
+                return "You are under probation.";
+            case ERROR_GENERIC_FAILURE:
+                return "Failed to load!";
+        }
+        return null;
     }
 
     /**
@@ -89,7 +96,6 @@ public class AwfulError extends VolleyError{
                 int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
                 prefs.setIntegerPreference("user_id", userId);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             try {
@@ -99,10 +105,9 @@ public class AwfulError extends VolleyError{
                 String date = m.group(2);
                 //for example January 11, 2013 10:35 AM CST
                 SimpleDateFormat probationFormat = new SimpleDateFormat("MMMM d, yyyy hh:mm aa z", Locale.US);
-
+                //TODO this might have timezone issues?
                 probDate = probationFormat.parse(date);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             if(null != probDate){
@@ -111,7 +116,6 @@ public class AwfulError extends VolleyError{
                 try {
                     prefs.setLongPreference("probation_time", probTimestamp);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -122,18 +126,26 @@ public class AwfulError extends VolleyError{
     public static final int ERROR_LOGGED_OUT = 0x00000001;
     public static final int ERROR_FORUM_CLOSED = 0x00000002;
     public static final int ERROR_PROBATION = 0x00000004;
-    //public static final int ERROR_ = 0x00000008;
+    public static final int ERROR_GENERIC_FAILURE = 0x00000008;
     //public static final int ERROR_ = 0x00000010;
 
-    private static final String getErrorMessage(int code){
-        switch (code){
-            case ERROR_LOGGED_OUT:
-                return "Error - Not Logged In";
-            case ERROR_FORUM_CLOSED:
-                return "Error - Forums Closed (Site Down)";
-            case ERROR_PROBATION:
-                return "";
+    public String getSubMessage() {
+        switch (errorCode){
+            case ERROR_GENERIC_FAILURE:
+                return "Check your network connection and try again.";
         }
+        return null;
+    }
+
+    public int getAlertTime() {
+        return 3000;
+    }
+
+    public int getIconResource() {
+        return R.drawable.ic_menu_load_fail;
+    }
+
+    public Animation getIconAnimation() {
         return null;
     }
 }

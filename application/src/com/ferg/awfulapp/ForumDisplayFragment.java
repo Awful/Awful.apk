@@ -47,6 +47,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -55,6 +56,9 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
@@ -521,7 +525,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		
+		//TODO delete
 		switch (aMsg.what) {
     	case AwfulSyncService.MSG_GRAB_IMAGE:
     		if(isResumed() && isVisible()){
@@ -529,11 +533,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     		}
     		break;
         case AwfulSyncService.MSG_SYNC_FORUM:
-    			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
-    			lastRefresh = System.currentTimeMillis();
-                mRefreshBar.setColorFilter(0);
-                mToggleSidebar.setColorFilter(0);
-    	    	loadFailed = false;
     	    	break;
 		}
 	}
@@ -606,8 +605,32 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 
 	public void syncForum() {
-		if(getAwfulActivity() != null && getForumId() > 0){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+		if(getActivity() != null && getForumId() > 0){
+
+            queueRequest(new ThreadListRequest(getActivity(), getForumId(), getPage()).build(this,
+                    new AwfulRequest.AwfulResultCallback<Void>() {
+                        @Override
+                        public void success(Void result) {
+                            getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+                            lastRefresh = System.currentTimeMillis();
+                            mRefreshBar.setColorFilter(0);
+                            mToggleSidebar.setColorFilter(0);
+                            loadFailed = false;
+                        }
+
+                        @Override
+                        public void failure(VolleyError error) {
+                            lastRefresh = System.currentTimeMillis();
+                            loadFailed = true;
+                            if (error instanceof AwfulError){
+                                displayAlert((AwfulError) error);
+                            }else{
+                                displayAlert(R.string.loading_failed);
+                            }
+                        }
+                    }
+            ));
+
 		}
     }
 	

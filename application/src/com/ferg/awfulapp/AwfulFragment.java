@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
+import com.ferg.awfulapp.task.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
@@ -377,6 +378,10 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
                 displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
             }
         }
+    }
+
+    protected void displayAlert(AwfulError error){
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
     }
 
     protected void displayAlert(String title){

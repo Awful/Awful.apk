@@ -2,10 +2,8 @@ package com.ferg.awfulapp.task;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Message;
 import android.util.Log;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -27,7 +25,7 @@ public class IndexRequest extends AwfulRequest<Void> {
     }
 
     @Override
-    protected Void handleResponse(Document doc) {
+    protected Void handleResponse(Document doc) throws AwfulError {
         AwfulForum.getForumsFromRemote(doc, getContentResolver());
         updateProgress(80);
 
