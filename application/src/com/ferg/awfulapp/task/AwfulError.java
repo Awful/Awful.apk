@@ -24,6 +24,10 @@ public class AwfulError extends VolleyError{
     private int errorCode = 0;
     private String errorMessage = null;
 
+    public AwfulError() {
+        this(ERROR_GENERIC_FAILURE, null);
+    }
+
     public AwfulError(int code) {
         this(code, null);
     }

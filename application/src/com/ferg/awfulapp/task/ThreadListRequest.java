@@ -36,7 +36,7 @@ public class ThreadListRequest extends AwfulRequest<Void> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new AwfulError(AwfulError.ERROR_GENERIC_FAILURE);
+            throw new AwfulError();
         }
         return null;
     }

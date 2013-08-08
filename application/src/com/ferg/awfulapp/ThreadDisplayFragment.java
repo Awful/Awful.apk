@@ -65,6 +65,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -72,6 +73,8 @@ import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
@@ -731,7 +734,29 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private void syncThread() {
         if(getActivity() != null){
         	bodyHtml = "";
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
+            queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
+                @Override
+                public void success(Integer result) {
+                    refreshInfo();
+                    if(result == getPage()){
+                        setProgress(75);
+                        refreshPosts();
+                        mNextPage.setColorFilter(0);
+                        mPrevPage.setColorFilter(0);
+                        mRefreshBar.setColorFilter(0);
+                    }
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    refreshInfo();
+                    refreshPosts();
+                    mNextPage.setColorFilter(0);
+                    mPrevPage.setColorFilter(0);
+                    mRefreshBar.setColorFilter(0);
+                }
+            }));
+        	//getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
 
@@ -1005,13 +1030,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			bypassBackStack = false;
     		break;
         case AwfulSyncService.MSG_SYNC_THREAD:
-        	if(aMsg.arg2 == getPage()){
-	        	setProgress(75);
-	        	refreshPosts();
-	    		mNextPage.setColorFilter(0);
-	    		mPrevPage.setColorFilter(0);
-	    		mRefreshBar.setColorFilter(0);
-        	}
             break;
         case AwfulSyncService.MSG_SET_BOOKMARK:
         	refreshInfo();
