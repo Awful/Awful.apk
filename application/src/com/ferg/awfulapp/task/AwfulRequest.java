@@ -34,10 +34,36 @@ public abstract class AwfulRequest<T> {
     }
 
     public interface AwfulResultCallback<T>{
+        /**
+         * Called whenever a queued request successfully completes.
+         * The return value is optional and will likely be null depending on request type.
+         * @param result Response result or null if request does not provide direct result (most requests won't).
+         */
         public void success(T result);
+
+        /**
+         * Called whenever a network request fails, parsing was not successful, or if a forums issue is detected.
+         * @param error
+         */
         public void failure(VolleyError error);
     }
 
+
+    /**
+     * Build request with no status/success/failure callbacks. Useful for fire-and-forget calls.
+     * @return The final request, to pass into queueRequest.
+     */
+    public Request<T> build(){
+        return build(null, null);
+    }
+
+    /**
+     * Build request, using the ProgressListener (AwfulFragment already implements this)
+     * and the AwfulResultCallback (for success/failure messages).
+     * @param prog A ProgressListener, typically the current AwfulFragment instance. A null value disables progress updates.
+     * @param resultListener AwfulResultCallback interface for success/failure callbacks. These will always be called on the UI thread.
+     * @return A result to pass into queueRequest. (AwfulApplication implements queueRequest, AwfulActivity provides a convenience shortcut to access it)
+     */
     public Request<T> build(ProgressListener prog, final AwfulResultCallback<T> resultListener){
         return build(prog, new Response.Listener<T>() {
             @Override
@@ -53,6 +79,14 @@ public abstract class AwfulRequest<T> {
         });
     }
 
+    /**
+     * Build request, same as build(ProgressListener, AwfulResultCallback<T>) but provides direct access to volley callbacks.
+     * There is no real reason to use this over the other version.
+     * @param prog
+     * @param successListener
+     * @param errorListener
+     * @return
+     */
     private Request<T> build(ProgressListener prog, Response.Listener<T> successListener, Response.ErrorListener errorListener){
         progressListener = prog;
         Uri.Builder helper = null;

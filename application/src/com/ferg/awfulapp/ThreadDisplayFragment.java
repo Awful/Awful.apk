@@ -75,6 +75,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PostRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
@@ -686,7 +687,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	private void ignoreUser(final String aUserId) {
 		if(mPrefs.ignoreFormkey == null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+            queueRequest(new ProfileRequest(getActivity(), null).build());
 		}
 		if(mPrefs.showIgnoreWarning){
 		AlertDialog ignoreDialog = new AlertDialog.Builder(getAwfulActivity()).create();

@@ -72,7 +72,6 @@ public class AwfulSyncService extends Service {
     /** forums closed error message, (optional) obj=String - error message to display **/
 	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
     public static final int MSG_CANCEL_SYNC_THREAD  = 22;
-    public static final int MSG_FETCH_PROFILE = 24;
     public static final int MSG_IGNORE_USER = 25;
 	
     private MessageHandler mHandler       = new MessageHandler();
@@ -131,9 +130,6 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_TRANSLATE_REDIRECT:
                 	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_FETCH_PROFILE:
-                    queueUniqueThread(new FetchProfileTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_IGNORE_USER:
                     queueUniqueThread(new IgnoreUserTask(AwfulSyncService.this, aMsg, mPrefs));

@@ -53,6 +53,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -208,7 +209,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                 if(succeeded) {
                     setResult(Activity.RESULT_OK);
                     ((AwfulApplication)getApplication()).queueRequest(new FeatureRequest(AwfulLoginActivity.this).build(null, null));
-                    sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+                    ((AwfulApplication)getApplication()).queueRequest(new ProfileRequest(AwfulLoginActivity.this, null).build(null, null));
                     finish();
                 } else {
                     setResult(Activity.RESULT_CANCELED);
