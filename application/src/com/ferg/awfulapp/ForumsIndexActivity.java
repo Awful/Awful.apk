@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -474,6 +475,18 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onPreferenceChange(prefs);
         if(mViewPager != null){
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean oldTab = isTablet;
+        isTablet = Constants.isWidescreen(this);
+        if(oldTab != isTablet && mViewPager != null){
+            int pos = mViewPager.getCurrentItem();
+            mViewPager.setAdapter(pagerAdapter);
+            mViewPager.setCurrentItem(pos, false);
         }
     }
 }

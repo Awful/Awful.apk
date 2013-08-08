@@ -51,7 +51,7 @@ public class ThreadTask extends AwfulTask {
         }
 		String error = null;
 		try {
-			error = AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId, replyTo, this);
+			//error = AwfulThread.getThreadPosts(mContext, mId, mArg1, mPrefs.postPerPage, mPrefs, mUserId);
             Log.i(TAG, "Sync complete");
         } catch (Exception e) {
             Log.e(TAG, "Sync error");

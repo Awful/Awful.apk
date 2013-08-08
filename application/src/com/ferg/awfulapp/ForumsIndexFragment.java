@@ -50,6 +50,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -57,6 +59,9 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 
 import pl.polidea.treeview.*;
@@ -247,8 +252,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		setProgress(100);
-		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		//TODO remove
 	}
     
 	@Override
@@ -264,9 +268,24 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	}
 	
 	private void syncForums() {
-		if(getActivity() != null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
-		}
+        if(getActivity() != null){
+            queueRequest(new IndexRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                    if (error instanceof AwfulError) {
+                        displayAlert((AwfulError) error);
+                    }else{
+                        displayAlert(R.string.loading_failed);
+                    }
+                }
+            }));
+        }
     }
 	
 	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
