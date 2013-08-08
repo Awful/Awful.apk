@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
+import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
@@ -50,7 +51,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback{
+public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -237,6 +238,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 	
 	@Override
     public void loadingFailed(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             setProgress(100);
@@ -250,6 +252,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 
     @Override
     public void loadingStarted(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
 			aa.setSupportProgressBarVisibility(false);
@@ -259,6 +262,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 
     @Override
     public void loadingSucceeded(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
     		aa.setSupportProgressBarIndeterminateVisibility(false);
@@ -268,10 +272,16 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     
     @Override
     public void loadingUpdate(Message aMsg) {
+        //TODO remove completely
     	setProgress(aMsg.arg2);
     }
 
-	@Override
+    @Override
+    public void progressUpdate(AwfulRequest req, int percent) {
+        setProgress(percent);
+    }
+
+    @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
@@ -309,7 +319,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         }
         return null;
     }
-
+    public void queueRequest(Request request){
+        queueRequest(request, false);
+    }
     public void queueRequest(Request request, boolean cancelOnDestroy){
         AwfulApplication app = getAwfulApplication();
         if(app != null && request != null){

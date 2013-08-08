@@ -1,0 +1,139 @@
+package com.ferg.awfulapp.task;
+
+import android.text.TextUtils;
+import android.util.Log;
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * AwfulError
+ * This is an error class that ecompases all the preditcable error states we will encounter from SA server responses.
+ * This currently covers Logged out, some site down messages, and probation status.
+ */
+public class AwfulError extends VolleyError{
+    private int errorCode = 0;
+    private String errorMessage = null;
+
+    public AwfulError(int code) {
+        this(code, null);
+    }
+    public AwfulError(int code, String message) {
+            errorCode = code;
+            errorMessage = message;
+        if(TextUtils.isEmpty(message)){
+            Log.e("AwfulError", "Error: "+code+" - "+getErrorMessage(code));
+        }else{
+            Log.e("AwfulError", "Error: "+code+" - "+message);
+        }
+    }
+
+    /**
+     * If a custom message is registered with a code, it will be returned here.
+     * If no custom message is provided, a generic message for that error type is provided.
+     * See getErrorMessage() for generic messages.
+     * @return A user-friendly error message.
+     */
+    @Override
+    public String getMessage(){
+        if(TextUtils.isEmpty(errorMessage)){
+            return getErrorMessage(errorCode);
+        }
+        return errorMessage;
+    }
+
+    /**
+     * Quick check to see if this type of error is typically unrecoverable.
+     * Short-cut for handleError() callback in AwfulRequest.
+     * @return true if this error type is normally unrecoverable and we should skip processing the response.
+     */
+    public boolean isCritical(){
+        return errorCode != ERROR_PROBATION;
+    }
+
+    /**
+     * Checks a page for forum errors.
+     * Detects forum closures, logged-out state, and banned/probate status.
+     * Automatically used in AwfulRequest handling process, see AwfulRequest.handleError for more.
+     * (Method moved from AwfulPagedItem)
+     * @param page Full HTML page to check.
+     * @param prefs An AwfulPreference object to reference or update preferences.
+     * @return AwfulError object if an error is detected, null otherwise.
+     */
+    public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
+        AwfulError error = null;
+        if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
+            //error = new AwfulError(ERROR_LOGGED_OUT);
+        }
+        if(page.getElementById("closemsg") != null){
+            String msg = page.getElementsByClass("reason").text().trim();
+            if(msg != null && msg.length() > 0){
+                error = new AwfulError(ERROR_FORUM_CLOSED, "Forums Closed - "+msg);
+            }else{
+                error = new AwfulError(ERROR_FORUM_CLOSED);
+            }
+        }
+        Element probation = page.getElementById("probation_warn");
+        if(probation != null){
+            error = new AwfulError(ERROR_PROBATION);
+            Date probDate = null;
+            try {
+                Element userlink = probation.getElementsByTag("a").first();
+                int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
+                prefs.setIntegerPreference("user_id", userId);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                Pattern p = Pattern.compile("(.*)until\\s(([\\s\\w:,])+).\\sYou(.*)");
+                Matcher m = p.matcher(probation.text());
+                m.find();
+                String date = m.group(2);
+                //for example January 11, 2013 10:35 AM CST
+                SimpleDateFormat probationFormat = new SimpleDateFormat("MMMM d, yyyy hh:mm aa z", Locale.US);
+
+                probDate = probationFormat.parse(date);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if(null != probDate){
+                long probTimestamp = probDate.getTime();
+                //FUCK PRE ICS
+                try {
+                    prefs.setLongPreference("probation_time", probTimestamp);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+        return error;
+    }
+
+    public static final int ERROR_LOGGED_OUT = 0x00000001;
+    public static final int ERROR_FORUM_CLOSED = 0x00000002;
+    public static final int ERROR_PROBATION = 0x00000004;
+    //public static final int ERROR_ = 0x00000008;
+    //public static final int ERROR_ = 0x00000010;
+
+    private static final String getErrorMessage(int code){
+        switch (code){
+            case ERROR_LOGGED_OUT:
+                return "Error - Not Logged In";
+            case ERROR_FORUM_CLOSED:
+                return "Error - Forums Closed (Site Down)";
+            case ERROR_PROBATION:
+                return "";
+        }
+        return null;
+    }
+}
