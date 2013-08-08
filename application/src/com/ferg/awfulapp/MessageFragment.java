@@ -32,12 +32,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PMReplyRequest;
+import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
 public class MessageFragment extends AwfulFragment implements AwfulUpdateCallback, OnClickListener {
@@ -62,8 +66,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	
 	private ProgressDialog mDialog;
 
-	private boolean paused = false;
-
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
@@ -72,9 +74,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
                 	loadingSucceeded(null);
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
-                		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
-                	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
                 		if(mDialog != null){
                 			mDialog.dismiss();
@@ -101,9 +100,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	            		if(getActivity() != null){
 	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
-                	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
-            			Toast.makeText(getActivity(), "Message Load Failed!", Toast.LENGTH_LONG).show();
                 	}
                     break;
                 default:
@@ -171,8 +167,9 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
         
         if(pmId <=0){
         	mDisplayText.setVisibility(View.GONE);
+        }else{
+            syncPM();
         }
-
         return result;
     }
 	
@@ -247,13 +244,31 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	@Override
     public void onStart() {
         super.onStart();
-        if(pmId >0){
-    		syncPM();
-    	}
     }
 	
 	private void syncPM() {
-		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM, pmId, 0);
+        queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+                queueRequest(new PMReplyRequest(getActivity(), pmId).build(MessageFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                    @Override
+                    public void success(Void result) {
+                        getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+                    }
+
+                    @Override
+                    public void failure(VolleyError error) {
+                        //error is automatically displayed
+                    }
+                }));
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                //error is automatically displayed
+            }
+        }));
 	}
 	
 	public void sendPM() {
@@ -281,9 +296,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
         action.hide();
 		super.onResume();
 		resumeWebView();
-		if(pmId > 0){
-			syncPM();
-		}
 
 	}
 	

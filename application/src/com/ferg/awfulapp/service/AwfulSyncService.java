@@ -49,7 +49,6 @@ public class AwfulSyncService extends Service {
     public static final int MSG_PROGRESS_STATUS   = 3;
     /** arg1 = threadId. Set arg2 = 1 to add bookmark, 0 to remove bookmark. */
     public static final int MSG_SET_BOOKMARK       = 6;
-    public static final int MSG_FETCH_PM       = 7;
     public static final int MSG_MARK_LASTREAD       = 8;
     public static final int MSG_MARK_UNREAD       = 9;
     /** arg1 = pmId. */
@@ -99,9 +98,6 @@ public class AwfulSyncService extends Service {
             switch (aMsg.what) {
                 case MSG_SET_BOOKMARK:
                 	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_FETCH_PM:
-                	queueUniqueThread(new FetchPrivateMessageTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
                 case MSG_MARK_LASTREAD:
                 	queueUniqueThread(new MarkLastReadTask(AwfulSyncService.this, aMsg));
@@ -250,8 +246,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_PROGRESS_STATUS";
 		case MSG_SET_BOOKMARK:
 			return "MSG_SET_BOOKMARK";
-		case MSG_FETCH_PM:
-			return "MSG_FETCH_PM";
 		case MSG_MARK_LASTREAD:
 			return "MSG_MARK_LASTREAD";
 		case MSG_MARK_UNREAD:
