@@ -616,10 +616,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                             mRefreshBar.setColorFilter(0);
                             mToggleSidebar.setColorFilter(0);
                             loadFailed = false;
+                            refreshInfo();
                         }
 
                         @Override
                         public void failure(VolleyError error) {
+                            refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;
                             if (error instanceof AwfulError){

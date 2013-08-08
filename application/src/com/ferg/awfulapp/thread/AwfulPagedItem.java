@@ -79,18 +79,6 @@ public abstract class AwfulPagedItem {
         return Math.max(pagesTop, pagesBottom);
     }
     
-    public static int parseLastPage(Element pagedItem){
-    	Matcher lastPageMatch = null;
-    	Elements pages = pagedItem.getElementsByClass("pages");
-    	if(pages.size() > 0){
-    		lastPageMatch = pageNumber_regex.matcher(pages.get(0).text());
-    	}
-    	if(lastPageMatch != null && lastPageMatch.find()){
-    		return Integer.parseInt(lastPageMatch.group(1));
-    	}
-		return 1;
-    }
-    
 	public static int indexToPage(int index, int perPage){
 		return (index-1)/perPage+1;//easier than using math.ceil.
 	}
