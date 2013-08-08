@@ -31,7 +31,7 @@ import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
-import com.ferg.awfulapp.task.AwfulError;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;

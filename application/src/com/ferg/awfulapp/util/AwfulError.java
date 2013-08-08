@@ -1,4 +1,4 @@
-package com.ferg.awfulapp.task;
+package com.ferg.awfulapp.util;
 
 import android.text.TextUtils;
 import android.util.Log;

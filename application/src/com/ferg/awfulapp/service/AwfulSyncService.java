@@ -106,15 +106,6 @@ public class AwfulSyncService extends Service {
         public void handleMessage(Message aMsg) {
         	debugLogReceivedMessage(TAG,aMsg);
             switch (aMsg.what) {
-                case MSG_SYNC_THREAD:
-                    queueUniqueThread(new ThreadTask(AwfulSyncService.this, aMsg, mPrefs));
-                    break;
-                case MSG_SYNC_FORUM:
-                    queueUniqueThread(new ForumTask(AwfulSyncService.this, aMsg, mPrefs));
-                    break;
-                case MSG_SYNC_INDEX:
-                	backQueueUniqueThread(new IndexTask(AwfulSyncService.this, aMsg, mPrefs));
-                    break;
                 case MSG_SET_BOOKMARK:
                 	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg));
                     break;
