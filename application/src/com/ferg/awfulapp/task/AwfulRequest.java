@@ -43,6 +43,7 @@ public abstract class AwfulRequest<T> {
 
         /**
          * Called whenever a network request fails, parsing was not successful, or if a forums issue is detected.
+         * If AwfulRequest.build() is provided an AwfulFragment ProgressListener, it will automatically pass the error to the AwfulFragment's displayAlert function.
          * @param error
          */
         public void failure(VolleyError error);

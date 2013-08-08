@@ -52,7 +52,6 @@ public class AwfulSyncService extends Service {
     public static final int MSG_FETCH_PM       = 7;
     public static final int MSG_MARK_LASTREAD       = 8;
     public static final int MSG_MARK_UNREAD       = 9;
-    public static final int MSG_FETCH_PM_INDEX       = 10;
     /** arg1 = pmId. */
     public static final int MSG_SEND_PM       = 11;
     /** arg1 = threadId, arg2 = vote (1-5) */
@@ -100,9 +99,6 @@ public class AwfulSyncService extends Service {
             switch (aMsg.what) {
                 case MSG_SET_BOOKMARK:
                 	queueUniqueThread(new BookmarkTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_FETCH_PM_INDEX:
-                	queueUniqueThread(new PrivateMessageIndexTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_FETCH_PM:
                 	queueUniqueThread(new FetchPrivateMessageTask(AwfulSyncService.this, aMsg, mPrefs));
@@ -246,8 +242,6 @@ public class AwfulSyncService extends Service {
 	
 	public static String getMessageTypeFromId(int what){
 		switch(what){
-		case MSG_FETCH_PM_INDEX:
-			return "MSG_FETCH_PM_INDEX";
 		case MSG_ERR_NOT_LOGGED_IN:
 			return "MSG_ERR_NOT_LOGGED_IN";
 		case MSG_PROGRESS_PERCENT:

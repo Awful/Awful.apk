@@ -30,6 +30,7 @@ package com.ferg.awfulapp.thread;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.ferg.awfulapp.util.AwfulError;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -121,7 +122,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static void processMessageList(ContentResolver contentInterface, Document data) throws Exception{
+	public static void processMessageList(ContentResolver contentInterface, Document data) throws AwfulError {
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
@@ -177,7 +178,7 @@ public class AwfulMessage extends AwfulPagedItem {
 				}
 			}
 		}else{
-			throw new Exception("Failed to parse message parent");
+			throw new AwfulError("Failed to parse message parent");
 		}
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}

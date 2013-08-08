@@ -28,6 +28,9 @@
 package com.ferg.awfulapp;
 
 
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PMListRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 import android.app.Activity;
@@ -132,7 +135,17 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     
     private void syncPMs() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+            queueRequest(new PMListRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    //The error is already passed to displayAlert by the request framework.
+                }
+            }));
     	}
 	}
 
@@ -207,22 +220,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
             }
         }
     };
-
-	@Override
-    public void loadingFailed(Message aMsg) {
-		super.loadingFailed(aMsg);
-    	if(getActivity()!= null){
-        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void loadingSucceeded(Message aMsg) {
-    	super.loadingSucceeded(aMsg);
-    	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX){
-    		getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
-    	}
-    }
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
