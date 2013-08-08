@@ -31,6 +31,8 @@ import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
+import com.ferg.awfulapp.task.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
@@ -40,7 +42,6 @@ import android.os.Messenger;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.ImageLoader;
@@ -51,7 +52,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback{
+public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -209,7 +210,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-            aa.hideProgressBar();
+            if(aa != null){
+                aa.hideProgressBar();
+            }
 		}
 	}
 	
@@ -238,19 +241,21 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 	
 	@Override
     public void loadingFailed(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             setProgress(100);
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
 			if(aMsg.obj instanceof String){
-				Toast.makeText(aa, aMsg.obj.toString(), Toast.LENGTH_LONG).show();
+                displayAlert(aMsg.obj.toString());
 			}
         }
     }
 
     @Override
     public void loadingStarted(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
 			aa.setSupportProgressBarVisibility(false);
@@ -260,6 +265,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 
     @Override
     public void loadingSucceeded(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
     		aa.setSupportProgressBarIndeterminateVisibility(false);
@@ -269,10 +275,37 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     
     @Override
     public void loadingUpdate(Message aMsg) {
+        //TODO remove completely
     	setProgress(aMsg.arg2);
     }
 
-	@Override
+    @Override
+    public void requestStarted(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarVisibility(false);
+            aa.setSupportProgressBarIndeterminateVisibility(true);
+        }
+    }
+
+    @Override
+    public void requestUpdate(AwfulRequest req, int percent) {
+        setProgress(percent);
+    }
+
+    @Override
+    public void requestEnded(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarIndeterminateVisibility(false);
+            aa.setSupportProgressBarVisibility(false);
+        }
+        if(mP2RAttacher != null){
+            mP2RAttacher.setRefreshComplete();
+        }
+    }
+
+    @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
@@ -310,7 +343,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         }
         return null;
     }
-
+    public void queueRequest(Request request){
+        queueRequest(request, false);
+    }
     public void queueRequest(Request request, boolean cancelOnDestroy){
         AwfulApplication app = getAwfulApplication();
         if(app != null && request != null){
@@ -366,6 +401,10 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
                 displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
             }
         }
+    }
+
+    protected void displayAlert(AwfulError error){
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
     }
 
     protected void displayAlert(String title){

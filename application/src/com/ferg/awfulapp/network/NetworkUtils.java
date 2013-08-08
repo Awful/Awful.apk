@@ -87,6 +87,15 @@ public class NetworkUtils {
 
     private static DefaultHttpClient sHttpClient;
 
+    private static String cookie = null;
+    private static final String COOKIE_HEADER = "Cookie";
+
+    public static void setCookieHeaders(Map<String,String> headers) {
+        if(cookie.length() > 0){
+            headers.put(COOKIE_HEADER, cookie);
+        }
+    }
+
     /**
      * Attempts to initialize the HttpClient with cookie values
      * stored in the given Context's SharedPreferences through the
@@ -105,6 +114,26 @@ public class NetworkUtils {
     	long expiry                = prefs.getLong  (Constants.COOKIE_PREF_EXPIRY_DATE, -1);
     	
     	if(useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
+
+            StringBuilder cookieBuilder = new StringBuilder();
+            cookieBuilder.append(Constants.COOKIE_PREF_USERID);
+            cookieBuilder.append('=');
+            cookieBuilder.append(useridCookieValue);
+            cookieBuilder.append(';');
+            cookieBuilder.append(Constants.COOKIE_PREF_PASSWORD);
+            cookieBuilder.append('=');
+            cookieBuilder.append(passwordCookieValue);
+            cookieBuilder.append(';');
+            cookieBuilder.append(Constants.COOKIE_PREF_SESSIONID);
+            cookieBuilder.append('=');
+            cookieBuilder.append(sessionidCookieValue);
+            cookieBuilder.append(';');
+            cookieBuilder.append(Constants.COOKIE_PREF_SESSIONHASH);
+            cookieBuilder.append('=');
+            cookieBuilder.append(sessionhashCookieValue);
+            cookieBuilder.append(';');
+            cookie = cookieBuilder.toString();
+
     		Date expiryDate = new Date(expiry);
     		
     		BasicClientCookie useridCookie = new BasicClientCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
@@ -133,7 +162,9 @@ public class NetworkUtils {
     		sHttpClient.setCookieStore(jar);
     		
     		return true;
-    	}
+    	}else{
+            cookie = "";
+        }
     	
     	return false;
     }

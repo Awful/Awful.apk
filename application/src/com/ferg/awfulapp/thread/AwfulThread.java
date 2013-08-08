@@ -273,14 +273,9 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates, ThreadTask parentTask) throws Exception {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
-        params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
-        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
-        
-        ContentResolver contentResolv = aContext.getContentResolver();
+    public static void getThreadPosts(ContentResolver contentResolv, Document response, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId) {
+
+
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
     	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
 		if(threadData.moveToFirst()){
@@ -291,23 +286,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
 			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
 		}
-        
-        //notify user we are starting update
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
-        
-        Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
-
-        if(parentTask.isCancelled()){
-            return null;
-        }
-
-        //notify user we have gotten message body, this represents a large portion of this function
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
-        
-        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates, aPrefs);
-        if(error != null){
-        	return error;
-        }
         
         ContentValues thread = new ContentValues();
         thread.put(ID, aThreadId);
@@ -352,9 +330,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
 
-        //notify user we have began processing thread info
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 55));
-
 		threadData.close();
 		int replycount;
 		if(aUserId > 0){
@@ -378,9 +353,6 @@ public class AwfulThread extends AwfulPagedItem  {
             thread.put(AwfulThread.UNREADCOUNT, newUnread);
             Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
         }
-
-        //notify user we have began processing posts
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 65));
         
         AwfulPost.syncPosts(contentResolv, 
         					response, 
@@ -393,10 +365,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
     	}
-    	
-        //notify user we are done with this stage
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 100));
-        return null;
     }
 
     public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
