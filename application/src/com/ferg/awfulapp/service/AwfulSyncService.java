@@ -46,10 +46,7 @@ public class AwfulSyncService extends Service {
     public static final String TAG = "ThreadSyncService";
 
     public static final int MSG_PROGRESS_PERCENT   = 1;
-    public static final int MSG_SYNC_THREAD       = 2;
     public static final int MSG_PROGRESS_STATUS   = 3;
-    public static final int MSG_SYNC_FORUM       = 4;
-    public static final int MSG_SYNC_INDEX       = 5;
     /** arg1 = threadId. Set arg2 = 1 to add bookmark, 0 to remove bookmark. */
     public static final int MSG_SET_BOOKMARK       = 6;
     public static final int MSG_FETCH_PM       = 7;
@@ -67,9 +64,6 @@ public class AwfulSyncService extends Service {
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
      *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
 	public static final int MSG_TRIM_DB = 15;
-	/** arg1 = category/emote id, arg2 = url hash for duplicate task prevention, obj = String url **/
-	public static final int MSG_GRAB_IMAGE = 16;
-	public static final int MSG_FETCH_EMOTES = 17;
 	/** obj = initial string, returns string with redirected URL **/
 	public static final int MSG_TRANSLATE_REDIRECT = 18;
     public static final int MSG_ERR_NOT_LOGGED_IN   = 19;
@@ -136,17 +130,8 @@ public class AwfulSyncService extends Service {
                 case MSG_TRIM_DB:
                 	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg));
                     break;
-                case MSG_GRAB_IMAGE:
-                	backQueueUniqueThread(new ImageCacheTask(AwfulSyncService.this, aMsg));
-                    break;
                 case MSG_TRANSLATE_REDIRECT:
                 	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_FETCH_EMOTES:
-                	queueUniqueThread(new FetchEmotesTask(AwfulSyncService.this, aMsg, mPrefs));
-                    break;
-                case MSG_CANCEL_SYNC_THREAD:
-                    cancelTypeTasks(MSG_SYNC_THREAD, aMsg.arg2);
                     break;
                 case MSG_FETCH_FEATURES:
                     queueUniqueThread(new FetchFeaturesTask(AwfulSyncService.this, aMsg, mPrefs));
@@ -269,12 +254,6 @@ public class AwfulSyncService extends Service {
 	
 	public static String getMessageTypeFromId(int what){
 		switch(what){
-		case MSG_SYNC_THREAD:
-			return "MSG_SYNC_THREAD";
-		case MSG_SYNC_FORUM:
-			return "MSG_SYNC_FORUM";
-		case MSG_SYNC_INDEX:
-			return "MSG_SYNC_INDEX";
 		case MSG_FETCH_PM_INDEX:
 			return "MSG_FETCH_PM_INDEX";
 		case MSG_ERR_NOT_LOGGED_IN:
@@ -301,10 +280,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_SEND_POST";
 		case MSG_TRIM_DB:
 			return "MSG_TRIM_DB";
-		case MSG_GRAB_IMAGE:
-			return "MSG_GRAB_IMAGE";
-		case MSG_FETCH_EMOTES:
-			return "MSG_FETCH_EMOTES";
 		case MSG_TRANSLATE_REDIRECT:
 			return "MSG_TRANSLATE_REDIRECT";
 		case MSG_ERROR:

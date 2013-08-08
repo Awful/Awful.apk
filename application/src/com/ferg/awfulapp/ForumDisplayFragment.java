@@ -505,43 +505,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             }
         }
     };
-    
-    @Override
-    public void loadingFailed(Message aMsg) {
-    	super.loadingFailed(aMsg);
-        Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null){
-			displayAlert("Loading Failed!");
-		}
-		lastRefresh = System.currentTimeMillis();
-		loadFailed = true;
-    }
 
-    @Override
-	public void loadingSucceeded(Message aMsg) {
-		super.loadingSucceeded(aMsg);
-		//TODO delete
-		switch (aMsg.what) {
-    	case AwfulSyncService.MSG_GRAB_IMAGE:
-    		if(isResumed() && isVisible()){
-    			mListView.invalidate();
-    		}
-    		break;
-        case AwfulSyncService.MSG_SYNC_FORUM:
-    	    	break;
-		}
-	}
-	
-	@Override
-	public void loadingUpdate(Message aMsg) {
-		super.loadingUpdate(aMsg);
-		switch (aMsg.what) {
-			case AwfulSyncService.MSG_SYNC_FORUM:
-		        mRefreshBar.setColorFilter(buttonSelectedColor);
-		        mToggleSidebar.setColorFilter(buttonSelectedColor);
-				break;
-		}
-	}
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);

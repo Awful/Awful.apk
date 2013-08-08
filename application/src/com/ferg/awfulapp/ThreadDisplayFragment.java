@@ -950,12 +950,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			displayAlert("Loading Failed!");
 		}
     	switch (aMsg.what) {
-	        case AwfulSyncService.MSG_SYNC_THREAD:
-	        	refreshPosts();
-	    		mNextPage.setColorFilter(0);
-	    		mPrevPage.setColorFilter(0);
-	    		mRefreshBar.setColorFilter(0);
-	            break;
 	        case AwfulSyncService.MSG_SET_BOOKMARK:
 	        	refreshInfo();
 	            break;
@@ -969,37 +963,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
 		bypassBackStack = false;
     }
-
-    @Override
-    public void loadingStarted(Message aMsg) {
-    	super.loadingStarted(aMsg);
-    	switch(aMsg.what){
-		case AwfulSyncService.MSG_SYNC_THREAD:
-    		if(getPage() == getLastPage()){
-    			mNextPage.setColorFilter(buttonSelectedColor);
-    			mPrevPage.setColorFilter(0);
-    			mRefreshBar.setColorFilter(0);
-    		}else if(getPage() <= 1){
-    			mPrevPage.setColorFilter(buttonSelectedColor);
-    			mNextPage.setColorFilter(0);
-    			mRefreshBar.setColorFilter(0);
-    		}else{
-    			mRefreshBar.setColorFilter(buttonSelectedColor);
-    			mPrevPage.setColorFilter(0);
-    			mNextPage.setColorFilter(0);
-    		}
-	        break;
-        default:
-        	Log.e(TAG,"Message not handled: "+aMsg.what);
-        	break;
-    	}
-    }
-
-    @Override
-	public void loadingUpdate(Message aMsg) {
-		//super.loadingUpdate(aMsg);
-    	setProgress(2*aMsg.arg2/3);
-	}
 
 	@Override
     public void loadingSucceeded(Message aMsg) {
@@ -1029,8 +992,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		}
 			bypassBackStack = false;
     		break;
-        case AwfulSyncService.MSG_SYNC_THREAD:
-            break;
         case AwfulSyncService.MSG_SET_BOOKMARK:
         	refreshInfo();
             break;

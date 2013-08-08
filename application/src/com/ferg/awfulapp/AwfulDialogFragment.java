@@ -42,13 +42,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Request;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, ActionMode.Callback{
+/**
+ * AwfulFragment's red-headed step child.
+ * Currently only exists for EmoteFragment, and usually falls behind on changes made to AwfulFragment.
+ * Welp.
+ */
+public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
@@ -265,5 +272,55 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
+
+    protected AwfulApplication getAwfulApplication(){
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            return (AwfulApplication) act.getApplication();
+        }
+        return null;
+    }
+    public void queueRequest(Request request){
+        queueRequest(request, false);
+    }
+    public void queueRequest(Request request, boolean cancelOnDestroy){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null && request != null){
+            if(cancelOnDestroy){
+                request.setTag(this);
+            }
+            app.queueRequest(request);
+        }
+    }
+
+    protected void cancelNetworkRequests(){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null){
+            app.cancelRequests(this);
+        }
+    }
+
+    @Override
+    public void requestStarted(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarVisibility(false);
+            aa.setSupportProgressBarIndeterminateVisibility(true);
+        }
+    }
+
+    @Override
+    public void requestUpdate(AwfulRequest req, int percent) {
+        setProgress(percent);
+    }
+
+    @Override
+    public void requestEnded(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarIndeterminateVisibility(false);
+            aa.setSupportProgressBarVisibility(false);
+        }
+    }
     
 }
