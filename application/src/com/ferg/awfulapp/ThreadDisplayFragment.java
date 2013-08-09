@@ -74,7 +74,12 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
@@ -431,7 +436,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         refreshInfo();
     }
 
-    
+    @SuppressLint("NewApi")
     public void resumeWebView(){
     	if(getActivity() != null){
 	        if (mThreadView == null) {
@@ -473,6 +478,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         pauseWebView();
     }
 
+    @SuppressLint("NewApi")
     private void pauseWebView(){
         if (mThreadView != null) {
         	mThreadView.pauseTimers();
@@ -674,9 +680,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		builder.setTitle("Rate this thread");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				if (getActivity() != null) {
-					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
-				}
+                queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                    @Override
+                    public void success(Void result) {
+                        displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_menu_emote);
+                    }
+
+                    @Override
+                    public void failure(VolleyError error) {
+                    }
+                }));
 			}
 		});
 		AlertDialog alert = builder.create();
@@ -686,7 +699,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	private void ignoreUser(final String aUserId) {
 		if(mPrefs.ignoreFormkey == null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+            queueRequest(new ProfileRequest(getActivity(), null).build());
 		}
 		if(mPrefs.showIgnoreWarning){
 		AlertDialog ignoreDialog = new AlertDialog.Builder(getAwfulActivity()).create();
@@ -694,7 +707,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setButton(AlertDialog.BUTTON_NEGATIVE,getActivity().getString(R.string.cancel), (android.content.DialogInterface.OnClickListener) null);
@@ -702,12 +715,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
-				try{
-				mPrefs.setBooleanPreference("show_ignore_warning", false);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+                try{
+                    mPrefs.setBooleanPreference("show_ignore_warning", false);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setTitle(R.string.ignore_title);
@@ -715,7 +728,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		ignoreDialog.show();
 		
 		}else{
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+            queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 		}
 	}
     
@@ -756,7 +769,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     mRefreshBar.setColorFilter(0);
                 }
             }));
-        	//getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
         }
     }
 
@@ -767,14 +779,34 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     private void markLastRead(int index) {
-        if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
-        }
+        queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_menu_lastread);
+                refreshInfo();
+                refreshPosts();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+
+            }
+        }));
     }
 
     private void toggleThreadBookmark() {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
+            queueRequest(new BookmarkRequest(getActivity(), getThreadId(), !threadBookmarked).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    refreshInfo();
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    refreshInfo();
+                }
+            }));
         }
     }
     
@@ -949,57 +981,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(aMsg.obj == null){
 			displayAlert("Loading Failed!");
 		}
-    	switch (aMsg.what) {
-	        case AwfulSyncService.MSG_SYNC_THREAD:
-	        	refreshPosts();
-	    		mNextPage.setColorFilter(0);
-	    		mPrevPage.setColorFilter(0);
-	    		mRefreshBar.setColorFilter(0);
-	            break;
-	        case AwfulSyncService.MSG_SET_BOOKMARK:
-	        	refreshInfo();
-	            break;
-	        case AwfulSyncService.MSG_MARK_LASTREAD:
-	        	refreshInfo();
-	            refreshPosts();
-	            break;
-	        default:
-	        	Log.e(TAG,"Message not handled: "+aMsg.what);
-	        	break;
-    	}
 		bypassBackStack = false;
     }
-
-    @Override
-    public void loadingStarted(Message aMsg) {
-    	super.loadingStarted(aMsg);
-    	switch(aMsg.what){
-		case AwfulSyncService.MSG_SYNC_THREAD:
-    		if(getPage() == getLastPage()){
-    			mNextPage.setColorFilter(buttonSelectedColor);
-    			mPrevPage.setColorFilter(0);
-    			mRefreshBar.setColorFilter(0);
-    		}else if(getPage() <= 1){
-    			mPrevPage.setColorFilter(buttonSelectedColor);
-    			mNextPage.setColorFilter(0);
-    			mRefreshBar.setColorFilter(0);
-    		}else{
-    			mRefreshBar.setColorFilter(buttonSelectedColor);
-    			mPrevPage.setColorFilter(0);
-    			mNextPage.setColorFilter(0);
-    		}
-	        break;
-        default:
-        	Log.e(TAG,"Message not handled: "+aMsg.what);
-        	break;
-    	}
-    }
-
-    @Override
-	public void loadingUpdate(Message aMsg) {
-		//super.loadingUpdate(aMsg);
-    	setProgress(2*aMsg.arg2/3);
-	}
 
 	@Override
     public void loadingSucceeded(Message aMsg) {
@@ -1029,15 +1012,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		}
 			bypassBackStack = false;
     		break;
-        case AwfulSyncService.MSG_SYNC_THREAD:
-            break;
-        case AwfulSyncService.MSG_SET_BOOKMARK:
-        	refreshInfo();
-            break;
-        case AwfulSyncService.MSG_MARK_LASTREAD:
-        	refreshInfo();
-            refreshPosts();
-            break;
         default:
         	Log.e(TAG,"Message not handled: "+aMsg.what);
         	break;
@@ -1545,15 +1519,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
 	public void refreshInfo() {
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
-		}
+		restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
 	}
 	
 	public void refreshPosts(){
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
-		}
+		restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
 	}
 	
 	public void setTitle(String title){

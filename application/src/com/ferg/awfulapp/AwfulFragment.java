@@ -27,11 +27,13 @@
 
 package com.ferg.awfulapp;
 
+import android.support.v4.app.LoaderManager;
 import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
-import com.ferg.awfulapp.task.AwfulError;
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
@@ -294,7 +296,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     }
 
     @Override
-    public void requestEnded(AwfulRequest req) {
+    public void requestEnded(AwfulRequest req, VolleyError error) {
         AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             aa.setSupportProgressBarIndeterminateVisibility(false);
@@ -302,6 +304,11 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         }
         if(mP2RAttacher != null){
             mP2RAttacher.setRefreshComplete();
+        }
+        if(error instanceof AwfulError){
+            displayAlert((AwfulError) error);
+        }else if(error != null){
+            displayAlert(R.string.loading_failed);
         }
     }
 
@@ -450,6 +457,12 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
                     alert.dismiss();
                 }
             }, timeoutMillis);
+        }
+    }
+
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+        if(getActivity() != null){
+            getLoaderManager().restartLoader(id, data, callback);
         }
     }
 }

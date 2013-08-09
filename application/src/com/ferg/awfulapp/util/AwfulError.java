@@ -1,4 +1,4 @@
-package com.ferg.awfulapp.task;
+package com.ferg.awfulapp.util;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,6 +31,9 @@ public class AwfulError extends VolleyError{
     public AwfulError(int code) {
         this(code, null);
     }
+    public AwfulError(String message){
+        this(AwfulError.ERROR_GENERIC_FAILURE, message);
+    }
     public AwfulError(int code, String message) {
         errorCode = code;
         errorMessage = message;
@@ -58,6 +61,10 @@ public class AwfulError extends VolleyError{
                 return "Failed to load!";
         }
         return null;
+    }
+
+    public int getErrorCode(){
+        return errorCode;
     }
 
     /**

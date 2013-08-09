@@ -187,7 +187,9 @@ function scrollUpdate(){
 	try{
 	    if(window.topScrollCount > 0 && window.topScrollItem){
             var newpos = window.topScrollItem.offset().top;
-            window.scrollBy(0, newpos-window.topScrollPos);
+            if(newpos-window.topScrollPos > 0){
+                window.scrollBy(0, newpos-window.topScrollPos);
+            }
             window.topScrollPos = newpos;
             window.topScrollCount--;
             window.topScrollID = window.setTimeout(scrollUpdate, 200);

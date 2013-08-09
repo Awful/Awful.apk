@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.util.AwfulError;
 import org.jsoup.nodes.Document;
 
 /**

@@ -56,7 +56,7 @@ public abstract class AwfulPagedItem {
     	int pagesTop, pagesBottom;
     	try{
     		Elements pages = pagedItem.getElementsByClass("pages");
-            pagesTop = Integer.parseInt(pages.first().getElementsByTag("option").last().data());
+            pagesTop = Integer.parseInt(pages.first().getElementsByTag("option").last().text());
        	}catch(NumberFormatException ex){
        		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
             pagesTop = 0;
@@ -67,7 +67,7 @@ public abstract class AwfulPagedItem {
     	}
         try{
             Elements pages = pagedItem.getElementsByClass("pages");
-            pagesBottom = Integer.parseInt(pages.last().getElementsByTag("option").last().data());
+            pagesBottom = Integer.parseInt(pages.last().getElementsByTag("option").last().text());
         }catch(NumberFormatException ex){
             Log.e(TAG, "NumberFormatException thrown while parseLastPage");
             pagesBottom = 0;
