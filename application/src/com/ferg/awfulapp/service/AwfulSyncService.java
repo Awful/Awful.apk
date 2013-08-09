@@ -55,8 +55,6 @@ public class AwfulSyncService extends Service {
     public static final int MSG_SEND_PM       = 11;
     /** arg1 = threadId, arg2 = vote (1-5) */
     public static final int MSG_VOTE       = 12;
-    /** arg1 = threadId. arg2 = post index (for quote/edit) */
-    public static final int MSG_FETCH_POST_REPLY       = 13;
     /** arg1 = threadId. */
     public static final int MSG_SEND_POST       = 14;
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
@@ -110,9 +108,6 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_FETCH_POST_REPLY:
-                	queueUniqueThread(new FetchReplyTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_SEND_POST:
                 	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg));
@@ -254,8 +249,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_SEND_PM";
 		case MSG_VOTE:
 			return "MSG_VOTE";
-		case MSG_FETCH_POST_REPLY:
-			return "MSG_FETCH_POST_REPLY";
 		case MSG_SEND_POST:
 			return "MSG_SEND_POST";
 		case MSG_TRIM_DB:

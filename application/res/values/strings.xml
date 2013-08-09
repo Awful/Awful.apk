@@ -241,5 +241,6 @@ AQuery</string>
     	<string name="export_settings">Export settings</string>
     	<string name="import_settings">Import settings</string>
     <string name="loading_failed">Loading Failed!</string>
+    <string name="critical_error">Critical Error</string>
 
 </resources>

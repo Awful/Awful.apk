@@ -49,6 +49,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -66,14 +67,19 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.reply.ReplyData;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.EditRequest;
+import com.ferg.awfulapp.task.QuoteRequest;
+import com.ferg.awfulapp.task.ReplyRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
@@ -95,31 +101,96 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private boolean sendSuccessful = false;
     private String originalReplyData = "";
     private String mFileAttachment;
-    
-    private ReplyCallback mReplyDataCallback = new ReplyCallback(mHandler);
+
+    private ContentValues replyData = null;
+
+    private ReplyCallback mReplyDataCallback = new ReplyCallback();
     private ThreadDataCallback mThreadLoaderCallback;
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);Log.e(TAG,"onCreate");
+        super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG,"onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
         mThreadLoaderCallback = new ThreadDataCallback();
 
         Intent intent = getActivity().getIntent();
-        mReplyType = intent.getIntExtra(Constants.EDITING, AwfulMessage.TYPE_NEW_REPLY);
+        mReplyType = intent.getIntExtra(Constants.EDITING, -999);
+        if(mReplyType < 0){
+            getActivity().finish();
+        }
         mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
         mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
         if(mPostId == 0 && mThreadId == 0){
             getActivity().finish();
         }
+
+        loadReply(mReplyType, mThreadId, mPostId);
     }
-    
+
+    private void loadReply(int mReplyType, int mThreadId, int mPostId) {
+        mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
+        AwfulRequest.AwfulResultCallback<ContentValues> loadCallback = new AwfulRequest.AwfulResultCallback<ContentValues>() {
+            @Override
+            public void success(ContentValues result) {
+                replyData = result;
+                if(result.containsKey(AwfulMessage.REPLY_CONTENT)){
+                    String quoteData = NetworkUtils.unencodeHtml(result.getAsString(AwfulMessage.REPLY_CONTENT));
+                    if(!TextUtils.isEmpty(quoteData)){
+                        if(quoteData.endsWith("[/quote]")){
+                            quoteData = quoteData+"\n\n";
+                        }
+                        originalReplyData = quoteData;
+                        mMessage.setText(quoteData);
+                        mMessage.setSelection(quoteData.length());
+                    }else{
+                        originalReplyData = "";
+                    }
+                }
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+                //allow time for the error to display, then close the window
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(getActivity() != null){
+                            leave();
+                        }
+                    }
+                }, 3000);
+            }
+        };
+        switch(mReplyType){
+            case AwfulMessage.TYPE_NEW_REPLY:
+                queueRequest(new ReplyRequest(getActivity(), mThreadId).build(this, loadCallback));
+                break;
+            case AwfulMessage.TYPE_QUOTE:
+                queueRequest(new QuoteRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
+                break;
+            case AwfulMessage.TYPE_EDIT:
+                queueRequest(new EditRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
+                break;
+            default:
+                Toast.makeText(getActivity(), R.string.critical_error, Toast.LENGTH_LONG).show();
+                leave();
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        super.onCreateView(aInflater, aContainer, aSavedState);Log.e(TAG,"onCreateView");
+        super.onCreateView(aInflater, aContainer, aSavedState); if(DEBUG) Log.e(TAG,"onCreateView");
 
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
 
@@ -133,11 +204,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);Log.e(TAG,"onActivityCreated");
+        super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG,"onActivityCreated");
 
         mMessage.setBackgroundColor(ColorProvider.getBackgroundColor());
         mMessage.setTextColor(ColorProvider.getTextColor());
-        getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, mReplyDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
         refreshThreadInfo();
@@ -198,7 +268,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
     @Override
     public void onResume() {
-        super.onResume(); Log.e(TAG,"onResume");
+        super.onResume(); if(DEBUG) Log.e(TAG,"onResume");
     }
     
     private void leave(){
@@ -213,13 +283,13 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     @Override
     public void onPause() {
-        super.onPause();Log.e(TAG,"onPause");
+        super.onPause(); if(DEBUG) Log.e(TAG,"onPause");
         cleanupTasks();
     }
         
     @Override
     public void onStop() {
-        super.onStop();Log.e(TAG,"onStop");
+        super.onStop(); if(DEBUG) Log.e(TAG,"onStop");
         cleanupTasks();
     }
     
@@ -254,9 +324,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 			saveReply();
     		Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
     	}
-    	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
-			Toast.makeText(getActivity(), "Reply Load Failed!", Toast.LENGTH_LONG).show();
-    	}
 	}
 
 	@Override
@@ -266,9 +333,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 			mDialog.dismiss();
 			mDialog = null;
 		}
-    	if(aMsg.what == AwfulSyncService.MSG_FETCH_POST_REPLY){
-    		refreshLoader();
-    	}
     	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
     		sendSuccessful = true;
 			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
@@ -302,7 +366,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		super.onPreferenceChange(prefs);
 		//refresh the menu to show/hide attach option (plat only)
         invalidateOptionsMenu();
-		getAwfulActivity().supportInvalidateOptionsMenu();
 	}
 
 
@@ -536,7 +599,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         autosave();
 		getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
 		getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
-		getActivity().getContentResolver().unregisterContentObserver(mReplyDataCallback);
 		getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         mMessage = null;
     }
@@ -616,73 +678,61 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     	}
     }
 
-	private class ReplyCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
-
-		public ReplyCallback(Handler handler) {
-			super(handler);
-		}
+	private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Create Reply Cursor: "+mThreadId);
-            return new CursorLoader(getActivity(), 
-            						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), 
-            						AwfulProvider.DraftPostProjection, 
+            return new CursorLoader(getActivity(),
+            						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId),
+            						AwfulProvider.DraftPostProjection,
             						null,
             						null,
             						null);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
-        	if(!aData.isClosed() && aData.getCount() >0 && aData.moveToFirst()){
-        		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
-        		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
-        		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
-        		if (replyData != null) {
-    				String quoteData = NetworkUtils.unencodeHtml(replyData);
-    				if(quoteData.endsWith("[/quote]")){
-    					quoteData = quoteData+"\n\n";
-    				}
-    				mMessage.setText(quoteData);
-    				mMessage.setSelection(quoteData.length());
-    				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
-    				if(originalReplyData == null){
-    					originalReplyData = "";
-    				}
-    				//TODO this part might be causing that odd swype bug, but I can't replicate it
-    		        //if(mSelection>0 && mMessage.length() >= mSelection){
-    		        //    mMessage.setSelection(mSelection);
-    		        //}
-    			}
-        		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
-        		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));
-        		if((formKey != null && formCookie != null && formKey.length()>0 && formCookie.length()>0) || mReplyType == AwfulMessage.TYPE_EDIT){
-        		}else{
-			        if(getActivity() != null){
-			        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
-			        }
-        		}
-        	}else{
-		        if(mDialog == null && getActivity() != null){
-		        	Log.d(TAG, "DISPLAYING DIALOG");
-		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
-		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
-		        }
-        	}
-        	aData.close();
+//        	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
+//        	if(!aData.isClosed() && aData.getCount() >0 && aData.moveToFirst()){
+//        		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+//        		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
+//        		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+//        		if (replyData != null) {
+//    				String quoteData = NetworkUtils.unencodeHtml(replyData);
+//    				if(quoteData.endsWith("[/quote]")){
+//    					quoteData = quoteData+"\n\n";
+//    				}
+//    				mMessage.setText(quoteData);
+//    				mMessage.setSelection(quoteData.length());
+//    				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
+//    				if(originalReplyData == null){
+//    					originalReplyData = "";
+//    				}
+//    				//TODO this part might be causing that odd swype bug, but I can't replicate it
+//    		        //if(mSelection>0 && mMessage.length() >= mSelection){
+//    		        //    mMessage.setSelection(mSelection);
+//    		        //}
+//    			}
+//        		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
+//        		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));
+//        		if((formKey != null && formCookie != null && formKey.length()>0 && formCookie.length()>0) || mReplyType == AwfulMessage.TYPE_EDIT){
+//        		}else{
+//			        if(getActivity() != null){
+//			        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
+//			        }
+//        		}
+//        	}else{
+//		        if(mDialog == null && getActivity() != null){
+//		        	Log.d(TAG, "DISPLAYING DIALOG");
+//		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
+//		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
+//		        }
+//        	}
+//        	aData.close();
         }
-        
+
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-        	
-        }
-        
-        @Override
-        public void onChange (boolean selfChange){
-        	Log.i(TAG,"Post Data update.");
-        	if(getActivity() != null){
-        		refreshLoader();
-        	}
+
         }
     }
 	
@@ -716,7 +766,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	refreshThreadInfo();
         }
     }
-	
+
 	private void refreshLoader(){
 		if(getActivity() != null){
 			getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
@@ -731,7 +781,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
 	@Override
 	public void onPageVisible() {
-		
+
 	}
 
 	@Override
@@ -741,10 +791,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mMessage.getApplicationWindowToken(), 0);
 		}
-	}
-	
-	public int getThreadId(){
-		return mThreadId;
 	}
 
 	@Override
@@ -762,26 +808,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 			return "Quote"+title;
 		}
 		return "Loading";
-	}
-
-	public void newReply(int threadId, int postId, int type) {
-		if(threadId == mThreadId){
-			deleteReply();
-		}else{
-			autosave();
-		}
-		mThreadId = threadId;
-		mPostId = postId;
-		mReplyType = type;
-		mThreadTitle = null;
-		sendSuccessful = false;
-		originalReplyData = "";
-		if(mMessage != null){
-			mMessage.setText("");
-		}
-		refreshLoader();
-		refreshThreadInfo();
-		setTitle(getTitle());
 	}
 
 	public void selectEmote(String contents) {
