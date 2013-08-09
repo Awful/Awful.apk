@@ -31,6 +31,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -43,7 +45,10 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static String TAG = "ForumsIndexActivity";
@@ -59,7 +64,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     private Handler mHandler = new Handler();
     
     
-    private ViewPager mViewPager;
+    private ToggleViewPager mViewPager;
     private ForumPagerAdapter pagerAdapter;
     
     private int mForumId = Constants.USERCP_ID;
@@ -86,8 +91,14 @@ public class ForumsIndexActivity extends AwfulActivity {
         setContentView(R.layout.forum_index_activity);
         setSupportProgressBarIndeterminateVisibility(false);
         
-    	mViewPager = (ViewPager) findViewById(R.id.forum_index_pager);
+    	mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
+        mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
     	mViewPager.setOffscreenPageLimit(2);
+        if(isTablet){
+            mViewPager.setPageMargin(1);
+            //TODO what color should it use here?
+            mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+        }
     	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
@@ -148,7 +159,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     		}
     	}
         if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = 0;
+        	initialPage = isTablet ? 0 : 1;
         }else{
         	skipLoad = !isTablet;
         }
@@ -459,11 +470,37 @@ public class ForumsIndexActivity extends AwfulActivity {
     
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-    	// TODO Auto-generated method stub
     	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
     		return true;
     	}
     	return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onPreferenceChange(AwfulPreferences prefs) {
+        super.onPreferenceChange(prefs);
+        if(mViewPager != null){
+            mViewPager.setSwipeEnabled(!prefs.lockScrolling);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean oldTab = isTablet;
+        isTablet = Constants.isWidescreen(this);
+        if(oldTab != isTablet && mViewPager != null){
+            if(isTablet){
+                mViewPager.setPageMargin(1);
+                //TODO what color should it use here?
+                mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+            }else{
+                mViewPager.setPageMargin(0);
+            }
+            int pos = mViewPager.getCurrentItem();
+            mViewPager.setAdapter(pagerAdapter);
+            mViewPager.setCurrentItem(pos, false);
+        }
     }
 }
 

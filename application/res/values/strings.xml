@@ -19,6 +19,7 @@
     <string name="logout_message">Make all your wildest dreams come true?</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="mark_last_read">Mark last read</string>
+    <string name="mark_last_read_success">Post Marked</string>
     <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
@@ -157,7 +158,8 @@ AQuery</string>
 	<string name="goto_firstpage">First page</string>
 	<string name="goto_lastpage">Last page</string>
 	<string name="toggle_bookmark">Toggle bookmark</string>
-	<string name="mark_unread">Mark thread unread</string>
+    <string name="mark_unread">Mark thread unread</string>
+    <string name="mark_unread_success">Thread Marked Unread</string>
 	<string name="private_message">Private messages</string>
 	<string name="wrap_titles">Wrap thread titles</string>
 	<string name="wrap_titles_summary">Allows thread titles to be more than one line long</string>
@@ -174,7 +176,7 @@ AQuery</string>
 	<string name="thread_settings">Thread settings</string>
 	<string name="imgur_thumbnails">Imgur thumbnails</string>
 	<string name="vote_failed">An error occurred while voting, please try again</string>
-	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
+	<string name="vote_succeeded">Thread Rated</string>
 	<string name="copy_url">Copy thread URL</string>
 	<string name="copy_url_success">URL has been copied to the clipboard</string>
 	<string name="draft_alert_keep">Keep message</string>
@@ -240,5 +242,11 @@ AQuery</string>
     	<string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
     	<string name="export_settings">Export settings</string>
     	<string name="import_settings">Import settings</string>
+    <string name="loading_failed">Loading Failed!</string>
+    <string name="critical_error">Critical Error</string>
+    <string name="message_empty">Message Empty!</string>
+    <string name="message_empty_subtext">type something, fuck</string>
+    <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
+    <string name="vote_failed_sub">Maybe next time?</string>
 
 </resources>

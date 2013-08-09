@@ -39,10 +39,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.text.TextUtils;
 import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.AwfulFragment;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -50,23 +50,18 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Message;
 import android.os.Messenger;
-import android.sax.StartElementListener;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -75,8 +70,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.task.ThreadTask;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.MustacheException;
 import com.samskivert.mustache.Template;
@@ -272,14 +265,9 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates, ThreadTask parentTask) throws Exception {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
-        params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
-        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
-        
-        ContentResolver contentResolv = aContext.getContentResolver();
+    public static void getThreadPosts(ContentResolver contentResolv, Document response, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId) {
+
+
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
     	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
 		if(threadData.moveToFirst()){
@@ -290,23 +278,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
 			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
 		}
-        
-        //notify user we are starting update
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
-        
-        Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
-
-        if(parentTask.isCancelled()){
-            return null;
-        }
-
-        //notify user we have gotten message body, this represents a large portion of this function
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
-        
-        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates, aPrefs);
-        if(error != null){
-        	return error;
-        }
         
         ContentValues thread = new ContentValues();
         thread.put(ID, aThreadId);
@@ -351,9 +322,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
 
-        //notify user we have began processing thread info
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 55));
-
 		threadData.close();
 		int replycount;
 		if(aUserId > 0){
@@ -377,9 +345,6 @@ public class AwfulThread extends AwfulPagedItem  {
             thread.put(AwfulThread.UNREADCOUNT, newUnread);
             Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
         }
-
-        //notify user we have began processing posts
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 65));
         
         AwfulPost.syncPosts(contentResolv, 
         					response, 
@@ -392,10 +357,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
     	}
-    	
-        //notify user we are done with this stage
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 100));
-        return null;
     }
 
     public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
@@ -451,14 +412,29 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-    	StringBuffer buffer = new StringBuffer(1024);
-        
-
+        StringBuffer buffer = new StringBuffer(1024);
         buffer.append("<div class='content' >\n");
+
+        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+            int unreadCount = 0;
+            for(AwfulPost ap : aPosts){
+                if(!ap.isPreviouslyRead()){
+                    unreadCount++;
+                }
+            }
+            buffer.append("    <article class='toggleread'>");
+            buffer.append("      <a>\n");
+            buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+            buffer.append("      </a>\n");
+            buffer.append("    </article>");
+
+        }
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
-        buffer.append("<div class='unread' ></div>\n");
+        if(page == lastPage){
+            buffer.append("<div class='unread' ></div>\n");
+        }
         
         buffer.append("</div>\n");
 
@@ -538,14 +514,14 @@ public class AwfulThread extends AwfulPagedItem  {
 		info.setSingleLine(!prefs.wrapThreadTitles);
 
         NetworkImageView threadTag = (NetworkImageView) current.findViewById(R.id.thread_tag);
-		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+		if(!prefs.threadInfo_Tag){
             threadTag.setVisibility(View.GONE);
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(tagFile != null){
-                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
-			}else{
+			if(TextUtils.isEmpty(tagFile)){
                 threadTag.setVisibility(View.GONE);
+			}else{
+                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
 			}
 		}
 

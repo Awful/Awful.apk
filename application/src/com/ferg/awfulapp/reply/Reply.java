@@ -29,6 +29,7 @@ package com.ferg.awfulapp.reply;
 
 import java.util.HashMap;
 
+import com.ferg.awfulapp.util.AwfulError;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -116,54 +117,45 @@ public class Reply {
 //
 //        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
 //    }
-    
-    public static final ContentValues fetchPost(int threadId) throws Exception{
-    	ContentValues newReply = new ContentValues();
-    	newReply.put(AwfulMessage.ID, threadId);
-    	newReply.put(AwfulMessage.TYPE, AwfulMessage.TYPE_NEW_REPLY);
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, "newreply");
-        params.put(PARAM_THREADID, Integer.toString(threadId));
-        Document response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
-        getReplyData(response, newReply);
-        newReply.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
-        
-    	return newReply;
+
+    public static final ContentValues processReply(Document page, int threadId) throws AwfulError {
+        ContentValues newReply = new ContentValues();
+        newReply.put(AwfulMessage.ID, threadId);
+        newReply.put(AwfulMessage.TYPE, AwfulMessage.TYPE_NEW_REPLY);
+        getReplyData(page, newReply);
+        newReply.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(page));
+        return newReply;
     }
-    
-    public static final ContentValues fetchQuote(int threadId, int postId) throws Exception{
-    	ContentValues quote = new ContentValues();
-    	quote.put(AwfulMessage.ID, threadId);
-    	quote.put(AwfulMessage.TYPE, AwfulMessage.TYPE_QUOTE);
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, "newreply");
-        params.put(PARAM_POSTID, Integer.toString(postId));
-        Document response = NetworkUtils.get(Constants.FUNCTION_POST_REPLY, params);
+
+    public static final ContentValues processQuote(Document response, int threadId, int postId) throws AwfulError{
+        ContentValues quote = new ContentValues();
+        quote.put(AwfulMessage.ID, threadId);
+        quote.put(AwfulMessage.TYPE, AwfulMessage.TYPE_QUOTE);
         getReplyData(response, quote);
         quote.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
         quote.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         quote.put(AwfulPost.REPLY_ORIGINAL_CONTENT, quote.getAsString(AwfulMessage.REPLY_CONTENT));
-    	return quote;
+        return quote;
     }
-    
-    public static final ContentValues fetchEdit(int threadId, int postId) throws Exception{
-    	ContentValues edit = new ContentValues();
-    	edit.put(AwfulMessage.ID, threadId);
-    	edit.put(AwfulMessage.TYPE, AwfulMessage.TYPE_EDIT);
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, "editpost");
-        params.put(PARAM_POSTID, Integer.toString(postId));
-        Document response = NetworkUtils.get(Constants.FUNCTION_EDIT_POST, params);
+
+    public static final ContentValues processEdit(Document response, int threadId, int postId) throws AwfulError{
+        ContentValues edit = new ContentValues();
+        edit.put(AwfulMessage.ID, threadId);
+        edit.put(AwfulMessage.TYPE, AwfulMessage.TYPE_EDIT);
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         edit.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
         edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
         edit.put(AwfulPost.EDIT_POST_ID, postId);
-    	return edit;
+        return edit;
     }
     
-    public static final String getMessageContent(Document data) throws Exception{
-    	Element formContent = data.getElementsByAttributeValue("name", "message").first();
-        return formContent.text().trim();
+    public static final String getMessageContent(Document data) throws AwfulError{
+        try{
+            Element formContent = data.getElementsByAttributeValue("name", "message").first();
+            return formContent.text().trim();
+        }catch(Exception e){
+            throw new AwfulError("Failed to load quote");
+        }
     }
     
     public static final String getBookmarkOption(Document data){
@@ -175,11 +167,15 @@ public class Reply {
     	}
     }
 
-    public static final ContentValues getReplyData(Document data, ContentValues results) throws Exception {
-    	Element formKey = data.getElementsByAttributeValue("name", "formkey").first();
-    	Element formCookie = data.getElementsByAttributeValue("name", "form_cookie").first();
-    	results.put(AwfulPost.FORM_KEY, formKey.val());
-    	results.put(AwfulPost.FORM_COOKIE, formCookie.val());
+    public static final ContentValues getReplyData(Document data, ContentValues results) throws AwfulError {
+        try{
+            Element formKey = data.getElementsByAttributeValue("name", "formkey").first();
+            Element formCookie = data.getElementsByAttributeValue("name", "form_cookie").first();
+            results.put(AwfulPost.FORM_KEY, formKey.val());
+            results.put(AwfulPost.FORM_COOKIE, formCookie.val());
+        }catch (Exception e){
+            throw new AwfulError("Failed to load reply");
+        }
         return results;
     }
 

@@ -124,8 +124,8 @@
             android:summary="@string/disable_pull_next_summary"
             android:defaultValue="false"
             />
-		<CheckBoxPreference 
-            android:key="lock_scrolling" 
+		<CheckBoxPreference
+            android:key="lock_scrolling"
 			android:title="@string/lock_scrolling"
 			android:summary="@string/lock_scrolling_summary"
 			android:defaultValue="false"

@@ -27,6 +27,14 @@
 
 package com.ferg.awfulapp;
 
+import android.support.v4.app.LoaderManager;
+import android.text.TextUtils;
+import android.view.*;
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
@@ -36,13 +44,6 @@ import android.os.Messenger;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.ImageLoader;
@@ -53,7 +54,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback{
+public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -211,7 +212,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-            aa.hideProgressBar();
+            if(aa != null){
+                aa.hideProgressBar();
+            }
 		}
 	}
 	
@@ -240,19 +243,21 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 	
 	@Override
     public void loadingFailed(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             setProgress(100);
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
 			if(aMsg.obj instanceof String){
-				Toast.makeText(aa, aMsg.obj.toString(), Toast.LENGTH_LONG).show();
+                displayAlert(aMsg.obj.toString());
 			}
         }
     }
 
     @Override
     public void loadingStarted(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
 			aa.setSupportProgressBarVisibility(false);
@@ -262,6 +267,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 
     @Override
     public void loadingSucceeded(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
     		aa.setSupportProgressBarIndeterminateVisibility(false);
@@ -271,10 +277,42 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     
     @Override
     public void loadingUpdate(Message aMsg) {
+        //TODO remove completely
     	setProgress(aMsg.arg2);
     }
 
-	@Override
+    @Override
+    public void requestStarted(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarVisibility(false);
+            aa.setSupportProgressBarIndeterminateVisibility(true);
+        }
+    }
+
+    @Override
+    public void requestUpdate(AwfulRequest req, int percent) {
+        setProgress(percent);
+    }
+
+    @Override
+    public void requestEnded(AwfulRequest req, VolleyError error) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarIndeterminateVisibility(false);
+            aa.setSupportProgressBarVisibility(false);
+        }
+        if(mP2RAttacher != null){
+            mP2RAttacher.setRefreshComplete();
+        }
+        if(error instanceof AwfulError){
+            displayAlert((AwfulError) error);
+        }else if(error != null){
+            displayAlert(R.string.loading_failed);
+        }
+    }
+
+    @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
@@ -312,7 +350,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         }
         return null;
     }
-
+    public void queueRequest(Request request){
+        queueRequest(request, false);
+    }
     public void queueRequest(Request request, boolean cancelOnDestroy){
         AwfulApplication app = getAwfulApplication();
         if(app != null && request != null){
@@ -350,6 +390,79 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     public abstract void onPageVisible();
     public abstract void onPageHidden();
     public abstract String getInternalId();
-
     public abstract boolean volumeScroll(KeyEvent event);
+
+
+    private static final int ALERT_DISPLAY_MILLIS = 3000;
+    protected void displayAlert(int titleRes){
+        if(getActivity() != null){
+            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+        }
+    }
+
+    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
+        if(getActivity() != null){
+            if(subtitleRes != 0){
+                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+            }else{
+                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+            }
+        }
+    }
+
+    protected void displayAlert(AwfulError error){
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
+    }
+
+    protected void displayAlert(String title){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, int iconRes){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+    }
+
+    protected void displayAlert(String title, String subtext){
+        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+        if(getActivity() == null){
+            return;
+        }
+        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        AQuery aq = new AQuery(popup);
+        aq.find(R.id.popup_title).text(title);
+        if(TextUtils.isEmpty(subtext)){
+            aq.find(R.id.popup_subtitle).gone();
+        }else{
+            aq.find(R.id.popup_subtitle).visible().text(subtext);
+        }
+        if(iconRes != 0){
+            if(animate != null){
+                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+            }else{
+                aq.find(R.id.popup_icon).image(iconRes);
+            }
+        }
+        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
+        final PopupWindow alert = new PopupWindow(popup, popupDimen, popupDimen);
+        alert.setBackgroundDrawable(null);
+        alert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        if(timeoutMillis > 0){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO fade out
+                    alert.dismiss();
+                }
+            }, timeoutMillis);
+        }
+    }
+
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+        if(getActivity() != null){
+            getLoaderManager().restartLoader(id, data, callback);
+        }
+    }
 }

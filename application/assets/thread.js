@@ -56,12 +56,17 @@ function pageinit() {
 	$('.userinfo-row').click(function(event) {
 	  $(this).closest('tr').next().find('.avatar-text').toggle();
 	});
+
+    //hide-old posts
+    if($('.toggleread').length > 0){
+		$('.read').hide();
+    }
 	$('.toggleread').click(function(event) {
-		window.hideRead = false;
-		refreshHidden();
+		$('.read').show();
 	  	$('.toggleread').hide();
-	  	window.setTimeout("scrollLastRead()", 500);
+	  	window.setTimeout(scrollLastRead, 200);
 	});
+
 	$('.avatar-cell').on('click', function(event) {
 	  $(this).closest('tr').find('.avatar-text').toggle();
 	});
@@ -169,7 +174,7 @@ function scrollLastRead(){
 	try{
 	    window.topScrollItem = $('.unread').first();
 	    window.topScrollPos = window.topScrollItem.offset().top;
-	    window.topScrollCount = 200;
+	    window.topScrollCount = 100;
 		window.scrollTo(0, window.topScrollPos);
 	  	window.topScrollID = window.setTimeout(scrollUpdate, 500);
     }catch(error){
@@ -182,11 +187,12 @@ function scrollUpdate(){
 	try{
 	    if(window.topScrollCount > 0 && window.topScrollItem){
             var newpos = window.topScrollItem.offset().top;
-            window.topScrollCount = 0;
-            window.scrollBy(0, newpos-window.topScrollPos);
+            if(newpos-window.topScrollPos > 0){
+                window.scrollBy(0, newpos-window.topScrollPos);
+            }
             window.topScrollPos = newpos;
             window.topScrollCount--;
-            window.topScrollID = window.setTimeout(scrollUpdate, 100);
+            window.topScrollID = window.setTimeout(scrollUpdate, 200);
 	    }
     }catch(error){
         window.topScrollCount = 0;
@@ -211,15 +217,5 @@ function gifHide() {
 			$(this).css("visibility", "visible");
 		}
 	});
-}
-
-function refreshHidden(){
-	if(window.hideRead){
-		$('.toggleread').show();
-		$('.read').hide();
-  	}else{
-  		$('.read').show();
-	  	$('.toggleread').hide();
-	}
 }
 

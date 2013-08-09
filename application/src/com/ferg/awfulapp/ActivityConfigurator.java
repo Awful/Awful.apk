@@ -29,9 +29,7 @@ public class ActivityConfigurator implements AwfulUpdateCallback {
 	
 	public void onCreate() {}
 	
-	public void onStart() {
-		NetworkUtils.restoreLoginCookies(mActivity);
-	}
+	public void onStart() {	}
 	
 	public void onResume() {setOrientation();}
 	

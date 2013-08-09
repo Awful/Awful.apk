@@ -25,8 +25,6 @@ import android.widget.TextView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-//@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
-//@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
 @ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
 public class AwfulApplication extends Application implements AwfulUpdateCallback{
 	private static String TAG = "AwfulApplication";
@@ -43,7 +41,6 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
     public void onCreate() {
         ACRA.init(this);
         super.onCreate();
-        //BugSenseHandler.setLogging(1000);
 
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
@@ -53,7 +50,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 
         if(Constants.isICS()){
             try {
-                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 52428800);
+                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -130,6 +127,8 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+        }else{
+            ACRA.getErrorReporter().removeCustomData("SA Username");
         }
 	}
 
@@ -178,5 +177,27 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 
     public ImageLoader getImageLoader(){
         return imageLoader;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if(level != Application.TRIM_MEMORY_UI_HIDDEN && level != Application.TRIM_MEMORY_BACKGROUND && imageCache != null){
+            imageCache.clear();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if(imageCache != null){
+            imageCache.clear();
+        }
+    }
+
+    public void clearDiskCache(){
+        if(networkQueue != null && networkQueue.getCache() != null){
+            networkQueue.getCache().clear();
+        }
     }
 }

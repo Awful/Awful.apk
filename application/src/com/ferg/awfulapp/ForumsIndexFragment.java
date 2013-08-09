@@ -50,14 +50,16 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 
 import pl.polidea.treeview.*;
@@ -65,7 +67,6 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -75,7 +76,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     private int selectedForum = 0;
     
     private TreeViewList mForumTree;
-//    private PullToRefreshExpandableListView mForumList;
     
     private AwfulTreeListAdapter mTreeAdapter;
 	private InMemoryTreeStateManager<ForumEntry> dataManager;
@@ -143,7 +143,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		updateProbationBar();
     }
 
@@ -151,7 +151,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
 	}
 	
@@ -242,16 +242,15 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null){
+			displayAlert("Loading Failed!");
 		}
     }
     
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		setProgress(100);
-		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		//TODO remove
 	}
     
 	@Override
@@ -267,9 +266,19 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	}
 	
 	private void syncForums() {
-		if(getActivity() != null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
-		}
+        if(getActivity() != null){
+            queueRequest(new IndexRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                }
+            }));
+        }
     }
 	
 	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
