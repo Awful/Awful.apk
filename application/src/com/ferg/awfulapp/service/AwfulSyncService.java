@@ -53,8 +53,6 @@ public class AwfulSyncService extends Service {
     public static final int MSG_SEND_PM       = 11;
     /** arg1 = threadId, arg2 = vote (1-5) */
     public static final int MSG_VOTE       = 12;
-    /** arg1 = threadId. */
-    public static final int MSG_SEND_POST       = 14;
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
      *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
 	public static final int MSG_TRIM_DB = 15;
@@ -66,7 +64,6 @@ public class AwfulSyncService extends Service {
     /** forums closed error message, (optional) obj=String - error message to display **/
 	public static final int MSG_ERROR_FORUMS_CLOSED = 21;
     public static final int MSG_CANCEL_SYNC_THREAD  = 22;
-    public static final int MSG_IGNORE_USER = 25;
 	
     private MessageHandler mHandler       = new MessageHandler();
     private Messenger mMessenger          = new Messenger(mHandler);
@@ -104,17 +101,11 @@ public class AwfulSyncService extends Service {
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
                     break;
-                case MSG_SEND_POST:
-                	queueUniqueThread(new SendPostTask(AwfulSyncService.this, aMsg));
-                    break;
                 case MSG_TRIM_DB:
                 	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_TRANSLATE_REDIRECT:
                 	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_IGNORE_USER:
-                    queueUniqueThread(new IgnoreUserTask(AwfulSyncService.this, aMsg, mPrefs));
                     break;
             }
         }
@@ -242,8 +233,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_SEND_PM";
 		case MSG_VOTE:
 			return "MSG_VOTE";
-		case MSG_SEND_POST:
-			return "MSG_SEND_POST";
 		case MSG_TRIM_DB:
 			return "MSG_TRIM_DB";
 		case MSG_TRANSLATE_REDIRECT:

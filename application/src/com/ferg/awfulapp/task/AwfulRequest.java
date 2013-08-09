@@ -97,7 +97,7 @@ public abstract class AwfulRequest<T> {
      * @return The final request, to pass into queueRequest.
      */
     public Request<T> build(){
-        return build(null, null);
+        return build(null, null, null);
     }
 
     /**
@@ -111,13 +111,17 @@ public abstract class AwfulRequest<T> {
         return build(prog, new Response.Listener<T>() {
             @Override
             public void onResponse(T response) {
-                resultListener.success(response);
+                if(resultListener != null){
+                    resultListener.success(response);
+                }
             }
         },
         new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                resultListener.failure(error);
+                if(resultListener != null){
+                    resultListener.failure(error);
+                }
             }
         });
     }
@@ -251,7 +255,9 @@ public abstract class AwfulRequest<T> {
 
         @Override
         protected void deliverResponse(T response) {
-            success.onResponse(response);
+            if(success != null){
+                success.onResponse(response);
+            }
             if(progressListener != null){
                 progressListener.requestEnded(AwfulRequest.this, null);
             }

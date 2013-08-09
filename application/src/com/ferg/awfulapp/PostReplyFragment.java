@@ -305,43 +305,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
 
 	@Override
-	public void loadingStarted(Message aMsg) {
-		super.loadingStarted(aMsg);
-	}
-    
-    @Override
-	public void loadingFailed(Message aMsg) {
-		super.loadingFailed(aMsg);
-		if(mDialog != null){
-			mDialog.dismiss();
-			mDialog = null;
-		}
-    	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
-			saveReply();
-    		Toast.makeText(getActivity(), "Post Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
-    	}
-	}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {
-		super.loadingSucceeded(aMsg);
-		if(mDialog != null){
-			mDialog.dismiss();
-			mDialog = null;
-		}
-    	if(aMsg.what == AwfulSyncService.MSG_SEND_POST){
-    		sendSuccessful = true;
-			Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
-			if(mReplyType == AwfulMessage.TYPE_EDIT){
-				getActivity().setResult(mPostId);
-			}else{
-				getActivity().setResult(RESULT_POSTED);
-			}
-			leave();
-    	}
-    }
-
-	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.d(TAG,"onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);

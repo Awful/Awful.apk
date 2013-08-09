@@ -75,6 +75,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.thread.*;
@@ -697,7 +698,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setButton(AlertDialog.BUTTON_NEGATIVE,getActivity().getString(R.string.cancel), (android.content.DialogInterface.OnClickListener) null);
@@ -705,12 +706,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
-				try{
-				mPrefs.setBooleanPreference("show_ignore_warning", false);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+                try{
+                    mPrefs.setBooleanPreference("show_ignore_warning", false);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setTitle(R.string.ignore_title);
@@ -718,7 +719,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		ignoreDialog.show();
 		
 		}else{
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+            queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 		}
 	}
     
