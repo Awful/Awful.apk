@@ -768,15 +768,11 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
 
 	private void refreshLoader(){
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
-		}
+		restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
 	}
 	
 	private void refreshThreadInfo() {
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
-		}
+		restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
 	}
 
 	@Override

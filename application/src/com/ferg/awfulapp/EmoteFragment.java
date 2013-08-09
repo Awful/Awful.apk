@@ -168,9 +168,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	}
 	
 	private void restartLoader(){
-		if(getAwfulActivity() != null){
-			getLoaderManager().restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
-		}
+		restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
 	}
 
 	public void syncEmotes() {

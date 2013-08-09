@@ -113,9 +113,7 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
     	@Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
-        	}
+            restartLoader(pmId, null, mPMDataCallback);
         }
     };
 
@@ -236,7 +234,7 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	@Override
 	public void onActivityCreated(Bundle savedState){
 		super.onActivityCreated(savedState);
-		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+		restartLoader(pmId, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
 	}
@@ -250,11 +248,11 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
         queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+                restartLoader(pmId, null, mPMDataCallback);
                 queueRequest(new PMReplyRequest(getActivity(), pmId).build(MessageFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
                     @Override
                     public void success(Void result) {
-                        getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+                        restartLoader(pmId, null, mPMDataCallback);
                     }
 
                     @Override
@@ -463,9 +461,7 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getLoaderManager().restartLoader(pmId, null, this);
-        	}
+        	restartLoader(pmId, null, this);
         }
     }
 

@@ -143,7 +143,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		updateProbationBar();
     }
 
@@ -151,7 +151,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
 	}
 	
@@ -270,12 +270,12 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
             queueRequest(new IndexRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
                 public void success(Void result) {
-                    getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
 
                 @Override
                 public void failure(VolleyError error) {
-                    getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
             }));
         }

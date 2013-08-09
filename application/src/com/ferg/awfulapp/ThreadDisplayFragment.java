@@ -74,6 +74,7 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.thread.*;
@@ -774,7 +775,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     private void toggleThreadBookmark() {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
+            queueRequest(new BookmarkRequest(getActivity(), getThreadId(), !threadBookmarked).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    refreshInfo();
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    refreshInfo();
+                }
+            }));
         }
     }
     
@@ -950,9 +961,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			displayAlert("Loading Failed!");
 		}
     	switch (aMsg.what) {
-	        case AwfulSyncService.MSG_SET_BOOKMARK:
-	        	refreshInfo();
-	            break;
 	        case AwfulSyncService.MSG_MARK_LASTREAD:
 	        	refreshInfo();
 	            refreshPosts();
@@ -992,9 +1000,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		}
 			bypassBackStack = false;
     		break;
-        case AwfulSyncService.MSG_SET_BOOKMARK:
-        	refreshInfo();
-            break;
         case AwfulSyncService.MSG_MARK_LASTREAD:
         	refreshInfo();
             refreshPosts();
@@ -1506,15 +1511,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
 	public void refreshInfo() {
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
-		}
+		restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
 	}
 	
 	public void refreshPosts(){
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
-		}
+		restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
 	}
 	
 	public void setTitle(String title){

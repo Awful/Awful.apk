@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.util.Log;
@@ -392,6 +393,12 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
                     alert.dismiss();
                 }
             }, timeoutMillis);
+        }
+    }
+
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+        if(getActivity() != null){
+            getLoaderManager().restartLoader(id, data, callback);
         }
     }
     

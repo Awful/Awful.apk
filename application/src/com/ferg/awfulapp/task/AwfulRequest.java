@@ -26,6 +26,7 @@ public abstract class AwfulRequest<T> {
     private Context cont;
     private String baseUrl;
     private Handler handle;
+    private Map<String, String> params = null;
     private ProgressListener progressListener;
     public AwfulRequest(Context context, String apiUrl) {
         cont = context;
@@ -49,6 +50,16 @@ public abstract class AwfulRequest<T> {
         public void failure(VolleyError error);
     }
 
+    protected void addPostParam(String key, String value){
+        if(params == null){
+            params = new HashMap<String, String>();
+        }
+        params.put(key, value);
+    }
+
+    protected void setPostParams(Map<String, String> post){
+        params = post;
+    }
 
     /**
      * Build request with no status/success/failure callbacks. Useful for fire-and-forget calls.
@@ -164,7 +175,7 @@ public abstract class AwfulRequest<T> {
     private class ActualRequest extends Request<T>{
         private Response.Listener<T> success;
         public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
-            super(Method.GET, url, errorListener);
+            super(params != null? Method.POST : Method.GET, url, errorListener);
             if(Constants.DEBUG) Log.e("AwfulRequest", "Created request: " + url);
             success = successListener;
         }
@@ -232,6 +243,11 @@ public abstract class AwfulRequest<T> {
             NetworkUtils.setCookieHeaders(headers);
             if(Constants.DEBUG) Log.i("AwfulRequest", "getHeaders: "+headers.toString());
             return headers;
+        }
+
+        @Override
+        protected Map<String, String> getParams() throws AuthFailureError {
+            return params;
         }
     }
 

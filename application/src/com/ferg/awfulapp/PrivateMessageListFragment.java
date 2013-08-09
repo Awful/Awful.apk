@@ -128,7 +128,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     @Override
     public void onStart(){
     	super.onStart();
-		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
     }
@@ -138,7 +138,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
             queueRequest(new PMListRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
                 public void success(Void result) {
-                    getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                    restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
                 }
 
                 @Override
@@ -253,9 +253,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
-        	}
+        	restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
         }
     }
 	@Override

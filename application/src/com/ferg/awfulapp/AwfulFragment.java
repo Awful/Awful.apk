@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.support.v4.app.LoaderManager;
 import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
@@ -456,6 +457,12 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
                     alert.dismiss();
                 }
             }, timeoutMillis);
+        }
+    }
+
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+        if(getActivity() != null){
+            getLoaderManager().restartLoader(id, data, callback);
         }
     }
 }

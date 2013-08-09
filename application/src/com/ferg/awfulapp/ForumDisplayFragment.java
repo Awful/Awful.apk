@@ -55,6 +55,7 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.ThreadListRequest;
@@ -387,7 +388,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             	markUnread((int) info.id);
                 return true;
             case R.id.thread_bookmark:
-            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2);
+            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2>0);
                 return true;
             case R.id.copy_url_thread:
             	copyUrl((int) info.id);
@@ -570,7 +571,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                     new AwfulRequest.AwfulResultCallback<Void>() {
                         @Override
                         public void success(Void result) {
-                            getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+                            restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
                             lastRefresh = System.currentTimeMillis();
                             mRefreshBar.setColorFilter(0);
                             mToggleSidebar.setColorFilter(0);
@@ -607,13 +608,23 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	/** Set Bookmark status.
 	 * @param id Thread ID
-	 * @param addRemove 1 to add bookmark, 0 to remove.
+	 * @param add true to add bookmark, false to remove.
 	 */
-    private void toggleThreadBookmark(int id, int addRemove) {
-        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+    private void toggleThreadBookmark(int id, boolean add) {
+        queueRequest(new BookmarkRequest(getActivity(), id, add).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+            }
+        }));
     }
-	
-	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public ForumContentsCallback(Handler handler) {
 			super(handler);
@@ -717,8 +728,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	private void refreshInfo(){
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
-	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+			restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+	    	restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
 		}
 	}
 	
