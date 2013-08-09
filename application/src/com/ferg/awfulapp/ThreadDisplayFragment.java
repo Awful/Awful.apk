@@ -78,6 +78,7 @@ import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
@@ -678,9 +679,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		builder.setTitle("Rate this thread");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				if (getActivity() != null) {
-					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
-				}
+                queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                    @Override
+                    public void success(Void result) {
+                        displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_menu_emote);
+                    }
+
+                    @Override
+                    public void failure(VolleyError error) {
+                    }
+                }));
 			}
 		});
 		AlertDialog alert = builder.create();

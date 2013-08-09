@@ -174,7 +174,7 @@ AQuery</string>
 	<string name="thread_settings">Thread settings</string>
 	<string name="imgur_thumbnails">Imgur thumbnails</string>
 	<string name="vote_failed">An error occurred while voting, please try again</string>
-	<string name="vote_succeeded">You rated this thread %d, go hog wild</string>
+	<string name="vote_succeeded">Thread Rated</string>
 	<string name="copy_url">Copy thread URL</string>
 	<string name="copy_url_success">URL has been copied to the clipboard</string>
 	<string name="draft_alert_keep">Keep message</string>
@@ -244,5 +244,7 @@ AQuery</string>
     <string name="critical_error">Critical Error</string>
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
+    <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
+    <string name="vote_failed_sub">Maybe next time?</string>
 
 </resources>

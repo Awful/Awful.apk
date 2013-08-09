@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.util.Log;
 import com.android.volley.*;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.ferg.awfulapp.*;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -186,6 +188,16 @@ public abstract class AwfulRequest<T> {
     }
 
     /**
+     * This pretty much only exists so you can replace generic Volley errors with more user-friendly messages (gimmicks)
+     * It is only called after all the normal volley error handling occurs, so this only affects the automatic user alerts.
+     * @param error The actual error, typically network failure or whatever.
+     * @return Just return an AwfulError with whatever message you want. Or null to disable alerts.
+     */
+    protected VolleyError customizeAlert(VolleyError error){
+        return error;
+    }
+
+    /**
      * Whether or not to automatically check for common page errors during the request process.
      * Override it and return false to disable these checks.
      * @see handleError() and AwfulError.checkPageErrors() for more details.
@@ -267,7 +279,7 @@ public abstract class AwfulRequest<T> {
         public void deliverError(VolleyError error) {
             super.deliverError(error);
             if(progressListener != null){
-                progressListener.requestEnded(AwfulRequest.this, error);
+                progressListener.requestEnded(AwfulRequest.this, customizeAlert(error));
             }
         }
 

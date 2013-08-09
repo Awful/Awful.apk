@@ -51,8 +51,6 @@ public class AwfulSyncService extends Service {
     public static final int MSG_MARK_UNREAD       = 9;
     /** arg1 = pmId. */
     public static final int MSG_SEND_PM       = 11;
-    /** arg1 = threadId, arg2 = vote (1-5) */
-    public static final int MSG_VOTE       = 12;
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
      *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
 	public static final int MSG_TRIM_DB = 15;
@@ -94,9 +92,6 @@ public class AwfulSyncService extends Service {
                     break;
                 case MSG_MARK_UNREAD:
                 	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_VOTE:
-                	queueUniqueThread(new VotingTask(AwfulSyncService.this, aMsg, getApplicationContext()));
                     break;
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
@@ -231,8 +226,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_MARK_UNREAD";
 		case MSG_SEND_PM:
 			return "MSG_SEND_PM";
-		case MSG_VOTE:
-			return "MSG_VOTE";
 		case MSG_TRIM_DB:
 			return "MSG_TRIM_DB";
 		case MSG_TRANSLATE_REDIRECT:
