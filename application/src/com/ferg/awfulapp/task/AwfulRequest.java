@@ -12,10 +12,13 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.AwfulError;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ public abstract class AwfulRequest<T> {
     private String baseUrl;
     private Handler handle;
     private Map<String, String> params = null;
+    private MultipartEntity attachParams = null;
     private ProgressListener progressListener;
     public AwfulRequest(Context context, String apiUrl) {
         cont = context;
@@ -51,10 +55,33 @@ public abstract class AwfulRequest<T> {
     }
 
     protected void addPostParam(String key, String value){
+        if(attachParams != null){
+            try {
+                attachParams.addPart(key, new StringBody(value));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         if(params == null){
             params = new HashMap<String, String>();
         }
         params.put(key, value);
+    }
+
+    protected void attachFile(String key, String filename){
+        if(attachParams == null){
+            attachParams = new MultipartEntity();
+            if(params != null){
+                for(Map.Entry<String, String> item : params.entrySet()){
+                    try {
+                        attachParams.addPart(item.getKey(), new StringBody(item.getValue()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        attachParams.addPart(key, new FileBody(new File(filename)));
     }
 
     protected void setPostParams(Map<String, String> post){
@@ -248,6 +275,28 @@ public abstract class AwfulRequest<T> {
         @Override
         protected Map<String, String> getParams() throws AuthFailureError {
             return params;
+        }
+
+        @Override
+        public byte[] getBody() throws AuthFailureError {
+            if(attachParams != null){
+                try{
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    attachParams.writeTo(bytes);
+                    return bytes.toByteArray();
+                }catch(IOException ioe){
+                    Log.e("AwfulRequest", "Failed to convert body bytestream");
+                }
+            }
+            return super.getBody();
+        }
+
+        @Override
+        public String getBodyContentType() {
+            if(attachParams != null){
+                return attachParams.getContentType().getValue();
+            }
+            return super.getBodyContentType();
         }
     }
 

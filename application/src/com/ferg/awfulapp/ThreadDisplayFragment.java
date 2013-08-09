@@ -433,7 +433,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         refreshInfo();
     }
 
-    
+    @SuppressLint("NewApi")
     public void resumeWebView(){
     	if(getActivity() != null){
 	        if (mThreadView == null) {
@@ -475,6 +475,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         pauseWebView();
     }
 
+    @SuppressLint("NewApi")
     private void pauseWebView(){
         if (mThreadView != null) {
         	mThreadView.pauseTimers();
