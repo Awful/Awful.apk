@@ -76,6 +76,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.VoteRequest;
@@ -778,9 +779,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     private void markLastRead(int index) {
-        if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
-        }
+        queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_menu_lastread);
+                refreshInfo();
+                refreshPosts();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+
+            }
+        }));
     }
 
     private void toggleThreadBookmark() {
@@ -970,15 +981,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(aMsg.obj == null){
 			displayAlert("Loading Failed!");
 		}
-    	switch (aMsg.what) {
-	        case AwfulSyncService.MSG_MARK_LASTREAD:
-	        	refreshInfo();
-	            refreshPosts();
-	            break;
-	        default:
-	        	Log.e(TAG,"Message not handled: "+aMsg.what);
-	        	break;
-    	}
 		bypassBackStack = false;
     }
 
@@ -1010,10 +1012,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     		}
 			bypassBackStack = false;
     		break;
-        case AwfulSyncService.MSG_MARK_LASTREAD:
-        	refreshInfo();
-            refreshPosts();
-            break;
         default:
         	Log.e(TAG,"Message not handled: "+aMsg.what);
         	break;

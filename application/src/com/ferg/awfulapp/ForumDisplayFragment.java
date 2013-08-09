@@ -56,6 +56,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.MarkUnreadRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.ThreadListRequest;
@@ -571,7 +572,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                     new AwfulRequest.AwfulResultCallback<Void>() {
                         @Override
                         public void success(Void result) {
-                            restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
                             lastRefresh = System.currentTimeMillis();
                             mRefreshBar.setColorFilter(0);
                             mToggleSidebar.setColorFilter(0);
@@ -599,7 +599,18 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
 	
 	private void markUnread(int id) {
-        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_UNREAD,id,0);
+        queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                displayAlert(R.string.mark_unread_success);
+                refreshInfo();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                refreshInfo();
+            }
+        }));
     }
 	
 	public boolean isBookmark(){
@@ -614,12 +625,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         queueRequest(new BookmarkRequest(getActivity(), id, add).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+                refreshInfo();
             }
 
             @Override
             public void failure(VolleyError error) {
-                restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+                refreshInfo();
             }
         }));
     }

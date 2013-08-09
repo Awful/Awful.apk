@@ -47,8 +47,6 @@ public class AwfulSyncService extends Service {
 
     public static final int MSG_PROGRESS_PERCENT   = 1;
     public static final int MSG_PROGRESS_STATUS   = 3;
-    public static final int MSG_MARK_LASTREAD       = 8;
-    public static final int MSG_MARK_UNREAD       = 9;
     /** arg1 = pmId. */
     public static final int MSG_SEND_PM       = 11;
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
@@ -87,12 +85,6 @@ public class AwfulSyncService extends Service {
         public void handleMessage(Message aMsg) {
         	debugLogReceivedMessage(TAG,aMsg);
             switch (aMsg.what) {
-                case MSG_MARK_LASTREAD:
-                	queueUniqueThread(new MarkLastReadTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_MARK_UNREAD:
-                	queueUniqueThread(new MarkUnreadTask(AwfulSyncService.this, aMsg));
-                    break;
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
                     break;
@@ -220,10 +212,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_PROGRESS_PERCENT";
 		case MSG_PROGRESS_STATUS:
 			return "MSG_PROGRESS_STATUS";
-		case MSG_MARK_LASTREAD:
-			return "MSG_MARK_LASTREAD";
-		case MSG_MARK_UNREAD:
-			return "MSG_MARK_UNREAD";
 		case MSG_SEND_PM:
 			return "MSG_SEND_PM";
 		case MSG_TRIM_DB:
