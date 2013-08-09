@@ -80,6 +80,9 @@ public class Constants {
 	public static final String PARAM_VOTE 	   = "vote";
 	public static final String PARAM_POST_ID   = "postid";
 	public static final String PARAM_USERLIST  = "userlist";
+    public static final String PARAM_FORMKEY = "formkey";
+    public static final String PARAM_FORM_COOKIE = "form_cookie";
+    public static final String PARAM_ATTACHMENT = "attachment";
 
 	public static final String USERLIST_IGNORE = "ignore";
 	public static final String USERLIST_BUDDY  = "buddy";

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.util.AwfulError;
 import org.jsoup.nodes.Document;
 
 /**
@@ -20,11 +21,6 @@ public class PostRequest extends AwfulRequest<Integer> {
 
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
-//        HashMap<String, String> params = new HashMap<String, String>();
-//        params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
-//        params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
-//        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-//        params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
         urlBuilder.appendQueryParameter(Constants.PARAM_THREAD_ID, Integer.toString(threadId));
         urlBuilder.appendQueryParameter(Constants.PARAM_PER_PAGE, Integer.toString(getPreferences().postPerPage));
         urlBuilder.appendQueryParameter(Constants.PARAM_PAGE, Integer.toString(page));

@@ -30,6 +30,7 @@ package com.ferg.awfulapp.thread;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.ferg.awfulapp.util.AwfulError;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -121,7 +122,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static void processMessageList(ContentResolver contentInterface, Document data) throws Exception{
+	public static void processMessageList(ContentResolver contentInterface, Document data) throws AwfulError {
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
@@ -177,31 +178,31 @@ public class AwfulMessage extends AwfulPagedItem {
 				}
 			}
 		}else{
-			throw new Exception("Failed to parse message parent");
+			throw new AwfulError("Failed to parse message parent");
 		}
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
-	public static ContentValues processMessage(Document data, int id) throws Exception{
+	public static ContentValues processMessage(Document data, int id) throws AwfulError{
 		ContentValues message = new ContentValues();
 		message.put(ID, id);
 		Elements auth = data.getElementsByClass("author");
 		if(auth.size() > 0){
 			message.put(AUTHOR, auth.first().text());
 		}else{
-			throw new Exception("Failed parse: author.");
+			throw new AwfulError("Failed parse: author.");
 		}
 		Elements content = data.getElementsByClass("postbody");
 		if(content.size() > 0){
 			message.put(CONTENT, content.first().html());
 		}else{
-			throw new Exception("Failed parse: content.");
+			throw new AwfulError("Failed parse: content.");
 		}
 		Elements date = data.getElementsByClass("postdate");
 		if(date.size() > 0){
 			message.put(DATE, date.first().text().replaceAll("\"", "").trim());
 		}else{
-			throw new Exception("Failed parse: date.");
+			throw new AwfulError("Failed parse: date.");
 		}
 		return message;
 	}
@@ -220,6 +221,11 @@ public class AwfulMessage extends AwfulPagedItem {
 			String quoteTitle = StringEscapeUtils.unescapeHtml4(title.first().attr("value"));
 			reply.put(TITLE, quoteTitle);
 		}
+        Elements recipient = pmReplyData.getElementsByAttributeValue("name", "touser");
+        if(title.size() >0){
+            String recip = StringEscapeUtils.unescapeHtml4(recipient.first().attr("value"));
+            reply.put(RECIPIENT, recip);
+        }
 		return reply;
 	}
 	

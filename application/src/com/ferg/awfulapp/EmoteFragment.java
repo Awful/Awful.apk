@@ -49,12 +49,16 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.EmoteRequest;
 import com.ferg.awfulapp.thread.AwfulEmote;
 
 public class EmoteFragment extends AwfulDialogFragment implements OnClickListener, OnItemClickListener {
@@ -88,6 +92,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		super.loadingSucceeded(aMsg);
 		if(getAwfulActivity() != null){
 			restartLoader();
+            loadFailed = false;
 		}
 		setProgress(100);
 	}
@@ -163,14 +168,25 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	}
 	
 	private void restartLoader(){
-		if(getAwfulActivity() != null){
-			getLoaderManager().restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
-		}
+		restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
 	}
 
 	public void syncEmotes() {
-		if(getAwfulActivity() != null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_EMOTES, 0, 0);
+		if(getActivity() != null){
+            queueRequest(new EmoteRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    if(getAwfulActivity() != null){
+                        restartLoader();
+                        loadFailed = false;
+                    }
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    loadFailed = true;
+                }
+            }));
 		}
     }
 	

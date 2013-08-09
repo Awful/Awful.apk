@@ -54,10 +54,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
 
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.FeatureRequest;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
@@ -85,30 +88,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 	private Dialog mFontSizeDialog;
 	private Dialog mFeatureFetchDialog;
 	private TextView mFontSizeText;
-	
-	private Handler fetchHandler= new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-
-	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-	        	if(aMsg.what == AwfulSyncService.MSG_ERROR || aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
-                     Toast.makeText(mThis, "An error occured", Toast.LENGTH_LONG).show();
-	        	}else{
-		            switch (aMsg.arg1) {
-		                case AwfulSyncService.Status.WORKING:
-		                	break;
-		                case AwfulSyncService.Status.OKAY:
-		                	mFeatureFetchDialog.dismiss();
-		            		mThis.updateFeatures();
-		                    break;
-		                case AwfulSyncService.Status.ERROR:
-		                     Toast.makeText(mThis, "An error occured", Toast.LENGTH_LONG).show();
-		                    break;
-		            };
-	        	
-        	}
-        }
-	};
 	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
 	
@@ -297,7 +276,19 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 		public boolean onPreferenceClick(Preference preference) {
 			//TODO: add something to refresh account features
 			mFeatureFetchDialog = ProgressDialog.show(mThis, "Loading", "Fetching Account Features", true);
-			mThis.sendMessage(new Messenger(fetchHandler), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0, null);
+            ((AwfulApplication)getApplication()).queueRequest(new FeatureRequest(SettingsActivity.this).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    mFeatureFetchDialog.dismiss();
+                    mThis.updateFeatures();
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    mFeatureFetchDialog.dismiss();
+                    Toast.makeText(mThis, "An error occured", Toast.LENGTH_LONG).show();
+                }
+            }));
 			return true;
 		}
 	};
