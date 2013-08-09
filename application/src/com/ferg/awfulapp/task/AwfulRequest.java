@@ -55,6 +55,10 @@ public abstract class AwfulRequest<T> {
     }
 
     protected void addPostParam(String key, String value){
+        if(key == null || value == null){
+            //intentionally triggering that NPE here, so we can log it now instead of when it hits the volley queue
+            Log.e("AWFULREQUEST", "PARAM NULL: "+key.toString()+" -v: "+value.toString());
+        }
         if(attachParams != null){
             try {
                 attachParams.addPart(key, new StringBody(value));

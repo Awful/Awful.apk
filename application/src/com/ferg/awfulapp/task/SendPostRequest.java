@@ -18,9 +18,8 @@ public class SendPostRequest extends AwfulRequest<Void> {
     public SendPostRequest(Context context, ContentValues reply) {
         super(context, null);
         replyData = reply;
-        Toast.makeText(context, "posting: " + reply.getAsString(AwfulMessage.ID), Toast.LENGTH_LONG).show();
         addPostParam(Constants.PARAM_ACTION, "postreply");
-        addPostParam(Constants.PARAM_THREAD_ID, reply.getAsString(AwfulMessage.ID));
+        addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(reply.getAsInteger(AwfulMessage.ID)));
         addPostParam(Constants.PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY));
         addPostParam(Constants.PARAM_FORM_COOKIE, reply.getAsString(AwfulPost.FORM_COOKIE));
         addPostParam(Constants.PARAM_MESSAGE, reply.getAsString(AwfulMessage.REPLY_CONTENT));
@@ -29,6 +28,7 @@ public class SendPostRequest extends AwfulRequest<Void> {
             addPostParam(Constants.PARAM_BOOKMARK, Constants.YES);
         }
         if(reply.containsKey(AwfulMessage.REPLY_ATTACHMENT)){
+            Toast.makeText(context, "Attaching: " + reply.getAsString(AwfulMessage.REPLY_ATTACHMENT), Toast.LENGTH_LONG).show();
             attachFile(Constants.PARAM_ATTACHMENT, reply.getAsString(AwfulMessage.REPLY_ATTACHMENT));
         }
     }

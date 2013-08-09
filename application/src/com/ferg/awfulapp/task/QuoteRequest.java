@@ -35,9 +35,6 @@ public class QuoteRequest extends AwfulRequest<ContentValues> {
     protected ContentValues handleResponse(Document doc) throws AwfulError {
         ContentValues newReply = Reply.processQuote(doc, threadId, postId);
         newReply.put(AwfulProvider.UPDATED_TIMESTAMP, new Timestamp(System.currentTimeMillis()).toString());
-//        if(getContentResolver().update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, threadId), newReply, null, null)<1){
-//            getContentResolver().insert(AwfulMessage.CONTENT_URI_REPLY, newReply);
-//        }
         return newReply;
     }
 

@@ -22,8 +22,9 @@ public class SendEditRequest extends AwfulRequest<Void> {
         Toast.makeText(context, "editing: "+reply.getAsString(AwfulPost.EDIT_POST_ID), Toast.LENGTH_LONG).show();
         addPostParam(Constants.PARAM_THREAD_ID, reply.getAsString(AwfulMessage.ID));
         addPostParam(Constants.PARAM_POST_ID, reply.getAsString(AwfulPost.EDIT_POST_ID));
-        addPostParam(Constants.PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY));
-        addPostParam(Constants.PARAM_FORM_COOKIE, reply.getAsString(AwfulPost.FORM_COOKIE));
+        //edits don't have form keys/cookies
+        //addPostParam(Constants.PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY));
+        //addPostParam(Constants.PARAM_FORM_COOKIE, reply.getAsString(AwfulPost.FORM_COOKIE));
         addPostParam(Constants.PARAM_MESSAGE, reply.getAsString(AwfulMessage.REPLY_CONTENT));
         addPostParam(Constants.PARAM_PARSEURL, Constants.YES);
         if(reply.containsKey(AwfulPost.FORM_BOOKMARK) && reply.getAsString(AwfulPost.FORM_BOOKMARK).equalsIgnoreCase("checked")){

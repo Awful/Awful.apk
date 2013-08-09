@@ -684,10 +684,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         switch (mReplyType){
             case AwfulMessage.TYPE_QUOTE:
             case AwfulMessage.TYPE_NEW_REPLY:
-                queueRequest(new SendPostRequest(getActivity(), replyData).build(this, postCallback));
+                queueRequest(new SendPostRequest(getActivity(), cv).build(this, postCallback));
                 break;
             case AwfulMessage.TYPE_EDIT:
-                queueRequest(new SendEditRequest(getActivity(), replyData).build(this, postCallback));
+                queueRequest(new SendEditRequest(getActivity(), cv).build(this, postCallback));
                 break;
             default:
                 getActivity().finish();

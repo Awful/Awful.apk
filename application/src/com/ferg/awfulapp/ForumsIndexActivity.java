@@ -32,6 +32,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -45,6 +46,7 @@ import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
@@ -92,6 +94,11 @@ public class ForumsIndexActivity extends AwfulActivity {
     	mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
     	mViewPager.setOffscreenPageLimit(2);
+        if(isTablet){
+            mViewPager.setPageMargin(1);
+            //TODO what color should it use here?
+            mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+        }
     	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
@@ -463,7 +470,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-    	// TODO Auto-generated method stub
     	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
     		return true;
     	}
@@ -484,6 +490,13 @@ public class ForumsIndexActivity extends AwfulActivity {
         boolean oldTab = isTablet;
         isTablet = Constants.isWidescreen(this);
         if(oldTab != isTablet && mViewPager != null){
+            if(isTablet){
+                mViewPager.setPageMargin(1);
+                //TODO what color should it use here?
+                mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+            }else{
+                mViewPager.setPageMargin(0);
+            }
             int pos = mViewPager.getCurrentItem();
             mViewPager.setAdapter(pagerAdapter);
             mViewPager.setCurrentItem(pos, false);
