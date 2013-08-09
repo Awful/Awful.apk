@@ -73,12 +73,8 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.reply.ReplyData;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.EditRequest;
-import com.ferg.awfulapp.task.QuoteRequest;
-import com.ferg.awfulapp.task.ReplyRequest;
+import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulThread;
 
@@ -649,7 +645,53 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
 
     private void sendPost(){
-        ((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_POST, mThreadId, mPostId, new Integer(mReplyType));
+        ContentValues cv = new ContentValues(replyData);
+        String content = mMessage.getText().toString().trim();
+        if(TextUtils.isEmpty(content)){
+            displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
+            return;
+        }
+        if(!TextUtils.isEmpty(mFileAttachment)){
+            cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+        }
+        cv.put(AwfulMessage.REPLY_CONTENT, content);
+        AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+                sendSuccessful = true;
+                Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
+                if(mReplyType == AwfulMessage.TYPE_EDIT){
+                    getActivity().setResult(mPostId);
+                }else{
+                    getActivity().setResult(RESULT_POSTED);
+                }
+                leave();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+                saveReply();
+            }
+        };
+        switch (mReplyType){
+            case AwfulMessage.TYPE_QUOTE:
+            case AwfulMessage.TYPE_NEW_REPLY:
+                queueRequest(new SendPostRequest(getActivity(), replyData).build(this, postCallback));
+                break;
+            case AwfulMessage.TYPE_EDIT:
+                queueRequest(new SendEditRequest(getActivity(), replyData).build(this, postCallback));
+                break;
+            default:
+                getActivity().finish();
+        }
     }
     
     private void deleteReply(){
@@ -661,20 +703,20 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void saveReply(){
     	if(getActivity() != null && mThreadId >0 && mMessage != null){
-    		ContentResolver cr = getActivity().getContentResolver();
-	    	ContentValues post = new ContentValues();
-	    	post.put(AwfulMessage.ID, mThreadId);
-	    	post.put(AwfulMessage.TYPE, mReplyType);
-	    	String content = mMessage.getText().toString();
-	    	if(content.length() >0){
-	    		post.put(AwfulMessage.REPLY_CONTENT, content);
-    		}
-	    	if(mFileAttachment != null){
-		    	post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
-	    	}
-	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
-	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
-	    	}
+//    		ContentResolver cr = getActivity().getContentResolver();
+//	    	ContentValues post = new ContentValues(replyData);
+//	    	post.put(AwfulMessage.ID, mThreadId);
+//	    	post.put(AwfulMessage.TYPE, mReplyType);
+//	    	String content = mMessage.getText().toString();
+//	    	if(content.length() >0){
+//	    		post.put(AwfulMessage.REPLY_CONTENT, content);
+//    		}
+//	    	if(mFileAttachment != null){
+//		    	post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+//	    	}
+//	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
+//	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
+//	    	}
     	}
     }
 

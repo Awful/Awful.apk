@@ -63,6 +63,10 @@ public class AwfulError extends VolleyError{
         return null;
     }
 
+    public int getErrorCode(){
+        return errorCode;
+    }
+
     /**
      * Quick check to see if this type of error is typically unrecoverable.
      * Short-cut for handleError() callback in AwfulRequest.

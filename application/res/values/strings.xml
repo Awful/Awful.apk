@@ -242,5 +242,7 @@ AQuery</string>
     	<string name="import_settings">Import settings</string>
     <string name="loading_failed">Loading Failed!</string>
     <string name="critical_error">Critical Error</string>
+    <string name="message_empty">Message Empty!</string>
+    <string name="message_empty_subtext">type something, fuck</string>
 
 </resources>
