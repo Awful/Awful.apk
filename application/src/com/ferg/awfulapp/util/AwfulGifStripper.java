@@ -59,6 +59,13 @@ public class AwfulGifStripper extends ByteArrayInputStream {
     public int read(byte[] buffer) throws IOException {
     	while(done == 0){
     		
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				done = -1;
+				break;
+			}
     	}
     	if(done == -1){
     		return done;
