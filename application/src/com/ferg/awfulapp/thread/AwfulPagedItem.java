@@ -59,22 +59,22 @@ public abstract class AwfulPagedItem {
             pagesTop = Integer.parseInt(pages.first().getElementsByTag("option").last().text());
        	}catch(NumberFormatException ex){
        		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-            pagesTop = 0;
+            pagesTop = 1;
     	}catch(NullPointerException ex){
             Log.e(TAG, "NullPointerException thrown while parseLastPage");
             ex.printStackTrace();
-            pagesTop = 0;
+            pagesTop = 1;
     	}
         try{
             Elements pages = pagedItem.getElementsByClass("pages");
             pagesBottom = Integer.parseInt(pages.last().getElementsByTag("option").last().text());
         }catch(NumberFormatException ex){
             Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-            pagesBottom = 0;
+            pagesBottom = 1;
         }catch(NullPointerException ex){
             Log.e(TAG, "NullPointerException thrown while parseLastPage");
             ex.printStackTrace();
-            pagesBottom = 0;
+            pagesBottom = 1;
         }
         return Math.max(pagesTop, pagesBottom);
     }
