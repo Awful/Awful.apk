@@ -18,6 +18,8 @@ package com.android.volley.toolbox;
 
 import android.os.SystemClock;
 
+import android.text.TextUtils;
+import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -43,8 +45,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -183,12 +187,25 @@ public class BasicNetwork implements Network {
         }
 
         if (entry.etag != null) {
+            Log.e("Volley", "If-None-Match: " + entry.etag);
             headers.put("If-None-Match", entry.etag);
         }
 
         if (entry.serverDate > 0) {
             Date refTime = new Date(entry.serverDate);
-            headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
+            String serverDate = DateUtils.formatDate(refTime);
+            //TODO report stupid 412 bug for fi.somethingawful.com
+            //Volley is formatting the If-Modified-Since string like this:
+            //Thu, 08 Aug 2013 21:58:01 GMT+00:00
+            //But SA image servers expect:
+            //Thu, 08 Aug 2013 21:58:01 GMT
+            //and will return 412 precon failures
+            //Unfortunately, we can't just change the datetime format,
+            //because of Android localization fuckery SimpleDateFormat will always put in +00:00,
+            //unless we specify a different local in which case all the dates are wrong and it'll still 412 on us.
+            if(serverDate != null && serverDate.length() > 7){
+                headers.put("If-Modified-Since", serverDate.substring(0, serverDate.length()-6));
+            }
         }
     }
 
