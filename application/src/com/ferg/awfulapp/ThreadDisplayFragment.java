@@ -1558,7 +1558,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private void loadThread(int id, int page, String postJump) {
-        if(parent == null || (id == getThreadId() && page == getPage() && TextUtils.isEmpty(postJump))){
+        if(parent == null){
             return;
         }
     	if(getActivity() != null){
