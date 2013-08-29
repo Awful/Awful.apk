@@ -125,7 +125,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 		if(mThreadFragment != null){
 			if(url.isThread() || url.isPost()){
 				mThreadFragment.openThread(url);
-			}else{
+			}else if(intent.getIntExtra(Constants.THREAD_ID, 0) > 0){
 				mThreadFragment.openThread(mThreadId, mThreadPage);
 			}
 		}
