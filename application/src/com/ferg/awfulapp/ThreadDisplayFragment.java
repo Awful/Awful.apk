@@ -1302,7 +1302,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			} else {
         				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         			}
-
+        			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
+        			request.allowScanningByMediaScanner();
         			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
         	        dlMngr.enqueue(request);
         			break;
