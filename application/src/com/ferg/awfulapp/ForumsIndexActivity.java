@@ -81,8 +81,8 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
         	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
-        	mThreadId = savedInstanceState.getInt(Constants.THREAD_ID,0);
-        	mThreadPage = savedInstanceState.getInt(Constants.THREAD_PAGE,1);
+            setThreadPage(savedInstanceState.getInt(Constants.THREAD_PAGE,1));
+            setThreadId(savedInstanceState.getInt(Constants.THREAD_ID,0));
             initialPage = savedInstanceState.getInt("viewPage",-1);
         }else{
         	initialPage = parseNewIntent(getIntent());
@@ -135,8 +135,8 @@ public class ForumsIndexActivity extends AwfulActivity {
         int initialPage = -1;
 		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
-        mThreadId = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
-        mThreadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage);
+        setThreadPage(getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage));
+        setThreadId(getIntent().getIntExtra(Constants.THREAD_ID, mThreadId));
         if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
         	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
         }
@@ -149,8 +149,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     			break;
     		case THREAD:
     			if(!url.isRedirect()){
-        			mThreadId = (int) url.getId();
-        			mThreadPage = (int) url.getPage();
+                    setThreadPage((int) url.getPage());
+                    setThreadId((int) url.getId());
     			}
     			break;
     		case POST:
@@ -238,7 +238,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 
     public void setThreadId(int threadId) {
+        int oldThreadId = mThreadId;
         mThreadId = threadId;
+        if((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null){
+            pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
+        }
     }
 
     public void setThreadPage(int page) {
@@ -314,6 +318,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         @Override
         public int getCount() {
+            if(getThreadId() < 1){
+                return 2;
+            }
             return 3;
         }
 
@@ -424,10 +431,10 @@ public class ForumsIndexActivity extends AwfulActivity {
     		if(mThreadFragment != null){
     			mThreadFragment.openThread(id, page);
     		}else{
-                mThreadId = id;
-                mThreadPage = page;
+                setThreadPage(page);
+                setThreadId(id);
             }
-    		mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
+            mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
     	}else{
     		super.displayThread(id, page, forumId, forumPg);
     	}

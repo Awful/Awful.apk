@@ -749,6 +749,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
                 @Override
                 public void success(Integer result) {
+                    Log.e(TAG, "PostRequest finished");
                     refreshInfo();
                     if(result == getPage()){
                         setProgress(75);
@@ -756,6 +757,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                         mNextPage.setColorFilter(0);
                         mPrevPage.setColorFilter(0);
                         mRefreshBar.setColorFilter(0);
+                    }else{
+                        Log.e(TAG, "Page mismatch: "+getPage()+" - "+result);
                     }
                 }
 
@@ -1538,10 +1541,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
 	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     	}
+        setPage(page);
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
         mPostByUsername = null;
-    	setPage(page);
     	bodyHtml = "";
     	mLastPage = 1;
     	if(postJump != null){
