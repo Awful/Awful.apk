@@ -14,6 +14,13 @@
     <include
         android:id="@+id/probationbar"
         layout="@layout/probationbar" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/thread_userpost_notice"
+        android:visibility="gone"
+        android:padding="2dp"
+        android:paddingLeft="6dp"/>
 
     <LinearLayout
         android:id="@+id/thread_container"

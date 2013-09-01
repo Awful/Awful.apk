@@ -123,6 +123,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private WebView mThreadView;
 
     private int mUserId = 0;
+    private String mPostByUsername;
     private int mLastPage = 0;
     private int mParentForumId = 0;
     private int mReplyDraftSaved = 0;
@@ -1169,20 +1170,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
 
         @JavascriptInterface
-        public void onUserPostsClick(final String aUserId) {
-        	onUserPostsClickInt(Integer.parseInt(aUserId));
-        }
-
-        @JavascriptInterface
-        public void onUserPostsClickInt(final int aUserId) {
-        	if(mUserId >0){
-        		deselectUser("0");
-        	}else{
-        		selectUser(aUserId);
-        	}
-        }
-
-        @JavascriptInterface
 		public void onIgnoreUserClick(final String aUserId) {
 			// TODO Auto-generated method stub
 			ignoreUser(aUserId);
@@ -1233,8 +1220,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     }
     
-	private void onPostActionItemSelected(int aItem,
-			String aPostId, String aUsername, String aUserId) {
+	private void onPostActionItemSelected(int aItem, String aPostId, String aUsername, String aUserId) {
 		switch(aItem){
 		case ClickInterface.SEND_PM:
         	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
@@ -1247,7 +1233,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			if(mUserId >0){
         		deselectUser(aPostId);
         	}else{
-        		selectUser(Integer.parseInt(aUserId));
+        		selectUser(Integer.parseInt(aUserId), aUsername);
         	}
 			break;
 		case ClickInterface.IGNORE_USER:
@@ -1411,9 +1397,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         parent.setThreadId(aThreadId);
 	}
 	
-	public void selectUser(int id){
+	public void selectUser(int id, String name){
 		savedPage = getPage();
 		mUserId = id;
+        mPostByUsername = name;
 		setPage(1);
 		mLastPage = 1;
 		mPostJump = "";
@@ -1426,11 +1413,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	public void deselectUser(String postId){
         bodyHtml = "";
+        aq.find(R.id.thread_userpost_notice).gone();
 		if(mThreadView != null){
             mThreadView.loadUrl("javascript:loadpagehtml()");
 		}
-		if("0".equals(postId)){
+		if(TextUtils.isEmpty(postId) || postId.length() < 3){
 			mUserId = 0;
+            mPostByUsername = null;
 			setPage(savedPage);
 			mLastPage = 0;
 			mPostJump = "";
@@ -1491,6 +1480,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		updatePageBar();
         		updateProbationBar();
         		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+                if(mUserId > 0 && !TextUtils.isEmpty(mPostByUsername)){
+                    aq.find(R.id.thread_userpost_notice).visible().text("Viewing all posts by "+mPostByUsername+" in this thread,\nPress the back button to return.").textColor(ColorProvider.getTextColor()).backgroundColor(ColorProvider.getBackgroundColor());
+                }else{
+                    aq.find(R.id.thread_userpost_notice).gone();
+                }
         		if(mReplyDraftSaved > 0){
             		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
             		//TODO add tablet notification
@@ -1529,7 +1523,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void setTitle(String title){
 		mTitle = title;
 		if(getActivity() != null && mTitle != null){
-			getAwfulActivity().setActionbarTitle(mTitle, this);
+            getAwfulActivity().setActionbarTitle(getTitle(), this);
 		}
 	}
 	
@@ -1567,6 +1561,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
+        mPostByUsername = null;
     	setPage(page);
     	bodyHtml = "";
     	mLastPage = 1;
@@ -1580,7 +1575,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(getActivity() != null){
     		if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
-    			//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     		}
 			refreshInfo();
 			syncThread();
@@ -1594,6 +1588,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     	setThreadId(thread.id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
+        mPostByUsername = null;
     	setPage(thread.page);
         bodyHtml = "";
     	mLastPage = 1;
@@ -1604,7 +1599,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	if(getActivity() != null){
     		if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
-    			//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     		}
 			refreshInfo();
 			refreshPosts();
@@ -1642,7 +1636,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(backStackCount() > 0){
 			popThread();
 			return true;
-		}else{
+		}else if(mUserId > 0){
+            deselectUser(null);
+            return true;
+        }else{
 			return false;
 		}
 	}
