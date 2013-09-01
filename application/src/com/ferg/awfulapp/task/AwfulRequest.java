@@ -261,7 +261,14 @@ public abstract class AwfulRequest<T> {
         public void setRequestQueue(RequestQueue requestQueue) {
             super.setRequestQueue(requestQueue);
             if(progressListener != null){
-                progressListener.requestStarted(AwfulRequest.this);
+                handle.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(progressListener != null){
+                            progressListener.requestStarted(AwfulRequest.this);
+                        }
+                    }
+                });
             }
         }
 
