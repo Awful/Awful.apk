@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.os.Looper;
 import android.support.v4.app.LoaderManager;
 import android.text.TextUtils;
 import android.view.*;
@@ -430,13 +431,17 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     }
 
     private void displayAlert(final String title, final String subtext, final int timeoutMillis, final int iconRes, final Animation animate){
-        //post on main thread, in case this is called from a secondary thread.
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
-            }
-        });
+        if(Looper.getMainLooper().equals(Looper.myLooper())){
+            displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+        }else{
+            //post on main thread, if this is called from a secondary thread.
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+                }
+            });
+        }
     }
 
     private void displayAlertInternal(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
