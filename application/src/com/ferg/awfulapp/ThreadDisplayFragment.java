@@ -126,8 +126,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private String mPostByUsername;
     private int mLastPage = 0;
     private int mParentForumId = 0;
-    private int mReplyDraftSaved = 0;
-    private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
     private boolean threadArchived = false;
@@ -916,64 +914,59 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     };
 
     public void displayPostReplyDialog() {
-
-        if(mReplyDraftSaved >0){
-        	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-        }else{
-            displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-        }
+        displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
     
-    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
-    	TextView draftAlertMsg = new TextView(getActivity());
-    	if(timeStamp != null){
-    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    	    try {
-				Date d = sdf.parse(timeStamp);
-				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
-				df.setTimeZone(TimeZone.getDefault());
-				timeStamp = df.format(d);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-    	}
-    	switch(replyType){
-    	case AwfulMessage.TYPE_EDIT:
-        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	case AwfulMessage.TYPE_QUOTE:
-        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	case AwfulMessage.TYPE_NEW_REPLY:
-        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	}
-        new AlertDialog.Builder(getActivity())
-            .setTitle("Draft Found")
-            .setView(draftAlertMsg)
-            .setPositiveButton(R.string.draft_alert_keep,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface aDialog, int aWhich) {
-                        displayPostReplyDialog(threadId, postId, replyType);
-                    }
-                })
-            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aWhich) {
-                    ContentResolver cr = getActivity().getContentResolver();
-                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-                    displayPostReplyDialog(threadId, postId, newType);
-                }
-            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aWhich) {
-                    ContentResolver cr = getActivity().getContentResolver();
-                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-                    mReplyDraftSaved = 0;
-                }
-            })
-            .show();
-        
-    }
+//    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
+//    	TextView draftAlertMsg = new TextView(getActivity());
+//    	if(timeStamp != null){
+//    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+//    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+//    	    try {
+//				Date d = sdf.parse(timeStamp);
+//				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
+//				df.setTimeZone(TimeZone.getDefault());
+//				timeStamp = df.format(d);
+//			} catch (ParseException e) {
+//				e.printStackTrace();
+//			}
+//    	}
+//    	switch(replyType){
+//    	case AwfulMessage.TYPE_EDIT:
+//        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	case AwfulMessage.TYPE_QUOTE:
+//        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	case AwfulMessage.TYPE_NEW_REPLY:
+//        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	}
+//        new AlertDialog.Builder(getActivity())
+//            .setTitle("Draft Found")
+//            .setView(draftAlertMsg)
+//            .setPositiveButton(R.string.draft_alert_keep,
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface aDialog, int aWhich) {
+//                        displayPostReplyDialog(threadId, postId, replyType);
+//                    }
+//                })
+//            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface aDialog, int aWhich) {
+//                    ContentResolver cr = getActivity().getContentResolver();
+//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
+//                    displayPostReplyDialog(threadId, postId, newType);
+//                }
+//            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface aDialog, int aWhich) {
+//                    ContentResolver cr = getActivity().getContentResolver();
+//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
+//                    mReplyDraftSaved = 0;
+//                }
+//            })
+//            .show();
+//
+//    }
 
     @Override
     public void loadingFailed(Message aMsg) {
@@ -1108,11 +1101,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         //name it differently to avoid ambiguity on the JS interface
         @JavascriptInterface
         public void onQuoteClickInt(final int aPostId){
-            if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId,AwfulMessage.TYPE_QUOTE);
-            }else{
-                displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
-            }
+            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
         }
 
         @JavascriptInterface
@@ -1140,11 +1129,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         //name it differently to avoid ambiguity on the JS interface
         @JavascriptInterface
         public void onEditClickInt(final int aPostId) {
-            if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
-            }else{
-                displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
-            }
+            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
         }
 
         @JavascriptInterface
@@ -1479,17 +1464,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
         		updateProbationBar();
-        		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
                 if(mUserId > 0 && !TextUtils.isEmpty(mPostByUsername)){
-                    aq.find(R.id.thread_userpost_notice).visible().text("Viewing all posts by "+mPostByUsername+" in this thread,\nPress the back button to return.").textColor(ColorProvider.getTextColor()).backgroundColor(ColorProvider.getBackgroundColor());
+                    aq.find(R.id.thread_userpost_notice).visible().text("Viewing posts by "+mPostByUsername+" in this thread,\nPress the back button to return.").textColor(ColorProvider.getTextColor()).backgroundColor(ColorProvider.getBackgroundColor());
                 }else{
                     aq.find(R.id.thread_userpost_notice).gone();
                 }
-        		if(mReplyDraftSaved > 0){
-            		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
-            		//TODO add tablet notification
-        			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
-        		}
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());
         		}

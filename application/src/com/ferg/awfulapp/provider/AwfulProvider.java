@@ -54,6 +54,8 @@ public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
     /**
      * So this whole thing works, but is really ugly and maintains poorly. I'd rewrite it, but it's a lot of work for no real benefit this late in the project.
+     *
+     * e: I really need to refactor this shit, I have a split-up version of this pattern that functions the same but is a hell of a lot easier to maintain.
      */
 
     private static final String DATABASE_NAME = "awful.db";
@@ -108,7 +110,6 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.STICKY,
 		AwfulThread.CATEGORY,
 		AwfulThread.LASTPOSTER,
-		AwfulMessage.TYPE,
 		AwfulThread.TAG_URL,
 		AwfulThread.TAG_CACHEFILE,
 		AwfulThread.FORUM_TITLE,
@@ -648,7 +649,7 @@ public class AwfulProvider extends ContentProvider {
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(TABLE_THREADS+"."+AwfulThread.ID + "=?");
 			case THREAD:
-				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
 			case UCP_THREAD_ID:
@@ -656,7 +657,7 @@ public class AwfulProvider extends ContentProvider {
                 builder.appendWhere(AwfulThread.ID + "=?");
 			case UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_THREADS+"."+AwfulThread.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
 			case PM_ID:
@@ -799,8 +800,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
 		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
 		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
-		sThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
-		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_DRAFTS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
+		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
 		
 		//hopefully this should let the join happen
@@ -825,7 +825,6 @@ public class AwfulProvider extends ContentProvider {
         sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
         sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
-		sUCPThreadProjectionMap.put(AwfulMessage.TYPE, TABLE_DRAFTS+"."+AwfulMessage.TYPE+" AS "+AwfulMessage.TYPE);
 		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
 		
 		sPMProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
