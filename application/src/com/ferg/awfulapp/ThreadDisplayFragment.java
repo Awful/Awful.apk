@@ -749,7 +749,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
                 @Override
                 public void success(Integer result) {
-                    Log.e(TAG, "PostRequest finished");
                     refreshInfo();
                     if(result == getPage()){
                         setProgress(75);
@@ -781,6 +780,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     private void markLastRead(int index) {
+        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_menu_lastread);
         queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {

@@ -63,6 +63,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
 	protected PullToRefreshAttacher mP2RAttacher;
+
+    private PopupWindow popupAlert;
+    private Runnable popupClose;
 	
 
     protected Handler mHandler = new Handler() {
@@ -102,7 +105,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     };
 
     protected Messenger mMessenger = new Messenger(mHandler);
-    
+
     @Override
     public void onAttach(Activity aActivity) {
     	super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
@@ -426,9 +429,27 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
         displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
     }
 
-    protected void displayAlert(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+    private void displayAlert(final String title, final String subtext, final int timeoutMillis, final int iconRes, final Animation animate){
+        //post on main thread, in case this is called from a secondary thread.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+            }
+        });
+    }
+
+    private void displayAlertInternal(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
         if(getActivity() == null){
             return;
+        }
+        if(popupAlert != null){
+            if(popupClose != null){
+                mHandler.removeCallbacks(popupClose);
+                popupClose = null;
+            }
+            popupAlert.dismiss();
+            popupAlert = null;
         }
         View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
         AQuery aq = new AQuery(popup);
@@ -446,17 +467,32 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
             }
         }
         int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
-        final PopupWindow alert = new PopupWindow(popup, popupDimen, popupDimen);
-        alert.setBackgroundDrawable(null);
-        alert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        popupAlert = new PopupWindow(popup, popupDimen, popupDimen);
+        popupAlert.setBackgroundDrawable(null);
+        popupAlert.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                popupAlert = null;
+                if(popupClose != null){
+                    mHandler.removeCallbacks(popupClose);
+                    popupClose = null;
+                }
+            }
+        });
+        popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
         if(timeoutMillis > 0){
-            mHandler.postDelayed(new Runnable() {
+            popupClose = new Runnable() {
                 @Override
                 public void run() {
                     //TODO fade out
-                    alert.dismiss();
+                    if(popupAlert != null){
+                        popupAlert.dismiss();
+                        popupAlert = null;
+                        popupClose = null;
+                    }
                 }
-            }, timeoutMillis);
+            };
+            mHandler.postDelayed(popupClose, timeoutMillis);
         }
     }
 
