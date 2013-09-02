@@ -37,12 +37,12 @@ public class PostReplyActivity extends AwfulActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply_activity);
+        setActionBar();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        setActionBar();
     }
 
     @Override

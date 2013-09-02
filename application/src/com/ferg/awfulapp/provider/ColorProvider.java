@@ -10,6 +10,9 @@ public class ColorProvider {
 	public static final String CLASSIC 	= "classic.css";
 	public static final String YOSPOS 	= "yospos.css";
 	public static final String AMBERPOS = "amberpos.css";
+
+    public static final int[] BOOKMARK_COLORS = {R.color.bookmark_default, R.color.bookmark_orange, R.color.bookmark_red, R.color.bookmark_yellow};
+    public static final int[] BOOKMARK_COLORS_DIM = {R.color.bookmark_default_dim, R.color.bookmark_orange_dim, R.color.bookmark_red_dim, R.color.bookmark_yellow_dim};
 	
 	private static AwfulPreferences prefs = AwfulPreferences.getInstance();
 
@@ -82,12 +85,22 @@ public class ColorProvider {
 		return getBackgroundColor(null);
 	}
 
-	public static int getUnreadColor(String theme){
+	public static int getUnreadColor(String theme, boolean dim, int bookmarked){
+        if(bookmarked > 0 && bookmarked < BOOKMARK_COLORS.length){
+            if(dim){
+                return prefs.getResources().getColor(BOOKMARK_COLORS_DIM[bookmarked]);
+            }else{
+                return prefs.getResources().getColor(BOOKMARK_COLORS[bookmarked]);
+            }
+        }
+        if(dim){
+            return getUnreadColorDim(theme);
+        }
 		if(theme == null){
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.unread_posts);
+			return prefs.getResources().getColor(R.color.bookmark_default);
 		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_default_post_font);
@@ -96,13 +109,9 @@ public class ColorProvider {
 			return prefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
 		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.unread_posts);
+			return prefs.getResources().getColor(R.color.bookmark_default);
 		}
-		return prefs.getResources().getColor(R.color.unread_posts);
-	}
-	
-	public static int getUnreadColor(){
-		return getUnreadColor(null);
+		return prefs.getResources().getColor(R.color.bookmark_default);
 	}
 
 	public static int getUnreadColorDim(String theme){
@@ -110,7 +119,7 @@ public class ColorProvider {
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.unread_posts_dim);
+			return prefs.getResources().getColor(R.color.bookmark_default_dim);
 		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_default_post_font);
@@ -119,13 +128,9 @@ public class ColorProvider {
 			return prefs.getResources().getColor(R.color.amberpos_default_post_font);
 		}
 		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.unread_posts_dim);
+			return prefs.getResources().getColor(R.color.bookmark_default_dim);
 		}
-		return prefs.getResources().getColor(R.color.unread_posts_dim);
-	}
-	
-	public static int getUnreadColorDim(){
-		return getUnreadColorDim(null);
+		return prefs.getResources().getColor(R.color.bookmark_default_dim);
 	}
 	
 	public static int getUnreadColorFont(String theme){

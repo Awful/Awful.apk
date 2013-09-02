@@ -53,4 +53,14 @@
     
     <color name="profile_column">#e7eff5</color>
     <color name="selected_item">#33eeeeee</color>
+
+    <color name="bookmark_default">#356693</color>
+    <color name="bookmark_orange">#e28d00</color>
+    <color name="bookmark_red">#b4171f</color>
+    <color name="bookmark_yellow">#dfdd6d</color><!--darker alternative: #bdbc2a-->
+
+    <color name="bookmark_default_dim">#7f356693</color>
+    <color name="bookmark_orange_dim">#7fe28d00</color>
+    <color name="bookmark_red_dim">#7fb4171f</color>
+    <color name="bookmark_yellow_dim">#7fdfdd6d</color><!--darker alternative: #bdbc2a-->
 </resources>

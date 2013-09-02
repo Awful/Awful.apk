@@ -132,8 +132,7 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 	}
 	
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
-		"theme",
-		"selected_theme"
+		"theme"
 	};
 
 	@Override

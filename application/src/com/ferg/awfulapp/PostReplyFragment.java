@@ -406,8 +406,20 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     }
 
     private String epocToSimpleDate(long epoc){
-        Period diff = new Period(epoc, System.currentTimeMillis(), PeriodType.standard().withMillisRemoved());
-        return PeriodFormat.getDefault().print(diff);
+        Period diff = new Period(epoc, System.currentTimeMillis(), PeriodType.standard());
+        PeriodType type;
+        if(diff.getMonths() > 0){
+            type = PeriodType.yearMonthDay();
+        }else if(diff.getWeeks() > 0){
+            type = PeriodType.yearWeekDay();
+        }else if(diff.getDays() > 0){
+            type = PeriodType.dayTime().withSecondsRemoved().withMillisRemoved().withMinutesRemoved();
+        }else if(diff.getMinutes() > 0){
+            type = PeriodType.time().withMillisRemoved().withSecondsRemoved();
+        }else{
+            type = PeriodType.time().withMillisRemoved();
+        }
+        return PeriodFormat.getDefault().print(new Period(epoc, System.currentTimeMillis(), type));
     }
 
 
