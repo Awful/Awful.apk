@@ -777,7 +777,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
         		draftReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
         		int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
-                if(draftReplyType == AwfulMessage.TYPE_EDIT && postId != mPostId){
+                if((draftReplyType == AwfulMessage.TYPE_EDIT && postId != mPostId) || draftReplyType != AwfulMessage.TYPE_EDIT && mReplyType == AwfulMessage.TYPE_EDIT){
                     //if the saved draft message is an edit, but not for this post, ignore it.
                     draftReplyType = 0;
                     return;
