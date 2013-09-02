@@ -93,12 +93,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String theme;
 	public boolean forceForumThemes;
 	public String layout;
-	/**
-	 * for selecting icon set
-	 * light
-	 * dark
-	 */
-	public String icon_theme;
 	public String preferredFont;
 	public boolean alternateBackground;
 	
@@ -252,7 +246,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
         newThreadsFirstForum	 = mPrefs.getBoolean("new_threads_first_forum", false);
         preferredFont			 = mPrefs.getString("preferred_font", "default");
-        icon_theme				 = mPrefs.getString("selected_theme", (Constants.isWidescreen(mContext)?"light":"dark"));//TODO update for proper dynamic tablet shit
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);

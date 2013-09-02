@@ -187,7 +187,6 @@ public class BasicNetwork implements Network {
         }
 
         if (entry.etag != null) {
-            Log.e("Volley", "If-None-Match: " + entry.etag);
             headers.put("If-None-Match", entry.etag);
         }
 
@@ -203,8 +202,8 @@ public class BasicNetwork implements Network {
             //Unfortunately, we can't just change the datetime format,
             //because of Android localization fuckery SimpleDateFormat will always put in +00:00,
             //unless we specify a different locale in which case the timezone is wrong and it'll still 412 on us.
-            if(serverDate != null && serverDate.length() > 7){
-                headers.put("If-Modified-Since", serverDate.substring(0, serverDate.length()-6));
+            if(serverDate != null){
+                headers.put("If-Modified-Since", serverDate.replaceAll("\\+00:00",""));
             }
         }
     }
