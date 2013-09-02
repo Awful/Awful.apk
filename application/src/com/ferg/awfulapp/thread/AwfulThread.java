@@ -107,6 +107,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 
+
 	
     public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -510,6 +511,7 @@ public class AwfulThread extends AwfulPagedItem  {
         TextView unread = (TextView) current.findViewById(R.id.unread_count);
 		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
         int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
+        int bookmarked = data.getInt(data.getColumnIndex(BOOKMARKED));
         boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
 		info.setSingleLine(!prefs.wrapThreadTitles);
 
@@ -587,21 +589,13 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
 		unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
-		if(unreadCount > 0) {
+		if(hasViewedThread) {
 			unread.setVisibility(View.VISIBLE);
 			unread.setText(Integer.toString(unreadCount));
 			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(ColorProvider.getUnreadColor(ForumName));
+            counter.setColor(ColorProvider.getUnreadColor(ForumName, unreadCount < 1, bookmarked));
             unread.setBackgroundDrawable(counter);
-		}
-		else if(hasViewedThread) {
-			unread.setVisibility(View.VISIBLE);
-			unread.setText(Integer.toString(unreadCount));
-			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(ColorProvider.getUnreadColorDim(ForumName));
-            unread.setBackgroundDrawable(counter);
-        }
-		else {
+		}else{
 			unread.setVisibility(View.GONE);
 		}
 		title.setTypeface(null, Typeface.NORMAL);
