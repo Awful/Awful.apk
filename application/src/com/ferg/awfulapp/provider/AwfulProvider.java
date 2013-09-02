@@ -59,7 +59,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -176,6 +176,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.REPLY_CONTENT,
 		AwfulMessage.REPLY_ATTACHMENT,
 		AwfulPost.FORM_BOOKMARK,
+        AwfulMessage.EPOC_TIMESTAMP,
 		UPDATED_TIMESTAMP
 	};
 
@@ -317,6 +318,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
                 AwfulPost.FORM_BOOKMARK        + " VARCHAR,"  +
                 AwfulMessage.REPLY_ATTACHMENT      + " VARCHAR," +
+                AwfulMessage.EPOC_TIMESTAMP + " INTEGER, " +
             	UPDATED_TIMESTAMP   + " DATETIME);");
             
 
@@ -362,8 +364,11 @@ public class AwfulProvider extends ContentProvider {
         		aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.RATING + " INTEGER");
         	case 25:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
-                createThreadTable(aDb);        		
-        		break;//make sure to keep this break statement on the last case of this switch
+                createThreadTable(aDb);
+            case 26:
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
+                createDraftTable(aDb);
+                    break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
         	}
@@ -845,6 +850,7 @@ public class AwfulProvider extends ContentProvider {
 		sDraftProjectionMap.put(AwfulPost.REPLY_ORIGINAL_CONTENT, AwfulPost.REPLY_ORIGINAL_CONTENT);
 		sDraftProjectionMap.put(AwfulMessage.REPLY_ATTACHMENT, AwfulMessage.REPLY_ATTACHMENT);
 		sDraftProjectionMap.put(AwfulPost.FORM_BOOKMARK, AwfulPost.FORM_BOOKMARK);
+        sDraftProjectionMap.put(AwfulMessage.EPOC_TIMESTAMP, AwfulMessage.EPOC_TIMESTAMP);
 		sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
 		
 		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);

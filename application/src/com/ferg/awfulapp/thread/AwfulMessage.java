@@ -70,6 +70,7 @@ public class AwfulMessage extends AwfulPagedItem {
     public static final String AUTHOR 		="author";
     public static final String CONTENT 	="content";
     public static final String DATE 	="message_date";
+    public static final String EPOC_TIMESTAMP = "epoc_timestamp";
 	public static final String TYPE = "message_type";
 	public static final String UNREAD = "unread_message";
 	public static final String RECIPIENT = "recipient";

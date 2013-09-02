@@ -117,10 +117,6 @@ AQuery</string>
 	<string-array name="layouts">
         <item>Default</item>
 	</string-array>
-	<string-array name="icon_themes">
-		<item>Black</item>
-		<item>White</item>
-	</string-array>
 	<string name="threadinfo_author">Author</string>
 	<string name="threadinfo_rating">Rating</string>
 	<string name="threadinfo_killed">Killed by</string>

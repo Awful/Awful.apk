@@ -28,6 +28,8 @@
 package com.ferg.awfulapp;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,6 +43,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -49,6 +52,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -76,7 +80,14 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyFragment";
@@ -103,6 +114,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     private ReplyCallback mReplyDataCallback = new ReplyCallback();
     private ThreadDataCallback mThreadLoaderCallback;
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
+
+    private int draftReplyType;
+    private String draftReplyData;
+    private long draftReplyTimestamp;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -148,6 +163,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                 if(mDialog != null){
                     mDialog.dismiss();
                     mDialog = null;
+                }
+                if(!TextUtils.isEmpty(draftReplyData)){
+                    displayDraftAlert();
                 }
             }
 
@@ -293,7 +311,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void autosave(){
         if(!sendSuccessful && mMessage != null){
-        	if(mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").equalsIgnoreCase(originalReplyData.replaceAll("\\s", "")) || this.sendSuccessful == true){
+        	if(mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").length() < 1 || this.sendSuccessful == true){
         		Log.i(TAG, "Message unchanged, discarding.");
         		deleteReply();//if the reply is unchanged, throw it out.
         		mMessage.setText("");
@@ -326,6 +344,71 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		//refresh the menu to show/hide attach option (plat only)
         invalidateOptionsMenu();
 	}
+
+    private void displayDraftAlert() {
+        if(!TextUtils.isEmpty(draftReplyData)){
+            String title = null;
+            String positiveButton = "Keep";
+            StringBuilder message = new StringBuilder();
+            switch (draftReplyType){
+                case AwfulMessage.TYPE_NEW_REPLY:
+                    title = "Saved Reply";
+                    message.append("You have a saved reply");
+                    break;
+                case AwfulMessage.TYPE_QUOTE:
+                    title = "Saved Quote";
+                    message.append("You have a saved quote");
+                    break;
+                case AwfulMessage.TYPE_EDIT:
+                    title = "Saved Edit";
+                    message.append("You have a saved edit");
+                    break;
+            }
+            if(mReplyType == AwfulMessage.TYPE_QUOTE){
+                positiveButton = "Append";
+            }
+            message.append(":<br/><br/><i>");
+            if(draftReplyData.length() > 140){
+                message.append(draftReplyData.substring(0, 140).replaceAll("\\n","<br/>"));
+                message.append("...");
+            }else{
+                message.append(draftReplyData.replaceAll("\\n","<br/>"));
+            }
+            message.append("</i>");
+            if(draftReplyTimestamp > 0){
+                message.append("<br/><br/>Saved ");
+                message.append(epocToSimpleDate(draftReplyTimestamp));
+                message.append(" ago");
+            }
+            new AlertDialog.Builder(getActivity())
+                    .setIcon(R.drawable.ic_menu_reply)
+                    .setTitle(title)
+                    .setMessage(android.text.Html.fromHtml(message.toString()))
+                    .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (mReplyType == AwfulMessage.TYPE_QUOTE) {
+                                originalReplyData = draftReplyData + "\n" + originalReplyData;
+                            } else if (mReplyType == AwfulMessage.TYPE_NEW_REPLY || mReplyType == AwfulMessage.TYPE_EDIT) {
+                                originalReplyData = draftReplyData + "\n\n";
+                            }
+                            mMessage.setText(originalReplyData);
+                            mMessage.setSelection(originalReplyData.length());
+                        }
+                    })
+                    .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+        }
+    }
+
+    private String epocToSimpleDate(long epoc){
+        Period diff = new Period(epoc, System.currentTimeMillis(), PeriodType.standard().withMillisRemoved());
+        return PeriodFormat.getDefault().print(diff);
+    }
 
 
     private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
@@ -489,7 +572,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     		endTag = "[/s]";
     		break;
     	case URL:
-    		/* TODO clipboard code, probably need to implement an alertdialog for this
     		String link = null;
     		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
     			ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -509,7 +591,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     		}else{
     			startTag = "[url]";
     		}
-    		*/
 			startTag = "[url]";
     		endTag = "[/url]";
     		break;
@@ -592,16 +673,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                     sendPost();
                 }
             })
-        .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface aDialog, int aWhich) {
-                ContentResolver cr = getActivity().getContentResolver();
-                cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
-                leave();
-            }
-        }).setNeutralButton(R.string.reply_alert_save_draft,  new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface aDialog, int aWhich) {
-                saveReply();
-                leave();
             }
         })
         .show();
@@ -626,6 +699,8 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                     mDialog = null;
                 }
                 sendSuccessful = true;
+                ContentResolver cr = getActivity().getContentResolver();
+                cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
                 Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
                 if(mReplyType == AwfulMessage.TYPE_EDIT){
                     getActivity().setResult(mPostId);
@@ -666,20 +741,22 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     
     private void saveReply(){
     	if(getActivity() != null && mThreadId >0 && mMessage != null){
-//    		ContentResolver cr = getActivity().getContentResolver();
-//	    	ContentValues post = new ContentValues(replyData);
-//	    	post.put(AwfulMessage.ID, mThreadId);
-//	    	post.put(AwfulMessage.TYPE, mReplyType);
-//	    	String content = mMessage.getText().toString();
-//	    	if(content.length() >0){
-//	    		post.put(AwfulMessage.REPLY_CONTENT, content);
-//    		}
-//	    	if(mFileAttachment != null){
-//		    	post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
-//	    	}
-//	    	if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
-//	    		cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
-//	    	}
+	    	String content = mMessage.getText().toString().trim();
+            Log.e(TAG, "Saving reply! "+content);
+	    	if(content.length() >0){
+                ContentResolver cr = getActivity().getContentResolver();
+                ContentValues post = new ContentValues(replyData);
+                post.put(AwfulMessage.ID, mThreadId);
+                post.put(AwfulMessage.TYPE, mReplyType);
+                post.put(AwfulMessage.REPLY_CONTENT, content);
+                post.put(AwfulMessage.EPOC_TIMESTAMP, System.currentTimeMillis());
+                if(mFileAttachment != null){
+                    post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+                }
+                if(cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null)<1){
+                    cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
+                }
+    		}
     	}
     }
 
@@ -696,43 +773,22 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-//        	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
-//        	if(!aData.isClosed() && aData.getCount() >0 && aData.moveToFirst()){
-//        		mReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
-//        		mPostId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
-//        		String replyData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
-//        		if (replyData != null) {
-//    				String quoteData = NetworkUtils.unencodeHtml(replyData);
-//    				if(quoteData.endsWith("[/quote]")){
-//    					quoteData = quoteData+"\n\n";
-//    				}
-//    				mMessage.setText(quoteData);
-//    				mMessage.setSelection(quoteData.length());
-//    				originalReplyData = NetworkUtils.unencodeHtml(aData.getString(aData.getColumnIndex(AwfulPost.REPLY_ORIGINAL_CONTENT)));
-//    				if(originalReplyData == null){
-//    					originalReplyData = "";
-//    				}
-//    				//TODO this part might be causing that odd swype bug, but I can't replicate it
-//    		        //if(mSelection>0 && mMessage.length() >= mSelection){
-//    		        //    mMessage.setSelection(mSelection);
-//    		        //}
-//    			}
-//        		String formKey = aData.getString(aData.getColumnIndex(AwfulPost.FORM_KEY));
-//        		String formCookie = aData.getString(aData.getColumnIndex(AwfulPost.FORM_COOKIE));
-//        		if((formKey != null && formCookie != null && formKey.length()>0 && formCookie.length()>0) || mReplyType == AwfulMessage.TYPE_EDIT){
-//        		}else{
-//			        if(getActivity() != null){
-//			        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(AwfulMessage.TYPE_NEW_REPLY));
-//			        }
-//        		}
-//        	}else{
-//		        if(mDialog == null && getActivity() != null){
-//		        	Log.d(TAG, "DISPLAYING DIALOG");
-//		        	mDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
-//		        	((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_POST_REPLY, mThreadId, mPostId, new Integer(mReplyType));
-//		        }
-//        	}
-//        	aData.close();
+        	Log.e(TAG,"Reply load finished, populating: "+aData.getCount());
+        	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
+        		draftReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+        		int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
+                if(draftReplyType == AwfulMessage.TYPE_EDIT && postId != mPostId){
+                    //if the saved draft message is an edit, but not for this post, ignore it.
+                    draftReplyType = 0;
+                    return;
+                }
+                draftReplyTimestamp = aData.getLong(aData.getColumnIndex(AwfulMessage.EPOC_TIMESTAMP));
+                String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+        		if (!TextUtils.isEmpty(quoteData)) {
+    				draftReplyData = NetworkUtils.unencodeHtml(quoteData);
+                    Log.e(TAG,draftReplyType+"Saved reply message: "+draftReplyData);
+    			}
+        	}
         }
 
         @Override

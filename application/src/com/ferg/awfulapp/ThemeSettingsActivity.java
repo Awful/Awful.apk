@@ -150,10 +150,6 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		ListPreference pIconTheme = (ListPreference) findPreference("selected_theme");
-		if(pIconTheme !=null){
-			pIconTheme.setSummary(prefs.icon_theme);
-		}
 		ListPreference pTheme = (ListPreference) findPreference("theme");
 		if(pTheme !=null){
 			pTheme.setSummary(prefs.theme);
