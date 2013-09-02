@@ -19,7 +19,9 @@
     <string name="logout_message">Make all your wildest dreams come true?</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="mark_last_read">Mark last read</string>
+    <string name="mark_last_read_progress">Marking Last-Read</string>
     <string name="mark_last_read_success">Post Marked</string>
+    <string name="please_wait_subtext">Please wait...</string>
     <string name="reply_invalid_title">You can\'t post here</string>
     <string name="reply_invalid_message">Fly away nerd!</string>
     <string name="cancel">Cancel</string>
@@ -114,10 +116,6 @@ AQuery</string>
 	</string-array>
 	<string-array name="layouts">
         <item>Default</item>
-	</string-array>
-	<string-array name="icon_themes">
-		<item>Black</item>
-		<item>White</item>
 	</string-array>
 	<string name="threadinfo_author">Author</string>
 	<string name="threadinfo_rating">Rating</string>

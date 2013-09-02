@@ -337,7 +337,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(aPage == lastPage){
     		newUnread = 0;
     	}
-        if(postcount < replycount){
+        if(postcount < replycount || aUserId > 0){
             thread.put(AwfulThread.POSTCOUNT, replycount);
             Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
         }
