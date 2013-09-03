@@ -153,6 +153,9 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		if(getActivity() != null){
 			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		}
+		if(mP2RAttacher != null){
+			mP2RAttacher.setPullFromBottom(false);
+		}
 	}
 	
 	@Override

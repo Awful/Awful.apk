@@ -278,6 +278,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void onPageVisible() {
 		updateColors();
 		syncForumsIfStale();
+		if(mP2RAttacher != null){
+			mP2RAttacher.setPullFromBottom(false);
+		}
 	}
 	
 	@Override
