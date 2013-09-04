@@ -47,6 +47,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -335,6 +336,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				ucp.setTitle(R.string.user_cp);
 			}
 		}
+        MenuItem pm = menu.findItem(R.id.pm);
+        if(pm != null){
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
+
 	}
     
 	@Override
@@ -359,6 +366,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             case R.id.go_to:
                 displayPagePicker();
                 return true;
+            case R.id.pm:
+            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

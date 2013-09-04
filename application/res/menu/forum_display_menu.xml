@@ -13,6 +13,11 @@
 		android:id="@+id/refresh"
 		android:icon="@drawable/ic_menu_load"
 		android:title="@string/refresh" />
+    <item 
+        android:id="@+id/pm" 
+        android:icon="@drawable/ic_menu_mail"
+        android:title="@string/private_message"
+        />
 	<item
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_menu_settings"
