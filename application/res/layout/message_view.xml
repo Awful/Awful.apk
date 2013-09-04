@@ -98,6 +98,7 @@
                 android:padding="8dip"
                 android:textColor="@color/default_post_font"
                 android:inputType="text|textAutoCorrect|textCapSentences"
+                android:textCursorDrawable="@null"
                 android:singleLine="true"
                 />
         </LinearLayout>
@@ -121,6 +122,7 @@
                 android:padding="8dip"
                 android:textColor="@color/default_post_font"
                 android:inputType="text|textAutoCorrect|textCapSentences"
+                android:textCursorDrawable="@null"
                 android:singleLine="true"
                 />
         </LinearLayout>
@@ -151,6 +153,7 @@
                 android:minLines="5" 
                 android:paddingLeft="10dip" 
                 android:paddingRight="10dip"
+                android:textCursorDrawable="@null"
                 />
         </LinearLayout>
 	</LinearLayout>
