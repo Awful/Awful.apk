@@ -112,6 +112,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideOldPosts;
 	public boolean disableTimgs;
 	public boolean volumeScroll;
+	public boolean coloredBookmarks;
 	/**
 	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
@@ -263,6 +264,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
         orientation				 = mPrefs.getString("orientation", "default");
+        coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
        	 //TODO: I have never seen this before oh god
 	}
 

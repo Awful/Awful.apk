@@ -23,6 +23,11 @@
 			android:summary="@string/wrap_titles_summary"
 			android:defaultValue="true"
 			/>
+		<CheckBoxPreference 
+            android:key="color_bookmarks" 
+			android:title="@string/color_bookmarks"
+			android:defaultValue="false"
+			/>
         </PreferenceCategory>
   <PreferenceCategory android:title="@string/threadinfo_settings">
       	<CheckBoxPreference 
