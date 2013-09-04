@@ -123,6 +123,7 @@ AQuery</string>
 	<string name="threadinfo_pages">Number of pages</string>
 	<string name="threadinfo_tag">Show forum &amp; thread tags</string>
 	<string name="threadinfo_tag_summary">Category icons</string>
+	<string name="color_bookmarks">Use \'star\' colors for bookmarks</string>
 	<string-array name="imgur_thumbnails">
 		<item>Don\'t replace pictures</item>
 		<item>Tiny (160px)</item>

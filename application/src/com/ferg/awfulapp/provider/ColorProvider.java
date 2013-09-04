@@ -86,7 +86,7 @@ public class ColorProvider {
 	}
 
 	public static int getUnreadColor(String theme, boolean dim, int bookmarked){
-        if(bookmarked > 0 && bookmarked < BOOKMARK_COLORS.length){
+        if(prefs.coloredBookmarks && bookmarked > 0 && bookmarked < BOOKMARK_COLORS.length){
             if(dim){
                 return prefs.getResources().getColor(BOOKMARK_COLORS_DIM[bookmarked]);
             }else{
