@@ -733,10 +733,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
     
 	private void toggleMarkUser(String username){
-		if(mPrefs.markedUsers.contains(username)){
-			mPrefs.unmarkUser(username);
+		if(Constants.isHoneycomb()){
+			if(mPrefs.markedUsers.contains(username)){
+				mPrefs.unmarkUser(username);
+			}else{
+				mPrefs.markUser(username);
+			}
 		}else{
-			mPrefs.markUser(username);
+			//TODO:Hide this shit
+			displayAlert(R.string.not_available_on_your_version, 0, R.drawable.ic_menu_load_fail);
 		}
 	}
 	
