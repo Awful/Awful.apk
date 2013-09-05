@@ -731,6 +731,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
     
+	private void toggleMarkUser(String username){
+		if(mPrefs.markedUsers.contains(username)){
+			mPrefs.unmarkUser(username);
+		}else{
+			mPrefs.markUser(username);
+		}
+	}
+	
     @Override
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
@@ -1081,11 +1089,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int SEND_PM  = 0;
         public static final int COPY_URL = 1;
         public static final int USER_POSTS = 2;
-        public static final int IGNORE_USER = 3;
+        public static final int MARK_USER = 3;
+        public static final int IGNORE_USER = 4;
 		
         final CharSequence[] mPostItems = {
             "Copy Post URL",
             "Read Posts by this User",
+            "Mark/Unmark this User",
             "Ignore User"
         };
         
@@ -1093,6 +1103,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 "Send Private Message",
                 "Copy Post URL",
                 "Read Posts by this User",
+                "Mark/Unmark this User",
                 "Ignore User"
             };
 
@@ -1226,6 +1237,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		case ClickInterface.IGNORE_USER:
         	ignoreUser(aUserId);
+			break;
+		case ClickInterface.MARK_USER:
+	    	toggleMarkUser(aUsername);
 			break;
 		}
 	}

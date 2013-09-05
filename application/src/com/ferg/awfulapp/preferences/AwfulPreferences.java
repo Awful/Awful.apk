@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -136,6 +137,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public long probationTime;
 	public boolean showIgnoreWarning;
 	public String ignoreFormkey;
+	public Set<String> markedUsers;
 
     public int alertIDShown;
 	
@@ -143,7 +145,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private int currPrefVersion;
 	
 	HashSet<String> longKeys;
-
+	
 
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
@@ -265,6 +267,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
         orientation				 = mPrefs.getString("orientation", "default");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
+        markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
        	 //TODO: I have never seen this before oh god
 	}
 
@@ -297,6 +300,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			mPrefs.edit().putInt(key, value).apply();
 		}else{
 			mPrefs.edit().putInt(key, value).commit();
+		}
+	}
+	
+	public void setStringSetPreference(String key, Set<String> value){
+		if(Constants.isGingerbread()){
+			mPrefs.edit().putStringSet(key, value).apply();
+		}else{
+			mPrefs.edit().putStringSet(key, value).commit();
 		}
 	}
 	
@@ -424,5 +435,15 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	protected void finalize() throws Throwable {
 		unRegisterListener();
 		super.finalize();
+	}
+	
+	public void markUser(String username){
+		markedUsers.add(username);
+		setStringSetPreference("marked_users", markedUsers);
+	}
+	
+	public void unmarkUser(String username){
+		markedUsers.remove(username);
+		setStringSetPreference("marked_users", markedUsers);
 	}
 }

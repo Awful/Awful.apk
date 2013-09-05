@@ -64,19 +64,27 @@ article.read {
 background-color:#ddeeff;
 }
 
-article.op div.postheader {
+article.op header {
 background-color:#199ed7;
 }
 
-article.op div.postoptions {
+article.op ul.postoptions {
 background-color:#199ed7;
 }
 
-article.self div.postheader {
+article.marked header {
+background-color:#D71919;
+}
+
+article.marked ul.postoptions {
+background-color:#D71919;
+}
+
+article.self header {
 background-color:#5BA611;
 }
 
-article.self div.postoptions {
+article.self ul.postoptions {
 background-color:#5BA611;
 }
 

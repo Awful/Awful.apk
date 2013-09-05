@@ -66,6 +66,10 @@ article.op {
 background-color:#329332;
 }
 
+article.marked {
+background-color:#938D32;
+}
+
 article.self {
 background-color:#1A4000;
 }
