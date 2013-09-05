@@ -101,7 +101,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
-    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
     }
 
     @Override
@@ -110,11 +109,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
         mForumTree = (TreeViewList) result.findViewById(R.id.index_pull_tree_view);
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-        	mP2RAttacher.setEnabled(true);
-        }
         mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
         mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 
@@ -128,6 +122,14 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	@Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
+
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setEnabled(true);
+        }
+
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
         mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
