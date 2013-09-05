@@ -247,5 +247,6 @@ AQuery</string>
     <string name="message_empty_subtext">type something, fuck</string>
     <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
     <string name="vote_failed_sub">Maybe next time?</string>
+    <string name="not_available_on_your_version">This feature is not available on your version of Android. Sorry.</string>
 
 </resources>

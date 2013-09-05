@@ -267,7 +267,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
         orientation				 = mPrefs.getString("orientation", "default");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
-        markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
+        if(Constants.isHoneycomb()){
+        	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
+        }else{
+        	markedUsers = new HashSet<String>();
+        }
        	 //TODO: I have never seen this before oh god
 	}
 
