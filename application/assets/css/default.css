@@ -66,6 +66,18 @@ article.read div.postcontent {
 color:#AAAAAA;
 }
 
+article.marked {
+background-color:#FFDFBF;
+}
+
+article.marked section.postcontent .bbc-block {
+border-left:2px solid #CCCBCC !important;
+}
+
+article.marked header {
+border-bottom:2px solid #CCCBCC !important;
+}
+
 article.op {
 background-color:#FEFFD9;
 }
