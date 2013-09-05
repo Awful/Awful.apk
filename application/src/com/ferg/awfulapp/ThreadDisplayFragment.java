@@ -223,7 +223,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     public void onAttach(Activity aActivity) {
         super.onAttach(aActivity); Log.e(TAG, "onAttach");
         parent = (ForumsIndexActivity) aActivity;
-    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
     }
 
     @Override
@@ -278,11 +277,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mThreadView = (WebView) result.findViewById(R.id.thread);
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mThreadView,new WebViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(true);
-        	mP2RAttacher.setEnabled(true);
-        }
         initThreadViewProperties();
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -295,6 +289,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mThreadView,new WebViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(true);
+            mP2RAttacher.setEnabled(true);
+        }
+
 		updatePageBar();
 		updateProbationBar();
 	}

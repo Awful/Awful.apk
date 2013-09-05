@@ -83,7 +83,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     @Override
     public void onAttach(Activity aActivity) {
     	super.onAttach(aActivity);
-    	mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
     }
     
     @Override
@@ -96,11 +95,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-        	mP2RAttacher.setEnabled(true);
-        }
         return result;
     }
     
@@ -108,7 +102,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setRetainInstance(true);
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setEnabled(true);
+        }
 
         mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
