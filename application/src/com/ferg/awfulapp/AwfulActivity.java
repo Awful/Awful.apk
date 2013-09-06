@@ -3,6 +3,10 @@ package com.ferg.awfulapp;
 import java.io.File;
 import java.util.LinkedList;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -16,20 +20,21 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.Html;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Window;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -40,7 +45,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends SherlockFragmentActivity implements ServiceConnection, AwfulUpdateCallback {
+public class AwfulActivity extends ActionBarActivity implements ServiceConnection, AwfulUpdateCallback {
     protected static String TAG = "AwfulActivity";
     protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;
@@ -55,6 +60,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     protected AwfulPreferences mPrefs;
     
+	protected PullToRefreshAttacher mP2RAttacher;
+    
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
@@ -66,11 +73,15 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mPrefs = new AwfulPreferences(this, this);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_PROGRESS);
+        mPrefs = AwfulPreferences.getInstance(this, this);
+        supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_PROGRESS);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
+    	Options p2roptions = new Options();
+    	p2roptions.headerTransformer = new AwfulHeaderTransformer();
+    	p2roptions.refreshOnUp = true;
+    	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
     @Override
@@ -99,7 +110,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
         mConf.onPause();
     }
-    
+
+    @SuppressLint("NewApi")
     @Override
     protected void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
@@ -143,8 +155,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(aPrefs.actionbarColor));
-	        mTitleView.setTextColor(aPrefs.actionbarFontColor);
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor());
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }
@@ -191,7 +203,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     }
     
     public void displayThread(int id, int page, int forumId, int forumPage){
-    	startActivity(new Intent().setClass(this, ThreadDisplayActivity.class)
+    	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
     							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     							  .putExtra(Constants.THREAD_ID, id)
     							  .putExtra(Constants.THREAD_PAGE, page)
@@ -208,11 +220,7 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     
     public void displayForumIndex(){
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
-				  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-    }
-    
-    public void displayQuickBrowser(String url){
-        AwfulWebFragment.newInstance(url).show(getSupportFragmentManager().beginTransaction(), "awful_web_dialog");
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
     
 	public void displayReplyWindow(int threadId, int postId, int type) {
@@ -230,7 +238,8 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
         	mTitleView = (TextView) action.getCustomView();
         }
     	if(aTitle != null && mTitleView != null && aTitle.length()>0){
-    		mTitleView.setText(Html.fromHtml(aTitle));
+//    		mTitleView.setText(Html.fromHtml(aTitle));
+    		mTitleView.setText(aTitle);
 			mTitleView.scrollTo(0, 0);
     	}else{
     		Log.e(TAG, "FAILED setActionbarTitle - "+aTitle);
@@ -281,8 +290,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 	@Override
 	public void loadingUpdate(Message aMsg) {}
 
-	public void fragmentClosing(AwfulFragment fragment) {}
-
 	public void setLoadProgress(int percent) {
 		setSupportProgressBarVisibility(percent<100);
     	setSupportProgressBarIndeterminateVisibility(false);
@@ -294,14 +301,6 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
     	setSupportProgressBarIndeterminateVisibility(false);
 	}
 
-	/**
-	 * AwfulFragments have the capability to broadcast messages to other fragments on the same activity.
-	 * Override this method, then pass these Strings to any internal fragments.
-	 * @param type
-	 * @param contents
-	 */
-	public void fragmentMessage(String type, String contents) {	}//subclasses should implement this
-
 	
 
 
@@ -310,4 +309,9 @@ public class AwfulActivity extends SherlockFragmentActivity implements ServiceCo
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
+	
+	
+	PullToRefreshAttacher getPullToRefreshAttacher() {
+        return mP2RAttacher;
+    }
 }

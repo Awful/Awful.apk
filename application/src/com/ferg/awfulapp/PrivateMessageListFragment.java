@@ -28,6 +28,12 @@
 package com.ferg.awfulapp;
 
 
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PMListRequest;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -40,24 +46,25 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class PrivateMessageListFragment extends AwfulFragment {
+public class PrivateMessageListFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
 	
 
     private static final String TAG = "PrivateMessageList";
@@ -67,6 +74,12 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	private AwfulCursorAdapter mCursorAdapter;
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
     
+    private int currentFolder = FOLDER_INBOX;
+
+    public final static int FOLDER_INBOX	= 0;
+    public final static int FOLDER_SENT		= -1;
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -74,15 +87,20 @@ public class PrivateMessageListFragment extends AwfulFragment {
     }
 
     @Override
+    public void onAttach(Activity aActivity) {
+    	super.onAttach(aActivity);
+    }
+    
+    @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
-        mPrefs = new AwfulPreferences(this.getActivity());
+        mPrefs = AwfulPreferences.getInstance(this.getActivity());
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
         mPMList = (ListView) result.findViewById(R.id.message_listview);
-        
+
         return result;
     }
     
@@ -90,35 +108,49 @@ public class PrivateMessageListFragment extends AwfulFragment {
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        setRetainInstance(true);
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setEnabled(true);
+        }
 
-        
-        mPMList.setCacheColorHint(mPrefs.postBackgroundColor);
+        mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
         mPMList.setOnItemClickListener(onPMSelected);
         
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null);
+        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, this);
         mPMList.setAdapter(mCursorAdapter);
     }
     
     private void updateColors(AwfulPreferences pref){
     	if(mPMList != null){
-    		mPMList.setBackgroundColor(pref.postBackgroundColor);
-    		mPMList.setCacheColorHint(pref.postBackgroundColor);
+    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor());
+    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
     	}
     }
     
     @Override
     public void onStart(){
     	super.onStart();
-		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
     }
     
     private void syncPMs() {
     	if(getActivity() != null){
-    		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM_INDEX, Constants.PRIVATE_MESSAGE_THREAD, 0);
+            queueRequest(new PMListRequest(getActivity(), currentFolder).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    //The error is already passed to displayAlert by the request framework.
+                }
+            }));
     	}
 	}
 
@@ -137,7 +169,6 @@ public class PrivateMessageListFragment extends AwfulFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mPrefs.unRegisterListener();
     }
     
     @Override
@@ -161,6 +192,10 @@ public class PrivateMessageListFragment extends AwfulFragment {
         	}
         	break;
         case R.id.refresh:
+        	syncPMs();
+        	break;
+        case R.id.toggle_folder:
+        	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
         	syncPMs();
         	break;
         case R.id.settings:
@@ -196,22 +231,6 @@ public class PrivateMessageListFragment extends AwfulFragment {
     };
 
 	@Override
-    public void loadingFailed(Message aMsg) {
-		super.loadingFailed(aMsg);
-    	if(getActivity()!= null){
-        	Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void loadingSucceeded(Message aMsg) {
-    	super.loadingSucceeded(aMsg);
-    	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM_INDEX){
-    		getLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
-    	}
-    }
-
-	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		updateColors(mPrefs);
 	}
@@ -225,7 +244,7 @@ public class PrivateMessageListFragment extends AwfulFragment {
             return new CursorLoader(getActivity(), 
             						AwfulMessage.CONTENT_URI, 
             						AwfulProvider.PMProjection, 
-            						null, 
+            						"folder="+currentFolder, 
             						null,
             						AwfulMessage.ID+" DESC");
         }
@@ -243,9 +262,7 @@ public class PrivateMessageListFragment extends AwfulFragment {
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
-        	}
+        	restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
         }
     }
 	@Override
@@ -270,5 +287,10 @@ public class PrivateMessageListFragment extends AwfulFragment {
 	public boolean volumeScroll(KeyEvent event) {
 		// I have no idea where this fragment is coming from, not the FIA anyway
 		return false;
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+    	syncPMs();
 	}
 }

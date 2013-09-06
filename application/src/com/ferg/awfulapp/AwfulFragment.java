@@ -27,29 +27,35 @@
 
 package com.ferg.awfulapp;
 
+import android.os.Looper;
+import android.support.v4.app.LoaderManager;
+import android.text.TextUtils;
+import android.view.*;
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.Request;
+import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.widget.AwfulFragmentPagerAdapter.AwfulPagerFragment;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends SherlockFragment implements AwfulUpdateCallback, AwfulPagerFragment, ActionMode.Callback{
+public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -57,6 +63,10 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
+	protected PullToRefreshAttacher mP2RAttacher;
+
+    private PopupWindow popupAlert;
+    private Runnable popupClose;
 	
 
     protected Handler mHandler = new Handler() {
@@ -71,10 +81,16 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
                     loadingFailed(aMsg);
 	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
+                    if(mP2RAttacher != null){
+                        mP2RAttacher.setRefreshComplete();
+                    }
 	        		loadingUpdate(aMsg);
 	        	}else{
 		            switch (aMsg.arg1) {
 		                case AwfulSyncService.Status.WORKING:
+		                	if(mP2RAttacher != null){
+		                		mP2RAttacher.setRefreshComplete();
+		                	}
 		                    loadingStarted(aMsg);
 		                    break;
 		                case AwfulSyncService.Status.OKAY:
@@ -90,14 +106,14 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     };
 
     protected Messenger mMessenger = new Messenger(mHandler);
-    
+
     @Override
     public void onAttach(Activity aActivity) {
     	super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
     	if(!(aActivity instanceof AwfulActivity)){
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
-        mPrefs = new AwfulPreferences(getAwfulActivity(), this);
+        mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
     }
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
@@ -115,7 +131,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
 		onPreferenceChange(mPrefs);
 		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(mPrefs.actionbarColor);
+			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
 		}
 	}
 
@@ -148,7 +164,6 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mPrefs.unregisterCallback(this);
-        mPrefs.unRegisterListener();
     }
 
     @Override
@@ -201,13 +216,9 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-			if(aa != null && isFragmentVisible()){
-				aa.hideProgressBar();
-			}
-		}else{
-			if(aa != null && isFragmentVisible()){
-				aa.setLoadProgress(percent);
-			}
+            if(aa != null){
+                aa.hideProgressBar();
+            }
 		}
 	}
 	
@@ -230,25 +241,27 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	
 	protected void startActionMode(){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().startActionMode(this);
+			getAwfulActivity().startSupportActionMode(this);
 		}
 	}
 	
 	@Override
     public void loadingFailed(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             setProgress(100);
         	aa.setSupportProgressBarIndeterminateVisibility(false);
 			aa.setSupportProgressBarVisibility(false);
 			if(aMsg.obj instanceof String){
-				Toast.makeText(aa, aMsg.obj.toString(), Toast.LENGTH_LONG).show();
+                displayAlert(aMsg.obj.toString());
 			}
         }
     }
 
     @Override
     public void loadingStarted(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
 			aa.setSupportProgressBarVisibility(false);
@@ -258,6 +271,7 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 
     @Override
     public void loadingSucceeded(Message aMsg) {
+        //TODO remove completely
 		AwfulActivity aa = getAwfulActivity();
     	if(aa != null){
     		aa.setSupportProgressBarIndeterminateVisibility(false);
@@ -267,41 +281,51 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
     
     @Override
     public void loadingUpdate(Message aMsg) {
+        //TODO remove completely
     	setProgress(aMsg.arg2);
     }
 
-	@Override
+    @Override
+    public void requestStarted(AwfulRequest req) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarVisibility(false);
+            aa.setSupportProgressBarIndeterminateVisibility(true);
+        }
+    }
+
+    @Override
+    public void requestUpdate(AwfulRequest req, int percent) {
+        setProgress(percent);
+    }
+
+    @Override
+    public void requestEnded(AwfulRequest req, VolleyError error) {
+        AwfulActivity aa = getAwfulActivity();
+        if(aa != null){
+            aa.setSupportProgressBarIndeterminateVisibility(false);
+            aa.setSupportProgressBarVisibility(false);
+        }
+        if(mP2RAttacher != null){
+            mP2RAttacher.setRefreshComplete();
+        }
+        if(error instanceof AwfulError){
+            displayAlert((AwfulError) error);
+        }else if(error != null){
+            displayAlert(R.string.loading_failed);
+        }
+    }
+
+    @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		
 	}
-	
-	public void sendFragmentMessage(String type, String contents){
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.fragmentMessage(type, contents);
-    	}
-	}
-	
-	/**
-	 * Default implementation ignores messages from other fragments. Override this function to receive messages.
-	 */
-	public void fragmentMessage(String type, String contents){	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return false;
-	}
-	
+
 	protected boolean isLoggedIn(){
 		return getAwfulActivity().isLoggedIn();
 	}
 	
 	public boolean onBackPressed() {
-		return false;
-	}
-
-	@Override
-	public boolean canScrollX(int x, int y) {
 		return false;
 	}
 
@@ -323,5 +347,163 @@ public abstract class AwfulFragment extends SherlockFragment implements AwfulUpd
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
 
-    
+    protected AwfulApplication getAwfulApplication(){
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            return (AwfulApplication) act.getApplication();
+        }
+        return null;
+    }
+    public void queueRequest(Request request){
+        queueRequest(request, false);
+    }
+    public void queueRequest(Request request, boolean cancelOnDestroy){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null && request != null){
+            if(cancelOnDestroy){
+                request.setTag(this);
+            }
+            app.queueRequest(request);
+        }
+    }
+
+    protected void cancelNetworkRequests(){
+        AwfulApplication app = getAwfulApplication();
+        if(app != null){
+            app.cancelRequests(this);
+        }
+    }
+
+    public ImageLoader getImageLoader(){
+        if(getAwfulApplication() != null){
+            return getAwfulApplication().getImageLoader();
+        }
+        return null;
+    }
+
+
+
+    protected void invalidateOptionsMenu() {
+        AwfulActivity act = getAwfulActivity();
+        if(act != null){
+            act.supportInvalidateOptionsMenu();
+        }
+    }
+
+    public abstract String getTitle();
+    public abstract void onPageVisible();
+    public abstract void onPageHidden();
+    public abstract String getInternalId();
+    public abstract boolean volumeScroll(KeyEvent event);
+
+
+    private static final int ALERT_DISPLAY_MILLIS = 3000;
+    protected void displayAlert(int titleRes){
+        if(getActivity() != null){
+            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+        }
+    }
+
+    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
+        if(getActivity() != null){
+            if(subtitleRes != 0){
+                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+            }else{
+                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+            }
+        }
+    }
+
+    protected void displayAlert(AwfulError error){
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
+    }
+
+    protected void displayAlert(String title){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    protected void displayAlert(String title, int iconRes){
+        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+    }
+
+    protected void displayAlert(String title, String subtext){
+        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+    }
+
+    private void displayAlert(final String title, final String subtext, final int timeoutMillis, final int iconRes, final Animation animate){
+        if(Looper.getMainLooper().equals(Looper.myLooper())){
+            displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+        }else{
+            //post on main thread, if this is called from a secondary thread.
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+                }
+            });
+        }
+    }
+
+    private void displayAlertInternal(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+        if(getActivity() == null){
+            return;
+        }
+        if(popupAlert != null){
+            if(popupClose != null){
+                mHandler.removeCallbacks(popupClose);
+                popupClose = null;
+            }
+            popupAlert.dismiss();
+            popupAlert = null;
+        }
+        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        AQuery aq = new AQuery(popup);
+        aq.find(R.id.popup_title).text(title);
+        if(TextUtils.isEmpty(subtext)){
+            aq.find(R.id.popup_subtitle).gone();
+        }else{
+            aq.find(R.id.popup_subtitle).visible().text(subtext);
+        }
+        if(iconRes != 0){
+            if(animate != null){
+                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+            }else{
+                aq.find(R.id.popup_icon).image(iconRes);
+            }
+        }
+        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
+        popupAlert = new PopupWindow(popup, popupDimen, popupDimen);
+        popupAlert.setBackgroundDrawable(null);
+        popupAlert.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                popupAlert = null;
+                if(popupClose != null){
+                    mHandler.removeCallbacks(popupClose);
+                    popupClose = null;
+                }
+            }
+        });
+        popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        if(timeoutMillis > 0){
+            popupClose = new Runnable() {
+                @Override
+                public void run() {
+                    //TODO fade out
+                    if(popupAlert != null){
+                        popupAlert.dismiss();
+                        popupAlert = null;
+                        popupClose = null;
+                    }
+                }
+            };
+            mHandler.postDelayed(popupClose, timeoutMillis);
+        }
+    }
+
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+        if(getActivity() != null){
+            getLoaderManager().restartLoader(id, data, callback);
+        }
+    }
 }

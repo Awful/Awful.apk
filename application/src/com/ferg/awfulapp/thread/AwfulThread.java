@@ -27,11 +27,21 @@
 
 package com.ferg.awfulapp.thread;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.text.TextUtils;
+import com.android.volley.toolbox.NetworkImageView;
+import com.ferg.awfulapp.AwfulFragment;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -40,31 +50,29 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Message;
 import android.os.Messenger;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.task.ThreadTask;
+import com.ferg.awfulapp.provider.ColorProvider;
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.MustacheException;
+import com.samskivert.mustache.Template;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -98,6 +106,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
+
 
 	
     public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
@@ -257,14 +266,9 @@ public class AwfulThread extends AwfulPagedItem  {
         return result;
     }
 
-    public static String getThreadPosts(Context aContext, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId, Messenger statusUpdates, ThreadTask parentTask) throws Exception {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(Constants.PARAM_THREAD_ID, Integer.toString(aThreadId));
-        params.put(Constants.PARAM_PER_PAGE, Integer.toString(aPageSize));
-        params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        params.put(Constants.PARAM_USER_ID, Integer.toString(aUserId));
-        
-        ContentResolver contentResolv = aContext.getContentResolver();
+    public static void getThreadPosts(ContentResolver contentResolv, Document response, int aThreadId, int aPage, int aPageSize, AwfulPreferences aPrefs, int aUserId) {
+
+
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
     	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
 		if(threadData.moveToFirst()){
@@ -275,23 +279,6 @@ public class AwfulThread extends AwfulPagedItem  {
 			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
 			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
 		}
-        
-        //notify user we are starting update
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 10));
-        
-        Document response = NetworkUtils.get(Constants.FUNCTION_THREAD, params, statusUpdates, 25);
-
-        if(parentTask.isCancelled()){
-            return null;
-        }
-
-        //notify user we have gotten message body, this represents a large portion of this function
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 50));
-        
-        String error = AwfulPagedItem.checkPageErrors(response, statusUpdates, aPrefs);
-        if(error != null){
-        	return error;
-        }
         
         ContentValues thread = new ContentValues();
         thread.put(ID, aThreadId);
@@ -336,9 +323,6 @@ public class AwfulThread extends AwfulPagedItem  {
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
 
-        //notify user we have began processing thread info
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 55));
-
 		threadData.close();
 		int replycount;
 		if(aUserId > 0){
@@ -354,7 +338,7 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(aPage == lastPage){
     		newUnread = 0;
     	}
-        if(postcount < replycount){
+        if(postcount < replycount || aUserId > 0){
             thread.put(AwfulThread.POSTCOUNT, replycount);
             Log.v(TAG, "Parsed lastPage:"+lastPage+" old total: "+totalReplies+" new total:"+replycount);
         }
@@ -362,9 +346,6 @@ public class AwfulThread extends AwfulPagedItem  {
             thread.put(AwfulThread.UNREADCOUNT, newUnread);
             Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
         }
-
-        //notify user we have began processing posts
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 65));
         
         AwfulPost.syncPosts(contentResolv, 
         					response, 
@@ -377,390 +358,260 @@ public class AwfulThread extends AwfulPagedItem  {
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
     	}
-    	
-        //notify user we are done with this stage
-        statusUpdates.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, aThreadId, 100));
-        return null;
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean isTablet, int page, int lastPage, boolean threadLocked) {
-        int unreadCount = 0;
-        if(aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
-        	for(AwfulPost ap : aPosts){
-        		if(!ap.isPreviouslyRead()){
-        			unreadCount++;
-        		}
-        	}
-        }
-    	
-    	
-    	StringBuffer buffer = new StringBuffer("<html>\n<head>\n");
-        buffer.append("<meta name='viewport' content='width=device-width, height=device-height, target-densitydpi=device-dpi, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0' />\n");
+    public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
+        StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
-        
-        buffer.append("<link rel='stylesheet' href='file:///android_asset/thread.css'>\n");
+        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
+        if(!(aPrefs.forceForumThemes && forumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+            buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
+        }else if(aPrefs.forceForumThemes){
+            switch(forumId){
+                //TODO: No FYAD theme yet
+//    			case(26):
+//	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
+//	    			break;
+                //RIP BYOB
+//        		case(208):
+//        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
+//        			break;
+                case(219):
+                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
+                    break;
+                default:
+                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+                    break;
+            }
+        }else{
+            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+        }
         if(!aPrefs.preferredFont.contains("default")){
-        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
+            buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
-        buffer.append("<script src='file:///android_asset/jquery.min.js' type='text/javascript'></script>\n");
-        
-        buffer.append("<script type='text/javascript'>\n");
-        buffer.append("  window.JSON = null;");
-        if(isTablet){
-        	buffer.append("window.isTablet = true;");
-        }else{
-        	buffer.append("window.isTablet = false;");
-        }
-        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
-            buffer.append("window.hideRead = true;");
-        }else{
-            buffer.append("window.hideRead = false;");
-        }
-        buffer.append("</script>\n");
-        
-        
+        buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
+
+
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/ICanHaz.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
-        
 
         //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
-        if(AwfulActivity.isHoneycomb()){
-	        buffer.append("<script type='text/javascript'>\n");
-	        buffer.append("$(window).scroll(gifHide);");
-	        buffer.append("$(window).ready(gifHide);");
-	        buffer.append("</script>\n");
+//        if(AwfulActivity.isHoneycomb() && !aPrefs.disableGifs){
+//            buffer.append("<script type='text/javascript'>\n");
+//            buffer.append("$(window).on('scroll', gifHide);");
+//            buffer.append("$(window).ready(gifHide);");
+//            buffer.append("</script>\n");
+//        }
+        buffer.append("</head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
+        return buffer.toString();
+    }
+
+    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
+        StringBuffer buffer = new StringBuffer(1024);
+        buffer.append("<div class='content' >\n");
+
+        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
+            int unreadCount = 0;
+            for(AwfulPost ap : aPosts){
+                if(!ap.isPreviouslyRead()){
+                    unreadCount++;
+                }
+            }
+            buffer.append("    <article class='toggleread'>");
+            buffer.append("      <a>\n");
+            buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+            buffer.append("      </a>\n");
+            buffer.append("    </article>");
+
+        }
+
+        buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
+
+        if(page == lastPage){
+            buffer.append("<div class='unread' ></div>\n");
         }
         
-        buffer.append("<style type='text/css'>\n");   
-        buffer.append("a:link {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+" }\n");
-        buffer.append("a:visited {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append("a:active {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append("a:hover {color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        buffer.append(".bbc-block.code {background: "+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor2)+";overflow:auto;}\n");
-        if(!aPrefs.disableTimgs){
-            buffer.append(".timg {border-color: "+ColorPickerPreference.convertToARGB(aPrefs.postLinkQuoteColor)+"}\n");
-        }
-        if(!aPrefs.postDividerEnabled){
-            buffer.append(".userinfo-row {border-top-width:0px;}\n");
-            buffer.append(".post-buttons {border-bottom-width:0px;}\n");
-        }
-        buffer.append(".bbc-block { border-bottom: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; }\n");
-        buffer.append(".bbc-block h4 { border-top: 1px "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+" solid; color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor2)+"; }\n");
-        buffer.append(".bbc-spoiler, .bbc-spoiler li, .bbc-spoiler a { color: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+"; background: "+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";}\n");
-        
-        if(isTablet){
-            buffer.append(".phone {display:none;}\n");
-        }else{
-            buffer.append(".tablet {display:none;}\n");
-        }
-        if(aPrefs.hideOldPosts && unreadCount > 0 && aPosts.size()-unreadCount > 0){
-            buffer.append(".read {display:none;}\n");
-        }else{
-            buffer.append(".toggleread {display:none;}\n");
-        }
-        
-        buffer.append("</style>\n");
-        buffer.append("</head>\n<body>\n");
-        buffer.append("	  <div class='content' >\n");
-        buffer.append("		<a class='toggleread' style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-        buffer.append("			<h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
-        buffer.append("		</a>\n");
-        buffer.append("    <table id='thread-body' style='font-size: " + aPrefs.postFontSizePx + "px; color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-
-
-        buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked, isTablet));
-        buffer.append("    </table>");
-
-        if(page >= lastPage){
-        	buffer.append("<div class='unread' ></div>\n");
-        }else{
-        	//buffer.append("<a class='nextpage' href='http://next.next' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";border-top:1px;text-decoration:none;color:"+ColorPickerPreference.convertToARGB(aPrefs.postFontColor)+";background-color:"+ColorPickerPreference.convertToARGB(aPrefs.postBackgroundColor)+"; position:relative;display:block;text-align:center; width:100%; height:60px'><div style='font-size:32px;margin-top:-16px;text-decoration:none;position:absolute;text-align:center;top:50%;width:100%;'>"+(lastPage - page)+" Page"+(lastPage - page > 1? "s":"")+" Remaining</div></a>");
-        }
         buffer.append("</div>\n");
-        buffer.append("</body>\n</html>\n");
 
         return buffer.toString();
     }
 
-    public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked, boolean isTablet) {
+    public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer();
+        Template postTemplate = null;
 
-        boolean light = true;
-        String background = null;
+        try {
+        	Reader templateReader;
+        	if(!"default".equals(aPrefs.layout)){
+        		File template = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.layout);
+        		if(template.exists() && template.isFile() && template.canRead()){
+            		templateReader = new FileReader(template);
+        		}else{
+            		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
+            	}
+        	}else{
+        		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
+        	}
+        	postTemplate = Mustache.compiler().compile(templateReader);
+			} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "";
+		}
+
 
         for (AwfulPost post : aPosts) {
-            boolean avatar = aPrefs.canLoadAvatars() && post.getAvatar() != null;
-        
-            if (post.isPreviouslyRead()) {
-                background = 
-                    ColorPickerPreference.convertToARGB(light ? aPrefs.postReadBackgroundColor : aPrefs.postReadBackgroundColor2);
-            } else {
-                background = 
-                    ColorPickerPreference.convertToARGB(light ? aPrefs.postBackgroundColor : aPrefs.postBackgroundColor2);
-            }
 
-            if(aPrefs.alternateBackground == true){
-            	light = !light;
-            }
-
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone " + post.getId() + "' id='" + post.getId() + "' >\n");
-            buffer.append("    <td class='userinfo-row' style='width: 100%; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+"; border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background-color:"+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+"'>\n");
-            if((aPrefs.canLoadAvatars() && post.getAvatar() != null && post.getAvatar().length()>0)){
-	            buffer.append("        <div class='avatar' style='background-image:url("+post.getAvatar()+");'>\n");
-	            buffer.append("        </div>\n");
-            }
-            buffer.append("        <div class='userinfo'>\n");
-            buffer.append("            <h4 class='username' >\n");
-            buffer.append("                "+post.getUsername() + (post.isMod()?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ (post.isAdmin()?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  +  "\n");
-            buffer.append("            </h4>");
-            buffer.append("            <div class='postdate' >\n");
-            buffer.append("                " + post.getDate());
-            buffer.append("            </div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("        <div class='action-button' >\n");
-            buffer.append("            <img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_more.png' />\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread") + " phone' >\n");
-            buffer.append("    <td class='post-buttons' style='border-color:"+ColorPickerPreference.convertToARGB(aPrefs.postDividerColor)+";background: "+(post.isOp()?ColorPickerPreference.convertToARGB(aPrefs.postOPColor):ColorPickerPreference.convertToARGB(aPrefs.postHeaderBackgroundColor))+";'>\n");
-            buffer.append("        <div class='avatar-text' style='width:98%;display:none;float: right;overflow: hidden; color: "+ColorPickerPreference.convertToARGB(aPrefs.postHeaderFontColor)+";'>\n");
-            if(post.getRegDate() != null){
-	            buffer.append("         	<div class='postdate'>\n");
-	        	buffer.append("					Registered: "+post.getRegDate()+"<br/>\n");
-	            buffer.append("         	</div>\n");
-            }
-            if(post.getAvatarText()!= null){
-            	buffer.append(post.getAvatarText()+"<br/>\n");
-            }
-            if(!aPrefs.isOnProbation()){
-	            if(post.isEditable()){
-	            	buffer.append("        		<div class='"+(threadLocked?"":"edit_button ")+"inline-button' id='" + post.getId() + "' />\n");
-	                buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_edit.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Edit"));
-	                buffer.append("        		</div>\n");
-	            }
-	        	buffer.append("        		<div class='"+(threadLocked?"":"quote_button ")+"inline-button' id='" + post.getId() + "' />\n");
-	            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_quote.png' style='position:relative;vertical-align:middle;' /> "+(threadLocked?"Locked":"Quote"));
-	            buffer.append("\n        		</div>\n");
-            }
-            buffer.append("        		<div class='lastread_button inline-button' lastreadurl='" + post.getLastReadUrl() + "' />\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_lastread.png' style='position:relative;vertical-align:middle;' />Last Read\n");
-            buffer.append("        		</div>\n");
-            buffer.append("        		<div class='more_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' >\n");
-            buffer.append("        			<img src='file:///android_res/drawable/"+aPrefs.icon_theme+"_inline_more.png' style='position:relative;vertical-align:middle;' /> More\n");
-            buffer.append("        		</div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
-            buffer.append("<tr class='" + (post.isPreviouslyRead() ? "read" : "unread")+" " + post.getId() + "' >\n");
-
-
-            buffer.append("        		<td class='avatar-cell tablet' style='background: " + background +";"+(avatar?"":"display:hidden;")+"'>\n");
-            if (avatar) {
-                buffer.append("            		<div class='avatar gif' style='background-image:url(" + post.getAvatar() + ");' />\n");
-            }
-            buffer.append("        		</td>\n");
-
-            buffer.append("    <td class='post-cell' style='background: " + background + ";'>\n");
-            //tablet user column
-            buffer.append("    <div class='usercolumn tablet' style='background: " + background +";color: " + ColorPickerPreference.convertToARGB(aPrefs.postFontColor) + ";'>\n");
-            buffer.append("         <div class='userinfo'>\n");
-            buffer.append("        		<div class='menu_button inline-button' id='" + post.getId() + "' username='" + post.getUsername() + "' userid='" + post.getUserId() + "' lastreadurl='" + post.getLastReadUrl() + "' editable='"+(post.isEditable()?"true":"false")+"' >\n");
-            buffer.append("        			<img src='file:///android_res/drawable/post_action_icon.png' />");
-            buffer.append("        		</div>\n");
-            buffer.append("            		<div class='tablet username' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
-            buffer.append("                		<h4>" + post.getUsername() + ((post.isMod())?"<img src='file:///android_res/drawable/ic_star_blue.png' />":"")+ ((post.isAdmin())?"<img src='file:///android_res/drawable/ic_star_red.png' />":"")  + "</h4>\n");
-            buffer.append("            		</div>");
-            buffer.append("            		<div class='tablet postdate' " + (post.isOp() ? "style='color: " + ColorPickerPreference.convertToARGB(aPrefs.postOPColor) + ";'" : "") + ">\n");
-            buffer.append("           		     " + post.getDate());
-            buffer.append("            		</div>\n");
-            buffer.append("        		</div>\n");
-            buffer.append("         	<div class='avatar-text' style='display:none; overflow: hidden;'>");
-            if(post.getRegDate()!= null){
-                buffer.append("         	<div class='postdate'>");
-            	buffer.append("					Registered: "+post.getRegDate()+"<br/>");
-                buffer.append("         	</div>");
-            }
-            if(post.getAvatarText()!= null){
-            	buffer.append(post.getAvatarText()+"<br/>");
-            }
-            buffer.append("    				<hr />\n");
-            buffer.append("    			</div>\n");
-            buffer.append("        </div>\n");
-            buffer.append("    </div>\n");
-            
-            //post content
-            buffer.append("        <div class='post-content' style='color: " + ColorPickerPreference.convertToARGB((post.isPreviouslyRead() ? aPrefs.postReadFontColor : aPrefs.postFontColor)) + ";'>\n");
-            buffer.append("            " + post.getContent());
-            buffer.append("\n        </div>\n");
-            buffer.append("    </td>\n");
-            buffer.append("</tr>\n");
+        	Map<String, String> postData = new HashMap<String, String>();
+        	
+        	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
+        	postData.put("isOP", (post.isOp())?"op":null);
+        	postData.put("isMarked", (aPrefs.markedUsers.contains(post.getUsername()))?"marked":null);
+        	postData.put("postID", post.getId());
+        	postData.put("isSelf", (aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)) ? "self" : null);
+        	postData.put("avatarURL", (aPrefs.canLoadAvatars() && post.getAvatar() != null &&  post.getAvatar().length()>0) ? post.getAvatar() : null);
+        	postData.put("username", post.getUsername());
+        	postData.put("userID", post.getUserId());
+        	postData.put("postDate", post.getDate());
+        	postData.put("regDate", post.getRegDate());
+        	postData.put("mod", (post.isMod())?"mod":null);
+        	postData.put("admin", (post.isAdmin())?"admin":null);
+        	postData.put("avatarText", post.getAvatarText());
+        	postData.put("lastReadUrl",  post.getLastReadUrl());
+        	postData.put("notOnProbation", (aPrefs.isOnProbation())?null:"notOnProbation");
+        	postData.put("editable", (post.isEditable())?"editable":null);
+        	postData.put("postcontent",  post.getContent());
+        	
+        	try{
+        		buffer.append(postTemplate.execute(postData));
+        	}catch(MustacheException e){
+        		e.printStackTrace();
+        	}
         }
 
         return buffer.toString();
     }
 
 	@SuppressWarnings("deprecation")
-	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, boolean hideBookmark, boolean selected) {
+	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, AwfulFragment parent) {
 		aq.recycle(current);
-		TextView info = (TextView) current.findViewById(R.id.threadinfo);
-		ImageView sticky = (ImageView) current.findViewById(R.id.sticky_icon);
-		ImageView bookmark = (ImageView) current.findViewById(R.id.bookmark_icon);
-		TextView title = (TextView) current.findViewById(R.id.title);
-		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
-		info.setSingleLine(!prefs.wrapThreadTitles);
-		
-		if(stuck){
-			sticky.setImageResource(R.drawable.ic_sticky);
-			sticky.setVisibility(View.VISIBLE);
-		}else{
-			sticky.setVisibility(View.GONE);
+		String ForumName = null;
+		if(prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)){
+			if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_YOSPOS){
+				ForumName = ColorProvider.YOSPOS;
+			}
 		}
-		
-		if(!prefs.threadInfo_Tag || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			aq.id(R.id.thread_tag).gone();
+		TextView info = (TextView) current.findViewById(R.id.threadinfo);
+		TextView title = (TextView) current.findViewById(R.id.title);
+        TextView unread = (TextView) current.findViewById(R.id.unread_count);
+		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
+        int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
+        int bookmarked = data.getInt(data.getColumnIndex(BOOKMARKED));
+        boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
+		info.setSingleLine(!prefs.wrapThreadTitles);
+
+        NetworkImageView threadTag = (NetworkImageView) current.findViewById(R.id.thread_tag);
+		if(!prefs.threadInfo_Tag){
+            threadTag.setVisibility(View.GONE);
 		}else{
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(tagFile != null){
-				aq.id(R.id.thread_tag).visible().image(data.getString(data.getColumnIndex(TAG_URL)), true, true);
+			if(TextUtils.isEmpty(tagFile)){
+                threadTag.setVisibility(View.GONE);
 			}else{
-				aq.id(R.id.thread_tag).gone();
+                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
 			}
 		}
 
-		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page && !prefs.threadInfo_Rating){
-			info.setVisibility(View.GONE);
+		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page){
+            info.setVisibility(View.VISIBLE);
+			info.setText("");
 		}else{
 			info.setVisibility(View.VISIBLE);
 			StringBuilder tmp = new StringBuilder();
 			if(prefs.threadInfo_Page){
-				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");	
+				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");
 			}
-			if(prefs.threadInfo_Killed){
-				if(tmp.length()>0){
-					tmp.append(" | ");
-				}
-				tmp.append("Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
-			}
-			if(prefs.threadInfo_Author){
-				if(tmp.length()>0){
-					tmp.append(" | ");
-				}
-				tmp.append("OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
-			}
-			if(prefs.threadInfo_Rating && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-				String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-				if(tagFile != null){
-					switch(data.getInt(data.getColumnIndex(RATING))){
-					case(1):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/1stars.gif", true, true);
-						break;
-					case(2):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/2stars.gif", true, true);
-						break;
-					case(3):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/3stars.gif", true, true);
-						break;
-					case(4):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/4stars.gif", true, true);
-						break;
-					case(5):
-						aq.id(R.id.thread_rating).visible().image("http://fi.somethingawful.com/rate/default/5stars.gif", true, true);
-						break;
-					default:
-						aq.id(R.id.thread_rating).gone();
-						break;
-					}
-				}else{
+            if(hasViewedThread){
+                tmp.append(" | Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
+            }else{
+                tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
+            }
+
+			info.setText(tmp.toString().trim());
+		}
+		
+		if(prefs.threadInfo_Rating){
+			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
+			if(tagFile != null){
+				switch(data.getInt(data.getColumnIndex(RATING))){
+				case(1):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_1stars));
+					break;
+				case(2):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_2stars));
+					break;
+				case(3):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_3stars));
+					break;
+				case(4):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_4stars));
+					break;
+				case(5):
+					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_5stars));
+					break;
+				default:
 					aq.id(R.id.thread_rating).gone();
+					break;
 				}
 			}else{
 				aq.id(R.id.thread_rating).gone();
 			}
-			info.setText(tmp.toString().trim());
-		}
-		int mark = data.getInt(data.getColumnIndex(BOOKMARKED));
-		if(mark > 1 || (!hideBookmark && mark == 1)){
-			switch(mark){
-			case 1:
-				bookmark.setImageResource(R.drawable.ic_star_blue);
-				break;
-			case 2:
-				bookmark.setImageResource(R.drawable.ic_star_red);
-				break;
-			case 3:
-				bookmark.setImageResource(R.drawable.ic_star_gold);
-				break;
-			}
-			bookmark.setVisibility(View.VISIBLE);
-			if(!stuck){
-				bookmark.setPadding(0, 5, 4, 0);
-			}
 		}else{
-			if(!stuck){
-				bookmark.setVisibility(View.GONE);
-			}else{
-				bookmark.setVisibility(View.INVISIBLE);
-			}
-			
+			aq.id(R.id.thread_rating).gone();
 		}
 		
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
-		
-		TextView unread = (TextView) current.findViewById(R.id.unread_count);
-		int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
-		boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
-		if(prefs.unreadCounterFontBlack){
-			unread.setTextColor(Color.BLACK);
-		}else{
-			unread.setTextColor(Color.WHITE);
-		}
-		if(unreadCount > 0) {
-			unread.setVisibility(View.VISIBLE);
-			unread.setText(unreadCount+"");
-			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(prefs.unreadCounterColor);
-            unread.setBackgroundDrawable(counter);
-		}
-		else if(hasViewedThread) {
-			unread.setVisibility(View.VISIBLE);
-			unread.setText(unreadCount+"");
-			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(prefs.unreadCounterColorDim);
-            unread.setBackgroundDrawable(counter);
+        if(stuck){
+            aq.id(R.id.thread_sticky).visible().image(current.getResources().getDrawable(R.drawable.ic_sticky));
+        	aq.id(R.id.thread_locked).gone();
+        }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
+            //don't show lock if sticky, aka: every rules thread
+        	aq.id(R.id.thread_sticky).gone();
+        	aq.id(R.id.thread_locked).visible().image(current.getResources().getDrawable(R.drawable.light_inline_lock));
+            current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
+        }else{
+        	aq.id(R.id.thread_locked).gone();
+        	aq.id(R.id.thread_sticky).gone();
         }
-		else {
+
+		unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
+		if(hasViewedThread) {
+			unread.setVisibility(View.VISIBLE);
+			unread.setText(Integer.toString(unreadCount));
+			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
+            counter.setColor(ColorProvider.getUnreadColor(ForumName, unreadCount < 1, bookmarked));
+            unread.setBackgroundDrawable(counter);
+		}else{
 			unread.setVisibility(View.GONE);
 		}
 		title.setTypeface(null, Typeface.NORMAL);
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
 			title.setText(data.getString(data.getColumnIndex(TITLE)));
-			//title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
 		}
 		if(prefs != null){
-			title.setTextColor(prefs.postFontColor);
-			info.setTextColor(prefs.postFontColor2);
+			title.setTextColor(ColorProvider.getTextColor(ForumName));
+			info.setTextColor(ColorProvider.getAltTextColor(ForumName));
 			title.setSingleLine(!prefs.wrapThreadTitles);
 			if(!prefs.wrapThreadTitles){
 				title.setEllipsize(TruncateAt.END);
 			}else{
 				title.setEllipsize(null);
 			}
-		}
-		
-		if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
-			aq.find(R.id.forum_tag).image(R.drawable.light_inline_lock).visible().width(15);
-			current.setBackgroundColor(prefs.postBackgroundColor2);
-		}else{
-			aq.find(R.id.forum_tag).gone();
-			current.setBackgroundDrawable(null);
 		}
 	}
 	

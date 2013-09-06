@@ -15,9 +15,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Html;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -28,17 +32,19 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.VolleyError;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PMReplyRequest;
+import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends SherlockDialogFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulFragment implements AwfulUpdateCallback, OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -60,8 +66,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	
 	private ProgressDialog mDialog;
 
-	private boolean paused = false;
-
 	private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message aMsg) {
@@ -70,9 +74,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
             switch (aMsg.arg1) {
                 case AwfulSyncService.Status.OKAY:
                 	loadingSucceeded(null);
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
-                		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
-                	}
                 	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
                 		if(mDialog != null){
                 			mDialog.dismiss();
@@ -100,9 +101,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
 	            		}
                 	}
-                	if(aMsg.what == AwfulSyncService.MSG_FETCH_PM && getActivity() != null){
-            			Toast.makeText(getActivity(), "Message Load Failed!", Toast.LENGTH_LONG).show();
-                	}
                     break;
                 default:
                     super.handleMessage(aMsg);
@@ -115,17 +113,12 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
     	@Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, mPMDataCallback);
-        	}
+            restartLoader(pmId, null, mPMDataCallback);
         }
     };
 
     public static MessageFragment newInstance(String aUser, int aId) {
         MessageFragment fragment = new MessageFragment(aUser, aId);
-
-        fragment.setShowsDialog(false);
-        fragment.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
         return fragment;
     }
@@ -150,7 +143,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        mPrefs = new AwfulPreferences(getActivity());
+        mPrefs = AwfulPreferences.getInstance(getActivity());
         
         setRetainInstance(true);
         
@@ -172,29 +165,35 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         
         if(pmId <=0){
         	mDisplayText.setVisibility(View.GONE);
+        }else{
+            syncPM();
         }
-
         return result;
     }
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setBackgroundColor(prefs.postBackgroundColor2);
-        mRecipient.setBackgroundColor(prefs.postBackgroundColor2);
-        mSubject.setBackgroundColor(prefs.postBackgroundColor2);
-        mDisplayText.setBackgroundColor(prefs.postBackgroundColor);
-        mEditReply.setTextColor(prefs.postFontColor);
-        mRecipient.setTextColor(prefs.postFontColor);
-        mSubject.setTextColor(prefs.postFontColor);
+        mEditReply.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mRecipient.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mDisplayText.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mEditReply.setTextColor(ColorProvider.getTextColor());
+        mRecipient.setTextColor(ColorProvider.getTextColor());
+        mSubject.setTextColor(ColorProvider.getTextColor());
+        mUsername.setTextColor(ColorProvider.getTextColor());
+        mPostdate.setTextColor(ColorProvider.getTextColor());
+        mTitle.setTextColor(ColorProvider.getTextColor());
 		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
         TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
         TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
-        miscSubject.setBackgroundColor(prefs.postBackgroundColor);
-        miscRecip.setBackgroundColor(prefs.postBackgroundColor);
-        miscMess.setBackgroundColor(prefs.postBackgroundColor);
-        miscSubject.setTextColor(prefs.postFontColor2);
-        miscRecip.setTextColor(prefs.postFontColor2);
-        miscMess.setTextColor(prefs.postFontColor2);
-        v.setBackgroundColor(prefs.postBackgroundColor);
+        View header = v.findViewById(R.id.message_header);
+        header.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscMess.setBackgroundColor(ColorProvider.getBackgroundColor());
+        miscSubject.setTextColor(ColorProvider.getAltTextColor());
+        miscRecip.setTextColor(ColorProvider.getAltTextColor());
+        miscMess.setTextColor(ColorProvider.getAltTextColor());
+        v.setBackgroundColor(ColorProvider.getBackgroundColor());
         
 	}
 	
@@ -235,7 +234,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onActivityCreated(Bundle savedState){
 		super.onActivityCreated(savedState);
-		getLoaderManager().restartLoader(pmId, null, mPMDataCallback);
+		restartLoader(pmId, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
 	}
@@ -243,13 +242,31 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
     public void onStart() {
         super.onStart();
-        if(pmId >0){
-    		syncPM();
-    	}
     }
 	
 	private void syncPM() {
-		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PM, pmId, 0);
+        queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                restartLoader(pmId, null, mPMDataCallback);
+                queueRequest(new PMReplyRequest(getActivity(), pmId).build(MessageFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                    @Override
+                    public void success(Void result) {
+                        restartLoader(pmId, null, mPMDataCallback);
+                    }
+
+                    @Override
+                    public void failure(VolleyError error) {
+                        //error is automatically displayed
+                    }
+                }));
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                //error is automatically displayed
+            }
+        }));
 	}
 	
 	public void sendPM() {
@@ -273,19 +290,11 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 
 	@Override
 	public void onResume(){
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.hide();
 		super.onResume();
-		try {
-			if(paused){
-				Class.forName("android.webkit.WebView").getMethod("onResume", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-	            mDisplayText.resumeTimers();
-				paused = false;
-			}
-        } catch (Exception e) {
-        }
-		if(pmId > 0){
-			syncPM();
-		}
+		resumeWebView();
+
 	}
 	
 	@Override
@@ -294,18 +303,14 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 		if(pmId>0){
 			saveReply();
 		}
-		try {
-            Class.forName("android.webkit.WebView").getMethod("onPause", (Class[]) null)
-                .invoke(mDisplayText, (Object[]) null);
-            paused = true;
-            mDisplayText.pauseTimers();
-        } catch (Exception e) {
-        }
+        pauseWebView();
 	}
 
 	@Override
 	public void onStop(){
 		super.onStop();
+        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        action.show();
 	}
 
 	@Override
@@ -319,9 +324,6 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	@Override
 	public void onDetach(){
 		super.onDetach();
-		if(mPrefs != null){
-			mPrefs.unRegisterListener();
-		}
 		if(mDialog!= null){
 			mDialog.dismiss();
 			mDialog = null;
@@ -329,7 +331,7 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
 	}
 	
 	private void newMessage(){
-		getActivity().getSupportLoaderManager().destroyLoader(pmId);
+		getLoaderManager().destroyLoader(pmId);
 		pmId = -1;//TODO getNextId();
 		recipient = null;
 		mEditReply.setText("");
@@ -416,9 +418,12 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
+    			if(mDisplayText != null){
+    				mDisplayText.loadData(getBlankPage(), "text/html", "utf-8");
+    			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
-    			mTitle.setText(Html.fromHtml(title));
-        		mDisplayText.loadData(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8");
+        		mTitle.setText(title);
+        		mDisplayText.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
 				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
@@ -428,9 +433,9 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         			mEditReply.setText("");
         		}
         		if(replyTitle != null){
-        			mSubject.setText(Html.fromHtml(replyTitle));
+        			mSubject.setText(replyTitle);
         		}else{
-        			mSubject.setText(Html.fromHtml(title));
+        			mSubject.setText(title);
         		}
         		String author = aData.getString(aData.getColumnIndex(AwfulMessage.AUTHOR));
 				mUsername.setText("Sender: " + author);
@@ -456,9 +461,66 @@ public class MessageFragment extends SherlockDialogFragment implements AwfulUpda
         @Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
-        	if(getActivity() != null){
-        		getActivity().getSupportLoaderManager().restartLoader(pmId, null, this);
-        	}
+        	restartLoader(pmId, null, this);
         }
+    }
+
+
+	@Override
+	public void onPageVisible() {}
+
+	@Override
+	public void onPageHidden() {}
+
+	@Override
+	public String getTitle() {
+		return mTitle.getText().toString();
+	}
+
+	@Override
+	public String getInternalId() {
+		return null;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+	    int action = event.getAction();
+	    int keyCode = event.getKeyCode();    
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_VOLUME_UP:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageUp(false);   
+            }
+            return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            if (action == KeyEvent.ACTION_DOWN) {
+            	mDisplayText.pageDown(false);
+            }
+            return true;
+        default:
+            return false;
+        }
+    }
+	
+	private String getBlankPage(){
+		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
+	}
+	
+    private void pauseWebView(){
+        if (mDisplayText != null) {
+        	mDisplayText.pauseTimers();
+        	mDisplayText.onPause();
+        }
+    }
+    
+    public void resumeWebView(){
+    	if(getActivity() != null){
+	        if (mDisplayText == null) {
+	            //recreateWebview();
+	        }else{
+	        	mDisplayText.onResume();
+	        	mDisplayText.resumeTimers();
+	        }
+    	}
     }
 }

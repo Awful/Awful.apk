@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Message;
@@ -48,11 +49,16 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.EmoteRequest;
 import com.ferg.awfulapp.thread.AwfulEmote;
 
 public class EmoteFragment extends AwfulDialogFragment implements OnClickListener, OnItemClickListener {
@@ -61,10 +67,21 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	private GridView emoteGrid;
 	private AwfulCursorAdapter adapter;
 	private EmoteDataCallback emoteLoader = new EmoteDataCallback();
+
+    private PostReplyFragment parent;
 	
 	private boolean loadFailed = false;
 
-	@Override
+    public EmoteFragment(PostReplyFragment parent) {
+        super();
+        this.parent = parent;
+    }
+
+    public EmoteFragment() {
+        super();
+    }
+
+    @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 		getDialog().setTitle("Emotes");
@@ -75,6 +92,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		super.loadingSucceeded(aMsg);
 		if(getAwfulActivity() != null){
 			restartLoader();
+            loadFailed = false;
 		}
 		setProgress(100);
 	}
@@ -99,9 +117,9 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflateView(R.layout.emote_view, container, inflater);
-		adapter = new AwfulCursorAdapter(getAwfulActivity(), null);
+		adapter = new AwfulCursorAdapter(getAwfulActivity(), null, null);
 		aq.find(R.id.delete_button).clicked(this);
-		filterText = aq.find(R.id.filter_text).textColor(mPrefs.postFontColor).getEditText();
+		filterText = aq.find(R.id.filter_text).textColor(ColorProvider.getTextColor()).getEditText();
 		filterText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -113,7 +131,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 				updateFilter();
 			}
 		});
-		emoteGrid = aq.find(R.id.emote_grid).adapter(adapter).itemClicked(this).backgroundColor(mPrefs.postBackgroundColor).getGridView();
+		emoteGrid = aq.find(R.id.emote_grid).adapter(adapter).itemClicked(this).backgroundColor(ColorProvider.getBackgroundColor()).getGridView();
 		return v;
 	}
 
@@ -127,14 +145,6 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public void onStop() {
 		super.onStop();
 		getLoaderManager().destroyLoader(Constants.EMOTE_LOADER_ID);
-	}
-
-	@Override
-	public void onPageVisible() {
-	}
-
-	@Override
-	public void onPageHidden() {
 	}
 
 	@Override
@@ -158,14 +168,25 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	}
 	
 	private void restartLoader(){
-		if(getAwfulActivity() != null){
-			getLoaderManager().restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
-		}
+		restartLoader(Constants.EMOTE_LOADER_ID, null, emoteLoader);
 	}
 
 	public void syncEmotes() {
-		if(getAwfulActivity() != null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_EMOTES, 0, 0);
+		if(getActivity() != null){
+            queueRequest(new EmoteRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    if(getAwfulActivity() != null){
+                        restartLoader();
+                        loadFailed = false;
+                    }
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    loadFailed = true;
+                }
+            }));
 		}
     }
 	
@@ -204,13 +225,8 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public void onItemClick(AdapterView<?> arg0, View v, int arg2, long arg3) {
 		TextView tv = (TextView) v.findViewById(R.id.emote_text);
 		Toast.makeText(getAwfulActivity(), tv.getText().toString().trim(), Toast.LENGTH_SHORT).show();
-		sendFragmentMessage("emote-selected", tv.getText().toString().trim());
+        parent.selectEmote(tv.getText().toString().trim());
 		dismiss();
-	}
-
-	@Override
-	public String getInternalId() {
-		return TAG;
 	}
 
 	@Override

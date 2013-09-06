@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
+import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -50,27 +51,25 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	private static final String TAG = "AwfulCursorAdapter";
 	private AwfulPreferences mPrefs;
 	private AwfulActivity mParent;
+    private AwfulFragment mFragment;
 	private LayoutInflater inf;
 	private int mId;
 	private int selectedId = -1;
 	private AQuery aq;
 	private Messenger msgCallback;
 	
-	public AwfulCursorAdapter(AwfulActivity context, Cursor c) {
-		this(context, c, 0, false, null);
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c, AwfulFragment fragment) {
+		this(context, c, 0, false, null, fragment);
 	}
-	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar, Messenger messageCallback) {
+	public AwfulCursorAdapter(AwfulActivity context, Cursor c, int id, boolean isSidebar, Messenger messageCallback, AwfulFragment fragment) {
 		super(context, c, 0);
-		mPrefs = new AwfulPreferences(context);
+		mPrefs = AwfulPreferences.getInstance(context);
 		inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mParent = context;
 		mId = id;
 		msgCallback = messageCallback;
 		aq = new AQuery(context);
-	}
-	
-	public AwfulCursorAdapter(AwfulActivity awfulActivity, Cursor c, Messenger buttonMessenger) {
-		this(awfulActivity, c, 0, false, buttonMessenger);
+        mFragment = fragment;
 	}
 	
 	public void setSelected(int id){
@@ -84,7 +83,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			AwfulThread.getView(current, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
+			AwfulThread.getView(current, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
 		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
@@ -102,7 +101,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulThread.getView(row, mPrefs, data, aq, mId == Constants.USERCP_ID, false);
+			AwfulThread.getView(row, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.thread_item, parent, false);
 			assert(false);
@@ -110,7 +109,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.post_item, parent, false);
 			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
-			row = inf.inflate(R.layout.forum_item, parent, false);
+			row = inf.inflate(R.layout.thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			row = inf.inflate(R.layout.emote_grid_item, parent, false);

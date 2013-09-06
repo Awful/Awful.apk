@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.ContentObserver;
@@ -46,28 +47,31 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.service.AwfulCursorAdapter;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.MarkUnreadRequest;
+import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.NumberPicker;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 /**
  * Uses intent extras:
@@ -77,9 +81,9 @@ import java.util.Date;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
-    private PullToRefreshListView mPullRefreshListView;
+    private ListView mListView;
     private ImageButton mRefreshBar;
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -89,7 +93,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
-    
+
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
@@ -103,57 +107,43 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private long lastRefresh = 0;
 
-    public static ForumDisplayFragment newInstance(int aForum, int page, boolean skipLoad) {
-        ForumDisplayFragment fragment = new ForumDisplayFragment();
-        if(aForum < 1){
-        	aForum = Constants.USERCP_ID;
+    public ForumDisplayFragment(int forumId, int page, boolean skip) {
+        super();
+        if(forumId < 1){
+            mForumId = Constants.USERCP_ID;
+        }else{
+            mForumId = forumId;
         }
-        Bundle args = new Bundle();
-        args.putInt(Constants.FORUM_ID, aForum);
-        fragment.setArguments(args);
-        
-        fragment.skipLoad(skipLoad);//we don't care about persisting this
-
-        return fragment;
-    }
-
-    public ForumDisplayFragment() {
+        mPage = page;
+        skipLoad = skip;
         TAG = "ForumDisplayFragment";
     }
 
-	private AwfulCursorAdapter mCursorAdapter;
+    public ForumDisplayFragment() {
+        super();
+        TAG = "ForumDisplayFragment";
+    }
+
+	private ThreadCursorAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
     private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
 
 
     @Override
+    public void onAttach(Activity aActivity) {
+        super.onAttach(aActivity);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG,"onCreate");
 		setRetainInstance(true);
-        setHasOptionsMenu(!(getActivity() instanceof ThreadDisplayActivity));
+        setHasOptionsMenu(true);
     }
 	@Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
-    	mPullRefreshListView = (PullToRefreshListView) result.findViewById(R.id.forum_list);
-        //mListView.setDrawingCacheEnabled(true);
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-			
-			@Override
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				syncForum();
-			}
-		});
-        mPullRefreshListView.setDisableScrollingWhileRefreshing(false);
-        mPullRefreshListView.setMode(Mode.PULL_DOWN_TO_REFRESH);
-        mPullRefreshListView.setPullLabel("Pull to Refresh");
-        mPullRefreshListView.setReleaseLabel("Release to Refresh");
-        mPullRefreshListView.setRefreshingLabel("Loading...");
-        if(mPrefs.refreshFrog){
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-        }else{
-        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-        }
+    	mListView = (ListView) result.findViewById(R.id.forum_list);
         mPageCountText = (TextView) result.findViewById(R.id.page_count);
 		getAwfulActivity().setPreferredFont(mPageCountText);
 		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
@@ -166,13 +156,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
-		if(getAwfulActivity() instanceof ThreadDisplayActivity){
-			View v = result.findViewById(R.id.secondary_title_bar);
-			if(v != null){
-				v.setVisibility(View.VISIBLE);
-				aq.find(R.id.move_up).clicked(onButtonClick);
-			}
-		}
 		updatePageBar();
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -185,6 +168,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
+
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mListView,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setEnabled(true);
+        }else{
+            Log.e("mP2RAttacher", "PTR MISSING");
+        }
 
     	if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
@@ -210,13 +202,13 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     	}
         
 
-        mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, getForumId(), getActivity() instanceof ThreadDisplayActivity, mMessenger);
-        mPullRefreshListView.setAdapter(mCursorAdapter);
-        mPullRefreshListView.setOnItemClickListener(onThreadSelected);
-        mPullRefreshListView.setBackgroundColor(mPrefs.postBackgroundColor);
-        mPullRefreshListView.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
+        mCursorAdapter = new ThreadCursorAdapter((AwfulActivity) getActivity(), null, this);
+        mListView.setAdapter(mCursorAdapter);
+        mListView.setOnItemClickListener(onThreadSelected);
         
-        registerForContextMenu(mPullRefreshListView.getRefreshableView());
+        updateColors();
+        
+        registerForContextMenu(mListView);
     }
 
 	public void updatePageBar(){
@@ -274,6 +266,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     @Override
     public void onResume() {
         super.onResume();
+		updateColors();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
         if(skipLoad || !isFragmentVisible()){
@@ -285,7 +278,11 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	@Override
 	public void onPageVisible() {
+		updateColors();
 		syncForumsIfStale();
+		if(mP2RAttacher != null){
+			mP2RAttacher.setPullFromBottom(false);
+		}
 	}
 	
 	@Override
@@ -340,6 +337,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 				ucp.setTitle(R.string.user_cp);
 			}
 		}
+        MenuItem pm = menu.findItem(R.id.pm);
+        if(pm != null){
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
+
 	}
     
 	@Override
@@ -364,6 +367,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             case R.id.go_to:
                 displayPagePicker();
                 return true;
+            case R.id.pm:
+            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -397,7 +403,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             	markUnread((int) info.id);
                 return true;
             case R.id.thread_bookmark:
-            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2);
+            	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2>0);
                 return true;
             case R.id.copy_url_thread:
             	copyUrl((int) info.id);
@@ -425,9 +431,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
 			clipboard.setPrimaryClip(clip);
 
-			Toast successToast = Toast.makeText(this.getActivity().getApplicationContext(),
-					getString(R.string.copy_url_success), Toast.LENGTH_SHORT);
-			successToast.show();
+            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 		} else {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
 
@@ -517,76 +521,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             }
         }
     };
-    
-    @Override
-    public void loadingFailed(Message aMsg) {
-    	super.loadingFailed(aMsg);
-        Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
-		}
-		mPullRefreshListView.onRefreshComplete();
-    	mPullRefreshListView.setLastUpdatedLabel("Loading Failed!");
-		lastRefresh = System.currentTimeMillis();
-		loadFailed = true;
-    }
 
-    @Override
-	public void loadingSucceeded(Message aMsg) {
-		super.loadingSucceeded(aMsg);
-		
-		switch (aMsg.what) {
-    	case AwfulSyncService.MSG_GRAB_IMAGE:
-    		if(isResumed() && isVisible()){
-    			mPullRefreshListView.invalidate();
-    		}
-    		break;
-        case AwfulSyncService.MSG_SYNC_FORUM:
-				mPullRefreshListView.onRefreshComplete();
-		        mPullRefreshListView.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
-    			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
-    			lastRefresh = System.currentTimeMillis();
-    			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-                	mRefreshBar.setColorFilter(0);
-                	mToggleSidebar.setColorFilter(0);
-    			}
-    	    	loadFailed = false;
-    	    	break;
-		}
-	}
-	
-	@Override
-	public void loadingUpdate(Message aMsg) {
-		super.loadingUpdate(aMsg);
-		switch (aMsg.what) {
-			case AwfulSyncService.MSG_SYNC_FORUM:
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-		        	mRefreshBar.setColorFilter(buttonSelectedColor);
-		        	mToggleSidebar.setColorFilter(buttonSelectedColor);
-				}
-				break;
-		}
-	}
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText);
-		if(mPullRefreshListView!=null){
-			mPullRefreshListView.setBackgroundColor(prefs.postBackgroundColor);
-			mPullRefreshListView.setTextColor(prefs.postFontColor, prefs.postFontColor2);
-            //mPullRefreshListView.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-			mPullRefreshListView.getRefreshableView().setCacheColorHint(prefs.postBackgroundColor);
-	        if(mPrefs.refreshFrog){
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-	        }else{
-	        	mPullRefreshListView.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-	        }
-		}
-		aq.find(R.id.pagebar).backgroundColor(prefs.actionbarColor);
-		aq.find(R.id.page_indicator).backgroundColor(prefs.actionbarColor);
-		if(mPageCountText != null){
-			mPageCountText.setTextColor(prefs.actionbarFontColor);
-		}
+		getAwfulActivity().setPreferredFont(mPageCountText);	
+		updateColors();
 	}
 	
 	public int getForumId(){
@@ -614,6 +554,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
     private void setForumId(int aForum) {
 		mForumId = aForum;
+		if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+			onPreferenceChange(mPrefs);
+		}
 	}
     
     public void openForum(int id, int page){
@@ -622,14 +565,12 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
         }
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+    	updateColors();
     	mPage = page;
     	mLastPage = 0;
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-    		if(mCursorAdapter != null){
-    			mCursorAdapter.setId(id);
-    		}
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				getActivity().invalidateOptionsMenu();
 			}
@@ -639,8 +580,28 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     }
 
 	public void syncForum() {
-		if(getAwfulActivity() != null && getForumId() > 0){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_FORUM, getForumId(), getPage());
+		if(getActivity() != null && getForumId() > 0){
+
+            queueRequest(new ThreadListRequest(getActivity(), getForumId(), getPage()).build(this,
+                    new AwfulRequest.AwfulResultCallback<Void>() {
+                        @Override
+                        public void success(Void result) {
+                            lastRefresh = System.currentTimeMillis();
+                            mRefreshBar.setColorFilter(0);
+                            mToggleSidebar.setColorFilter(0);
+                            loadFailed = false;
+                            refreshInfo();
+                        }
+
+                        @Override
+                        public void failure(VolleyError error) {
+                            refreshInfo();
+                            lastRefresh = System.currentTimeMillis();
+                            loadFailed = true;
+                        }
+                    }
+            ));
+
 		}
     }
 	
@@ -652,7 +613,18 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	}
 	
 	private void markUnread(int id) {
-        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_UNREAD,id,0);
+        queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                displayAlert(R.string.mark_unread_success);
+                refreshInfo();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                refreshInfo();
+            }
+        }));
     }
 	
 	public boolean isBookmark(){
@@ -661,13 +633,23 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	/** Set Bookmark status.
 	 * @param id Thread ID
-	 * @param addRemove 1 to add bookmark, 0 to remove.
+	 * @param add true to add bookmark, false to remove.
 	 */
-    private void toggleThreadBookmark(int id, int addRemove) {
-        getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,id,addRemove);
+    private void toggleThreadBookmark(int id, boolean add) {
+        queueRequest(new BookmarkRequest(getActivity(), id, add).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                refreshInfo();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                refreshInfo();
+            }
+        }));
     }
-	
-	private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public ForumContentsCallback(Handler handler) {
 			super(handler);
@@ -744,6 +726,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     			if(mForumId == 0){
     				aq.find(R.id.second_titlebar).text(R.string.forums_title);
     			}else{
+//    				aq.find(R.id.second_titlebar).text(mTitle);
     				aq.find(R.id.second_titlebar).text(Html.fromHtml(mTitle));
     			}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
@@ -770,8 +753,8 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	
 	private void refreshInfo(){
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
-	    	getLoaderManager().restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
+			restartLoader(Constants.FORUM_THREADS_LOADER_ID, null, mForumLoaderCallback);
+	    	restartLoader(Constants.FORUM_LOADER_ID, null, mForumDataCallback);
 		}
 	}
 	
@@ -789,25 +772,10 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	public void skipLoad(boolean skip) {
 		skipLoad = skip;
 	}
-	
-	
-	@Override
-	public boolean canSplitscreen() {
-		return Constants.isWidescreen(getActivity());
-	}
-
 
 	@Override
 	public String getInternalId() {
 		return TAG;
-	}
-	
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -816,19 +784,47 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(false);
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(-mPullRefreshListView.getHeight()/2, 0);
-	            	mPullRefreshListView.setPullToRefreshOverScrollEnabled(true);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mListView.smoothScrollBy(-mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mPullRefreshListView.getRefreshableView().smoothScrollBy(mPullRefreshListView.getHeight()/2, 0);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mListView.smoothScrollBy(mListView.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:
 	            return false;
 	        }
+
+	}
+	
+	private void updateColors(){
+		if(mListView != null){
+	        if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));        	
+	        }else{
+	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor());
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
+	        }
+		}
+		if(aq != null){
+			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
+			}else{
+				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
+			}
+		}
+		if(mPageCountText != null){
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
+		}
+	}	
+
+	@Override
+	public void onRefreshStarted(View view) {
+		syncForum();
 	}
 }

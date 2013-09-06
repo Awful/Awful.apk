@@ -31,16 +31,15 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.text.method.ScrollingMovementMethod;
-import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
@@ -51,19 +50,16 @@ public class PrivateMessageActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.fragment_pane);
-        mPrefs = new AwfulPreferences(this, this);
+        mPrefs = AwfulPreferences.getInstance(this, this);
         
         ActionBar action = getSupportActionBar();
         if(action != null){
             action.setCustomView(R.layout.actionbar_title);
             mTitleView = (TextView) action.getCustomView();
             mTitleView.setMovementMethod(new ScrollingMovementMethod());
-	        action.setBackgroundDrawable(new ColorDrawable(mPrefs.actionbarColor));
-	        mTitleView.setTextColor(mPrefs.actionbarFontColor);
+	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        mTitleView.setTextColor(ColorProvider.getActionbarColor());
 	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
 	        action.setDisplayHomeAsUpEnabled(true);
 	        action.setDisplayShowCustomEnabled(true);

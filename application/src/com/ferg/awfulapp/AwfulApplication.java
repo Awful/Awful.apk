@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.util.LRUImageCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
@@ -20,8 +25,6 @@ import android.widget.TextView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-//@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=d6a53a0d", formKey = Constants.ACRA_FORMKEY) 
-//@ReportsCrashes(formKey = "dFlKM0NmVlotelN0VDJPV0RfajlyUmc6MQ") 
 @ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
 public class AwfulApplication extends Application implements AwfulUpdateCallback{
 	private static String TAG = "AwfulApplication";
@@ -29,14 +32,17 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 	private AwfulPreferences mPref;
 	private HashMap<String, Typeface> fonts = new HashMap<String, Typeface>();
 
+    private RequestQueue networkQueue;
+    private ImageLoader imageLoader;
+    private LRUImageCache imageCache;
+
 	private Typeface currentFont;
     @Override
     public void onCreate() {
         ACRA.init(this);
         super.onCreate();
-        //BugSenseHandler.setLogging(1000);
 
-        mPref = new AwfulPreferences(this, this);
+        mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
@@ -44,11 +50,15 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 
         if(Constants.isICS()){
             try {
-                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 52428800);
+                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        networkQueue = Volley.newRequestQueue(this);
+        imageCache = new LRUImageCache();
+        imageLoader = new ImageLoader(networkQueue, imageCache);
     }
 
 	public void setFontFromPreference(TextView textView, int flags){
@@ -117,6 +127,8 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
         if(mPref.sendUsernameInReport){
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+        }else{
+            ACRA.getErrorReporter().removeCustomData("SA Username");
         }
 	}
 
@@ -154,6 +166,38 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
-	
-	
+
+    public void queueRequest(Request request){
+        networkQueue.add(request);
+    }
+
+    public void cancelRequests(Object tag){
+        networkQueue.cancelAll(tag);
+    }
+
+    public ImageLoader getImageLoader(){
+        return imageLoader;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if(level != Application.TRIM_MEMORY_UI_HIDDEN && level != Application.TRIM_MEMORY_BACKGROUND && imageCache != null){
+            imageCache.clear();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if(imageCache != null){
+            imageCache.clear();
+        }
+    }
+
+    public void clearDiskCache(){
+        if(networkQueue != null && networkQueue.getCache() != null){
+            networkQueue.getCache().clear();
+        }
+    }
 }

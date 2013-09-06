@@ -82,6 +82,10 @@ public class Constants {
 	public static final String PARAM_POST_ID   = "postid";
 	public static final String PARAM_USERLIST  = "userlist";
 	public static final String PARAM_COMMENTS  = "comments";
+    public static final String PARAM_FORMKEY = "formkey";
+    public static final String PARAM_FORM_COOKIE = "form_cookie";
+    public static final String PARAM_ATTACHMENT = "attachment";
+    public static final String PARAM_FOLDERID 	= "folderid";
 
 	public static final String USERLIST_IGNORE = "ignore";
 	public static final String USERLIST_BUDDY  = "buddy";
@@ -176,15 +180,15 @@ public class Constants {
     public static final String REPLY_THREAD_ID = "reply_thread_id";
     
     public static final int AWFUL_THREAD_ID = 3391052;
+    public static final int FORUM_ID_YOSPOS = 219;
+    public static final int FORUM_ID_FYAD = 26;
+    public static final int FORUM_ID_FYAD_SUB = 154;
 
 
     /**
-	 * I guess this should really be named "isFroyoOrAbove()" but I suck at function naming.
+	 * I guess this should really be named "isGingerbreadOrAbove()" but I suck at function naming.
 	 * @return
 	 */
-	public static boolean isFroyo() {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
-	}
 	public static boolean isGingerbread(){
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
 	}

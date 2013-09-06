@@ -56,56 +56,27 @@ public abstract class AwfulPagedItem {
     	int pagesTop, pagesBottom;
     	try{
     		Elements pages = pagedItem.getElementsByClass("pages");
-    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("a").last().html().replaceAll("[^\\d.]", ""));
-    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("a").last().html().replaceAll("[^\\d.]", ""));
+            pagesTop = Integer.parseInt(pages.first().getElementsByTag("option").last().text());
        	}catch(NumberFormatException ex){
        		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-       		try{
-	    		Elements pages = pagedItem.getElementsByClass("pages");
-	    		pagesTop = Integer.parseInt(pages.first().getElementsByTag("span").last().html().replaceAll("[^\\d.]", ""));
-	    	   	pagesBottom = Integer.parseInt(pages.last().getElementsByTag("span").last().html().replaceAll("[^\\d.]", ""));
-	       	}catch(NullPointerException exB){
-	       		Log.e(TAG, "Additional NullPointerException thrown while parseLastPage");
-	       		ex.printStackTrace();
-	    		return 1;
-    		}
+            pagesTop = 1;
     	}catch(NullPointerException ex){
-           		Log.e(TAG, "NullPointerException thrown while parseLastPage");
-           		ex.printStackTrace();
-        		return 1;
+            Log.e(TAG, "NullPointerException thrown while parseLastPage");
+            ex.printStackTrace();
+            pagesTop = 1;
     	}
-    	//Better too few pages than too many
-    	if(pagesBottom < pagesTop){
-    		return pagesBottom;
-    	}
-    	return pagesTop;
-    	
-    	//TODO: remove if above works
-//    	Element pages = pagedItem.getElementsByAttributeValue("class", "pages").first();
-//    	Element pages2 = pagedItem.getElementsByAttributeValue("class", "pages top").first();
-//    	Matcher lastPageMatch = null;
-//    	if(pages != null){
-//    		lastPageMatch = pageNumber_regex.matcher(pages.text());
-//    	}else{
-//    		if(pages2 != null){
-//	    		lastPageMatch = pageNumber_regex.matcher(pages2.text());
-//	    	}
-//    	}
-//    	if(lastPageMatch != null && lastPageMatch.find()){
-//    		return Integer.parseInt(lastPageMatch.group(1));
-//    	}
-    }
-    
-    public static int parseLastPage(Element pagedItem){
-    	Matcher lastPageMatch = null;
-    	Elements pages = pagedItem.getElementsByClass("pages");
-    	if(pages.size() > 0){
-    		lastPageMatch = pageNumber_regex.matcher(pages.get(0).text());
-    	}
-    	if(lastPageMatch != null && lastPageMatch.find()){
-    		return Integer.parseInt(lastPageMatch.group(1));
-    	}
-		return 1;
+        try{
+            Elements pages = pagedItem.getElementsByClass("pages");
+            pagesBottom = Integer.parseInt(pages.last().getElementsByTag("option").last().text());
+        }catch(NumberFormatException ex){
+            Log.e(TAG, "NumberFormatException thrown while parseLastPage");
+            pagesBottom = 1;
+        }catch(NullPointerException ex){
+            Log.e(TAG, "NullPointerException thrown while parseLastPage");
+            ex.printStackTrace();
+            pagesBottom = 1;
+        }
+        return Math.max(pagesTop, pagesBottom);
     }
     
 	public static int indexToPage(int index, int perPage){

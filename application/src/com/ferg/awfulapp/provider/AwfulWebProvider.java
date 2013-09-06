@@ -66,7 +66,7 @@ public class AwfulWebProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		mPrefs = new AwfulPreferences(getContext());
+		mPrefs = AwfulPreferences.getInstance(getContext());
 		return true;
 	}
 

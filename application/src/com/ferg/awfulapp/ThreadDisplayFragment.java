@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -43,10 +44,17 @@ import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -56,33 +64,35 @@ import android.webkit.WebSettings.RenderPriority;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
+
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.MarkLastReadRequest;
+import com.ferg.awfulapp.task.PostRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.widget.NumberPicker;
-import com.handmark.pulltorefresh.library.ILoadingLayout;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -95,14 +105,11 @@ import java.util.*;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshBase.OnRefreshListener2 {
+public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
-
-    private ImageButton mToggleSidebar;
-	private boolean mShowSidebarIcon;
     
     private ImageButton mNextPage;
     private ImageButton mPrevPage;
@@ -113,19 +120,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
 
-    private PullToRefreshWebView mThreadWindow;
     private WebView mThreadView;
-    private ViewGroup mThreadParent;
 
     private int mUserId = 0;
+    private String mPostByUsername;
     private int mLastPage = 0;
     private int mParentForumId = 0;
-    private int mReplyDraftSaved = 0;
-    private String mDraftTimestamp = null;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
     private boolean threadArchived = false;
-    private boolean dataLoaded = false;
     
     private boolean keepScreenOn = false;
     
@@ -148,13 +151,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private ShareActionProvider shareProvider;
 
     private ForumsIndexActivity parent;
+    
+    private ThreadDisplayFragment mSelf = this;
 
-    public static ThreadDisplayFragment newInstance(int id, int page) {
-		ThreadDisplayFragment fragment = new ThreadDisplayFragment();
-        return fragment;
-	}
+
+    private String bodyHtml = "";
 
     public ThreadDisplayFragment() {
+        super();
         TAG = "ThreadDisplayFragment";
     }
 
@@ -163,41 +167,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
 	
 	private WebViewClient callback = new WebViewClient(){
-        String lastUrl="";
         
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-            if(mPrefs.disableGifs && url != null && url.endsWith(".gif")){
-                try {
-                    if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-                    URL target = new URL(url);
-                    URLConnection response = target.openConnection();
-                    response.setReadTimeout(5000);
-                    response.setConnectTimeout(1000);
-                    response.connect();
-                    if(DEBUG) Log.e(TAG, "Connected - Type: "+response.getContentType()+" - Encoding: "+response.getContentEncoding());
-                    return new WebResourceResponse(response.getContentType(), response.getContentEncoding(), new AwfulGifStripper(response.getInputStream(), target.getFile()));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (FileNotFoundException e) {
-                	if(!lastUrl.equals(url)){
-                        mThreadView.clearCache(true);
-                        lastUrl=url;
-                        return shouldInterceptRequest(view, url);                		
-                	}
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if(mPrefs.disableGifs && url != null && url.endsWith(".gif") && !url.contains("ytimg.") && !url.contains("i.imgur.com")){
+                    return new WebResourceResponse("image/png","png", new AwfulGifStripper(url, mSelf));
             }
-            return super.shouldInterceptRequest(view, url);
+            return null;
         }
 
         @Override
 		public void onPageFinished(WebView view, String url) {
-			Log.i(TAG,"PageFinished");
+			Log.e(TAG,"PageFinished");
 			setProgress(100);
-			registerPreBlocks();
+            if(bodyHtml != null && bodyHtml.length() > 0){
+                mThreadView.loadUrl("javascript:loadpagehtml()");
+            }
 		}
        
 
@@ -245,8 +231,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         setHasOptionsMenu(true);
         if(savedInstanceState != null){
         	Log.w(TAG, "Loading from savedInstanceState");
-            setThreadId(savedInstanceState.getInt(Constants.THREAD_ID, getThreadId()));
-            setPage(savedInstanceState.getInt(Constants.THREAD_PAGE, getPage()));
+            if(savedInstanceState.containsKey("threadHtml")){
+                bodyHtml = savedInstanceState.getString("threadHtml");
+            }
     		savedScrollPosition = savedInstanceState.getInt("scroll_position", 0);
         }else{
             Intent data = getActivity().getIntent();
@@ -268,11 +255,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 }
             }
         }
-        
+         
         mPostLoaderCallback = new PostLoaderManager();
         mThreadLoaderCallback = new ThreadDataCallback();
         
-        if(getThreadId() > 0 && savedScrollPosition < 1){
+        if(getThreadId() > 0 && TextUtils.isEmpty(bodyHtml)){
         	syncThread();
         }
     }
@@ -286,17 +273,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
 		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		mToggleSidebar = (ImageButton) aq.find(R.id.toggle_sidebar).clicked(onButtonClick).getView();
 		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
 		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
-		mThreadWindow = (PullToRefreshWebView) result.findViewById(R.id.thread);
-        mThreadView = mThreadWindow.getRefreshableView();
-        mThreadView.setKeepScreenOn(keepScreenOn);
-        mThreadWindow.setOnRefreshListener(this);
-		mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
-        mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-        mThreadParent = (ViewGroup) result.findViewById(R.id.thread_window);
+		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -309,11 +289,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-        if(dataLoaded || savedScrollPosition > 0){
-        	Log.w(TAG, "Recovering posts");
-        	refreshPosts();
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mThreadView,new WebViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(true);
+            mP2RAttacher.setEnabled(true);
         }
-        updateSidebarHint(isDualPane(), isSidebarVisible());
+
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -321,12 +303,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
+		mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        if(mPrefs.inlineYoutube && Constants.isFroyo()){//YOUTUBE SUPPORT BLOWS
+        mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
+        if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
@@ -369,13 +352,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			}
 		});
 
+        mThreadView.addJavascriptInterface(clickInterface, "listener");
+        mThreadView.addJavascriptInterface(getSerializedPreferences(AwfulPreferences.getInstance(getActivity())), "preferences");
+
         refreshSessionCookie();
+        mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
 	}
 	
 	public void updatePageBar(){
 		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
 		if(getActivity() != null){
-			getAwfulActivity().invalidateOptionsMenu();
+			invalidateOptionsMenu();
 		}
 		mRefreshBar.setVisibility(View.VISIBLE);
 		mPrevPage.setVisibility(View.VISIBLE);
@@ -395,24 +382,26 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			mNextPage.setImageResource(R.drawable.ic_menu_arrowright);
 		}
 
-        if(mThreadWindow != null){
+        if(mThreadView != null){
+        	if(mP2RAttacher == null){
+        		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        	}
             if(mPrefs.disablePullNext){
-                mThreadWindow.setMode(PullToRefreshBase.Mode.DISABLED);
+                mP2RAttacher.setEnabled(false);
             }else{
-                mThreadWindow.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-                ILoadingLayout footer = mThreadWindow.getLoadingLayoutProxy(false, true);
-                if(getPage() < mLastPage){
-                    footer.setPullLabel("Pull for Next Page...");
-                    footer.setReleaseLabel("Release for Next Page...");
-                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_arrowup));
-                }else{
-                    footer.setPullLabel("Pull to refresh...");
-                    footer.setReleaseLabel("Release to refresh...");
-                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_load));
-                }
+                mP2RAttacher.setEnabled(true);
+//                if(getPage() < mLastPage){
+//                    footer.setPullLabel("Pull for Next Page...");
+//                    footer.setReleaseLabel("Release for Next Page...");
+//                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_arrowup));
+//                }else{
+//                    footer.setPullLabel("Pull to refresh...");
+//                    footer.setReleaseLabel("Release to refresh...");
+//                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_load));
+//                }
             }
-            //mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-            mThreadWindow.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
+//            mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
+//            mThreadWindow.setTextColor(ColorProvider.getTextColor(mPrefs), ColorProvider.getAltTextColor(mPrefs));
         }
 	}
 	
@@ -436,13 +425,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
-        //recreate that fucking webview if we don't have it yet
-		if(mThreadView == null){
-            //recreateWebview();
-	        if(dataLoaded){
-	        	refreshPosts();
-	        }
-		}
     }
     
 
@@ -454,10 +436,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         refreshInfo();
     }
 
-    
+    @SuppressLint("NewApi")
     public void resumeWebView(){
     	if(getActivity() != null){
-	        if (mThreadWindow == null || mThreadView == null) {
+	        if (mThreadView == null) {
 	            //recreateWebview();
 	        }else{
 	            mThreadView.onResume();
@@ -472,19 +454,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
-	}
-	
-	
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		if(mThreadView != null && dataLoaded){
-			if(currentProgress > 99){
-				registerPreBlocks();
-			}
-			updateLayoutType();
-		}
+        if(mP2RAttacher != null){
+        	mP2RAttacher.setPullFromBottom(true);
+        }
 	}
 
 	@Override
@@ -492,6 +464,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         pauseWebView();
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
+        }
+        if(mP2RAttacher != null){
+        	mP2RAttacher.setPullFromBottom(false);
         }
 	}
 	
@@ -503,6 +478,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         pauseWebView();
     }
 
+    @SuppressLint("NewApi")
     private void pauseWebView(){
         if (mThreadView != null) {
         	mThreadView.pauseTimers();
@@ -513,18 +489,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     @Override
     public void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-        if (mThreadView != null && !Constants.isICS()) {
-        	//SALT THE FUCKING EARTH
-            //There are a few bugs with specific 2.x phones where the webview will continue running after pausing (eating a ton of CPU)
-            //Burn them to the ground and recreate on resume.
-            //destroyWebview();
-        }
     }
     
     @Override
     public void onDestroyView(){
     	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-        //destroyWebview();
     }
 
     @Override
@@ -552,34 +521,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	CookieSyncManager.getInstance().sync();
         }
     }
-    
-    public boolean isDualPane(){
-    	return false;
-    }
-    
-    public boolean isSidebarVisible(){
-    	return (getActivity() != null && getActivity() instanceof ThreadDisplayActivity && ((ThreadDisplayActivity)getActivity()).isSidebarVisible());
-    }
-    
-    public void updateLayoutType(){
-    	if(mThreadView != null && getActivity() != null){
-			if(!mPrefs.threadLayout.equalsIgnoreCase("phone") && (mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()))){
-				mThreadView.loadUrl("javascript:showTabletUI()");
-			}else{
-				mThreadView.loadUrl("javascript:showPhoneUI()");
-			}
-    	}
-    }
+ 
     
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) { 
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
     	menu.clear();
     	if(menu.size() == 0){
     		inflater.inflate(R.menu.post_menu, menu);
         	MenuItem share = menu.findItem(R.id.share_thread);
-        	if(share != null && share.getActionProvider() instanceof ShareActionProvider){
-        		shareProvider = (ShareActionProvider) share.getActionProvider();
+        	if(share != null && MenuItemCompat.getActionProvider(share) instanceof ShareActionProvider){
+        		shareProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
         		shareProvider.setShareIntent(createShareIntent());
         	}
     	}
@@ -594,6 +546,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         MenuItem nextArrow = menu.findItem(R.id.next_page);
         if(nextArrow != null){
         	nextArrow.setVisible(mPrefs.upperNextArrow);
+        }
+        MenuItem find = menu.findItem(R.id.find);
+        if(find != null){
+            find.setVisible(Constants.isHoneycomb());
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -615,6 +571,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
     }
     
+    @SuppressLint("NewApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -646,6 +603,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     			copyThreadURL(null);
     			break;
     		case R.id.find:
+                //Find button is hidden in onPrepareOptionsMenu for anything pre-Honeycomb
     			this.mThreadView.showFindDialog(null, true);
     			break;
     		case R.id.keep_screen_on:
@@ -679,6 +637,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 		return url.toString();
     }
+	
+	private String generatePostUrl(String postId){
+    	StringBuffer url = new StringBuffer();
+		url.append(Constants.FUNCTION_THREAD);
+		url.append("?");
+		url.append(Constants.PARAM_GOTO);
+		url.append("=");
+		url.append(Constants.VALUE_POST);
+		url.append("&");
+		url.append(Constants.PARAM_POST_ID);
+		url.append("=");
+		url.append(postId);
+		return url.toString();
+    }
     
     private Intent createShareIntent(){
     	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
@@ -692,11 +664,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
 			clipboard.setPrimaryClip(clip);
 
-			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 		} else {
 			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 			clipboard.setText(url);
-			Toast.makeText(this.getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 		}
 	}
 
@@ -708,9 +680,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		builder.setTitle("Rate this thread");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				if (getActivity() != null) {
-					getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_VOTE, getThreadId(), item);
-				}
+                queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                    @Override
+                    public void success(Void result) {
+                        displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_menu_emote);
+                    }
+
+                    @Override
+                    public void failure(VolleyError error) {
+                    }
+                }));
 			}
 		});
 		AlertDialog alert = builder.create();
@@ -720,7 +699,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	
 	private void ignoreUser(final String aUserId) {
 		if(mPrefs.ignoreFormkey == null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+            queueRequest(new ProfileRequest(getActivity(), null).build());
 		}
 		if(mPrefs.showIgnoreWarning){
 		AlertDialog ignoreDialog = new AlertDialog.Builder(getAwfulActivity()).create();
@@ -728,7 +707,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setButton(AlertDialog.BUTTON_NEGATIVE,getActivity().getString(R.string.cancel), (android.content.DialogInterface.OnClickListener) null);
@@ -736,12 +715,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
-				try{
-				mPrefs.setBooleanPreference("show_ignore_warning", false);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+                try{
+                    mPrefs.setBooleanPreference("show_ignore_warning", false);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 			}
 		});
 		ignoreDialog.setTitle(R.string.ignore_title);
@@ -749,16 +728,30 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		ignoreDialog.show();
 		
 		}else{
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_IGNORE_USER, Integer.parseInt(aUserId), 0);
+            queueRequest(new IgnoreRequest(getActivity(), aUserId).build());//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 		}
 	}
     
+	private void toggleMarkUser(String username){
+		if(Constants.isHoneycomb()){
+			if(mPrefs.markedUsers.contains(username)){
+				mPrefs.unmarkUser(username);
+			}else{
+				mPrefs.markUser(username);
+			}
+		}else{
+			//TODO:Hide this shit
+			displayAlert(R.string.not_available_on_your_version, 0, R.drawable.ic_menu_load_fail);
+		}
+	}
+	
     @Override
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
     	if(DEBUG) Log.v(TAG,"onSaveInstanceState");
-        outState.putInt(Constants.THREAD_PAGE, getPage());
-    	outState.putInt(Constants.THREAD_ID, getThreadId());
+        if(bodyHtml != null && bodyHtml.length() > 0){
+            outState.putString("threadHtml", bodyHtml);
+        }
     	if(mThreadView != null){
     		outState.putInt("scroll_position", mThreadView.getScrollY());
     	}
@@ -766,8 +759,31 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void syncThread() {
         if(getActivity() != null){
-        	dataLoaded = false;
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_THREAD, getThreadId(), getPage(), Integer.valueOf(mUserId));
+        	bodyHtml = "";
+            queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
+                @Override
+                public void success(Integer result) {
+                    refreshInfo();
+                    if(result == getPage()){
+                        setProgress(75);
+                        refreshPosts();
+                        mNextPage.setColorFilter(0);
+                        mPrevPage.setColorFilter(0);
+                        mRefreshBar.setColorFilter(0);
+                    }else{
+                        Log.e(TAG, "Page mismatch: "+getPage()+" - "+result);
+                    }
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    refreshInfo();
+                    refreshPosts();
+                    mNextPage.setColorFilter(0);
+                    mPrevPage.setColorFilter(0);
+                    mRefreshBar.setColorFilter(0);
+                }
+            }));
         }
     }
 
@@ -778,14 +794,35 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
     private void markLastRead(int index) {
-        if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_MARK_LASTREAD,getThreadId(),index);
-        }
+        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_menu_lastread);
+        queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_menu_lastread);
+                refreshInfo();
+                refreshPosts();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+
+            }
+        }));
     }
 
     private void toggleThreadBookmark() {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SET_BOOKMARK,getThreadId(),(threadBookmarked?0:1));
+            queueRequest(new BookmarkRequest(getActivity(), getThreadId(), !threadBookmarked).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    refreshInfo();
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    refreshInfo();
+                }
+            }));
         }
     }
     
@@ -817,8 +854,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                                 goToPage(pageInt);
                             }
                         } catch (NumberFormatException e) {
-                            Toast.makeText(getActivity(),
-                                R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                            displayAlert(R.string.invalid_page);
                         } catch (Exception e) {
                             Log.d(TAG, e.toString());
                         }
@@ -850,7 +886,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     public void refresh() {
     	if(mThreadView != null){
-    		mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            bodyHtml = "";
+            mThreadView.loadUrl("javascript:loadpagehtml()");
+    		//mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
     	}
         syncThread();
     }
@@ -882,150 +920,80 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                 	displayPagePicker();
                 	break;
                 case R.id.toggle_sidebar:
-                	if(mShowSidebarIcon){
-	                	if(getActivity() != null && getActivity() instanceof ThreadDisplayActivity){
-	                		((ThreadDisplayActivity)getActivity()).toggleSidebar();
-	                	}
-                	}else{
-                		if (getPage() == getLastPage()) {
-                			refresh();
-                		} else {
-                        	goToPage(getPage() + 1);
-                		}
-                	}
+                    if (getPage() == getLastPage()) {
+                        refresh();
+                    } else {
+                        goToPage(getPage() + 1);
+                    }
                 	break;
             }
         }
     };
 
     public void displayPostReplyDialog() {
-
-        if(mReplyDraftSaved >0){
-        	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-        }else{
-            displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-        }
+        displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
     
-    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
-    	TextView draftAlertMsg = new TextView(getActivity());
-    	if(timeStamp != null){
-    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    	    try {
-				Date d = sdf.parse(timeStamp);
-				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
-				df.setTimeZone(TimeZone.getDefault());
-				timeStamp = df.format(d);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-    	}
-    	switch(replyType){
-    	case AwfulMessage.TYPE_EDIT:
-        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	case AwfulMessage.TYPE_QUOTE:
-        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	case AwfulMessage.TYPE_NEW_REPLY:
-        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
-    		break;
-    	}
-        new AlertDialog.Builder(getActivity())
-            .setTitle("Draft Found")
-            .setView(draftAlertMsg)
-            .setPositiveButton(R.string.draft_alert_keep,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface aDialog, int aWhich) {
-                        displayPostReplyDialog(threadId, postId, replyType);
-                    }
-                })
-            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aWhich) {
-                    ContentResolver cr = getActivity().getContentResolver();
-                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-                    displayPostReplyDialog(threadId, postId, newType);
-                }
-            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aWhich) {
-                    ContentResolver cr = getActivity().getContentResolver();
-                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-                    mReplyDraftSaved = 0;
-                }
-            })
-            .show();
-        
-    }
+//    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
+//    	TextView draftAlertMsg = new TextView(getActivity());
+//    	if(timeStamp != null){
+//    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+//    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+//    	    try {
+//				Date d = sdf.parse(timeStamp);
+//				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
+//				df.setTimeZone(TimeZone.getDefault());
+//				timeStamp = df.format(d);
+//			} catch (ParseException e) {
+//				e.printStackTrace();
+//			}
+//    	}
+//    	switch(replyType){
+//    	case AwfulMessage.TYPE_EDIT:
+//        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	case AwfulMessage.TYPE_QUOTE:
+//        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	case AwfulMessage.TYPE_NEW_REPLY:
+//        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
+//    		break;
+//    	}
+//        new AlertDialog.Builder(getActivity())
+//            .setTitle("Draft Found")
+//            .setView(draftAlertMsg)
+//            .setPositiveButton(R.string.draft_alert_keep,
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface aDialog, int aWhich) {
+//                        displayPostReplyDialog(threadId, postId, replyType);
+//                    }
+//                })
+//            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface aDialog, int aWhich) {
+//                    ContentResolver cr = getActivity().getContentResolver();
+//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
+//                    displayPostReplyDialog(threadId, postId, newType);
+//                }
+//            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface aDialog, int aWhich) {
+//                    ContentResolver cr = getActivity().getContentResolver();
+//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
+//                    mReplyDraftSaved = 0;
+//                }
+//            })
+//            .show();
+//
+//    }
 
     @Override
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
-        if(mThreadWindow != null){
-            mThreadWindow.onRefreshComplete();
-        }
         refreshInfo();
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null){
+			displayAlert("Loading Failed!");
 		}
-    	switch (aMsg.what) {
-	        case AwfulSyncService.MSG_SYNC_THREAD:
-	        	refreshPosts();
-	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	    			mNextPage.setColorFilter(0);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	            }
-	            break;
-	        case AwfulSyncService.MSG_SET_BOOKMARK:
-	        	refreshInfo();
-	            break;
-	        case AwfulSyncService.MSG_MARK_LASTREAD:
-	        	refreshInfo();
-	            refreshPosts();
-	            break;
-	        default:
-	        	Log.e(TAG,"Message not handled: "+aMsg.what);
-	        	break;
-    	}
 		bypassBackStack = false;
     }
-
-    @Override
-    public void loadingStarted(Message aMsg) {
-    	super.loadingStarted(aMsg);
-        if(mThreadWindow != null){
-            mThreadWindow.onRefreshComplete();
-        }
-    	switch(aMsg.what){
-		case AwfulSyncService.MSG_SYNC_THREAD:
-	    	if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-	    		if(getPage() == getLastPage()){
-	    			mNextPage.setColorFilter(buttonSelectedColor);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	    		}else if(getPage() <= 1){
-	    			mPrevPage.setColorFilter(buttonSelectedColor);
-	    			mNextPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	    		}else{
-	    			mRefreshBar.setColorFilter(buttonSelectedColor);
-	    			mPrevPage.setColorFilter(0);
-	    			mNextPage.setColorFilter(0);
-	    		}
-	        }
-	        break;
-        default:
-        	Log.e(TAG,"Message not handled: "+aMsg.what);
-        	break;
-    	}
-    }
-
-    @Override
-	public void loadingUpdate(Message aMsg) {
-		//super.loadingUpdate(aMsg);
-    	setProgress(aMsg.arg2/2);
-	}
 
 	@Override
     public void loadingSucceeded(Message aMsg) {
@@ -1050,29 +1018,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     				}
     			}else{
     				Log.e(TAG,"REDIRECT FAILED: "+aMsg.obj);
-    				Toast.makeText(getActivity(), "Load Failed: Malformed URL", Toast.LENGTH_LONG).show();
+    				displayAlert("Load Failed","Malformed URL");
     			}
     		}
 			bypassBackStack = false;
     		break;
-        case AwfulSyncService.MSG_SYNC_THREAD:
-        	if(aMsg.arg2 == getPage()){
-	        	setProgress(50);
-	        	refreshPosts();
-	            if(Constants.isFroyo()){
-	    			mNextPage.setColorFilter(0);
-	    			mPrevPage.setColorFilter(0);
-	    			mRefreshBar.setColorFilter(0);
-	            }
-        	}
-            break;
-        case AwfulSyncService.MSG_SET_BOOKMARK:
-        	refreshInfo();
-            break;
-        case AwfulSyncService.MSG_MARK_LASTREAD:
-        	refreshInfo();
-            refreshPosts();
-            break;
         default:
         	Log.e(TAG,"Message not handled: "+aMsg.what);
         	break;
@@ -1085,18 +1035,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
 
         try {
-            mThreadView.addJavascriptInterface(clickInterface, "listener");
-            mThreadView.addJavascriptInterface(getSerializedPreferences(new AwfulPreferences(getActivity())), "preferences");
-            boolean useTabletLayout = !mPrefs.threadLayout.equalsIgnoreCase("phone") && 
-            		(mPrefs.threadLayout.equalsIgnoreCase("tablet") || Constants.isWidescreen(getActivity()));
-            String html = AwfulThread.getHtml(aPosts, new AwfulPreferences(getActivity()), useTabletLayout, getPage(), mLastPage, threadClosed);
+
+            String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
             if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
             	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
             	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+getThreadId()+"-"+getPage()+".html"));
             	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
             	out.close();
             }
-            mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
+            refreshSessionCookie();
+            bodyHtml = html;
+            mThreadView.loadUrl("javascript:loadpagehtml()");
+            setProgress(100);
+            //mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", html, "text/html", "utf-8", null);
         } catch (Exception e) {
         	e.printStackTrace();
             // If we've already left the activity the webview may still be working to populate,
@@ -1110,14 +1061,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         try {
             result.put("username", aAppPrefs.username);
-            result.put("userQuote", "#a2cd5a");
-            result.put("usernameHighlight", "#9933ff");
             result.put("youtubeHighlight", "#ff00ff");
             result.put("showSpoilers", aAppPrefs.showAllSpoilers);
             result.put("postFontSize", aAppPrefs.postFontSizePx);
-            result.put("postcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postFontColor));
-            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(aAppPrefs.postBackgroundColor));
-            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aAppPrefs.postLinkQuoteColor));
+            result.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()));
+            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor()));
+            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.link_quote)));
             result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
             result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
             result.put("postjumpid", mPostJump);
@@ -1130,158 +1079,108 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     private ClickInterface clickInterface = new ClickInterface();
 
-    @Override
-    public void onPullDownToRefresh(PullToRefreshBase refreshView) {
-        refresh();
-    }
 
-    @Override
-    public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+	@Override
+	public void onRefreshStarted(View view) {
         if(getPage() < mLastPage){
             goToPage(getPage()+1);
         }else{
             refresh();
-        }
-    }
+        }		
+	}
+
+
 
     private class ClickInterface {
         public static final int SEND_PM  = 0;
         public static final int COPY_URL = 1;
         public static final int USER_POSTS = 2;
-        public static final int IGNORE_USER = 3;
+        public static final int MARK_USER = 3;
+        public static final int IGNORE_USER = 4;
 		
         final CharSequence[] mPostItems = {
-            "Send Private Message",
             "Copy Post URL",
             "Read Posts by this User",
-            "Ignore User"
-        };
-		
-        final CharSequence[] mEditMenuItems = {
-            "Edit",
-            "Quote",
-            "Mark Last Read",
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Ignore User"
-        };
-		
-        final CharSequence[] mMenuItems = {
-            "Quote",
-            "Mark Last Read",
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
+            "Mark/Unmark this User",
             "Ignore User"
         };
         
-        final CharSequence[] mProbatedItems = {
-            "Mark Last Read",
-            "Send Private Message",
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Ignore User"
-        };
+        final CharSequence[] mPlatPostItems = {
+                "Send Private Message",
+                "Copy Post URL",
+                "Read Posts by this User",
+                "Mark/Unmark this User",
+                "Ignore User"
+            };
 
-        public static final int MENU_EDIT = 0;
-        public static final int MENU_QUOTE  = 1;
-        public static final int MENU_LASTREAD = 2;
-        public static final int MENU_SEND_PM  = 3;
-        public static final int MENU_COPY_URL = 4;
-        public static final int MENU_USER_POSTS = 5;
-        public static final int MENU_USER_IGNORE = 6;
-        
+        @JavascriptInterface
         public void onQuoteClick(final String aPostId) {
         	onQuoteClickInt(Integer.parseInt(aPostId));
         }
         
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onQuoteClickInt(final int aPostId){
-            if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId,AwfulMessage.TYPE_QUOTE);
-            }else{
-                displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
-            }
+            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
         }
-        
+
+        @JavascriptInterface
         public void onLastReadClick(final String index) {
         	markLastRead(Integer.parseInt(index));
         }
         
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onLastReadClickInt(final int index) {
         	markLastRead(index);
         }
 
+        @JavascriptInterface
         public void onSendPMClick(final String aUsername) {
         	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
         }
 
         // Post ID is the item tapped
+        @JavascriptInterface
         public void onEditClick(final String aPostId) {
         	onEditClickInt(Integer.parseInt(aPostId));
         }
 
         //name it differently to avoid ambiguity on the JS interface
+        @JavascriptInterface
         public void onEditClickInt(final int aPostId) {
-            if(mReplyDraftSaved >0){
-            	displayDraftAlert(mReplyDraftSaved, mDraftTimestamp, getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
-            }else{
-                displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
-            }
+            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
         }
-        
+
+        @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId) {
         	new AlertDialog.Builder(getActivity())
             .setTitle("Select an Action")
-            .setItems(mPostItems, new DialogInterface.OnClickListener() {
+            .setItems(mPrefs.hasPlatinum?mPlatPostItems:mPostItems, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aItem) {
-                    onPostActionItemSelected(aItem, aPostId, aUsername, aUserId);
+                    onPostActionItemSelected(mPrefs.hasPlatinum?aItem:aItem+1, aPostId, aUsername, aUserId);
                 }
             })
             .show();
         }
-        
-        public void onMenuClick(final String aPostId, final String aUsername, final String aUserId, final String index, final String editable) {
-        	final boolean edit = editable != null && editable.contains("true");
-        	final boolean probated = mPrefs.isOnProbation();
-        	new AlertDialog.Builder(getActivity())
-            .setTitle("Select an Action")
-            .setItems((probated?mProbatedItems:edit?mEditMenuItems:mMenuItems), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aItem) {
-                	//the non-edit menu is one item shorter, so we just shift that aItem up by one to compensate
-                	onPostMenuItemSelected(aItem+(probated?2:edit?0:1), aPostId, aUsername, aUserId, index);
-                }
-            })
-            .show();
-        }
-        
+
+        @JavascriptInterface
         public void onCopyUrlClick(final String aPostId) {
         	copyThreadURL(aPostId);
         }
-        
+
+        @JavascriptInterface
         public void debugMessage(final String msg) {
         	Log.e(TAG,"Awful DEBUG: "+msg);
         }
-        
-        public void onUserPostsClick(final String aUserId) {
-        	onUserPostsClickInt(Integer.parseInt(aUserId));
-        }
-        
-        public void onUserPostsClickInt(final int aUserId) {
-        	if(mUserId >0){
-        		deselectUser();
-        	}else{
-        		selectUser(aUserId);
-        	}
-        }
 
+        @JavascriptInterface
 		public void onIgnoreUserClick(final String aUserId) {
 			// TODO Auto-generated method stub
 			ignoreUser(aUserId);
 		}
-		
+
+        @JavascriptInterface
         public void addCodeBounds(final String minBound, final String maxBound){
         	int min = Integer.parseInt(minBound);
         	int max = Integer.parseInt(maxBound);
@@ -1309,40 +1208,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	Arrays.sort(scrollCheckBounds);
         }
 
+        @JavascriptInterface
+        public String getBodyHtml(){
+            return bodyHtml;
+        }
+
+        @JavascriptInterface
+        public String getPostJump(){
+            return mPostJump;
+        }
+
+        @JavascriptInterface
+        public String getCSS(){
+            return determineCSS();
+        }
+
     }
     
-	private void onPostMenuItemSelected(int aItem, String aPostId, String aUsername, String aUserId, String lastread) {
-		switch(aItem){
-			case ClickInterface.MENU_QUOTE:
-				clickInterface.onQuoteClick(aPostId);
-				break;
-			case ClickInterface.MENU_EDIT:
-				clickInterface.onEditClick(aPostId);
-				break;
-			case ClickInterface.MENU_LASTREAD:
-				clickInterface.onLastReadClick(lastread);
-				break;
-			case ClickInterface.MENU_SEND_PM:
-				clickInterface.onSendPMClick(aUsername);
-				break;
-			case ClickInterface.MENU_COPY_URL:
-	        	clickInterface.onCopyUrlClick(aPostId);
-				break;
-			case ClickInterface.MENU_USER_POSTS:
-				if(mUserId >0){
-	        		deselectUser();
-	        	}else{
-	        		selectUser(Integer.parseInt(aUserId));
-	        	}
-			break;
-			case ClickInterface.MENU_USER_IGNORE:
-	        	clickInterface.onIgnoreUserClick(aUserId);
-			break;
-		}
-	}
-    
-	private void onPostActionItemSelected(int aItem,
-			String aPostId, String aUsername, String aUserId) {
+	private void onPostActionItemSelected(int aItem, String aPostId, String aUsername, String aUserId) {
 		switch(aItem){
 		case ClickInterface.SEND_PM:
         	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
@@ -1353,13 +1236,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		case ClickInterface.USER_POSTS:
 			if(mUserId >0){
-        		deselectUser();
+        		deselectUser(aPostId);
         	}else{
-        		selectUser(Integer.parseInt(aUserId));
+        		selectUser(Integer.parseInt(aUserId), aUsername);
         	}
 			break;
 		case ClickInterface.IGNORE_USER:
         	ignoreUser(aUserId);
+			break;
+		case ClickInterface.MARK_USER:
+	    	toggleMarkUser(aUsername);
 			break;
 		}
 	}
@@ -1410,7 +1296,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			} else {
         				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         			}
-
+        			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
+        			request.allowScanningByMediaScanner();
         			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
         	        dlMngr.enqueue(request);
         			break;
@@ -1424,7 +1311,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			break;
             	case 3:
             		copyToClipboard(url);
-        			Toast.makeText(getActivity().getApplicationContext(), getString(R.string.copy_url_success), Toast.LENGTH_SHORT).show();
+        			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
         			break;
             	case 4:
             		startActivity(createShareIntent());
@@ -1459,11 +1346,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			getActivity().startActivity(browserIntent);
 		} else {
 			String[] split = url.split(":");
-			Toast.makeText(
-					getActivity(),
-					"No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."),
-					Toast.LENGTH_LONG)
-						.show();
+			displayAlert("Cannot open link:","No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."));
 		}
 	}
 	
@@ -1471,13 +1354,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		aq.find(R.id.pagebar).backgroundColor(mPrefs.actionbarColor);
+		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
 		if(mPageCountText != null){
-			mPageCountText.setTextColor(mPrefs.actionbarFontColor);
+			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
 		if(mThreadView != null){
-			mThreadView.setBackgroundColor(mPrefs.postBackgroundColor);
-            mThreadWindow.setBackgroundColor(mPrefs.postBackgroundColor);
+			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
+            mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+            mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
 		}
 	}
 
@@ -1491,8 +1375,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			updatePageBar();
 			updateProbationBar();
 			mPostJump = "";
+            bodyHtml = "";
 			if(mThreadView != null){
-				mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
 			}
 	        syncThread();
             cancelOldSync();
@@ -1500,7 +1385,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(mPrefs.postBackgroundColor)+";'></body></html>";
+		return AwfulThread.getContainerHtml(mPrefs, getParentForumId());
 	}
 
     public int getLastPage() {
@@ -1521,27 +1406,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         parent.setThreadId(aThreadId);
 	}
 	
-	public void selectUser(int id){
+	public void selectUser(int id, String name){
 		savedPage = getPage();
 		mUserId = id;
+        mPostByUsername = name;
 		setPage(1);
 		mLastPage = 1;
 		mPostJump = "";
+        bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            mThreadView.loadUrl("javascript:loadpagehtml()");
 		}
         syncThread();
 	}
 	
-	public void deselectUser(){
-		mUserId = 0;
-		setPage(savedPage);
-		mLastPage = 0;
-		mPostJump = "";
+	public void deselectUser(String postId){
+        bodyHtml = "";
+        aq.find(R.id.thread_userpost_notice).gone();
 		if(mThreadView != null){
-			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+            mThreadView.loadUrl("javascript:loadpagehtml()");
 		}
-        syncThread();
+		if(TextUtils.isEmpty(postId) || postId.length() < 3){
+			mUserId = 0;
+            mPostByUsername = null;
+			setPage(savedPage);
+			mLastPage = 0;
+			mPostJump = "";
+			syncThread();
+		}else{
+	        openThread(AwfulURL.parse(generatePostUrl(postId)));
+		}
 	}
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -1561,14 +1455,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
             refreshSessionCookie();
-        	setProgress(50);
+        	setProgress(90);
         	if(aData.isClosed()){
         		return;
         	}
         	if(mThreadView != null){
         		populateThreadView(AwfulPost.fromCursor(getActivity(), aData));
         	}
-            dataLoaded = true;
 			savedScrollPosition = 0;
         }
 
@@ -1595,16 +1488,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
         		updateProbationBar();
-        		mReplyDraftSaved = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
-        		if(mReplyDraftSaved > 0){
-            		mDraftTimestamp = aData.getString(aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
-            		//TODO add tablet notification
-        			Log.i(TAG, "DRAFT SAVED: "+mReplyDraftSaved+" at "+mDraftTimestamp);
-        		}
+                if(mUserId > 0 && !TextUtils.isEmpty(mPostByUsername)){
+                    aq.find(R.id.thread_userpost_notice).visible().text("Viewing posts by "+mPostByUsername+" in this thread,\nPress the back button to return.").textColor(ColorProvider.getTextColor()).backgroundColor(ColorProvider.getBackgroundColor());
+                }else{
+                    aq.find(R.id.thread_userpost_notice).gone();
+                }
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());
         		}
-                getAwfulActivity().invalidateOptionsMenu();
+                invalidateOptionsMenu();
         	}
         }
         
@@ -1624,21 +1516,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     }
     
 	public void refreshInfo() {
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
-		}
+		restartLoader(Constants.THREAD_INFO_LOADER_ID, null, mThreadLoaderCallback);
 	}
 	
 	public void refreshPosts(){
-		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
-		}
+		restartLoader(Constants.POST_LOADER_ID, null, mPostLoaderCallback);
 	}
 	
 	public void setTitle(String title){
 		mTitle = title;
 		if(getActivity() != null && mTitle != null){
-			getAwfulActivity().setActionbarTitle(mTitle, this);
+            getAwfulActivity().setActionbarTitle(getTitle(), this);
 		}
 	}
 	
@@ -1667,17 +1555,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
 	
 	private void loadThread(int id, int page, String postJump) {
-        if(id == getThreadId() && page == getPage() && postJump == null){
+        if(parent == null){
             return;
         }
     	if(getActivity() != null){
 	        getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
 	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     	}
+        setPage(page);
     	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
-    	setPage(page);
-    	dataLoaded = false;
+        mPostByUsername = null;
+    	bodyHtml = "";
     	mLastPage = 1;
     	if(postJump != null){
     		mPostJump = postJump;
@@ -1688,7 +1577,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
-    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
     		}
 			refreshInfo();
 			syncThread();
@@ -1702,8 +1591,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	}
     	setThreadId(thread.id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
+        mPostByUsername = null;
     	setPage(thread.page);
-    	dataLoaded = false;
+        bodyHtml = "";
     	mLastPage = 1;
     	mPostJump = "";
     	savedScrollPosition = thread.scrollPos;
@@ -1711,7 +1601,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		updateProbationBar();
     	if(getActivity() != null){
     		if(mThreadView != null){
-    			mThreadView.loadData(getBlankPage(), "text/html", "utf-8");
+                mThreadView.loadUrl("javascript:loadpagehtml()");
     		}
 			refreshInfo();
 			refreshPosts();
@@ -1749,67 +1639,34 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		if(backStackCount() > 0){
 			popThread();
 			return true;
-		}else{
+		}else if(mUserId > 0){
+            deselectUser(null);
+            return true;
+        }else{
 			return false;
 		}
 	}
 
-	public void updateSidebarHint(boolean showIcon, boolean sidebarVisible) {
-		mShowSidebarIcon = showIcon;
-		if(mToggleSidebar != null){
-			if(mShowSidebarIcon){
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageResource(R.drawable.ic_menu_sidebar);
-	    		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO){
-					if(sidebarVisible){
-						mToggleSidebar.setColorFilter(buttonSelectedColor);
-					}else{
-						mToggleSidebar.setColorFilter(0);
-					}
-	    		}
-			}else{
-				mToggleSidebar.setVisibility(View.VISIBLE);
-				mToggleSidebar.setImageDrawable(null);
-			}
-		}
-	}
-	
-	private void registerPreBlocks() {
-		scrollCheckBounds = null;
-		scrollCheckMinBound = -1;
-		scrollCheckMaxBound = -1;
-		if(mThreadView != null && dataLoaded){
-			mHandler.postDelayed(new Runnable(){
-				@Override
-				public void run() {
-					if(mThreadView != null){
-						mThreadView.loadUrl("javascript:registerPreBlocks()");
-					}
-				}
-			}, 2000);
-		}
-	}
+//	@Override
+//	public boolean canScrollX(int x, int y) {
+//		if(mPrefs.lockScrolling){
+//			return true;
+//		}
+//		if(mThreadView == null || scrollCheckBounds == null){
+//			return false;
+//		}
+//		y = y+mThreadView.getScrollY()+mThreadView.getTop();
+//		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
+//			return false;
+//		}
+//		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
+//			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		if(mThreadView == null || scrollCheckBounds == null){
-			return false;
-		}
-		y = y+mThreadView.getScrollY()+mThreadView.getTop();
-		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
-			return false;
-		}
-		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
-			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
-				return true;
-			}
-		}
-		return false;
-	}
-	
 
 	@Override
 	public String getInternalId() {
@@ -1833,12 +1690,43 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	        default:
 	            return false;
 	        }
-	    } 
+	} 
 	
     
     private void toggleScreenOn() {
     	keepScreenOn = !keepScreenOn;
     	mThreadView.setKeepScreenOn(keepScreenOn);
-		Toast.makeText(getAwfulActivity(), keepScreenOn? "Screen stays on" :"Screen turns itself off", Toast.LENGTH_SHORT).show();
+
+        //TODO icon
+		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
 	}
+    
+    @Override
+    public void onLowMemory() {
+    	super.onLowMemory();
+    	mThreadView.freeMemory();
+    }
+    
+    private String determineCSS(){
+        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
+        if(!(mPrefs.forceForumThemes && mParentForumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+        	return "file:///"+Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme;
+        }else if(mPrefs.forceForumThemes){
+        	switch(mParentForumId){
+				//TODO: No FYAD theme yet        	
+//    			case(26):
+//	    			return "file:///android_asset/css/fyad.css");
+        		//RIP BYOB
+//        		case(208):
+//        			return "file:///android_asset/css/byob.css";
+        		case(219):
+        			return "file:///android_asset/css/yospos.css";
+        		default:
+        			return "file:///android_asset/css/"+mPrefs.theme;
+        	}
+        }else{
+            return "file:///android_asset/css/"+mPrefs.theme;
+        }
+    }
+
 }

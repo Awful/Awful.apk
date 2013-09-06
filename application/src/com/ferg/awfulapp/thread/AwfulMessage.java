@@ -27,9 +27,12 @@
 
 package com.ferg.awfulapp.thread;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import com.ferg.awfulapp.util.AwfulError;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -37,7 +40,9 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,6 +51,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
+import com.ferg.awfulapp.provider.ColorProvider;
 /**
  * SA Private Messages.
  * @author Geekner
@@ -64,12 +70,14 @@ public class AwfulMessage extends AwfulPagedItem {
     public static final String AUTHOR 		="author";
     public static final String CONTENT 	="content";
     public static final String DATE 	="message_date";
+    public static final String EPOC_TIMESTAMP = "epoc_timestamp";
 	public static final String TYPE = "message_type";
 	public static final String UNREAD = "unread_message";
 	public static final String RECIPIENT = "recipient";
 	public static final String REPLY_CONTENT = "reply_content";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
+	public static final String FOLDER = "folder";
 
 	public static final int TYPE_PM = 1;
 	public static final int TYPE_NEW_REPLY = 2;
@@ -83,10 +91,12 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static View getView(View current, AwfulPreferences aPref, Cursor data, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		String t = data.getString(data.getColumnIndex(TITLE));
+		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
+		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
 		if(t != null){
 			title.setText(t);
 		}
-		TextView author = (TextView) current.findViewById(R.id.subtext);
+		TextView author = (TextView) current.findViewById(R.id.threadinfo);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
 		String date = data.getString(data.getColumnIndex(AUTHOR));
 		if(auth != null && date != null){
@@ -102,8 +112,8 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 
 		if(aPref != null){
-			title.setTextColor(aPref.postFontColor);
-			author.setTextColor(aPref.postFontColor2);
+			title.setTextColor(ColorProvider.getTextColor());
+			author.setTextColor(ColorProvider.getAltTextColor());
 		}
 		if(selected){
 			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
@@ -114,7 +124,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static void processMessageList(ContentResolver contentInterface, Document data) throws Exception{
+	public static void processMessageList(ContentResolver contentInterface, Document data, int folder) throws AwfulError {
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
@@ -166,35 +176,36 @@ public class AwfulMessage extends AwfulPagedItem {
 					}else{
 						pm.put(UNREAD, 0);
 					}
+					pm.put(FOLDER, folder);
 					msgList.add(pm);
 				}
 			}
 		}else{
-			throw new Exception("Failed to parse message parent");
+			throw new AwfulError("Failed to parse message parent");
 		}
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
 	
-	public static ContentValues processMessage(Document data, int id) throws Exception{
+	public static ContentValues processMessage(Document data, int id) throws AwfulError{
 		ContentValues message = new ContentValues();
 		message.put(ID, id);
 		Elements auth = data.getElementsByClass("author");
 		if(auth.size() > 0){
 			message.put(AUTHOR, auth.first().text());
 		}else{
-			throw new Exception("Failed parse: author.");
+			throw new AwfulError("Failed parse: author.");
 		}
 		Elements content = data.getElementsByClass("postbody");
 		if(content.size() > 0){
-			message.put(CONTENT, content.first().text());
+			message.put(CONTENT, content.first().html());
 		}else{
-			throw new Exception("Failed parse: content.");
+			throw new AwfulError("Failed parse: content.");
 		}
 		Elements date = data.getElementsByClass("postdate");
 		if(date.size() > 0){
 			message.put(DATE, date.first().text().replaceAll("\"", "").trim());
 		}else{
-			throw new Exception("Failed parse: date.");
+			throw new AwfulError("Failed parse: date.");
 		}
 		return message;
 	}
@@ -213,17 +224,38 @@ public class AwfulMessage extends AwfulPagedItem {
 			String quoteTitle = StringEscapeUtils.unescapeHtml4(title.first().attr("value"));
 			reply.put(TITLE, quoteTitle);
 		}
+        Elements recipient = pmReplyData.getElementsByAttributeValue("name", "touser");
+        if(title.size() >0){
+            String recip = StringEscapeUtils.unescapeHtml4(recipient.first().attr("value"));
+            reply.put(RECIPIENT, recip);
+        }
 		return reply;
 	}
 	
 	public static String getMessageHtml(String content, AwfulPreferences pref){
-		//String content = data.getString(data.getColumnIndex(CONTENT));
 		if(content!=null){
-			StringBuffer buff = new StringBuffer(content.length());
-			buff.append("<div class='pm_body'style='color: " + ColorPickerPreference.convertToARGB(pref.postFontColor) + "; font-size: " + pref.postFontSizePx + ";'>");
-			buff.append(content.replaceAll("<blockquote>", "<div style='margin-left: 20px'>").replaceAll("</blockquote>", "</div>"));//babbys first CSS hack
-			buff.append("</div>");
-			return buff.toString();
+			StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+	        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+	        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
+	        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
+	        buffer.append("<meta name='format-detection' content='address=no' />\n");
+	        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+pref.theme);
+	       
+	        if(StringUtils.countMatches(pref.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
+	        	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+pref.theme+"'>\n");
+	        }else{
+	            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+pref.theme+"'>\n");
+	        }
+	        if(!pref.preferredFont.contains("default")){
+	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+pref.preferredFont+"'); }</style>\n");
+	        }
+	        buffer.append("</head><body>");
+	        buffer.append("<article><section class='postcontent'>");
+			buffer.append(content);//babbys first CSS hack
+			buffer.append("</section></article>");
+			buffer.append("</body></html>");
+
+			return buffer.toString();
 		}
 		return "";
 	}

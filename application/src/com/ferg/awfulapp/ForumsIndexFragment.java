@@ -42,44 +42,40 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
-import com.ferg.awfulapp.widget.PullToRefreshTreeView;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+
 import pl.polidea.treeview.*;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback {
+public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
     
     private int selectedForum = 0;
-
-    public static ForumsIndexFragment newInstance() {
-        return new ForumsIndexFragment();
-    }
     
-    private PullToRefreshTreeView mForumTree;
-//    private PullToRefreshExpandableListView mForumList;
+    private TreeViewList mForumTree;
     
     private AwfulTreeListAdapter mTreeAdapter;
 	private InMemoryTreeStateManager<ForumEntry> dataManager;
@@ -112,28 +108,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         if(DEBUG) Log.e(TAG, "onCreateView");
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
-        mForumTree = (PullToRefreshTreeView) result.findViewById(R.id.index_pull_tree_view);
-        
-        mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
-        mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-        mForumTree.setOnRefreshListener(new OnRefreshListener<TreeViewList>() {
-			
-			@Override
-			public void onRefresh(PullToRefreshBase<TreeViewList> refreshView) {
-				syncForums();
-			}
-		});
-        mForumTree.setDisableScrollingWhileRefreshing(false);
-        mForumTree.setMode(Mode.PULL_DOWN_TO_REFRESH);
-        mForumTree.setPullLabel("Pull to Refresh");
-        mForumTree.setReleaseLabel("Release to Refresh");
-        mForumTree.setRefreshingLabel("Loading...");
-        if(mPrefs.refreshFrog){
-        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-        }else{
-        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-        }
-        
+        mForumTree = (TreeViewList) result.findViewById(R.id.index_pull_tree_view);
+        mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
+
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
@@ -144,6 +122,14 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	@Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
+
+        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
+        if(mP2RAttacher != null){
+            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
+            mP2RAttacher.setPullFromBottom(false);
+            mP2RAttacher.setEnabled(true);
+        }
+
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
         mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
@@ -159,7 +145,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
-		getActivity().getSupportLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
 		updateProbationBar();
     }
 
@@ -167,15 +153,23 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
 		if(getActivity() != null){
-			getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		}
+		if(mP2RAttacher != null){
+			mP2RAttacher.setPullFromBottom(false);
 		}
 	}
-
+	
 	@Override
 	public void onPageHidden() {
 		if(DEBUG) Log.e(TAG, "onPageHidden");
 	}
-	
+
+    @Override
+    public String getInternalId() {
+        return TAG;
+    }
+
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
@@ -253,45 +247,43 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
     public void loadingFailed(Message aMsg) {
     	super.loadingFailed(aMsg);
         Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null && getActivity() != null){
-			Toast.makeText(getActivity(), "Loading Failed!", Toast.LENGTH_LONG).show();
+		if(aMsg.obj == null){
+			displayAlert("Loading Failed!");
 		}
-		mForumTree.onRefreshComplete();
-		mForumTree.setLastUpdatedLabel("Loading Failed!");
     }
     
     @Override
 	public void loadingSucceeded(Message aMsg) {
 		super.loadingSucceeded(aMsg);
-		setProgress(100);
-		getLoaderManager().restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
-    	mForumTree.onRefreshComplete();
-    	mForumTree.setLastUpdatedLabel("Updated @ "+new SimpleDateFormat("h:mm a").format(new Date()));
+		//TODO remove
 	}
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
 		if(mForumTree != null){
-			mForumTree.setBackgroundColor(mPrefs.postBackgroundColor);
-			mForumTree.getRefreshableView().setCacheColorHint(mPrefs.postBackgroundColor);
-			mForumTree.setTextColor(mPrefs.postFontColor, mPrefs.postFontColor2);
-            //mForumTree.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
+			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
+			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 			if(dataManager != null){
 				dataManager.refresh();
 			}
-	        if(mPrefs.refreshFrog){
-	        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.icon));
-	        }else{
-	        	mForumTree.setLoadingDrawable(getResources().getDrawable(R.drawable.default_ptr_rotate));
-	        }
 		}
 	}
 	
 	private void syncForums() {
-		if(getActivity() != null){
-			getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_SYNC_INDEX,Constants.FORUM_INDEX_ID,0);
-		}
+        if(getActivity() != null){
+            queueRequest(new IndexRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+                @Override
+                public void success(Void result) {
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                }
+
+                @Override
+                public void failure(VolleyError error) {
+                    restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+                }
+            }));
+        }
     }
 	
 	private class ForumContentsCallback implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -313,7 +305,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
         			if(timestamp != null && timestamp.length()>5){
             			upDate = Timestamp.valueOf(timestamp);
         			}
-        			mForumTree.setLastUpdatedLabel("Updated "+new SimpleDateFormat("E @ h:mm a").format(upDate));
         		}
         		mTreeAdapter.setCursor(aData);
         	}
@@ -421,7 +412,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		@Override
 		public View getNewChildView(TreeNodeInfo<ForumEntry> treeNodeInfo) {
 			ForumEntry data = treeNodeInfo.getId();
-			View row = inf.inflate(R.layout.thread_item, null, false);
+			View row = inf.inflate(R.layout.forum_item, null, false);
 			AwfulForum.getExpandableForumView(row,
 							   rowAq,
 							   mPrefs,
@@ -436,7 +427,7 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 		public View updateView(View row, TreeNodeInfo<ForumEntry> treeNodeInfo) {
 			ForumEntry data = treeNodeInfo.getId();
 			if(row == null){
-				row = inf.inflate(R.layout.thread_item, null, false);
+				row = inf.inflate(R.layout.forum_item, null, false);
 			}
 			AwfulForum.getExpandableForumView(row,
 							   rowAq,
@@ -478,24 +469,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	public void refresh() {
 		syncForums();
 	}
-	
-	@Override
-	public boolean canSplitscreen() {
-		return Constants.isWidescreen(getActivity());
-	}
-	
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
-	
-	@Override
-	public boolean canScrollX(int x, int y) {
-		if(mPrefs.lockScrolling){
-			return true;
-		}
-		return false;
-	}
 
 	@Override
 	public boolean volumeScroll(KeyEvent event) {
@@ -503,15 +476,13 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 	    int keyCode = event.getKeyCode();    
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mForumTree.setPullToRefreshOverScrollEnabled(false);
-	            	mForumTree.getRefreshableView().smoothScrollBy(-mForumTree.getHeight()/2, 0);
-	            	mForumTree.setPullToRefreshOverScrollEnabled(true);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mForumTree.smoothScrollBy(-mForumTree.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN && Constants.isFroyo()) {
-	            	mForumTree.getRefreshableView().smoothScrollBy(mForumTree.getHeight()/2, 0);
+	            if (action == KeyEvent.ACTION_DOWN) {
+	            	mForumTree.smoothScrollBy(mForumTree.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:
@@ -534,5 +505,10 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 				startActivity(openThread);
 			}
 		});
+	}
+
+	@Override
+	public void onRefreshStarted(View view) {
+		syncForums();
 	}
 }

@@ -1,38 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-  <PreferenceCategory android:title="@string/themes">
+  <PreferenceCategory android:title="@string/theme_settings">
             <ListPreference
-            android:key="themes"
-            android:title="@string/themes"
-            android:entries="@array/themes"
+            android:key="theme"
+            android:title="@string/theme"
+            android:entries="@array/theme"
             android:entryValues="@array/schemas_values"
+			android:defaultValue="default.css"
+            />
+            <CheckBoxPreference
+			android:key="force_forum_themes"
+			android:title="@string/force_forum_themes"
+			android:summary="@string/force_forum_themes_summary"
+			android:defaultValue="true"
+			/>
+            <ListPreference
+            android:key="layouts"
+            android:title="@string/layouts"
+            android:entries="@array/layouts"
+            android:entryValues="@array/layouts_values"
 			android:defaultValue="default"
             />
             <ListPreference
             android:key="preferred_font"
             android:title="@string/select_font"
-            android:entries="@array/themes"
+            android:entries="@array/theme"
             android:entryValues="@array/schemas_values"
 			android:defaultValue="default"
             />
-            <ListPreference
-            android:key="selected_theme"
-            android:title="Icon Theme"
-            android:entries="@array/icon_themes"
-            android:entryValues="@array/icon_themes_values"
-			android:defaultValue="light"
-            />
-            <CheckBoxPreference
-			android:key="refresh_frog"
-			android:title="@string/refreshFrog"
-			android:defaultValue="false"
-			/>
         </PreferenceCategory>
-          <PreferenceCategory android:title="@string/alternate_backgrounds">
-                <CheckBoxPreference
-			android:key="alternate_backgrounds"
-			android:title="@string/alternate_backgrounds"
-			android:defaultValue="true"
-			/>
-		</PreferenceCategory>
 </PreferenceScreen>

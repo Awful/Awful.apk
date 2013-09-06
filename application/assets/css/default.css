@@ -1,0 +1,232 @@
+.passive {
+color:#eae9ea;
+}
+
+a {
+color:#00c0f4;
+}
+
+body {
+background-color:#eae9ea;
+font-family:Roboto, userselected, Verdana, Arial, sans-serif;
+}
+
+div.avatar {
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+vertical-align:bottom-text;
+text-align:right;
+height:50px;
+width:inherit;
+position:relative;
+margin:0;
+padding:0;
+}
+
+div.avatar img {
+position:absolute;
+bottom:0;
+right:0;
+}
+
+div.avatar-cell {
+vertical-align:top;
+width:50px;
+float:left;
+margin-right:10px;
+}
+
+div.avatar-cell.extended {
+width:100px;
+}
+
+div.avatar.extended {
+height:100px;
+}
+
+div.avatarCorner {
+width:20px;
+}
+
+article {
+border-radius:.15em;
+background-color:#FFF;
+color:#828282;
+box-shadow:0 .15em 0 #dbdadb;
+margin:10px 5px;
+padding:15px;
+}
+
+article.read {
+background-color:#EDF2FF;
+}
+
+article.read div.postcontent {
+color:#AAAAAA;
+}
+
+article.marked {
+background-color:#FFDFBF;
+}
+
+article.marked section.postcontent .bbc-block {
+border-left:2px solid #CCCBCC !important;
+}
+
+article.marked header {
+border-bottom:2px solid #CCCBCC !important;
+}
+
+article.op {
+background-color:#FEFFD9;
+}
+
+article.self {
+background-color:#ECFFD9;
+}
+
+article.toggleread {
+text-align: center;
+padding:5px;
+}
+
+section.postcontent {
+word-wrap: break-word;
+}
+
+section.postcontent .bbc-block {
+border-left:2px solid #eae9ea;
+margin:5px 0;
+padding:5px 10px 5px 20px;
+}
+
+section.postcontent .self {
+background-color: #ECFFD9;
+}
+
+section.postcontent .usernameHighlight {
+color: #00c0f4;
+}
+
+section.postcontent img, section.postcontent iframe{
+max-width: 100% !important;
+}
+
+section.postcontent img.timg{
+border: 2px solid #00c0f4;
+width: 20%;
+}
+
+section.postcontent .bbc-block h4 {
+font-style:italic;
+margin:2px 0 5px;
+}
+
+section.postcontent blockquote {
+margin:0;
+}
+
+section.postcontent .bbc-block.code, section.postcontent pre{
+overflow: scroll;
+word-wrap: normal;
+}
+
+section.postcontent .editedby {
+font-style:italic;
+font-size: 0.7em;
+}
+
+section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
+color: #828282;
+background: #828282;
+}
+
+header {
+vertical-align:top;
+clear:left;
+overflow:hidden;
+border:0;
+border-bottom:2px solid #eae9ea;
+margin:0 0 10px;
+padding:0 0 10px;
+}
+
+section.postinfo {
+font-size:1.1em;
+float:left;
+width:90%;
+overflow:hidden;
+display:inline-block;
+}
+
+aside.postinfo-poster img {
+height: 1em;
+}
+
+time.postinfo-postdate,time.postinfo-regdate,aside.postinfo-title {
+font-size:0.85em;
+}
+
+time.postinfo-postdate,time.postinfo-regdate {
+font-style: italic;
+}
+time.postinfo-regdate,aside.postinfo-title {
+display:none;
+}
+
+time.postinfo-regdate.extended,aside.postinfo-title.extended {
+display:block;
+}
+
+nav.postmenu {
+float:right;
+font-weight:bolder;
+font-size:1.5em;
+width:10px;
+height:30px;
+background-repeat:no-repeat;
+background-size:15px 30px;
+background-image:url(file:///android_asset/images/ic_menu_overflow.png);
+padding:0 5px 0 0;
+}
+
+ul.postoptions {
+background-color:#828282;
+color:#FFF;
+height:35px;
+display:none;
+padding-left:15px;
+margin:-11px -15px 5px;
+}
+
+ul.postoptions li.edit {
+background-image:url(file:///android_asset/images/ic_menu_edit.png);
+}
+
+ul.postoptions li.lastread {
+background-image:url(file:///android_asset/images/ic_menu_lastread.png);
+}
+
+ul.postoptions li.more {
+background-image:url(file:///android_asset/images/ic_menu_more.png);
+}
+
+ul.postoptions li.quote {
+background-image:url(file:///android_asset/images/ic_menu_quote.png);
+}
+
+ul.postoptions li{
+float:right;
+margin-right:5px;
+height:15px;
+background-repeat:no-repeat;
+background-position:left top;
+background-size:30px 30px;
+padding:10px 0 10px 30px;
+list-style-type: none;
+}
+
+ul.postoptions.extended {
+display:block;
+}

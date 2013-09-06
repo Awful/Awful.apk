@@ -52,6 +52,8 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.service.AwfulSyncService;
+import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -184,7 +186,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                     result = NetworkUtils.saveLoginCookies(AwfulLoginActivity.this);
 
                     // Write username to preferences for SALR features
-                    AwfulPreferences prefs = new AwfulPreferences(AwfulLoginActivity.this);
+                    AwfulPreferences prefs = AwfulPreferences.getInstance(AwfulLoginActivity.this);
                     prefs.setUsername(aParams[0]);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -206,8 +208,8 @@ public class AwfulLoginActivity extends AwfulActivity {
 
                 if(succeeded) {
                     setResult(Activity.RESULT_OK);
-                    sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_FEATURES, 0, 0);
-                    sendMessage(new Messenger(new Handler()), AwfulSyncService.MSG_FETCH_PROFILE, 0, 0);
+                    ((AwfulApplication)getApplication()).queueRequest(new FeatureRequest(AwfulLoginActivity.this).build(null, null));
+                    ((AwfulApplication)getApplication()).queueRequest(new ProfileRequest(AwfulLoginActivity.this, null).build(null, null));
                     finish();
                 } else {
                     setResult(Activity.RESULT_CANCELED);
