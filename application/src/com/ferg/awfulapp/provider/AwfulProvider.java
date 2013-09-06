@@ -59,7 +59,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 27;
+    private static final int DATABASE_VERSION = 28;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -300,6 +300,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.AUTHOR      + " VARCHAR,"   + 
                 AwfulMessage.CONTENT      + " VARCHAR,"   + 
                 AwfulMessage.UNREAD      + " INTEGER,"   + 
+                AwfulMessage.FOLDER      + " INTEGER,"   + 
                 AwfulMessage.DATE + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
@@ -368,6 +369,9 @@ public class AwfulProvider extends ContentProvider {
             case 26:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
                 createDraftTable(aDb);
+            case 27:
+                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
+                createPMTable(aDb);
                     break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -863,6 +867,7 @@ public class AwfulProvider extends ContentProvider {
 		sPMReplyProjectionMap.put(AwfulMessage.REPLY_TITLE, TABLE_DRAFTS+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.REPLY_TITLE);
 		sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+		sPMReplyProjectionMap.put(AwfulMessage.FOLDER, AwfulMessage.FOLDER);
 		
 		sEmoteProjectionMap.put(AwfulEmote.ID, AwfulEmote.ID);
 		sEmoteProjectionMap.put(AwfulEmote.TEXT, AwfulEmote.TEXT);

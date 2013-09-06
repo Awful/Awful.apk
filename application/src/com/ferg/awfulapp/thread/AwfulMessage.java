@@ -77,6 +77,7 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String REPLY_CONTENT = "reply_content";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
+	public static final String FOLDER = "folder";
 
 	public static final int TYPE_PM = 1;
 	public static final int TYPE_NEW_REPLY = 2;
@@ -123,7 +124,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		return current;
 	}
 	
-	public static void processMessageList(ContentResolver contentInterface, Document data) throws AwfulError {
+	public static void processMessageList(ContentResolver contentInterface, Document data, int folder) throws AwfulError {
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
 		
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
@@ -175,6 +176,7 @@ public class AwfulMessage extends AwfulPagedItem {
 					}else{
 						pm.put(UNREAD, 0);
 					}
+					pm.put(FOLDER, folder);
 					msgList.add(pm);
 				}
 			}
