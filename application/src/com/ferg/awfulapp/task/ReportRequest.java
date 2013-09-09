@@ -28,6 +28,7 @@ public class ReportRequest extends AwfulRequest<String> {
     protected String generateUrl(Uri.Builder urlBuilder) {
         addPostParam(Constants.PARAM_COMMENTS, mComments);
         addPostParam(Constants.PARAM_POST_ID, postId);
+        addPostParam(Constants.PARAM_ACTION, "submit");
 
         return Constants.FUNCTION_REPORT;
     }
@@ -46,6 +47,7 @@ public class ReportRequest extends AwfulRequest<String> {
 					return "Your alert has been submitted to the Moderators."; //"Thank you for your report";
 				}
 			}
+			throw new AwfulError("An error occured while trying to process your report");
 		}
 		throw new AwfulError("An error occured while trying to send your report");
     }
