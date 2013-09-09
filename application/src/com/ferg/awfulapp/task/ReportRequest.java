@@ -15,10 +15,10 @@ import org.jsoup.nodes.Element;
 /**
  * Created by matt on 8/8/13.
  */
-public class ReportRequest extends AwfulRequest<Void> {
-    private int postId;
+public class ReportRequest extends AwfulRequest<String> {
+    private String postId;
     private String mComments;
-    public ReportRequest(Context context, int postId, String mComments) {
+    public ReportRequest(Context context, String postId, String mComments) {
         super(context, null);
         this.mComments = mComments;
         this.postId = postId;
@@ -27,13 +27,13 @@ public class ReportRequest extends AwfulRequest<Void> {
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
         addPostParam(Constants.PARAM_COMMENTS, mComments);
-        addPostParam(Constants.PARAM_POST_ID, String.valueOf(postId));
+        addPostParam(Constants.PARAM_POST_ID, postId);
 
         return Constants.FUNCTION_BOOKMARK;
     }
 
     @Override
-    protected Void handleResponse(Document doc) throws AwfulError {
+    protected String handleResponse(Document doc) throws AwfulError {
 
 		Document result = doc;
 		if(result.getElementById("content") != null){
@@ -43,11 +43,11 @@ public class ReportRequest extends AwfulRequest<Void> {
 					throw new AwfulError("Someone has already reported this thread recently");
 					
 				}else if(standard.text().contains("Your alert has been submitted to the Moderators.")){
-					return null; //"Thank you for your report";
+					return "Your alert has been submitted to the Moderators."; //"Thank you for your report";
 				}
 			}
-		}	
-		return null;
+		}
+		throw new AwfulError("An error occured while trying to send your report");
     }
 
     @Override
