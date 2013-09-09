@@ -241,12 +241,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load PM Cursor.");
-            return new CursorLoader(getActivity(), 
-            						AwfulMessage.CONTENT_URI, 
-            						AwfulProvider.PMProjection, 
-            						"folder="+currentFolder, 
-            						null,
-            						AwfulMessage.ID+" DESC");
+			return new CursorLoader(getActivity(), 
+					AwfulMessage.CONTENT_URI, 
+					AwfulProvider.PMProjection, 
+					AwfulMessage.FOLDER+"=?", 
+					AwfulProvider.int2StrArray(currentFolder),
+					AwfulMessage.ID+" DESC");
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
