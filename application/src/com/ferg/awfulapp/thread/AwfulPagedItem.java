@@ -135,7 +135,6 @@ public abstract class AwfulPagedItem {
         	int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
         	aPref.setIntegerPreference("user_id", userId);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         	try {
@@ -148,16 +147,14 @@ public abstract class AwfulPagedItem {
 			
 			probDate = probationFormat.parse(date);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if(null != probDate){
 				long probTimestamp = probDate.getTime();
 				//FUCK PRE ICS
 				try {
-				aPref.setLongPreference("probation_time", probTimestamp);
+					aPref.setLongPreference("probation_time", probTimestamp);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

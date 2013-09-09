@@ -460,9 +460,8 @@ public class AwfulThread extends AwfulPagedItem  {
         	}
         	postTemplate = Mustache.compiler().compile(templateReader);
 			} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
+				e.printStackTrace();
+				return "";
 		}
 
 
