@@ -29,7 +29,7 @@ public class ReportRequest extends AwfulRequest<String> {
         addPostParam(Constants.PARAM_COMMENTS, mComments);
         addPostParam(Constants.PARAM_POST_ID, postId);
 
-        return Constants.FUNCTION_BOOKMARK;
+        return Constants.FUNCTION_REPORT;
     }
 
     @Override
