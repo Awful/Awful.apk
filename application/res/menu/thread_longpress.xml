@@ -4,6 +4,7 @@
     <item android:title="@string/goto_firstpage" android:id="@+id/first_page"></item>
     <item android:id="@+id/last_page" android:title="@string/goto_lastpage"></item>
     <item android:id="@+id/thread_bookmark" android:title="@string/toggle_bookmark"></item>
+    <item android:id="@+id/thread_bookmark_color" android:title="@string/toggle_bookmark_color"></item>
     <item android:title="@string/mark_unread" android:id="@+id/mark_thread_unread"></item>
     <item android:title="@string/copy_url" android:id="@+id/copy_url_thread"></item>
     

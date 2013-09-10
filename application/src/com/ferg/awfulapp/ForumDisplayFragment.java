@@ -56,6 +56,7 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.BookmarkColorRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.MarkUnreadRequest;
 import com.ferg.awfulapp.util.AwfulError;
@@ -372,7 +373,7 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+	
     @Override
     public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
@@ -380,8 +381,15 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
 	        android.view.MenuInflater inflater = getActivity().getMenuInflater();
 	        AdapterContextMenuInfo info = (AdapterContextMenuInfo) aMenuInfo;
 	        Cursor row = mCursorAdapter.getRow(info.id);
-            if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
+            if(row != null && row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))>-1) {
 	              inflater.inflate(R.menu.thread_longpress, aMenu);
+	              if(row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))<1 || !mPrefs.coloredBookmarks){
+	            	  MenuItem bookmarkColor = aMenu.findItem(R.id.thread_bookmark_color);
+	            	  if(bookmarkColor != null){
+	            		  bookmarkColor.setEnabled(false);
+	            		  bookmarkColor.setVisible(false);
+	            	  }
+	              }
 	       }
         }
     }
@@ -402,6 +410,9 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
                 return true;
             case R.id.thread_bookmark:
             	toggleThreadBookmark((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)+1)%2>0);
+                return true;
+            case R.id.thread_bookmark_color:
+            	toggleBookmarkColor((int)info.id, (mCursorAdapter.getInt(info.id, AwfulThread.BOOKMARKED)));
                 return true;
             case R.id.copy_url_thread:
             	copyUrl((int) info.id);
@@ -638,6 +649,38 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
             @Override
             public void success(Void result) {
                 refreshInfo();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                refreshInfo();
+            }
+        }));
+    }
+    
+	/** Toggle Bookmark color status.
+	 * @param id Thread ID
+	 */
+    private void toggleBookmarkColor(final int id, final int bookmarkStatus) {
+    	System.out.println(bookmarkStatus);
+    	final ContentResolver lol = this.getAwfulApplication().getContentResolver();
+    	if(bookmarkStatus==3){
+    		queueRequest(new BookmarkColorRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+
+				@Override
+				public void success(Void result) {}
+
+				@Override
+				public void failure(VolleyError error) {}
+    		}));
+    	}
+        queueRequest(new BookmarkColorRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+            	ContentValues cv = new ContentValues();
+                cv.put(AwfulThread.BOOKMARKED, ((bookmarkStatus==3)?bookmarkStatus+2:bookmarkStatus+1)%4);
+                lol.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(id));
+            	refreshInfo();
             }
 
             @Override
