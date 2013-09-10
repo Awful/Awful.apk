@@ -8,7 +8,7 @@ import com.ferg.awful.constants.Constants;
 public class PreferencesBackupAgent extends BackupAgentHelper {
 	//if changing package name, MAKE SURE TO GET THIS TOO.
 	//com.example.appname_preferences
-    private static final String DEFAULT_PREFERENCES = "com.ferg.awfulapp_preferences";
+    private static final String DEFAULT_PREFERENCES = "com.ferg.awful_preferences";
     private static final String BACKUP_KEY          = "preferences_backup";
 
     @Override

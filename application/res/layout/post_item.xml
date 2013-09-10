@@ -112,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:text="Quote" />
             </LinearLayout>
-        </com.ferg.awfulapp.widget.AwfulHorizontalScrollView>
+        </com.ferg.awful.widget.AwfulHorizontalScrollView>
     </RelativeLayout>
 
     <com.ferg.awful.htmlwidget.HtmlView
