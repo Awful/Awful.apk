@@ -157,6 +157,7 @@ AQuery</string>
 	<string name="goto_firstpage">First page</string>
 	<string name="goto_lastpage">Last page</string>
 	<string name="toggle_bookmark">Toggle bookmark</string>
+	<string name="toggle_bookmark_color">Toggle bookmark color</string>
     <string name="mark_unread">Mark thread unread</string>
     <string name="mark_unread_success">Thread Marked Unread</string>
 	<string name="private_message">Private messages</string>
