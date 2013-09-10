@@ -166,6 +166,7 @@ AQuery</string>
 	<string name="show_spoilers_summary">Spoilers are displayed as normal text</string>
 	<string name="send_pm">Send PM</string>
 	<string name="new_pm">New private message</string>
+	<string name="toggle_folder">Toggle mail folder</string>
 	<string name="hide_read_images">Hide old images</string>
 	<string name="hide_read_images_summary">Hide images in previously viewed posts</string>
 	<string name="show_smilies">Show emotes</string>

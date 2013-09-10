@@ -74,6 +74,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 	private AwfulCursorAdapter mCursorAdapter;
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
     
+    private int currentFolder = FOLDER_INBOX;
+
+    public final static int FOLDER_INBOX	= 0;
+    public final static int FOLDER_SENT		= -1;
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -134,7 +140,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     
     private void syncPMs() {
     	if(getActivity() != null){
-            queueRequest(new PMListRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            queueRequest(new PMListRequest(getActivity(), currentFolder).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
                 public void success(Void result) {
                     restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
@@ -188,6 +194,10 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
         case R.id.refresh:
         	syncPMs();
         	break;
+        case R.id.toggle_folder:
+        	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
+        	syncPMs();
+        	break;
         case R.id.settings:
         	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
         	break;
@@ -231,12 +241,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load PM Cursor.");
-            return new CursorLoader(getActivity(), 
-            						AwfulMessage.CONTENT_URI, 
-            						AwfulProvider.PMProjection, 
-            						null, 
-            						null,
-            						AwfulMessage.ID+" DESC");
+			return new CursorLoader(getActivity(), 
+					AwfulMessage.CONTENT_URI, 
+					AwfulProvider.PMProjection, 
+					AwfulMessage.FOLDER+"=?", 
+					AwfulProvider.int2StrArray(currentFolder),
+					AwfulMessage.ID+" DESC");
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
