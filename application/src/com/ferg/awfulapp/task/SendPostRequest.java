@@ -4,10 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
+
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 
 /**
@@ -22,7 +25,7 @@ public class SendPostRequest extends AwfulRequest<Void> {
         addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(reply.getAsInteger(AwfulMessage.ID)));
         addPostParam(Constants.PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY));
         addPostParam(Constants.PARAM_FORM_COOKIE, reply.getAsString(AwfulPost.FORM_COOKIE));
-        addPostParam(Constants.PARAM_MESSAGE, reply.getAsString(AwfulMessage.REPLY_CONTENT));
+        addPostParam(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(reply.getAsString(AwfulMessage.REPLY_CONTENT)));
         addPostParam(Constants.PARAM_PARSEURL, Constants.YES);
         if(reply.containsKey(AwfulPost.FORM_BOOKMARK) && reply.getAsString(AwfulPost.FORM_BOOKMARK).equalsIgnoreCase("checked")){
             addPostParam(Constants.PARAM_BOOKMARK, Constants.YES);
