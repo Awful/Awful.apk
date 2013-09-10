@@ -88,14 +88,17 @@
         	</intent-filter>
         </activity>
 
-		<provider android:name="com.ferg.awfulapp.provider.AwfulProvcom.ferg.awful.provider.AwfulProviderrg.awfulapp.provider" />
+		<provider android:name="com.ferg.awful.provider.AwfulProvider"
+				  android:authorities="com.ferg.awful.provider" />
 		<service 
             android:label="AwfulSyncService"
-            android:name="com.ferg.awfulapp.service.AwfulSyncServcom.ferg.awful.service.AwfulSyncService:name="com.google.android.backup.api_key"
+            android:name="com.ferg.awful.service.AwfulSyncService"
+            />
+		<meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIvOiXrlcGjkg0FB1FGniG7EGKJWGm8Msq7xZ2wA" />
         <activity android:name="com.ferg.awful.ImageSettingsActivity"></activity>
             <activity android:name="com.ferg.awful.ThreadInfoSettingsActivity"></activity>
-        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvidecom.ferg.awful.provider.AwfulWebProviderebprovider"></provider>
+        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awful.provider.AwfulWebProvider" android:authorities="com.ferg.awful.webprovider"></provider>
         <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />
