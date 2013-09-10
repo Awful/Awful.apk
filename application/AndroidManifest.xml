@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.ferg.awfulapp"
+      package="com.ferg.awful"
       android:versionCode="63"
       android:versionName="2.4.4"
       android:installLocation="auto">
@@ -21,12 +21,12 @@
     <application 
 		android:label="@string/app_name" 
 		android:icon="@drawable/icon" 
-		android:name="com.ferg.awfulapp.AwfulApplication"
+		android:name="com.ferg.awful.AwfulApplication"
 		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
         android:theme="@style/Theme.Sherlock"
 		android:debuggable="true">
-        <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
+        <activity android:name="com.ferg.awful.ForumsIndexActivity"
                   android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,10 +45,10 @@
             </intent-filter>
         </activity>
         <activity
-                android:name="com.ferg.awfulapp.AwfulLoginActivity"
+                android:name="com.ferg.awful.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.Sherlock.Light" android:launchMode="singleTop"/>
         <activity 
-            android:name="com.ferg.awfulapp.ThreadDisplayActivity"
+            android:name="com.ferg.awful.ThreadDisplayActivity"
           	android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
@@ -56,15 +56,15 @@
 				<category android:name="android.intent.category.BROWSABLE" />
 			</intent-filter>
         </activity>
-        <activity android:name="com.ferg.awfulapp.ProfileActivity" />
-        <activity android:name="com.ferg.awfulapp.SettingsActivity" />
-        <activity android:name="com.ferg.awfulapp.ColorSettingsActivity" android:hardwareAccelerated="false"/>
+        <activity android:name="com.ferg.awful.ProfileActivity" />
+        <activity android:name="com.ferg.awful.SettingsActivity" />
+        <activity android:name="com.ferg.awful.ColorSettingsActivity" android:hardwareAccelerated="false"/>
         <activity 
-            android:name="com.ferg.awfulapp.PostReplyActivity"
+            android:name="com.ferg.awful.PostReplyActivity"
             android:windowSoftInputMode="adjustResize" 
             />
         <activity 
-            android:name="com.ferg.awfulapp.UserCPShortcutActivity"
+            android:name="com.ferg.awful.UserCPShortcutActivity"
             android:icon="@drawable/icon" 
             android:label="@string/usercp"
             >
@@ -74,12 +74,12 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="com.ferg.awfulapp.UserCPActivity" 
+            android:name="com.ferg.awful.UserCPActivity" 
             android:exported="true"
             android:clearTaskOnLaunch="true" 
             />
-        <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"></activity>
-        <activity android:name="com.ferg.awfulapp.PrivateMessageActivity">
+        <activity android:name="com.ferg.awful.MessageDisplayActivity"></activity>
+        <activity android:name="com.ferg.awful.PrivateMessageActivity">
         	<intent-filter>
             	<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -88,17 +88,14 @@
         	</intent-filter>
         </activity>
 
-		<provider android:name="com.ferg.awfulapp.provider.AwfulProvider"
-				  android:authorities="com.ferg.awfulapp.provider" />
+		<provider android:name="com.ferg.awfulapp.provider.AwfulProvcom.ferg.awful.provider.AwfulProviderrg.awfulapp.provider" />
 		<service 
             android:label="AwfulSyncService"
-            android:name="com.ferg.awfulapp.service.AwfulSyncService"
-            />
-		<meta-data android:name="com.google.android.backup.api_key"
+            android:name="com.ferg.awfulapp.service.AwfulSyncServcom.ferg.awful.service.AwfulSyncService:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIvOiXrlcGjkg0FB1FGniG7EGKJWGm8Msq7xZ2wA" />
-        <activity android:name="ImageSettingsActivity"></activity>
-            <activity android:name="ThreadInfoSettingsActivity"></activity>
-        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
+        <activity android:name="com.ferg.awful.ImageSettingsActivity"></activity>
+            <activity android:name="com.ferg.awful.ThreadInfoSettingsActivity"></activity>
+        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvidecom.ferg.awful.provider.AwfulWebProviderebprovider"></provider>
         <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />

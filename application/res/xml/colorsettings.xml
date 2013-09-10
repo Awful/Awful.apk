@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         <PreferenceCategory android:title="@string/colors">
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	android:key="default_post_font_color"
 		   	android:title="@string/default_post_font_color"
 		   	android:defaultValue="@color/default_post_font"
 		   	alphaSlider="false"
 			/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	android:key="secondary_post_font_color"
 		   	android:title="@string/secondary_post_font_color"
 		   	android:defaultValue="@color/secondary_post_font"
 		   	alphaSlider="false"
 			/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	android:key="default_post_background_color"
 		   	android:title="@string/default_post_background_color"
 		   	android:defaultValue="@color/background"
 		   	alphaSlider="false"
 			/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	android:key="alternative_post_background_color"
 		   	android:title="@string/alt_post_background_color"
 		   	android:defaultValue="@color/background"
 		   	alphaSlider="false"
 			/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="read_post_font_color"
 		   	android:title="@string/read_post_font_color"
 		   	android:defaultValue="@color/font_read"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="read_post_background_color"
 		   	android:title="@string/read_post_background_color"
 		   	android:defaultValue="@color/background_read"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="alternative_read_post_background_color"
 		   	android:title="@string/alt_read_post_background_color"
 		   	android:defaultValue="@color/alt_background_read"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="post_header_font_color"
 		   	android:title="Post Header Font Color"
 		   	android:defaultValue="@color/forum_title"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="post_header_background_color"
 		   	android:title="Post Header Background Color"
@@ -60,43 +60,43 @@
 			android:title="@string/post_divider_enabled"
 			android:defaultValue="false"
 			/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="post_divider_color"
 		   	android:title="Post Divider Background Color"
 		   	android:defaultValue="@color/background_read"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:defaultValue="@color/actionbar_color"
 		   	android:key="actionbar_color"
 		   	android:title="@string/actionbar_color"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:defaultValue="@color/actionbar_font_color"
 		   	android:key="actionbar_font_color"
 		   	android:title="@string/actionbar_font_color"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:defaultValue="@color/op_post"
 		   	android:key="op_post_color"
 		   	android:title="@string/op_post_color"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="link_quote_color"
 		   	android:title="@string/hyperlink_font_quote_color"
 		   	android:defaultValue="@color/link_quote"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="unread_posts"
 		   	android:title="@string/unread_posts"
 		   	android:defaultValue="@color/unread_posts"
 		   	/>
-		<com.ferg.awfulapp.preferences.ColorPickerPreference
+		<com.ferg.awful.preferences.ColorPickerPreference
 		   	alphaSlider="false"
 		   	android:key="unread_posts_dim"
 		   	android:title="@string/unread_posts_dim"

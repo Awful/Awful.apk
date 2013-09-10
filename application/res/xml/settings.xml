@@ -32,7 +32,7 @@
     </PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_post_display">
 		<CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
-		<com.ferg.awfulapp.preferences.NumericEditTextPreference
+		<com.ferg.awful.preferences.NumericEditTextPreference
 			android:key="post_per_page"
 			android:title="@string/setting_posts_per_page"
             android:summary="@string/setting_posts_per_page_summary"

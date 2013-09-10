@@ -64,7 +64,7 @@
             android:text="TextView"
             android:visibility="gone" />
 
-        <com.ferg.awfulapp.widget.AwfulHorizontalScrollView
+        <com.ferg.awful.widget.AwfulHorizontalScrollView
             android:id="@+id/post_button_scoller"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
         </com.ferg.awfulapp.widget.AwfulHorizontalScrollView>
     </RelativeLayout>
 
-    <com.ferg.awfulapp.htmlwidget.HtmlView
+    <com.ferg.awful.htmlwidget.HtmlView
         android:id="@+id/post_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

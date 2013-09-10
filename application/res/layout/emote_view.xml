@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EmoteFragment" >
-    <com.ferg.awfulapp.widget.AwfulProgressBar 
+    <com.ferg.awful.widget.AwfulProgressBar 
         android:id="@+id/progress_bar"
 		android:layout_width="fill_parent"
 		android:layout_height="2dp"

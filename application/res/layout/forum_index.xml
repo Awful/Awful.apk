@@ -5,7 +5,7 @@
     android:background="@color/background"
     android:orientation="vertical" >
 
-    <com.ferg.awfulapp.widget.AwfulProgressBar
+    <com.ferg.awful.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="fill_parent"
         android:layout_height="4dp"
@@ -25,7 +25,7 @@
 		/>
     -->
 
-    <com.ferg.awfulapp.widget.PullToRefreshTreeView
+    <com.ferg.awful.widget.PullToRefreshTreeView
         android:id="@+id/index_pull_tree_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

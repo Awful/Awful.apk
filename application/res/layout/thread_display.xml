@@ -5,7 +5,7 @@
     android:background="@color/background"
     android:orientation="vertical" >
 
-    <com.ferg.awfulapp.widget.AwfulProgressBar
+    <com.ferg.awful.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="fill_parent"
         android:layout_height="4dp"

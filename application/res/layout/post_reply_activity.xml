@@ -9,6 +9,6 @@
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="com.ferg.awfulapp.PostReplyFragment"
+        android:name="com.ferg.awful.PostReplyFragment"
         android:id="@+id/replyfragment"/>
 </RelativeLayout>
