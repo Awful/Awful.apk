@@ -11,18 +11,22 @@ import org.jsoup.nodes.Document;
  * Created by matt on 8/8/13.
  */
 public class PMListRequest extends AwfulRequest<Void> {
-    public PMListRequest(Context context) {
+	
+	int folder = 0;
+	
+    public PMListRequest(Context context, int folder) {
         super(context, null);
+        this.folder = folder;
     }
 
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
-        return Constants.FUNCTION_PRIVATE_MESSAGE;
+        return Constants.FUNCTION_PRIVATE_MESSAGE+"?"+Constants.PARAM_FOLDERID+"="+folder;
     }
 
     @Override
     protected Void handleResponse(Document doc) throws AwfulError {
-        AwfulMessage.processMessageList(getContentResolver(), doc);
+        AwfulMessage.processMessageList(getContentResolver(), doc, folder);
         return null;
     }
 

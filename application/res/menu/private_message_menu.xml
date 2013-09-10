@@ -2,6 +2,7 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
+  	<item android:title="@string/toggle_folder" android:id="@+id/toggle_folder" app:showAsAction="always" android:icon="@drawable/ic_menu_mail"></item>
     <item android:title="@string/new_pm" android:id="@+id/new_pm" app:showAsAction="ifRoom" android:icon="@drawable/ic_menu_reply"></item>
     <item android:title="@string/refresh" android:id="@+id/refresh" android:icon="@drawable/ic_menu_load" app:showAsAction="never"></item>
     <item android:title="Send PM" android:id="@+id/send_pm" app:showAsAction="never" android:icon="@drawable/ic_menu_mail"></item>

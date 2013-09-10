@@ -61,6 +61,7 @@ import android.view.ViewGroup;
 import android.webkit.*;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +80,7 @@ import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
@@ -745,6 +747,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		}
 	}
 	
+	private void reportUser(final String postid){
+		final EditText reportReason = new EditText(this.getActivity());
+
+		new AlertDialog.Builder(this.getActivity())
+		  .setTitle("Report inappropriate post")
+		  .setMessage("Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:")
+		  .setView(reportReason)
+		  .setPositiveButton("Report", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		      String reason = reportReason.getText().toString();
+		      queueRequest(new ReportRequest(getActivity(), postid, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
+                  @Override
+                  public void success(String result) {
+                      displayAlert(result, R.drawable.ic_menu_emote);
+                  }
+
+                  @Override
+                  public void failure(VolleyError error) {
+                      displayAlert(error.getMessage(), R.drawable.ic_menu_emote);
+                  }
+              }));
+		    }
+		  })
+		  .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		    }
+		  })
+		  .show(); 
+	}
+	
     @Override
     public void onSaveInstanceState(Bundle outState){
     	super.onSaveInstanceState(outState);
@@ -1093,10 +1125,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     private class ClickInterface {
         public static final int SEND_PM  = 0;
-        public static final int COPY_URL = 1;
-        public static final int USER_POSTS = 2;
-        public static final int MARK_USER = 3;
-        public static final int IGNORE_USER = 4;
+        public static final int REPORT_POST = 1;
+        public static final int COPY_URL = 2;
+        public static final int USER_POSTS = 3;
+        public static final int MARK_USER = 4;
+        public static final int IGNORE_USER = 5;
 		
         final CharSequence[] mPostItems = {
             "Copy Post URL",
@@ -1107,6 +1140,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         
         final CharSequence[] mPlatPostItems = {
                 "Send Private Message",
+                "Report Post",
                 "Copy Post URL",
                 "Read Posts by this User",
                 "Mark/Unmark this User",
@@ -1158,7 +1192,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
             .setTitle("Select an Action")
             .setItems(mPrefs.hasPlatinum?mPlatPostItems:mPostItems, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface aDialog, int aItem) {
-                    onPostActionItemSelected(mPrefs.hasPlatinum?aItem:aItem+1, aPostId, aUsername, aUserId);
+                    onPostActionItemSelected(mPrefs.hasPlatinum?aItem:aItem+2, aPostId, aUsername, aUserId);
                 }
             })
             .show();
@@ -1176,7 +1210,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
         @JavascriptInterface
 		public void onIgnoreUserClick(final String aUserId) {
-			// TODO Auto-generated method stub
 			ignoreUser(aUserId);
 		}
 
@@ -1246,6 +1279,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			break;
 		case ClickInterface.MARK_USER:
 	    	toggleMarkUser(aUsername);
+			break;
+		case ClickInterface.REPORT_POST:
+			reportUser(aPostId);
 			break;
 		}
 	}

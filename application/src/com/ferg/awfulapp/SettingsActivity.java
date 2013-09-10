@@ -274,7 +274,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 	private OnPreferenceClickListener onFeaturesListener = new OnPreferenceClickListener() {
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			//TODO: add something to refresh account features
 			mFeatureFetchDialog = ProgressDialog.show(mThis, "Loading", "Fetching Account Features", true);
             ((AwfulApplication)getApplication()).queueRequest(new FeatureRequest(SettingsActivity.this).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
@@ -309,7 +308,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 				
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
 					mFontSizeDialog.dismiss();
 				}
 			});

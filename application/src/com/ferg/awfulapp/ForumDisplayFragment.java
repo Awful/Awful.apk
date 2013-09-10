@@ -103,8 +103,6 @@ public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCa
     
     private boolean loadFailed = false;
     
-    private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;//TODO move to theme area once we rewrite themes.
-    
     private long lastRefresh = 0;
 
     public ForumDisplayFragment(int forumId, int page, boolean skip) {
