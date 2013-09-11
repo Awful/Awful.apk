@@ -9,6 +9,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.util.LRUImageCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -48,7 +49,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
         }
 
-        if(Constants.isICS()){
+        if(AwfulUtils.isICS()){
             try {
                 HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
             } catch (Exception e) {

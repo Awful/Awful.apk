@@ -33,8 +33,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -61,6 +59,7 @@ import com.ferg.awfulapp.service.AwfulSyncService;
 
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.util.AwfulUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
@@ -111,10 +110,10 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 		
 		this.bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
-		findPreference("inline_youtube").setEnabled(Constants.isICS());
-		findPreference("enable_hardware_acceleration").setEnabled(Constants.isHoneycomb());	
-		findPreference("enable_hardware_acceleration").setDefaultValue(Constants.isJellybean());		
-		boolean tab = Constants.canBeWidescreen(this);
+		findPreference("inline_youtube").setEnabled(AwfulUtils.isICS());
+		findPreference("enable_hardware_acceleration").setEnabled(AwfulUtils.isHoneycomb());
+		findPreference("enable_hardware_acceleration").setDefaultValue(AwfulUtils.isJellybean());
+		boolean tab = AwfulUtils.canBeWidescreen(this);
 		findPreference("page_layout").setEnabled(tab);
 		if(!tab){
 			findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));

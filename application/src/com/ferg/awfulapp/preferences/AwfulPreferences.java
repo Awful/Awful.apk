@@ -59,6 +59,7 @@ import android.util.TypedValue;
 import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
 
 /**
@@ -236,7 +237,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (Constants.isJellybean()?true:false));
+        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (AwfulUtils.isJellybean()?true:false));
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
@@ -268,7 +269,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         orientation				 = mPrefs.getString("orientation", "default");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
         
-        if(Constants.isHoneycomb()){
+        if(AwfulUtils.isHoneycomb()){
         	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
         }else{
         	markedUsers = new HashSet<String>();
@@ -277,7 +278,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setBooleanPreference(String key, boolean value) {
-		if(Constants.isGingerbread()){
+		if(AwfulUtils.isGingerbread()){
 			mPrefs.edit().putBoolean(key, value).apply();
 		}else{
 			mPrefs.edit().putBoolean(key, value).commit();
@@ -285,7 +286,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setStringPreference(String key, String value) {
-		if(Constants.isGingerbread()){
+		if(AwfulUtils.isGingerbread()){
 			mPrefs.edit().putString(key, value).apply();
 		}else{
 			mPrefs.edit().putString(key, value).commit();
@@ -293,7 +294,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setLongPreference(String key, long value) {
-		if(Constants.isGingerbread()){
+		if(AwfulUtils.isGingerbread()){
 			mPrefs.edit().putLong(key, value).apply();
 		}else{
 			mPrefs.edit().putLong(key, value).commit();
@@ -301,7 +302,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setIntegerPreference(String key, int value) {
-		if(Constants.isGingerbread()){
+		if(AwfulUtils.isGingerbread()){
 			mPrefs.edit().putInt(key, value).apply();
 		}else{
 			mPrefs.edit().putInt(key, value).commit();
@@ -309,7 +310,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 	
 	public void setStringSetPreference(String key, Set<String> value){
-		if(Constants.isGingerbread()){
+		if(AwfulUtils.isGingerbread()){
 			mPrefs.edit().putStringSet(key, value).apply();
 		}else{
 			mPrefs.edit().putStringSet(key, value).commit();
@@ -323,7 +324,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				// Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
 				boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
         		setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
-        		if(Constants.isGingerbread()){
+        		if(AwfulUtils.isGingerbread()){
         			mPrefs.edit().remove("new_threads_first").apply();
         		}else{
         			mPrefs.edit().remove("new_threads_first").commit();

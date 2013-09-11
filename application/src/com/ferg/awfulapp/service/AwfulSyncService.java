@@ -50,8 +50,6 @@ public class AwfulSyncService extends Service {
     /** arg1 = pmId. */
     public static final int MSG_SEND_PM       = 11;
     /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
-     *  arg2 = (optional) messages older than this number of days are trimmed, default: 7 **/
-	public static final int MSG_TRIM_DB = 15;
 	/** obj = initial string, returns string with redirected URL **/
 	public static final int MSG_TRANSLATE_REDIRECT = 18;
     public static final int MSG_ERR_NOT_LOGGED_IN   = 19;
@@ -87,9 +85,6 @@ public class AwfulSyncService extends Service {
             switch (aMsg.what) {
                 case MSG_SEND_PM:
                 	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
-                    break;
-                case MSG_TRIM_DB:
-                	backQueueUniqueThread(new TrimDBTask(AwfulSyncService.this, aMsg));
                     break;
                 case MSG_TRANSLATE_REDIRECT:
                 	queueUniqueThread(new RedirectTask(AwfulSyncService.this, aMsg));
@@ -214,8 +209,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_PROGRESS_STATUS";
 		case MSG_SEND_PM:
 			return "MSG_SEND_PM";
-		case MSG_TRIM_DB:
-			return "MSG_TRIM_DB";
 		case MSG_TRANSLATE_REDIRECT:
 			return "MSG_TRANSLATE_REDIRECT";
 		case MSG_ERROR:

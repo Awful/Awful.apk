@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 
 public class AwfulURL {
@@ -85,16 +86,16 @@ public class AwfulURL {
 		Uri uri = Uri.parse(url);
 		if(uri.isRelative() || (uri.getHost() != null && uri.getHost().contains("forums.somethingawful.com"))){
 			if(uri.getQueryParameter(Constants.PARAM_PAGE) != null){
-				aurl.pageNum = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_PAGE), 1);
+				aurl.pageNum = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_PAGE), 1);
 			}
 			if(uri.getQueryParameter(Constants.PARAM_PER_PAGE) != null){
-				aurl.perPage = Constants.safeParseInt(uri.getQueryParameter(Constants.PARAM_PER_PAGE), Constants.ITEMS_PER_PAGE);
+				aurl.perPage = AwfulUtils.safeParseInt(uri.getQueryParameter(Constants.PARAM_PER_PAGE), Constants.ITEMS_PER_PAGE);
 			}
 			if(Constants.PATH_FORUM.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.FORUM;
 				aurl.perPage = Constants.THREADS_PER_PAGE;
 				if(uri.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
-					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID),1);
+					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID), 1);
 				}
 			}else if(Constants.PATH_BOOKMARKS.contains(uri.getLastPathSegment()) || Constants.PATH_USERCP.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.FORUM;
@@ -103,18 +104,18 @@ public class AwfulURL {
 			}else if(Constants.PATH_THREAD.contains(uri.getLastPathSegment())){
 				aurl.type = TYPE.THREAD;
 				if(uri.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
-					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_THREAD_ID),0);
+					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_THREAD_ID), 0);
 				}
 				if(uri.getQueryParameter(Constants.PARAM_GOTO) != null){
 					aurl.gotoParam = uri.getQueryParameter(Constants.PARAM_GOTO);
 					if(Constants.VALUE_POST.equalsIgnoreCase(aurl.gotoParam)){
 						aurl.type = TYPE.POST;
-						aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID),0);
+						aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID), 0);
 					}
 				}
 				if(Constants.ACTION_SHOWPOST.equalsIgnoreCase(uri.getQueryParameter(Constants.PARAM_ACTION))){
 					aurl.type = TYPE.POST;
-					aurl.id = Constants.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID),0);
+					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID), 0);
 				}
 			}else{
 				aurl.type = TYPE.EXTERNAL;

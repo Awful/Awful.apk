@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ferg.awfulapp.util.AwfulUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -42,16 +43,11 @@ import org.jsoup.select.Elements;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -292,7 +288,7 @@ public class AwfulPost {
 					String videoId = youtubeMatcher.group(1);
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-					if(!Constants.isICS()){
+					if(!AwfulUtils.isICS()){
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
 						youtubeLink.attr("href", link);
 						youtubeLink.attr("style", "background-color:#000;background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;display:block;text-align:center; width:" + width + "; height:" + height);
@@ -367,7 +363,7 @@ public class AwfulPost {
 							node.replaceWith(ln);
 							continue;
 						}
-						if(inline && !Constants.isICS()){
+						if(inline && !AwfulUtils.isICS()){
 							node.empty();
 							node.attr("style", "background-image:url("+image+");background-size:cover;background-repeat:no-repeat;background-position:center; position:relative;text-align:center; width:" + width + "; height:" + height);
 							node.attr("onclick", "location.href=\""+link+"\"");
@@ -376,7 +372,7 @@ public class AwfulPost {
 							img.attr("src", "file:///android_res/drawable/ic_menu_video.png");
 							img.attr("style", "position:absolute;top:50%;left:50%;margin-top:-23px;margin-left:-32px;");
 							node.appendChild(img);
-						}else if(inline && Constants.isICS()){
+						}else if(inline && AwfulUtils.isICS()){
 							//do nothing, let JS do that
 						
 						}else{

@@ -3,6 +3,7 @@ package com.ferg.awfulapp;
 import java.io.File;
 import java.util.LinkedList;
 
+import com.ferg.awfulapp.util.AwfulUtils;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
 
@@ -117,7 +118,7 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
         unbindService(this);
-        if(Constants.isICS()){
+        if(AwfulUtils.isICS()){
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null){
                 cache.flush();

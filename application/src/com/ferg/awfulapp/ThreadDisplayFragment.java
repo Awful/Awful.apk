@@ -31,12 +31,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.DownloadManager.Query;
 import android.app.DownloadManager.Request;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -44,11 +42,9 @@ import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -85,6 +81,7 @@ import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulGifStripper;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
 
 import org.json.JSONException;
@@ -95,8 +92,6 @@ import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -315,7 +310,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
-		if (Constants.isHoneycomb()) {
+		if (AwfulUtils.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
@@ -551,7 +546,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         MenuItem find = menu.findItem(R.id.find);
         if(find != null){
-            find.setVisible(Constants.isHoneycomb());
+            find.setVisible(AwfulUtils.isHoneycomb());
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -735,7 +730,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
     
 	private void toggleMarkUser(String username){
-		if(Constants.isHoneycomb()){
+		if(AwfulUtils.isHoneycomb()){
 			if(mPrefs.markedUsers.contains(username)){
 				mPrefs.unmarkUser(username);
 			}else{
@@ -1313,14 +1308,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?Constants.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage? AwfulUtils.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage?Constants.isGingerbread()?0:1:2)){
+            	switch(aItem+(isImage? AwfulUtils.isGingerbread()?0:1:2)){
             	case 0:
         			Request request = new Request(link);
-        			if (!Constants.isHoneycomb()) {
+        			if (!AwfulUtils.isHoneycomb()) {
         				request.setShowRunningNotification(true);  
         			} else {
         				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
