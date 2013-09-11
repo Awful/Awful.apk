@@ -1035,13 +1035,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
     		if(aMsg.obj instanceof String){
     			AwfulURL result = AwfulURL.parse((String) aMsg.obj);
-    			if(aMsg.obj.toString().contains(Constants.VALUE_LASTPOST)){
-    				//This is a workaround for how the forums handle the perPage value with goto=lastpost.
-    				//The redirected url is lacking the perpage=XX value.
-    				//We just override the assumed (40) with the number we requested when starting the redirect.
-    				//I gotta ask chooch to fix this at some point.
-    				result.setPerPage(mPrefs.postPerPage);
-    			}
     			if(result.getType() == TYPE.THREAD){
     				if(bypassBackStack){
     					openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
