@@ -136,6 +136,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
+        setTitle(getTitle());
     }
     
     private void syncPMs() {
@@ -196,6 +197,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
         	break;
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
+            setTitle(getTitle());
         	syncPMs();
         	break;
         case R.id.settings:
@@ -275,6 +277,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
 	@Override
 	public String getTitle() {
+        switch (currentFolder){
+            case FOLDER_INBOX:
+                return "PM - Inbox";
+            case FOLDER_SENT:
+                return "PM - Sent";
+        }
 		return "Private Messages";
 	}
 	

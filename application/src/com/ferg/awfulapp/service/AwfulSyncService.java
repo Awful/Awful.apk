@@ -47,10 +47,6 @@ public class AwfulSyncService extends Service {
 
     public static final int MSG_PROGRESS_PERCENT   = 1;
     public static final int MSG_PROGRESS_STATUS   = 3;
-    /** arg1 = pmId. */
-    public static final int MSG_SEND_PM       = 11;
-    /** arg1 = (optional) table to clear (from TrimDBTask.TABLE_*),
-    public static final int MSG_ERR_NOT_LOGGED_IN   = 19;
     /** generic error message, (optional) obj=String - error message to display **/
 	public static final int MSG_ERROR = 20;
     /** forums closed error message, (optional) obj=String - error message to display **/
@@ -80,11 +76,6 @@ public class AwfulSyncService extends Service {
         @Override
         public void handleMessage(Message aMsg) {
         	debugLogReceivedMessage(TAG,aMsg);
-            switch (aMsg.what) {
-                case MSG_SEND_PM:
-                	queueUniqueThread(new SendPrivateMessageTask(AwfulSyncService.this, aMsg));
-                    break;
-            }
         }
     }
     public void updateStatus(Messenger client, int aMessageType, int aStatus, int clientId, int arg2){
@@ -200,8 +191,6 @@ public class AwfulSyncService extends Service {
 			return "MSG_PROGRESS_PERCENT";
 		case MSG_PROGRESS_STATUS:
 			return "MSG_PROGRESS_STATUS";
-		case MSG_SEND_PM:
-			return "MSG_SEND_PM";
 		case MSG_ERROR:
 			return "MSG_ERROR";
 		case MSG_ERROR_FORUMS_CLOSED:

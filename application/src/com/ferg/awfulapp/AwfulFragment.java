@@ -160,6 +160,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     @Override
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
+        popupAlert = null;
         mPrefs.unregisterCallback(this);
     }
 
