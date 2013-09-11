@@ -72,9 +72,6 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
 	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
 	        	if(aMsg.what == AwfulSyncService.MSG_ERROR){
                     loadingFailed(aMsg);
-	        	}else if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
-                    loadingFailed(aMsg);
-	        		aa.reauthenticate();
 	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
 	        		loadingUpdate(aMsg);
 	        	}else{

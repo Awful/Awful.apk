@@ -70,16 +70,10 @@ import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.BookmarkRequest;
-import com.ferg.awfulapp.task.IgnoreRequest;
-import com.ferg.awfulapp.task.MarkLastReadRequest;
-import com.ferg.awfulapp.task.PostRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.task.ReportRequest;
-import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
@@ -153,6 +147,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 
     private String bodyHtml = "";
+    private AsyncTask<Void, Void, String> redirect = null;
 
     public ThreadDisplayFragment() {
         super();
@@ -855,7 +850,32 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void startPostRedirect(String postUrl) {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_TRANSLATE_REDIRECT, getThreadId(), 0, postUrl);
+            if(redirect != null){
+                redirect.cancel(false);
+            }
+            setProgress(50);
+            redirect = new RedirectTask(postUrl){
+                @Override
+                protected void onPostExecute(String url) {
+                    if(!isCancelled()){
+                        if(url != null){
+                            AwfulURL result = AwfulURL.parse(url);
+                            if(result.getType() == TYPE.THREAD){
+                                if(bypassBackStack){
+                                    openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+                                }else{
+                                    pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+                                }
+                            }
+                        }else{
+                            displayAlert(new AwfulError());
+                        }
+                        redirect = null;
+                        bypassBackStack = false;
+                        setProgress(100);
+                    }
+                }
+            }.execute(null);
         }
     }
 
@@ -1027,22 +1047,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     	super.loadingSucceeded(aMsg);
         refreshInfo();
     	switch (aMsg.what) {
-    	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
-    		if(aMsg.obj instanceof String){
-    			AwfulURL result = AwfulURL.parse((String) aMsg.obj);
-    			if(result.getType() == TYPE.THREAD){
-    				if(bypassBackStack){
-    					openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
-    				}else{
-    					pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
-    				}
-    			}else{
-    				Log.e(TAG,"REDIRECT FAILED: "+aMsg.obj);
-    				displayAlert("Load Failed","Malformed URL");
-    			}
-    		}
-			bypassBackStack = false;
-    		break;
         default:
         	Log.e(TAG,"Message not handled: "+aMsg.what);
         	break;
