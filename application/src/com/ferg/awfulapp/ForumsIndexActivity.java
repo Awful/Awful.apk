@@ -48,6 +48,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
@@ -76,7 +77,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        isTablet = Constants.isWidescreen(this);
+        isTablet = AwfulUtils.isWidescreen(this);
         int initialPage = -1;
         if(savedInstanceState != null){
         	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
@@ -174,7 +175,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onResume();
         switch(mPrefs.alertIDShown+1){
             case 1:
-                if(Constants.isHoneycomb()){
+                if(AwfulUtils.isHoneycomb()){
                     new AlertDialog.Builder(this).
                             setTitle(getString(R.string.alert_title_1))
                             .setMessage(getString(R.string.alert_message_1))
@@ -495,7 +496,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         boolean oldTab = isTablet;
-        isTablet = Constants.isWidescreen(this);
+        isTablet = AwfulUtils.isWidescreen(this);
         if(oldTab != isTablet && mViewPager != null){
             if(isTablet){
                 mViewPager.setPageMargin(1);

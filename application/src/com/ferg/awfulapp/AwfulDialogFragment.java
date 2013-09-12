@@ -46,7 +46,6 @@ import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
@@ -56,7 +55,7 @@ import com.ferg.awfulapp.widget.AwfulProgressBar;
  * Currently only exists for EmoteFragment, and usually falls behind on changes made to AwfulFragment.
  * Welp.
  */
-public abstract class AwfulDialogFragment extends DialogFragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
+public abstract class AwfulDialogFragment extends DialogFragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected AQuery aq;
@@ -64,37 +63,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
 	private AwfulProgressBar mProgressBar;
 	
 
-    protected Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-    		AwfulActivity aa = getAwfulActivity();
-        	if(aa != null){
-	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-	        	if(aMsg.what == AwfulSyncService.MSG_ERROR){
-                    loadingFailed(aMsg);
-	        	}else if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
-                    loadingFailed(aMsg);
-	        		aa.reauthenticate();
-	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
-	        		loadingUpdate(aMsg);
-	        	}else{
-		            switch (aMsg.arg1) {
-		                case AwfulSyncService.Status.WORKING:
-		                    loadingStarted(aMsg);
-		                    break;
-		                case AwfulSyncService.Status.OKAY:
-		                    loadingSucceeded(aMsg);
-		                    break;
-		                case AwfulSyncService.Status.ERROR:
-		                    loadingFailed(aMsg);
-		                    break;
-		            };
-	        	}
-        	}
-        }
-    };
-
-    protected Messenger mMessenger = new Messenger(mHandler);
+    protected Handler mHandler = new Handler();
     
     @Override
     public void onAttach(Activity aActivity) {
@@ -204,39 +173,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Awfu
 			getAwfulActivity().startSupportActionMode(this);
 		}
 	}
-	
-	@Override
-    public void loadingFailed(Message aMsg) {
-		AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-        	setProgress(100);
-        	aa.setSupportProgressBarIndeterminateVisibility(false);
-			aa.setSupportProgressBarVisibility(false);
-        }
-    }
 
-    @Override
-    public void loadingStarted(Message aMsg) {
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.setSupportProgressBarIndeterminateVisibility(true);
-    	}
-    }
-
-    @Override
-    public void loadingSucceeded(Message aMsg) {
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.setSupportProgressBarIndeterminateVisibility(false);
-			aa.setSupportProgressBarVisibility(false);
-    	}
-    }
-    
-    @Override
-    public void loadingUpdate(Message aMsg) {
-    	setProgress(aMsg.arg2);
-    }
-    
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		

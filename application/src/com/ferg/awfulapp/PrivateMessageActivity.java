@@ -44,26 +44,15 @@ import com.ferg.awfulapp.provider.ColorProvider;
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
-    private TextView mTitleView;
-    private AwfulPreferences mPrefs;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.fragment_pane);
         mPrefs = AwfulPreferences.getInstance(this, this);
-        
-        ActionBar action = getSupportActionBar();
-        if(action != null){
-            action.setCustomView(R.layout.actionbar_title);
-            mTitleView = (TextView) action.getCustomView();
-            mTitleView.setMovementMethod(new ScrollingMovementMethod());
-	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
-	        mTitleView.setTextColor(ColorProvider.getActionbarColor());
-	        mTitleView.setText("Awful - Private Messages");//TODO move to r.string
-	        action.setDisplayHomeAsUpEnabled(true);
-	        action.setDisplayShowCustomEnabled(true);
-        }
+
+        setActionBar();
+        setActionbarTitle("Private Messages", null);
 
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
         	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);

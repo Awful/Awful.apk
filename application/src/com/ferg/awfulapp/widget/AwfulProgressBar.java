@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp.widget;
 
-import org.acra.ACRA;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -36,14 +34,12 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
-import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 
-public class AwfulProgressBar extends View implements AwfulUpdateCallback {
+public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPreferenceUpdate {
 	private int mProgress = 100;
 	private Paint mProgressColor;
 	private Paint mClearColor;
@@ -100,17 +96,5 @@ public class AwfulProgressBar extends View implements AwfulUpdateCallback {
 	public void onPreferenceChange(AwfulPreferences prefs) {
 			this.setPaint(getContext());
 	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-
-	@Override
-	public void loadingStarted(Message aMsg) {}
-
-	@Override
-	public void loadingUpdate(Message aMsg) {}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
 
 }

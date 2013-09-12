@@ -36,7 +36,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -54,12 +53,10 @@ import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.task.BookmarkColorRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.MarkUnreadRequest;
-import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -82,7 +79,7 @@ import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDeleg
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
     
     private ListView mListView;
     private ImageButton mRefreshBar;
