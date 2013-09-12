@@ -55,7 +55,6 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.service.AwfulSyncService;
 
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
@@ -69,7 +68,7 @@ import java.util.LinkedList;
  * Simple, purely xml driven preferences. Access using
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
  */
-public class SettingsActivity extends PreferenceActivity implements AwfulUpdateCallback, ServiceConnection {
+public class SettingsActivity extends PreferenceActivity implements AwfulPreferences.AwfulPreferenceUpdate {
     protected static String TAG = "SettingsActivity";
 	private static final int DIALOG_ABOUT = 1;
 	private static final int SETTINGS_FILE = 2;
@@ -89,9 +88,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 	private TextView mFontSizeText;
 	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
-	
-    private Messenger mService = null;
-    private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
 
 	// ---------------------------------------------- //
 	// ---------------- LIFECYCLE ------------------- //
@@ -107,8 +103,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 		
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = AwfulPreferences.getInstance(this,this);
-		
-		this.bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
 		
 		findPreference("inline_youtube").setEnabled(AwfulUtils.isICS());
 		findPreference("enable_hardware_acceleration").setEnabled(AwfulUtils.isHoneycomb());
@@ -153,8 +147,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 	public void onResume() {
 		super.onResume();
 		mConf.onResume();
-        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
-		
 		setSummaries();
 	}
 	
@@ -168,7 +160,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 	public void onStop() {
 		super.onStop();
 		mConf.onStop();
-        unbindService(this);
 	}
 	
 	@Override
@@ -361,41 +352,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 		mColorsPreference.setSummary(WordUtils.capitalize(mPrefs.theme)+" Theme");
 	}
 
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i(TAG, "Service Connected!");
-        mService = new Messenger(service);
-        for(Message msg : mMessageQueue){
-        	try {
-				mService.send(msg);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-        }
-        mMessageQueue.clear();
-	}
-
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-        Log.i(TAG, "Service Disconnected!");
-		mService = null;
-	}
-	
-	public void sendMessage(Messenger callback, int messageType, int id, int arg1, Object obj){
-		try {
-            Message msg = Message.obtain(null, messageType, id, arg1);
-            msg.replyTo = callback;
-            msg.obj = obj;
-    		if(mService != null){
-    			mService.send(msg);
-    		}else{
-    			mMessageQueue.add(msg);
-    		}
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-	}
-
 	public void updateFeatures(){
 		String platinum = (mPrefs.hasPlatinum) ? "Yes" : "No";
 		String archives = (mPrefs.hasArchives) ? "Yes" : "No";
@@ -443,18 +399,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulUpdateC
 		   return null;
 	   }
    }
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-	
-	@Override
-	public void loadingStarted(Message aMsg) {}
-	
-	@Override
-	public void loadingUpdate(Message aMsg) {}
-	
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

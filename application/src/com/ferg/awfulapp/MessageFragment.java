@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -31,7 +30,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
@@ -39,14 +37,13 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends AwfulFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulFragment implements OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -324,32 +321,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 		mDisplayText.loadData("", "text/html", "utf-8");
 		mTitle.setText("New Message");
 		mSubject.setText("");
-	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {
-		if(getActivity() != null){
-				getActivity().setProgressBarIndeterminateVisibility(false);
-		}
-	}
-
-	@Override
-	public void loadingStarted(Message aMsg) {
-		if (getActivity() != null) {
-			getActivity().setProgressBarIndeterminateVisibility(true);
-		}
-	}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {
-		if (getActivity() != null) {
-			getActivity().setProgressBarIndeterminateVisibility(false);
-		}
-	}
-
-	@Override
-	public void loadingUpdate(Message aMsg) {
-		
 	}
 
 	@Override

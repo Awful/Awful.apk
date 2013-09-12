@@ -69,7 +69,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
@@ -96,7 +95,7 @@ import java.util.*;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -805,13 +804,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     mPrevPage.setColorFilter(0);
                     mRefreshBar.setColorFilter(0);
                 }
-            }));
+            }), true);
         }
     }
 
     private void cancelOldSync(){
         if(getActivity() != null){
-            getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_CANCEL_SYNC_THREAD, getThreadId(), getPage());
+            cancelNetworkRequests();
         }
     }
     
@@ -979,78 +978,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     public void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-    }
-    
-//    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
-//    	TextView draftAlertMsg = new TextView(getActivity());
-//    	if(timeStamp != null){
-//    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-//    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-//    	    try {
-//				Date d = sdf.parse(timeStamp);
-//				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
-//				df.setTimeZone(TimeZone.getDefault());
-//				timeStamp = df.format(d);
-//			} catch (ParseException e) {
-//				e.printStackTrace();
-//			}
-//    	}
-//    	switch(replyType){
-//    	case AwfulMessage.TYPE_EDIT:
-//        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	case AwfulMessage.TYPE_QUOTE:
-//        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	case AwfulMessage.TYPE_NEW_REPLY:
-//        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	}
-//        new AlertDialog.Builder(getActivity())
-//            .setTitle("Draft Found")
-//            .setView(draftAlertMsg)
-//            .setPositiveButton(R.string.draft_alert_keep,
-//                new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface aDialog, int aWhich) {
-//                        displayPostReplyDialog(threadId, postId, replyType);
-//                    }
-//                })
-//            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aWhich) {
-//                    ContentResolver cr = getActivity().getContentResolver();
-//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-//                    displayPostReplyDialog(threadId, postId, newType);
-//                }
-//            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aWhich) {
-//                    ContentResolver cr = getActivity().getContentResolver();
-//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-//                    mReplyDraftSaved = 0;
-//                }
-//            })
-//            .show();
-//
-//    }
-
-    @Override
-    public void loadingFailed(Message aMsg) {
-    	super.loadingFailed(aMsg);
-        refreshInfo();
-		if(aMsg.obj == null){
-			displayAlert("Loading Failed!");
-		}
-		bypassBackStack = false;
-    }
-
-	@Override
-    public void loadingSucceeded(Message aMsg) {
-    	super.loadingSucceeded(aMsg);
-        refreshInfo();
-    	switch (aMsg.what) {
-        default:
-        	Log.e(TAG,"Message not handled: "+aMsg.what);
-        	break;
-    	}
     }
 
     @SuppressWarnings("unused")

@@ -27,7 +27,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 @ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
-public class AwfulApplication extends Application implements AwfulUpdateCallback{
+public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static String TAG = "AwfulApplication";
 	
 	private AwfulPreferences mPref;
@@ -112,15 +112,6 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 			setFontFromPreferenceRecurse((ViewGroup)view, flags);
 		}
 	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-	@Override
-	public void loadingStarted(Message aMsg) {}
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
-	@Override
-	public void loadingUpdate(Message aMsg) {}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

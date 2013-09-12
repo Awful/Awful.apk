@@ -56,7 +56,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 
-import com.ferg.awfulapp.AwfulUpdateCallback;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -75,7 +74,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	private SharedPreferences mPrefs;
 	private Context mContext;
-	private static ArrayList<AwfulUpdateCallback> mCallback = new ArrayList<AwfulUpdateCallback>();
+	private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
 	
 	//GENERAL STUFF
 	public String username;
@@ -148,6 +147,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	HashSet<String> longKeys;
 	
 
+    public static interface AwfulPreferenceUpdate{
+        public void onPreferenceChange(AwfulPreferences preferences);
+    }
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
@@ -177,7 +179,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mSelf;
 	}
 	
-	public static AwfulPreferences getInstance(Context context, AwfulUpdateCallback updateCallback){
+	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback){
 		mCallback.add(updateCallback);
 		return getInstance(context);
 	}
@@ -190,20 +192,20 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mPrefs;
 	}
 	
-	public void registerCallback(AwfulUpdateCallback client){
+	public void registerCallback(AwfulPreferenceUpdate client){
 		if(!mCallback.contains(client)){
 			mCallback.add(client);
 		}
 	}
 	
-	public void unregisterCallback(AwfulUpdateCallback client){
+	public void unregisterCallback(AwfulPreferenceUpdate client){
 		mCallback.remove(client);
 	}
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
-		for(AwfulUpdateCallback auc : mCallback){
+		for(AwfulPreferenceUpdate auc : mCallback){
 			auc.onPreferenceChange(this);
 		}
 	}

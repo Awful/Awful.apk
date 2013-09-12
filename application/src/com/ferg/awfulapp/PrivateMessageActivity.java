@@ -44,8 +44,6 @@ import com.ferg.awfulapp.provider.ColorProvider;
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
-    private TextView mTitleView;
-    private AwfulPreferences mPrefs;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

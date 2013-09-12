@@ -27,25 +27,14 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.service.AwfulSyncService;
 
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";

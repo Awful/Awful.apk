@@ -34,8 +34,6 @@ import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Messenger;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -51,7 +49,6 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 

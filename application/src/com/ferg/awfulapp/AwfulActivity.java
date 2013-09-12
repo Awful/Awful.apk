@@ -34,7 +34,6 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 /**
@@ -46,11 +45,10 @@ import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends ActionBarActivity implements ServiceConnection, AwfulUpdateCallback {
+public class AwfulActivity extends ActionBarActivity implements AwfulPreferences.AwfulPreferenceUpdate {
     protected static String TAG = "AwfulActivity";
     protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;
-    private Messenger mService = null;
     private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
     
     private boolean loggedIn = false;
@@ -89,7 +87,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
     protected void onStart() {
         super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
         mConf.onStart();
-        bindService(new Intent(this, AwfulSyncService.class), this, BIND_AUTO_CREATE);
     }
     
     @Override
@@ -117,7 +114,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
     protected void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
-        unbindService(this);
         if(AwfulUtils.isICS()){
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if(cache != null){
@@ -161,43 +157,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }
-
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i(TAG, "Service Connected!");
-        mService = new Messenger(service);
-        for(Message msg : mMessageQueue){
-        	try {
-				mService.send(msg);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-        }
-        mMessageQueue.clear();
-	}
-
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-        Log.i(TAG, "Service Disconnected!");
-		mService = null;
-	}
-	public void sendMessage(Messenger callback, int messageType, int id, int arg1){
-		sendMessage(callback, messageType, id, arg1, null);
-	}
-	public void sendMessage(Messenger callback, int messageType, int id, int arg1, Object obj){
-		try {
-            Message msg = Message.obtain(null, messageType, id, arg1);
-            msg.replyTo = callback;
-            msg.obj = obj;
-    		if(mService != null){
-    			mService.send(msg);
-    		}else{
-    			mMessageQueue.add(msg);
-    		}
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-	}
 
     public void displayUserCP() {
     	displayForum(Constants.USERCP_ID, 1);
@@ -280,16 +239,6 @@ public class AwfulActivity extends ActionBarActivity implements ServiceConnectio
 	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
 		return true;
 	}
-	
-	//UNUSED - I don't know why I put them in the same interface. Oh well.
-	@Override
-	public void loadingFailed(Message aMsg) {}
-	@Override
-	public void loadingStarted(Message aMsg) {}
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
-	@Override
-	public void loadingUpdate(Message aMsg) {}
 
 	public void setLoadProgress(int percent) {
 		setSupportProgressBarVisibility(percent<100);

@@ -27,13 +27,9 @@
 
 package com.ferg.awfulapp.task;
 
-import java.io.IOException;
-
 import android.os.AsyncTask;
-import android.os.Message;
 
 import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.service.AwfulSyncService;
 
 public class RedirectTask extends AsyncTask<Void,Void,String> {
 	private String mUrl; 

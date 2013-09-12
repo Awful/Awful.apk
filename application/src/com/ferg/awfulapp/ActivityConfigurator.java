@@ -18,7 +18,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
  * their own.
  *  
  */
-public class ActivityConfigurator implements AwfulUpdateCallback {
+public class ActivityConfigurator implements AwfulPreferences.AwfulPreferenceUpdate {
 	private Activity mActivity;
 	private AwfulPreferences mPrefs;
 	
@@ -51,18 +51,6 @@ public class ActivityConfigurator implements AwfulUpdateCallback {
 		}
 		mActivity.setRequestedOrientation(orientation);
 	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-
-	@Override
-	public void loadingStarted(Message aMsg) {}
-
-	@Override
-	public void loadingUpdate(Message aMsg) {}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
