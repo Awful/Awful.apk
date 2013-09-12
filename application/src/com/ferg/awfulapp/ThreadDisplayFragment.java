@@ -31,12 +31,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.DownloadManager.Query;
 import android.app.DownloadManager.Request;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -44,11 +42,9 @@ import android.os.*;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -73,18 +69,12 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
-import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.BookmarkRequest;
-import com.ferg.awfulapp.task.IgnoreRequest;
-import com.ferg.awfulapp.task.MarkLastReadRequest;
-import com.ferg.awfulapp.task.PostRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.task.ReportRequest;
-import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulGifStripper;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
 
 import org.json.JSONException;
@@ -95,8 +85,6 @@ import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -107,7 +95,7 @@ import java.util.*;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -158,6 +146,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
 
     private String bodyHtml = "";
+    private AsyncTask<Void, Void, String> redirect = null;
 
     public ThreadDisplayFragment() {
         super();
@@ -315,7 +304,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
-		if (Constants.isHoneycomb()) {
+		if (AwfulUtils.isHoneycomb()) {
 			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
@@ -551,7 +540,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         MenuItem find = menu.findItem(R.id.find);
         if(find != null){
-            find.setVisible(Constants.isHoneycomb());
+            find.setVisible(AwfulUtils.isHoneycomb());
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -735,7 +724,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 	}
     
 	private void toggleMarkUser(String username){
-		if(Constants.isHoneycomb()){
+		if(AwfulUtils.isHoneycomb()){
 			if(mPrefs.markedUsers.contains(username)){
 				mPrefs.unmarkUser(username);
 			}else{
@@ -815,13 +804,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
                     mPrevPage.setColorFilter(0);
                     mRefreshBar.setColorFilter(0);
                 }
-            }));
+            }), true);
         }
     }
 
     private void cancelOldSync(){
         if(getActivity() != null){
-            getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_CANCEL_SYNC_THREAD, getThreadId(), getPage());
+            cancelNetworkRequests();
         }
     }
     
@@ -860,7 +849,32 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     
     private void startPostRedirect(String postUrl) {
         if(getActivity() != null){
-        	getAwfulActivity().sendMessage(mMessenger, AwfulSyncService.MSG_TRANSLATE_REDIRECT, getThreadId(), 0, postUrl);
+            if(redirect != null){
+                redirect.cancel(false);
+            }
+            setProgress(50);
+            redirect = new RedirectTask(postUrl){
+                @Override
+                protected void onPostExecute(String url) {
+                    if(!isCancelled()){
+                        if(url != null){
+                            AwfulURL result = AwfulURL.parse(url);
+                            if(result.getType() == TYPE.THREAD){
+                                if(bypassBackStack){
+                                    openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+                                }else{
+                                    pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
+                                }
+                            }
+                        }else{
+                            displayAlert(new AwfulError());
+                        }
+                        redirect = null;
+                        bypassBackStack = false;
+                        setProgress(100);
+                    }
+                }
+            }.execute(null);
         }
     }
 
@@ -964,94 +978,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 
     public void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
-    }
-    
-//    private void displayDraftAlert(final int replyType, String timeStamp, final  int threadId, final int postId, final int newType) {
-//    	TextView draftAlertMsg = new TextView(getActivity());
-//    	if(timeStamp != null){
-//    	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-//    	    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-//    	    try {
-//				Date d = sdf.parse(timeStamp);
-//				java.text.DateFormat df = DateFormat.getDateFormat(getActivity());
-//				df.setTimeZone(TimeZone.getDefault());
-//				timeStamp = df.format(d);
-//			} catch (ParseException e) {
-//				e.printStackTrace();
-//			}
-//    	}
-//    	switch(replyType){
-//    	case AwfulMessage.TYPE_EDIT:
-//        	draftAlertMsg.setText("Unsent Edit Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	case AwfulMessage.TYPE_QUOTE:
-//        	draftAlertMsg.setText("Unsent Quote Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	case AwfulMessage.TYPE_NEW_REPLY:
-//        	draftAlertMsg.setText("Unsent Reply Found"+(timeStamp != null ? " from "+timeStamp : ""));
-//    		break;
-//    	}
-//        new AlertDialog.Builder(getActivity())
-//            .setTitle("Draft Found")
-//            .setView(draftAlertMsg)
-//            .setPositiveButton(R.string.draft_alert_keep,
-//                new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface aDialog, int aWhich) {
-//                        displayPostReplyDialog(threadId, postId, replyType);
-//                    }
-//                })
-//            .setNegativeButton(R.string.draft_alert_discard, new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aWhich) {
-//                    ContentResolver cr = getActivity().getContentResolver();
-//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-//                    displayPostReplyDialog(threadId, postId, newType);
-//                }
-//            }).setNeutralButton(R.string.draft_discard_only,  new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aWhich) {
-//                    ContentResolver cr = getActivity().getContentResolver();
-//                    cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(getThreadId()));
-//                    mReplyDraftSaved = 0;
-//                }
-//            })
-//            .show();
-//
-//    }
-
-    @Override
-    public void loadingFailed(Message aMsg) {
-    	super.loadingFailed(aMsg);
-        refreshInfo();
-		if(aMsg.obj == null){
-			displayAlert("Loading Failed!");
-		}
-		bypassBackStack = false;
-    }
-
-	@Override
-    public void loadingSucceeded(Message aMsg) {
-    	super.loadingSucceeded(aMsg);
-        refreshInfo();
-    	switch (aMsg.what) {
-    	case AwfulSyncService.MSG_TRANSLATE_REDIRECT:
-    		if(aMsg.obj instanceof String){
-    			AwfulURL result = AwfulURL.parse((String) aMsg.obj);
-    			if(result.getType() == TYPE.THREAD){
-    				if(bypassBackStack){
-    					openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
-    				}else{
-    					pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
-    				}
-    			}else{
-    				Log.e(TAG,"REDIRECT FAILED: "+aMsg.obj);
-    				displayAlert("Load Failed","Malformed URL");
-    			}
-    		}
-			bypassBackStack = false;
-    		break;
-        default:
-        	Log.e(TAG,"Message not handled: "+aMsg.what);
-        	break;
-    	}
     }
 
     @SuppressWarnings("unused")
@@ -1313,14 +1239,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?Constants.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage? AwfulUtils.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage?Constants.isGingerbread()?0:1:2)){
+            	switch(aItem+(isImage? AwfulUtils.isGingerbread()?0:1:2)){
             	case 0:
         			Request request = new Request(link);
-        			if (!Constants.isHoneycomb()) {
+        			if (!AwfulUtils.isHoneycomb()) {
         				request.setShowRunningNotification(true);  
         			} else {
         				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);

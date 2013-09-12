@@ -23,7 +23,7 @@ import android.preference.PreferenceManager;
 
 
 //TODO: Make this a preferenceFragment some day.
-public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUpdateCallback {
+public class ThemeSettingsActivity extends PreferenceActivity implements AwfulPreferences.AwfulPreferenceUpdate {
 	private Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
 	AwfulPreferences mPrefs;
 	ActivityConfigurator mConf;
@@ -134,18 +134,6 @@ public class ThemeSettingsActivity extends PreferenceActivity implements AwfulUp
 	private static final String[] VALUE_SUMMARY_KEYS_LIST = {
 		"theme"
 	};
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-
-	@Override
-	public void loadingStarted(Message aMsg) {}
-
-	@Override
-	public void loadingUpdate(Message aMsg) {}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

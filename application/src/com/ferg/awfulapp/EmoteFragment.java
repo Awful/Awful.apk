@@ -27,7 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Message;
@@ -49,14 +48,12 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.EmoteRequest;
 import com.ferg.awfulapp.thread.AwfulEmote;
@@ -85,22 +82,6 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 		getDialog().setTitle("Emotes");
-	}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {
-		super.loadingSucceeded(aMsg);
-		if(getAwfulActivity() != null){
-			restartLoader();
-            loadFailed = false;
-		}
-		setProgress(100);
-	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {
-		super.loadingFailed(aMsg);
-		loadFailed = true;
 	}
 
 	@Override

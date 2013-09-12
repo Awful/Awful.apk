@@ -1,5 +1,6 @@
 package com.ferg.awfulapp;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -11,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -30,7 +30,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
@@ -38,13 +37,13 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
+import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class MessageFragment extends AwfulFragment implements AwfulUpdateCallback, OnClickListener {
+public class MessageFragment extends AwfulFragment implements OnClickListener {
 
     private static final String TAG = "MessageFragment";
     
@@ -66,47 +65,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	
 	private ProgressDialog mDialog;
 
-	private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-        	//TODO update to match update structure in AwfulFragments
-        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-            switch (aMsg.arg1) {
-                case AwfulSyncService.Status.OKAY:
-                	loadingSucceeded(null);
-                	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
-                		if(mDialog != null){
-                			mDialog.dismiss();
-                			mDialog = null;
-                		}
-                		if(getActivity() != null){
-                			Toast.makeText(getActivity(), "Message Sent!", Toast.LENGTH_LONG).show();
-                			if(getActivity() instanceof MessageDisplayActivity){
-                				getActivity().finish();
-                			}
-                		}
-                	}
-                    break;
-                case AwfulSyncService.Status.WORKING:
-                	loadingStarted(null);
-                    break;
-                case AwfulSyncService.Status.ERROR:
-                	loadingFailed(null);
-                	if(aMsg.what == AwfulSyncService.MSG_SEND_PM){
-	                	if(mDialog != null){
-	            			mDialog.dismiss();
-                			mDialog = null;
-	            		}
-	            		if(getActivity() != null){
-	            			Toast.makeText(getActivity(), "Message Failed to Send! Message Saved...", Toast.LENGTH_LONG).show();
-	            		}
-                	}
-                    break;
-                default:
-                    super.handleMessage(aMsg);
-            }
-        }
-    };
     private Messenger mMessenger = new Messenger(mHandler);
     private PMCallback mPMDataCallback = new PMCallback(mHandler);
     private ContentObserver pmReplyObserver = new ContentObserver(mHandler){
@@ -272,7 +230,28 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	public void sendPM() {
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 		saveReply();
-		((AwfulActivity) getActivity()).sendMessage(mMessenger, AwfulSyncService.MSG_SEND_PM, pmId, AwfulMessage.TYPE_PM);
+        queueRequest(new SendPrivateMessageRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+                if(getActivity() instanceof MessageDisplayActivity){
+                    getActivity().finish();
+                    displayAlert("Message Sent!", R.drawable.ic_menu_load_success);
+                }
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                if(mDialog != null){
+                    mDialog.dismiss();
+                    mDialog = null;
+                }
+                displayAlert("Failed to send!", "Draft Saved");
+            }
+        }));
 	}
 	
 	public void saveReply(){
@@ -345,32 +324,6 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 	}
 
 	@Override
-	public void loadingFailed(Message aMsg) {
-		if(getActivity() != null){
-				getActivity().setProgressBarIndeterminateVisibility(false);
-		}
-	}
-
-	@Override
-	public void loadingStarted(Message aMsg) {
-		if (getActivity() != null) {
-			getActivity().setProgressBarIndeterminateVisibility(true);
-		}
-	}
-
-	@Override
-	public void loadingSucceeded(Message aMsg) {
-		if (getActivity() != null) {
-			getActivity().setProgressBarIndeterminateVisibility(false);
-		}
-	}
-
-	@Override
-	public void loadingUpdate(Message aMsg) {
-		
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch(v.getId()){
 		case R.id.hide_message:
@@ -424,7 +377,7 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
         		mTitle.setText(title);
         		mDisplayText.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
-				mPostdate.setText(" on " + aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
+				mPostdate.setText(aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if(replyContent != null){
@@ -506,13 +459,15 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}
 	
+    @SuppressLint("NewApi")
     private void pauseWebView(){
         if (mDisplayText != null) {
         	mDisplayText.pauseTimers();
         	mDisplayText.onPause();
         }
     }
-    
+
+    @SuppressLint("NewApi")
     public void resumeWebView(){
     	if(getActivity() != null){
 	        if (mDisplayText == null) {

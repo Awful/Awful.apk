@@ -27,30 +27,22 @@
 
 package com.ferg.awfulapp.task;
 
-import java.io.IOException;
-
-import android.os.Message;
+import android.os.AsyncTask;
 
 import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.service.AwfulSyncService;
 
-public class RedirectTask extends AwfulTask {
+public class RedirectTask extends AsyncTask<Void,Void,String> {
 	private String mUrl; 
-	public RedirectTask(AwfulSyncService sync, Message msg) {
-		super(sync, msg, null, AwfulSyncService.MSG_TRANSLATE_REDIRECT);
-		mUrl = (String) msg.obj;
+	public RedirectTask(String url) {
+		mUrl = url;
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
 		try {
-			setReplyObject(NetworkUtils.getRedirect(mUrl, null));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "Network failure!";
+			return NetworkUtils.getRedirect(mUrl, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return LOADING_FAILED;
 		}
 		return null;
 	}
