@@ -1092,6 +1092,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         Log.i(TAG,"Finished populateThreadView, posts:"+aPosts.size());
     }
 
+    @JavascriptInterface
     private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
         JSONObject result = new JSONObject();
 
