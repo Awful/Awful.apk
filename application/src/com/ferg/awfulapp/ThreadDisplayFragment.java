@@ -657,6 +657,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
     private Intent createShareIntent(){
     	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
     }
+    
+    private Intent createShareIntent(String url){
+    	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url);
+    }
 
 	private void copyThreadURL(String postId) {
 		String url = generateThreadUrl(postId);
@@ -1350,7 +1354,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
         			break;
             	case 4:
-            		startActivity(createShareIntent());
+            		startActivity(createShareIntent(url));
             		break;
             	case 5:
         			mPrefs.setBooleanPreference("always_open_urls", true);
