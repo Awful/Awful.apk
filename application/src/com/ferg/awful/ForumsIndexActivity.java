@@ -196,6 +196,29 @@ public class ForumsIndexActivity extends AwfulActivity {
                             .show();
                 }
                 mPrefs.setIntegerPreference("alert_id_shown", 1);
+            case 2:
+                if(Constants.isFroyo()){
+                    new AlertDialog.Builder(this).
+                            setTitle(getString(R.string.alert_title_2))
+                            .setMessage(getString(R.string.alert_message_2))
+                            .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.alert_googleplay), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setData(Uri.parse("market://details?id=com.ferg.awfulapp"));
+                                    startActivity(intent);
+                                }
+                            })
+                            .show();
+                }
+                mPrefs.setIntegerPreference("alert_id_shown", 2);
                 break;
         }
     }
