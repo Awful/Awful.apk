@@ -154,8 +154,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                             quoteData = quoteData+"\n\n";
                         }
                         originalReplyData = quoteData;
-                        mMessage.setText(quoteData);
-                        mMessage.setSelection(quoteData.length());
+                        if(mMessage != null){
+	                        mMessage.setText(quoteData);
+	                        mMessage.setSelection(quoteData.length());
+                        }
                     }else{
                         originalReplyData = "";
                     }
