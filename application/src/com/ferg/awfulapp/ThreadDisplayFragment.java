@@ -529,7 +529,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-    	if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
+    	if(DEBUG) Log.e(TAG, "onPrepareOptionsMenu");
         if(menu == null){
             return;
         }
@@ -564,6 +564,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     @SuppressLint("NewApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	if(DEBUG) Log.e(TAG, "onOptionsItemSelected");
         switch(item.getItemId()) {
             case R.id.next_page:
             	goToPage(getPage() + 1);
@@ -598,6 +599,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     			break;
     		case R.id.keep_screen_on:
     			this.toggleScreenOn();
+    			break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
