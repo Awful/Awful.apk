@@ -355,7 +355,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 		});
 
         mThreadView.addJavascriptInterface(clickInterface, "listener");
-        mThreadView.addJavascriptInterface(getSerializedPreferences(AwfulPreferences.getInstance(getActivity())), "preferences");
 
         refreshSessionCookie();
         mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
@@ -1091,29 +1090,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         }
         Log.i(TAG,"Finished populateThreadView, posts:"+aPosts.size());
     }
-
-    @JavascriptInterface
-    private String getSerializedPreferences(final AwfulPreferences aAppPrefs) {
-        JSONObject result = new JSONObject();
-
-        try {
-            result.put("username", aAppPrefs.username);
-            result.put("youtubeHighlight", "#ff00ff");
-            result.put("showSpoilers", aAppPrefs.showAllSpoilers);
-            result.put("postFontSize", aAppPrefs.postFontSizePx);
-            result.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()));
-            result.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor()));
-            result.put("linkQuoteColor", ColorPickerPreference.convertToARGB(this.getResources().getColor(R.color.link_quote)));
-            result.put("highlightUserQuote", Boolean.toString(aAppPrefs.highlightUserQuote));
-            result.put("highlightUsername", Boolean.toString(aAppPrefs.highlightUsername));
-            result.put("postjumpid", mPostJump);
-            result.put("scrollPosition", savedScrollPosition);
-            result.put("disableGifs", false);
-        } catch (JSONException e) {
-        }
-
-        return result.toString();
-    }
+    
     private ClickInterface clickInterface = new ClickInterface();
 
 
@@ -1135,6 +1112,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         public static final int USER_POSTS = 3;
         public static final int MARK_USER = 4;
         public static final int IGNORE_USER = 5;
+
+        public ClickInterface(){
+        	this.preparePreferences();
+        }
+        
+        HashMap<String,String> preferences;
 		
         final CharSequence[] mPostItems = {
             "Copy Post URL",
@@ -1259,6 +1242,30 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
         @JavascriptInterface
         public String getCSS(){
             return determineCSS();
+        }
+        
+        private void preparePreferences(){
+        	AwfulPreferences aPrefs = AwfulPreferences.getInstance();
+        	
+            preferences = new HashMap<String,String>();
+            preferences.clear();
+            preferences.put("username", aPrefs.username);
+			preferences.put("youtubeHighlight", "#ff00ff");
+			preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
+			preferences.put("postFontSize", Integer.toString(aPrefs.postFontSizePx));
+			preferences.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()));
+			preferences.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor()));
+			preferences.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aPrefs.getResources().getColor(R.color.link_quote)));
+			preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
+			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
+			preferences.put("postjumpid", mPostJump);
+			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
+			preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
+        }
+        
+        @JavascriptInterface
+        public String getPreference(String preference) {
+            return preferences.get(preference);
         }
 
     }
@@ -1403,6 +1410,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements AwfulUpdateC
 			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
             mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
+		}
+		if(clickInterface != null){
+			clickInterface.preparePreferences();
 		}
 	}
 
