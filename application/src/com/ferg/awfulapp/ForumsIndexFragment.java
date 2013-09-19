@@ -71,7 +71,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCallback, PullToRefreshAttacher.OnRefreshListener {
+public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
     
     private int selectedForum = 0;
     
@@ -242,21 +242,6 @@ public class ForumsIndexFragment extends AwfulFragment implements AwfulUpdateCal
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public void loadingFailed(Message aMsg) {
-    	super.loadingFailed(aMsg);
-        Log.e(TAG, "Loading failed.");
-		if(aMsg.obj == null){
-			displayAlert("Loading Failed!");
-		}
-    }
-    
-    @Override
-	public void loadingSucceeded(Message aMsg) {
-		super.loadingSucceeded(aMsg);
-		//TODO remove
-	}
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {

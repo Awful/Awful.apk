@@ -52,10 +52,9 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
-public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallback, ActionMode.Callback, AwfulRequest.ProgressListener{
+public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
@@ -69,43 +68,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     private Runnable popupClose;
 	
 
-    protected Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message aMsg) {
-    		AwfulActivity aa = getAwfulActivity();
-        	if(aa != null){
-	        	AwfulSyncService.debugLogReceivedMessage(TAG, aMsg);
-	        	if(aMsg.what == AwfulSyncService.MSG_ERROR){
-                    loadingFailed(aMsg);
-	        	}else if(aMsg.what == AwfulSyncService.MSG_ERR_NOT_LOGGED_IN){
-                    loadingFailed(aMsg);
-	        		aa.reauthenticate();
-	        	}else if(aMsg.what == AwfulSyncService.MSG_PROGRESS_PERCENT){
-                    if(mP2RAttacher != null){
-                        mP2RAttacher.setRefreshComplete();
-                    }
-	        		loadingUpdate(aMsg);
-	        	}else{
-		            switch (aMsg.arg1) {
-		                case AwfulSyncService.Status.WORKING:
-		                	if(mP2RAttacher != null){
-		                		mP2RAttacher.setRefreshComplete();
-		                	}
-		                    loadingStarted(aMsg);
-		                    break;
-		                case AwfulSyncService.Status.OKAY:
-		                    loadingSucceeded(aMsg);
-		                    break;
-		                case AwfulSyncService.Status.ERROR:
-		                    loadingFailed(aMsg);
-		                    break;
-		            };
-	        	}
-        	}
-        }
-    };
-
-    protected Messenger mMessenger = new Messenger(mHandler);
+    protected Handler mHandler = new Handler();
 
     @Override
     public void onAttach(Activity aActivity) {
@@ -163,6 +126,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
     @Override
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
+        popupAlert = null;
         mPrefs.unregisterCallback(this);
     }
 
@@ -244,46 +208,6 @@ public abstract class AwfulFragment extends Fragment implements AwfulUpdateCallb
 			getAwfulActivity().startSupportActionMode(this);
 		}
 	}
-	
-	@Override
-    public void loadingFailed(Message aMsg) {
-        //TODO remove completely
-		AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-            setProgress(100);
-        	aa.setSupportProgressBarIndeterminateVisibility(false);
-			aa.setSupportProgressBarVisibility(false);
-			if(aMsg.obj instanceof String){
-                displayAlert(aMsg.obj.toString());
-			}
-        }
-    }
-
-    @Override
-    public void loadingStarted(Message aMsg) {
-        //TODO remove completely
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-			aa.setSupportProgressBarVisibility(false);
-    		aa.setSupportProgressBarIndeterminateVisibility(true);
-    	}
-    }
-
-    @Override
-    public void loadingSucceeded(Message aMsg) {
-        //TODO remove completely
-		AwfulActivity aa = getAwfulActivity();
-    	if(aa != null){
-    		aa.setSupportProgressBarIndeterminateVisibility(false);
-			aa.setSupportProgressBarVisibility(false);
-    	}
-    }
-    
-    @Override
-    public void loadingUpdate(Message aMsg) {
-        //TODO remove completely
-    	setProgress(aMsg.arg2);
-    }
 
     @Override
     public void requestStarted(AwfulRequest req) {

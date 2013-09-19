@@ -28,8 +28,6 @@
 package com.ferg.awfulapp;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,7 +44,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -77,17 +74,14 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
-import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
 
 public class PostReplyFragment extends AwfulFragment implements OnClickListener {
     private static final String TAG = "PostReplyFragment";

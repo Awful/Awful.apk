@@ -75,7 +75,6 @@ import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulURL;
 
 public class NetworkUtils {
@@ -297,11 +296,6 @@ public class NetworkUtils {
         httpResponse = sHttpClient.execute(httpGet);
 
         HttpEntity entity = httpResponse.getEntity();
-
-        if(statusCallback != null){
-	        //notify user we have gotten message body
-	        statusCallback.send(Message.obtain(null, AwfulSyncService.MSG_PROGRESS_PERCENT, 0, midpointPercent));
-        }
 	    
         if (entity != null) {
         	InputStream entityStream = entity.getContent();
@@ -522,7 +516,6 @@ public class NetworkUtils {
 	
 	/**
 	 * Parses a Java string into html-escaped characters. Does not handle html tags.
-	 * @param html
 	 * @return unencoded text.
 	 */
 	public static String encodeHtml(String str){

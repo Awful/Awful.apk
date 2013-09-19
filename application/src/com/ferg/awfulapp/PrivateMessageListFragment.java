@@ -39,7 +39,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -53,14 +52,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
-import com.ferg.awfulapp.service.AwfulSyncService;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
@@ -136,6 +133,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
+        setTitle(getTitle());
     }
     
     private void syncPMs() {
@@ -196,6 +194,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
         	break;
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
+            setTitle(getTitle());
         	syncPMs();
         	break;
         case R.id.settings:
@@ -275,6 +274,12 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
 	@Override
 	public String getTitle() {
+        switch (currentFolder){
+            case FOLDER_INBOX:
+                return "PM - Inbox";
+            case FOLDER_SENT:
+                return "PM - Sent";
+        }
 		return "Private Messages";
 	}
 	

@@ -9,6 +9,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.util.LRUImageCache;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -26,7 +27,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 @ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
-public class AwfulApplication extends Application implements AwfulUpdateCallback{
+public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static String TAG = "AwfulApplication";
 	
 	private AwfulPreferences mPref;
@@ -48,7 +49,7 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
         	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
         }
 
-        if(Constants.isICS()){
+        if(AwfulUtils.isICS()){
             try {
                 HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
             } catch (Exception e) {
@@ -111,15 +112,6 @@ public class AwfulApplication extends Application implements AwfulUpdateCallback
 			setFontFromPreferenceRecurse((ViewGroup)view, flags);
 		}
 	}
-
-	@Override
-	public void loadingFailed(Message aMsg) {}
-	@Override
-	public void loadingStarted(Message aMsg) {}
-	@Override
-	public void loadingSucceeded(Message aMsg) {}
-	@Override
-	public void loadingUpdate(Message aMsg) {}
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
