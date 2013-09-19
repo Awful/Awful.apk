@@ -58,7 +58,7 @@ public class SendPrivateMessageTask extends AwfulTask {
 	            para.put(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(mId));
 	            para.put(Constants.PARAM_ACTION, Constants.ACTION_DOSEND);
 	            para.put(Constants.DESTINATION_TOUSER, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.RECIPIENT)));
-	            para.put(Constants.PARAM_TITLE, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.TITLE)));
+	            para.put(Constants.PARAM_TITLE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.TITLE))));
 	            //TODO move to constants
 	            if(mId>0){
 	            	para.put("prevmessageid", Integer.toString(mId));
@@ -66,7 +66,7 @@ public class SendPrivateMessageTask extends AwfulTask {
 	            para.put(Constants.PARAM_PARSEURL, Constants.YES);
 	            para.put("savecopy", "yes");
 	            para.put("iconid", "0");
-	            para.put(Constants.PARAM_MESSAGE, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT)));
+	            para.put(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT))));
 				Document result = NetworkUtils.post(Constants.FUNCTION_PRIVATE_MESSAGE, para);
 			}else{
 				Log.e(TAG,"PM Send Failure: PM missing from DB "+mId);
