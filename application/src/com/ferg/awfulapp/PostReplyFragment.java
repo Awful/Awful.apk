@@ -148,8 +148,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
                             quoteData = quoteData+"\n\n";
                         }
                         originalReplyData = quoteData;
-                        mMessage.setText(quoteData);
-                        mMessage.setSelection(quoteData.length());
+                        if(mMessage != null){
+	                        mMessage.setText(quoteData);
+	                        mMessage.setSelection(quoteData.length());
+                        }
                     }else{
                         originalReplyData = "";
                     }
@@ -419,7 +421,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
     private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
     	public String[] items = new String[]{
-    			"Bold", "Italics", "Underline", "Strikeout", "URL", "Image", "Quote", "Spoiler", "Code"
+    			"Bold", "Italics", "Underline", "Strikeout", "URL", "Video", "Image", "Quote", "Spoiler", "Code"
     	};
 		ListView mListView;
 		@Override
@@ -450,15 +452,18 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	        	insertBBCode(BBCODE.URL);
 	            break;
 	        case 5:
-	        	insertBBCode(BBCODE.IMAGE);
+	        	insertBBCode(BBCODE.VIDEO);
 	            break;
 	        case 6:
-	        	insertBBCode(BBCODE.QUOTE);
+	        	insertBBCode(BBCODE.IMAGE);
 	            break;
 	        case 7:
-	        	insertBBCode(BBCODE.SPOILER);
+	        	insertBBCode(BBCODE.QUOTE);
 	            break;
 	        case 8:
+	        	insertBBCode(BBCODE.SPOILER);
+	            break;
+	        case 9:
 	        	insertBBCode(BBCODE.CODE);
 	            break;
 			}
@@ -483,7 +488,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 		}
 	}
     
-    private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, IMAGE, QUOTE, SPOILER, CODE};
+    private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE};
 
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -502,6 +507,9 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 	            break;
 	        case R.id.bbcode_url:
 	        	insertBBCode(BBCODE.URL);
+	            break;
+	        case R.id.bbcode_video:
+	        	insertBBCode(BBCODE.VIDEO);
 	            break;
 	        case R.id.bbcode_image:
 	        	insertBBCode(BBCODE.IMAGE);
@@ -607,6 +615,10 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
     	case IMAGE:
     		startTag = "[img]";
     		endTag = "[/img]";
+    		break;
+    	case VIDEO:
+    		startTag = "[video]";
+    		endTag = "[/video]";
     		break;
     	case SPOILER:
     		startTag = "[spoiler]";
