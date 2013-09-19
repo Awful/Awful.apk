@@ -42,6 +42,7 @@ import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 
@@ -269,8 +270,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 	@Override
 	public void onResume(){
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.hide();
+		if(!AwfulUtils.isWidescreen(getActivity())){
+			ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        	action.hide();
+		}
 		super.onResume();
 		resumeWebView();
 

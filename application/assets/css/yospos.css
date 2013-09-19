@@ -126,7 +126,9 @@ font-size: 0.7em;
 }
 
 section.postcontent .bbc-spoiler{
-background: #0F0;
+background-color: black;
+color: transparent;
+box-shadow: 0px 0px 9px rgb(87, 255, 87);
 }
 
 section.postcontent .bbc-spoiler * {
@@ -134,7 +136,9 @@ visibility: hidden;
 }
 
 section.postcontent .bbc-spoiler.spoiled {
-background: transparent;
+background-color: transparent;
+color: #0F0;
+box-shadow: none;
 }
 
 section.postcontent .bbc-spoiler.spoiled * {

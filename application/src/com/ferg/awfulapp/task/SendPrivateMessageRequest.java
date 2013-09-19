@@ -4,10 +4,13 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 
 /**
@@ -25,14 +28,14 @@ public class SendPrivateMessageRequest extends AwfulRequest<Void> {
         addPostParam(Constants.PARAM_PRIVATE_MESSAGE_ID, Integer.toString(replyId));
         addPostParam(Constants.PARAM_ACTION, Constants.ACTION_DOSEND);
         addPostParam(Constants.DESTINATION_TOUSER, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.RECIPIENT)));
-        addPostParam(Constants.PARAM_TITLE, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.TITLE)));
+        addPostParam(Constants.PARAM_TITLE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.TITLE))));
         if(replyId>0){
             addPostParam("prevmessageid", Integer.toString(replyId));
         }
         addPostParam(Constants.PARAM_PARSEURL, Constants.YES);
         addPostParam("savecopy", "yes");
         addPostParam("iconid", "0");
-        addPostParam(Constants.PARAM_MESSAGE, pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT)));
+        addPostParam(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT))));
     }
 
     @Override

@@ -877,7 +877,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
                         setProgress(100);
                     }
                 }
-            }.execute(null);
+            }.execute();
         }
     }
 
