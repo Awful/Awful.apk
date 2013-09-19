@@ -622,7 +622,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success);
+                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_menu_load_success);
                 refreshInfo();
             }
 
