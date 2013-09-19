@@ -290,8 +290,10 @@ public class MessageFragment extends AwfulFragment implements AwfulUpdateCallbac
 
 	@Override
 	public void onResume(){
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.hide();
+		if(!Constants.isWidescreen(getActivity())){
+			ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
+        	action.hide();
+		}
 		super.onResume();
 		resumeWebView();
 
