@@ -283,15 +283,15 @@ SALR.prototype.highlightOwnUsername = function() {
 
     var that = this;
 
-    var selector = '.postcontent:contains("' + javascriptinterface.getPreference("username") + '")';
+    var selector = '.postcontent:contains("' + that.javascriptinterface.getPreference("username") + '")';
     
-    var re = new RegExp(javascriptinterface.getPreference("username"), 'g');
-    var styled = '<span class="usernameHighlight">' + javascriptinterface.getPreference("username") + '</span>';
+    var re = new RegExp(that.javascriptinterface.getPreference("username"), 'g');
+    var styled = '<span class="usernameHighlight">' + that.javascriptinterface.getPreference("username") + '</span>';
     $(selector).each(function() {
         getTextNodesIn(this).forEach(function(node) {
             if(node.wholeText.match(re)) {
                 newNode = node.ownerDocument.createElement("span");
-                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight">' + javascriptinterface.getPreference("username") + '</span>'));
+                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight">' + that.javascriptinterface.getPreference("username") + '</span>'));
                 node.parentNode.replaceChild(newNode, node);
             }
         });
@@ -304,7 +304,7 @@ SALR.prototype.highlightOwnUsername = function() {
 SALR.prototype.highlightOwnQuotes = function() {
     var that = this;
 
-    var usernameQuoteMatch = javascriptinterface.getPreference("username") + ' posted:';
+    var usernameQuoteMatch = that.javascriptinterface.getPreference("username") + ' posted:';
     $('.bbc-block h4:contains(' + usernameQuoteMatch + ')').each(function() {
         if ($(this).text() != usernameQuoteMatch)
             return;

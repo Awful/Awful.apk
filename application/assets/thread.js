@@ -45,33 +45,17 @@ function pageinit() {
     $('.more').on('click', function(event) {
         listener.onMoreClick($(this).parent().parent().attr('id').replace(/post/,''), $(this).attr('username'), $(this).attr('userid'));
     });
-    $('.sendpm_button').on('click', function(event) {
-        listener.onSendPMClick($(this).attr('username'));
-    });
     $('.lastread').on('click', function(event) {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
-    $('.copyurl_button').on('click', function(event) {
-        listener.onCopyUrlClick($(this).attr('id').replace(/#post/,''));
-    });
-    $('.userposts_button').on('click', function(event) {
-        listener.onUserPostsClick($(this).attr('id').replace(/#post/,''));
-    });
-    try{
-        if(listener.getPreference("showSpoilers") == "true"){
-        $('.bbc-spoiler').removeAttr('onmouseover');
-        $('.bbc-spoiler').removeAttr('onmouseout');
-        $('.bbc-spoiler').removeClass('bbc-spoiler');
-        }else{
-        $('.bbc-spoiler').mouseover( function(){ this.style.color=listener.getPreference("backgroundcolor");});
-        $('.bbc-spoiler').mouseout ( function(){ this.style.color=this.style.backgroundColor=listener.getPreference("postcolor");});
-        }
-    }catch(error){
-        console.log(error);
+    
+    $('.bbc-spoiler').removeAttr('onmouseover');
+    $('.bbc-spoiler').removeAttr('onmouseout');
+    if(listener.getPreference("showSpoilers") == "true"){
+    	$('.bbc-spoiler').removeClass('bbc-spoiler');
+    }else{
+    	$('.bbc-spoiler').click( function(){ $(this).toggleClass('spoiled');});
     }
-    $('.userinfo-row').click(function(event) {
-      $(this).closest('tr').next().find('.avatar-text').toggle();
-    });
 
     // hide-old posts
     if($('.toggleread').length > 0){
@@ -81,10 +65,6 @@ function pageinit() {
         $('.read').show();
           $('.toggleread').hide();
           window.setTimeout(scrollLastRead, 200);
-    });
-
-    $('.avatar-cell').on('click', function(event) {
-      $(this).closest('tr').find('.avatar-text').toggle();
     });
     
     $('.postinfo').on('click',function(){

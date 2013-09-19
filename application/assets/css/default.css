@@ -137,9 +137,20 @@ font-style:italic;
 font-size: 0.7em;
 }
 
-section.postcontent .bbc-spoiler, section.postcontent .bbc-spoiler li, section.postcontent .bbc-spoiler a {
-color: #828282;
+section.postcontent .bbc-spoiler{
 background: #828282;
+}
+
+section.postcontent .bbc-spoiler * {
+visibility: hidden;
+}
+
+section.postcontent .bbc-spoiler.spoiled {
+background: transparent;
+}
+
+section.postcontent .bbc-spoiler.spoiled * {
+visibility: visible;
 }
 
 header {
