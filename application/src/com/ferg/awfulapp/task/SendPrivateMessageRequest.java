@@ -4,10 +4,13 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 
 /**
