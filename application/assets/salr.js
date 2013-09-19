@@ -24,18 +24,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function SALR(preferences) {
-    this.preferences = preferences;
+function SALR(javascriptinterface) {
+    this.javascriptinterface = javascriptinterface;
 
     this.init();
 };
 
 SALR.prototype.init = function() {
-    if (this.preferences.highlightUsername == "true") {
+    if (this.javascriptinterface.getPreference("highlightUsername") == "true") {
         this.highlightOwnUsername();
     }
 
-    if (this.preferences.highlightUserQuote == "true") {
+    if (this.javascriptinterface.getPreference("highlightUserQuote") == "true") {
         this.highlightOwnQuotes();
     }
 
@@ -283,15 +283,15 @@ SALR.prototype.highlightOwnUsername = function() {
 
     var that = this;
 
-    var selector = '.postcontent:contains("' + this.preferences.username + '")';
+    var selector = '.postcontent:contains("' + that.javascriptinterface.getPreference("username") + '")';
     
-    var re = new RegExp(this.preferences.username, 'g');
-    var styled = '<span class="usernameHighlight">' + that.preferences.username + '</span>';
+    var re = new RegExp(that.javascriptinterface.getPreference("username"), 'g');
+    var styled = '<span class="usernameHighlight">' + that.javascriptinterface.getPreference("username") + '</span>';
     $(selector).each(function() {
         getTextNodesIn(this).forEach(function(node) {
             if(node.wholeText.match(re)) {
                 newNode = node.ownerDocument.createElement("span");
-                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight">' + that.preferences.username + '</span>'));
+                $(newNode).html(node.wholeText.replace(re, '<span class="usernameHighlight">' + that.javascriptinterface.getPreference("username") + '</span>'));
                 node.parentNode.replaceChild(newNode, node);
             }
         });
@@ -304,7 +304,7 @@ SALR.prototype.highlightOwnUsername = function() {
 SALR.prototype.highlightOwnQuotes = function() {
     var that = this;
 
-    var usernameQuoteMatch = that.preferences.username + ' posted:';
+    var usernameQuoteMatch = that.javascriptinterface.getPreference("username") + ' posted:';
     $('.bbc-block h4:contains(' + usernameQuoteMatch + ')').each(function() {
         if ($(this).text() != usernameQuoteMatch)
             return;

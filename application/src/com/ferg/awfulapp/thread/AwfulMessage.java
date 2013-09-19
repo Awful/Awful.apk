@@ -98,7 +98,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 		TextView author = (TextView) current.findViewById(R.id.threadinfo);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
-		String date = data.getString(data.getColumnIndex(AUTHOR));
+		String date = data.getString(data.getColumnIndex(DATE));
 		if(auth != null && date != null){
 			author.setText(auth +" - "+date);
 		}

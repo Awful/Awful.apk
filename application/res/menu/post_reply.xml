@@ -36,6 +36,9 @@
                 android:id="@+id/bbcode_url"
                 android:title="Insert URL"/>
             <item
+                android:id="@+id/bbcode_video"
+                android:title="Insert Video"/>
+            <item
                 android:id="@+id/bbcode_quote"
                 android:title="Quote Block"/>
             <item
