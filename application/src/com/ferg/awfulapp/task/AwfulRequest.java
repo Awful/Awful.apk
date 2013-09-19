@@ -232,7 +232,7 @@ public abstract class AwfulRequest<T> {
             try{
                 if(Constants.DEBUG) Log.i("AwfulRequest", "Starting parse: " + getUrl());
                 updateProgress(25);
-                Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), HttpHeaderParser.parseCharset(response.headers), Constants.BASE_URL);
+                Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
                 updateProgress(50);
                 if(shouldCheckErrors()){
                     AwfulError error = AwfulError.checkPageErrors(doc, getPreferences());
