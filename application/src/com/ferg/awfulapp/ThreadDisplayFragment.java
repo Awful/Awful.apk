@@ -1399,8 +1399,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 			if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
 			}
-	        syncThread();
             cancelOldSync();
+	        syncThread();
 		}
 	}
 	
