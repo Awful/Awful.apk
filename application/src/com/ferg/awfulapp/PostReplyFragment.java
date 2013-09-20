@@ -319,7 +319,6 @@ public class PostReplyFragment extends AwfulFragment {
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
-		Log.d(TAG,"onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);
         MenuItem attach = menu.findItem(R.id.add_attachment);
         if(attach != null && mPrefs != null){

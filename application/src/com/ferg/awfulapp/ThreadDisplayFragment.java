@@ -600,12 +600,60 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     		case R.id.keep_screen_on:
     			this.toggleScreenOn();
     			break;
+    		case R.id.thread_actions:
+    			if(!AwfulUtils.isHoneycomb()){
+    				fuckPreAPI11Forever();
+    			}
     		default:
     			return super.onOptionsItemSelected(item);
     		}
 
     		return true;
     	}
+
+	private void fuckPreAPI11Forever() {
+        final CharSequence[] mThreadItems = {
+        		getString(R.string.post_reply),
+        		getString(R.string.bookmark),
+        		getString(R.string.rate_thread),
+        		getString(R.string.copy_url),
+        		getString(R.string.share_thread),
+        		getString(R.string.refresh),
+        		getString(R.string.keep_screen_on),
+            };
+		
+		
+        	new AlertDialog.Builder(getActivity())
+            .setTitle("Select an Action")
+            .setItems(mThreadItems, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface aDialog, int aItem) {
+                	switch(aItem) {
+                    case 0:
+                        displayPostReplyDialog();
+                        break;
+
+                    case 1:
+                    	toggleThreadBookmark();
+                        break;
+            		case 2:
+            			rateThread();
+            			break;
+            		case 3:
+            			copyThreadURL(null);
+            			break;
+            		case 4:
+            			startActivity(createShareIntent());
+                    case 5:
+                        refresh();
+                        break;
+            		case 6:
+            			toggleScreenOn();
+            			break;
+                	}
+                }
+            })
+            .show();
+	}
 
 	private String generateThreadUrl(String postId){
     	StringBuffer url = new StringBuffer();
