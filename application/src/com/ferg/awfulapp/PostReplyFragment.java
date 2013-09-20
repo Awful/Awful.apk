@@ -83,7 +83,7 @@ import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
 
-public class PostReplyFragment extends AwfulFragment implements OnClickListener {
+public class PostReplyFragment extends AwfulFragment {
     private static final String TAG = "PostReplyFragment";
 
     public static final int REQUEST_POST = 5;
@@ -206,8 +206,6 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
         mMessage = aq.find(R.id.post_message).getEditText();
         mMessage.setText("");
-        aq.find(R.id.bbcode).clicked(this);
-        aq.find(R.id.emotes).clicked(this);
 
         return result;
     }
@@ -320,7 +318,7 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
 
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		Log.d(TAG,"onCreateOptionsMenu");
+		if(DEBUG) Log.e(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);
         MenuItem attach = menu.findItem(R.id.add_attachment);
         if(attach != null && mPrefs != null){
@@ -418,80 +416,14 @@ public class PostReplyFragment extends AwfulFragment implements OnClickListener 
         return PeriodFormat.getDefault().print(new Period(epoc, System.currentTimeMillis(), type));
     }
 
-
-    private class BBCodeFragment extends DialogFragment implements OnItemClickListener{
-    	public String[] items = new String[]{
-    			"Bold", "Italics", "Underline", "Strikeout", "URL", "Video", "Image", "Quote", "Spoiler", "Code"
-    	};
-		ListView mListView;
-		@Override
-		public View onCreateView(LayoutInflater inflater,
-				ViewGroup container, Bundle savedInstanceState) {
-			super.onCreateView(inflater, container, savedInstanceState);
-			mListView = new ListView(getActivity());
-			mListView.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, items));
-			mListView.setOnItemClickListener(this);
-			return mListView;
-		}
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-			switch((int)arg3) {
-	        case 0:
-	        	insertBBCode(BBCODE.BOLD);
-	            break;
-	        case 1:
-	        	insertBBCode(BBCODE.ITALICS);
-	            break;
-	        case 2:
-	        	insertBBCode(BBCODE.UNDERLINE);
-	            break;
-	        case 3:
-	        	insertBBCode(BBCODE.STRIKEOUT);
-	            break;
-	        case 4:
-	        	insertBBCode(BBCODE.URL);
-	            break;
-	        case 5:
-	        	insertBBCode(BBCODE.VIDEO);
-	            break;
-	        case 6:
-	        	insertBBCode(BBCODE.IMAGE);
-	            break;
-	        case 7:
-	        	insertBBCode(BBCODE.QUOTE);
-	            break;
-	        case 8:
-	        	insertBBCode(BBCODE.SPOILER);
-	            break;
-	        case 9:
-	        	insertBBCode(BBCODE.CODE);
-	            break;
-			}
-			dismiss();
-		}
-		
-	};
-	
 	private int selectionStart = -1;
 	private int selectionEnd = -1;
-	
-	@Override
-	public void onClick(View v) {
-		if(v.getId() == R.id.bbcode){
-			selectionStart = mMessage.getSelectionStart();//work around the ICS text selection actionbar, bane of my existence
-			selectionEnd = mMessage.getSelectionEnd();
-			BBCodeFragment fragment = new BBCodeFragment();
-	        fragment.show(getActivity().getSupportFragmentManager(), "select_bbcode_dialog");
-		}
-		if(v.getId() == R.id.emotes){
-			Toast.makeText(v.getContext(), "EMOTIONALLY UNAVAILABLE", Toast.LENGTH_LONG).show();
-		}
-	}
     
     private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE};
 
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
+		if(DEBUG) Log.e(TAG, "onOptionsItemSelected");
         switch(item.getItemId()) {
 	        case R.id.bbcode_bold:
 	        	insertBBCode(BBCODE.BOLD);
