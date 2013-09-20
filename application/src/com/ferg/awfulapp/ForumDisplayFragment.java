@@ -622,7 +622,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success);
+                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_menu_load_success);
                 refreshInfo();
             }
 
@@ -659,8 +659,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	 * @param id Thread ID
 	 */
     private void toggleBookmarkColor(final int id, final int bookmarkStatus) {
-    	System.out.println(bookmarkStatus);
-    	final ContentResolver lol = this.getAwfulApplication().getContentResolver();
+    	final ContentResolver cr = this.getAwfulApplication().getContentResolver();
     	if(bookmarkStatus==3){
     		queueRequest(new BookmarkColorRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
 
@@ -676,7 +675,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
             public void success(Void result) {
             	ContentValues cv = new ContentValues();
                 cv.put(AwfulThread.BOOKMARKED, ((bookmarkStatus==3)?bookmarkStatus+2:bookmarkStatus+1)%4);
-                lol.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(id));
+                cr.update(AwfulThread.CONTENT_URI, cv, AwfulThread.ID+"=?", AwfulProvider.int2StrArray(id));
             	refreshInfo();
             }
 
