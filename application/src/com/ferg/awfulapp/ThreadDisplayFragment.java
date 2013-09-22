@@ -376,7 +376,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         	if(mP2RAttacher == null){
         		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
         	}
-            if(mPrefs.disablePullNext){
+            if(getPage() < mLastPage && mPrefs.disablePullNext){
                 mP2RAttacher.setEnabled(false);
             }else{
                 mP2RAttacher.setEnabled(true);
@@ -457,6 +457,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         }
         if(mP2RAttacher != null){
         	mP2RAttacher.setPullFromBottom(false);
+        	mP2RAttacher.setEnabled(true);
         }
 	}
 	
@@ -1399,8 +1400,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 			if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
 			}
-	        syncThread();
             cancelOldSync();
+	        syncThread();
 		}
 	}
 	

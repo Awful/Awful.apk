@@ -76,6 +76,7 @@ import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 public class NetworkUtils {
     private static final String TAG = "NetworkUtils";
@@ -237,7 +238,7 @@ public class NetworkUtils {
     		}
     		edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            if (AwfulUtils.isGingerbread()) {
                 edit.apply();
             } else {
                 edit.commit();
