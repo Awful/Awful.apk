@@ -3,10 +3,12 @@ package com.ferg.awfulapp;
 import java.io.File;
 import java.util.LinkedList;
 
+import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
+
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -29,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -95,6 +98,10 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         mConf.onResume();
         
         if (isLoggedIn()) {
+        	if(mPrefs.ignoreFormkey == null){
+        		 getAwfulApplication().queueRequest(new ProfileRequest(this, null).build(null, null));
+        		 getAwfulApplication().queueRequest(new FeatureRequest(this).build(null, null));
+        	}
             Log.v(TAG, "Cookie Loaded!");
         } else {
         	if(!(this instanceof AwfulLoginActivity)){

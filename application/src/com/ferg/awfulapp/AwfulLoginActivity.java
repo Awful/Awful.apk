@@ -205,8 +205,6 @@ public class AwfulLoginActivity extends AwfulActivity {
 
                 if(succeeded) {
                     setResult(Activity.RESULT_OK);
-                    ((AwfulApplication)getApplication()).queueRequest(new FeatureRequest(AwfulLoginActivity.this).build(null, null));
-                    ((AwfulApplication)getApplication()).queueRequest(new ProfileRequest(AwfulLoginActivity.this, null).build(null, null));
                     finish();
                 } else {
                     setResult(Activity.RESULT_CANCELED);
