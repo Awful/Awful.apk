@@ -504,7 +504,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         	if(DEBUG) Log.e(TAG,"SETTING COOKIES");
         	CookieSyncManager.createInstance(getActivity());
         	CookieManager ckiemonster = CookieManager.getInstance();
-        	ckiemonster.removeSessionCookie();
+        	ckiemonster.removeAllCookie();
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID));
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
