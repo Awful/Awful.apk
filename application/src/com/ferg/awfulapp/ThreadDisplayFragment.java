@@ -376,7 +376,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         	if(mP2RAttacher == null){
         		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
         	}
-            if(getPage() < mLastPage && mPrefs.disablePullNext){
+            if(mPrefs.disablePullNext){
                 mP2RAttacher.setEnabled(false);
             }else{
                 mP2RAttacher.setEnabled(true);
@@ -504,7 +504,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         	if(DEBUG) Log.e(TAG,"SETTING COOKIES");
         	CookieSyncManager.createInstance(getActivity());
         	CookieManager ckiemonster = CookieManager.getInstance();
-        	ckiemonster.removeSessionCookie();
+        	ckiemonster.removeAllCookie();
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONID));
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_SESSIONHASH));
         	ckiemonster.setCookie(Constants.COOKIE_DOMAIN, NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID));
@@ -1568,6 +1568,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 	}
 	public void openThread(AwfulURL url) {
     	clearBackStack();
+    	if(url == null){
+    		Toast.makeText(this.getActivity(), "Error occoured: URL was empty", Toast.LENGTH_LONG).show();
+    	}
     	if(url.isRedirect()){
     		startPostRedirect(url.getURL(mPrefs.postPerPage));
     	}else{
