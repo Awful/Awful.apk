@@ -95,7 +95,7 @@
             android:name="com.ferg.awful.service.AwfulSyncService"
             />
 		<meta-data android:name="com.google.android.backup.api_key"
-		    android:value="AEdPqrEAAAAIvOiXrlcGjkg0FB1FGniG7EGKJWGm8Msq7xZ2wA" />
+		    android:value="AEdPqrEAAAAI6vsvugZT_Gz3gqKAF5Fm0G6VGGL-xwgGrL6-Ug" />
         <activity android:name="com.ferg.awful.ImageSettingsActivity"></activity>
             <activity android:name="com.ferg.awful.ThreadInfoSettingsActivity"></activity>
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awful.provider.AwfulWebProvider" android:authorities="com.ferg.awful.webprovider"></provider>
