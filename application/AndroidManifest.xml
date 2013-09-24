@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ferg.awfulapp"
-      android:versionCode="75"
-      android:versionName="2.4.5"
+      android:versionCode="76"
+      android:versionName="3.0"
       android:installLocation="auto">
     <uses-sdk 
 		android:minSdkVersion="8" 
@@ -84,7 +84,7 @@
 		<provider android:name="com.ferg.awfulapp.provider.AwfulProvider"
 				  android:authorities="com.ferg.awfulapp.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
-		    android:value="AEdPqrEAAAAIvOiXrlcGjkg0FB1FGniG7EGKJWGm8Msq7xZ2wA" />
+		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />
         <activity android:name="ImageSettingsActivity"></activity>
             <activity android:name="ThreadInfoSettingsActivity"></activity>
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
