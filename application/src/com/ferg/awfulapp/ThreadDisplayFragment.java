@@ -1571,6 +1571,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     	if(url == null){
     		Toast.makeText(this.getActivity(), "Error occoured: URL was empty", Toast.LENGTH_LONG).show();
     	}
+    	if(mPrefs == null){
+    		mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+    	}
     	if(url.isRedirect()){
     		startPostRedirect(url.getURL(mPrefs.postPerPage));
     	}else{
