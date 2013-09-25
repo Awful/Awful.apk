@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Awful Betamax</string>
+    <string name="app_name">Awful</string>
     <string name="home">Home</string>
     <string name="logout">All your dreams</string>
     <string name="usercp">Bookmarks</string>

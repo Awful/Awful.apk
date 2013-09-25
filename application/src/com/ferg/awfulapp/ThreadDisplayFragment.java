@@ -376,7 +376,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         	if(mP2RAttacher == null){
         		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
         	}
-            if(getPage() < mLastPage && mPrefs.disablePullNext){
+            if(mPrefs.disablePullNext){
                 mP2RAttacher.setEnabled(false);
             }else{
                 mP2RAttacher.setEnabled(true);
@@ -1570,6 +1570,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     	clearBackStack();
     	if(url == null){
     		Toast.makeText(this.getActivity(), "Error occoured: URL was empty", Toast.LENGTH_LONG).show();
+    	}
+    	if(mPrefs == null){
+    		mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
     	}
     	if(url.isRedirect()){
     		startPostRedirect(url.getURL(mPrefs.postPerPage));
