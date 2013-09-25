@@ -1379,6 +1379,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
             mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+            mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
 		}
 		if(clickInterface != null){

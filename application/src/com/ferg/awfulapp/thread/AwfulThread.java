@@ -390,7 +390,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
         }
         if(!aPrefs.preferredFont.contains("default")){
-            buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
+            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
