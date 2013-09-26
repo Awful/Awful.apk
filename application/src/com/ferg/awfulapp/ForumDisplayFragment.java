@@ -64,6 +64,7 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.util.Date;
@@ -560,7 +561,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	
     private void setForumId(int aForum) {
 		mForumId = aForum;
-		if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+		if(mPrefs != null && mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 			onPreferenceChange(mPrefs);
 		}
 	}
@@ -577,7 +578,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			if(AwfulUtils.isHoneycomb()){
 				getActivity().invalidateOptionsMenu();
 			}
 			refreshInfo();

@@ -106,6 +106,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideOldImages;
     public boolean highlightUserQuote;
     public boolean highlightUsername;
+    public boolean highlightSelf;
+    public boolean highlightOP;
 	public boolean showAllSpoilers;
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
@@ -138,6 +140,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean showIgnoreWarning;
 	public String ignoreFormkey;
 	public Set<String> markedUsers;
+	public Float p2rDistance;
 
     public int alertIDShown;
 	
@@ -238,6 +241,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
+        highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
+        highlightOP				 = mPrefs.getBoolean("op_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (AwfulUtils.isJellybean()?true:false));
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
@@ -270,6 +275,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
         orientation				 = mPrefs.getString("orientation", "default");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
+        p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
         
         if(AwfulUtils.isHoneycomb()){
         	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
@@ -308,6 +314,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			mPrefs.edit().putInt(key, value).apply();
 		}else{
 			mPrefs.edit().putInt(key, value).commit();
+		}
+	}
+	
+	public void setFloatPreference(String key, float value) {
+		if(AwfulUtils.isGingerbread()){
+			mPrefs.edit().putFloat(key, value).apply();
+		}else{
+			mPrefs.edit().putFloat(key, value).commit();
 		}
 	}
 	
@@ -428,6 +442,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
 			}else if("String".equals(classname)){
 				setStringPreference((String)entry.getKey(), (String)entry.getValue());
+			}else if("Float".equals(classname)){
+				setFloatPreference((String)entry.getKey(), (Float)entry.getValue());
 			}else{
 				if(longKeys.contains((String)entry.getKey())){
 					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());

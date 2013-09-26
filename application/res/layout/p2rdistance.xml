@@ -2,25 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="250dip"
     android:layout_height="125dip"
-    android:gravity="center_horizontal"
     android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/fontSizeText"
+        android:id="@+id/p2rdistanceText"
         android:layout_width="wrap_content"
-        android:layout_height="50dip"
+        android:layout_height="40dip"
         android:gravity="top"
-        android:text="30 Get out" />
+        android:text="" />
 
     <SeekBar
-        android:id="@+id/fontSizeBar"
-        android:layout_width="match_parent"
+        android:id="@+id/p2rdistanceBar"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:max="50" />
+        android:max="100" />
 
     <Button
-        android:id="@+id/fontSizeButton"
+        android:id="@+id/p2rdistanceButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/confirm">

@@ -76,7 +76,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     	if(!(aActivity instanceof AwfulActivity)){
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
-        mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+    	if(mPrefs == null){
+    		mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+    	}
     }
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
@@ -177,6 +179,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
+		if(currentProgress > 0){
+	    	mP2RAttacher.setRefreshComplete();
+		}
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
@@ -242,7 +247,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		
+		if(mP2RAttacher != null){
+			mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
+		}
 	}
 
 	protected boolean isLoggedIn(){

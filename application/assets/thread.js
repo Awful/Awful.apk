@@ -205,3 +205,15 @@ function gifHide() {
     });
 }
 
+function changeFontFace(font){
+	if(font == 'default'){
+		$('#font-face').remove();
+	}
+	if($('#font-face').length){
+		$('#font-face').remove();
+		$('head').append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+font+"'); }</style>");
+	}else{
+		$('head').append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+font+"'); }</style>");
+	}
+}
+
