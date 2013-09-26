@@ -247,7 +247,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		
+		if(mP2RAttacher != null){
+			mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
+		}
 	}
 
 	protected boolean isLoggedIn(){

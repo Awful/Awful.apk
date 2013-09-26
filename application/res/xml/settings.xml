@@ -136,6 +136,12 @@
             android:summary="@string/disable_pull_next_summary"
             android:defaultValue="false"
             />
+        <Preference 
+			android:key="pull_to_refresh_distance" 
+			android:title="@string/pull_to_refresh_distance"
+            android:summary="@string/pull_to_refresh_distance_summary"
+			android:defaultValue="0.5"
+			/>
 		<CheckBoxPreference
             android:key="lock_scrolling"
 			android:title="@string/lock_scrolling"
