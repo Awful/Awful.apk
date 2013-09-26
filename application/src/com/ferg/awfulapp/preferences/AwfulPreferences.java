@@ -106,6 +106,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideOldImages;
     public boolean highlightUserQuote;
     public boolean highlightUsername;
+    public boolean highlightSelf;
+    public boolean highlightOP;
 	public boolean showAllSpoilers;
 	public String imgurThumbnails;
 	public boolean upperNextArrow;
@@ -238,6 +240,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
+        highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
+        highlightOP				 = mPrefs.getBoolean("op_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (AwfulUtils.isJellybean()?true:false));
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);

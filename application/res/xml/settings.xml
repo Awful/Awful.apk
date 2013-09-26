@@ -79,6 +79,18 @@
             android:summary="@string/user_highlight_summary"
 			android:defaultValue="true"
 			/>
+		<CheckBoxPreference 
+            android:key="self_highlight" 
+			android:title="@string/self_highlight"
+            android:summary="@string/self_highlight_summary"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference 
+            android:key="op_highlight" 
+			android:title="@string/op_highlight"
+            android:summary="@string/op_highlight_summary"
+			android:defaultValue="true"
+			/>
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_misc">
 		<CheckBoxPreference 

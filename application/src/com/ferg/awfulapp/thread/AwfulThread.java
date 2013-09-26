@@ -470,10 +470,10 @@ public class AwfulThread extends AwfulPagedItem  {
         	Map<String, String> postData = new HashMap<String, String>();
         	
         	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
-        	postData.put("isOP", (post.isOp())?"op":null);
+        	postData.put("isOP", (aPrefs.highlightOP && post.isOp())?"op":null);
         	postData.put("isMarked", (aPrefs.markedUsers.contains(post.getUsername()))?"marked":null);
         	postData.put("postID", post.getId());
-        	postData.put("isSelf", (aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)) ? "self" : null);
+        	postData.put("isSelf", (aPrefs.highlightSelf && post.getUsername().equals(aPrefs.username)) ? "self" : null);
         	postData.put("avatarURL", (aPrefs.canLoadAvatars() && post.getAvatar() != null &&  post.getAvatar().length()>0) ? post.getAvatar() : null);
         	postData.put("username", post.getUsername());
         	postData.put("userID", post.getUserId());
