@@ -32,8 +32,12 @@
     <string name="username_pref">Username</string>
     <string name="user_quote">Highlight your quotes</string>
     <string name="user_highlight">Highlight username</string>
+    <string name="self_highlight">Highlight posts</string>
+    <string name="op_highlight">Highlight OP posts</string>
     <string name="user_quote_summary">Allows the app to highlight when you\'re quoted in a post</string>
     <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
+    <string name="self_highlight_summary">Allows the app to highlight your posts</string>
+    <string name="op_highlight_summary">Allows the app to highlight posts by the OP of the thread</string>
     <string name="prefs_salr">SALR preferences</string>
     <string name="prefs_misc">Misc preferences</string>
     <string name="inline_videos">Embedded videos</string>
@@ -221,6 +225,8 @@ AQuery</string>
     	<string name="disable_gifs_summary">Extends battery life significantly</string>
     	<string name="disable_pull_next">Disable pull-for-next</string>
     	<string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
+    	<string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
+    	<string name="pull_to_refresh_distance_summary">How much of the view has to be scrolled to trigger the refresh</string>
     	<string name="volume_scroll">Scroll thread with volume keys</string>
     	<string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
         most devices. \n

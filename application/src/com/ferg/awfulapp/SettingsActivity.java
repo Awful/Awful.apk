@@ -55,10 +55,10 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
+
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
@@ -79,13 +79,16 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	private Preference mInfoPreference;
 	private Preference mColorsPreference;
 	private Preference mFontSizePreference;
+	private Preference mP2RDistancePreference;
 	private Preference mUsernamePreference;
 	private Preference mExportPreference;
 	private Preference mImportPreference;
 	protected SettingsActivity mThis = this;
 	private Dialog mFontSizeDialog;
 	private Dialog mFeatureFetchDialog;
+	private Dialog mP2RDistanceDialog;
 	private TextView mFontSizeText;
+	private TextView mP2RDistanceText;
 	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
 
@@ -125,11 +128,12 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 		mInfoPreference.setOnPreferenceClickListener(onInfoListener);
 		mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
 		mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+		mP2RDistancePreference = getPreferenceScreen().findPreference("pull_to_refresh_distance");
+		mP2RDistancePreference.setOnPreferenceClickListener(onP2RDistanceListener);
 		mExportPreference = getPreferenceScreen().findPreference("export_settings");
 		mExportPreference.setOnPreferenceClickListener(onExportListener);
 		mImportPreference = getPreferenceScreen().findPreference("import_settings");
 		mImportPreference.setOnPreferenceClickListener(onImportListener);
-
 		mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
 		mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
 		this.updateFeatures();
@@ -323,6 +327,50 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	        mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
 	        mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+10));
 	        mFontSizeDialog.show();
+			return true;
+		}
+	};
+	
+	private OnPreferenceClickListener onP2RDistanceListener = new OnPreferenceClickListener() {
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			mP2RDistanceDialog = new Dialog(mThis);
+
+			mP2RDistanceDialog.setContentView(R.layout.p2rdistance);
+			mP2RDistanceDialog.setTitle("Set Pull-to-refresh distance");
+
+			mP2RDistanceText = (TextView) mP2RDistanceDialog.findViewById(R.id.p2rdistanceText);
+			SeekBar bar = (SeekBar) mP2RDistanceDialog.findViewById(R.id.p2rdistanceBar);
+			Button click = (Button) mP2RDistanceDialog.findViewById(R.id.p2rdistanceButton);
+			
+			click.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					mP2RDistanceDialog.dismiss();
+				}
+			});
+			
+	        bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+				
+				@Override
+				public void onStopTrackingTouch(SeekBar seekBar) {
+					float distanceFLoat = seekBar.getProgress();
+					mPrefs.setFloatPreference("pull_to_refresh_distance", (distanceFLoat/100));
+				}
+				
+				@Override
+				public void onStartTrackingTouch(SeekBar seekBar) {
+				}
+				
+				@Override
+				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+					mP2RDistanceText.setText(progress+ "%"+((progress<20||progress>75)?" (not recommended)":""));
+				}
+			});
+	        bar.setProgress(Math.round(mPrefs.p2rDistance*100));
+	        mP2RDistanceText.setText(bar.getProgress()+ "%"+((bar.getProgress()<20||bar.getProgress()>75)?" (not recommended)":""));
+	        mP2RDistanceDialog.show();
 			return true;
 		}
 	};

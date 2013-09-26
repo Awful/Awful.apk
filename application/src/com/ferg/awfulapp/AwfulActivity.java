@@ -83,6 +83,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     	Options p2roptions = new Options();
     	p2roptions.headerTransformer = new AwfulHeaderTransformer();
     	p2roptions.refreshOnUp = true;
+    	p2roptions.refreshScrollDistance = mPrefs.p2rDistance;
     	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
@@ -234,6 +235,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		updateActionbarTheme(prefs);
+		mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
 	}
 	
 	protected boolean isLoggedIn(){

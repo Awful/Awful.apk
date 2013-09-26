@@ -117,6 +117,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 		super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
 		setIntent(intent);
 		int initialPage = parseNewIntent(intent);
+		if(initialPage <2){
+			mP2RAttacher.setPullFromBottom(false);
+		}
 		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
 			mViewPager.setCurrentItem(initialPage);
 		}
