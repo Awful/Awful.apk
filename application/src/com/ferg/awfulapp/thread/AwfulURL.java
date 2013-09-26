@@ -77,6 +77,7 @@ public class AwfulURL {
 		AwfulURL aurl = new AwfulURL();
 		aurl.type = TYPE.POST;
 		aurl.id = id;
+        aurl.perPage = perPage;
 		aurl.gotoParam = Constants.VALUE_POST;
 		return aurl;
 	}
