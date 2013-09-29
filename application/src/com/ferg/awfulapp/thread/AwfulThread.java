@@ -390,7 +390,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
         }
         if(!aPrefs.preferredFont.contains("default")){
-            buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
+            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
@@ -470,10 +470,10 @@ public class AwfulThread extends AwfulPagedItem  {
         	Map<String, String> postData = new HashMap<String, String>();
         	
         	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
-        	postData.put("isOP", (post.isOp())?"op":null);
+        	postData.put("isOP", (aPrefs.highlightOP && post.isOp())?"op":null);
         	postData.put("isMarked", (aPrefs.markedUsers.contains(post.getUsername()))?"marked":null);
         	postData.put("postID", post.getId());
-        	postData.put("isSelf", (aPrefs.highlightUsername && post.getUsername().equals(aPrefs.username)) ? "self" : null);
+        	postData.put("isSelf", (aPrefs.highlightSelf && post.getUsername().equals(aPrefs.username)) ? "self" : null);
         	postData.put("avatarURL", (aPrefs.canLoadAvatars() && post.getAvatar() != null &&  post.getAvatar().length()>0) ? post.getAvatar() : null);
         	postData.put("username", post.getUsername());
         	postData.put("userID", post.getUserId());

@@ -67,7 +67,7 @@ public class PullToRefreshAttacher implements View.OnTouchListener {
     private final Animation mHeaderInAnimation, mHeaderOutAnimation;
 
     private final int mTouchSlop;
-    private final float mRefreshScrollDistance;
+    private float mRefreshScrollDistance;
 
     private float mInitialMotionY, mLastMotionY, mPullBeginY;
     private boolean mIsBeingDragged, mIsRefreshing, mIsHandlingTouchEvent;
@@ -88,6 +88,10 @@ public class PullToRefreshAttacher implements View.OnTouchListener {
      */
     public static PullToRefreshAttacher get(Activity activity) {
         return get(activity, new Options());
+    }
+    
+    public static void remove(Activity activity) {
+    	ATTACHERS.remove(activity);
     }
 
     /**
@@ -293,6 +297,15 @@ public class PullToRefreshAttacher implements View.OnTouchListener {
         setRefreshingInt(null, false, false);
     }
 
+
+    public float getRefreshScrollDistance() {
+		return mRefreshScrollDistance;
+	}
+
+	public void setRefreshScrollDistance(float mRefreshScrollDistance) {
+		this.mRefreshScrollDistance = mRefreshScrollDistance;
+	}
+    
     /**
      * @return The HeaderTransformer currently used by this Attacher.
      */
