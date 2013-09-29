@@ -19,7 +19,6 @@ public class SendEditRequest extends AwfulRequest<Void> {
         super(context, null);
         replyData = reply;
         addPostParam(Constants.PARAM_ACTION, "updatepost");
-        Toast.makeText(context, "editing: "+reply.getAsString(AwfulPost.EDIT_POST_ID), Toast.LENGTH_LONG).show();
         addPostParam(Constants.PARAM_THREAD_ID, reply.getAsString(AwfulMessage.ID));
         addPostParam(Constants.PARAM_POST_ID, reply.getAsString(AwfulPost.EDIT_POST_ID));
         //edits don't have form keys/cookies

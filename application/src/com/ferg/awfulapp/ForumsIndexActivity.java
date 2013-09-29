@@ -474,9 +474,6 @@ public class ForumsIndexActivity extends AwfulActivity {
 				}
 			}, 1000);
 		}
-		if(mThreadFragment != null){
-			mThreadFragment.onActivityResult(request, result, intent);
-		}
 	}
     
     @Override
@@ -508,9 +505,9 @@ public class ForumsIndexActivity extends AwfulActivity {
             }else{
                 mViewPager.setPageMargin(0);
             }
-            int pos = mViewPager.getCurrentItem();
+//            int pos = mViewPager.getCurrentItem();
             mViewPager.setAdapter(pagerAdapter);
-            mViewPager.setCurrentItem(pos, false);
+//            mViewPager.setCurrentItem(pos, false);
         }
     }
 }

@@ -901,7 +901,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         }
     }
     
-    private void startPostRedirect(String postUrl) {
+    private void startPostRedirect(final String postUrl) {
         if(getActivity() != null){
             if(redirect != null){
                 redirect.cancel(false);
@@ -913,6 +913,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
                     if(!isCancelled()){
                         if(url != null){
                             AwfulURL result = AwfulURL.parse(url);
+                            if(postUrl.contains(Constants.VALUE_LASTPOST)){
+                                //This is a workaround for how the forums handle the perPage value with goto=lastpost.
+                                //The redirected url is lacking the perpage=XX value.
+                                //We just override the assumed (40) with the number we requested when starting the redirect.
+                                //I gotta ask chooch to fix this at some point.
+                                result.setPerPage(mPrefs.postPerPage);
+                            }
                             if(result.getType() == TYPE.THREAD){
                                 if(bypassBackStack){
                                     openThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
