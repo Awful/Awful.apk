@@ -474,9 +474,6 @@ public class ForumsIndexActivity extends AwfulActivity {
 				}
 			}, 1000);
 		}
-		if(mThreadFragment != null){
-			mThreadFragment.onActivityResult(request, result, intent);
-		}
 	}
     
     @Override

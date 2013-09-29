@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.app.LoaderManager;
 import android.text.TextUtils;
@@ -171,7 +172,14 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 			getAwfulActivity().runOnUiThread(new Runnable(){
 				@Override
 				public void run() {
-			    	getAwfulActivity().displayReplyWindow(threadId, postId, type);
+                    if(getActivity() != null){
+                        startActivityForResult(
+                            new Intent(getActivity(), PostReplyActivity.class)
+                                .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                                .putExtra(Constants.EDITING, type)
+                                .putExtra(Constants.REPLY_POST_ID, postId),
+                            PostReplyFragment.REQUEST_POST);
+                    }
 				}
 			});
 		}
