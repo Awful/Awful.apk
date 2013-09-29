@@ -505,9 +505,9 @@ public class ForumsIndexActivity extends AwfulActivity {
             }else{
                 mViewPager.setPageMargin(0);
             }
-            int pos = mViewPager.getCurrentItem();
+//            int pos = mViewPager.getCurrentItem();
             mViewPager.setAdapter(pagerAdapter);
-            mViewPager.setCurrentItem(pos, false);
+//            mViewPager.setCurrentItem(pos, false);
         }
     }
 }

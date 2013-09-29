@@ -122,7 +122,7 @@ AQuery</string>
         <item>Default</item>
 	</string-array>
 	<string name="threadinfo_author">Author</string>
-	<string name="threadinfo_rating">Rating</string>
+	<string name="threadinfo_rating">Show Thread Rating</string>
 	<string name="threadinfo_killed">Killed by</string>
 	<string name="threadinfo_pages">Number of pages</string>
 	<string name="threadinfo_tag">Show forum &amp; thread tags</string>
