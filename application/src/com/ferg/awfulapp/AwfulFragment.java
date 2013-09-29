@@ -179,7 +179,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		if(currentProgress > 0){
+		if(currentProgress > 0 && mP2RAttacher != null){
 	    	mP2RAttacher.setRefreshComplete();
 		}
 		AwfulActivity aa = getAwfulActivity();
