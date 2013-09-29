@@ -190,16 +190,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
-    
-	public void displayReplyWindow(int threadId, int postId, int type) {
-    	startActivityForResult(
-                new Intent(this, PostReplyActivity.class)
-                    .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                    .putExtra(Constants.EDITING, type)
-                    .putExtra(Constants.REPLY_POST_ID, postId),
-                PostReplyFragment.REQUEST_POST);
-	}
-    
+
     public void setActionbarTitle(String aTitle, Object requestor) {
         ActionBar action = getSupportActionBar();
         if(action != null){

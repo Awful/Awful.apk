@@ -28,6 +28,7 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,6 +45,7 @@ import android.widget.PopupWindow;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -133,7 +135,14 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 			getAwfulActivity().runOnUiThread(new Runnable(){
 				@Override
 				public void run() {
-			    	getAwfulActivity().displayReplyWindow(threadId, postId, type);
+                    if(getActivity() != null){
+                        startActivityForResult(
+                                new Intent(getActivity(), PostReplyActivity.class)
+                                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                                        .putExtra(Constants.EDITING, type)
+                                        .putExtra(Constants.REPLY_POST_ID, postId),
+                                PostReplyFragment.REQUEST_POST);
+                    }
 				}
 			});
 		}

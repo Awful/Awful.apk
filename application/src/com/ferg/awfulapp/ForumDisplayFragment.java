@@ -257,7 +257,6 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     @Override
     public void onStart() {
         super.onStart();
-		refreshInfo();
     }
     
     @Override
@@ -271,6 +270,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         }else{
         	syncForumsIfStale();
         }
+        refreshInfo();
     }
 	
 	@Override
@@ -280,6 +280,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		if(mP2RAttacher != null){
 			mP2RAttacher.setPullFromBottom(false);
 		}
+        refreshInfo();
 	}
 	
 	@Override
@@ -698,27 +699,26 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 			if(DEBUG) Log.e(TAG,"Creating forum cursor: "+getForumId());
         	if(isBookmark()){
 	        	return new CursorLoader(getActivity(), 
-						AwfulThread.CONTENT_URI_UCP, 
-						AwfulProvider.ThreadProjection, 
-						AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?", 
-						AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)), 
-						(mPrefs.newThreadsFirstUCP? AwfulThread.HAS_NEW_POSTS+" DESC, " + AwfulThread.INDEX :AwfulThread.INDEX));
+                    AwfulThread.CONTENT_URI_UCP,
+                    AwfulProvider.ThreadProjection,
+                    AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+">=? AND "+AwfulProvider.TABLE_UCP_THREADS+"."+AwfulThread.INDEX+"<?",
+                    AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)),
+                    (mPrefs.newThreadsFirstUCP? AwfulThread.HAS_NEW_POSTS+" DESC, " + AwfulThread.INDEX :AwfulThread.INDEX));
         	}else{
 	            return new CursorLoader(getActivity(), 
-	            						AwfulThread.CONTENT_URI, 
-	            						AwfulProvider.ThreadProjection, 
-	            						AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-	            						AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)),
-	            						(mPrefs.newThreadsFirstForum? AwfulThread.HAS_NEW_POSTS+" DESC, " + AwfulThread.INDEX :AwfulThread.INDEX));
+                    AwfulThread.CONTENT_URI,
+                    AwfulProvider.ThreadProjection,
+                    AwfulThread.FORUM_ID+"=? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?",
+                    AwfulProvider.int2StrArray(getForumId(),AwfulPagedItem.forumPageToIndex(getPage()),AwfulPagedItem.forumPageToIndex(getPage()+1)),
+                    (mPrefs.newThreadsFirstForum? AwfulThread.HAS_NEW_POSTS+" DESC, " + AwfulThread.INDEX :AwfulThread.INDEX));
         	}
         }
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-			if(DEBUG) Log.e(TAG,"Forum contents finished, populating: "+aData.getCount());
-        	if(!aData.isClosed() && aData.moveToFirst()){
+			if(DEBUG) Log.e(TAG,"Forum contents finished, populating");
+        	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
             	mCursorAdapter.swapCursor(aData);
-            	//mPullRefreshListView.getRefreshableView().setAdapter(mCursorAdapter);
         	}else{
             	mCursorAdapter.swapCursor(null);
         	}
@@ -727,18 +727,13 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			if(DEBUG) Log.e(TAG,"ForumContentsCallback - onLoaderReset");
-        	//mPullRefreshListView.getRefreshableView().setAdapter(null);
 			mCursorAdapter.swapCursor(null);
 		}
 		
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread List update.");
-        	//onChange triggers as the DB updates
-        	//but we don't want to trigger if we are in the middle of loading
-        	if(getProgressPercent() > 99){
-        		refreshInfo();
-        	}
+            refreshInfo();
         }
     }
 	
@@ -749,6 +744,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		}
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+            if(DEBUG) Log.e(TAG,"Creating forum title cursor: "+getForumId());
             return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulForum.CONTENT_URI, getForumId()), 
             		AwfulProvider.ForumProjection, null, null, null);
         }
@@ -781,11 +777,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread Data update.");
-        	//onChange triggers as the DB updates
-        	//but we don't want to trigger if we are in the middle of loading
-        	if(getProgressPercent() > 99){
-        		refreshInfo();
-        	}
+        	refreshInfo();
         }
     }
 	

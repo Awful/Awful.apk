@@ -527,23 +527,16 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
 		}
 
-		if(!prefs.threadInfo_Author && !prefs.threadInfo_Killed && !prefs.threadInfo_Page){
-            info.setVisibility(View.VISIBLE);
-			info.setText("");
-		}else{
-			info.setVisibility(View.VISIBLE);
-			StringBuilder tmp = new StringBuilder();
-			if(prefs.threadInfo_Page){
-				tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");
-			}
-            if(hasViewedThread){
-                tmp.append(" | Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
-            }else{
-                tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
-            }
+        info.setVisibility(View.VISIBLE);
+        StringBuilder tmp = new StringBuilder();
+        tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");
+        if(hasViewedThread){
+            tmp.append(" | Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
+        }else{
+            tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
+        }
 
-			info.setText(tmp.toString().trim());
-		}
+        info.setText(tmp.toString().trim());
 		
 		if(prefs.threadInfo_Rating){
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));

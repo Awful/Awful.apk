@@ -31,9 +31,11 @@ package com.ferg.awfulapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -83,6 +85,8 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 	private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
+
+    private ForumContentObserver forumObserver;
 	
 	
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
@@ -96,6 +100,7 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate"+(savedInstanceState != null?" + saveState":""));
         setHasOptionsMenu(true);
         setRetainInstance(false);
+        forumObserver = new ForumContentObserver(mHandler);
     }
 
     @Override
@@ -146,15 +151,13 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
 		restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+        getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, forumObserver);
 		updateProbationBar();
     }
 
 	@Override
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
-		if(getActivity() != null){
-			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
-		}
 		if(mP2RAttacher != null){
 			mP2RAttacher.setPullFromBottom(false);
 		}
@@ -173,7 +176,8 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
-		getActivity().getSupportLoaderManager().destroyLoader(Constants.FORUM_INDEX_LOADER_ID);
+        getActivity().getContentResolver().unregisterContentObserver(forumObserver);
+		getLoaderManager().destroyLoader(Constants.FORUM_INDEX_LOADER_ID);
     }
         
     @Override
@@ -268,6 +272,22 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
                     restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
             }));
+        }
+    }
+
+    private class ForumContentObserver extends ContentObserver{
+        public ForumContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
         }
     }
 	
