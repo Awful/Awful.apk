@@ -116,6 +116,7 @@ AQuery</string>
         	<item>Dark</item>
         	<item>YOSPOS</item>
         	<item>AmberPOS</item>
+            <item>FYAD</item>
         	<item>Classic</item>
 	</string-array>
 	<string-array name="layouts">

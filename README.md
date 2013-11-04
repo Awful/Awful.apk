@@ -4,4 +4,4 @@ An unofficial viewer for the SomethingAwful forums (http://forums.somethingawful
 
 ## Forum Thread
 
-http://forums.somethingawful.com/showthread.php?threadid=3391052
+http://forums.somethingawful.com/showthread.php?threadid=3571717

@@ -1744,17 +1744,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     
     private String determineCSS(){
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
-        if(!(mPrefs.forceForumThemes && mParentForumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+        if(!(mPrefs.forceForumThemes && (mParentForumId == Constants.FORUM_ID_YOSPOS || mParentForumId == Constants.FORUM_ID_FYAD || mParentForumId == Constants.FORUM_ID_FYAD_SUB) ) && css.exists() && css.isFile() && css.canRead()){
         	return "file:///"+Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme;
         }else if(mPrefs.forceForumThemes){
         	switch(mParentForumId){
-				//TODO: No FYAD theme yet        	
-//    			case(26):
-//	    			return "file:///android_asset/css/fyad.css");
+    			case(Constants.FORUM_ID_FYAD):
+                case(Constants.FORUM_ID_FYAD_SUB):
+	    			return "file:///android_asset/css/fyad.css";
         		//RIP BYOB
 //        		case(208):
 //        			return "file:///android_asset/css/byob.css";
-        		case(219):
+        		case(Constants.FORUM_ID_YOSPOS):
         			return "file:///android_asset/css/yospos.css";
         		default:
         			return "file:///android_asset/css/"+mPrefs.theme;

@@ -31,8 +31,6 @@
     <color name="dark_header_background">#222222</color>
     <color name="dark_header_font">#ffffff</color>
     <color name="dark_header_divider">#f4f4f4</color>
-    <color name="dark_background_read">#111111</color>
-    <color name="dark_alt_background_read">#121212</color>
     <color name="dark_op_post">#003366</color>
     <color name="dark_link_quote">#5463ff</color>
     <color name="dark_blue">#ff33b5e5</color>
@@ -41,15 +39,16 @@
     <color name="yospos_secondary_post_font">#57FF57</color>
     <color name="yospos_background">#000000</color>
     <color name="yospos_alt_background">#111111</color>
-    <color name="yospos_background_read">#002211</color>
-    <color name="yospos_alt_background_read">#113322</color>
-    
+
     <color name="amberpos_default_post_font">#eacf4c</color>
     <color name="amberpos_secondary_post_font">#6C6F22</color>
     <color name="amberpos_background">#000000</color>
     <color name="amberpos_alt_background">#111111</color>
-    <color name="amberpos_background_read">#252600</color>
-    <color name="amberpos_alt_background_read">#363711</color>
+
+    <color name="fyad_default_post_font">#006666</color>
+    <color name="fyad_secondary_post_font">#999999</color>
+    <color name="fyad_background">#FFCCFF</color>
+    <color name="fyad_alt_background">#FFCCCC</color>
     
     <color name="profile_column">#e7eff5</color>
     <color name="selected_item">#33eeeeee</color>
