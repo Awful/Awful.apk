@@ -371,10 +371,9 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
         }else if(aPrefs.forceForumThemes){
             switch(forumId){
-                //TODO: No FYAD theme yet
-//    			case(26):
-//	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
-//	    			break;
+    			case(26):
+	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
+	    			break;
                 //RIP BYOB
 //        		case(208):
 //        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
@@ -505,6 +504,9 @@ public class AwfulThread extends AwfulPagedItem  {
 			if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_YOSPOS){
 				ForumName = ColorProvider.YOSPOS;
 			}
+            if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD_SUB){
+                ForumName = ColorProvider.FYAD;
+            }
 		}
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);
 		TextView title = (TextView) current.findViewById(R.id.title);
