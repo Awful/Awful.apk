@@ -6,7 +6,6 @@
 
 
 # built application files
-*.apk
 *.ap_
 
 # files for the dex VM
@@ -22,7 +21,8 @@
 
 
 # Local configuration file (sdk path, etc)
-*.properties
+local.properties
+project.properties
 
 # Eclipse project files
 *.classpath
@@ -39,6 +39,7 @@ bin
 
 *.idea/
 *.iml
-*.gradle
+.gradle
 tests
 out
+build/
