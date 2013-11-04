@@ -28,27 +28,10 @@
 			android:title="@string/color_bookmarks"
 			android:defaultValue="false"
 			/>
-        </PreferenceCategory>
-  <PreferenceCategory android:title="@string/threadinfo_settings">
-      	<CheckBoxPreference 
-            android:key="threadinfo_rating" 
-			android:title="@string/threadinfo_rating"
-			android:defaultValue="false"
-			/>
-		<CheckBoxPreference 
-            android:key="threadinfo_author" 
-			android:title="@string/threadinfo_author"
-			android:defaultValue="false"
-			/>
-		<CheckBoxPreference 
-            android:key="threadinfo_killed" 
-			android:title="@string/threadinfo_killed"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="threadinfo_pages" 
-			android:title="@string/threadinfo_pages"
-			android:defaultValue="true"
-			/>
+      <CheckBoxPreference
+          android:key="threadinfo_rating"
+          android:title="@string/threadinfo_rating"
+          android:defaultValue="false"
+          />
         </PreferenceCategory>
 </PreferenceScreen>
