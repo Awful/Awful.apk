@@ -6,7 +6,7 @@
 
 
 # built application files
-*.ap_
+*.ap?
 
 # files for the dex VM
 *.dex
