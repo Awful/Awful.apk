@@ -84,17 +84,14 @@ import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
 
 public class PostReplyFragment extends AwfulFragment {
-    private static final String TAG = "PostReplyFragment";
-
     public static final int REQUEST_POST = 5;
     public static final int RESULT_POSTED = 6;
     public static final int RESULT_CANCELLED = 7;
     public static final int RESULT_EDITED = 8;
     public static final int ADD_ATTACHMENT = 9;
-
+    private static final String TAG = "PostReplyFragment";
     private EditText mMessage;
     private ProgressDialog mDialog;
-
     private int mThreadId;
     private int mPostId;
     private int mReplyType;
@@ -102,16 +99,17 @@ public class PostReplyFragment extends AwfulFragment {
     private boolean sendSuccessful = false;
     private String originalReplyData = "";
     private String mFileAttachment;
-
+    private boolean disableEmots = false;
+    private boolean postSignature = false;
     private ContentValues replyData = null;
-
     private ReplyCallback mReplyDataCallback = new ReplyCallback();
     private ThreadDataCallback mThreadLoaderCallback;
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
-
     private int draftReplyType;
     private String draftReplyData;
     private long draftReplyTimestamp;
+	private int selectionStart = -1;
+	private int selectionEnd = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -155,6 +153,16 @@ public class PostReplyFragment extends AwfulFragment {
                     }else{
                         originalReplyData = "";
                     }
+                    if(result.containsKey(AwfulMessage.REPLY_SIGNATURE)){
+                        postSignature = "checked".equals(result.getAsString(AwfulMessage.REPLY_SIGNATURE));
+                        invalidateOptionsMenu();
+                        result.remove(AwfulMessage.REPLY_SIGNATURE);
+                    }
+                    if(result.containsKey(AwfulMessage.REPLY_DISABLE_SMILIES)){
+                        disableEmots = "checked".equals(result.getAsString(AwfulMessage.REPLY_DISABLE_SMILIES));
+                        invalidateOptionsMenu();
+                        result.remove(AwfulMessage.REPLY_DISABLE_SMILIES);
+                    }
                 }
                 if(mDialog != null){
                     mDialog.dismiss();
@@ -197,7 +205,7 @@ public class PostReplyFragment extends AwfulFragment {
                 leave();
         }
     }
-
+    
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState); if(DEBUG) Log.e(TAG,"onCreateView");
@@ -209,7 +217,7 @@ public class PostReplyFragment extends AwfulFragment {
 
         return result;
     }
-
+    
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG,"onActivityCreated");
@@ -219,9 +227,9 @@ public class PostReplyFragment extends AwfulFragment {
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
         refreshThreadInfo();
-        
+
     }
-    
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
@@ -272,13 +280,12 @@ public class PostReplyFragment extends AwfulFragment {
     		return null;
     	}
     }
-
-
+    
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG,"onResume");
     }
-    
+        
     private void leave(){
     	if(getAwfulActivity() != null){
     		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -294,15 +301,13 @@ public class PostReplyFragment extends AwfulFragment {
         super.onPause(); if(DEBUG) Log.e(TAG,"onPause");
         cleanupTasks();
     }
-        
+
     @Override
     public void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG,"onStop");
         cleanupTasks();
     }
-    
-    
-    
+	
     private void autosave(){
         if(!sendSuccessful && mMessage != null){
         	if(mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").length() < 1 || this.sendSuccessful == true){
@@ -330,8 +335,16 @@ public class PostReplyFragment extends AwfulFragment {
         	remove.setEnabled((mPrefs.hasPlatinum && this.mFileAttachment != null));
         	remove.setVisible(mPrefs.hasPlatinum && this.mFileAttachment != null);
         }
+        MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
+        if(disableEmoticons != null){
+            disableEmoticons.setChecked(disableEmots);
+        }
+        MenuItem sig = menu.findItem(R.id.signature);
+        if(sig != null){
+            sig.setChecked(postSignature);
+        }
     }
-	
+
     @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		super.onPreferenceChange(prefs);
@@ -415,13 +428,8 @@ public class PostReplyFragment extends AwfulFragment {
         }
         return PeriodFormat.getDefault().print(new Period(epoc, System.currentTimeMillis(), type));
     }
-
-	private int selectionStart = -1;
-	private int selectionEnd = -1;
     
-    private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE};
-
-	@Override
+    	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
 		if(DEBUG) Log.e(TAG, "onOptionsItemSelected");
         switch(item.getItemId()) {
@@ -480,18 +488,26 @@ public class PostReplyFragment extends AwfulFragment {
 
             	break;
             case R.id.remove_attachment:
-        	    this.mFileAttachment = null;
-        	    Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
-        	    removeToast.show();
+                this.mFileAttachment = null;
+                Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
+                removeToast.show();
                 invalidateOptionsMenu();
-        	break;
+                break;
+            case R.id.signature:
+                item.setChecked(!item.isChecked());
+                postSignature = item.isChecked();
+                break;
+            case R.id.disableEmots:
+                item.setChecked(!item.isChecked());
+                disableEmots = item.isChecked();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
         return true;
-    }
-    
+    };
+
     public void insertBBCode(BBCODE code){
     	if(selectionStart < 0){//we might be getting this from an earlier point
 	    	selectionStart = mMessage.getSelectionStart();
@@ -598,7 +614,7 @@ public class PostReplyFragment extends AwfulFragment {
         super.onDestroy();Log.e(TAG,"onDestroy");
         cleanupTasks();
     }
-
+    
 	@Override
 	public void onDetach() {
 		super.onDetach();Log.e(TAG,"onDetach");
@@ -609,7 +625,7 @@ public class PostReplyFragment extends AwfulFragment {
             mDialog.dismiss();
         }
     }
-    
+
     private void postReply() {
     	new AlertDialog.Builder(getActivity())
     	.setTitle((mReplyType == AwfulMessage.TYPE_EDIT)?"Confirm Edit?":"Confirm Post?")
@@ -629,7 +645,7 @@ public class PostReplyFragment extends AwfulFragment {
         })
         .show();
     }
-
+    
     private void sendPost(){
         ContentValues cv = new ContentValues(replyData);
         String content = mMessage.getText().toString().trim();
@@ -639,6 +655,14 @@ public class PostReplyFragment extends AwfulFragment {
         }
         if(!TextUtils.isEmpty(mFileAttachment)){
             cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+        }
+        if(postSignature){
+            cv.put(AwfulMessage.REPLY_SIGNATURE, Constants.YES);
+            System.out.println(AwfulMessage.REPLY_SIGNATURE+" "+Constants.YES);
+        }
+        if(disableEmots){
+            cv.put(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
+            System.out.println(AwfulMessage.REPLY_DISABLE_SMILIES+" "+Constants.YES);
         }
         cv.put(AwfulMessage.REPLY_CONTENT, content);
         AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
@@ -681,7 +705,7 @@ public class PostReplyFragment extends AwfulFragment {
                 getActivity().finish();
         }
     }
-    
+
     private void deleteReply(){
 		ContentResolver cr = getActivity().getContentResolver();
 		cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID+"=?", AwfulProvider.int2StrArray(mThreadId));
@@ -709,6 +733,62 @@ public class PostReplyFragment extends AwfulFragment {
     		}
     	}
     }
+    
+	private void refreshLoader(){
+		restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+	}
+
+	private void refreshThreadInfo() {
+		restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
+	}
+	
+	@Override
+	public void onPageVisible() {
+
+	}
+
+	@Override
+	public void onPageHidden() {
+		autosave();
+		if(getActivity() != null && mMessage != null){
+			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mMessage.getApplicationWindowToken(), 0);
+		}
+	}
+
+	@Override
+	public String getTitle() {
+		String title = "";
+		if(mThreadTitle != null && mThreadTitle.length()>0){
+			title = " - "+mThreadTitle;
+		}
+		switch(mReplyType){
+		case AwfulMessage.TYPE_EDIT:
+			return "Editing"+title;
+		case AwfulMessage.TYPE_NEW_REPLY:
+			return "Reply"+title;
+		case AwfulMessage.TYPE_QUOTE:
+			return "Quote"+title;
+		}
+		return "Loading";
+	}
+	
+	public void selectEmote(String contents) {
+			insertEmote(contents);
+	}
+
+	@Override
+	public String getInternalId() {
+		return TAG;
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		//I don't think that's necessary
+		return false;
+	}
+
+private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE}
 
 	private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -750,7 +830,7 @@ public class PostReplyFragment extends AwfulFragment {
 	private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mThreadId), 
+            return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mThreadId),
             		AwfulProvider.ThreadProjection, null, null, null);
         }
 
@@ -762,74 +842,21 @@ public class PostReplyFragment extends AwfulFragment {
         		setTitle(getTitle());
         	}
         }
-        
+
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
         }
     }
+
     private class ThreadContentObserver extends ContentObserver {
         public ThreadContentObserver(Handler aHandler) {
             super(aHandler);
         }
+
         @Override
         public void onChange (boolean selfChange){
         	Log.e(TAG,"Thread Data update.");
         	refreshThreadInfo();
         }
     }
-
-	private void refreshLoader(){
-		restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
-	}
-	
-	private void refreshThreadInfo() {
-		restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
-	}
-
-	@Override
-	public void onPageVisible() {
-
-	}
-
-	@Override
-	public void onPageHidden() {
-		autosave();
-		if(getActivity() != null && mMessage != null){
-			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(mMessage.getApplicationWindowToken(), 0);
-		}
-	}
-
-	@Override
-	public String getTitle() {
-		String title = "";
-		if(mThreadTitle != null && mThreadTitle.length()>0){
-			title = " - "+mThreadTitle;
-		}
-		switch(mReplyType){
-		case AwfulMessage.TYPE_EDIT:
-			return "Editing"+title;
-		case AwfulMessage.TYPE_NEW_REPLY:
-			return "Reply"+title;
-		case AwfulMessage.TYPE_QUOTE:
-			return "Quote"+title;
-		}
-		return "Loading";
-	}
-
-	public void selectEmote(String contents) {
-			insertEmote(contents);
-	}
-	
-
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
-
-	@Override
-	public boolean volumeScroll(KeyEvent event) {
-		//I don't think that's necessary
-		return false;
-	}
 }

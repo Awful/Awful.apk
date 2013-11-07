@@ -30,6 +30,12 @@ public class SendPostRequest extends AwfulRequest<Void> {
         if(reply.containsKey(AwfulPost.FORM_BOOKMARK) && reply.getAsString(AwfulPost.FORM_BOOKMARK).equalsIgnoreCase("checked")){
             addPostParam(Constants.PARAM_BOOKMARK, Constants.YES);
         }
+        if(reply.containsKey(AwfulMessage.REPLY_SIGNATURE)){
+            addPostParam(AwfulMessage.REPLY_SIGNATURE, Constants.YES);
+        }
+        if(reply.containsKey(AwfulMessage.REPLY_DISABLE_SMILIES)){
+            addPostParam(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
+        }
         if(reply.containsKey(AwfulMessage.REPLY_ATTACHMENT)){
             Toast.makeText(context, "Attaching: " + reply.getAsString(AwfulMessage.REPLY_ATTACHMENT), Toast.LENGTH_LONG).show();
             attachFile(Constants.PARAM_ATTACHMENT, reply.getAsString(AwfulMessage.REPLY_ATTACHMENT));

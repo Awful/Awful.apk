@@ -77,6 +77,8 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String REPLY_CONTENT = "reply_content";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
+    public static final String REPLY_SIGNATURE = "signature";
+    public static final String REPLY_DISABLE_SMILIES = "disablesmilies";
 	public static final String FOLDER = "folder";
 
 	public static final int TYPE_PM = 1;

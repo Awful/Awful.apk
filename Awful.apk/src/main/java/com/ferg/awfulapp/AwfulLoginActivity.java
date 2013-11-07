@@ -51,6 +51,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -150,8 +151,8 @@ public class AwfulLoginActivity extends AwfulActivity {
     }
 
 	private void loginClick(){
-        String username = mUsername.getText().toString();
-        String password = mPassword.getText().toString();
+        String username = NetworkUtils.encodeHtml(mUsername.getText().toString());
+        String password = NetworkUtils.encodeHtml(mPassword.getText().toString());
 
         mLoginTask = new LoginTask();
         mLoginTask.execute(new String[] {username, password});

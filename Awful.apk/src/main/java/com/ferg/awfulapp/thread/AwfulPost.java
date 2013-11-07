@@ -93,7 +93,9 @@ public class AwfulPost {
 
 	public static final String FORM_KEY = "form_key";
 	public static final String FORM_COOKIE = "form_cookie";
-	public static final String FORM_BOOKMARK = "bookmark";
+    public static final String FORM_BOOKMARK = "bookmark";
+    public static final String FORM_SIGNATURE = "signature";
+    public static final String FORM_DISABLE_SMILIES = "disablesmilies";
 	/** For comparing against replies to see if the user actually typed anything. **/
 	public static final String REPLY_ORIGINAL_CONTENT = "original_reply";
 	public static final String EDIT_POST_ID = "edit_id";
