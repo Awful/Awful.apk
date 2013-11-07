@@ -61,6 +61,18 @@
         android:title="@string/menu_discard">
     </item>
     <item
+        android:id="@+id/signature"
+        app:showAsAction="never|withText"
+        android:title="@string/signature"
+        android:checkable="true">
+    </item>
+    <item
+        android:id="@+id/disableEmots"
+        app:showAsAction="never|withText"
+        android:title="@string/disableEmots"
+        android:checkable="true">
+    </item>
+    <item
         android:id="@+id/add_attachment"
         app:showAsAction="never|withText"
         android:title="@string/add_attachment">

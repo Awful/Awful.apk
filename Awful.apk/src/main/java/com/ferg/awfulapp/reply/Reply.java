@@ -144,6 +144,8 @@ public class Reply {
         edit.put(AwfulMessage.TYPE, AwfulMessage.TYPE_EDIT);
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         edit.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
+        edit.put(AwfulPost.FORM_SIGNATURE, getSignatureOption(response));
+        edit.put(AwfulPost.FORM_DISABLE_SMILIES, getDisableEmotsOption(response));
         edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
         edit.put(AwfulPost.EDIT_POST_ID, postId);
         return edit;
@@ -157,14 +159,32 @@ public class Reply {
             throw new AwfulError("Failed to load quote");
         }
     }
-    
+
     public static final String getBookmarkOption(Document data){
-    	Element formBookmark = data.getElementsByAttributeValue("name", "bookmark").first();
-    	if(formBookmark.hasAttr("checked")){
-    		return "checked";
-    	}else{
-    		return "";
-    	}
+        Element formBookmark = data.getElementsByAttributeValue("name", "bookmark").first();
+        if(formBookmark.hasAttr("checked")){
+            return "checked";
+        }else{
+            return "";
+        }
+    }
+
+    public static final String getDisableEmotsOption(Document data){
+        Element formDisableEmots = data.getElementsByAttributeValue("name", AwfulMessage.REPLY_DISABLE_SMILIES).first();
+        if(formDisableEmots.hasAttr("checked")){
+            return "checked";
+        }else{
+            return "";
+        }
+    }
+
+    public static final String getSignatureOption(Document data){
+        Element formSignature = data.getElementsByAttributeValue("name", AwfulMessage.REPLY_SIGNATURE).first();
+        if(formSignature.hasAttr("checked")){
+            return "checked";
+        }else{
+            return "";
+        }
     }
 
     public static final ContentValues getReplyData(Document data, ContentValues results) throws AwfulError {

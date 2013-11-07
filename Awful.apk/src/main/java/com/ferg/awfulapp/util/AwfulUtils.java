@@ -33,8 +33,12 @@ public class AwfulUtils {
 	}
 
     public static boolean isJellybean(){
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-	}
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
+    public static boolean isKitKat(){
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    }
 
     public static boolean isWidescreen(Context cont){
 		if(cont != null){

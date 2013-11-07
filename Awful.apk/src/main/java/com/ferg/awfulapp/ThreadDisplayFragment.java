@@ -155,10 +155,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
-    
-	
+
+
 	private WebViewClient callback = new WebViewClient(){
-        
+
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
@@ -176,7 +176,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
                 mThreadView.loadUrl("javascript:loadpagehtml()");
             }
 		}
-       
+
 
 		public void onLoadResource(WebView view, String url) {
 			Log.i(TAG,"onLoadResource: "+url);
@@ -300,6 +300,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
+        if(DEBUG && AwfulUtils.isKitKat()) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
@@ -553,12 +556,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         }
         MenuItem re = menu.findItem(R.id.reply);
         if(re != null){
-        	re.setEnabled(!threadClosed && !mPrefs.isOnProbation());
-        	if(threadClosed){
-        		re.setTitle("Thread Locked");
-        	}else {
-        		re.setTitle(R.string.post_reply);
-        	}
+            re.setEnabled(!threadClosed && !mPrefs.isOnProbation());
+            if(threadClosed){
+                re.setTitle("Thread Locked");
+            }else {
+                re.setTitle(R.string.post_reply);
+            }
+        }
+        MenuItem screen = menu.findItem(R.id.keep_screen_on);
+        if(screen != null){
+            screen.setChecked(keepScreenOn);
         }
     }
     
@@ -600,10 +607,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     			break;
     		case R.id.keep_screen_on:
     			this.toggleScreenOn();
+                item.setChecked(!item.isChecked());
     			break;
     		case R.id.thread_actions:
     			if(!AwfulUtils.isHoneycomb()){
-    				fuckPreAPI11Forever();
+    				fuckPreAPI11Forever(item);
     			}
     		default:
     			return super.onOptionsItemSelected(item);
@@ -612,7 +620,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     		return true;
     	}
 
-	private void fuckPreAPI11Forever() {
+	private void fuckPreAPI11Forever(final MenuItem item) {
         final CharSequence[] mThreadItems = {
         		getString(R.string.post_reply),
         		getString(R.string.bookmark),
@@ -649,6 +657,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
                         break;
             		case 6:
             			toggleScreenOn();
+                        item.setChecked(!item.isChecked());
             			break;
                 	}
                 }

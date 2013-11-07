@@ -213,8 +213,10 @@ AQuery</string>
 	<string name="send_username_in_report_summary">Attaches the forum username to crash reports</string>
 	<string name="disable_gifs">Disable GIF animation</string>
 	<string name="filter_emote_hint">Filter emotes...</string>
-	<string name="add_attachment">Add file attachment</string>
-	<string name="remove_attachment">Remove file attachment</string>
+    <string name="add_attachment">Add file attachment</string>
+    <string name="remove_attachment">Remove file attachment</string>
+    <string name="disableEmots">Disable Smilies in This Post</string>
+    <string name="signature">Show Signature</string>
 	<string name="file_attached">Set file %s as attachment</string>
 	<string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
 	<string name="file_unreadable">File %s could not be accessed</string>
@@ -245,7 +247,7 @@ AQuery</string>
     	<string name="force_forum_themes_summary">Specific theme in YOSPOS ̶a̶̶n̶̶d̶ ̶F̶̶Y̶̶A̶̶D̶</string>
     	<string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
     	<string name="probation_message">You have been put on probation until %s.</string>
-    	<string name="keep_screen_on">Toggle keep screen on</string>
+    	<string name="keep_screen_on">Keep screen on</string>
     	<string name="ignore_title">Ignore user</string>
     	<string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
     	<string name="export_settings">Export settings</string>
