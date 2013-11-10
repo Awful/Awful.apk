@@ -73,12 +73,8 @@ import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.*;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.util.AwfulGifStripper;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
@@ -162,9 +158,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         	if(DEBUG) Log.e(TAG, "Opening Connection: "+url);
-            if(mPrefs.disableGifs && url != null && url.endsWith(".gif") && !url.contains("ytimg.") && !url.contains("i.imgur.com")){
-                    return new WebResourceResponse("image/png","png", new AwfulGifStripper(url, mSelf));
-            }
             return null;
         }
 

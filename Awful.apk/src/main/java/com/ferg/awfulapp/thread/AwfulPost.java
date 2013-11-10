@@ -540,7 +540,7 @@ public class AwfulPost {
 							dontLink = true;
 						}
 						if (img.hasAttr("title")) {
-							if (!prefs.showSmilies) { //kill all emotes
+							if (!prefs.showSmilies && !img.attr("title").endsWith("avatar") ) { //kill all emotes
 								String name = img.attr("title");
 								img.replaceWith(new Element(Tag.valueOf("p"),"").text(name));
 							}
@@ -554,12 +554,15 @@ public class AwfulPost {
 							} else {
 								if (!dontLink) {
 									String thumb = src;
-									if(( !prefs.imgurThumbnails.equals("d") || (prefs.disableGifs && thumb.toLowerCase().contains(".gif"))) && thumb.contains("i.imgur.com")){
+									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
 										int lastDot = thumb.lastIndexOf('.');
 										thumb = thumb.substring(0, lastDot) + (prefs.imgurThumbnails.equals("d")?"h":prefs.imgurThumbnails) + thumb.substring(lastDot);
 										img.attr("src", thumb);
 									}
-                                    if(prefs.disableTimgs || !isTimg){
+                                    if(prefs.disableGifs && thumb.toLowerCase().contains(".gif")){
+                                        img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", "file:///android_res/drawable/gif.png").attr("width","200px")));
+                                    }
+                                    if(img.parent() != null && (prefs.disableTimgs || !isTimg)){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
                                     }
 								}
