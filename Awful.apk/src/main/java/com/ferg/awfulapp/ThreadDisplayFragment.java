@@ -1446,7 +1446,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		mPostJump = "";
         bodyHtml = "";
 		if(mThreadView != null){
-            mThreadView.loadUrl("javascript:loadpagehtml()");
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mThreadView.loadUrl("javascript:loadpagehtml()");
+                }
+            });
+
 		}
         syncThread();
 	}
@@ -1454,9 +1460,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 	public void deselectUser(String postId){
         bodyHtml = "";
         aq.find(R.id.thread_userpost_notice).gone();
-		if(mThreadView != null){
-            mThreadView.loadUrl("javascript:loadpagehtml()");
-		}
+        if(mThreadView != null){
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mThreadView.loadUrl("javascript:loadpagehtml()");
+                }
+            });
+
+        }
 		if(TextUtils.isEmpty(postId) || postId.length() < 3){
 			mUserId = 0;
             mPostByUsername = null;
