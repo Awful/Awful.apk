@@ -113,6 +113,12 @@ function pageinit() {
             $(this).wrap('<a href="'+$(this).attr('src')+'" />');
         }
     });
+
+    if(listener.getPreference("disableGifs")){
+        $('[title][src$=".gif"]').on('load', function (){
+            freezeGif($(this).get(0));
+        });
+    }
     
     $(window).bind('reorient', function() {
         $('iframe').each(function() {
@@ -188,8 +194,15 @@ function scrollUpdate(){
 
 function showInlineImage(url){
     // listener.debugMessage('showInlineImage');
-    image = ($('a[href="'+url+'"]').children('img[src="'+url+'"]').size() < 1)?'<img src="'+url+'" />':'';
-    $('a[href="'+url+'"]').append(image);
+    imageLink = $('a[href="'+url+'"]');
+    if($('a[href="'+url+'"]').children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
+        imageLink.append('<img src="'+url+'" />');
+    }else{
+        image = imageLink.children().first();
+        if(image.attr('src') == "file:///android_res/drawable/gif.png"){
+              image.attr('src', url);
+        }
+    }
 }
 
 function gifHide() {
@@ -217,3 +230,16 @@ function changeFontFace(font){
 	}
 }
 
+function freezeGif(i) {
+    var c = document.createElement('canvas');
+    var w = c.width = i.naturalWidth;
+    var h = c.height = i.naturalHeight;
+    c.getContext('2d').drawImage(i, 0, 0, w, h);
+    try {
+        i.src = c.toDataURL("image/gif"); // if possible, retain all css aspects
+    } catch(e) { // cross-domain -- mimic original with all its tag attributes
+        for (var j = 0, a; a = i.attributes[j]; j++)
+            c.setAttribute(a.name, a.value);
+        i.parentNode.replaceChild(c, i);
+    }
+}
