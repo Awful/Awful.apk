@@ -114,7 +114,7 @@ function pageinit() {
         }
     });
 
-    if(listener.getPreference("disableGifs")){
+    if(listener.getPreference("disableGifs") == "true"){
         $('[title][src$=".gif"]').on('load', function (){
             freezeGif($(this).get(0));
         });

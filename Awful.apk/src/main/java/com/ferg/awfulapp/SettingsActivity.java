@@ -235,7 +235,13 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	private OnPreferenceClickListener onThreadListener = new OnPreferenceClickListener() {
 		@Override
 		public boolean onPreferenceClick(Preference preference) {
-			Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_THREAD+'?'+Constants.PARAM_THREAD_ID+"="+Constants.AWFUL_THREAD_ID));
+			Intent openThread = new Intent().setClass(mThis, ForumsIndexActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(Constants.THREAD_ID, Constants.AWFUL_THREAD_ID)
+                    .putExtra(Constants.THREAD_PAGE, 1)
+                    .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                    .putExtra(Constants.FORUM_PAGE, 1);
+            mThis.finish();
 			startActivity(openThread);
 			return true;
 		}
