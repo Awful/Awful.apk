@@ -29,7 +29,7 @@ dependencies {
     compile project(':libraries:tree-view-list-android')
     compile project(':libraries:volley')
     compile 'ch.acra:acra:4.5.+'
-    compile 'com.googlecode.android-query:android-query:0.25.+'
+//    compile 'com.googlecode.android-query:android-query:0.25.+'
     compile 'com.google.code.gson:gson:2.2.+'
     compile 'org.jsoup:jsoup:1.7.2'
     compile 'joda-time:joda-time:2.3'
