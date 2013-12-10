@@ -16,6 +16,7 @@
 
 package uk.co.senab.actionbarpulltorefresh.library.viewdelegates;
 
+import android.os.Build;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -36,6 +37,6 @@ public class WebViewDelegate extends PullToRefreshAttacher.ViewDelegate {
 	@Override
 	public boolean isScrolledToBottom(View view) {
 		WebView webView = (WebView) view;
-		return view.getScrollY()+view.getHeight() >= ((int) Math.floor(webView.getContentHeight() * webView.getScale()));
+		return view.getScrollY()+view.getHeight() + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ? 1: 0) >= ((int) Math.floor(webView.getContentHeight() * webView.getScale()));
 	}
 }
