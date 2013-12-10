@@ -751,7 +751,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	if(DEBUG) Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
-        	if(!aData.isClosed() && aData.moveToFirst()){
+        	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
                 mParentForumId = aData.getInt(aData.getColumnIndex(AwfulForum.PARENT_ID));
             	if(getActivity() != null){
