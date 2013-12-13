@@ -36,7 +36,11 @@ public class WebViewDelegate extends PullToRefreshAttacher.ViewDelegate {
 
 	@Override
 	public boolean isScrolledToBottom(View view) {
-		WebView webView = (WebView) view;
-		return view.getScrollY()+view.getHeight() + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ? 1: 0) >= ((int) Math.floor(webView.getContentHeight() * webView.getScale()));
+        WebView webView = (WebView) view;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH){
+            return !webView.canScrollVertically(1);
+        }else{
+            return (view.getScrollY() + view.getHeight()) >= ((int) Math.floor(webView.getContentHeight() * webView.getScale()));
+        }
 	}
 }
