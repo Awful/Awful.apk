@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -35,13 +36,17 @@ import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -52,7 +57,11 @@ import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
-    protected static String TAG = "ForumsIndexActivity";
+    protected static final String TAG = "ForumsIndexActivity";
+
+    private static final int DEFAULT_HIDE_DELAY = 300;
+    private static final int MESSAGE_HIDING = 0;
+    private static final int MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1;
 
     private ForumsIndexFragment mIndexFragment = null;
     private ForumDisplayFragment mForumFragment = null;
@@ -61,117 +70,224 @@ public class ForumsIndexActivity extends AwfulActivity {
     private boolean skipLoad = false;
     private boolean isTablet;
     private AwfulURL url = new AwfulURL();
-    
+
     private Handler mHandler = new Handler();
-    
-    
+
     private ToggleViewPager mViewPager;
+    private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
-    
+
     private int mForumId = Constants.USERCP_ID;
     private int mForumPage = 1;
     private int mThreadId = 0;
     private int mThreadPage = 1;
-    
+
+    private GestureDetector mImmersionGestureDetector = null;
+    private boolean mIgnoreFling;
+
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         isTablet = AwfulUtils.isWidescreen(this);
         int initialPage = -1;
-        if(savedInstanceState != null){
-        	mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
-        	mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
+        if (savedInstanceState != null) {
+            mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
+            mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
             setThreadPage(savedInstanceState.getInt(Constants.THREAD_PAGE,1));
             setThreadId(savedInstanceState.getInt(Constants.THREAD_ID,0));
             initialPage = savedInstanceState.getInt("viewPage",-1);
-        }else{
-        	initialPage = parseNewIntent(getIntent());
+        } else {
+            initialPage = parseNewIntent(getIntent());
         }
-        
+
         setContentView(R.layout.forum_index_activity);
         setSupportProgressBarIndeterminateVisibility(false);
-        
-    	mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
+
+        mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-    	mViewPager.setOffscreenPageLimit(2);
+        mViewPager.setOffscreenPageLimit(2);
         if(isTablet){
             mViewPager.setPageMargin(1);
             //TODO what color should it use here?
             mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
         }
-    	pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
-        if(initialPage >= 0){
-        	mViewPager.setCurrentItem(initialPage);
+        if (initialPage >= 0) {
+            mViewPager.setCurrentItem(initialPage);
         }
-        
+
         setActionBar();
-        
+
         checkIntentExtras();
+
+        setupImmersion();
     }
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
-		setIntent(intent);
-		int initialPage = parseNewIntent(intent);
-		if(initialPage <2){
-			mP2RAttacher.setPullFromBottom(false);
-		}
-		if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
-			mViewPager.setCurrentItem(initialPage);
-		}
-		if(mForumFragment != null){
-			mForumFragment.openForum(mForumId, mForumPage);
-		}
-		if(mThreadFragment != null){
-			if(url.isThread() || url.isPost()){
-				mThreadFragment.openThread(url);
-			}else if(intent.getIntExtra(Constants.THREAD_ID, 0) > 0){
-				mThreadFragment.openThread(mThreadId, mThreadPage);
-			}
-		}
-	}
-	
-	private int parseNewIntent(Intent intent){
+    @SuppressLint("NewApi")
+    private void setupImmersion() {
+        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+            mDecorView = getWindow().getDecorView();
+
+            mDecorView.setOnSystemUiVisibilityChangeListener(
+                    new View.OnSystemUiVisibilityChangeListener() {
+                        @Override
+                        public void onSystemUiVisibilityChange(int flags) {
+                            boolean visible = (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0;
+                            if (visible) {
+                                // Add some delay so the act of swiping to bring system UI into view doesn't turn it back off
+                                mHideHandler.removeMessages(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS);
+                                mHideHandler.sendEmptyMessageDelayed(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS, 800);
+                                mIgnoreFling = true;
+                            }
+                        }
+                    });
+
+            mImmersionGestureDetector = new GestureDetector(this,
+                    new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                            if (mIgnoreFling) return true;
+
+                            boolean visible = (mDecorView.getSystemUiVisibility()
+                                    & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0;
+                            if (visible) {
+                                hideSystemUi();
+                            }
+
+                            return true;
+                        }
+                    });
+            showSystemUi();
+        }
+    }
+
+    @Override
+    @SuppressLint("NewApi")
+    public boolean dispatchTouchEvent(MotionEvent e) {
+        if (AwfulUtils.isKitKat()&& mPrefs.immersionMode) {
+            super.dispatchTouchEvent(e);
+            return mImmersionGestureDetector.onTouchEvent(e);
+        }
+
+        return super.dispatchTouchEvent(e);
+    }
+
+    private final Handler mHideHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MESSAGE_HIDING) {
+                hideSystemUi();
+            } else if (msg.what == MESSAGE_VISIBLE_CHANGE_IN_PROGRESS) {
+                mIgnoreFling = false;
+            }
+        }
+    };
+
+    /**
+     * Hide the system UI.
+     * @param delayMillis - delay in milliseconds before hiding.
+     */
+    public void delayedHide(int delayMillis) {
+        mHideHandler.removeMessages(MESSAGE_HIDING);
+        mHideHandler.sendEmptyMessageDelayed(MESSAGE_HIDING, delayMillis);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+            // When the window loses focus (e.g. the action overflow is shown),
+            // cancel any pending hide action. When the window gains focus,
+            // hide the system UI.
+            if (hasFocus) {
+                delayedHide(DEFAULT_HIDE_DELAY);
+            } else {
+                mHideHandler.removeMessages(0);
+            }
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private void showSystemUi() {
+        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+            mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private void hideSystemUi() {
+        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+            mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
+        setIntent(intent);
+        int initialPage = parseNewIntent(intent);
+        if(initialPage <2){
+            mP2RAttacher.setPullFromBottom(false);
+        }
+        if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
+            mViewPager.setCurrentItem(initialPage);
+        }
+        if(mForumFragment != null){
+            mForumFragment.openForum(mForumId, mForumPage);
+        }
+        if(mThreadFragment != null){
+            if(url.isThread() || url.isPost()){
+                mThreadFragment.openThread(url);
+            }else if(intent.getIntExtra(Constants.THREAD_ID, 0) > 0){
+                mThreadFragment.openThread(mThreadId, mThreadPage);
+            }
+        }
+    }
+
+    private int parseNewIntent(Intent intent){
         int initialPage = -1;
-		mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
+        mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         setThreadPage(getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage));
         setThreadId(getIntent().getIntExtra(Constants.THREAD_ID, mThreadId));
         if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
-        	mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
+            mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
         }
-    	if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
-    		url = AwfulURL.parse(getIntent().getDataString());
-    		switch(url.getType()){
-    		case FORUM:
-    			mForumId = (int) url.getId();
-    			mForumPage = (int) url.getPage();
-    			break;
-    		case THREAD:
-    			if(!url.isRedirect()){
-                    setThreadPage((int) url.getPage());
-                    setThreadId((int) url.getId());
-    			}
-    			break;
-    		case POST:
-    			break;
-   			default:
-    		}
-    	}
+        if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
+            url = AwfulURL.parse(getIntent().getDataString());
+            switch(url.getType()){
+                case FORUM:
+                    mForumId = (int) url.getId();
+                    mForumPage = (int) url.getPage();
+                    break;
+                case THREAD:
+                    if(!url.isRedirect()){
+                        setThreadPage((int) url.getPage());
+                        setThreadId((int) url.getId());
+                    }
+                    break;
+                case POST:
+                    break;
+                default:
+            }
+        }
         if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
-        	initialPage = isTablet ? 0 : 1;
+            initialPage = isTablet ? 0 : 1;
         }else{
-        	skipLoad = !isTablet;
+            skipLoad = !isTablet;
         }
         if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
-        	initialPage = 2;
+            initialPage = 2;
         }
         return initialPage;
-	}
+    }
 
     @Override
     protected void onResume() {
@@ -212,8 +328,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     @Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt(Constants.FORUM_ID, mForumId);
         outState.putInt(Constants.FORUM_PAGE, mForumPage);
         outState.putInt(Constants.THREAD_ID, mThreadId);
@@ -221,13 +337,13 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(mViewPager != null){
             outState.putInt("viewPage", mViewPager.getCurrentItem());
         }
-	}
+    }
 
 
-	private void checkIntentExtras() {
+    private void checkIntentExtras() {
         if (getIntent().hasExtra(Constants.SHORTCUT)) {
             if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-            	displayForum(Constants.USERCP_ID, 1);
+                displayForum(Constants.USERCP_ID, 1);
             }
         }
     }
@@ -254,33 +370,33 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     public class ForumPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener{
-    	public ForumPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
+        public ForumPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
 
-		private AwfulFragment visible;
+        private AwfulFragment visible;
 
 
-		@Override
-		public void onPageSelected(int arg0) {
-			if(DEBUG) Log.i(TAG,"onPageSelected: "+arg0);
-			if(visible != null){
-				visible.onPageHidden();
-			}
-			AwfulFragment apf = (AwfulFragment) getItem(arg0);
-			if(apf != null){
-				setActionbarTitle(apf.getTitle(), null);
-				apf.onPageVisible();
-				setLoadProgress(apf.getProgressPercent());
-			}
-			visible = apf;
-		}
+        @Override
+        public void onPageSelected(int arg0) {
+            if(DEBUG) Log.i(TAG,"onPageSelected: "+arg0);
+            if(visible != null){
+                visible.onPageHidden();
+            }
+            AwfulFragment apf = (AwfulFragment) getItem(arg0);
+            if(apf != null){
+                setActionbarTitle(apf.getTitle(), null);
+                apf.onPageVisible();
+                setLoadProgress(apf.getProgressPercent());
+            }
+            visible = apf;
+        }
 
-		@Override
-		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
-		@Override
-		public void onPageScrollStateChanged(int state) {}
+        @Override
+        public void onPageScrollStateChanged(int state) {}
 
         @Override
         public Fragment getItem(int ix) {
@@ -359,31 +475,31 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
 
-	@Override
-	public void setActionbarTitle(String aTitle, Object requestor) {
-    	if(requestor != null && mViewPager != null){
-    		//This will only honor the request if the requestor is the currently active view.
-    		if(requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)){
-		    		super.setActionbarTitle(aTitle, requestor);
-			}else{
-				if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
-			}
-    	}else{
-    		super.setActionbarTitle(aTitle, requestor);
-    	}
-	}
-
-	@Override
-    public void onBackPressed() {
-    	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-    		if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
-    			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-    		}
-    	}else{
-    		super.onBackPressed();
-    	}
+    @Override
+    public void setActionbarTitle(String aTitle, Object requestor) {
+        if(requestor != null && mViewPager != null){
+            //This will only honor the request if the requestor is the currently active view.
+            if(requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)){
+                super.setActionbarTitle(aTitle, requestor);
+            }else{
+                if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
+            }
+        }else{
+            super.setActionbarTitle(aTitle, requestor);
+        }
     }
-    
+
+    @Override
+    public void onBackPressed() {
+        if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+            if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
+                mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+            }
+        }else{
+            super.onBackPressed();
+        }
+    }
+
     @Override
     public void displayForum(int id, int page){
         mForumId = id;
@@ -397,96 +513,99 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
 
-	@Override
-	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
-		if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
+    @Override
+    public boolean isFragmentVisible(AwfulFragment awfulFragment) {
+        if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
             if(isTablet){
                 int itemPos = pagerAdapter.getItemPosition(awfulFragment);
                 return  itemPos == mViewPager.getCurrentItem() || itemPos == mViewPager.getCurrentItem()+1;
             }else{
                 return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
             }
-		}
-		return true;
-	}
-    
+        }
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-            	if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-            		if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
-            			displayForum(mThreadFragment.getParentForumId(), 1);
-            		}else{
-            			mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-            		}
+                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
+                        displayForum(mThreadFragment.getParentForumId(), 1);
+                    }else{
+                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+                    }
                     return true;
-            	}
-            	break;
-    		default:
-    			break;
+                }
+                break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     @Override
     public void displayThread(int id, int page, int forumId, int forumPg){
-    	if(mViewPager != null){
-    		if(mThreadFragment != null){
-    			mThreadFragment.openThread(id, page);
-    		}else{
+        if(mViewPager != null){
+            if(mThreadFragment != null){
+                mThreadFragment.openThread(id, page);
+            }else{
                 setThreadPage(page);
                 setThreadId(id);
             }
             mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
-    	}else{
-    		super.displayThread(id, page, forumId, forumPg);
-    	}
+        }else{
+            super.displayThread(id, page, forumId, forumPg);
+        }
     }
 
 
-	@Override
-	public void displayUserCP() {
-		displayForum(Constants.USERCP_ID,1);
-	}
-
-
-	@Override
-	public void displayForumIndex() {
-		if(mViewPager != null){
-			mViewPager.setCurrentItem(0);
-		}
-	}
+    @Override
+    public void displayUserCP() {
+        displayForum(Constants.USERCP_ID,1);
+    }
 
 
     @Override
-	protected void onActivityResult(int request, int result, Intent intent) {
-    	if(DEBUG) Log.e(TAG,"onActivityResult: " + request+" result: "+result);
-		super.onActivityResult(request, result, intent);
-		if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
-			mHandler.postDelayed(new Runnable() {
-				
-				@Override
-				public void run() {
-					if(mIndexFragment != null){
-						mIndexFragment.refresh();
-					}
-				}
-			}, 1000);
-		}
-	}
-    
+    public void displayForumIndex() {
+        if(mViewPager != null){
+            mViewPager.setCurrentItem(0);
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int request, int result, Intent intent) {
+        if(DEBUG) Log.e(TAG,"onActivityResult: " + request+" result: "+result);
+        super.onActivityResult(request, result, intent);
+        if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
+            mHandler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    if(mIndexFragment != null){
+                        mIndexFragment.refresh();
+                    }
+                }
+            }, 1000);
+        }
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-    	if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
-    		return true;
-    	}
-    	return super.dispatchKeyEvent(event);
+        if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
     public void onPreferenceChange(AwfulPreferences prefs) {
         super.onPreferenceChange(prefs);
+        if(prefs.immersionMode && mDecorView == null){
+            setupImmersion();
+        }
         if(mViewPager != null){
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
@@ -505,10 +624,8 @@ public class ForumsIndexActivity extends AwfulActivity {
             }else{
                 mViewPager.setPageMargin(0);
             }
-//            int pos = mViewPager.getCurrentItem();
+
             mViewPager.setAdapter(pagerAdapter);
-//            mViewPager.setCurrentItem(pos, false);
         }
     }
 }
-

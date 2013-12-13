@@ -155,10 +155,16 @@
 			android:summary="@string/lock_scrolling_summary"
 			android:defaultValue="false"
 			/>
-		<CheckBoxPreference 
-            android:key="volume_scroll" 
-			android:title="@string/volume_scroll"
-			android:defaultValue="false"
-			/>
+        <CheckBoxPreference
+            android:key="volume_scroll"
+            android:title="@string/volume_scroll"
+            android:defaultValue="false"
+            />
+        <CheckBoxPreference
+            android:key="immersion_mode"
+            android:title="@string/immersion_mode"
+            android:summary="@string/immersion_mode_summary"
+            android:defaultValue="false"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

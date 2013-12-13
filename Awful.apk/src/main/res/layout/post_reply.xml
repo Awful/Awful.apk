@@ -15,6 +15,7 @@
         android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
         android:textColor="@color/default_post_font"
         android:textCursorDrawable="@null"
+        android:imeOptions="flagNoExtractUi"
         android:layout_weight="1"
         android:isScrollContainer="true"
 		/>
