@@ -420,6 +420,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         resumeWebView();
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
+
+        if(isFragmentVisible() && mP2RAttacher != null){
+            mP2RAttacher.setPullFromBottom(true);
+        }
     }
 
     @SuppressLint("NewApi")
