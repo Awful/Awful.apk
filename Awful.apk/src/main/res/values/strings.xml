@@ -261,7 +261,7 @@ AQuery</string>
     <string name="not_available_on_your_version">This feature is not available on your version of Android. Sorry.</string>
     <string name="immersion_mode">Immersion Mode (fullscreen)</string>
     <string name="immersion_mode_summary">Requires KitKat and above</string>
-    <string name="hide_signatures">Hide signatures</string>
-    <string name="hide_signatures_summary">Hide signatures when enabled in the browser</string>
+    <string name="hide_signatures">Hide signatures in Awful</string>
+    <string name="hide_signatures_summary">Hide signatures even when enabled in the browser</string>
 
 </resources>

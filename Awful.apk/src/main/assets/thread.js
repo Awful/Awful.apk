@@ -91,7 +91,7 @@ function pageinit() {
 
      if(listener.getPreference("hideSignatures") == "true"){
         //$('section.postcontent .signature').hide();
-        $('section.postcontent .signature').each(function() {
+        $('section.postcontent .signature').parent().children().each(function() {
 
            var sig = $(this).parent().find('.signature').index();
 
