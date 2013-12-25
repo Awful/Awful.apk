@@ -106,7 +106,8 @@ margin:0;
 }
 
 section.postcontent .bbc-block.code, section.postcontent pre{
-overflow: scroll;
+overflow: auto;
+word-wrap: normal;
 }
 
 
