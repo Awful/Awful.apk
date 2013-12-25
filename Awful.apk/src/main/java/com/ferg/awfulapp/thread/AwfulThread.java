@@ -407,7 +407,7 @@ public class AwfulThread extends AwfulPagedItem  {
 //            buffer.append("$(window).ready(gifHide);");
 //            buffer.append("</script>\n");
 //        }
-        buffer.append("</head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
+        buffer.append("</head><body style='{background-color:"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
         return buffer.toString();
     }
 
@@ -422,12 +422,13 @@ public class AwfulThread extends AwfulPagedItem  {
                     unreadCount++;
                 }
             }
-            buffer.append("    <article class='toggleread'>");
-            buffer.append("      <a>\n");
-            buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
-            buffer.append("      </a>\n");
-            buffer.append("    </article>");
-
+            if(unreadCount < aPosts.size() && unreadCount > 0){
+                buffer.append("    <article class='toggleread'>");
+                buffer.append("      <a>\n");
+                buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+                buffer.append("      </a>\n");
+                buffer.append("    </article>");
+            }
         }
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
