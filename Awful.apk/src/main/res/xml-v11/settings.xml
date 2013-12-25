@@ -68,6 +68,12 @@
 			android:summary="@string/show_spoilers_summary"
 			android:defaultValue="false"
 			/>
+        <CheckBoxPreference
+            android:key="hide_signatures"
+            android:title="@string/hide_signatures"
+            android:summary="@string/hide_signatures_summary"
+            android:defaultValue="false"
+            />
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_salr">
 		<Preference 

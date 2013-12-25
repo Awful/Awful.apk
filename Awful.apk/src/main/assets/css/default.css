@@ -152,6 +152,11 @@ section.postcontent .bbc-spoiler.spoiled * {
 visibility: visible;
 }
 
+section.postcontent .signature {
+border-top: 2px solid #eae9ea;
+padding-top: 10px;
+}
+
 header {
 vertical-align:top;
 clear:left;

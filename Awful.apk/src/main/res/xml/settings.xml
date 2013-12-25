@@ -55,12 +55,18 @@
 			android:title="@string/default_post_font_size"
 			android:defaultValue="16"
 			/>
-		<CheckBoxPreference 
-            android:key="show_all_spoilers" 
-			android:title="@string/show_spoilers"
-			android:summary="@string/show_spoilers_summary"
-			android:defaultValue="false"
-			/>
+        <CheckBoxPreference
+            android:key="show_all_spoilers"
+            android:title="@string/show_spoilers"
+            android:summary="@string/show_spoilers_summary"
+            android:defaultValue="false"
+            />
+        <CheckBoxPreference
+            android:key="hide_signatures"
+            android:title="@string/hide_signatures"
+            android:summary="@string/hide_signatures_summary"
+            android:defaultValue="false"
+            />
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_salr">
 		<Preference 
