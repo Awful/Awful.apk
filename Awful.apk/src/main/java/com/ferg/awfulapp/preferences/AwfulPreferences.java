@@ -116,6 +116,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean disableTimgs;
 	public boolean volumeScroll;
 	public boolean coloredBookmarks;
+    public boolean hideSignatures;
 	/**
 	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
@@ -278,6 +279,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
         p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
         immersionMode			 = AwfulUtils.isKitKat()?mPrefs.getBoolean("immersion_mode", false):false;
+        hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         
         if(AwfulUtils.isHoneycomb()){
         	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());

@@ -87,7 +87,22 @@ function pageinit() {
         	console.log(error);
         }
     });
-    
+
+
+     if(listener.getPreference("hideSignatures") == "true"){
+        //$('section.postcontent .signature').hide();
+        $('section.postcontent .signature').each(function() {
+
+           var sig = $(this).parent().find('.signature').index();
+
+           if($(this).index() >= sig ) {
+
+               $(this).hide();
+
+           }
+        });
+     }
+
     $('.postcontent').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
         var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
         if (videoID === null) return
@@ -119,7 +134,7 @@ function pageinit() {
             freezeGif($(this).get(0));
         });
     }
-    
+
     $(window).bind('reorient', function() {
         $('iframe').each(function() {
             $(this).height($(this).width()/16*9);

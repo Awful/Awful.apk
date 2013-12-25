@@ -1243,7 +1243,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
 			preferences.put("postjumpid", mPostJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-			preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
+            preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
+            preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
         }
         
         @JavascriptInterface
