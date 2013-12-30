@@ -1385,7 +1385,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {
 		super.onPreferenceChange(mPrefs);
-		getAwfulActivity().setPreferredFont(mPageCountText);
+        if(null != getAwfulActivity()){
+		    getAwfulActivity().setPreferredFont(mPageCountText);
+        }
 		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
