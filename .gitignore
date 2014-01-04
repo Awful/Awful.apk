@@ -4,10 +4,6 @@
 
 *.DS_Store
 
-
-# built application files
-*.ap?
-
 # files for the dex VM
 *.dex
 
