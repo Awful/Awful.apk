@@ -1,36 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <Preference
-            android:key="about"
-            android:title="@string/about"
-            android:summary="@string/about_summary"
-            android:persistent="false"
-            />
-        <Preference
-            android:key="open_thread"
-            android:title="@string/open_thread"
-            android:summary="@string/open_thread_summary"/>
-        <Preference
-            android:key="export_settings"
-            android:title="@string/export_settings"/>
-        <Preference
-            android:key="import_settings"
-            android:title="@string/import_settings"/>
-		<Preference 
-			android:key="colors" 
-			android:title="@string/theme_settings"
-			/>
-        <Preference
-            android:key="threadinfo"
-            android:title="@string/thread_settings"
-            />
-
-    <PreferenceScreen android:title="@string/prefs_salr">
-		<Preference 
-			android:key="image_settings" 
-			android:title="@string/image_settings"
-			/>
-
-
-	</PreferenceScreen>
+    <Preference
+        android:key="export_settings"
+        android:title="@string/export_settings"/>
+    <Preference
+        android:key="import_settings"
+        android:title="@string/import_settings"/>
+    <Preference
+        android:key="about"
+        android:title="@string/about"
+        android:summary="@string/about_summary"
+        android:persistent="false"
+        />
+    <Preference
+        android:key="open_thread"
+        android:title="@string/open_thread"
+        android:summary="@string/open_thread_summary"/>
 </PreferenceScreen>

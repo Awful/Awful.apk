@@ -103,7 +103,13 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();
-		
+
+        addPreferencesFromResource(R.xml.threadinfosettings);
+        addPreferencesFromResource(R.xml.postsettings);
+        addPreferencesFromResource(R.xml.imagesettings);
+        addPreferencesFromResource(R.xml.themesettings);
+        addPreferencesFromResource(R.xml.miscsettings);
+        addPreferencesFromResource(R.xml.accountsettings);
 		addPreferencesFromResource(R.xml.settings);
 		mPrefs = AwfulPreferences.getInstance(this,this);
 		

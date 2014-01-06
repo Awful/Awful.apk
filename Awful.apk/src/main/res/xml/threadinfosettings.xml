@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-  <PreferenceCategory android:title="@string/thread_settings">
+  <PreferenceScreen android:key="threadinfo"
+                    android:title="@string/thread_settings">
 		<CheckBoxPreference 
             android:key="threadinfo_tag" 
 			android:title="@string/threadinfo_tag"
 			android:summary="@string/threadinfo_tag_summary"
 			android:defaultValue="true"
 			/>
+        <CheckBoxPreference
+          android:key="wrap_thread_titles"
+          android:title="@string/wrap_titles"
+          android:summary="@string/wrap_titles_summary"
+          android:defaultValue="true"
+          />
+        <CheckBoxPreference
+          android:key="new_threads_first_forum"
+          android:title="@string/new_threads_first_forum"
+          android:defaultValue="false"
+          />
 		<CheckBoxPreference 
             android:key="new_threads_first_ucp" 
 			android:title="@string/new_threads_first_ucp"
 			android:defaultValue="false"
-			/>
-        <CheckBoxPreference 
-            android:key="new_threads_first_forum" 
-            android:title="@string/new_threads_first_forum"
-            android:defaultValue="false"
-            />
-		<CheckBoxPreference 
-            android:key="wrap_thread_titles" 
-			android:title="@string/wrap_titles"
-			android:summary="@string/wrap_titles_summary"
-			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
             android:key="color_bookmarks" 
 			android:title="@string/color_bookmarks"
 			android:defaultValue="false"
 			/>
-      <CheckBoxPreference
+        <CheckBoxPreference
           android:key="threadinfo_rating"
           android:title="@string/threadinfo_rating"
           android:defaultValue="false"
           />
-        </PreferenceCategory>
+  </PreferenceScreen>
 </PreferenceScreen>
