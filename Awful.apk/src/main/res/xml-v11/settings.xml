@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/prefs_global">
         <Preference
             android:key="about"
             android:title="@string/about"
@@ -17,16 +16,6 @@
         <Preference
             android:key="import_settings"
             android:title="@string/import_settings"/>
-        <EditTextPreference
-            android:key="username"
-            android:title="@string/username_pref"
-            android:defaultValue="Username"
-            />
-        <Preference
-            android:key="account_features"
-            android:title="@string/features"
-            android:summary="@string/features_summary"
-            />
 		<Preference 
 			android:key="colors" 
 			android:title="@string/theme_settings"
@@ -35,142 +24,13 @@
             android:key="threadinfo"
             android:title="@string/thread_settings"
             />
-        <CheckBoxPreference
-            android:key="disable_gifs2"
-            android:title="@string/disable_gifs"
-            android:summary="@string/disable_gifs_summary"
-            android:defaultValue="true"
-            android:enabled="true"
-            />
-    </PreferenceCategory>
-	<PreferenceCategory android:title="@string/prefs_post_display">
-		<CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
-		<com.ferg.awfulapp.preferences.NumericEditTextPreference
-			android:key="post_per_page"
-			android:title="@string/setting_posts_per_page"
-            android:summary="@string/setting_posts_per_page_summary"
-			android:defaultValue="40"
-			/>
-		<CheckBoxPreference 
-            android:key="hide_old_posts" 
-			android:title="@string/hide_old_posts"
-            android:summary="@string/hide_old_posts_summary"
-			android:defaultValue="false"
-			/>
-		<Preference 
-			android:key="default_post_font_size_dip" 
-			android:title="@string/default_post_font_size"
-			android:defaultValue="16"
-			/>
-		<CheckBoxPreference 
-            android:key="show_all_spoilers" 
-			android:title="@string/show_spoilers"
-			android:summary="@string/show_spoilers_summary"
-			android:defaultValue="false"
-			/>
-        <CheckBoxPreference
-            android:key="hide_signatures"
-            android:title="@string/hide_signatures"
-            android:summary="@string/hide_signatures_summary"
-            android:defaultValue="false"
-            />
-	</PreferenceCategory>
-    <PreferenceCategory android:title="@string/prefs_salr">
+
+    <PreferenceScreen android:title="@string/prefs_salr">
 		<Preference 
 			android:key="image_settings" 
 			android:title="@string/image_settings"
 			/>
-		<CheckBoxPreference 
-            android:key="user_quotes" 
-			android:title="@string/user_quote"
-            android:summary="@string/user_quote_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="user_highlight" 
-			android:title="@string/user_highlight"
-            android:summary="@string/user_highlight_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="self_highlight" 
-			android:title="@string/self_highlight"
-            android:summary="@string/self_highlight_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="op_highlight" 
-			android:title="@string/op_highlight"
-            android:summary="@string/op_highlight_summary"
-			android:defaultValue="true"
-			/>
-	</PreferenceCategory>
-    <PreferenceCategory android:title="@string/prefs_misc">
-		<CheckBoxPreference 
-            android:key="upper_next_arrow" 
-			android:title="@string/show_next_page_button_at_top"
-			android:defaultValue="false"
-			/>
-		<CheckBoxPreference 
-            android:key="inline_youtube" 
-			android:title="@string/inline_videos"
-			android:summary="@string/inline_videos_summary"
-			android:defaultValue="true"
-			/>
-		<CheckBoxPreference 
-            android:key="enable_hardware_acceleration" 
-			android:title="@string/enable_hardware_acceleration"
-			android:summary="@string/enable_hardware_acceleration_summary"
-			android:defaultValue="true"
-			/>
-		<ListPreference
-            android:key="page_layout"
-            android:title="@string/page_layout"
-            android:entries="@array/page_layouts"
-            android:entryValues="@array/page_layout_values"
-      		android:defaultValue="auto"
-            />
-        <ListPreference
-            android:key="orientation"
-            android:title="@string/orientation"
-            android:entries="@array/orientations"
-            android:entryValues="@array/orientation_values"
-            android:defaultValue="default"
-            />
-		<CheckBoxPreference 
-            android:key="send_username_in_report" 
-			android:title="@string/send_username_in_report"
-			android:summary="@string/send_username_in_report_summary"
-			android:defaultValue="true"
-			/>
-        <CheckBoxPreference
-            android:key="disable_pull_next"
-            android:title="@string/disable_pull_next"
-            android:summary="@string/disable_pull_next_summary"
-            android:defaultValue="false"
-            />
-        <Preference 
-			android:key="pull_to_refresh_distance" 
-			android:title="@string/pull_to_refresh_distance"
-            android:summary="@string/pull_to_refresh_distance_summary"
-			android:defaultValue="0.5"
-			/>
-		<CheckBoxPreference 
-            android:key="lock_scrolling" 
-			android:title="@string/lock_scrolling"
-			android:summary="@string/lock_scrolling_summary"
-			android:defaultValue="false"
-			/>
-        <CheckBoxPreference
-            android:key="volume_scroll"
-            android:title="@string/volume_scroll"
-            android:defaultValue="false"
-            />
-        <CheckBoxPreference
-            android:key="immersion_mode"
-            android:title="@string/immersion_mode"
-            android:summary="@string/immersion_mode_summary"
-            android:defaultValue="false"
-            />
-    </PreferenceCategory>
+
+
+	</PreferenceScreen>
 </PreferenceScreen>

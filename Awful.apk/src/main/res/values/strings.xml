@@ -264,4 +264,7 @@ AQuery</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
     <string name="hide_signatures_summary">Hide signatures even when enabled in the browser</string>
 
+
+    <string name="prefs_account">Account settings</string>
+
 </resources>

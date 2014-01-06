@@ -45,13 +45,13 @@
 			android:defaultValue="40"
 			/>
 		<CheckBoxPreference 
-            android:key="hide_old_posts" 
+            android:key="hide_old_posts"
 			android:title="@string/hide_old_posts"
             android:summary="@string/hide_old_posts_summary"
 			android:defaultValue="false"
 			/>
 		<Preference 
-			android:key="default_post_font_size_dip" 
+			android:key="default_post_font_size_dip"
 			android:title="@string/default_post_font_size"
 			android:defaultValue="16"
 			/>
@@ -74,25 +74,25 @@
 			android:title="@string/image_settings"
 			/>
 		<CheckBoxPreference 
-            android:key="user_quotes" 
+            android:key="user_quotes"
 			android:title="@string/user_quote"
             android:summary="@string/user_quote_summary"
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
-            android:key="user_highlight" 
+            android:key="user_highlight"
 			android:title="@string/user_highlight"
             android:summary="@string/user_highlight_summary"
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
-            android:key="self_highlight" 
+            android:key="self_highlight"
 			android:title="@string/self_highlight"
             android:summary="@string/self_highlight_summary"
 			android:defaultValue="true"
 			/>
 		<CheckBoxPreference 
-            android:key="op_highlight" 
+            android:key="op_highlight"
 			android:title="@string/op_highlight"
             android:summary="@string/op_highlight_summary"
 			android:defaultValue="true"
@@ -100,18 +100,18 @@
 	</PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_misc">
 		<CheckBoxPreference 
-            android:key="upper_next_arrow" 
+            android:key="upper_next_arrow"
 			android:title="@string/show_next_page_button_at_top"
 			android:defaultValue="false"
 			/>
 		<CheckBoxPreference 
-            android:key="inline_youtube" 
+            android:key="inline_youtube"
 			android:title="@string/inline_videos"
 			android:summary="@string/inline_videos_summary"
 			android:defaultValue="false"
 			/>
 		<CheckBoxPreference 
-            android:key="enable_hardware_acceleration" 
+            android:key="enable_hardware_acceleration"
 			android:title="@string/enable_hardware_acceleration"
 			android:summary="@string/enable_hardware_acceleration_summary"
 			android:defaultValue="false"
@@ -131,7 +131,7 @@
             android:defaultValue="default"
             />
 		<CheckBoxPreference 
-            android:key="send_username_in_report" 
+            android:key="send_username_in_report"
 			android:title="@string/send_username_in_report"
 			android:summary="@string/send_username_in_report_summary"
 			android:defaultValue="true"
@@ -143,7 +143,7 @@
             android:defaultValue="false"
             />
         <Preference 
-			android:key="pull_to_refresh_distance" 
+			android:key="pull_to_refresh_distance"
 			android:title="@string/pull_to_refresh_distance"
             android:summary="@string/pull_to_refresh_distance_summary"
 			android:defaultValue="0.5"
@@ -155,7 +155,7 @@
 			android:defaultValue="false"
 			/>
 		<CheckBoxPreference 
-            android:key="volume_scroll" 
+            android:key="volume_scroll"
 			android:title="@string/volume_scroll"
 			android:defaultValue="false"
 			/>
