@@ -98,32 +98,34 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 		mConf.onCreate();
 
 		mPrefs = AwfulPreferences.getInstance(this,this);
-        // Build the PreferenceScreen hierarchy
-        addPreferencesFromResource(R.xml.settings);
-        addPreferencesFromResource(R.xml.threadinfosettings);
-        addPreferencesFromResource(R.xml.postsettings);
-        addPreferencesFromResource(R.xml.imagesettings);
-        addPreferencesFromResource(R.xml.themesettings);
-        addPreferencesFromResource(R.xml.miscsettings);
-        addPreferencesFromResource(R.xml.accountsettings);
-        // Initialise whatever needs initialising from each file
-        initRootSettings();
-        setRootListeners();
-        initThreadSettings();
-        setThreadListeners();
-        initPostSettings();
-        setPostListeners();
-        initImageSettings();
-        setImageListeners();
-        initThemeSettings();
-        setThemeListeners();
-        initMiscSettings();
-        setMiscListeners();
-        initAccountSettings();
-        setAccountListeners();
+        if (oldMode) {
+            // Build the PreferenceScreen hierarchy
+            addPreferencesFromResource(R.xml.settings);
+            addPreferencesFromResource(R.xml.threadinfosettings);
+            addPreferencesFromResource(R.xml.postsettings);
+            addPreferencesFromResource(R.xml.imagesettings);
+            addPreferencesFromResource(R.xml.themesettings);
+            addPreferencesFromResource(R.xml.miscsettings);
+            addPreferencesFromResource(R.xml.accountsettings);
+            // Initialise whatever needs initialising from each file
+            initRootSettings();
+            setRootListeners();
+            initThreadSettings();
+            setThreadListeners();
+            initPostSettings();
+            setPostListeners();
+            initImageSettings();
+            setImageListeners();
+            initThemeSettings();
+            setThemeListeners();
+            initMiscSettings();
+            setMiscListeners();
+            initAccountSettings();
+            setAccountListeners();
 
-        setSummaries();
-	}
+            setSummaries();
+        }
+    }
 	
 	@Override
 	public void onStart() {
@@ -356,6 +358,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void setMiscSummaries() {
         final String[] VALUE_SUMMARY_KEYS_LIST = { "orientation" };
 
+        // set summaries to their selected entries
         for(String key : VALUE_SUMMARY_KEYS_LIST) {
             ListPreference p = (ListPreference) findPreference(key);
             p.setSummary(p.getEntry());
@@ -395,8 +398,8 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    float distanceFLoat = seekBar.getProgress();
-                    mPrefs.setFloatPreference("pull_to_refresh_distance", (distanceFLoat/100));
+                    float distanceFloat = seekBar.getProgress();
+                    mPrefs.setFloatPreference("pull_to_refresh_distance", (distanceFloat/100));
                 }
 
                 @Override
@@ -642,20 +645,14 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setThemeSummaries() {
-        final String[] VALUE_SUMMARY_KEYS_LIST = { "theme" };
+        final String[] VALUE_SUMMARY_KEYS_LIST = { "theme", "layouts", "preferred_font" };
 
         findPreference("colors").setSummary(WordUtils.capitalize(mPrefs.theme)+" Theme");
         // Used to get the parent screen to notice the new summary
         // kind of awkward, Theme Settings is the only header that displays one
         ((BaseAdapter)getPreferenceScreen().getRootAdapter()).notifyDataSetChanged();
-
-        ListPreference themePref = (ListPreference) findPreference("theme");
-        ListPreference layoutPref = (ListPreference) findPreference("layouts");
-//        themePref.setSummary(themePref.getEntry());
-        layoutPref.setSummary(layoutPref.getEntry());
-
-        ListPreference f = (ListPreference) findPreference("preferred_font");
-        f.setSummary(f.getEntry());
+        
+        // set summaries to their selected entries
         for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {
             ListPreference pl = (ListPreference) findPreference(valueSummaryKey);
             pl.setSummary(pl.getEntry());
