@@ -78,14 +78,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     protected static String TAG = "SettingsActivity";
 	private static final int DIALOG_ABOUT = 1;
 	private static final int SETTINGS_FILE = 2;
-	private Preference mAboutPreference;
-	private Preference mFeaturesPreference;
-	private Preference mThreadPreference;
-	private Preference mFontSizePreference;
-	private Preference mP2RDistancePreference;
-	private Preference mUsernamePreference;
-	private Preference mExportPreference;
-	private Preference mImportPreference;
 	protected SettingsActivity mThis = this;
 	private Dialog mFontSizeDialog;
 	private Dialog mFeatureFetchDialog;
@@ -285,14 +277,15 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setRootListeners() {
-        mAboutPreference = getPreferenceScreen().findPreference("about");
-        mAboutPreference.setOnPreferenceClickListener(onAboutListener);
-        mThreadPreference = getPreferenceScreen().findPreference("open_thread");
-        mThreadPreference.setOnPreferenceClickListener(onThreadListener);
-        mExportPreference = getPreferenceScreen().findPreference("export_settings");
-        mExportPreference.setOnPreferenceClickListener(onExportListener);
-        mImportPreference = getPreferenceScreen().findPreference("import_settings");
-        mImportPreference.setOnPreferenceClickListener(onImportListener);
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("about");
+        tempPref.setOnPreferenceClickListener(onAboutListener);
+        tempPref = getPreferenceScreen().findPreference("open_thread");
+        tempPref.setOnPreferenceClickListener(onThreadListener);
+        tempPref = getPreferenceScreen().findPreference("export_settings");
+        tempPref.setOnPreferenceClickListener(onExportListener);
+        tempPref = getPreferenceScreen().findPreference("import_settings");
+        tempPref.setOnPreferenceClickListener(onImportListener);
     }
 
     /* Associated methods */
@@ -370,8 +363,9 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setMiscListeners() {
-        mP2RDistancePreference = getPreferenceScreen().findPreference("pull_to_refresh_distance");
-        mP2RDistancePreference.setOnPreferenceClickListener(onP2RDistanceListener);
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("pull_to_refresh_distance");
+        tempPref.setOnPreferenceClickListener(onP2RDistanceListener);
     }
 
     /* Associated methods */
@@ -437,8 +431,9 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setPostListeners() {
-        mFontSizePreference = getPreferenceScreen().findPreference("default_post_font_size_dip");
-        mFontSizePreference.setOnPreferenceClickListener(onFontSizeListener);
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("default_post_font_size_dip");
+        tempPref.setOnPreferenceClickListener(onFontSizeListener);
     }
 
     /* Associated methods */
@@ -500,14 +495,23 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setAccountSummaries() {
-        mUsernamePreference = getPreferenceScreen().findPreference("username");
-        mUsernamePreference.setSummary(mPrefs.username);
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("username");
+        tempPref.setSummary(mPrefs.username);
+
+        //Set summary for the 'Refresh account options' option
+        String platinum = (mPrefs.hasPlatinum) ? "Yes" : "No";
+        String archives = (mPrefs.hasArchives) ? "Yes" : "No";
+        String noAds = (mPrefs.hasNoAds) ? "Yes" : "No";
+        tempPref = getPreferenceScreen().findPreference("account_features");
+        tempPref.setSummary("Platinum: "+platinum+" | Archives: "+archives+" | No Ads: "+noAds);
     }
 
     private void setAccountListeners() {
-        mFeaturesPreference = getPreferenceScreen().findPreference("account_features");
-        mFeaturesPreference.setOnPreferenceClickListener(onFeaturesListener);
-        this.updateFeatures();
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("account_features");
+        tempPref.setOnPreferenceClickListener(onFeaturesListener);
+        setAccountSummaries();
     }
 
     /* Associated methods */
@@ -521,7 +525,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
                 @Override
                 public void success(Void result) {
                     mFeatureFetchDialog.dismiss();
-                    mThis.updateFeatures();
+                    setAccountSummaries();
                 }
 
                 @Override
@@ -533,14 +537,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             return true;
         }
     };
-
-    /** Set summary for the 'Refresh account options' option */
-    public void updateFeatures(){
-        String platinum = (mPrefs.hasPlatinum) ? "Yes" : "No";
-        String archives = (mPrefs.hasArchives) ? "Yes" : "No";
-        String noAds = (mPrefs.hasNoAds) ? "Yes" : "No";
-        mFeaturesPreference.setSummary("Platinum: "+platinum+" | Archives: "+archives+" | No Ads: "+noAds);
-    }
 
     /*
         IMAGESETTINGS.XML
