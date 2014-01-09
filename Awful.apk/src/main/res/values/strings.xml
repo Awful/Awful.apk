@@ -49,7 +49,7 @@
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
         <string name="mark_last_read_success">Post Marked</string>
-        <string name="please_wait_subtext">Please wait...</string>
+        <string name="please_wait_subtext">Please wait…</string>
 
     <string name="ignore_title">Ignore user</string>
         <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
@@ -64,7 +64,7 @@
         <string name="mark_unread_success">Thread Marked Unread</string>
 
     <!-- Reply view -->
-    <string name="filter_emote_hint">Filter emotes...</string>
+    <string name="filter_emote_hint">Filter emotes…</string>
     <string name="bbcode">BBCode</string>
     <string name="submit">Submit</string>
     <string name="menu_save_draft">Save draft</string>
@@ -79,7 +79,7 @@
         <string name="file_removed">Attachment removed</string>
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
-    <string name="post_sent">Hope it didn\'t suck...</string>
+    <string name="post_sent">Hope it didn\'t suck…</string>
 
     <!-- other shit -->
     <string name="press_color_to_apply">Press color to apply</string>
@@ -107,7 +107,7 @@
     -->
 
     <!-- Main page -->
-    <string name="about">About...</string>
+    <string name="about">About…</string>
     <string name="about_summary">Contributors and library licenses</string>
     <string name="about_contributors_title">Contributors:</string>
     <string-array name="about_contributors_array">
