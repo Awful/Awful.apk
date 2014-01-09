@@ -77,23 +77,25 @@
     <string name="open_thread">Go to the Awful thread</string>
     <string name="open_thread_summary">The most Awful thread on the forums</string>
     <string name="export_settings">Export settings</string>
+    <string name="export_settings_summary">Save a backup of your Awful choices</string>
     <string name="import_settings">Import settings</string>
-    <string name="thread_settings">Thread settings</string>
-    <string name="prefs_post_display">Post settings</string>
-    <string name="image_settings">Image preferences</string>
-    <string name="theme_settings">Theme settings</string>
-    <string name="prefs_misc">Misc preferences</string>
-    <string name="prefs_account">Account settings</string>
+    <string name="import_settings_summary">Restore your backed up settings</string>
+    <string name="thread_settings">Threads</string>
+    <string name="prefs_post_display">Posts</string>
+    <string name="image_settings">Images</string>
+    <string name="theme_settings">Theme</string>
+    <string name="prefs_misc">App</string>
+    <string name="prefs_account">Account</string>
 
     <!-- Thread Settings page -->
     <string name="threadinfo_tag">Show forum &amp; thread tags</string>
     <string name="threadinfo_tag_summary">Category icons</string>
     <string name="wrap_titles">Wrap thread titles</string>
-    <string name="wrap_titles_summary">Allows thread titles to be more than one line long</string>
+    <string name="wrap_titles_summary">Allow titles to be more than one line long</string>
     <string name="new_threads_first_ucp">Sort UCP by new posts</string>
     <string name="new_threads_first_forum">Sort forums by new posts</string>
     <string name="color_bookmarks">Use \'star\' colors for bookmarks</string>
-    <string name="threadinfo_rating">Show Thread Rating</string>
+    <string name="threadinfo_rating">Show thread ratings</string>
 
     <!-- Post Settings page -->
     <string name="default_post_font_size">Default post font size</string>
@@ -101,19 +103,19 @@
     <string name="setting_posts_per_page_summary">Maximum: 40</string>
     <string name="hide_old_posts">Hide previously read posts</string>
     <string name="user_highlight">Highlight username</string>
-    <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
+    <string name="user_highlight_summary">Show when I\'m mentioned in posts</string>
     <string name="user_quote">Highlight your quotes</string>
-    <string name="user_quote_summary">Allows the app to highlight when you\'re quoted in a post</string>
-    <string name="self_highlight">Highlight posts</string>
-    <string name="self_highlight_summary">Allows the app to highlight your posts</string>
+    <string name="user_quote_summary">Show when I\'m quoted in posts</string>
+    <string name="self_highlight">Highlight my posts</string>
+    <string name="self_highlight_summary">Use a special background color</string>
     <string name="op_highlight">Highlight OP posts</string>
-    <string name="op_highlight_summary">Allows the app to highlight posts by the OP of the thread</string>
+    <string name="op_highlight_summary">Use a special background color</string>
     <string name="inline_videos">Embedded videos</string>
     <string name="inline_videos_summary">Might cause scroll lag/graphical glitches. ICS+</string>
     <string name="show_spoilers">Show all spoilers</string>
-    <string name="show_spoilers_summary">Spoilers are displayed as normal text</string>
+    <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
-    <string name="hide_signatures_summary">Hide signatures even when enabled in the browser</string>
+    <string name="hide_signatures_summary">Even when enabled in the browser</string>
     <string name="always_open_urls">Always open links</string>
     <string name="always_open_urls_summary">When clicking links in a post</string>
 
