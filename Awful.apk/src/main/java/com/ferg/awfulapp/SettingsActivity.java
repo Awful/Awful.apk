@@ -34,6 +34,7 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
@@ -175,10 +176,16 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 			} catch (NameNotFoundException e) {
 				// rather unlikely, just show app_name without version
 			}
+            // Build the text for the About dialog
+            Resources res = getResources();
+            String aboutText = getString(R.string.about_contributors_title) + "\n\n";
+            aboutText += StringUtils.join(res.getStringArray(R.array.about_contributors_array), '\n');
+            aboutText += "\n\n" + getString(R.string.about_libraries_title) + "\n\n";
+            aboutText += StringUtils.join(res.getStringArray(R.array.about_libraries_array), '\n');
 
 			return new AlertDialog.Builder(this)
 				.setTitle(app_version)
-				.setMessage(R.string.about_message)
+				.setMessage(aboutText)
 				.setNeutralButton(android.R.string.ok, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

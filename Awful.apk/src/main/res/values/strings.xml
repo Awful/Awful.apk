@@ -39,7 +39,6 @@
     <string name="self_highlight_summary">Allows the app to highlight your posts</string>
     <string name="op_highlight_summary">Allows the app to highlight posts by the OP of the thread</string>
     <string name="prefs_salr">SALR preferences</string>
-    <string name="prefs_misc">Misc preferences</string>
     <string name="inline_videos">Embedded videos</string>
     <string name="inline_videos_summary">Might cause scroll lag/graphical glitches. ICS+</string>
     <string name="enable_hardware_acceleration">Hardware acceleration</string>
@@ -49,12 +48,56 @@
     <string name="post_divider_enabled">Show post divider</string>
     
     <!-- Preferences -->
-    <string name="prefs_thread_display">Thread display settings</string>
+
+    <!-- Main page -->
+    <string name="about">About...</string>
+    <string name="about_summary">Contributors and library licenses</string>
+    <string name="about_contributors_title">Contributors:</string>
+    <string-array name="about_contributors_array">
+        <item>Ferg</item>
+        <item>1997</item>
+        <item>brosmike</item>
+        <item>big mean giraffe</item>
+        <item>foghorn</item>
+        <item>BullChicken</item>
+        <item>wmbest2</item>
+        <item>Glimm</item>
+        <item>Geekner</item>
+        <item>crazysim</item>
+        <item>Sereri</item>
+        <item>spanky the dolphin</item>
+        <item>JingleBells</item>
+        <item>baka kaba</item>
+    </string-array>
+    <string name="about_libraries_title">Libraries:</string>
+    <string-array name="about_libraries_array">
+        <item>ActionBarSherlock</item>
+        <item>ActionBar Pull To Refresh</item>
+        <item>ACRA / Bugsense</item>
+        <item>Apache Commons-Lang3</item>
+        <item>Apache HttpClient/HttpCore/HttpMime</item>
+        <item>HtmlCleaner</item>
+        <item>JSoup</item>
+        <item>AQuery</item>
+    </string-array>
+    <string name="open_thread">Go to the Awful thread</string>
+    <string name="open_thread_summary">The most Awful thread on the forums</string>
+    <string name="export_settings">Export settings</string>
+    <string name="import_settings">Import settings</string>
+
+    <string name="thread_settings">Thread settings</string>
     <string name="prefs_post_display">Post settings</string>
+    <string name="image_settings">Image preferences</string>
+    <string name="theme_settings">Theme settings</string>
+    <string name="prefs_misc">Misc preferences</string>
+    <string name="prefs_account">Account settings</string>
+
+
+    <string name="prefs_thread_display">Thread display settings</string>
+
     <string name="use_large_scrollbar">Use large scrollbar</string>
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
     <string name="default_post_font_size">Default post font size</string>
-    <string name="theme_settings">Theme settings</string>
     <string name="theme">Choose theme</string>
     <string name="layouts">Choose layout</string>
     <string name="alternate_backgrounds">Alternate Post BG Colors</string>
@@ -74,34 +117,7 @@
     <string name="unread_posts_font_black">Black Unread Counter Font Color</string>
     <string name="press_color_to_apply">Press color to apply</string>
     <string name="dialog_color_picker">Select color</string>
-    <string name="about">About...</string>
-    <string name="about_summary">Contributors and library licenses</string>
-	<string name="about_message">Contributors:\n
-Ferg\n
-1997\n
-brosmike\n
-big mean giraffe\n
-foghorn\n
-BullChicken\n
-wmbest2\n
-Glimm\n
-Geekner\n
-crazysim\n
-Sereri\n
-spanky the dolphin\n
-JingleBells\n
-\n
-Libraries:\n
-ActionBarSherlock\n
-ActionBar Pull To Refresh\n
-ACRA / Bugsense\n
-Apache Commons-Lang3\n
-Apache HttpClient/HttpCore/HttpMime\n
-HtmlCleaner\n
-JSoup\n
-AQuery</string>
-	<string name="open_thread">Go to the Awful thread</string>
-	<string name="open_thread_summary">The most Awful thread on the forums</string>
+
 	<string name="prefs_global">Global settings</string>
 	<string name="orientation">Screen orientation</string>
 	<string name="select_font">Select font</string>
@@ -179,7 +195,6 @@ AQuery</string>
 	<string name="show_smilies_summary">Show emotes or replace with :text: version</string>
 	<string name="threadinfo">Thread info</string>
 	<string name="threadinfo_settings">Thread subtext</string>
-	<string name="thread_settings">Thread settings</string>
 	<string name="imgur_thumbnails">Imgur thumbnails</string>
 	<string name="vote_failed">An error occurred while voting, please try again</string>
 	<string name="vote_succeeded">Thread Rated</string>
@@ -191,7 +206,6 @@ AQuery</string>
 	<string name="reply_alert_save_draft">Save draft</string>
     	<string name="new_threads_first_ucp">Sort UCP by new posts</string>
     	<string name="new_threads_first_forum">Sort forums by new posts</string>
-    	<string name="image_settings">Image preferences</string>
     	<string name="features">Refresh account features</string>
     	<string name="features_summary">Platinum: No | Archives: No | No Ads: No</string>
     	<string name="always_open_urls">Always open links</string>
@@ -250,8 +264,7 @@ AQuery</string>
     	<string name="keep_screen_on">Keep screen on</string>
     	<string name="ignore_title">Ignore user</string>
     	<string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
-    	<string name="export_settings">Export settings</string>
-    	<string name="import_settings">Import settings</string>
+
     <string name="loading_failed">Loading Failed!</string>
     <string name="critical_error">Critical Error</string>
     <string name="message_empty">Message Empty!</string>
@@ -265,6 +278,6 @@ AQuery</string>
     <string name="hide_signatures_summary">Hide signatures even when enabled in the browser</string>
 
 
-    <string name="prefs_account">Account settings</string>
+
 
 </resources>
