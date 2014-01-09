@@ -88,6 +88,8 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
 
+    private boolean oldMode = true; // old-style preferences (all we got right now)
+
 	// ---------------------------------------------- //
 	// ---------------- LIFECYCLE ------------------- //
 	// ---------------------------------------------- //
@@ -109,20 +111,13 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             addPreferencesFromResource(R.xml.miscsettings);
             addPreferencesFromResource(R.xml.accountsettings);
             // Initialise whatever needs initialising from each file
-            initRootSettings();
-            setRootListeners();
-            initThreadSettings();
-            setThreadListeners();
-            initPostSettings();
-            setPostListeners();
-            initImageSettings();
-            setImageListeners();
-            initThemeSettings();
-            setThemeListeners();
-            initMiscSettings();
-            setMiscListeners();
-            initAccountSettings();
-            setAccountListeners();
+            initRootSettings();    setRootListeners();
+            initThreadSettings();  setThreadListeners();
+            initPostSettings();    setPostListeners();
+            initImageSettings();   setImageListeners();
+            initThemeSettings();   setThemeListeners();
+            initMiscSettings();    setMiscListeners();
+            initAccountSettings(); setAccountListeners();
 
             setSummaries();
         }
@@ -258,7 +253,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     My stuff
      */
 
-    private boolean oldMode = true;
 
     private void setSummaries() {
         if (oldMode) {
