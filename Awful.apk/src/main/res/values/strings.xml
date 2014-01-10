@@ -139,15 +139,19 @@
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>
     <string name="open_thread_summary">The most Awful thread on the forums</string>
+    <string name="settings_divider_backup">Settings backup</string>
     <string name="export_settings">Export settings</string>
     <string name="export_settings_summary">Save a backup of your Awful choices</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_summary">Restore your backed up settings</string>
+    <string name="settings_divider_customisation">Forum appearance and behaviour</string>
     <string name="thread_settings">Threads</string>
     <string name="prefs_post_display">Posts</string>
     <string name="image_settings">Images</string>
     <string name="theme_settings">Theme</string>
+    <string name="settings_divider_misc">Device settings</string>
     <string name="prefs_misc">App</string>
+    <string name="settings_divider_account">Personal</string>
     <string name="prefs_account">Account</string>
 
     <!-- Thread Settings page -->

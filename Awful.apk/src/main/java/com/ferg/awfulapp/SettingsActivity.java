@@ -42,7 +42,9 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
@@ -102,14 +104,27 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
 		mPrefs = AwfulPreferences.getInstance(this,this);
         if (oldMode) {
+            // This setup allows older Android versions to build a PreferenceScreen-based,
+            // multi-page layout using the same XML files as a PreferenceFragment system
+
             // Build the PreferenceScreen hierarchy
             addPreferencesFromResource(R.xml.settings);
+            addSectionDivider(getString(R.string.settings_divider_customisation));
             addPreferencesFromResource(R.xml.threadinfosettings);
             addPreferencesFromResource(R.xml.postsettings);
             addPreferencesFromResource(R.xml.imagesettings);
             addPreferencesFromResource(R.xml.themesettings);
+            addSectionDivider(getString(R.string.settings_divider_misc));
             addPreferencesFromResource(R.xml.miscsettings);
+            addSectionDivider(getString(R.string.settings_divider_account));
             addPreferencesFromResource(R.xml.accountsettings);
+            addSectionDivider(getString(R.string.settings_divider_backup));
+            addPreferencesFromResource(R.xml.backupsettings);
+
+            // Since the full Preference hierarchy is being built in this activity, we can
+            // initialise and handle everything in here. Fragments could contain the
+            // individual method groups as appropriate
+
             // Initialise whatever needs initialising from each file
             initRootSettings();    setRootListeners();
             initThreadSettings();  setThreadListeners();
@@ -118,6 +133,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             initThemeSettings();   setThemeListeners();
             initMiscSettings();    setMiscListeners();
             initAccountSettings(); setAccountListeners();
+            initBackupSettings();  setBackupListeners();
 
             setSummaries();
         }
@@ -253,6 +269,18 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     My stuff
      */
 
+    /** Helper method to throw in a section divider preference while inflating XMLs */
+    private void addSectionDivider(CharSequence title) {
+        PreferenceScreen screen = (PreferenceScreen) findPreference("root_pref_screen");
+        PreferenceCategory divider = new PreferenceCategory(mThis);
+        divider.setTitle(title);
+        try {
+            screen.addPreference(divider);
+        }
+        catch (NullPointerException e) {
+            Log.w(TAG, "Can't find root preference screen");
+        }
+    }
 
     private void setSummaries() {
         if (oldMode) {
@@ -263,8 +291,10 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             setImageSummaries();
             setThreadSummaries();
             setThemeSummaries();
+            setBackupSummaries();
         }
     }
+
 
     /*
         SETTINGS.XML
@@ -285,10 +315,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         tempPref.setOnPreferenceClickListener(onAboutListener);
         tempPref = getPreferenceScreen().findPreference("open_thread");
         tempPref.setOnPreferenceClickListener(onThreadListener);
-        tempPref = getPreferenceScreen().findPreference("export_settings");
-        tempPref.setOnPreferenceClickListener(onExportListener);
-        tempPref = getPreferenceScreen().findPreference("import_settings");
-        tempPref.setOnPreferenceClickListener(onImportListener);
     }
 
     /* Associated methods */
@@ -301,6 +327,46 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             return true;
         }
     };
+
+    /** Listener for 'Go to the Awful thread' option */
+    private OnPreferenceClickListener onThreadListener = new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            Intent openThread = new Intent().setClass(mThis, ForumsIndexActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(Constants.THREAD_ID, Constants.AWFUL_THREAD_ID)
+                    .putExtra(Constants.THREAD_PAGE, 1)
+                    .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                    .putExtra(Constants.FORUM_PAGE, 1);
+            mThis.finish();
+            startActivity(openThread);
+            return true;
+        }
+    };
+
+
+    /*
+        BACKUPSETTINGS.XML
+     */
+
+    /** Initialise preferences on the root settings page */
+    private void initBackupSettings() {
+
+    }
+
+    private void setBackupSummaries() {
+
+    }
+
+    private void setBackupListeners() {
+        Preference tempPref;
+        tempPref = getPreferenceScreen().findPreference("export_settings");
+        tempPref.setOnPreferenceClickListener(onExportListener);
+        tempPref = getPreferenceScreen().findPreference("import_settings");
+        tempPref.setOnPreferenceClickListener(onImportListener);
+    }
+
+    /* Associated methods */
 
     /** Listener for the 'Export settings' option */
     private OnPreferenceClickListener onExportListener = new OnPreferenceClickListener() {
@@ -324,21 +390,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         }
     };
 
-    /** Listener for 'Go to the Awful thread' option */
-    private OnPreferenceClickListener onThreadListener = new OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            Intent openThread = new Intent().setClass(mThis, ForumsIndexActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Constants.THREAD_ID, Constants.AWFUL_THREAD_ID)
-                    .putExtra(Constants.THREAD_PAGE, 1)
-                    .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                    .putExtra(Constants.FORUM_PAGE, 1);
-            mThis.finish();
-            startActivity(openThread);
-            return true;
-        }
-    };
 
 
     /*
@@ -349,6 +400,8 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void initMiscSettings() {
         findPreference("enable_hardware_acceleration").setEnabled(AwfulUtils.isHoneycomb());
         findPreference("enable_hardware_acceleration").setDefaultValue(AwfulUtils.isJellybean());
+        findPreference("disable_gifs2").setEnabled(AwfulUtils.isHoneycomb());
+        findPreference("disable_gifs2").setDefaultValue(AwfulUtils.isHoneycomb());
         boolean tab = AwfulUtils.canBeWidescreen(this);
         findPreference("page_layout").setEnabled(tab);
         if(!tab){
@@ -358,11 +411,19 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
     private void setMiscSummaries() {
         final String[] VALUE_SUMMARY_KEYS_LIST = { "orientation" };
-
+        final String[] VERSION_DEPENDENT_KEYS_LIST = { "disable_gifs2",
+                                                       "enable_hardware_acceleration"};
         // set summaries to their selected entries
-        for(String key : VALUE_SUMMARY_KEYS_LIST) {
+        for (String key : VALUE_SUMMARY_KEYS_LIST) {
             ListPreference p = (ListPreference) findPreference(key);
             p.setSummary(p.getEntry());
+        }
+        // set summaries for unavailable options
+        for (String key : VERSION_DEPENDENT_KEYS_LIST) {
+            Preference p = (Preference) findPreference(key);
+            if (p.isEnabled()){
+                p.setSummary(getString(R.string.not_available_on_your_version));
+            }
         }
     }
 
@@ -542,6 +603,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         }
     };
 
+
     /*
         IMAGESETTINGS.XML
      */
@@ -560,7 +622,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
 
-
     /*
         THREADINFOSETTINGS.XML
      */
@@ -577,7 +638,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void setThreadListeners() {
 
     }
-
 
 
     /*
