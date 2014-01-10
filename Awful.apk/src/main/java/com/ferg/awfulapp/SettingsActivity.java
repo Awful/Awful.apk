@@ -688,42 +688,44 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         ListPreference layoutPref = (ListPreference) findPreference("layouts");
 
         File[] SDcard = Environment.getExternalStorageDirectory().listFiles();
-
-        for (File folder: SDcard){
-            if("awful".equals(folder.getName()) && folder.canRead()){
-                File[] files = folder.listFiles();
-                ArrayList<CharSequence> themes = new ArrayList<CharSequence>();
-                ArrayList<CharSequence> themeValues = new ArrayList<CharSequence>();
-                ArrayList<CharSequence> layouts = new ArrayList<CharSequence>();
-                ArrayList<CharSequence> layoutValues = new ArrayList<CharSequence>();
-                themes.addAll(Arrays.asList(themePref.getEntries()));
-                themeValues.addAll(Arrays.asList(themePref.getEntryValues()));
-                layouts.addAll(Arrays.asList(layoutPref.getEntries()));
-                layoutValues.addAll(Arrays.asList(layoutPref.getEntryValues()));
-                for(File folderFile: files){
-                    if(folderFile.canRead() && folderFile.getName() != null){
-                        String[] fileName = folderFile.getName().split("\\.");
-                        if("css".equals(fileName[fileName.length-1])){
-                            if(StringUtils.countMatches(folderFile.getName(), ".")>1){
-                                themes.add(fileName[0]+" ("+fileName[fileName.length-2]+")");
-                            }else{
-                                themes.add(fileName[0]);
+        if (SDcard != null) {
+            for (File folder: SDcard){
+                if("awful".equals(folder.getName()) && folder.canRead()){
+                    File[] files = folder.listFiles();
+                    ArrayList<CharSequence> themes = new ArrayList<CharSequence>();
+                    ArrayList<CharSequence> themeValues = new ArrayList<CharSequence>();
+                    ArrayList<CharSequence> layouts = new ArrayList<CharSequence>();
+                    ArrayList<CharSequence> layoutValues = new ArrayList<CharSequence>();
+                    themes.addAll(Arrays.asList(themePref.getEntries()));
+                    themeValues.addAll(Arrays.asList(themePref.getEntryValues()));
+                    layouts.addAll(Arrays.asList(layoutPref.getEntries()));
+                    layoutValues.addAll(Arrays.asList(layoutPref.getEntryValues()));
+                    for(File folderFile: files){
+                        if(folderFile.canRead() && folderFile.getName() != null){
+                            String[] fileName = folderFile.getName().split("\\.");
+                            if("css".equals(fileName[fileName.length-1])){
+                                if(StringUtils.countMatches(folderFile.getName(), ".")>1){
+                                    themes.add(fileName[0]+" ("+fileName[fileName.length-2]+")");
+                                }else{
+                                    themes.add(fileName[0]);
+                                }
+                                themeValues.add(folderFile.getName());
                             }
-                            themeValues.add(folderFile.getName());
-                        }
-                        if("mustache".equals(fileName[fileName.length-1])){
-                            layouts.add(fileName[0]);
-                            layoutValues.add(folderFile.getName());
+                            if("mustache".equals(fileName[fileName.length-1])){
+                                layouts.add(fileName[0]);
+                                layoutValues.add(folderFile.getName());
+                            }
                         }
                     }
-                }
-                layoutPref.setEntries(layouts.toArray(new CharSequence[layouts.size()]));
-                layoutPref.setEntryValues(layoutValues.toArray(new CharSequence[layoutValues.size()]));
+                    layoutPref.setEntries(layouts.toArray(new CharSequence[layouts.size()]));
+                    layoutPref.setEntryValues(layoutValues.toArray(new CharSequence[layoutValues.size()]));
 
-                themePref.setEntries(themes.toArray(new CharSequence[themes.size()]));
-                themePref.setEntryValues(themeValues.toArray(new CharSequence[themeValues.size()]));
+                    themePref.setEntries(themes.toArray(new CharSequence[themes.size()]));
+                    themePref.setEntryValues(themeValues.toArray(new CharSequence[themeValues.size()]));
+                }
             }
         }
+        else Log.w(TAG, "Unable to access ExternalStorageDirectory - themes and layouts not loaded");
 
         ListPreference f = (ListPreference) findPreference("preferred_font");
         String[] fontList = ((AwfulApplication)getApplication()).getFontList();
