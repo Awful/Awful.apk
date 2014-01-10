@@ -111,6 +111,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
             // Build the PreferenceScreen hierarchy
             addPreferencesFromResource(R.xml.settings);
+            addPreferencesFromResource(R.xml.accountsettings);
             addSectionDivider(getString(R.string.settings_divider_customisation));
             addPreferencesFromResource(R.xml.threadinfosettings);
             addPreferencesFromResource(R.xml.postsettings);
@@ -118,9 +119,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             addPreferencesFromResource(R.xml.themesettings);
             addSectionDivider(getString(R.string.settings_divider_misc));
             addPreferencesFromResource(R.xml.miscsettings);
-            addSectionDivider(getString(R.string.settings_divider_account));
-            addPreferencesFromResource(R.xml.accountsettings);
-            addSectionDivider(getString(R.string.settings_divider_backup));
             addPreferencesFromResource(R.xml.backupsettings);
 
             // Since the full Preference hierarchy is being built in this activity, we can
@@ -433,6 +431,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             ListPreference p = (ListPreference) findPreference(key);
             p.setSummary(p.getEntry());
         }
+
         // set summaries for unavailable options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {
             Preference p = (Preference) findPreference(key);
@@ -745,10 +744,11 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void setThemeSummaries() {
         final String[] VALUE_SUMMARY_KEYS_LIST = { "theme", "layouts", "preferred_font" };
 
-        findPreference("colors").setSummary(WordUtils.capitalize(mPrefs.theme)+" Theme");
+// this looks kinda wack now, as a header
+//        findPreference("colors").setSummary(WordUtils.capitalize(mPrefs.theme)+" Theme");
         // Used to get the parent screen to notice the new summary
         // kind of awkward, Theme Settings is the only header that displays one
-        ((BaseAdapter)getPreferenceScreen().getRootAdapter()).notifyDataSetChanged();
+//        ((BaseAdapter)getPreferenceScreen().getRootAdapter()).notifyDataSetChanged();
         
         // set summaries to their selected entries
         for(String valueSummaryKey : VALUE_SUMMARY_KEYS_LIST) {

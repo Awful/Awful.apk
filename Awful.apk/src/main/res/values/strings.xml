@@ -139,79 +139,81 @@
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>
     <string name="open_thread_summary">The most Awful thread on the forums</string>
-    <string name="settings_divider_backup">Settings backup</string>
+    <string name="prefs_account">Account</string>
+    <string name="settings_divider_customisation">Forum appearance and behaviour</string>
+    <string name="thread_settings">Thread list</string>
+    <string name="prefs_post_display">Posts</string>
+    <string name="image_settings">Images</string>
+    <string name="theme_settings">Theme</string>
+    <string name="settings_divider_misc">Advanced</string>
+    <string name="prefs_misc">Device and navigation</string>
     <string name="export_settings">Export settings</string>
     <string name="export_settings_summary">Save a backup of your Awful choices</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_summary">Restore your backed up settings</string>
-    <string name="settings_divider_customisation">Forum appearance and behaviour</string>
-    <string name="thread_settings">Threads</string>
-    <string name="prefs_post_display">Posts</string>
-    <string name="image_settings">Images</string>
-    <string name="theme_settings">Theme</string>
-    <string name="settings_divider_misc">Device settings</string>
-    <string name="prefs_misc">App</string>
-    <string name="settings_divider_account">Personal</string>
-    <string name="prefs_account">Account</string>
 
     <!-- Thread Settings page -->
-    <string name="threadinfo_tag">Show forum &amp; thread tags</string>
-    <string name="threadinfo_tag_summary">Category icons</string>
+    <string name="threadinfo_tag">Show tags</string>
+    <string name="threadinfo_tag_summary">Forum and thread category icons</string>
     <string name="wrap_titles">Wrap thread titles</string>
-    <string name="wrap_titles_summary">Allow titles to be more than one line long</string>
-    <string name="new_threads_first_ucp">Sort UCP by new posts</string>
-    <string name="new_threads_first_forum">Sort forums by new posts</string>
-    <string name="color_bookmarks">Use \'star\' colors for bookmarks</string>
+    <string name="wrap_titles_summary">Allow multi-line titles</string>
+    <string name="new_threads_first_ucp">Sort bookmarks by unread</string>
+    <string name="new_threads_first_ucp_summary">Show threads with unread posts first</string>
+    <string name="new_threads_first_forum">Sort forums by unread</string>
+    <string name="new_threads_first_forum_summary">Show threads with unread posts first</string>
+    <string name="color_bookmarks">Color bookmarks</string>
+    <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
     <string name="threadinfo_rating">Show thread ratings</string>
 
     <!-- Post Settings page -->
     <string name="default_post_font_size">Default post font size</string>
     <string name="setting_posts_per_page">Posts per page</string>
     <string name="setting_posts_per_page_summary">Maximum: 40</string>
-    <string name="hide_old_posts">Hide previously read posts</string>
-    <string name="hide_old_posts_summary"></string>
+    <string name="hide_old_posts">Hide old posts</string>
+    <string name="hide_old_posts_summary">Hide previously read posts</string>
     <string name="highlighting_settings_title">Highlighting</string>
     <string name="user_highlight">Highlight username</string>
-    <string name="user_highlight_summary">Show when I\'m mentioned in posts</string>
+    <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
     <string name="user_quote">Highlight your quotes</string>
-    <string name="user_quote_summary">Show when I\'m quoted in posts</string>
-    <string name="self_highlight">Highlight my posts</string>
-    <string name="self_highlight_summary">Use a special background color</string>
+    <string name="user_quote_summary">Show when you\'re quoted in posts</string>
+    <string name="self_highlight">Highlight your posts</string>
+    <string name="self_highlight_summary">Use a themed background color</string>
     <string name="op_highlight">Highlight OP posts</string>
-    <string name="op_highlight_summary">Use a special background color</string>
-    <string name="inline_videos">Embedded videos</string>
-    <string name="inline_videos_summary">Might cause scroll lag/graphical glitches. ICS+</string>
+    <string name="op_highlight_summary">Use a themed background color</string>
+    <string name="inline_videos">Embed videos</string>
+    <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
     <string name="show_spoilers">Show all spoilers</string>
     <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
     <string name="hide_signatures_summary">Even when enabled in the browser</string>
     <string name="always_open_urls">Always open links</string>
-    <string name="always_open_urls_summary">When clicking links in a post</string>
+    <string name="always_open_urls_summary">Disable link options menu</string>
 
     <!-- Image Settings page -->
     <string name="load_images">Load images</string>
-    <string name="load_images_summary">If disabled, images are replaced with links</string>
-    <string name="no_3g_images">Only load images on Wi-Fi</string>
+    <string name="load_images_summary">Uncheck to show links instead</string>
+    <string name="no_3g_images">Only load on Wi-Fi</string>
+    <string name="no_3g_images_summary">Disable images when using mobile data</string>
     <string name="load_avatars">Show avatars</string>
     <string name="hide_read_images">Hide old images</string>
     <string name="hide_read_images_summary">Hide images in previously viewed posts</string>
     <string name="show_smilies">Show emotes</string>
-    <string name="show_smilies_summary">Show emotes or replace with :text: version</string>
+    <string name="show_smilies_summary">Uncheck to replace with :text: versions</string>
     <string name="threadinfo">Thread info</string>
     <string name="threadinfo_settings">Thread subtext</string>
     <string name="imgur_thumbnails">Imgur thumbnails</string>
     <string-array name="imgur_thumbnails">
-        <item>Don\'t replace pictures</item>
+        <item>Use original pictures</item>
         <item>Tiny (160px)</item>
         <item>Medium (320px)</item>
         <item>Large (640px)</item>
         <item>Huge (1024px)</item>
     </string-array>
     <string name="disable_timgs">Disable timgs</string>
-    <string name="disable_timgs_summary">Notice: Timgs are just resized images, not actual thumbnails</string>
+    <string name="disable_timgs_summary">timgs are full-size images, displayed smaller</string>
 
     <!-- Theme Settings page -->
-    <string name="theme">Choose theme</string>
+    <string name="theme">Theme</string>
     <string-array name="theme">
         <item>Default</item>
         <item>Dark</item>
@@ -222,11 +224,11 @@
     </string-array>
     <string name="force_forum_themes">Force forum themes</string>
     <string name="force_forum_themes_summary">Specific theme in YOSPOS ̶a̶̶n̶̶d̶ ̶F̶̶Y̶̶A̶̶D̶</string>
-    <string name="layouts">Choose layout</string>
+    <string name="layouts">Layout</string>
     <string-array name="layouts">
         <item>Default</item>
     </string-array>
-    <string name="select_font">Select font</string>
+    <string name="select_font">Font</string>
 
     <!-- Misc Settings page -->
     <string name="misc_category_performance">Performance tweaks</string>
@@ -249,25 +251,27 @@
         <item>Portrait</item>
         <item>Landscape</item>
     </string-array>
-    <string name="immersion_mode">Immersion Mode (fullscreen)</string>
-    <string name="immersion_mode_summary">Requires KitKat and above</string>
+    <string name="immersion_mode">Immersion Mode</string>
+    <string name="immersion_mode_summary">Fullscreen mode for KitKat and above</string>
     <string name="misc_category_navigation">Navigation</string>
-    <string name="show_next_page_button_at_top">Show next page button at top</string>
+    <string name="show_next_page_button_at_top">Top \'next page\' button</string>
+    <string name="show_next_page_button_at_top_summary">Add a button to the top of the screen</string>
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
     <string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
     <string name="pull_to_refresh_distance_summary">How much of the view has to be scrolled to trigger the refresh</string>
-    <string name="lock_scrolling">Lock scrolling</string>
-    <string name="lock_scrolling_summary">Locks horizontal scrolling to navigate</string>
-    <string name="volume_scroll">Scroll thread with volume keys</string>
+    <string name="lock_scrolling">Disable view swiping</string>
+    <string name="lock_scrolling_summary">No horizontal swiping navigation</string>
+    <string name="volume_scroll">Volume button scrolling</string>
+    <string name="volume_scroll_summary">Use hardware volume controls to scroll threads</string>
 
 
     <!-- Account settings page -->
     <string name="username_pref">Username</string>
     <string name="features">Refresh account features</string>
     <string name="features_summary">Platinum: No | Archives: No | No Ads: No</string>
-    <string name="send_username_in_report">Send username in reports</string>
-    <string name="send_username_in_report_summary">Attaches the forum username to crash reports</string>
+    <string name="send_username_in_report">Sign reports</string>
+    <string name="send_username_in_report_summary">Attach username to crash reports</string>
 
 
     <!--

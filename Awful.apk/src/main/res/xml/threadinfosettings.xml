@@ -17,16 +17,19 @@
         <CheckBoxPreference
           android:key="new_threads_first_forum"
           android:title="@string/new_threads_first_forum"
+          android:summary="@string/new_threads_first_forum_summary"
           android:defaultValue="false"
           />
 		<CheckBoxPreference 
             android:key="new_threads_first_ucp" 
 			android:title="@string/new_threads_first_ucp"
+            android:summary="@string/new_threads_first_ucp_summary"
 			android:defaultValue="false"
 			/>
 		<CheckBoxPreference 
             android:key="color_bookmarks" 
 			android:title="@string/color_bookmarks"
+            android:summary="@string/color_bookmarks_summary"
 			android:defaultValue="false"
 			/>
         <CheckBoxPreference
