@@ -19,30 +19,32 @@
             android:summary="@string/hide_old_posts_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference
-            android:key="user_highlight"
-            android:title="@string/user_highlight"
-            android:summary="@string/user_highlight_summary"
-            android:defaultValue="true"
-            />
-        <CheckBoxPreference
-            android:key="user_quotes"
-            android:title="@string/user_quote"
-            android:summary="@string/user_quote_summary"
-            android:defaultValue="true"
-            />
-        <CheckBoxPreference
-            android:key="self_highlight"
-            android:title="@string/self_highlight"
-            android:summary="@string/self_highlight_summary"
-            android:defaultValue="true"
-            />
-        <CheckBoxPreference
-            android:key="op_highlight"
-            android:title="@string/op_highlight"
-            android:summary="@string/op_highlight_summary"
-            android:defaultValue="true"
-            />
+        <PreferenceScreen android:title="@string/highlighting_settings_title">
+            <CheckBoxPreference
+                android:key="user_highlight"
+                android:title="@string/user_highlight"
+                android:summary="@string/user_highlight_summary"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference
+                android:key="user_quotes"
+                android:title="@string/user_quote"
+                android:summary="@string/user_quote_summary"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference
+                android:key="self_highlight"
+                android:title="@string/self_highlight"
+                android:summary="@string/self_highlight_summary"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference
+                android:key="op_highlight"
+                android:title="@string/op_highlight"
+                android:summary="@string/op_highlight_summary"
+                android:defaultValue="true"
+                />
+        </PreferenceScreen>
         <CheckBoxPreference
             android:key="inline_youtube"
             android:title="@string/inline_videos"

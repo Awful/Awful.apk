@@ -170,6 +170,7 @@
     <string name="setting_posts_per_page_summary">Maximum: 40</string>
     <string name="hide_old_posts">Hide previously read posts</string>
     <string name="hide_old_posts_summary"></string>
+    <string name="highlighting_settings_title">Highlighting</string>
     <string name="user_highlight">Highlight username</string>
     <string name="user_highlight_summary">Show when I\'m mentioned in posts</string>
     <string name="user_quote">Highlight your quotes</string>
@@ -228,10 +229,12 @@
     <string name="select_font">Select font</string>
 
     <!-- Misc Settings page -->
+    <string name="misc_category_performance">Performance tweaks</string>
     <string name="enable_hardware_acceleration">Hardware acceleration</string>
     <string name="enable_hardware_acceleration_summary">Might cause or solve scroll lag/graphical glitches. HC+</string>
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
+    <string name="misc_category_display">Display</string>
     <string name="page_layout">Thread layout</string>
     <string name="page_layout_summary_disabled">This screen is too small for tablet mode</string>
     <string-array name="page_layouts">
@@ -246,6 +249,9 @@
         <item>Portrait</item>
         <item>Landscape</item>
     </string-array>
+    <string name="immersion_mode">Immersion Mode (fullscreen)</string>
+    <string name="immersion_mode_summary">Requires KitKat and above</string>
+    <string name="misc_category_navigation">Navigation</string>
     <string name="show_next_page_button_at_top">Show next page button at top</string>
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
@@ -254,8 +260,7 @@
     <string name="lock_scrolling">Lock scrolling</string>
     <string name="lock_scrolling_summary">Locks horizontal scrolling to navigate</string>
     <string name="volume_scroll">Scroll thread with volume keys</string>
-    <string name="immersion_mode">Immersion Mode (fullscreen)</string>
-    <string name="immersion_mode_summary">Requires KitKat and above</string>
+
 
     <!-- Account settings page -->
     <string name="username_pref">Username</string>

@@ -12,17 +12,18 @@
             android:key="no_3g_images"
             android:title="@string/no_3g_images"
             android:defaultValue="false"
-            />
-        <CheckBoxPreference
-            android:key="avatars_enabled"
-            android:title="@string/load_avatars"
-            android:defaultValue="true"
+            android:dependency="images_enabled"
             />
         <CheckBoxPreference
             android:key="hide_read_images"
             android:title="@string/hide_read_images"
             android:summary="@string/hide_read_images_summary"
             android:defaultValue="false"
+            />
+        <CheckBoxPreference
+            android:key="avatars_enabled"
+            android:title="@string/load_avatars"
+            android:defaultValue="true"
             />
         <CheckBoxPreference
             android:key="show_smilies"

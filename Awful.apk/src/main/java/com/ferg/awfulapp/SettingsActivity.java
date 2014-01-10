@@ -629,7 +629,13 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setImageSummaries() {
+        final String[] VALUE_SUMMARY_KEYS_LIST = { "imgur_thumbnails" };
 
+        // set summaries to their selected entries
+        for (String key : VALUE_SUMMARY_KEYS_LIST) {
+            ListPreference p = (ListPreference) findPreference(key);
+            p.setSummary(p.getEntry());
+        }
     }
 
     private void setImageListeners() {
