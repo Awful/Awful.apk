@@ -6,14 +6,15 @@
             android:key="enable_hardware_acceleration"
             android:title="@string/enable_hardware_acceleration"
             android:summary="@string/enable_hardware_acceleration_summary"
-            android:defaultValue="true"
+            android:defaultValue="false"
+            android:enabled="false"
             />
         <CheckBoxPreference
             android:key="disable_gifs2"
             android:title="@string/disable_gifs"
             android:summary="@string/disable_gifs_summary"
-            android:defaultValue="true"
-            android:enabled="true"
+            android:defaultValue="false"
+            android:enabled="false"
             />
         <ListPreference
             android:key="page_layout"
@@ -21,6 +22,7 @@
             android:entries="@array/page_layouts"
             android:entryValues="@array/page_layout_values"
             android:defaultValue="auto"
+            android:enabled="false"
             />
         <ListPreference
             android:key="orientation"
@@ -62,6 +64,7 @@
             android:title="@string/immersion_mode"
             android:summary="@string/immersion_mode_summary"
             android:defaultValue="false"
+            android:enabled="false"
             />
     </PreferenceScreen>
 </PreferenceScreen>

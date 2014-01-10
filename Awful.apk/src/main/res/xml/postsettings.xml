@@ -47,7 +47,8 @@
             android:key="inline_youtube"
             android:title="@string/inline_videos"
             android:summary="@string/inline_videos_summary"
-            android:defaultValue="true"
+            android:defaultValue="false"
+            android:enabled="false"
             />
         <CheckBoxPreference
             android:key="show_all_spoilers"

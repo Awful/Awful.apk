@@ -91,6 +91,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	private ActivityConfigurator mConf;
 
     private boolean oldMode = true; // old-style preferences (all we got right now)
+    private boolean hierarchyLoaded = false;  // to ensure preferences are ready for manipulatin'
 
 	// ---------------------------------------------- //
 	// ---------------- LIFECYCLE ------------------- //
@@ -134,7 +135,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             initMiscSettings();    setMiscListeners();
             initAccountSettings(); setAccountListeners();
             initBackupSettings();  setBackupListeners();
-
+            hierarchyLoaded = true;
             setSummaries();
         }
     }
@@ -258,7 +259,9 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 		   return null;
 	   }
    }
-	
+
+    // This is called before the XML is loaded on a fresh install, so setSummaries checks the
+    // hierarchy is loaded before trying to do anything (otherwise there's NPEs)
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		setSummaries();
@@ -283,7 +286,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     }
 
     private void setSummaries() {
-        if (oldMode) {
+        if (oldMode && hierarchyLoaded) {
             setRootSummaries();
             setMiscSummaries();
             setPostSummaries();
@@ -402,6 +405,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         findPreference("enable_hardware_acceleration").setDefaultValue(AwfulUtils.isJellybean());
         findPreference("disable_gifs2").setEnabled(AwfulUtils.isHoneycomb());
         findPreference("disable_gifs2").setDefaultValue(AwfulUtils.isHoneycomb());
+        findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
         boolean tab = AwfulUtils.canBeWidescreen(this);
         findPreference("page_layout").setEnabled(tab);
         if(!tab){
@@ -412,7 +416,8 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void setMiscSummaries() {
         final String[] VALUE_SUMMARY_KEYS_LIST = { "orientation" };
         final String[] VERSION_DEPENDENT_KEYS_LIST = { "disable_gifs2",
-                                                       "enable_hardware_acceleration"};
+                                                       "enable_hardware_acceleration",
+                                                       "immersion_mode"};
         // set summaries to their selected entries
         for (String key : VALUE_SUMMARY_KEYS_LIST) {
             ListPreference p = (ListPreference) findPreference(key);
@@ -421,7 +426,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         // set summaries for unavailable options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {
             Preference p = (Preference) findPreference(key);
-            if (p.isEnabled()){
+            if (!p.isEnabled()){
                 p.setSummary(getString(R.string.not_available_on_your_version));
             }
         }
@@ -488,11 +493,21 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     /** Initialise preferences on Post Settings page */
     private void initPostSettings() {
         findPreference("inline_youtube").setEnabled(AwfulUtils.isICS());
+        findPreference("inline_youtube").setDefaultValue(AwfulUtils.isICS());
     }
 
     private void setPostSummaries() {
+        final String[] VERSION_DEPENDENT_KEYS_LIST = { "inline_youtube" };
+
         findPreference("default_post_font_size_dip").setSummary(String.valueOf(mPrefs.postFontSizeDip));
         findPreference("post_per_page").setSummary(String.valueOf(mPrefs.postPerPage));
+        // set summaries for unavailable options
+        for (String key : VERSION_DEPENDENT_KEYS_LIST) {
+            Preference p = (Preference) findPreference(key);
+            if (!p.isEnabled()){
+                p.setSummary(getString(R.string.not_available_on_your_version));
+            }
+        }
     }
 
     private void setPostListeners() {
