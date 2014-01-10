@@ -38,6 +38,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -401,10 +402,19 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
     /** Initialise preferences on Misc Settings page */
     private void initMiscSettings() {
-        findPreference("enable_hardware_acceleration").setEnabled(AwfulUtils.isHoneycomb());
-        findPreference("enable_hardware_acceleration").setDefaultValue(AwfulUtils.isJellybean());
-        findPreference("disable_gifs2").setEnabled(AwfulUtils.isHoneycomb());
-        findPreference("disable_gifs2").setDefaultValue(AwfulUtils.isHoneycomb());
+        CheckBoxPreference pref = (CheckBoxPreference) findPreference("enable_hardware_acceleration");
+        if (pref != null) {
+            pref.setEnabled(AwfulUtils.isHoneycomb());
+            // Not for you
+            if (!AwfulUtils.isJellybean()) pref.setChecked(false);
+        }
+        pref = (CheckBoxPreference) findPreference("disable_gifs2");
+        if (pref != null) {
+            pref.setEnabled(AwfulUtils.isHoneycomb());
+            // Not for you
+            if (!AwfulUtils.isHoneycomb()) pref.setChecked(false);
+        }
+
         findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
         boolean tab = AwfulUtils.canBeWidescreen(this);
         findPreference("page_layout").setEnabled(tab);
@@ -492,8 +502,12 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
     /** Initialise preferences on Post Settings page */
     private void initPostSettings() {
-        findPreference("inline_youtube").setEnabled(AwfulUtils.isICS());
-        findPreference("inline_youtube").setDefaultValue(AwfulUtils.isICS());
+        CheckBoxPreference pref = (CheckBoxPreference) findPreference("inline_youtube");
+        if (pref != null) {
+            pref.setEnabled(AwfulUtils.isICS());
+            // Not for you
+            if (!AwfulUtils.isICS()) pref.setChecked(false);
+        }
     }
 
     private void setPostSummaries() {

@@ -7,14 +7,14 @@
                 android:key="enable_hardware_acceleration"
                 android:title="@string/enable_hardware_acceleration"
                 android:summary="@string/enable_hardware_acceleration_summary"
-                android:defaultValue="false"
+                android:defaultValue="true"
                 android:enabled="false"
                 />
             <CheckBoxPreference
                 android:key="disable_gifs2"
                 android:title="@string/disable_gifs"
                 android:summary="@string/disable_gifs_summary"
-                android:defaultValue="false"
+                android:defaultValue="true"
                 android:enabled="false"
                 />
         </PreferenceCategory>

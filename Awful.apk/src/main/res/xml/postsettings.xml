@@ -49,7 +49,7 @@
             android:key="inline_youtube"
             android:title="@string/inline_videos"
             android:summary="@string/inline_videos_summary"
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:enabled="false"
             />
         <CheckBoxPreference
