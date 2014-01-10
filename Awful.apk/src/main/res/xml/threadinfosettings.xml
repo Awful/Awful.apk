@@ -14,18 +14,6 @@
           android:summary="@string/wrap_titles_summary"
           android:defaultValue="true"
           />
-        <CheckBoxPreference
-          android:key="new_threads_first_forum"
-          android:title="@string/new_threads_first_forum"
-          android:summary="@string/new_threads_first_forum_summary"
-          android:defaultValue="false"
-          />
-		<CheckBoxPreference 
-            android:key="new_threads_first_ucp" 
-			android:title="@string/new_threads_first_ucp"
-            android:summary="@string/new_threads_first_ucp_summary"
-			android:defaultValue="false"
-			/>
 		<CheckBoxPreference 
             android:key="color_bookmarks" 
 			android:title="@string/color_bookmarks"
@@ -37,5 +25,19 @@
           android:title="@string/threadinfo_rating"
           android:defaultValue="false"
           />
+      <PreferenceCategory android:title="@string/new_threads_first_category">
+          <CheckBoxPreference
+              android:key="new_threads_first_forum"
+              android:title="@string/new_threads_first_forum"
+              android:summary="@string/new_threads_first_forum_summary"
+              android:defaultValue="false"
+              />
+          <CheckBoxPreference
+              android:key="new_threads_first_ucp"
+              android:title="@string/new_threads_first_ucp"
+              android:summary="@string/new_threads_first_ucp_summary"
+              android:defaultValue="false"
+              />
+      </PreferenceCategory>
   </PreferenceScreen>
 </PreferenceScreen>

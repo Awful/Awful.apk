@@ -11,6 +11,7 @@
         <CheckBoxPreference
             android:key="no_3g_images"
             android:title="@string/no_3g_images"
+            android:summary="@string/no_3g_images_summary"
             android:defaultValue="false"
             android:dependency="images_enabled"
             />

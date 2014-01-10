@@ -431,6 +431,11 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             ListPreference p = (ListPreference) findPreference(key);
             p.setSummary(p.getEntry());
         }
+        // p2r amount summary
+        String summary = getString(R.string.pull_to_refresh_distance_summary);
+               summary += "\n" + String.valueOf(Math.round(mPrefs.p2rDistance * 100.f)) + "%";
+               summary += " of the screen's height";
+        findPreference("pull_to_refresh_distance").setSummary(summary);
 
         // set summaries for unavailable options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {

@@ -100,7 +100,7 @@
     <string name="probation_message">You have been put on probation until %s.</string>
     <string name="loading_failed">Loading Failed!</string>
     <string name="critical_error">Critical Error</string>
-    <string name="not_available_on_your_version">This feature is not available on your version of Android. Sorry.</string>
+    <string name="not_available_on_your_version">Not available on this version of Android</string>
 
     <!--
         Start of Settings menu strings
@@ -157,13 +157,14 @@
     <string name="threadinfo_tag_summary">Forum and thread category icons</string>
     <string name="wrap_titles">Wrap thread titles</string>
     <string name="wrap_titles_summary">Allow multi-line titles</string>
-    <string name="new_threads_first_ucp">Sort bookmarks by unread</string>
-    <string name="new_threads_first_ucp_summary">Show threads with unread posts first</string>
-    <string name="new_threads_first_forum">Sort forums by unread</string>
-    <string name="new_threads_first_forum_summary">Show threads with unread posts first</string>
     <string name="color_bookmarks">Color bookmarks</string>
     <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
     <string name="threadinfo_rating">Show thread ratings</string>
+    <string name="new_threads_first_category">Sort by unread</string>
+    <string name="new_threads_first_ucp">Bookmarks view</string>
+    <string name="new_threads_first_ucp_summary">Show threads with unread posts first</string>
+    <string name="new_threads_first_forum">Forums view</string>
+    <string name="new_threads_first_forum_summary">Show threads with unread posts first</string>
 
     <!-- Post Settings page -->
     <string name="default_post_font_size">Default post font size</string>
@@ -172,13 +173,13 @@
     <string name="hide_old_posts">Hide old posts</string>
     <string name="hide_old_posts_summary">Hide previously read posts</string>
     <string name="highlighting_settings_title">Highlighting</string>
-    <string name="user_highlight">Highlight username</string>
+    <string name="user_highlight">Your username</string>
     <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
-    <string name="user_quote">Highlight your quotes</string>
+    <string name="user_quote">Your quotes</string>
     <string name="user_quote_summary">Show when you\'re quoted in posts</string>
-    <string name="self_highlight">Highlight your posts</string>
+    <string name="self_highlight">Your posts</string>
     <string name="self_highlight_summary">Use a themed background color</string>
-    <string name="op_highlight">Highlight OP posts</string>
+    <string name="op_highlight">OP\'s posts</string>
     <string name="op_highlight_summary">Use a themed background color</string>
     <string name="inline_videos">Embed videos</string>
     <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
@@ -210,7 +211,7 @@
         <item>Huge (1024px)</item>
     </string-array>
     <string name="disable_timgs">Disable timgs</string>
-    <string name="disable_timgs_summary">timgs are full-size images, displayed smaller</string>
+    <string name="disable_timgs_summary">Don\'t shrink large images</string>
 
     <!-- Theme Settings page -->
     <string name="theme">Theme</string>
@@ -259,11 +260,11 @@
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
     <string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
-    <string name="pull_to_refresh_distance_summary">How much of the view has to be scrolled to trigger the refresh</string>
+    <string name="pull_to_refresh_distance_summary">Swipe distance needed to cause a refresh:</string>
     <string name="lock_scrolling">Disable view swiping</string>
     <string name="lock_scrolling_summary">No horizontal swiping navigation</string>
     <string name="volume_scroll">Volume button scrolling</string>
-    <string name="volume_scroll_summary">Use hardware volume controls to scroll threads</string>
+    <string name="volume_scroll_summary">Use volume controls to scroll threads</string>
 
 
     <!-- Account settings page -->
