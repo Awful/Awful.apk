@@ -618,8 +618,12 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         String platinum = (mPrefs.hasPlatinum) ? "Yes" : "No";
         String archives = (mPrefs.hasArchives) ? "Yes" : "No";
         String noAds = (mPrefs.hasNoAds) ? "Yes" : "No";
-        tempPref = getPreferenceScreen().findPreference("account_features");
-        tempPref.setSummary("Platinum: \t"+platinum+"\nArchives: \t"+archives+"\nNo Ads: \t\t"+noAds);
+        String spc = "    ";
+        String summaryText;
+        summaryText = "Platinum: "+ platinum + spc +"Archives: "+ archives + spc +"No Ads: "+noAds;
+        // Line break version
+//        summaryText = "Platinum: \t"+platinum+"\nArchives: \t"+archives+"\nNo Ads: \t\t"+noAds;
+        findPreference("account_features").setSummary(summaryText);
     }
 
     private void setAccountListeners() {
