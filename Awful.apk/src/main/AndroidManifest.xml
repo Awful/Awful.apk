@@ -48,8 +48,7 @@
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.AppCompat.Light" android:launchMode="singleTop"/>
         <activity android:name="com.ferg.awfulapp.ProfileActivity" />
         <activity android:name="com.ferg.awfulapp.SettingsActivity" android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name="com.ferg.awfulapp.ThemeSettingsActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:hardwareAccelerated="false"/>
-        <activity 
+        <activity
             android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -85,8 +84,6 @@
 				  android:authorities="com.ferg.awfulapp.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />
-        <activity android:name="ImageSettingsActivity"></activity>
-            <activity android:name="ThreadInfoSettingsActivity"></activity>
         <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
         <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />

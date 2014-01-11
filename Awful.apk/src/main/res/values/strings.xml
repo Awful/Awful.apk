@@ -1,62 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Awful</string>
-    <string name="home">Home</string>
-    <string name="logout">All your dreams</string>
-    <string name="usercp">Bookmarks</string>
-    <string name="back">Previous page</string>
-    <string name="forward">Next page</string>
-    <string name="refresh">Refresh</string>
-    <string name="settings">Settings</string>
-    <string name="go_to">Go to page</string>
-    <string name="quote">Quote</string>
-    <string name="edit">Edit</string>
-    <string name="forums_title">Forums</string>
-    <string name="user_cp">Bookmarks</string>
-    <string name="post_reply">Post reply</string>
-    <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
-    <string name="login_failed">Login failed!</string>
-    <string name="logout_message">Make all your wildest dreams come true?</string>
-    <string name="invalid_page">Enter a real number</string>
-    <string name="mark_last_read">Mark last read</string>
-    <string name="mark_last_read_progress">Marking Last-Read</string>
-    <string name="mark_last_read_success">Post Marked</string>
-    <string name="please_wait_subtext">Please wait...</string>
-    <string name="reply_invalid_title">You can\'t post here</string>
-    <string name="reply_invalid_message">Fly away nerd!</string>
+    <string name="awful_web_provider">AwfulWebProvider</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
-    <string name="always">Always</string>
-    <string name="dont_show_again">Don\'t show again</string>
-    <string name="threads">Threads</string>
-    <string name="username_pref">Username</string>
-    <string name="user_quote">Highlight your quotes</string>
-    <string name="user_highlight">Highlight username</string>
-    <string name="self_highlight">Highlight posts</string>
-    <string name="op_highlight">Highlight OP posts</string>
-    <string name="user_quote_summary">Allows the app to highlight when you\'re quoted in a post</string>
-    <string name="user_highlight_summary">Allows the app to highlight when you\'re mentioned in a post</string>
-    <string name="self_highlight_summary">Allows the app to highlight your posts</string>
-    <string name="op_highlight_summary">Allows the app to highlight posts by the OP of the thread</string>
-    <string name="prefs_salr">SALR preferences</string>
-    <string name="prefs_misc">Misc preferences</string>
-    <string name="inline_videos">Embedded videos</string>
-    <string name="inline_videos_summary">Might cause scroll lag/graphical glitches. ICS+</string>
+    <string name="refresh">Refresh</string>
+
+    <string name="login">Login</string>
+        <string name="login_message">Login with your Awful credentials</string>
+        <string name="password">Password</string>
+        <string name="username">Username</string>
+        <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
+        <string name="login_failed">Login failed!</string>
+    <string name="logout">All your dreams</string>
+        <string name="logout_message">Make all your wildest dreams come true?</string>
+    <string name="private_message">Private messages</string>
+        <string name="new_pm">New private message</string>
+        <string name="toggle_folder">Toggle mail folder</string>
+        <string name="select_message">Select a message on the left or click the new message icon
+                                      at the top of the screen</string>
+
+    <!-- sort THIS out -->
+    <string name="usercp">Bookmarks</string>
+    <string name="user_cp">Bookmarks</string>
+
+    <string name="forums_title">Forums</string>
+        <string name="back">Previous page</string>
+        <string name="forward">Next page</string>
+        <string name="go_to">Go to page</string>
+        <string name="invalid_page">Enter a real number</string>
+    <string name="settings">Settings</string>
+
+    <!-- Post view -->
+    <string name="post_reply">Post reply</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="unbookmark">Unbookmark</string>
+    <string name="bookmarkarchived">Archived</string>
+    <string name="rate_thread">Rate thread</string>
+        <string name="vote_failed">An error occurred while voting, please try again</string>
+        <string name="vote_succeeded">Thread Rated</string>
+        <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
+    <string name="copy_url">Copy thread URL</string>
+        <string name="copy_url_success">URL has been copied to the clipboard</string>
+    <string name="share_thread">Share thread</string>
+    <string name="find">Find on page</string>
+    <string name="keep_screen_on">Keep screen on</string>
+
+    <string name="next_page">Next page</string>
+    <string name="mark_last_read_progress">Marking Last-Read</string>
+        <string name="mark_last_read_success">Post Marked</string>
+        <string name="please_wait_subtext">Please wait…</string>
+
+    <string name="ignore_title">Ignore user</string>
+        <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
+        <string name="dont_show_again">Don\'t show again</string>
+
+    <!-- Thread view long-press menu -->
+    <string name="goto_firstpage">First page</string>
+    <string name="goto_lastpage">Last page</string>
+    <string name="toggle_bookmark">Toggle bookmark</string>
+    <string name="toggle_bookmark_color">Toggle bookmark color</string>
+    <string name="mark_unread">Mark thread unread</string>
+        <string name="mark_unread_success">Thread Marked Unread</string>
+
+    <!-- Reply view -->
+    <string name="filter_emote_hint">Filter emotes…</string>
+    <string name="bbcode">BBCode</string>
+    <string name="submit">Submit</string>
+    <string name="menu_save_draft">Save draft</string>
+    <string name="menu_discard">Discard</string>
+    <string name="signature">Show Signature</string>
+    <string name="disableEmots">Disable Smilies in This Post</string>
+    <string name="add_attachment">Add file attachment</string>
+    <string name="remove_attachment">Remove file attachment</string>
+        <string name="file_attached">Set file %s as attachment</string>
+        <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
+        <string name="file_unreadable">File %s could not be accessed</string>
+        <string name="file_removed">Attachment removed</string>
+    <string name="message_empty">Message Empty!</string>
+    <string name="message_empty_subtext">type something, fuck</string>
+    <string name="post_sent">Hope it didn\'t suck…</string>
+
+    <!-- other shit -->
+    <string name="press_color_to_apply">Press color to apply</string>
+    <string name="dialog_color_picker">Select color</string>
+    <string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
+    most devices. \n
+    \n
+    \n
+    If you wish to re-enable these animations, open Settings and uncheck the \"Disable GIF
+    animation\" option.
+    </string>
+    <string name="alert_title_1">Please Note: GIFs</string>
+    <string name="alert_ok">Ok</string>
+    <string name="alert_settings">Settings</string>
+    <string name="thread_actions">Thread actions</string>
+
+    <string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
+    <string name="probation_message">You have been put on probation until %s.</string>
+    <string name="loading_failed">Loading Failed!</string>
+    <string name="critical_error">Critical Error</string>
+    <string name="not_available_on_your_version">Not available on this version of Android</string>
+
+    <!--
+        Start of Settings menu strings
+    -->
+
+    <!-- Main page -->
+    <string name="about">About…</string>
+    <string name="about_summary">Contributors and library licenses</string>
+    <string name="about_contributors_title">Contributors:</string>
+    <string-array name="about_contributors_array">
+        <item>Ferg</item>
+        <item>1997</item>
+        <item>brosmike</item>
+        <item>big mean giraffe</item>
+        <item>foghorn</item>
+        <item>BullChicken</item>
+        <item>wmbest2</item>
+        <item>Glimm</item>
+        <item>Geekner</item>
+        <item>crazysim</item>
+        <item>Sereri</item>
+        <item>spanky the dolphin</item>
+        <item>JingleBells</item>
+        <item>baka kaba</item>
+    </string-array>
+    <string name="about_libraries_title">Libraries:</string>
+    <string-array name="about_libraries_array">
+        <item>ActionBarSherlock</item>
+        <item>ActionBar Pull To Refresh</item>
+        <item>ACRA / Bugsense</item>
+        <item>Apache Commons-Lang3</item>
+        <item>Apache HttpClient/HttpCore/HttpMime</item>
+        <item>HtmlCleaner</item>
+        <item>JSoup</item>
+        <item>AQuery</item>
+    </string-array>
+    <string name="open_thread">Go to the Awful thread</string>
+    <string name="open_thread_summary">The most Awful thread on the forums</string>
+    <string name="prefs_account">Account</string>
+    <string name="settings_divider_customisation">Forum appearance and behaviour</string>
+    <string name="thread_settings">Thread list</string>
+    <string name="prefs_post_display">Posts</string>
+    <string name="image_settings">Images</string>
+    <string name="theme_settings">Theme</string>
+    <string name="settings_divider_misc">Advanced</string>
+    <string name="prefs_misc">Device and navigation</string>
+    <string name="export_settings">Export settings</string>
+    <string name="export_settings_summary">Save a backup of your Awful choices</string>
+    <string name="import_settings">Import settings</string>
+    <string name="import_settings_summary">Restore your backed up settings</string>
+
+    <!-- Thread Settings page -->
+    <string name="threadinfo_tag">Show tags</string>
+    <string name="threadinfo_tag_summary">Forum and thread category icons</string>
+    <string name="wrap_titles">Wrap thread titles</string>
+    <string name="wrap_titles_summary">Allow multi-line titles</string>
+    <string name="color_bookmarks">Color bookmarks</string>
+    <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
+    <string name="threadinfo_rating">Show thread ratings</string>
+    <string name="new_threads_first_category">Sort by unread</string>
+    <string name="new_threads_first_ucp">Bookmarks view</string>
+    <string name="new_threads_first_ucp_summary">Show threads with unread posts first</string>
+    <string name="new_threads_first_forum">Forums view</string>
+    <string name="new_threads_first_forum_summary">Show threads with unread posts first</string>
+
+    <!-- Post Settings page -->
+    <string name="default_post_font_size">Default post font size</string>
+    <string name="setting_posts_per_page">Posts per page</string>
+    <string name="setting_posts_per_page_summary">Maximum: 40</string>
+    <string name="hide_old_posts">Hide old posts</string>
+    <string name="hide_old_posts_summary">Hide previously read posts</string>
+    <string name="highlighting_settings_title">Highlighting</string>
+    <string name="user_highlight">Your username</string>
+    <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
+    <string name="user_quote">Your quotes</string>
+    <string name="user_quote_summary">Show when you\'re quoted in posts</string>
+    <string name="self_highlight">Your posts</string>
+    <string name="self_highlight_summary">Use a themed background color</string>
+    <string name="op_highlight">OP\'s posts</string>
+    <string name="op_highlight_summary">Use a themed background color</string>
+    <string name="inline_videos">Embed videos</string>
+    <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
+    <string name="show_spoilers">Show all spoilers</string>
+    <string name="show_spoilers_summary">Display spoilers as normal text</string>
+    <string name="hide_signatures">Hide signatures in Awful</string>
+    <string name="hide_signatures_summary">Even when enabled in the browser</string>
+    <string name="always_open_urls">Always open links</string>
+    <string name="always_open_urls_summary">Disable link options menu</string>
+
+    <!-- Image Settings page -->
+    <string name="load_images">Load images</string>
+    <string name="load_images_summary">Uncheck to show links instead</string>
+    <string name="no_3g_images">Only load on Wi-Fi</string>
+    <string name="no_3g_images_summary">Disable images when using mobile data</string>
+    <string name="load_avatars">Show avatars</string>
+    <string name="hide_read_images">Hide old images</string>
+    <string name="hide_read_images_summary">Hide images in previously viewed posts</string>
+    <string name="show_smilies">Show emotes</string>
+    <string name="show_smilies_summary">Uncheck to replace with :text: versions</string>
+    <string name="threadinfo">Thread info</string>
+    <string name="threadinfo_settings">Thread subtext</string>
+    <string name="imgur_thumbnails">Imgur thumbnails</string>
+    <string-array name="imgur_thumbnails">
+        <item>Use original pictures</item>
+        <item>Tiny (160px)</item>
+        <item>Medium (320px)</item>
+        <item>Large (640px)</item>
+        <item>Huge (1024px)</item>
+    </string-array>
+    <string name="disable_timgs">Disable timgs</string>
+    <string name="disable_timgs_summary">Don\'t shrink large images</string>
+
+    <!-- Theme Settings page -->
+    <string name="theme">Theme</string>
+    <string-array name="theme">
+        <item>Default</item>
+        <item>Dark</item>
+        <item>YOSPOS</item>
+        <item>AmberPOS</item>
+        <item>FYAD</item>
+        <item>Classic</item>
+    </string-array>
+    <string name="force_forum_themes">Force forum themes</string>
+    <string name="force_forum_themes_summary">Specific theme in YOSPOS ̶a̶̶n̶̶d̶ ̶F̶̶Y̶̶A̶̶D̶</string>
+    <string name="layouts">Layout</string>
+    <string-array name="layouts">
+        <item>Default</item>
+    </string-array>
+    <string name="select_font">Font</string>
+
+    <!-- Misc Settings page -->
+    <string name="misc_category_performance">Performance tweaks</string>
     <string name="enable_hardware_acceleration">Hardware acceleration</string>
-    <string name="enable_hardware_acceleration_summary">Might cause or solve scroll lag/graphical glitches. HC+</string>
-    <string name="debug_mode">Debug mode</string>
-    <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
-    <string name="post_divider_enabled">Show post divider</string>
-    
-    <!-- Preferences -->
+    <string name="enable_hardware_acceleration_summary">May solve/cause lag and graphical glitches</string>
+    <string name="disable_gifs">Disable GIF animation</string>
+    <string name="disable_gifs_summary">Extends battery life significantly</string>
+    <string name="misc_category_display">Display</string>
+    <string name="page_layout">Thread layout</string>
+    <string name="page_layout_summary_disabled">This screen is too small for tablet mode</string>
+    <string-array name="page_layouts">
+        <item>Auto (Size/Orientation)</item>
+        <item>Phone layout</item>
+        <item>Tablet layout</item>
+    </string-array>
+    <string name="orientation">Screen orientation</string>
+    <string-array name="orientations">
+        <item>Default</item>
+        <item>Sensor</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>
+    <string name="immersion_mode">Immersion Mode</string>
+    <string name="immersion_mode_summary">Fullscreen mode for KitKat and above</string>
+    <string name="misc_category_navigation">Navigation</string>
+    <string name="show_next_page_button_at_top">Top \'next page\' button</string>
+    <string name="show_next_page_button_at_top_summary">Add a button to the top of the screen</string>
+    <string name="disable_pull_next">Disable pull-for-next</string>
+    <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
+    <string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
+    <string name="pull_to_refresh_distance_summary">Swipe distance needed to cause a refresh:</string>
+    <string name="lock_scrolling">Disable view swiping</string>
+    <string name="lock_scrolling_summary">No horizontal swiping navigation</string>
+    <string name="volume_scroll">Volume button scrolling</string>
+    <string name="volume_scroll_summary">Use volume controls to scroll threads</string>
+
+
+    <!-- Account settings page -->
+    <string name="username_pref">Username</string>
+    <string name="features">Refresh account features</string>
+    <string name="features_summary">Platinum: No | Archives: No | No Ads: No</string>
+    <string name="send_username_in_report">Sign reports</string>
+    <string name="send_username_in_report_summary">Attach username to crash reports</string>
+
+
+    <!--
+        End of Settings menu strings
+    -->
+
+<!-- Old settings xml strings -->
+    <string name="prefs_global">Global settings</string>
+    <string name="prefs_salr">SALR preferences</string>
+
+<!-- what are you doing here you're not even used -->
     <string name="prefs_thread_display">Thread display settings</string>
-    <string name="prefs_post_display">Post settings</string>
     <string name="use_large_scrollbar">Use large scrollbar</string>
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
-    <string name="default_post_font_size">Default post font size</string>
-    <string name="theme_settings">Theme settings</string>
-    <string name="theme">Choose theme</string>
-    <string name="layouts">Choose layout</string>
     <string name="alternate_backgrounds">Alternate Post BG Colors</string>
     <string name="default_post_font_color">Default Post Font Color</string>
     <string name="secondary_post_font_color">Alternative Font Color</string>
@@ -72,196 +302,27 @@
     <string name="unread_posts">Unread Counter Color</string>
     <string name="unread_posts_dim">Unread Counter Dim Color</string>
     <string name="unread_posts_font_black">Black Unread Counter Font Color</string>
-    <string name="press_color_to_apply">Press color to apply</string>
-    <string name="dialog_color_picker">Select color</string>
-    <string name="about">About...</string>
-    <string name="about_summary">Contributors and library licenses</string>
-	<string name="about_message">Contributors:\n
-Ferg\n
-1997\n
-brosmike\n
-big mean giraffe\n
-foghorn\n
-BullChicken\n
-wmbest2\n
-Glimm\n
-Geekner\n
-crazysim\n
-Sereri\n
-spanky the dolphin\n
-JingleBells\n
-\n
-Libraries:\n
-ActionBarSherlock\n
-ActionBar Pull To Refresh\n
-ACRA / Bugsense\n
-Apache Commons-Lang3\n
-Apache HttpClient/HttpCore/HttpMime\n
-HtmlCleaner\n
-JSoup\n
-AQuery</string>
-	<string name="open_thread">Go to the Awful thread</string>
-	<string name="open_thread_summary">The most Awful thread on the forums</string>
-	<string name="prefs_global">Global settings</string>
-	<string name="orientation">Screen orientation</string>
-	<string name="select_font">Select font</string>
-	<string-array name="orientations">
-		<item>Default</item>
-		<item>Sensor</item>
-		<item>Portrait</item>
-		<item>Landscape</item>
-	</string-array>
-	<string-array name="theme">
-        	<item>Default</item>
-        	<item>Dark</item>
-        	<item>YOSPOS</item>
-        	<item>AmberPOS</item>
-            <item>FYAD</item>
-        	<item>Classic</item>
-	</string-array>
-	<string-array name="layouts">
-        <item>Default</item>
-	</string-array>
-	<string name="threadinfo_author">Author</string>
-	<string name="threadinfo_rating">Show Thread Rating</string>
-	<string name="threadinfo_killed">Killed by</string>
-	<string name="threadinfo_pages">Number of pages</string>
-	<string name="threadinfo_tag">Show forum &amp; thread tags</string>
-	<string name="threadinfo_tag_summary">Category icons</string>
-	<string name="color_bookmarks">Use \'star\' colors for bookmarks</string>
-	<string-array name="imgur_thumbnails">
-		<item>Don\'t replace pictures</item>
-		<item>Tiny (160px)</item>
-		<item>Medium (320px)</item>
-		<item>Large (640px)</item>
-		<item>Huge (1024px)</item>
-	</string-array>
-	<string name="page_layout">Thread layout</string>
-	<string name="page_layout_summary_disabled">This screen is too small for tablet mode</string>
-	<string-array name="page_layouts">
-		<item>Auto (Size/Orientation)</item>
-		<item>Phone layout</item>
-		<item>Tablet layout</item>
-	</string-array>
-    	<string name="bookmarkarchived">Archived</string>
-	<string name="bookmark">Bookmark</string>
-	<string name="unbookmark">Unbookmark</string>
-	<string name="rate_thread">Rate thread</string>
-	<string name="find">Find on page</string>
-	<string name="hide_old_posts">Hide previously read posts</string>
-	<string name="hide_old_posts_summary"></string>
-	<string name="load_images">Load images</string>
-	<string name="load_images_summary">If disabled, images are replaced with links</string>
-	<string name="no_3g_images">Only load images on Wi-Fi</string>
-	<string name="load_avatars">Show avatars</string>
-	<string name="read_post_background2_color">Read post alternate color</string>
-	<string name="select_forum">Select a forum</string>
-	<string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
-	<string name="setting_posts_per_page">Posts per page</string>
-	<string name="setting_posts_per_page_summary">Maximum: 40</string>
-	<string name="goto_firstpage">First page</string>
-	<string name="goto_lastpage">Last page</string>
-	<string name="toggle_bookmark">Toggle bookmark</string>
-	<string name="toggle_bookmark_color">Toggle bookmark color</string>
-    <string name="mark_unread">Mark thread unread</string>
-    <string name="mark_unread_success">Thread Marked Unread</string>
-	<string name="private_message">Private messages</string>
-	<string name="wrap_titles">Wrap thread titles</string>
-	<string name="wrap_titles_summary">Allows thread titles to be more than one line long</string>
-	<string name="show_spoilers">Show all spoilers</string>
-	<string name="show_spoilers_summary">Spoilers are displayed as normal text</string>
-	<string name="send_pm">Send PM</string>
-	<string name="new_pm">New private message</string>
-	<string name="toggle_folder">Toggle mail folder</string>
-	<string name="hide_read_images">Hide old images</string>
-	<string name="hide_read_images_summary">Hide images in previously viewed posts</string>
-	<string name="show_smilies">Show emotes</string>
-	<string name="show_smilies_summary">Show emotes or replace with :text: version</string>
-	<string name="threadinfo">Thread info</string>
-	<string name="threadinfo_settings">Thread subtext</string>
-	<string name="thread_settings">Thread settings</string>
-	<string name="imgur_thumbnails">Imgur thumbnails</string>
-	<string name="vote_failed">An error occurred while voting, please try again</string>
-	<string name="vote_succeeded">Thread Rated</string>
-	<string name="copy_url">Copy thread URL</string>
-	<string name="copy_url_success">URL has been copied to the clipboard</string>
-	<string name="draft_alert_keep">Keep message</string>
-	<string name="draft_alert_discard">Discard message</string>
-	<string name="draft_alert_title">Previous reply found</string>
-	<string name="reply_alert_save_draft">Save draft</string>
-    	<string name="new_threads_first_ucp">Sort UCP by new posts</string>
-    	<string name="new_threads_first_forum">Sort forums by new posts</string>
-    	<string name="image_settings">Image preferences</string>
-    	<string name="features">Refresh account features</string>
-    	<string name="features_summary">Platinum: No | Archives: No | No Ads: No</string>
-    	<string name="always_open_urls">Always open links</string>
-    	<string name="always_open_urls_summary">When clicking links in a post</string>
-    	<string name="post_sent">Hope it didn\'t suck...</string>
-    	<string name="login_message">Login with your Awful credentials</string>
-    	<string name="password">Password</string>
-    	<string name="username">Username</string>
-    	<string name="login">Login</string>
-    	<string name="next_page">Next page</string>
-    	<string name="awful_web_provider">AwfulWebProvider</string>
-    	<string name="bbcode">BBCode</string>
-    	<string name="submit">Submit</string>    
-    	<string name="draft_discard_only">Discard and cancel</string>
-    	<string name="show_next_page_button_at_top">Show next page button at top</string>
-    	<string name="menu_discard">Discard</string>
-    	<string name="menu_save_draft">Save draft</string>
-    	<string name="send_username_in_report">Send username in reports</string>
-	<string name="send_username_in_report_summary">Attaches the forum username to crash reports</string>
-	<string name="disable_gifs">Disable GIF animation</string>
-	<string name="filter_emote_hint">Filter emotes...</string>
-    <string name="add_attachment">Add file attachment</string>
-    <string name="remove_attachment">Remove file attachment</string>
-    <string name="disableEmots">Disable Smilies in This Post</string>
-    <string name="signature">Show Signature</string>
-	<string name="file_attached">Set file %s as attachment</string>
-	<string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
-	<string name="file_unreadable">File %s could not be accessed</string>
-	<string name="file_removed">Attachment removed</string>
-	<string name="lock_scrolling">Lock scrolling</string>
-	<string name="lock_scrolling_summary">Locks horizontal scrolling to navigate</string>
-	<string name="disable_timgs">Disable timgs</string>
-	<string name="disable_timgs_summary">Notice: Timgs are just resized images, not actual thumbnails</string>
-    	<string name="disable_gifs_summary">Extends battery life significantly</string>
-    	<string name="disable_pull_next">Disable pull-for-next</string>
-    	<string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
-    	<string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
-    	<string name="pull_to_refresh_distance_summary">How much of the view has to be scrolled to trigger the refresh</string>
-    	<string name="volume_scroll">Scroll thread with volume keys</string>
-    	<string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
-        most devices. \n
-        \n
-        \n
-        If you wish to re-enable these animations, open Settings and uncheck the \"Disable GIF
-        animation\" option.
-    </string>
-    	<string name="alert_title_1">Please Note: GIFs</string>
-    	<string name="alert_ok">Ok</string>
-    	<string name="alert_settings">Settings</string>
-    	<string name="share_thread">Share thread</string>
-    	<string name="thread_actions">Thread actions</string>
-    	<string name="force_forum_themes">Force forum themes</string>
-    	<string name="force_forum_themes_summary">Specific theme in YOSPOS ̶a̶̶n̶̶d̶ ̶F̶̶Y̶̶A̶̶D̶</string>
-    	<string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
-    	<string name="probation_message">You have been put on probation until %s.</string>
-    	<string name="keep_screen_on">Keep screen on</string>
-    	<string name="ignore_title">Ignore user</string>
-    	<string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
-    	<string name="export_settings">Export settings</string>
-    	<string name="import_settings">Import settings</string>
-    <string name="loading_failed">Loading Failed!</string>
-    <string name="critical_error">Critical Error</string>
-    <string name="message_empty">Message Empty!</string>
-    <string name="message_empty_subtext">type something, fuck</string>
-    <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
+    <string name="threadinfo_author">Author</string>
+    <string name="threadinfo_killed">Killed by</string>
+    <string name="threadinfo_pages">Number of pages</string>
+    <string name="read_post_background2_color">Read post alternate color</string>
+    <string name="select_forum">Select a forum</string>
+    <string name="send_pm">Send PM</string>
+    <string name="draft_alert_keep">Keep message</string>
+    <string name="draft_alert_discard">Discard message</string>
+    <string name="draft_alert_title">Previous reply found</string>
+    <string name="reply_alert_save_draft">Save draft</string>
+    <string name="draft_discard_only">Discard and cancel</string>
     <string name="vote_failed_sub">Maybe next time?</string>
-    <string name="not_available_on_your_version">This feature is not available on your version of Android. Sorry.</string>
-    <string name="immersion_mode">Immersion Mode (fullscreen)</string>
-    <string name="immersion_mode_summary">Requires KitKat and above</string>
-    <string name="hide_signatures">Hide signatures in Awful</string>
-    <string name="hide_signatures_summary">Hide signatures even when enabled in the browser</string>
-
+    <string name="home">Home</string>
+    <string name="quote">Quote</string>
+    <string name="edit">Edit</string>
+    <string name="mark_last_read">Mark last read</string>
+    <string name="reply_invalid_title">You can\'t post here</string>
+    <string name="reply_invalid_message">Fly away nerd!</string>
+    <string name="always">Always</string>
+    <string name="threads">Threads</string>
+    <string name="debug_mode">Debug mode</string>
+    <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
+    <string name="post_divider_enabled">Show post divider</string>
 </resources>
