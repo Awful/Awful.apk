@@ -50,7 +50,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -65,18 +64,30 @@ import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Simple, purely xml driven preferences. Access using
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
+ */
+
+/*
+
+    Don't know about THAT anymore
+    This code inflates a preference hierarchy, initialises settings, and then sets up listeners
+    for specific preferences.
+
+    Please set 'safe' defaults in the XML, and set version-dependent defaults in code
+    Use init*Settings methods to enable and set defaults for the prefs in a given XML file
+    Use set*Summaries methods to set summaries for the preferences held in a given XML file
+
+    Hopefully this will make it easy to just lift code out for PreferenceFragments or whatever
+
  */
 public class SettingsActivity extends PreferenceActivity implements AwfulPreferences.AwfulPreferenceUpdate {
     protected static String TAG = "SettingsActivity";
@@ -437,7 +448,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
                summary += " of the screen's height";
         findPreference("pull_to_refresh_distance").setSummary(summary);
 
-        // set summaries for unavailable options
+        // set summaries for unavailable (disabled) options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {
             Preference p = (Preference) findPreference(key);
             if (!p.isEnabled()){
