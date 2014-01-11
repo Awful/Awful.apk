@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen android:title="@string/prefs_account">
+        <EditTextPreference
+            android:key="username"
+            android:title="@string/username_pref"
+            android:defaultValue="Username"
+            />
+        <Preference
+            android:key="account_features"
+            android:title="@string/features"
+            android:summary="@string/features_summary"
+            />
+        <CheckBoxPreference
+            android:key="send_username_in_report"
+            android:title="@string/send_username_in_report"
+            android:summary="@string/send_username_in_report_summary"
+            android:defaultValue="true"
+            />
+    </PreferenceScreen>
+</PreferenceScreen>
