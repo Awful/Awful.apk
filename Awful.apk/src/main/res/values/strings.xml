@@ -224,7 +224,7 @@
         <item>Classic</item>
     </string-array>
     <string name="force_forum_themes">Force forum themes</string>
-    <string name="force_forum_themes_summary">Specific theme in YOSPOS ̶a̶̶n̶̶d̶ ̶F̶̶Y̶̶A̶̶D̶</string>
+    <string name="force_forum_themes_summary">Specific theme in YOSPOS and FYAD</string>
     <string name="layouts">Layout</string>
     <string-array name="layouts">
         <item>Default</item>
