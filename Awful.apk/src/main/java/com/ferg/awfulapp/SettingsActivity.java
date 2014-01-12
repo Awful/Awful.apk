@@ -64,6 +64,7 @@ import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -755,13 +756,15 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         ListPreference f = (ListPreference) findPreference("preferred_font");
         String[] fontList = ((AwfulApplication)getApplication()).getFontList();
         String[] fontNames = new String[fontList.length];
+        String thisFontName;
         for(int x=0; x<fontList.length;x++){
             Matcher fontName = fontFilename.matcher(fontList[x]);
             if(fontName.find()){
-                fontNames[x] = fontName.group(1).replaceAll("_", " ");
+                thisFontName = fontName.group(1).replaceAll("_", " ");
             }else{//if the regex fails, try our best to clean up the filename.
-                fontNames[x] = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
+                thisFontName = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
             }
+            fontNames[x] = WordUtils.capitalize(thisFontName);
         }
         f.setEntries(fontNames);
         f.setEntryValues(fontList);
