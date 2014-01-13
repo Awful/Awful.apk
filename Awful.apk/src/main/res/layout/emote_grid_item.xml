@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-
+
+
+
+
+
+
+
     <ImageView
         android:id="@+id/emote_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
         android:layout_gravity="center_horizontal"
         android:paddingBottom="2dp"
-        android:src="@drawable/icon" />
-
+        android:src="@drawable/icon"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="false"
+        android:minWidth="32dp" />
+
+
+
     <TextView
         android:id="@+id/emote_text"
         android:layout_width="wrap_content"
