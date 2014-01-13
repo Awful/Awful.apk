@@ -125,10 +125,10 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
             addPreferencesFromResource(R.xml.settings);
             addPreferencesFromResource(R.xml.accountsettings);
             addSectionDivider(getString(R.string.settings_divider_customisation));
+            addPreferencesFromResource(R.xml.themesettings);
             addPreferencesFromResource(R.xml.threadinfosettings);
             addPreferencesFromResource(R.xml.postsettings);
             addPreferencesFromResource(R.xml.imagesettings);
-            addPreferencesFromResource(R.xml.themesettings);
             addSectionDivider(getString(R.string.settings_divider_misc));
             addPreferencesFromResource(R.xml.miscsettings);
             addPreferencesFromResource(R.xml.backupsettings);
