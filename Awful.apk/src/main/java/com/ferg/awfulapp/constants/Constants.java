@@ -173,6 +173,7 @@ public class Constants {
 	public static final int LOGIN_ACTIVITY_REQUEST = 99;
 
 	public static final int DEFAULT_FONT_SIZE = 16;
+    public static final int DEFAULT_FIXED_FONT_SIZE = 13;
 	
 	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
 
