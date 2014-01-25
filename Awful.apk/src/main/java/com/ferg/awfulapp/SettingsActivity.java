@@ -563,6 +563,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         @Override
         public boolean onPreferenceClick(Preference preference) {
             final String prefKey = preference.getKey();
+            final int minSize = Constants.MINIMUM_FONT_SIZE;
             mFontSizeDialog = new Dialog(mThis);
 
             mFontSizeDialog.setContentView(R.layout.font_size);
@@ -588,7 +589,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    mPrefs.setIntegerPreference(prefKey, seekBar.getProgress()+10);
+                    mPrefs.setIntegerPreference(prefKey, seekBar.getProgress()+minSize);
                 }
 
                 @Override
@@ -597,21 +598,21 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    mFontSizeText.setText((progress+10)+ "  Get out");
-                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+10));
+                    mFontSizeText.setText((progress+minSize)+ "  Get out");
+                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+minSize));
                 }
             });
             if (prefKey.equals("default_post_font_size_dip")){
-                bar.setProgress(mPrefs.postFontSizeDip-10);
+                bar.setProgress(mPrefs.postFontSizeDip-minSize);
             }
             else if (prefKey.equals("default_post_fixed_font_size_dip")) {
-                bar.setProgress(mPrefs.postFixedFontSizeDip-10);
+                bar.setProgress(mPrefs.postFixedFontSizeDip-minSize);
                 mFontSizeText.setTypeface(Typeface.MONOSPACE);
             }
             else Log.w(TAG, "Tried to set font size for: "+prefKey+", not a valid key!");
 
-            mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
-            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+10));
+            mFontSizeText.setText((bar.getProgress()+minSize)+ "  Get out");
+            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+minSize));
             mFontSizeDialog.show();
             return true;
         }
