@@ -7,6 +7,11 @@
             android:title="@string/default_post_font_size"
             android:defaultValue="16"
             />
+        <Preference
+            android:key="default_post_fixed_font_size_dip"
+            android:title="@string/default_post_fixed_font_size"
+            android:defaultValue="13"
+            />
         <com.ferg.awfulapp.preferences.NumericEditTextPreference
             android:key="post_per_page"
             android:title="@string/setting_posts_per_page"

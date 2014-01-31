@@ -89,6 +89,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	//THEME STUFF
 	public int postFontSizeDip;
+    public int postFixedFontSizeDip;
 	public int postFontSizePx;
 	public boolean lockScrolling;
 	public String theme;
@@ -231,6 +232,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		hasArchives              = mPrefs.getBoolean("has_archives", false);
 		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);
 		postFontSizeDip            = mPrefs.getInt("default_post_font_size_dip", Constants.DEFAULT_FONT_SIZE);
+        postFixedFontSizeDip     = mPrefs.getInt("default_post_fixed_font_size_dip", Constants.DEFAULT_FIXED_FONT_SIZE);
 		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
 		theme					 = mPrefs.getString("theme", "default.css");
 		layout					 = mPrefs.getString("layouts", "default");

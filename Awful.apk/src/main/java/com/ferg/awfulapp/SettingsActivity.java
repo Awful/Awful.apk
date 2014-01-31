@@ -36,6 +36,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.*;
 import android.preference.CheckBoxPreference;
@@ -536,6 +537,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         final String[] VERSION_DEPENDENT_KEYS_LIST = { "inline_youtube" };
 
         findPreference("default_post_font_size_dip").setSummary(String.valueOf(mPrefs.postFontSizeDip));
+        findPreference("default_post_fixed_font_size_dip").setSummary(String.valueOf(mPrefs.postFixedFontSizeDip));
         findPreference("post_per_page").setSummary(String.valueOf(mPrefs.postPerPage));
         // set summaries for unavailable options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {
@@ -550,6 +552,8 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         Preference tempPref;
         tempPref = getPreferenceScreen().findPreference("default_post_font_size_dip");
         tempPref.setOnPreferenceClickListener(onFontSizeListener);
+        tempPref = getPreferenceScreen().findPreference("default_post_fixed_font_size_dip");
+        tempPref.setOnPreferenceClickListener(onFontSizeListener);
     }
 
     /* Associated methods */
@@ -558,11 +562,17 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private OnPreferenceClickListener onFontSizeListener = new OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
+            final String prefKey = preference.getKey();
+            final int minSize = Constants.MINIMUM_FONT_SIZE;
             mFontSizeDialog = new Dialog(mThis);
 
             mFontSizeDialog.setContentView(R.layout.font_size);
-            mFontSizeDialog.setTitle("Set Default Font Size");
-
+            if (prefKey.equals("default_post_font_size_dip")){
+                mFontSizeDialog.setTitle(getString(R.string.default_font_size_dialog_title));
+            }
+            else if (prefKey.equals("default_post_fixed_font_size_dip")) {
+                mFontSizeDialog.setTitle(getString(R.string.default_fixed_font_size_dialog_title));
+            }
             mFontSizeText = (TextView) mFontSizeDialog.findViewById(R.id.fontSizeText);
             SeekBar bar = (SeekBar) mFontSizeDialog.findViewById(R.id.fontSizeBar);
             Button click = (Button) mFontSizeDialog.findViewById(R.id.fontSizeButton);
@@ -579,7 +589,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    mPrefs.setIntegerPreference("default_post_font_size_dip", seekBar.getProgress()+10);
+                    mPrefs.setIntegerPreference(prefKey, seekBar.getProgress()+minSize);
                 }
 
                 @Override
@@ -588,13 +598,21 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    mFontSizeText.setText((progress+10)+ "  Get out");
-                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+10));
+                    mFontSizeText.setText((progress+minSize)+ "  Get out");
+                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+minSize));
                 }
             });
-            bar.setProgress(mPrefs.postFontSizeDip-10);
-            mFontSizeText.setText((bar.getProgress()+10)+ "  Get out");
-            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+10));
+            if (prefKey.equals("default_post_font_size_dip")){
+                bar.setProgress(mPrefs.postFontSizeDip-minSize);
+            }
+            else if (prefKey.equals("default_post_fixed_font_size_dip")) {
+                bar.setProgress(mPrefs.postFixedFontSizeDip-minSize);
+                mFontSizeText.setTypeface(Typeface.MONOSPACE);
+            }
+            else Log.w(TAG, "Tried to set font size for: "+prefKey+", not a valid key!");
+
+            mFontSizeText.setText((bar.getProgress()+minSize)+ "  Get out");
+            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+minSize));
             mFontSizeDialog.show();
             return true;
         }
