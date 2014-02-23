@@ -293,6 +293,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
+        mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
         if(DEBUG && AwfulUtils.isKitKat()) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -1397,6 +1398,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
             mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
             mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
+            mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
 		}
 		if(clickInterface != null){
 			clickInterface.preparePreferences();

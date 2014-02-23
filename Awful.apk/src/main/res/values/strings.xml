@@ -168,6 +168,9 @@
 
     <!-- Post Settings page -->
     <string name="default_post_font_size">Default post font size</string>
+    <string name="default_font_size_dialog_title">Set default font size</string>
+    <string name="default_post_fixed_font_size">Default fixed-width font size</string>
+    <string name="default_fixed_font_size_dialog_title">Set fixed-width font size</string>
     <string name="setting_posts_per_page">Posts per page</string>
     <string name="setting_posts_per_page_summary">Maximum: 40</string>
     <string name="hide_old_posts">Hide old posts</string>

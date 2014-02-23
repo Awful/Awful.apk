@@ -17,7 +17,7 @@
         android:id="@+id/fontSizeBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="50" />
+        android:max="55" />
 
     <Button
         android:id="@+id/fontSizeButton"
