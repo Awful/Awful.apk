@@ -82,7 +82,7 @@ public class NetworkUtils {
     private static final String CHARSET = "windows-1252";
 
     private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
-    private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
+    private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\xFF])");
 
     private static DefaultHttpClient sHttpClient;
 
