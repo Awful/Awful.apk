@@ -205,47 +205,7 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
             getAwfulActivity().displayForum(Constants.USERCP_ID, 1);
         }
     }
-    
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	menu.clear();
-    	if(menu.size() == 0){
-    		inflater.inflate(R.menu.forum_index_options, menu);
-    	}
-    }
-    
-    @Override
-    public void onPrepareOptionsMenu(Menu menu){
-        MenuItem pm = menu.findItem(R.id.pm);
-        Log.i(TAG, "Menu!!!!");
-        if(pm != null){
-            pm.setEnabled(mPrefs.hasPlatinum);
-            pm.setVisible(mPrefs.hasPlatinum);
-        }
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.user_cp:
-                displayUserCP();
-                break;
-            case R.id.pm:
-            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
-                break;
-            case R.id.settings:
-                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-                break;
-            case R.id.logout:
-                new LogOutDialog(getActivity()).show();
-                break;
-            case R.id.refresh:
-            	syncForums();
-                break;
-        }
 
-        return super.onOptionsItemSelected(item);
-    }
     
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs) {

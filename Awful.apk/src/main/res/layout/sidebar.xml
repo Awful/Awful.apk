@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="280dp"
+    android:layout_gravity="start"
+    android:choiceMode="singleChoice"
+    android:dividerHeight="0dp"
+    android:background="#111"
+    android:clickable="true"
+    >
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="100dp">
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_centerInParent="true"
+            android:layout_height="fill_parent"
+            android:src="@drawable/icon"
+            android:scaleType="centerCrop"
+            android:layout_alignParentStart="true" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:baselineAligned="false"
+            android:layout_alignParentTop="true"
+            android:background="#99333333">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="48dp"
+                android:gravity="right">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sidebar_logout"
+                    android:src="@drawable/ic_menu_logout"
+                    android:layout_marginRight="5dp" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sidebar_settings"
+                    android:src="@drawable/ic_menu_settings"
+                    android:layout_marginRight="5dp" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sidebar_pm"
+                    android:src="@drawable/ic_menu_mail"
+                    android:layout_marginRight="5dp" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sidebar_bookmarks"
+                    android:src="@drawable/ic_menu_bookmarks"
+                    android:layout_marginRight="5dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="48dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:id="@+id/sidebar_username"
+                    android:textAlignment="center"
+                    android:textSize="24dp"
+                    android:textIsSelectable="false"
+                    android:singleLine="true"
+                    android:gravity="center_vertical" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice"
+        android:id="@+id/sidebar_navigationList"
+        >
+    </ListView>
+</LinearLayout>

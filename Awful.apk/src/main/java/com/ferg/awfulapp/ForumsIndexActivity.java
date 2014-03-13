@@ -48,13 +48,20 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.widget.TextView;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static final String TAG = "ForumsIndexActivity";
@@ -76,6 +83,11 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ToggleViewPager mViewPager;
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
+
+    private ListView mNavigationList;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+
 
     private int mForumId = Constants.USERCP_ID;
     private int mForumPage = 1;
@@ -118,11 +130,21 @@ public class ForumsIndexActivity extends AwfulActivity {
             mViewPager.setCurrentItem(initialPage);
         }
 
+        setNavigationDrawer();
+
         setActionBar();
 
         checkIntentExtras();
 
         setupImmersion();
+    }
+
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     @SuppressLint("NewApi")
@@ -160,6 +182,70 @@ public class ForumsIndexActivity extends AwfulActivity {
                         }
                     });
             showSystemUi();
+        }
+    }
+
+
+    private void setNavigationDrawer() {
+        String[] navigationArray = {"Serious Hardware / Software Crap","YOSPOS","Some buttcoin thread with a really long title"};
+        mNavigationList = (ListView) findViewById(R.id.sidebar_navigationList);
+        if(mNavigationList != null)
+            mNavigationList.setAdapter(new ArrayAdapter<String>(this,
+                    R.layout.drawer_list_item, navigationArray));
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description */
+                R.string.drawer_close  /* "close drawer" description */
+        );
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        TextView username = (TextView) findViewById(R.id.sidebar_username);
+        username.setText(mPrefs.username);
+
+        final Activity self = this;
+        ImageView logout = (ImageView) findViewById(R.id.sidebar_logout);
+        if(null != logout){
+            logout.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    new LogOutDialog(self).show();
+                }
+            });
+        }
+        ImageView messages = (ImageView) findViewById(R.id.sidebar_pm);
+        if(null != messages){
+            Log.i(TAG, "Menu!!!!");
+            messages.setEnabled(mPrefs.hasPlatinum);
+            messages.setVisibility(mPrefs.hasPlatinum?View.VISIBLE:View.GONE);
+            messages.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    startActivity(new Intent().setClass(self, PrivateMessageActivity.class));
+                }
+            });
+        }
+        ImageView bookmarks = (ImageView) findViewById(R.id.sidebar_bookmarks);
+        if(null != bookmarks){
+            bookmarks.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    startActivity(new Intent().setClass(self, ForumsIndexActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                            .putExtra(Constants.FORUM_PAGE, 1));
+                    mDrawerLayout.closeDrawers();
+                }
+            });
+        }
+        ImageView settings = (ImageView) findViewById(R.id.sidebar_settings);
+        if(null != settings){
+            settings.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    startActivity(new Intent().setClass(self, SettingsActivity.class));
+                }
+            });
         }
     }
 
@@ -528,20 +614,24 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
-                        displayForum(mThreadFragment.getParentForumId(), 1);
-                    }else{
-                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+//                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
+//                        displayForum(mThreadFragment.getParentForumId(), 1);
+//                    }else{
+//                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+//                    }
+//                    return true;
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

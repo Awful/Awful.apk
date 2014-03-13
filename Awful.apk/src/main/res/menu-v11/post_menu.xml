@@ -1,79 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-    
-	<item
-		android:id="@+id/thread_actions"
-		android:icon="@drawable/ic_actionbar_dropdown"
-        android:title="@string/thread_actions"
-        app:showAsAction="ifRoom"
-		>
-		<menu>
-			<item
-				android:id="@+id/reply"
-		        android:title="@string/post_reply"
-				android:icon="@drawable/ic_menu_reply"
-				/>
-			<item
-		        android:id="@+id/bookmark"
-		        android:title="@string/bookmark"
-		        android:icon="@drawable/ic_menu_bookmark"
-		        />
-        	<item
-		        android:id="@+id/rate_thread"
-		        android:title="@string/rate_thread"
-		        android:icon="@drawable/ic_menu_rate"
-		        />
-        	<item
-				android:id="@+id/copy_url"
-				android:icon="@drawable/ic_menu_link"
-				android:title="@string/copy_url"
-		        />
-        	
-			<item
-                android:id="@+id/share_thread"
-                app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
-                android:title="@string/share_thread"
-                android:icon="@drawable/ic_menu_share"/>
-			
-			<item
-				android:id="@+id/refresh"
-				android:icon="@drawable/ic_actionbar_load"
-				android:title="@string/refresh" 
-				/>			
-			<item
-				android:id="@+id/find"
-				android:icon="@drawable/ic_menu_find"
-				android:title="@string/find" 
-				/>
-			<item
-				android:id="@+id/keep_screen_on"
-				android:icon="@drawable/ic_menu_lastread"
-				android:title="@string/keep_screen_on"
-                android:checkable="true"
-				/>
-        </menu>
-	</item>
-	<item
-		android:id="@+id/next_page"
-        android:title="@string/next_page"
-		android:icon="@drawable/ic_menu_arrowright"
-        app:showAsAction="always"
+
+    <item
+        android:id="@+id/reply"
+        android:title="@string/post_reply"
+        android:icon="@drawable/ic_menu_reply"
         />
     <item
-		android:id="@+id/go_to"
-		android:icon="@drawable/ic_menu_gotopage"
-		android:title="@string/go_to"
-		/>
-	<item
-		android:id="@+id/usercp"
-		android:icon="@drawable/ic_menu_bookmarks"
-		android:title="@string/user_cp"
-		/>
-	<item
-		android:id="@+id/settings"
-		android:icon="@drawable/ic_menu_settings"
-		android:title="@string/settings"
+        android:id="@+id/bookmark"
+        android:title="@string/bookmark"
+        android:icon="@drawable/ic_menu_bookmark"
+        />
+    <item
+        android:id="@+id/rate_thread"
+        android:title="@string/rate_thread"
+        android:icon="@drawable/ic_menu_rate"
+        />
+    <item
+        android:id="@+id/copy_url"
+        android:icon="@drawable/ic_menu_link"
+        android:title="@string/copy_url"
+        />
+
+    <item
+        android:id="@+id/share_thread"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+        android:title="@string/share_thread"
+        android:icon="@drawable/ic_menu_share"/>
+
+    <item
+        android:id="@+id/refresh"
+        android:icon="@drawable/ic_actionbar_load"
+        android:title="@string/refresh"
+        />
+    <item
+        android:id="@+id/find"
+        android:icon="@drawable/ic_menu_find"
+        android:title="@string/find"
+        />
+    <item
+        android:id="@+id/keep_screen_on"
+        android:icon="@drawable/ic_menu_lastread"
+        android:title="@string/keep_screen_on"
+        android:checkable="true"
         />
 	
 </menu>

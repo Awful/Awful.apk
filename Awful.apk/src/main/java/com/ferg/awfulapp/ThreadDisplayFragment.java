@@ -578,21 +578,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
             case R.id.reply:
                 displayPostReplyDialog();
                 break;
-            case R.id.usercp:
-                displayUserCP();
-                break;
-            case R.id.go_to:
-                displayPagePicker();
-                break;
-            case R.id.refresh:
-                refresh();
-                break;
-            case R.id.settings:
-                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-                break;
-            case R.id.bookmark:
-            	toggleThreadBookmark();
-                break;
     		case R.id.rate_thread:
     			rateThread();
     			break;
@@ -607,10 +592,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     			this.toggleScreenOn();
                 item.setChecked(!item.isChecked());
     			break;
-    		case R.id.thread_actions:
-    			if(!AwfulUtils.isHoneycomb()){
-    				fuckPreAPI11Forever(item);
-    			}
+//    		case R.id.thread_actions:
+//    			if(!AwfulUtils.isHoneycomb()){
+//    				fuckPreAPI11Forever(item);
+//    			}
     		default:
     			return super.onOptionsItemSelected(item);
     		}
@@ -618,50 +603,50 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     		return true;
     	}
 
-	private void fuckPreAPI11Forever(final MenuItem item) {
-        final CharSequence[] mThreadItems = {
-        		getString(R.string.post_reply),
-        		getString(R.string.bookmark),
-        		getString(R.string.rate_thread),
-        		getString(R.string.copy_url),
-        		getString(R.string.share_thread),
-        		getString(R.string.refresh),
-        		getString(R.string.keep_screen_on),
-            };
-		
-		
-        	new AlertDialog.Builder(getActivity())
-            .setTitle("Select an Action")
-            .setItems(mThreadItems, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aItem) {
-                	switch(aItem) {
-                    case 0:
-                        displayPostReplyDialog();
-                        break;
-
-                    case 1:
-                    	toggleThreadBookmark();
-                        break;
-            		case 2:
-            			rateThread();
-            			break;
-            		case 3:
-            			copyThreadURL(null);
-            			break;
-            		case 4:
-            			startActivity(createShareIntent());
-                    case 5:
-                        refresh();
-                        break;
-            		case 6:
-            			toggleScreenOn();
-                        item.setChecked(!item.isChecked());
-            			break;
-                	}
-                }
-            })
-            .show();
-	}
+//	private void fuckPreAPI11Forever(final MenuItem item) {
+//        final CharSequence[] mThreadItems = {
+//        		getString(R.string.post_reply),
+//        		getString(R.string.bookmark),
+//        		getString(R.string.rate_thread),
+//        		getString(R.string.copy_url),
+//        		getString(R.string.share_thread),
+//        		getString(R.string.refresh),
+//        		getString(R.string.keep_screen_on),
+//            };
+//
+//
+//        	new AlertDialog.Builder(getActivity())
+//            .setTitle("Select an Action")
+//            .setItems(mThreadItems, new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface aDialog, int aItem) {
+//                	switch(aItem) {
+//                    case 0:
+//                        displayPostReplyDialog();
+//                        break;
+//
+//                    case 1:
+//                    	toggleThreadBookmark();
+//                        break;
+//            		case 2:
+//            			rateThread();
+//            			break;
+//            		case 3:
+//            			copyThreadURL(null);
+//            			break;
+//            		case 4:
+//            			startActivity(createShareIntent());
+//                    case 5:
+//                        refresh();
+//                        break;
+//            		case 6:
+//            			toggleScreenOn();
+//                        item.setChecked(!item.isChecked());
+//            			break;
+//                	}
+//                }
+//            })
+//            .show();
+//	}
 
 	private String generateThreadUrl(String postId){
     	StringBuffer url = new StringBuffer();

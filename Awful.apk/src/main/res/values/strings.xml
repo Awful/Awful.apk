@@ -7,28 +7,31 @@
     <string name="refresh">Refresh</string>
 
     <string name="login">Login</string>
-        <string name="login_message">Login with your Awful credentials</string>
-        <string name="password">Password</string>
-        <string name="username">Username</string>
-        <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
-        <string name="login_failed">Login failed!</string>
+    <string name="login_message">Login with your Awful credentials</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="login_succeeded">GLUUUUUUUUUUEEEEEEE</string>
+    <string name="login_failed">Login failed!</string>
     <string name="logout">All your dreams</string>
-        <string name="logout_message">Make all your wildest dreams come true?</string>
+    <string name="logout_message">Make all your wildest dreams come true?</string>
     <string name="private_message">Private messages</string>
-        <string name="new_pm">New private message</string>
-        <string name="toggle_folder">Toggle mail folder</string>
-        <string name="select_message">Select a message on the left or click the new message icon
-                                      at the top of the screen</string>
+    <string name="new_pm">New private message</string>
+    <string name="toggle_folder">Toggle mail folder</string>
+    <string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
+
+    <!-- Sidebar-->
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 
     <!-- sort THIS out -->
     <string name="usercp">Bookmarks</string>
     <string name="user_cp">Bookmarks</string>
 
     <string name="forums_title">Forums</string>
-        <string name="back">Previous page</string>
-        <string name="forward">Next page</string>
-        <string name="go_to">Go to page</string>
-        <string name="invalid_page">Enter a real number</string>
+    <string name="back">Previous page</string>
+    <string name="forward">Next page</string>
+    <string name="go_to">Go to page</string>
+    <string name="invalid_page">Enter a real number</string>
     <string name="settings">Settings</string>
 
     <!-- Post view -->
@@ -37,23 +40,23 @@
     <string name="unbookmark">Unbookmark</string>
     <string name="bookmarkarchived">Archived</string>
     <string name="rate_thread">Rate thread</string>
-        <string name="vote_failed">An error occurred while voting, please try again</string>
-        <string name="vote_succeeded">Thread Rated</string>
-        <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
+    <string name="vote_failed">An error occurred while voting, please try again</string>
+    <string name="vote_succeeded">Thread Rated</string>
+    <string name="vote_succeeded_sub">THANK GOD YOU VOTED!</string>
     <string name="copy_url">Copy thread URL</string>
-        <string name="copy_url_success">URL has been copied to the clipboard</string>
+    <string name="copy_url_success">URL has been copied to the clipboard</string>
     <string name="share_thread">Share thread</string>
     <string name="find">Find on page</string>
     <string name="keep_screen_on">Keep screen on</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
-        <string name="mark_last_read_success">Post Marked</string>
-        <string name="please_wait_subtext">Please wait…</string>
+    <string name="mark_last_read_success">Post Marked</string>
+    <string name="please_wait_subtext">Please wait…</string>
 
     <string name="ignore_title">Ignore user</string>
-        <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
-        <string name="dont_show_again">Don\'t show again</string>
+    <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
+    <string name="dont_show_again">Don\'t show again</string>
 
     <!-- Thread view long-press menu -->
     <string name="goto_firstpage">First page</string>
@@ -61,7 +64,7 @@
     <string name="toggle_bookmark">Toggle bookmark</string>
     <string name="toggle_bookmark_color">Toggle bookmark color</string>
     <string name="mark_unread">Mark thread unread</string>
-        <string name="mark_unread_success">Thread Marked Unread</string>
+    <string name="mark_unread_success">Thread Marked Unread</string>
 
     <!-- Reply view -->
     <string name="filter_emote_hint">Filter emotes…</string>
@@ -73,10 +76,10 @@
     <string name="disableEmots">Disable Smilies in This Post</string>
     <string name="add_attachment">Add file attachment</string>
     <string name="remove_attachment">Remove file attachment</string>
-        <string name="file_attached">Set file %s as attachment</string>
-        <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
-        <string name="file_unreadable">File %s could not be accessed</string>
-        <string name="file_removed">Attachment removed</string>
+    <string name="file_attached">Set file %s as attachment</string>
+    <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
+    <string name="file_unreadable">File %s could not be accessed</string>
+    <string name="file_removed">Attachment removed</string>
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
     <string name="post_sent">Hope it didn\'t suck…</string>
@@ -282,11 +285,11 @@
         End of Settings menu strings
     -->
 
-<!-- Old settings xml strings -->
+    <!-- Old settings xml strings -->
     <string name="prefs_global">Global settings</string>
     <string name="prefs_salr">SALR preferences</string>
 
-<!-- what are you doing here you're not even used -->
+    <!-- what are you doing here you're not even used -->
     <string name="prefs_thread_display">Thread display settings</string>
     <string name="use_large_scrollbar">Use large scrollbar</string>
     <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
