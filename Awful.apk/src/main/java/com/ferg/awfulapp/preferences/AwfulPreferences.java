@@ -78,6 +78,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	//GENERAL STUFF
 	public String username;
+    public String userTitle;
 	public int userId;
 	public boolean hasPlatinum;
 	public boolean hasArchives;
@@ -228,6 +229,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = mPrefs.getString("username", "Username");
+        userTitle                = mPrefs.getString("user_title",null);
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", false);
 		hasArchives              = mPrefs.getBoolean("has_archives", false);
 		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);

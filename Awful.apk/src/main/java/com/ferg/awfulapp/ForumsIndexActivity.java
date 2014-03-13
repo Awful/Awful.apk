@@ -52,6 +52,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -187,7 +188,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
 
     private void setNavigationDrawer() {
-        String[] navigationArray = {"Serious Hardware / Software Crap","YOSPOS","Some buttcoin thread with a really long title"};
+        String[] navigationArray = {"The Something Awful Forums","Forum","Subforum (optional)","Thread"};
         mNavigationList = (ListView) findViewById(R.id.sidebar_navigationList);
         if(mNavigationList != null)
             mNavigationList.setAdapter(new ArrayAdapter<String>(this,
@@ -205,8 +206,22 @@ public class ForumsIndexActivity extends AwfulActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         TextView username = (TextView) findViewById(R.id.sidebar_username);
-        username.setText(mPrefs.username);
+        if(null != username){
+            username.setText(mPrefs.username);
+        }
+        ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
+        if(null != avatar){
+            AQuery aq = new AQuery(this);
+            if(null != mPrefs.userTitle) {
+                if("" != mPrefs.userTitle){
+                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
+                }else{
+                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
+                }
+            }else{
 
+            }
+        }
         final Activity self = this;
         ImageView logout = (ImageView) findViewById(R.id.sidebar_logout);
         if(null != logout){
@@ -699,6 +714,17 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(mViewPager != null){
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
+        if(mDrawerLayout != null){
+            ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
+            if(null != avatar){
+                AQuery aq = new AQuery(this);
+                if(null != mPrefs.userTitle) {
+                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
+                }else{
+                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
+                }
+            }
+        }
     }
 
     @Override
@@ -717,5 +743,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
             mViewPager.setAdapter(pagerAdapter);
         }
+        mDrawerToggle.onConfigurationChanged(newConfig);
+
     }
 }

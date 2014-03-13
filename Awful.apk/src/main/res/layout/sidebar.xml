@@ -12,15 +12,15 @@
     >
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="100dp">
+        android:layout_height="150dp">
         <ImageView
+            android:id="@+id/sidebar_avatar"
             android:layout_width="fill_parent"
             android:layout_centerInParent="true"
             android:layout_height="fill_parent"
-            android:src="@drawable/icon"
             android:scaleType="centerCrop"
-            android:layout_alignParentStart="true" />
-        <LinearLayout
+            android:layout_alignParentStart="true"/>
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -31,7 +31,8 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="48dp"
-                android:gravity="right">
+                android:gravity="right"
+                android:layout_alignParentTop="true">
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
@@ -61,22 +62,19 @@
                     android:layout_marginRight="5dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="48dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="48dp"
                     android:id="@+id/sidebar_username"
                     android:textAlignment="center"
                     android:textSize="24dp"
                     android:textIsSelectable="false"
                     android:singleLine="true"
-                    android:gravity="center_vertical" />
-            </LinearLayout>
-        </LinearLayout>
+                    android:gravity="bottom"
+                    android:paddingLeft="5dp"
+                    android:layout_alignParentBottom="true" />
+        </RelativeLayout>
     </RelativeLayout>
     <ListView
         android:layout_width="match_parent"

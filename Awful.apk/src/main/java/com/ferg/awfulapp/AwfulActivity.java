@@ -99,10 +99,12 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         mConf.onResume();
         
         if (isLoggedIn()) {
-        	if(mPrefs.ignoreFormkey == null){
+        	if(mPrefs.ignoreFormkey == null || mPrefs.userTitle == null){
         		 getAwfulApplication().queueRequest(new ProfileRequest(this, null).build(null, null));
-        		 getAwfulApplication().queueRequest(new FeatureRequest(this).build(null, null));
         	}
+            if(mPrefs.ignoreFormkey == null){
+                getAwfulApplication().queueRequest(new FeatureRequest(this).build(null, null));
+            }
             Log.v(TAG, "Cookie Loaded!");
         } else {
         	if(!(this instanceof AwfulLoginActivity)){
