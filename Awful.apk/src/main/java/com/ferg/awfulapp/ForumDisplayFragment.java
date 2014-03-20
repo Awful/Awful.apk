@@ -49,7 +49,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -280,6 +279,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		if(mP2RAttacher != null){
 			mP2RAttacher.setPullFromBottom(false);
 		}
+        ForumsIndexActivity fia = (ForumsIndexActivity) getActivity();
+        if(fia != null){
+            fia.setNavForumId(this.getForumId());
+            fia.setNavigationDrawer();
+        }
         refreshInfo();
 	}
 	
@@ -514,8 +518,14 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         if(id == mForumId && page == mPage){
             return;
         }
+
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+        ForumsIndexActivity fia = (ForumsIndexActivity) getActivity();
+        if(fia != null){
+            fia.setNavThreadId(0);
+            fia.setNavigationDrawer();
+        }
     	updateColors();
     	mPage = page;
     	mLastPage = 0;

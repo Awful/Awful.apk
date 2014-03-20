@@ -91,7 +91,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
-
+    private int mNavForumId = Constants.USERCP_ID;
+    private int mNavThreadId = 0;
     private int mForumId = Constants.USERCP_ID;
     private int mForumPage = 1;
     private int mThreadId = 0;
@@ -206,7 +207,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         TextView navForum = (TextView) findViewById(R.id.sidebar_forum);
         if(null != navForum){
-            if(mForumId != 0) {
+            if(mNavForumId != 0) {
                 navForum.setVisibility(View.VISIBLE);
                 navForum.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view){
@@ -214,7 +215,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                         mDrawerLayout.closeDrawers();
                     }
                 });
-                navForum.setText(StringProvider.getForumName(this, mForumId));
+                navForum.setText(StringProvider.getForumName(this, mNavForumId));
             }else{
                 navForum.setVisibility(View.GONE);
             }
@@ -222,15 +223,17 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         TextView navThread = (TextView) findViewById(R.id.sidebar_thread);
         if(null != navThread){
-            if(mThreadId != 0) {
+            if(mNavThreadId != 0) {
+                Log.d(TAG,mNavThreadId+" "+mNavForumId);
                 navThread.setVisibility(View.VISIBLE);
                 navThread.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-                        displayThread(mThreadId, mThreadPage, mForumId, mForumPage);
+                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage);
+
                         mDrawerLayout.closeDrawers();
                     }
                 });
-                navThread.setText(StringProvider.getThreadName(this, mThreadId));
+                navThread.setText(StringProvider.getThreadName(this, mNavThreadId));
             }else{
                 navThread.setVisibility(View.GONE);
             }
@@ -508,6 +511,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void setThreadId(int threadId) {
         int oldThreadId = mThreadId;
         mThreadId = threadId;
+        mNavThreadId = threadId;
         if((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null){
             pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
         }
@@ -705,7 +709,9 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(mViewPager != null){
             if(mThreadFragment != null){
                 if(getThreadId() == id && getThreadPage() == page){
-                    mForumId = mThreadFragment.getParentForumId();
+                    mThreadId = mThreadFragment.getParentForumId();
+
+                    setNavForumId(mThreadFragment.getParentForumId());
                     setNavigationDrawer();
                 }else{
                     mThreadFragment.openThread(id, page);
@@ -802,8 +808,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     }
 
-    public void setForumId(int forumId){
-        this.mForumId = forumId;
-        this.mForumPage = 1;
+    public void setNavForumId(int forumId){
+        this.mNavForumId = forumId;
+    }
+
+    public void setNavThreadId(int threadId){
+        this.mNavThreadId = threadId;
     }
 }

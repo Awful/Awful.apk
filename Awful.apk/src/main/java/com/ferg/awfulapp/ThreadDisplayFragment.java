@@ -448,6 +448,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         if(mP2RAttacher != null){
         	mP2RAttacher.setPullFromBottom(true);
         }
+        if(parent != null && mParentForumId != 0){
+            parent.setNavForumId(mParentForumId);
+            parent.setNavThreadId(getThreadId());
+            parent.setNavigationDrawer();
+        }
 	}
 
 	@Override
@@ -1524,7 +1529,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
                 //Same thread, already done this, don't override the forum name
                 if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
-                    parent.setForumId(mParentForumId);
+                    parent.setNavForumId(mParentForumId);
                 }
                 setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
