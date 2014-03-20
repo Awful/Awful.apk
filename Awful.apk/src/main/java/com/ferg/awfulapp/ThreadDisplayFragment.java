@@ -1522,7 +1522,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
                 threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
-        		setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
+                //Same thread, already done this, don't override the forum name
+                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
+                    parent.setForumId(mParentForumId);
+                }
+                setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
         		updateProbationBar();
                 if(mUserId > 0 && !TextUtils.isEmpty(mPostByUsername)){
@@ -1534,6 +1538,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         			shareProvider.setShareIntent(createShareIntent());
         		}
                 invalidateOptionsMenu();
+                parent.setNavigationDrawer();
         	}
         }
         
@@ -1606,7 +1611,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 	        getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     	}
         setPage(page);
-    	setThreadId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+    	setThreadId(id);
+    	//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
 		mUserId = 0;
         mPostByUsername = null;
     	bodyHtml = "";

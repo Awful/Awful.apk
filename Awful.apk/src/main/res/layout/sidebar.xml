@@ -63,24 +63,29 @@
             </LinearLayout>
 
 
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="48dp"
-                    android:id="@+id/sidebar_username"
-                    android:textAlignment="center"
-                    android:textSize="24dp"
-                    android:textIsSelectable="false"
-                    android:singleLine="true"
-                    android:gravity="bottom"
-                    android:paddingLeft="5dp"
-                    android:layout_alignParentBottom="true" />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="48dp"
+                android:id="@+id/sidebar_username"
+                android:textAlignment="center"
+                android:textSize="24dp"
+                android:textIsSelectable="false"
+                android:singleLine="true"
+                android:gravity="bottom"
+                android:paddingLeft="5dp"
+                android:layout_alignParentBottom="true" />
         </RelativeLayout>
     </RelativeLayout>
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:choiceMode="singleChoice"
-        android:id="@+id/sidebar_navigationList"
-        >
-    </ListView>
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_index"
+        android:layout_width="fill_parent"
+        />
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_forum"
+        android:layout_width="fill_parent"
+        />
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_thread"
+        android:layout_width="fill_parent"
+        />
 </LinearLayout>
