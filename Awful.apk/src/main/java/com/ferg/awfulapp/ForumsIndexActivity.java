@@ -63,6 +63,7 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
