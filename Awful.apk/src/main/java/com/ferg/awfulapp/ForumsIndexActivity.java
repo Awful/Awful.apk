@@ -242,7 +242,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if(AwfulUtils.isWidescreen(this)){
             LinearLayout sidebar = (LinearLayout) findViewById(R.id.sidebar);
-            sidebar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+            sidebar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     320, getResources().getDisplayMetrics()))));
         }
         mDrawerToggle = new ActionBarDrawerToggle(
