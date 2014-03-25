@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="280dp"
-    android:layout_gravity="start"
+    android:layout_gravity="left"
     android:choiceMode="singleChoice"
     android:dividerHeight="0dp"
     android:background="#111"
