@@ -172,7 +172,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     	displayForum(Constants.USERCP_ID, 1);
     }
     
-    public void displayThread(int id, int page, int forumId, int forumPage){
+    public void displayThread(int id, int page, int forumId, int forumPage, boolean forceReload){
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
     							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     							  .putExtra(Constants.THREAD_ID, id)

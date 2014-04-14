@@ -150,9 +150,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     	}
     }
     
-    protected void displayThread(int aId, int aPage, int forumId, int forumPage) {
+    protected void displayThread(int aId, int aPage, int forumId, int forumPage, boolean forceReload) {
     	if(getActivity() != null){
-    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage);
+    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage, forceReload);
     	}
     }
 	

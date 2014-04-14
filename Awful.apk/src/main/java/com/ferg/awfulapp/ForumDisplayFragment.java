@@ -345,11 +345,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	viewThread((int) info.id,1);
+            	viewThread((int) info.id,1,false);
                 return true;
             case R.id.last_page:
         		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
-            	viewThread((int) info.id,lastPage);
+            	viewThread((int) info.id,lastPage,false);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
@@ -368,8 +368,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         return false;
     }
     
-    private void viewThread(int id, int page){
-    	displayThread(id, page, getForumId(), getPage());
+    private void viewThread(int id, int page, boolean forceReload){
+    	displayThread(id, page, getForumId(), getPage(),forceReload);
     }
 
     private void copyUrl(int id) {
@@ -470,7 +470,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     												mPrefs.postPerPage,
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
-                    viewThread((int) aId, unreadPage);
+                    viewThread((int) aId, unreadPage,true);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
                     displayForumContents((int) aId);
             }

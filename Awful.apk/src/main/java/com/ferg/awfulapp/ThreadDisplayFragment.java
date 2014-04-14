@@ -597,6 +597,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     			this.toggleScreenOn();
                 item.setChecked(!item.isChecked());
     			break;
+            case R.id.bookmark:
+                toggleThreadBookmark();
+                break;
 //    		case R.id.thread_actions:
 //    			if(!AwfulUtils.isHoneycomb()){
 //    				fuckPreAPI11Forever(item);

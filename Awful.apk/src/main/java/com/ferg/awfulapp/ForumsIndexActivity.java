@@ -212,7 +212,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 navForum.setVisibility(View.VISIBLE);
                 navForum.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view){
-                        displayForum(mForumId, 1);
+                        displayForum(mNavForumId, 1);
                         mDrawerLayout.closeDrawers();
                     }
                 });
@@ -225,11 +225,11 @@ public class ForumsIndexActivity extends AwfulActivity {
         TextView navThread = (TextView) findViewById(R.id.sidebar_thread);
         if(null != navThread){
             if(mNavThreadId != 0) {
-                Log.d(TAG,mNavThreadId+" "+mNavForumId);
+                Log.d(TAG,"NavThread, Navforum: "+ mNavThreadId+" "+mNavForumId);
                 navThread.setVisibility(View.VISIBLE);
                 navThread.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage);
+                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage,false);
 
                         mDrawerLayout.closeDrawers();
                     }
@@ -282,7 +282,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
         ImageView messages = (ImageView) findViewById(R.id.sidebar_pm);
         if(null != messages){
-            Log.i(TAG, "Menu!!!!");
             messages.setEnabled(mPrefs.hasPlatinum);
             messages.setVisibility(mPrefs.hasPlatinum?View.VISIBLE:View.GONE);
             messages.setOnClickListener(new View.OnClickListener() {
@@ -375,7 +374,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
 
@@ -705,17 +704,18 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     @Override
-    public void displayThread(int id, int page, int forumId, int forumPg){
+    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload){
         Log.d(TAG,"displayThread "+ id+" " +forumId);
         if(mViewPager != null){
             if(mThreadFragment != null){
-                if(getThreadId() == id && getThreadPage() == page){
-                    mThreadId = mThreadFragment.getParentForumId();
+                if(!forceReload && getThreadId() == id && getThreadPage() == page){
+                    setThreadId(mNavThreadId);
 
                     setNavForumId(mThreadFragment.getParentForumId());
                     setNavigationDrawer();
                 }else{
                     mThreadFragment.openThread(id, page);
+                    mViewPager.getAdapter().notifyDataSetChanged();
                 }
             }else{
                 setThreadPage(page);
@@ -723,7 +723,7 @@ public class ForumsIndexActivity extends AwfulActivity {
             }
             mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
         }else{
-            super.displayThread(id, page, forumId, forumPg);
+            super.displayThread(id, page, forumId, forumPg, forceReload);
         }
     }
 
