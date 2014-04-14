@@ -130,6 +130,14 @@ public class AwfulError extends VolleyError{
                     e.printStackTrace();
                 }
             }
+        }else{
+            if(AwfulPreferences.getInstance().probationTime > 0) {
+                try {
+                    prefs.setLongPreference("probation_time", 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return error;
     }
