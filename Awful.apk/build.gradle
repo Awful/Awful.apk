@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
 apply plugin: 'android'
@@ -20,6 +20,12 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
     }
+    lintOptions {
+             checkReleaseBuilds false
+             // Or, if you prefer, you can continue to check for errors in release builds,
+             // but continue the build even when errors are found:
+             abortOnError false
+         }
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
