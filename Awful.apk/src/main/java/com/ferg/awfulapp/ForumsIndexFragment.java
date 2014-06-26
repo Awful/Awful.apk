@@ -56,6 +56,7 @@ import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -229,6 +230,11 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 
                 @Override
                 public void failure(VolleyError error) {
+                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
+                        Log.e(TAG, "Error: "+error.getMessage());
+                        NetworkUtils.clearLoginCookies(getAwfulActivity());
+                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+                    }
                     restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
             }));

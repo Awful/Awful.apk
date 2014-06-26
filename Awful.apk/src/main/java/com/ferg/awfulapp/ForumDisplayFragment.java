@@ -49,6 +49,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.dialog.LogOutDialog;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -279,11 +281,6 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		if(mP2RAttacher != null){
 			mP2RAttacher.setPullFromBottom(false);
 		}
-        ForumsIndexActivity fia = (ForumsIndexActivity) getActivity();
-        if(fia != null){
-            fia.setNavForumId(this.getForumId());
-            fia.setNavigationDrawer();
-        }
         refreshInfo();
 	}
 	
@@ -318,7 +315,64 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
     }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    	menu.clear();
+        if(menu.size() == 0){
+        	inflater.inflate(R.menu.forum_display_menu, menu);
+        }
+    }
+    
+    @Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		MenuItem ucp = menu.findItem(R.id.user_cp);
+		if(ucp != null){
+			if(mForumId == Constants.USERCP_ID){
+				ucp.setIcon(R.drawable.ic_menu_home);
+				ucp.setTitle(R.string.forums_title);
+			}else{
+				ucp.setIcon(R.drawable.ic_interface_bookmarks);
+				ucp.setTitle(R.string.user_cp);
+			}
+		}
+        MenuItem pm = menu.findItem(R.id.pm);
+        if(pm != null){
+            pm.setEnabled(mPrefs.hasPlatinum);
+            pm.setVisible(mPrefs.hasPlatinum);
+        }
 
+	}
+    
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+	        case R.id.user_cp:
+	        	if(getForumId() != Constants.USERCP_ID){
+	        		displayForumContents(Constants.USERCP_ID);
+	        	}else{
+	        		displayForumIndex();
+	        	}
+	            return true;
+            case R.id.settings:
+                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+                return true;
+            case R.id.logout:
+                new LogOutDialog(getActivity()).show();
+                return true;
+            case R.id.refresh:
+                syncForum();
+                return true;
+            case R.id.go_to:
+                displayPagePicker();
+                return true;
+            case R.id.pm:
+            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
+            	return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 	
     @Override
     public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
@@ -345,11 +399,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
         switch (aItem.getItemId()) {
             case R.id.first_page:
-            	viewThread((int) info.id,1,false);
+            	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
         		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
-            	viewThread((int) info.id,lastPage,false);
+            	viewThread((int) info.id,lastPage);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
@@ -368,8 +422,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         return false;
     }
     
-    private void viewThread(int id, int page, boolean forceReload){
-    	displayThread(id, page, getForumId(), getPage(),forceReload);
+    private void viewThread(int id, int page){
+    	displayThread(id, page, getForumId(), getPage());
     }
 
     private void copyUrl(int id) {
@@ -470,7 +524,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     												mPrefs.postPerPage,
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
-                    viewThread((int) aId, unreadPage,true);
+                    viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
                     displayForumContents((int) aId);
             }
@@ -518,14 +572,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         if(id == mForumId && page == mPage){
             return;
         }
-
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
-        ForumsIndexActivity fia = (ForumsIndexActivity) getActivity();
-        if(fia != null){
-            fia.setNavThreadId(0);
-            fia.setNavigationDrawer();
-        }
     	updateColors();
     	mPage = page;
     	mLastPage = 0;
@@ -556,6 +604,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 
                         @Override
                         public void failure(VolleyError error) {
+                            if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
+                                Log.e(TAG, "Error: "+error.getMessage());
+                                NetworkUtils.clearLoginCookies(getAwfulActivity());
+                                getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+                            }
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;
