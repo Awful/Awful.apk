@@ -423,7 +423,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     }
     
     private void viewThread(int id, int page){
-    	displayThread(id, page, getForumId(), getPage());
+    	displayThread(id, page, getForumId(), getPage(), true);
     }
 
     private void copyUrl(int id) {

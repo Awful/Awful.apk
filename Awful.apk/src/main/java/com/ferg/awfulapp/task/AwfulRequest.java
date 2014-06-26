@@ -219,12 +219,15 @@ public abstract class AwfulRequest<T> {
         }
     }
 
+    private static final RetryPolicy lenientRetryPolicy = new DefaultRetryPolicy(20000, 1, 1);
+
     private class ActualRequest extends Request<T>{
         private Response.Listener<T> success;
         public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
             super(params != null? Method.POST : Method.GET, url, errorListener);
             if(Constants.DEBUG) Log.e("AwfulRequest", "Created request: " + url);
             success = successListener;
+            setRetryPolicy(lenientRetryPolicy);
         }
 
         @Override
