@@ -302,7 +302,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         }
 
 		if (AwfulUtils.isHoneycomb()) {
-			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 			}
@@ -1764,11 +1763,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
 	}
     
-    @Override
-    public void onLowMemory() {
-    	super.onLowMemory();
-    	mThreadView.freeMemory();
-    }
+//    @Override
+//    public void onLowMemory() {
+//    	super.onLowMemory();
+//    	mThreadView.freeMemory();
+//    }
     
     private String determineCSS(){
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
