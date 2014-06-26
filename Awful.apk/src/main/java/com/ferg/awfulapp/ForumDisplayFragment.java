@@ -315,65 +315,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
     }
-    
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    	menu.clear();
-        if(menu.size() == 0){
-        	inflater.inflate(R.menu.forum_display_menu, menu);
-        }
-    }
-    
-    @Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		MenuItem ucp = menu.findItem(R.id.user_cp);
-		if(ucp != null){
-			if(mForumId == Constants.USERCP_ID){
-				ucp.setIcon(R.drawable.ic_menu_home);
-				ucp.setTitle(R.string.forums_title);
-			}else{
-				ucp.setIcon(R.drawable.ic_interface_bookmarks);
-				ucp.setTitle(R.string.user_cp);
-			}
-		}
-        MenuItem pm = menu.findItem(R.id.pm);
-        if(pm != null){
-            pm.setEnabled(mPrefs.hasPlatinum);
-            pm.setVisible(mPrefs.hasPlatinum);
-        }
 
-	}
-    
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-	        case R.id.user_cp:
-	        	if(getForumId() != Constants.USERCP_ID){
-	        		displayForumContents(Constants.USERCP_ID);
-	        	}else{
-	        		displayForumIndex();
-	        	}
-	            return true;
-            case R.id.settings:
-                startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
-                return true;
-            case R.id.logout:
-                new LogOutDialog(getActivity()).show();
-                return true;
-            case R.id.refresh:
-                syncForum();
-                return true;
-            case R.id.go_to:
-                displayPagePicker();
-                return true;
-            case R.id.pm:
-            	startActivity(new Intent().setClass(getActivity(), PrivateMessageActivity.class));
-            	return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-	
+
     @Override
     public void onCreateContextMenu(ContextMenu aMenu, View aView, ContextMenuInfo aMenuInfo) {
         super.onCreateContextMenu(aMenu, aView, aMenuInfo);
