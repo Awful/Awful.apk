@@ -859,6 +859,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 
                 @Override
                 public void failure(VolleyError error) {
+                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
+                        Log.e(TAG, "Error: "+error.getMessage());
+                        NetworkUtils.clearLoginCookies(getAwfulActivity());
+                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+                    }
                     refreshInfo();
                     refreshPosts();
                     mNextPage.setColorFilter(0);

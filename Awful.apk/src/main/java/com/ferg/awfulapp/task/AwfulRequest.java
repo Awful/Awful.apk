@@ -258,7 +258,7 @@ public abstract class AwfulRequest<T> {
         }
 
         @Override
-        public void setRequestQueue(RequestQueue requestQueue) {
+        public Request<?> setRequestQueue(RequestQueue requestQueue) {
             super.setRequestQueue(requestQueue);
             if(progressListener != null){
                 handle.post(new Runnable() {
@@ -270,6 +270,7 @@ public abstract class AwfulRequest<T> {
                     }
                 });
             }
+            return this;
         }
 
         @Override
