@@ -29,6 +29,7 @@ package com.ferg.awfulapp;
 
 
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMListRequest;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
@@ -146,6 +147,11 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
                 @Override
                 public void failure(VolleyError error) {
+                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
+                        Log.e(TAG, "Error: "+error.getMessage());
+                        NetworkUtils.clearLoginCookies(getAwfulActivity());
+                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+                    }
                     //The error is already passed to displayAlert by the request framework.
                 }
             }));

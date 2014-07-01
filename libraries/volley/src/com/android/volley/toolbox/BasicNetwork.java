@@ -18,8 +18,6 @@ package com.android.volley.toolbox;
 
 import android.os.SystemClock;
 
-import android.text.TextUtils;
-import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -45,10 +43,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -102,15 +98,24 @@ public class BasicNetwork implements Network {
                 // Handle cache validation.
                 if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
                     return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
-                            request.getCacheEntry().data, responseHeaders, true);
+                            request.getCacheEntry() == null ? null : request.getCacheEntry().data,
+                            responseHeaders, true);
                 }
 
-                responseContents = entityToBytes(httpResponse.getEntity());
+                // Some responses such as 204s do not have content.  We must check.
+                if (httpResponse.getEntity() != null) {
+                  responseContents = entityToBytes(httpResponse.getEntity());
+                } else {
+                  // Add 0 byte response as a way of honestly representing a
+                  // no-content request.
+                  responseContents = new byte[0];
+                }
+
                 // if the request is slow, log it.
                 long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
                 logSlowRequests(requestLifetime, request, responseContents, statusLine);
 
-                if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NO_CONTENT) {
+                if (statusCode < 200 || statusCode > 299) {
                     throw new IOException();
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
@@ -192,19 +197,7 @@ public class BasicNetwork implements Network {
 
         if (entry.serverDate > 0) {
             Date refTime = new Date(entry.serverDate);
-            String serverDate = DateUtils.formatDate(refTime);
-            //TODO report stupid 412 bug for fi.somethingawful.com
-            //Volley is formatting the If-Modified-Since string like this:
-            //Thu, 08 Aug 2013 21:58:01 GMT+00:00
-            //But SA image servers expect:
-            //Thu, 08 Aug 2013 21:58:01 GMT
-            //and will return 412 precon failures
-            //Unfortunately, we can't just change the datetime format,
-            //because of Android localization fuckery SimpleDateFormat will always put in +00:00,
-            //unless we specify a different locale in which case the timezone is wrong and it'll still 412 on us.
-            if(serverDate != null){
-                headers.put("If-Modified-Since", serverDate.replaceAll("\\+00:00",""));
-            }
+            headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
         }
     }
 

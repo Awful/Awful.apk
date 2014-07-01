@@ -77,10 +77,18 @@ function pageinit() {
     $('.quote_link').each(function(){
         var id = this.hash;
         try{
-	        if($(id).size() > 0 && $(id).css("visibility") !== "none"){
+	        if($(id).size() > 0){
 	            $(this).click(function(e){
-	                window.scrollTo(0,$(id).offset().top);
 	                e.preventDefault();
+                    if($(id).css("display") !== "none"){
+                        var count = $('.read').size();
+                        $('.toggleread').hide();
+                        $('.read').show(0, function(){
+                            if(--count == 0){
+                                window.scrollTo(0,$(id).offset().top);
+                            }
+                        });
+                    }
 	            });
 	        }
         }catch(error){

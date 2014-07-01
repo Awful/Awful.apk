@@ -1,10 +1,13 @@
 package com.ferg.awfulapp.util;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -87,10 +90,13 @@ public class AwfulError extends VolleyError{
      */
     public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
         AwfulError error = null;
-        if(page.getElementsByAttributeValue("id", "notregistered").size() > 0){
+        if(null != page.getElementById("notregistered")){
             error = new AwfulError(ERROR_LOGGED_OUT);
+            NetworkUtils.clearLoginCookies(prefs.getContext());
+            prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
+            Log.e("AwfulError","ERROR_LOGGED_OUT");
         }
-        if(page.getElementById("closemsg") != null){
+        if(null != page.getElementById("closemsg")){
             String msg = page.getElementsByClass("reason").text().trim();
             if(msg != null && msg.length() > 0){
                 error = new AwfulError(ERROR_FORUM_CLOSED, "Forums Closed - "+msg);
@@ -126,6 +132,14 @@ public class AwfulError extends VolleyError{
                 //FUCK PRE ICS
                 try {
                     prefs.setLongPreference("probation_time", probTimestamp);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }else{
+            if(AwfulPreferences.getInstance().probationTime > 0) {
+                try {
+                    prefs.setLongPreference("probation_time", 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

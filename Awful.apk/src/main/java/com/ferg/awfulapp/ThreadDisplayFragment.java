@@ -302,7 +302,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         }
 
 		if (AwfulUtils.isHoneycomb()) {
-			mThreadView.getSettings().setEnableSmoothTransition(true);
 			if(!mPrefs.enableHardwareAcceleration){
 				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 			}
@@ -859,6 +858,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 
                 @Override
                 public void failure(VolleyError error) {
+                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
+                        Log.e(TAG, "Error: "+error.getMessage());
+                        NetworkUtils.clearLoginCookies(getAwfulActivity());
+                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+                    }
                     refreshInfo();
                     refreshPosts();
                     mNextPage.setColorFilter(0);
@@ -1759,11 +1763,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
 	}
     
-    @Override
-    public void onLowMemory() {
-    	super.onLowMemory();
-    	mThreadView.freeMemory();
-    }
+//    @Override
+//    public void onLowMemory() {
+//    	super.onLowMemory();
+//    	mThreadView.freeMemory();
+//    }
     
     private String determineCSS(){
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);

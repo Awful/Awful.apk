@@ -73,7 +73,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	private static AwfulPreferences mSelf;
 	
 	private SharedPreferences mPrefs;
-	private Context mContext;
+
+
+    private Context mContext;
 	private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
 	
 	//GENERAL STUFF
@@ -476,4 +478,13 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		markedUsers.remove(username);
 		setStringSetPreference("marked_users", markedUsers);
 	}
+
+    /**
+     * Only use in emergencies, terrible hack
+     * @returns a context
+     */
+    public Context getContext() {
+        return mContext;
+    }
+
 }
