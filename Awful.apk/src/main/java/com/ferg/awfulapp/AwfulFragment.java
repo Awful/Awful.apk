@@ -227,7 +227,11 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         AwfulActivity aa = getAwfulActivity();
         if(aa != null){
             aa.setSupportProgressBarVisibility(false);
-            aa.setSupportProgressBarIndeterminateVisibility(true);
+            if(mP2RAttacher != null){
+                mP2RAttacher.setRefreshing(true);
+            }else {
+                aa.setSupportProgressBarIndeterminateVisibility(true);
+            }
         }
     }
 
