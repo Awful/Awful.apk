@@ -73,10 +73,12 @@
     <string name="disableEmots">Disable Smilies in This Post</string>
     <string name="add_attachment">Add file attachment</string>
     <string name="remove_attachment">Remove file attachment</string>
-        <string name="file_attached">Set file %s as attachment</string>
-        <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
-        <string name="file_unreadable">File %s could not be accessed</string>
-        <string name="file_removed">Attachment removed</string>
+    <string name="file_attached">Set file %s as attachment</string>
+    <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
+    <string name="file_unreadable">File %s could not be accessed</string>
+    <string name="file_error">Error accessing file. Your file explorer sent incompatible data, please try a different way or app.</string>
+
+    <string name="file_removed">Attachment removed</string>
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
     <string name="post_sent">Hope it didn\'t suck…</string>
