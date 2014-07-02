@@ -43,7 +43,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -78,6 +80,7 @@ import com.ferg.awfulapp.task.*;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
@@ -234,68 +237,180 @@ public class PostReplyFragment extends AwfulFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ADD_ATTACHMENT) {
-                Uri selectedImageUri = data.getData();
-                File attachment = new File(getFilePath(selectedImageUri));
                 Toast attachmentToast;
-                if(attachment.isFile() && attachment.canRead()){
-                	if(attachment.length()>1048576){
-                		attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
-                		mFileAttachment = null;
-                	}else{
-                		mFileAttachment = getFilePath(selectedImageUri);
-                		attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
-                	}
-                }else{
-                	attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
-                	mFileAttachment = null;
+                Uri selectedImageUri = data.getData();
+                String path = getFilePath(selectedImageUri);
+                if(path == null){
+                    attachmentToast = Toast.makeText(this.getActivity(), this.getString(R.string.file_error), Toast.LENGTH_LONG);
+                    mFileAttachment = null;
+                }else {
+                    File attachment = new File(path);
+                    if (attachment.isFile() && attachment.canRead()) {
+                        if (attachment.length() > 1048576) {
+                            attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                            mFileAttachment = null;
+                        } else {
+                            mFileAttachment = path;
+                            attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                        }
+                    } else {
+                        attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
+                        mFileAttachment = null;
+                    }
                 }
-
                 attachmentToast.show();
                 invalidateOptionsMenu();
             }
         }
 
     }
-    
-    public String getFilePath(Uri uri) {
-    	try{
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = this.getActivity().getContentResolver().query(uri, projection, null, null, null);
-        if(cursor!=null)
-        {
-            //HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
-            //THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
-            int column_index = cursor
-            .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
+
+    public String getFilePath(final Uri uri) {
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(this.getActivity(), uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                return getDataColumn(contentUri, null, null);
+            }
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(contentUri, selection, selectionArgs);
+            }
         }
-        else{
-        	Toast.makeText(this.getActivity(), "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
-        	return null;
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+
+            return getDataColumn(uri, null, null);
         }
-    	}catch(NullPointerException e){
-    		Toast.makeText(this.getActivity(), "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
-    		e.printStackTrace();
-    		return null;
-    	}
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
     }
-    
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    public String getDataColumn(Uri uri, String selection,
+                                String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = this.getActivity().getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    public boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
     @Override
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG,"onResume");
     }
-        
+
     private void leave(){
-    	if(getAwfulActivity() != null){
-    		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-    		if(imm != null && getView() != null){
-    			imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
-    		}
+        if(getAwfulActivity() != null){
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if(imm != null && getView() != null){
+                imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+            }
             getAwfulActivity().finish();
-    	}
+        }
     }
-    
+
     @Override
     public void onPause() {
         super.onPause(); if(DEBUG) Log.e(TAG,"onPause");
