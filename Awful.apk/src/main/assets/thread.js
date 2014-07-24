@@ -221,10 +221,16 @@ function showInlineImage(url){
     if($('a[href="'+url+'"]').children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
         imageLink.append('<img src="'+url+'" />');
     }else{
-        image = imageLink.children().first();
-        if(image.attr('src') == "file:///android_res/drawable/gif.png"){
-              image.attr('src', url);
-        }
+    imageLink.each(function(){
+    image = $(this).children().first();
+            if(image.attr('src') == "file:///android_res/drawable/gif.png"){
+                  image.attr('src', url);
+                  image.css({
+                         width: 'auto',
+                         height: 'auto'
+                       });
+            }
+    })
     }
 }
 

@@ -115,7 +115,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
     
     protected void displayThread(int aId, int aPage, int forumId, int forumPage) {
     	if(getActivity() != null){
-    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage);
+    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage, false);
     	}
     }
 	

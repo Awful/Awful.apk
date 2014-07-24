@@ -42,19 +42,30 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
+import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.LayoutParams;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.widget.TextView;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static final String TAG = "ForumsIndexActivity";
@@ -77,6 +88,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
 
+    private ListView mNavigationList;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+
+    private int mNavForumId = Constants.USERCP_ID;
+    private int mNavThreadId = 0;
     private int mForumId = Constants.USERCP_ID;
     private int mForumPage = 1;
     private int mThreadId = 0;
@@ -118,11 +135,21 @@ public class ForumsIndexActivity extends AwfulActivity {
             mViewPager.setCurrentItem(initialPage);
         }
 
+        setNavigationDrawer();
+
         setActionBar();
 
         checkIntentExtras();
 
         setupImmersion();
+    }
+
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     @SuppressLint("NewApi")
@@ -160,6 +187,130 @@ public class ForumsIndexActivity extends AwfulActivity {
                         }
                     });
             showSystemUi();
+        }
+    }
+
+
+    public void setNavigationDrawer() {
+        final Activity self = this;
+
+        TextView navIndex = (TextView) findViewById(R.id.sidebar_index);
+        if(null != navIndex){
+            navIndex.setVisibility(View.VISIBLE);
+            navIndex.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    displayForumIndex();
+                    mDrawerLayout.closeDrawers();
+                }
+            });
+            navIndex.setText("The SA Forums");
+        }
+
+        TextView navForum = (TextView) findViewById(R.id.sidebar_forum);
+        if(null != navForum){
+            if(mNavForumId != 0) {
+                navForum.setVisibility(View.VISIBLE);
+                navForum.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view){
+                        displayForum(mNavForumId, 1);
+                        mDrawerLayout.closeDrawers();
+                    }
+                });
+                navForum.setText(StringProvider.getForumName(this, mNavForumId));
+            }else{
+                navForum.setVisibility(View.GONE);
+            }
+        }
+
+        TextView navThread = (TextView) findViewById(R.id.sidebar_thread);
+        if(null != navThread){
+            if(mNavThreadId != 0) {
+                Log.d(TAG,"NavThread, Navforum: "+ mNavThreadId+" "+mNavForumId);
+                navThread.setVisibility(View.VISIBLE);
+                navThread.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
+                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage,false);
+
+                        mDrawerLayout.closeDrawers();
+                    }
+                });
+                navThread.setText(StringProvider.getThreadName(this, mNavThreadId));
+            }else{
+                navThread.setVisibility(View.GONE);
+            }
+        }
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if(AwfulUtils.isWidescreen(this)){
+//            LinearLayout sidebar = (LinearLayout) findViewById(R.id.sidebar);
+//            sidebar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+//                    320, getResources().getDisplayMetrics()))));
+//        }
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description */
+                R.string.drawer_close  /* "close drawer" description */
+        );
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        TextView username = (TextView) findViewById(R.id.sidebar_username);
+        if(null != username){
+            username.setText(mPrefs.username);
+        }
+        ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
+        if(null != avatar){
+            AQuery aq = new AQuery(this);
+            if(null != mPrefs.userTitle) {
+                if("" != mPrefs.userTitle){
+                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
+                }else{
+                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
+                }
+            }
+        }
+        ImageView logout = (ImageView) findViewById(R.id.sidebar_logout);
+        if(null != logout){
+            logout.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    mDrawerLayout.closeDrawers();
+                    new LogOutDialog(self).show();
+                }
+            });
+        }
+        ImageView messages = (ImageView) findViewById(R.id.sidebar_pm);
+        if(null != messages){
+            messages.setEnabled(mPrefs.hasPlatinum);
+            messages.setVisibility(mPrefs.hasPlatinum?View.VISIBLE:View.GONE);
+            messages.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    mDrawerLayout.closeDrawers();
+                    startActivity(new Intent().setClass(self, PrivateMessageActivity.class));
+                }
+            });
+        }
+        ImageView bookmarks = (ImageView) findViewById(R.id.sidebar_bookmarks);
+        if(null != bookmarks){
+            bookmarks.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    mDrawerLayout.closeDrawers();
+                    startActivity(new Intent().setClass(self, ForumsIndexActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                            .putExtra(Constants.FORUM_PAGE, 1));
+                }
+            });
+        }
+        ImageView settings = (ImageView) findViewById(R.id.sidebar_settings);
+        if(null != settings){
+            settings.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view){
+                    mDrawerLayout.closeDrawers();
+                    startActivity(new Intent().setClass(self, SettingsActivity.class));
+                }
+            });
         }
     }
 
@@ -223,7 +374,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
 
@@ -360,6 +511,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void setThreadId(int threadId) {
         int oldThreadId = mThreadId;
         mThreadId = threadId;
+        mNavThreadId = threadId;
         if((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null){
             pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
         }
@@ -502,8 +654,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void displayForum(int id, int page){
+        Log.d(TAG,"displayForum "+ id);
         mForumId = id;
         mForumPage = page;
+        setNavigationDrawer();
         if(mForumFragment != null){
             mForumFragment.openForum(id, page);
             if (mViewPager != null) {
@@ -528,35 +682,48 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
-                        displayForum(mThreadFragment.getParentForumId(), 1);
-                    }else{
-                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-                    }
-                    return true;
-                }
-                break;
-            default:
-                break;
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+//                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
+//                        displayForum(mThreadFragment.getParentForumId(), 1);
+//                    }else{
+//                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+//                    }
+//                    return true;
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void displayThread(int id, int page, int forumId, int forumPg){
+    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload){
+        Log.d(TAG,"displayThread "+ id+" " +forumId);
         if(mViewPager != null){
             if(mThreadFragment != null){
-                mThreadFragment.openThread(id, page);
+                if(!forceReload && getThreadId() == id && getThreadPage() == page){
+                    setThreadId(mNavThreadId);
+
+                    setNavForumId(mThreadFragment.getParentForumId());
+                    setNavigationDrawer();
+                }else{
+                    mThreadFragment.openThread(id, page);
+                    mViewPager.getAdapter().notifyDataSetChanged();
+                }
             }else{
                 setThreadPage(page);
                 setThreadId(id);
             }
             mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
         }else{
-            super.displayThread(id, page, forumId, forumPg);
+            super.displayThread(id, page, forumId, forumPg, forceReload);
         }
     }
 
@@ -609,6 +776,17 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(mViewPager != null){
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
+        if(mDrawerLayout != null){
+            ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
+            if(null != avatar){
+                AQuery aq = new AQuery(this);
+                if(null != mPrefs.userTitle) {
+                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
+                }else{
+                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
+                }
+            }
+        }
     }
 
     @Override
@@ -627,5 +805,15 @@ public class ForumsIndexActivity extends AwfulActivity {
 
             mViewPager.setAdapter(pagerAdapter);
         }
+        mDrawerToggle.onConfigurationChanged(newConfig);
+
+    }
+
+    public void setNavForumId(int forumId){
+        this.mNavForumId = forumId;
+    }
+
+    public void setNavThreadId(int threadId){
+        this.mNavThreadId = threadId;
     }
 }

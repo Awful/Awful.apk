@@ -7,6 +7,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulError;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Created by matt on 8/8/13.
@@ -36,6 +37,25 @@ public class ProfileRequest extends AwfulRequest<Void> {
             }
         } else {
             throw new AwfulError("Profile page did not load");
+        }
+        Element title = doc.getElementsByClass("title").first();
+        if(null != title){
+            String userTitle = "";
+            Elements titleTags = title.getAllElements();
+            for(Element tag : titleTags){
+                String tagName = tag.tagName();
+                if("br".equals(tagName)){
+                    break;
+                }else if("img".equals(tagName)){
+                    userTitle = tag.attr("src");
+                    break;
+                }
+            }
+            try {
+                getPreferences().setStringPreference("user_title", userTitle);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }

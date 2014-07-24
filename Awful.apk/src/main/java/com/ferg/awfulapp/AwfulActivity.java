@@ -99,10 +99,12 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         mConf.onResume();
         
         if (isLoggedIn()) {
-        	if(mPrefs.ignoreFormkey == null){
+        	if(mPrefs.ignoreFormkey == null || mPrefs.userTitle == null){
         		 getAwfulApplication().queueRequest(new ProfileRequest(this, null).build(null, null));
-        		 getAwfulApplication().queueRequest(new FeatureRequest(this).build(null, null));
         	}
+            if(mPrefs.ignoreFormkey == null){
+                getAwfulApplication().queueRequest(new FeatureRequest(this).build(null, null));
+            }
             Log.v(TAG, "Cookie Loaded!");
         } else {
         	if(!(this instanceof AwfulLoginActivity)){
@@ -170,7 +172,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     	displayForum(Constants.USERCP_ID, 1);
     }
     
-    public void displayThread(int id, int page, int forumId, int forumPage){
+    public void displayThread(int id, int page, int forumId, int forumPage, boolean forceReload){
     	startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
     							  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     							  .putExtra(Constants.THREAD_ID, id)
