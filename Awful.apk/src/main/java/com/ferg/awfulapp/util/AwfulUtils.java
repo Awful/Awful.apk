@@ -40,6 +40,14 @@ public class AwfulUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
+    public static boolean isKitKatOnly(){
+        return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
+    }
+
+    public static boolean isLollipop(){
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
     public static boolean isWidescreen(Context cont){
 		if(cont != null){
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
