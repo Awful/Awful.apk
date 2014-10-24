@@ -42,6 +42,13 @@
                 android:defaultValue="false"
                 android:enabled="false"
                 />
+            <ListPreference
+                android:key="transformer"
+                android:title="@string/transformer"
+                android:entries="@array/transformer"
+                android:entryValues="@array/transformer_values"
+                android:defaultValue="Default"
+                />
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/misc_category_navigation">

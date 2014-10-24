@@ -272,7 +272,25 @@
     <string name="lock_scrolling_summary">No horizontal swiping navigation</string>
     <string name="volume_scroll">Volume button scrolling</string>
     <string name="volume_scroll_summary">Use volume controls to scroll threads</string>
-
+    <string name="transformer">Page transformation</string>
+    <string-array name="transformer">
+        <item>Default</item>
+        <item>Accordion</item>
+        <item>Background To Foreground</item>
+        <item>Cube In</item>
+        <item>Cube Out</item>
+        <item>Depth Page</item>
+        <item>Flip Horizontal</item>
+        <item>Flip Vertical</item>
+        <item>Foreground To Background</item>
+        <item>Rotate Down</item>
+        <item>Rotate Up</item>
+        <item>Stack</item>
+        <item>Tablet</item>
+        <item>Zoom In</item>
+        <item>Zoom Out Slide</item>
+        <item>Zoom Out</item>
+    </string-array>
 
     <!-- Account settings page -->
     <string name="username_pref">Username</string>

@@ -53,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.ToxicBakery.viewpager.transforms.*;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -61,6 +62,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.widget.DepthPageTransformer;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
@@ -122,6 +124,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
+        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         mViewPager.setOffscreenPageLimit(2);
         if(isTablet){
             mViewPager.setPageMargin(1);
@@ -787,6 +790,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
+        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
     }
 
     @Override

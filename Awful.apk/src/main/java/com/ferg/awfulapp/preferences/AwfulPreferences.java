@@ -147,6 +147,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public Set<String> markedUsers;
     public Float p2rDistance;
     public boolean immersionMode;
+    public String transformer;
 
     public int alertIDShown;
 	
@@ -286,6 +287,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
         immersionMode			 = AwfulUtils.isKitKat()?mPrefs.getBoolean("immersion_mode", false):false;
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
+        transformer  		     = mPrefs.getString("transformer", "Default");
         
         if(AwfulUtils.isHoneycomb()){
         	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());

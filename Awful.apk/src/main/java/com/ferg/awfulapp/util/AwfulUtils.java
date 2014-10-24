@@ -6,11 +6,33 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
+
+import com.ToxicBakery.viewpager.transforms.ABaseTransformer;
+import com.ToxicBakery.viewpager.transforms.AccordionTransformer;
+import com.ToxicBakery.viewpager.transforms.BackgroundToForegroundTransformer;
+import com.ToxicBakery.viewpager.transforms.CubeInTransformer;
+import com.ToxicBakery.viewpager.transforms.CubeOutTransformer;
+import com.ToxicBakery.viewpager.transforms.DefaultTransformer;
+import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
+import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
+import com.ToxicBakery.viewpager.transforms.FlipVerticalTransformer;
+import com.ToxicBakery.viewpager.transforms.ForegroundToBackgroundTransformer;
+import com.ToxicBakery.viewpager.transforms.RotateDownTransformer;
+import com.ToxicBakery.viewpager.transforms.RotateUpTransformer;
+import com.ToxicBakery.viewpager.transforms.StackTransformer;
+import com.ToxicBakery.viewpager.transforms.TabletTransformer;
+import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
+import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
+import com.ToxicBakery.viewpager.transforms.ZoomOutTranformer;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by matt on 9/11/13.
@@ -132,5 +154,28 @@ public class AwfulUtils {
         rowCount += cr.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
         rowCount += cr.delete(AwfulEmote.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
         Log.i("AwfulTrimDB","Trimming DB older than 7 days, culled: "+rowCount);
+    }
+
+    public static ABaseTransformer getViewPagerTransformer(){
+        HashMap<String,ABaseTransformer> transformerMap = new HashMap<String,ABaseTransformer>();
+        transformerMap.put("Default", new DefaultTransformer());
+        transformerMap.put("Accordion", new AccordionTransformer());
+        transformerMap.put("BackgroundToForeground", new BackgroundToForegroundTransformer());
+        transformerMap.put("CubeIn", new CubeInTransformer());
+        transformerMap.put("CubeOut", new CubeOutTransformer());
+        transformerMap.put("DepthPage", new DepthPageTransformer());
+        transformerMap.put("FlipHorizontal", new FlipHorizontalTransformer());
+        transformerMap.put("FlipVertical", new FlipVerticalTransformer());
+        transformerMap.put("ForegroundToBackground", new ForegroundToBackgroundTransformer());
+        transformerMap.put("RotateDown", new RotateDownTransformer());
+        transformerMap.put("RotateUp", new RotateUpTransformer());
+        transformerMap.put("Stack", new StackTransformer());
+        transformerMap.put("Tablet", new TabletTransformer());
+        transformerMap.put("ZoomIn", new ZoomInTransformer());
+        transformerMap.put("ZoomOutSlide", new ZoomOutSlideTransformer());
+        transformerMap.put("ZoomOut", new ZoomOutTranformer());
+
+
+        return transformerMap.get(AwfulPreferences.getInstance().transformer);
     }
 }
