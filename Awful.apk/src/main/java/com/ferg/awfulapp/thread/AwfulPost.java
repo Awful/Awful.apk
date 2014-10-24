@@ -45,6 +45,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -290,7 +291,8 @@ public class AwfulPost {
 					String videoId = youtubeMatcher.group(1);
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-					if(!AwfulUtils.isICS() || AwfulUtils.isKitKat()){
+                    Log.e(TAG," Build.VERSION:"+  Build.VERSION.RELEASE);
+                    if(!AwfulUtils.isICS() || (AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4")){
                         Element youtubeContainer = new Element(Tag.valueOf("div"),"");
                         youtubeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
@@ -368,7 +370,8 @@ public class AwfulPost {
 							node.replaceWith(ln);
 							continue;
 						}
-						if(inline && (!AwfulUtils.isICS() || AwfulUtils.isKitKat())){
+
+						if(inline && (!AwfulUtils.isICS() || (AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4"))){
                             Element nodeContainer = new Element(Tag.valueOf("div"),"");
                             nodeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
                             Element nodeLink = new Element(Tag.valueOf("a"),"");

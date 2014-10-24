@@ -6,18 +6,14 @@ buildscript {
         classpath 'com.android.tools.build:gradle:0.12.+'
     }
 }
-
 apply plugin: 'android-library'
-
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
-
+    compileSdkVersion 21
+    buildToolsVersion '20.0.0'
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 19
+        targetSdkVersion 21
     }
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -29,4 +25,9 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+    productFlavors {
+    }
+}
+
+dependencies {
 }
