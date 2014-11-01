@@ -36,9 +36,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.*;
@@ -70,9 +72,6 @@ import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.util.Date;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
-
 /**
  * Uses intent extras:
  *  TYPE - STRING ID - DESCRIPTION
@@ -81,7 +80,7 @@ import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDeleg
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
     
     private ListView mListView;
     private ImageButton mRefreshBar;
@@ -93,6 +92,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
+
+    private SwipeRefreshLayout mSRL;
 
     private int mForumId;
     private int mPage = 1;
@@ -155,26 +156,28 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
 		updatePageBar();
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+
 		updateProbationBar();
 		
         return result;
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.forum_swipe);
+        mSRL.setOnRefreshListener(this);
+    }
+
+    @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mListView,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setEnabled(true);
-        }else{
-            Log.e("mP2RAttacher", "PTR MISSING");
-        }
 
     	if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
@@ -278,9 +281,9 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	public void onPageVisible() {
 		updateColors();
 		syncForumsIfStale();
-		if(mP2RAttacher != null){
-			mP2RAttacher.setPullFromBottom(false);
-		}
+//		if(mP2RAttacher != null){
+//			mP2RAttacher.setPullFromBottom(false);
+//		}
         refreshInfo();
 	}
 	
@@ -637,6 +640,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         }));
     }
 
+    @Override
+    public void onRefresh() {
+        syncForum();
+    }
+
     private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public ForumContentsCallback(Handler handler) {
@@ -808,8 +816,4 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		}
 	}	
 
-	@Override
-	public void onRefreshStarted(View view) {
-		syncForum();
-	}
 }

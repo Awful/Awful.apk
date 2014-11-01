@@ -5,6 +5,11 @@
     android:layout_height="fill_parent"
 	android:background="@color/background"
     >
+    <android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pm_swipe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 	<ListView
 		android:id="@+id/message_listview"
 		android:layout_width="fill_parent"
@@ -13,4 +18,5 @@
         android:dividerHeight="1px"
 		android:cacheColorHint="@color/background"
 		/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

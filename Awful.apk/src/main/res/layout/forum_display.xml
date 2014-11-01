@@ -15,6 +15,11 @@
         android:id="@+id/probationbar"
         layout="@layout/probationbar"
         />
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/forum_swipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 	<ListView
 		android:id="@+id/forum_list" 
 		android:layout_width="fill_parent"
@@ -24,6 +29,7 @@
 		android:cacheColorHint="@color/background"
         android:layout_weight="1"
 		/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 	<include 
         android:id="@+id/pagebar"
         layout="@layout/pagebar"

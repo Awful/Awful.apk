@@ -33,12 +33,17 @@
             android:id="@+id/thread_window"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
-
+            <android.support.v4.widget.SwipeRefreshLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/thread_swipe"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
             <WebView
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/background" />
+            </android.support.v4.widget.SwipeRefreshLayout>
         </FrameLayout>
     </LinearLayout>
 

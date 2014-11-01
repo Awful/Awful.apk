@@ -32,8 +32,6 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMListRequest;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -43,6 +41,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -62,7 +61,7 @@ import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 
-public class PrivateMessageListFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	
 
     private static final String TAG = "PrivateMessageList";
@@ -71,6 +70,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 
 	private AwfulCursorAdapter mCursorAdapter;
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
+
+    private SwipeRefreshLayout mSRL;
     
     private int currentFolder = FOLDER_INBOX;
 
@@ -97,6 +98,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
+        mSRL = (SwipeRefreshLayout) result.findViewById(R.id.pm_swipe);
+
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
         return result;
@@ -106,12 +109,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mPMList,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setEnabled(true);
-        }
+        mSRL.setOnRefreshListener(this);
 
         mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
@@ -301,7 +299,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements PullToR
 	}
 
 	@Override
-	public void onRefreshStarted(View view) {
+	public void onRefresh() {
     	syncPMs();
 	}
 }

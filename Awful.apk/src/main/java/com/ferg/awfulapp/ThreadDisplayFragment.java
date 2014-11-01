@@ -39,10 +39,12 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
@@ -76,9 +78,6 @@ import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.WebViewDelegate;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
@@ -91,7 +90,7 @@ import java.util.*;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -107,6 +106,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 	private ImageButton mProbationButton;
 
     private WebView mThreadView;
+
+    private SwipeRefreshLayout mSRL;
 
     private int mUserId = 0;
     private String mPostByUsername;
@@ -270,16 +271,30 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		return result;
 	}
 
-	@Override
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.thread_swipe);
+        mSRL.setOnRefreshListener(this);
+        mSRL.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+    }
+
+
+    @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mThreadView,new WebViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(true);
-            mP2RAttacher.setEnabled(true);
+        /*
+        if(mSRL != null){
+            mSRL.setPullFromBottom(true);
+            mSRL.setEnabled(true);
         }
-
+        */
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -369,13 +384,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
 		}
 
         if(mThreadView != null){
-        	if(mP2RAttacher == null){
-        		mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        	}
             if(mPrefs.disablePullNext){
-                mP2RAttacher.setEnabled(false);
+                mSRL.setOnRefreshListener(null);
             }else{
-                mP2RAttacher.setEnabled(true);
+                mSRL.setOnRefreshListener(this);
 //                if(getPage() < mLastPage){
 //                    footer.setPullLabel("Pull for Next Page...");
 //                    footer.setReleaseLabel("Release for Next Page...");
@@ -421,9 +433,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
 
-        if(isFragmentVisible() && mP2RAttacher != null){
-            mP2RAttacher.setPullFromBottom(true);
-        }
+//        if(isFragmentVisible() && mP2RAttacher != null){
+//            mP2RAttacher.setPullFromBottom(true);
+//        }
     }
 
     @SuppressLint("NewApi")
@@ -444,9 +456,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
-        if(mP2RAttacher != null){
-        	mP2RAttacher.setPullFromBottom(true);
-        }
+//        if(mP2RAttacher != null){
+//        	mP2RAttacher.setPullFromBottom(true);
+//        }
         if(parent != null && mParentForumId != 0){
             parent.setNavForumId(mParentForumId);
             parent.setNavThreadId(getThreadId());
@@ -460,10 +472,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
         }
-        if(mP2RAttacher != null){
-        	mP2RAttacher.setPullFromBottom(false);
-        	mP2RAttacher.setEnabled(true);
-        }
+//        if(mP2RAttacher != null){
+//        	mP2RAttacher.setPullFromBottom(false);
+//        	mP2RAttacher.setEnabled(true);
+//        }
 	}
 	
     @Override
@@ -1074,16 +1086,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements PullToRefres
     
     private ClickInterface clickInterface = new ClickInterface();
 
-
-	@Override
-	public void onRefreshStarted(View view) {
+    @Override
+    public void onRefresh() {
         if(getPage() < mLastPage){
             goToPage(getPage()+1);
         }else{
             refresh();
-        }		
-	}
-
+        }
+    }
 
 
     private class ClickInterface {

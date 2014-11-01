@@ -51,7 +51,7 @@ public class PrivateMessageActivity extends AwfulActivity {
         setContentView(R.layout.fragment_pane);
         mPrefs = AwfulPreferences.getInstance(this, this);
 
-        setActionBar();
+        //setActionBar();
         setActionbarTitle("Private Messages", null);
 
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {

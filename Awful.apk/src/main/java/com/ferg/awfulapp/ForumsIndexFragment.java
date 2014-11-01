@@ -37,9 +37,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -66,15 +68,13 @@ import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 
 import pl.polidea.treeview.*;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
     
     private int selectedForum = 0;
     
@@ -88,7 +88,8 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 	private ImageButton mProbationButton;
 
     private ForumContentObserver forumObserver;
-	
+
+    private SwipeRefreshLayout mSRL;
 	
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
 
@@ -118,23 +119,26 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
         mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
         mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+
 		updateProbationBar();
         return result;
     }
 
-	@Override
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.index_swipe);
+        mSRL.setOnRefreshListener(this);
+    }
+
+    @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
-
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setEnabled(true);
-        }
 
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
@@ -159,9 +163,9 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 	@Override
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
-		if(mP2RAttacher != null){
-			mP2RAttacher.setPullFromBottom(false);
-		}
+//		if(mP2RAttacher != null){
+//			mP2RAttacher.setPullFromBottom(false);
+//		}
 	}
 	
 	@Override
@@ -239,6 +243,11 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
                 }
             }));
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        syncForums();
     }
 
     private class ForumContentObserver extends ContentObserver{
@@ -478,8 +487,4 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 		});
 	}
 
-	@Override
-	public void onRefreshStarted(View view) {
-		syncForums();
-	}
 }

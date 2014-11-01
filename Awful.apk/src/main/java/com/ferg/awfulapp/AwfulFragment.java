@@ -30,6 +30,7 @@ package com.ferg.awfulapp;
 import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.*;
 import android.view.animation.Animation;
@@ -37,12 +38,9 @@ import android.widget.PopupWindow;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
@@ -63,7 +61,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
-	protected PullToRefreshAttacher mP2RAttacher;
+	protected SwipeRefreshLayout mSRL;
 
     private PopupWindow popupAlert;
     private Runnable popupClose;
@@ -187,15 +185,12 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		if(currentProgress > 0 && mP2RAttacher != null){
-	    	mP2RAttacher.setRefreshComplete();
+		if(currentProgress > 0 && mSRL != null){
+            mSRL.setRefreshing(false);
 		}
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-            if(aa != null){
-                aa.hideProgressBar();
-            }
 		}
 	}
 	
@@ -226,11 +221,11 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public void requestStarted(AwfulRequest req) {
         AwfulActivity aa = getAwfulActivity();
         if(aa != null){
-            aa.setSupportProgressBarVisibility(false);
-            if(mP2RAttacher != null){
-                mP2RAttacher.setRefreshing(true);
+            //aa.setSupportProgressBarVisibility(false);
+            if(mSRL != null){
+                mSRL.setRefreshing(false);
             }else {
-                aa.setSupportProgressBarIndeterminateVisibility(true);
+                // aa.setSupportProgressBarIndeterminateVisibility(true);
             }
         }
     }
@@ -244,11 +239,11 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public void requestEnded(AwfulRequest req, VolleyError error) {
         AwfulActivity aa = getAwfulActivity();
         if(aa != null){
-            aa.setSupportProgressBarIndeterminateVisibility(false);
-            aa.setSupportProgressBarVisibility(false);
+            //aa.setSupportProgressBarIndeterminateVisibility(false);
+            //aa.setSupportProgressBarVisibility(false);
         }
-        if(mP2RAttacher != null){
-            mP2RAttacher.setRefreshComplete();
+        if(mSRL != null){
+            mSRL.setRefreshing(false);
         }
         if(error instanceof AwfulError){
             displayAlert((AwfulError) error);
@@ -259,8 +254,8 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
-		if(mP2RAttacher != null){
-			mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
+		if(mSRL != null){
+            mSRL.setDistanceToTriggerSync(prefs.p2rDistance.intValue());
 		}
 	}
 

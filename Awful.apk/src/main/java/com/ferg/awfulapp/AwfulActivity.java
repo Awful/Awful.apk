@@ -7,8 +7,6 @@ import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -24,8 +22,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.view.WindowCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +37,6 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -62,8 +61,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     
     protected AwfulPreferences mPrefs;
     
-	protected PullToRefreshAttacher mP2RAttacher;
-    
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
@@ -76,15 +73,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
         mPrefs = AwfulPreferences.getInstance(this, this);
-        supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        supportRequestWindowFeature(Window.FEATURE_PROGRESS);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
-    	Options p2roptions = new Options();
-    	p2roptions.headerTransformer = new AwfulHeaderTransformer();
-    	p2roptions.refreshOnUp = true;
-    	p2roptions.refreshScrollDistance = mPrefs.p2rDistance;
-    	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
     @Override
@@ -149,6 +138,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	}
 
 	protected void setActionBar() {
+
         ActionBar action = getSupportActionBar();
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);
@@ -162,7 +152,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        //action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
 	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor());
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
@@ -228,7 +218,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		updateActionbarTheme(prefs);
-		mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
 	}
 	
 	protected boolean isLoggedIn(){
@@ -242,16 +231,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 		return true;
 	}
 
-	public void setLoadProgress(int percent) {
-		setSupportProgressBarVisibility(percent<100);
-    	setSupportProgressBarIndeterminateVisibility(false);
-		setSupportProgress(percent*100);
-	}
-	
-	public void hideProgressBar(){
-		setSupportProgressBarVisibility(false);
-    	setSupportProgressBarIndeterminateVisibility(false);
-	}
 
 	
 
@@ -261,9 +240,4 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
-	
-	
-	PullToRefreshAttacher getPullToRefreshAttacher() {
-        return mP2RAttacher;
-    }
 }

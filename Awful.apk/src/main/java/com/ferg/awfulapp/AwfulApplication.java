@@ -40,15 +40,10 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	private Typeface currentFont;
     @Override
     public void onCreate() {
-        ACRA.init(this);
         super.onCreate();
 
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
-        if(mPref.sendUsernameInReport){
-        	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
-        }
-
         if(AwfulUtils.isICS()){
             try {
                 HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
@@ -117,11 +112,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		currentFont = fonts.get(mPref.preferredFont);
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
-        if(mPref.sendUsernameInReport){
-        	ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
-        }else{
-            ACRA.getErrorReporter().removeCustomData("SA Username");
-        }
 	}
 
 	public String[] getFontList() {

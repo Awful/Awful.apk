@@ -153,13 +153,6 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-			if(aa != null && isFragmentVisible()){
-				aa.hideProgressBar();
-			}
-		}else{
-			if(aa != null && isFragmentVisible()){
-				aa.setLoadProgress(percent);
-			}
 		}
 	}
 	

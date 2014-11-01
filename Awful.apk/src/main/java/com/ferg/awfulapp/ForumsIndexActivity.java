@@ -41,6 +41,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -79,7 +80,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ForumsIndexFragment mIndexFragment = null;
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
-    private PostReplyFragment mReplyFragment = null;
     private boolean skipLoad = false;
     private boolean isTablet;
     private AwfulURL url = new AwfulURL();
@@ -90,7 +90,6 @@ public class ForumsIndexActivity extends AwfulActivity {
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
 
-    private ListView mNavigationList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -120,11 +119,12 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         setContentView(R.layout.forum_index_activity);
-        setSupportProgressBarIndeterminateVisibility(false);
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        if(!isTablet) {
+            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        }
         mViewPager.setOffscreenPageLimit(2);
         if(isTablet){
             mViewPager.setPageMargin(1);
@@ -140,6 +140,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         setNavigationDrawer();
 
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.awful_toolbar);
+        setSupportActionBar(toolbar);
         setActionBar();
 
         checkIntentExtras();
@@ -387,9 +390,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
         setIntent(intent);
         int initialPage = parseNewIntent(intent);
-        if(initialPage <2){
-            mP2RAttacher.setPullFromBottom(false);
-        }
         if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
             mViewPager.setCurrentItem(initialPage);
         }
@@ -542,7 +542,7 @@ public class ForumsIndexActivity extends AwfulActivity {
             if(apf != null){
                 setActionbarTitle(apf.getTitle(), null);
                 apf.onPageVisible();
-                setLoadProgress(apf.getProgressPercent());
+                setProgress(apf.getProgressPercent());
             }
             visible = apf;
         }
