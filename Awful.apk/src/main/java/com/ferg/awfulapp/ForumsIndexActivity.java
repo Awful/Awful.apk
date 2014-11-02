@@ -41,6 +41,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -54,7 +55,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.ToxicBakery.viewpager.transforms.*;
+//import com.ToxicBakery.viewpager.transforms.*;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -67,7 +68,6 @@ import com.ferg.awfulapp.widget.DepthPageTransformer;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
 public class ForumsIndexActivity extends AwfulActivity {
@@ -89,6 +89,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     private ToggleViewPager mViewPager;
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
+
+    private Toolbar mToolbar;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -122,9 +124,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if(!isTablet) {
-            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
-        }
+//        if(!isTablet) {
+//            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+//        }
         mViewPager.setOffscreenPageLimit(2);
         if(isTablet){
             mViewPager.setPageMargin(1);
@@ -138,11 +140,11 @@ public class ForumsIndexActivity extends AwfulActivity {
             mViewPager.setCurrentItem(initialPage);
         }
 
+        mToolbar = (Toolbar) findViewById(R.id.awful_toolbar);
+        setSupportActionBar(mToolbar);
         setNavigationDrawer();
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.awful_toolbar);
-        setSupportActionBar(toolbar);
         setActionBar();
 
         checkIntentExtras();
@@ -252,14 +254,16 @@ public class ForumsIndexActivity extends AwfulActivity {
 //            sidebar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
 //                    320, getResources().getDisplayMetrics()))));
 //        }
+
+
+
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
+                mToolbar,  /* nav drawer icon to replace 'Up' caret */
                 R.string.drawer_open,  /* "open drawer" description */
                 R.string.drawer_close  /* "close drawer" description */
         );
-
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         TextView username = (TextView) findViewById(R.id.sidebar_username);
@@ -790,7 +794,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
-        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+//        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
     }
 
     @Override

@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
@@ -14,37 +14,33 @@
     <include
         android:id="@+id/probationbar"
         layout="@layout/probationbar" />
+
     <TextView
+        android:id="@+id/thread_userpost_notice"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/thread_userpost_notice"
-        android:visibility="gone"
         android:padding="2dp"
-        android:paddingLeft="6dp"/>
+        android:paddingLeft="6dp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/thread_container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/thread_window"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
-            <android.support.v4.widget.SwipeRefreshLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/thread_swipe"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            <WebView
-                android:id="@+id/thread"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="@color/background" />
+
+                <WebView
+                    android:id="@+id/thread"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="@color/background" />
             </android.support.v4.widget.SwipeRefreshLayout>
-        </FrameLayout>
     </LinearLayout>
 
     <include

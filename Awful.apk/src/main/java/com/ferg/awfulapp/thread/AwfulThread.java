@@ -395,19 +395,13 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/fx_methods.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/iscroll.js' type='text/javascript'></script>\n");
 
 
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
 
-        //this is a stupid workaround for animation performance issues. it's only needed for honeycomb/ICS
-//        if(AwfulActivity.isHoneycomb() && !aPrefs.disableGifs){
-//            buffer.append("<script type='text/javascript'>\n");
-//            buffer.append("$(window).on('scroll', gifHide);");
-//            buffer.append("$(window).ready(gifHide);");
-//            buffer.append("</script>\n");
-//        }
         buffer.append("</head><body style='{background-color:"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
         return buffer.toString();
     }
@@ -437,7 +431,9 @@ public class AwfulThread extends AwfulPagedItem  {
         if(page == lastPage){
             buffer.append("<div class='unread' ></div>\n");
         }
-        
+        buffer.append("<article id=\"pullUp\">\n" +
+                "<span class=\"pullUpIcon\"></span><span class=\"pullUpLabel\">Pull up to refresh...</span>\n" +
+                "</div>");
         buffer.append("</div>\n");
 
         return buffer.toString();

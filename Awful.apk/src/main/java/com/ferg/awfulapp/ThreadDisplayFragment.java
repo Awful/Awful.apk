@@ -107,8 +107,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
     private WebView mThreadView;
 
-    private SwipeRefreshLayout mSRL;
-
     private int mUserId = 0;
     private String mPostByUsername;
     private int mLastPage = 0;
@@ -278,8 +276,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.thread_swipe);
-        mSRL.setOnRefreshListener(this);
-        mSRL.setColorScheme(android.R.color.holo_blue_bright,
+        mSRL.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
@@ -309,9 +306,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-        if(DEBUG && AwfulUtils.isKitKat()) {
+//        if(DEBUG && AwfulUtils.isKitKat()) {
             WebView.setWebContentsDebuggingEnabled(true);
-        }
+//        }
         if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
@@ -388,18 +385,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
                 mSRL.setOnRefreshListener(null);
             }else{
                 mSRL.setOnRefreshListener(this);
-//                if(getPage() < mLastPage){
-//                    footer.setPullLabel("Pull for Next Page...");
-//                    footer.setReleaseLabel("Release for Next Page...");
-//                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_arrowup));
-//                }else{
-//                    footer.setPullLabel("Pull to refresh...");
-//                    footer.setReleaseLabel("Release to refresh...");
-//                    footer.setLoadingDrawable(getResources().getDrawable(R.drawable.grey_inline_load));
-//                }
             }
-//            mThreadWindow.setHeaderBackgroundColor(mPrefs.postBackgroundColor2);
-//            mThreadWindow.setTextColor(ColorProvider.getTextColor(mPrefs), ColorProvider.getAltTextColor(mPrefs));
         }
 	}
 	
@@ -1016,15 +1002,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         syncThread();
     }
 
+    public void nextPageClick() {
+        if (getPage() == getLastPage()) {
+            refresh();
+        } else {
+            goToPage(getPage() + 1);
+        }
+    }
+
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
                 case R.id.next_page:
-            		if (getPage() == getLastPage()) {
-            			refresh();
-            		} else {
-                    	goToPage(getPage() + 1);
-            		}
+                    nextPageClick();
                     break;
                 case R.id.prev_page:
                 	if (getPage() <= 1) {
@@ -1188,9 +1178,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         }
 
         @JavascriptInterface
-		public void onIgnoreUserClick(final String aUserId) {
-			ignoreUser(aUserId);
-		}
+        public void onIgnoreUserClick(final String aUserId) {
+            ignoreUser(aUserId);
+        }
+
+        @JavascriptInterface
+        public void onNextPage() {
+            nextPageClick();
+        }
 
         @JavascriptInterface
         public void addCodeBounds(final String minBound, final String maxBound){
@@ -1253,6 +1248,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
             preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
             preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
+            preferences.put("disablePullNext",Boolean.toString(aPrefs.disablePullNext));
         }
         
         @JavascriptInterface

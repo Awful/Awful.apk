@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AwfulTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.AwfulTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <!-- Set AppCompat’s color theming attrs -->
         <item name="colorPrimary">@color/forums_blue</item>
-    <item name="colorPrimaryDark">@color/dark_op_post</item>
-
+        <item name="colorPrimaryDark">@color/dark_op_post</item>
         <item name="colorAccent">@color/holo_blue_light</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     <!-- The rest of your attributes -->
     </style>
-
+<style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+    <item name="spinBars">true</item>
+    <item name="color">@android:color/white</item>
+</style>
 </resources>

@@ -32,6 +32,7 @@ import android.os.Looper;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
@@ -219,14 +220,8 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
     public void requestStarted(AwfulRequest req) {
-        AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-            //aa.setSupportProgressBarVisibility(false);
-            if(mSRL != null){
-                mSRL.setRefreshing(false);
-            }else {
-                // aa.setSupportProgressBarIndeterminateVisibility(true);
-            }
+        if(mSRL != null){
+            mSRL.setRefreshing(true);
         }
     }
 
@@ -237,11 +232,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
     public void requestEnded(AwfulRequest req, VolleyError error) {
-        AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-            //aa.setSupportProgressBarIndeterminateVisibility(false);
-            //aa.setSupportProgressBarVisibility(false);
-        }
         if(mSRL != null){
             mSRL.setRefreshing(false);
         }
@@ -255,7 +245,10 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     @Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		if(mSRL != null){
-            mSRL.setDistanceToTriggerSync(prefs.p2rDistance.intValue());
+            DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+            float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+
+            mSRL.setDistanceToTriggerSync(Math.round(prefs.p2rDistance*dpHeight));
 		}
 	}
 

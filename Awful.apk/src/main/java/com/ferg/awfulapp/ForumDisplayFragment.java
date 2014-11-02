@@ -93,8 +93,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
 
-    private SwipeRefreshLayout mSRL;
-
     private int mForumId;
     private int mPage = 1;
     private int mLastPage = 1;
@@ -172,6 +170,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
+        mSRL.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
     @Override
