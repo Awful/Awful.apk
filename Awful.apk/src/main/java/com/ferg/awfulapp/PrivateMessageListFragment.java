@@ -38,10 +38,12 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -72,6 +74,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private PMIndexCallback mPMDataCallback = new PMIndexCallback(mHandler);
 
     private SwipeRefreshLayout mSRL;
+
+    private Toolbar mToolbar;
     
     private int currentFolder = FOLDER_INBOX;
 
@@ -98,13 +102,24 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
+
         mSRL = (SwipeRefreshLayout) result.findViewById(R.id.pm_swipe);
 
+
+        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
+        this.getAwfulActivity().setSupportActionBar(mToolbar);
+        this.getAwfulActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
         return result;
     }
-    
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+    }
+
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);

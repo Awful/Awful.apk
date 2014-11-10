@@ -60,6 +60,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -103,6 +104,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	private TextView mP2RDistanceText;
 	private AwfulPreferences mPrefs;
 	private ActivityConfigurator mConf;
+    private String currentThemeName;
 
     private boolean oldMode = true; // old-style preferences (all we got right now)
     private boolean hierarchyLoaded = false;  // to ensure preferences are ready for manipulatin'
@@ -113,6 +115,15 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+        mPrefs = AwfulPreferences.getInstance(this,this);
+        currentThemeName = mPrefs.theme;
+        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC) ||mPrefs.theme.equals(ColorProvider.FYAD)){
+            setTheme(R.style.Theme_AwfulTheme);
+            Log.e(TAG,mPrefs.theme);
+        }else{
+            setTheme(R.style.Theme_AwfulTheme_Dark);
+            Log.e(TAG,mPrefs.theme);
+        }
 		super.onCreate(savedInstanceState);
 		mConf = new ActivityConfigurator(this);
 		mConf.onCreate();
@@ -277,6 +288,16 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
 		setSummaries();
+        if(!prefs.theme.equals(this.currentThemeName)) {
+            if (prefs.theme.equals(ColorProvider.DEFAULT)) {
+                setTheme(R.style.Theme_AwfulTheme);
+            } else {
+                setTheme(R.style.Theme_AwfulTheme_Dark);
+            }
+            recreate();
+            this.currentThemeName = prefs.theme;
+        }
+
 	}
 
 

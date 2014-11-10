@@ -1,57 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/message_view" android:layout_height="match_parent" android:layout_width="match_parent" android:fillViewport="true">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
 
-	<LinearLayout
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:orientation="vertical" >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<ScrollView
+    android:id="@+id/message_view"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
 
-	        <LinearLayout 
-	        android:id="@+id/message_header"
-	        android:orientation="horizontal"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:padding="8dip"
-	        android:background="#FF000000"
-	        >
-	        <LinearLayout
-	            android:id="@+id/messagehead"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="1"
-	    		android:orientation="vertical"
-	            >
-	
-	                <TextView
-	                    android:id="@+id/message_title"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:textColor="#ffffff"
-	                    android:textSize="20dip"
-	                    android:textStyle="bold" />
-	
-	                <TextView
-	                    android:id="@+id/username"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:textColor="#ffffff"
-	                    android:textSize="16dip" />
-	
-	                <TextView
-	                    android:id="@+id/post_date"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-                        android:textColor="#ffffff"
-	                    android:textSize="12sp"
-                        />
-	
-	        </LinearLayout>
-	        
-			<LinearLayout
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_gravity="right"
-			    android:orientation="vertical" >
+        <LinearLayout
+            android:id="@+id/message_header"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dip"
+            android:background="#FF000000"
+            >
+            <LinearLayout
+                android:id="@+id/messagehead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                >
+
+                <TextView
+                    android:id="@+id/message_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textSize="20dip"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textSize="16dip" />
+
+                <TextView
+                    android:id="@+id/post_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textSize="12sp"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="vertical" >
 
                 <Button
                     android:id="@+id/message_reply_button"
@@ -66,7 +74,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_menu_dropdown_up" />
-        	</LinearLayout>
+            </LinearLayout>
         </LinearLayout>
         <WebView
             android:id="@+id/messagebody"
@@ -75,20 +83,20 @@
             android:padding="8dip"
             android:focusable="true" android:focusableInTouchMode="true"
             />
-        <ImageView 
+        <ImageView
             style="@style/HorizontalSeparator"
             />
-        <LinearLayout 
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="8dip"
             >
-            <TextView 
-                android:id="@+id/misc_text_subject" 
-                android:text="Subject:" 
+            <TextView
+                android:id="@+id/misc_text_subject"
+                android:text="Subject:"
                 android:textStyle="bold"
-                android:layout_width="wrap_content" 
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
             <EditText
@@ -102,17 +110,17 @@
                 android:singleLine="true"
                 />
         </LinearLayout>
-        <LinearLayout 
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="8dip"
             >
-            <TextView 
-                android:id="@+id/misc_text_recipient" 
-                android:text="Recipient:" 
+            <TextView
+                android:id="@+id/misc_text_recipient"
+                android:text="Recipient:"
                 android:textStyle="bold"
-                android:layout_width="wrap_content" 
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
             <EditText
@@ -126,23 +134,23 @@
                 android:singleLine="true"
                 />
         </LinearLayout>
-        <LinearLayout 
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="8dip"
             >
-            <TextView 
-                android:id="@+id/misc_text_message" 
-                android:text="Message:" 
+            <TextView
+                android:id="@+id/misc_text_message"
+                android:text="Message:"
                 android:textStyle="bold"
-                android:layout_width="wrap_content" 
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
-            <EditText 
-                android:id="@+id/edit_reply_text" 
-                android:layout_width="match_parent" 
-                android:layout_height="wrap_content" 
+            <EditText
+                android:id="@+id/edit_reply_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:scrollbars="vertical"
                 android:scrollbarStyle="insideOverlay"
                 android:scrollbarFadeDuration="500"
@@ -150,11 +158,12 @@
                 android:scrollbarAlwaysDrawVerticalTrack="true"
                 android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
                 android:gravity="top"
-                android:minLines="5" 
-                android:paddingLeft="10dip" 
+                android:minLines="5"
+                android:paddingLeft="10dip"
                 android:paddingRight="10dip"
                 android:textCursorDrawable="@null"
                 />
         </LinearLayout>
-	</LinearLayout>
+    </LinearLayout>
 </ScrollView>
+</LinearLayout>

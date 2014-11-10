@@ -32,9 +32,6 @@ function loadpagehtml(){
     document.getElementById("container").innerHTML = html;
     pageinit();
     window.topScrollID = window.setTimeout(scrollPost, 1000);
-
-
-    //document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 }
 
 
@@ -153,33 +150,12 @@ function pageinit() {
     });
     $.reorient.start();
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
+
     if(listener.getPreference("disablePullNext") == "false"){
-        $( document ).ready(function() {
-        pullUpEl = $('#pullUp');
-                    	pullUpOffset = pullUpEl.offsetHeight;
-                    myScroll = new IScroll('#container', {
-            		    topOffset: pullUpOffset,
-                        onScrollMove: function () {
-                            console.log('onScrollMove');
-                             if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) {
-                                pullUpEl.className = 'flip';
-                                pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Release to refresh...';
-                                this.maxScrollY = this.maxScrollY;
-                            } else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) {
-                                pullUpEl.className = '';
-                                pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Pull up to load more...';
-                                this.maxScrollY = pullUpOffset;
-                            }
-                        },
-                        onScrollEnd: function () {
-                                console.log('onScrollEnd');
-                        			if (pullUpEl.className.match('flip')) {
-                        				listener.onNextPage();	// Execute custom function (ajax call?)
-                        			}
-                        		}
-                    });
-                });
-        }
+        $('#taptorefresh').click(function(){
+            listener.onNextPage();
+        });
+    }
 };
 
 

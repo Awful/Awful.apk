@@ -124,9 +124,9 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-//        if(!isTablet) {
-//            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
-//        }
+        if(!isTablet && !mPrefs.transformer.equals("Disabled")) {
+            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        }
         mViewPager.setOffscreenPageLimit(2);
         if(isTablet){
             mViewPager.setPageMargin(1);
@@ -249,13 +249,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if(AwfulUtils.isWidescreen(this)){
-//            LinearLayout sidebar = (LinearLayout) findViewById(R.id.sidebar);
-//            sidebar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-//                    320, getResources().getDisplayMetrics()))));
-//        }
-
-
 
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
@@ -281,7 +274,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
-        ImageView logout = (ImageView) findViewById(R.id.sidebar_logout);
+        TextView logout = (TextView) findViewById(R.id.sidebar_logout);
         if(null != logout){
             logout.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view){
@@ -289,8 +282,10 @@ public class ForumsIndexActivity extends AwfulActivity {
                     new LogOutDialog(self).show();
                 }
             });
+            logout.setText(getResources().getText(R.string.logout));
+            logout.setVisibility(View.VISIBLE);
         }
-        ImageView messages = (ImageView) findViewById(R.id.sidebar_pm);
+        TextView messages = (TextView) findViewById(R.id.sidebar_pm);
         if(null != messages){
             messages.setEnabled(mPrefs.hasPlatinum);
             messages.setVisibility(mPrefs.hasPlatinum?View.VISIBLE:View.GONE);
@@ -300,8 +295,9 @@ public class ForumsIndexActivity extends AwfulActivity {
                     startActivity(new Intent().setClass(self, PrivateMessageActivity.class));
                 }
             });
+            messages.setText(getResources().getText(R.string.private_message));
         }
-        ImageView bookmarks = (ImageView) findViewById(R.id.sidebar_bookmarks);
+        TextView bookmarks = (TextView) findViewById(R.id.sidebar_bookmarks);
         if(null != bookmarks){
             bookmarks.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view){
@@ -312,8 +308,10 @@ public class ForumsIndexActivity extends AwfulActivity {
                             .putExtra(Constants.FORUM_PAGE, 1));
                 }
             });
+            bookmarks.setText(getResources().getText(R.string.user_cp));
+            bookmarks.setVisibility((Constants.USERCP_ID == mNavForumId?View.GONE:View.VISIBLE));
         }
-        ImageView settings = (ImageView) findViewById(R.id.sidebar_settings);
+        TextView settings = (TextView) findViewById(R.id.sidebar_settings);
         if(null != settings){
             settings.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view){
@@ -322,6 +320,11 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             });
         }
+        settings.setText(getResources().getText(R.string.settings));
+        settings.setVisibility(View.VISIBLE);
+
+
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -794,7 +797,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
-//        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
     }
 
     @Override

@@ -88,13 +88,11 @@ public class AwfulMessage extends AwfulPagedItem {
 
 	/**
 	 * Generates List view items for PM list.
-	 * @param mIsSidebar 
 	 */
 	public static View getView(View current, AwfulPreferences aPref, Cursor data, boolean selected) {
 		TextView title = (TextView) current.findViewById(R.id.title);
 		String t = data.getString(data.getColumnIndex(TITLE));
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
-		current.findViewById(R.id.bookmark_icon).setVisibility(View.GONE);
 		if(t != null){
 			title.setText(t);
 		}
@@ -105,23 +103,24 @@ public class AwfulMessage extends AwfulPagedItem {
 			author.setText(auth +" - "+date);
 		}
 
-        ImageView unreadPM = (ImageView) current.findViewById(R.id.sticky_icon);
+        ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_sticky);
 
 		if (data.getInt(data.getColumnIndex(UNREAD))>0) {
 			unreadPM.setVisibility(View.VISIBLE);
+            unreadPM.setImageResource(R.drawable.ic_menu_mail);
 		}else{
 			unreadPM.setVisibility(View.GONE);
 		}
 
-		if(aPref != null){
-			title.setTextColor(ColorProvider.getTextColor());
-			author.setTextColor(ColorProvider.getAltTextColor());
-		}
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
+//		if(aPref != null){
+//			title.setTextColor(ColorProvider.getTextColor());
+//			author.setTextColor(ColorProvider.getAltTextColor());
+//		}
+//		if(selected){
+//			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+//		}else{
+//			current.findViewById(R.id.selector).setVisibility(View.GONE);
+//		}
 		
 		return current;
 	}

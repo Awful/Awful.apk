@@ -132,10 +132,11 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLa
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.index_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(android.R.color.holo_blue_bright,
+        mSRL.setColorSchemeResources(
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
     }
 
     @Override

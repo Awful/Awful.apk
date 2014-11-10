@@ -276,10 +276,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.thread_swipe);
-        mSRL.setColorSchemeResources(android.R.color.holo_blue_bright,
+        mSRL.setColorSchemeResources(
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
+        mSRL.setEnabled(false);
     }
 
 
@@ -306,9 +308,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-//        if(DEBUG && AwfulUtils.isKitKat()) {
+        if(DEBUG && AwfulUtils.isKitKat()) {
             WebView.setWebContentsDebuggingEnabled(true);
-//        }
+        }
         if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
@@ -1184,7 +1186,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
         @JavascriptInterface
         public void onNextPage() {
-            nextPageClick();
+            mThreadView.post((new Runnable() {
+                @Override
+                public void run() {
+                    nextPageClick();
+                }
+            }));
         }
 
         @JavascriptInterface

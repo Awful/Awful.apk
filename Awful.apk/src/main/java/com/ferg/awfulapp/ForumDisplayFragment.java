@@ -170,10 +170,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(android.R.color.holo_blue_bright,
+        mSRL.setColorSchemeResources(
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
     }
 
     @Override
@@ -548,6 +549,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
                             mToggleSidebar.setColorFilter(0);
                             loadFailed = false;
                             refreshInfo();
+                            mListView.setSelection(mListView.getFirstVisiblePosition());
                         }
 
                         @Override
@@ -748,10 +750,15 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 	}
 	
 	private void closeLoaders(){
-		if(getActivity() != null){
-	        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
-	        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-		}
+        //FIXME:
+        try {
+            if (getActivity() != null) {
+                getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
+                getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+            }
+        }catch(NullPointerException npe){
+            Log.e(TAG,npe.getStackTrace().toString());
+        }
 	}
 	
 	public String getTitle(){

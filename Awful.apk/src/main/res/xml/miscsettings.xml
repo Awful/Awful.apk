@@ -45,9 +45,10 @@
             <ListPreference
                 android:key="transformer"
                 android:title="@string/transformer"
+                android:summary="%s"
                 android:entries="@array/transformer"
                 android:entryValues="@array/transformer_values"
-                android:defaultValue="Default"
+                android:defaultValue="DepthPage"
                 />
         </PreferenceCategory>
 

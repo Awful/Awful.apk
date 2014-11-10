@@ -68,11 +68,16 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mPrefs = AwfulPreferences.getInstance(this,this);
+        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC) ||mPrefs.theme.equals(ColorProvider.FYAD)){
+            setTheme(R.style.Theme_AwfulTheme);
+        }else{
+            setTheme(R.style.Theme_AwfulTheme_Dark);
+        }
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate");
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mPrefs = AwfulPreferences.getInstance(this, this);
         loggedIn = NetworkUtils.restoreLoginCookies(this);
     }
 
@@ -217,6 +222,12 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {
+        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC) ||mPrefs.theme.equals(ColorProvider.FYAD)){
+            setTheme(R.style.Theme_AwfulTheme);
+        }else{
+            setTheme(R.style.Theme_AwfulTheme_Dark);
+        }
+        recreate();
 		updateActionbarTheme(prefs);
 	}
 	

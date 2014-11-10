@@ -33,6 +33,9 @@
                 android:id="@+id/bbcode_image"
                 android:title="Image Tag"/>
             <item
+                android:id="@+id/bbcode_thumbnail"
+                android:title="Thumbnail Tag"/>
+            <item
                 android:id="@+id/bbcode_url"
                 android:title="Insert URL"/>
             <item

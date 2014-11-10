@@ -566,9 +566,12 @@ public class PostReplyFragment extends AwfulFragment {
 	        case R.id.bbcode_video:
 	        	insertBBCode(BBCODE.VIDEO);
 	            break;
-	        case R.id.bbcode_image:
-	        	insertBBCode(BBCODE.IMAGE);
-	            break;
+            case R.id.bbcode_image:
+                insertBBCode(BBCODE.IMAGE);
+                break;
+            case R.id.bbcode_thumbnail:
+                insertBBCode(BBCODE.THUMBNAIL);
+                break;
 	        case R.id.bbcode_quote:
 	        	insertBBCode(BBCODE.QUOTE);
 	            break;
@@ -649,36 +652,37 @@ public class PostReplyFragment extends AwfulFragment {
     		endTag = "[/s]";
     		break;
     	case URL:
-    		String link = null;
-    		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
-    			ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-    			String copy = String.valueOf(cb.getText());
-    			if(copy.startsWith("http://") || copy.startsWith("https://")){
-    				link = copy;
-    			}
-    		}else{
-    			android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-    			String copy = String.valueOf(cb.getText());
-    			if(copy.startsWith("http://") || copy.startsWith("https://")){
-    				link = copy;
-    			}
-    		}
+    		String link = this.getClipboardLink();
     		if(link != null){
     			startTag = "[url="+link+"]";
     		}else{
     			startTag = "[url]";
     		}
-			startTag = "[url]";
+			//startTag = "[url]";
     		endTag = "[/url]";
     		break;
     	case QUOTE:
     		startTag = "[quote]";
     		endTag = "[/quote]";
     		break;
-    	case IMAGE:
-    		startTag = "[img]";
-    		endTag = "[/img]";
-    		break;
+        case IMAGE:
+                String imageLink = this.getClipboardLink();
+                if(imageLink != null) {
+                    startTag = "[img]" + imageLink;
+                }else{
+                    startTag = "[img]";
+                }
+                endTag = "[/img]";
+                break;
+        case THUMBNAIL:
+                String timageLink = this.getClipboardLink();
+                if(timageLink != null) {
+                    startTag = "[timg]" + timageLink;
+                }else{
+                    startTag = "[timg]";
+                }
+                endTag = "[/timg]";
+                break;
     	case VIDEO:
     		startTag = "[video]";
     		endTag = "[/video]";
@@ -903,7 +907,25 @@ public class PostReplyFragment extends AwfulFragment {
 		return false;
 	}
 
-private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE}
+    private String getClipboardLink(){
+        String link = null;
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+            ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            String copy = String.valueOf(cb.getText());
+            if(copy.startsWith("http://") || copy.startsWith("https://")){
+                link = copy;
+            }
+        }else{
+            android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            String copy = String.valueOf(cb.getText());
+            if(copy.startsWith("http://") || copy.startsWith("https://")){
+                link = copy;
+            }
+        }
+        return link;
+    }
+
+private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE, THUMBNAIL}
 
 	private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 

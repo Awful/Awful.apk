@@ -85,7 +85,7 @@ article.self ul.postoptions {
 background-color:#5BA611;
 }
 
-article.toggleread {
+article.toggleread, article#taptorefresh {
 text-align: center;
 padding:5px;
 }

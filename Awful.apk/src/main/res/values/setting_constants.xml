@@ -30,14 +30,12 @@
 		<item>tablet</item>
 	</string-array>
     <string-array name="transformer_values">
-        <item>Default</item>
+        <item>Disabled</item>
         <item>Accordion</item>
         <item>BackgroundToForeground</item>
         <item>CubeIn</item>
         <item>CubeOut</item>
         <item>DepthPage</item>
-        <item>FlipHorizontal</item>
-        <item>FlipVertical</item>
         <item>ForegroundToBackground</item>
         <item>RotateDown</item>
         <item>RotateUp</item>

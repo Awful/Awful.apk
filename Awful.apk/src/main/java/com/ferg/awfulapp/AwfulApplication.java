@@ -40,10 +40,13 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	private Typeface currentFont;
     @Override
     public void onCreate() {
+        ACRA.init(this);
         super.onCreate();
-
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
+        if(mPref.sendUsernameInReport){
+            ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+        }
         if(AwfulUtils.isICS()){
             try {
                 HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
@@ -51,7 +54,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
                 e.printStackTrace();
             }
         }
-
         networkQueue = Volley.newRequestQueue(this);
         imageCache = new LRUImageCache();
         imageLoader = new ImageLoader(networkQueue, imageCache);

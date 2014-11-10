@@ -15,7 +15,6 @@ import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -156,11 +155,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         
 	}
 	
-	private void setActionBar() {
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.setDisplayHomeAsUpEnabled(true);
-    }
-	
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(menu.size() == 0){
@@ -270,10 +264,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 	@Override
 	public void onResume(){
-		if(!AwfulUtils.isWidescreen(getActivity())){
-			ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        	action.hide();
-		}
 		super.onResume();
 		resumeWebView();
 
@@ -286,13 +276,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			saveReply();
 		}
         pauseWebView();
-	}
-
-	@Override
-	public void onStop(){
-		super.onStop();
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.show();
 	}
 
 	@Override

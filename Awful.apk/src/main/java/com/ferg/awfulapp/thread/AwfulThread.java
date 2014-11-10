@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import android.text.TextUtils;
 import com.android.volley.toolbox.NetworkImageView;
+import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 
 import org.jsoup.nodes.Document;
@@ -59,6 +60,7 @@ import android.os.Messenger;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -67,7 +69,6 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.samskivert.mustache.Mustache;
@@ -395,20 +396,18 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/fx_methods.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/iscroll.js' type='text/javascript'></script>\n");
-
 
         buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
 
-        buffer.append("</head><body style='{background-color:"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'><div id='container' class='container'></div></body></html>");
+        buffer.append("</head><body><div id='container' class='container' ></div></body></html>");
         return buffer.toString();
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
         StringBuffer buffer = new StringBuffer(1024);
-        buffer.append("<div class='content' >\n");
+        buffer.append("<div class='content'>\n");
 
         if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
             int unreadCount = 0;
@@ -428,12 +427,16 @@ public class AwfulThread extends AwfulPagedItem  {
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
+        if(!aPrefs.disablePullNext && lastPage > page) {
+            buffer.append("    <article id='taptorefresh'>");
+            buffer.append("      <a>\n");
+            buffer.append("        <h3>Tap for next page</h3>\n");
+            buffer.append("      </a>\n");
+            buffer.append("    </article>");
+        }
         if(page == lastPage){
             buffer.append("<div class='unread' ></div>\n");
         }
-        buffer.append("<article id=\"pullUp\">\n" +
-                "<span class=\"pullUpIcon\"></span><span class=\"pullUpLabel\">Pull up to refresh...</span>\n" +
-                "</div>");
         buffer.append("</div>\n");
 
         return buffer.toString();
@@ -513,9 +516,8 @@ public class AwfulThread extends AwfulPagedItem  {
         int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
         int bookmarked = data.getInt(data.getColumnIndex(BOOKMARKED));
         boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
-		info.setSingleLine(!prefs.wrapThreadTitles);
 
-        NetworkImageView threadTag = (NetworkImageView) current.findViewById(R.id.thread_tag);
+        ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
 		if(!prefs.threadInfo_Tag){
             threadTag.setVisibility(View.GONE);
 		}else{
@@ -523,7 +525,14 @@ public class AwfulThread extends AwfulPagedItem  {
 			if(TextUtils.isEmpty(tagFile)){
                 threadTag.setVisibility(View.GONE);
 			}else{
-                threadTag.setImageUrl(data.getString(data.getColumnIndex(TAG_URL)), parent.getImageLoader());
+                String url = data.getString(data.getColumnIndex(TAG_URL));
+                String localFileName = "@drawable/"+url.substring(url.lastIndexOf('/') + 1,url.lastIndexOf('.')).replace('-','_').toLowerCase();
+                int imageID = current.getResources().getIdentifier(localFileName, null, current.getContext().getPackageName());
+                if(imageID == 0) {
+                    aq.id(R.id.thread_tag).image(url).visible();
+                }else{
+                    threadTag.setImageResource(imageID);
+                }
 			}
 		}
 
@@ -537,7 +546,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
         info.setText(tmp.toString().trim());
-		
+
 		if(prefs.threadInfo_Rating){
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
 			if(tagFile != null){
@@ -595,16 +604,10 @@ public class AwfulThread extends AwfulPagedItem  {
 		if(data.getString(data.getColumnIndex(TITLE)) != null){
 			title.setText(data.getString(data.getColumnIndex(TITLE)));
 		}
-		if(prefs != null){
-			title.setTextColor(ColorProvider.getTextColor(ForumName));
-			info.setTextColor(ColorProvider.getAltTextColor(ForumName));
-			title.setSingleLine(!prefs.wrapThreadTitles);
-			if(!prefs.wrapThreadTitles){
-				title.setEllipsize(TruncateAt.END);
-			}else{
-				title.setEllipsize(null);
-			}
-		}
+        title.setTextColor(ColorProvider.getTextColor(ForumName));
+        info.setTextColor(ColorProvider.getAltTextColor(ForumName));
+        title.setEllipsize(TruncateAt.END);
+
 	}
 	
 }

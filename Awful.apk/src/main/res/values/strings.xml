@@ -159,7 +159,7 @@
     <!-- Thread Settings page -->
     <string name="threadinfo_tag">Show tags</string>
     <string name="threadinfo_tag_summary">Forum and thread category icons</string>
-    <string name="wrap_titles">Wrap thread titles</string>
+    <string name="wrap_titles">Wrap forum titles</string>
     <string name="wrap_titles_summary">Allow multi-line titles</string>
     <string name="color_bookmarks">Color bookmarks</string>
     <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
@@ -274,14 +274,12 @@
     <string name="volume_scroll_summary">Use volume controls to scroll threads</string>
     <string name="transformer">Page transformation</string>
     <string-array name="transformer">
-        <item>Default</item>
+        <item>Disabled</item>
         <item>Accordion</item>
         <item>Background To Foreground</item>
         <item>Cube In</item>
         <item>Cube Out</item>
         <item>Depth Page</item>
-        <item>Flip Horizontal</item>
-        <item>Flip Vertical</item>
         <item>Foreground To Background</item>
         <item>Rotate Down</item>
         <item>Rotate Up</item>
