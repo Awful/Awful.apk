@@ -3,6 +3,5 @@
     package="pl.polidea.treeview"
     android:versionCode="2"
     android:versionName="1.0" >
-    <uses-sdk android:targetSdkVersion="16" android:minSdkVersion="7"/>
 
 </manifest>

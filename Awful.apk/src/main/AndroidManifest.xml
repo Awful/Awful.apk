@@ -4,10 +4,6 @@
       android:versionCode="107"
       android:versionName="3.1.3b"
       android:installLocation="auto">
-    <uses-sdk 
-		android:minSdkVersion="14"
-		android:targetSdkVersion="21"
-		/>
     <supports-screens 
         android:smallScreens="true"
         android:normalScreens="true" 
@@ -22,6 +18,7 @@
 		android:label="@string/app_name" 
 		android:icon="@drawable/icon" 
 		android:name="com.ferg.awfulapp.AwfulApplication"
+        android:allowBackup="true"
 		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
         android:theme="@style/Theme.AwfulTheme">
