@@ -383,30 +383,12 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 		url.append("=");
 		url.append(id);
 		
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
-			clipboard.setPrimaryClip(clip);
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+		clipboard.setPrimaryClip(clip);
 
-            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		} else {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
-
-			alert.setTitle("URL");
-
-			final EditText input = new EditText(this.getActivity());
-			input.setText(url.toString());
-			alert.setView(input);
-
-			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.dismiss();
-				}
-			});
-
-			alert.show();
-		}
+		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 	}
 
 	private void displayPagePicker() {

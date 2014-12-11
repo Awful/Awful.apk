@@ -178,11 +178,7 @@ public class NetworkUtils {
                 Constants.COOKIE_PREFERENCE,
                 Context.MODE_PRIVATE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.edit().clear().apply();
-        } else {
-            prefs.edit().clear().commit();
-        }
+        prefs.edit().clear().apply();
 
         // Then the memory store
         sHttpClient.getCookieStore().clear();

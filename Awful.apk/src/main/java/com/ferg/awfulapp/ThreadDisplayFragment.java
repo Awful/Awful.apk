@@ -588,7 +588,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     			copyThreadURL(null);
     			break;
     		case R.id.find:
-                //Find button is hidden in onPrepareOptionsMenu for anything pre-Honeycomb
     			this.mThreadView.showFindDialog(null, true);
     			break;
     		case R.id.keep_screen_on:
@@ -598,61 +597,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
             case R.id.bookmark:
                 toggleThreadBookmark();
                 break;
-//    		case R.id.thread_actions:
-//    			if(!AwfulUtils.isHoneycomb()){
-//    				fuckPreAPI11Forever(item);
-//    			}
     		default:
     			return super.onOptionsItemSelected(item);
     		}
 
     		return true;
     	}
-
-//	private void fuckPreAPI11Forever(final MenuItem item) {
-//        final CharSequence[] mThreadItems = {
-//        		getString(R.string.post_reply),
-//        		getString(R.string.bookmark),
-//        		getString(R.string.rate_thread),
-//        		getString(R.string.copy_url),
-//        		getString(R.string.share_thread),
-//        		getString(R.string.refresh),
-//        		getString(R.string.keep_screen_on),
-//            };
-//
-//
-//        	new AlertDialog.Builder(getActivity())
-//            .setTitle("Select an Action")
-//            .setItems(mThreadItems, new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aItem) {
-//                	switch(aItem) {
-//                    case 0:
-//                        displayPostReplyDialog();
-//                        break;
-//
-//                    case 1:
-//                    	toggleThreadBookmark();
-//                        break;
-//            		case 2:
-//            			rateThread();
-//            			break;
-//            		case 3:
-//            			copyThreadURL(null);
-//            			break;
-//            		case 4:
-//            			startActivity(createShareIntent());
-//                    case 5:
-//                        refresh();
-//                        break;
-//            		case 6:
-//            			toggleScreenOn();
-//                        item.setChecked(!item.isChecked());
-//            			break;
-//                	}
-//                }
-//            })
-//            .show();
-//	}
 
 	private String generateThreadUrl(String postId){
     	StringBuffer url = new StringBuffer();
@@ -701,18 +651,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
 	private void copyThreadURL(String postId) {
 		String url = generateThreadUrl(postId);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
-			clipboard.setPrimaryClip(clip);
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
+		clipboard.setPrimaryClip(clip);
 
-			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		} else {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(url);
-            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		}
+		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 	}
 
 	private void rateThread() {
@@ -1203,13 +1147,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         	if(scrollCheckBounds == null){
         		scrollCheckBounds = new int[2];
         	}else{
-        		//GOOGLE DIDN'T ADD Arrays.copyOf TILL API 9 fuck
-        		//scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
-        		int[] newScrollCheckBounds = new int[scrollCheckBounds.length+2];
-        		for(int x = 0;x<scrollCheckBounds.length;x++){
-        			newScrollCheckBounds[x]=scrollCheckBounds[x];
-        		}
-        		scrollCheckBounds = newScrollCheckBounds;
+                scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
         	}
         	scrollCheckBounds[scrollCheckBounds.length-2] = min;
         	scrollCheckBounds[scrollCheckBounds.length-1] = max;
@@ -1359,14 +1297,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 	}
 	
 	private void copyToClipboard(String text){
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText("Copied URL", text);
-			clipboard.setPrimaryClip(clip);
-		} else {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(text);
-		}
+		ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText("Copied URL", text);
+		clipboard.setPrimaryClip(clip);
 	}
 	
 	private void startUrlIntent(String url){

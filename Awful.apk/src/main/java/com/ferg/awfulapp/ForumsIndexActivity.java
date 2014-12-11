@@ -455,23 +455,23 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onResume();
         switch(mPrefs.alertIDShown+1){
             case 1:
-                    new AlertDialog.Builder(this).
-                            setTitle(getString(R.string.alert_title_1))
-                            .setMessage(getString(R.string.alert_message_1))
-                            .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
+                new AlertDialog.Builder(this).
+                        setTitle(getString(R.string.alert_title_1))
+                        .setMessage(getString(R.string.alert_message_1))
+                        .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
+                                dialog.dismiss();
+                            }
                             })
-                            .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
-                                }
+                                dialog.dismiss();
+                                startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
+                            }
                             })
-                            .show();
+                        .show();
                 mPrefs.setIntegerPreference("alert_id_shown", 1);
                 break;
         }

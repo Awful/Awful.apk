@@ -57,22 +57,14 @@ public class AwfulUtils {
 
     public static boolean isWidescreen(Context cont){
 		if(cont != null){
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
-			}else{
-				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-			}
+			return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
 		}else{
 			return false;
 		}
 	}
 
     public static boolean isWidescreen(Configuration newConfig) {
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-			return newConfig.screenWidthDp >= Constants.WIDESCREEN_DPI;
-		}else{
-			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-		}
+		return newConfig.screenWidthDp >= Constants.WIDESCREEN_DPI;
 	}
 
     /**
@@ -82,11 +74,7 @@ public class AwfulUtils {
 	 */
 	public static boolean canBeWidescreen(Context cont){
 		if(cont != null){
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI;
-			}else{
-				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-			}
+			return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI;
 		}else{
 			return false;
 		}

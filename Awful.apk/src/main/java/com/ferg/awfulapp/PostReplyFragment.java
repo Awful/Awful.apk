@@ -909,19 +909,13 @@ public class PostReplyFragment extends AwfulFragment {
 
     private String getClipboardLink(){
         String link = null;
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
-            ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            String copy = String.valueOf(cb.getText());
-            if(copy.startsWith("http://") || copy.startsWith("https://")){
-                link = copy;
-            }
-        }else{
-            android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            String copy = String.valueOf(cb.getText());
-            if(copy.startsWith("http://") || copy.startsWith("https://")){
-                link = copy;
-            }
+
+        android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        String copy = String.valueOf(cb.getText());
+        if(copy.startsWith("http://") || copy.startsWith("https://")){
+            link = copy;
         }
+
         return link;
     }
 

@@ -12,11 +12,7 @@ public class LRUImageCache implements ImageLoader.ImageCache {
         this.bitmapCache = new LruCache<String, Bitmap>(5242880){
             @Override
             protected int sizeOf(String key, Bitmap value) {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1){
-                    return value.getByteCount();
-                }else{
-                    return value.getRowBytes()*value.getHeight();
-                }
+                return value.getByteCount();
             }
         };
     }

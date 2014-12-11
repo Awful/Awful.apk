@@ -213,10 +213,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     public void setPreferredFont(View view){
     	setPreferredFont(view, -1);
     }
-    
-    public static boolean isHoneycomb(){
-    	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs) {

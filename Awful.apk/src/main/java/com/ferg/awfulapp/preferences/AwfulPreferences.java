@@ -221,11 +221,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
     public void setUsername(String aUsername) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            mPrefs.edit().putString("username", aUsername).apply();
-        } else {
-            mPrefs.edit().putString("username", aUsername).commit();
-        }
+        mPrefs.edit().putString("username", aUsername).apply();
     }
 
 	private void updateValues(SharedPreferences prefs) {
