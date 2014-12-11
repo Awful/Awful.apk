@@ -292,7 +292,7 @@ public class AwfulPost {
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
                     Log.e(TAG," Build.VERSION:"+  Build.VERSION.RELEASE);
-                    if( (AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4")){
+                    if(AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")){
                         Element youtubeContainer = new Element(Tag.valueOf("div"),"");
                         youtubeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
@@ -371,7 +371,7 @@ public class AwfulPost {
 							continue;
 						}
 
-						if(inline && ((AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4"))){
+						if(inline && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))){
                             Element nodeContainer = new Element(Tag.valueOf("div"),"");
                             nodeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
                             Element nodeLink = new Element(Tag.valueOf("a"),"");

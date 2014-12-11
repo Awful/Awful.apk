@@ -267,7 +267,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(null != avatar){
             AQuery aq = new AQuery(this);
             if(null != mPrefs.userTitle) {
-                if("" != mPrefs.userTitle){
+                if(!("".equals(mPrefs.userTitle))){
                     aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
                 }else{
                     aq.id(R.id.sidebar_avatar).image(R.drawable.icon);

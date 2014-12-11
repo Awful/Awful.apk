@@ -96,7 +96,7 @@
     animation\" option.
     </string>
     <string name="alert_title_1">Please Note: GIFs</string>
-    <string name="alert_ok">Ok</string>
+    <string name="alert_ok">@android:string/ok</string>
     <string name="alert_settings">Settings</string>
     <string name="thread_actions">Thread actions</string>
 
