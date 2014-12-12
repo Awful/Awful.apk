@@ -27,18 +27,9 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
@@ -47,6 +38,14 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class AwfulEmote {
 	public static final String TAG = "AwfulEmote";

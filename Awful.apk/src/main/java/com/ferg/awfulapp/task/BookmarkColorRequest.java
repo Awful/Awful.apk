@@ -1,17 +1,9 @@
 package com.ferg.awfulapp.task;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 
-import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;

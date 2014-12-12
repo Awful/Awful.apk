@@ -32,7 +32,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 

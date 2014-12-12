@@ -27,18 +27,18 @@
 
 package com.ferg.awfulapp.reply;
 
-import java.util.HashMap;
-
-import com.ferg.awfulapp.util.AwfulError;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import android.content.ContentValues;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.util.AwfulError;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.util.HashMap;
 
 public class Reply {
     private static final String TAG = "Reply";

@@ -27,6 +27,39 @@
 
 package com.ferg.awfulapp.thread;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.Messenger;
+import android.text.TextUtils;
+import android.text.TextUtils.TruncateAt;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.androidquery.AQuery;
+import com.ferg.awfulapp.AwfulFragment;
+import com.ferg.awfulapp.ForumDisplayFragment;
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.MustacheException;
+import com.samskivert.mustache.Template;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,42 +71,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import android.text.TextUtils;
-import com.android.volley.toolbox.NetworkImageView;
-import com.ferg.awfulapp.AwfulActivity;
-import com.ferg.awfulapp.AwfulFragment;
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
-import android.os.Environment;
-import android.os.Messenger;
-import android.text.TextUtils.TruncateAt;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.androidquery.AQuery;
-import com.ferg.awfulapp.ForumDisplayFragment;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.provider.ColorProvider;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.MustacheException;
-import com.samskivert.mustache.Template;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";

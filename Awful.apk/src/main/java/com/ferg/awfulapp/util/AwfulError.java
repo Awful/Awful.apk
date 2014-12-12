@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
+
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 

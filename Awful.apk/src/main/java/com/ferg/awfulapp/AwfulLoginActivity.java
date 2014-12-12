@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
@@ -49,9 +47,8 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.task.FeatureRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.util.AwfulUtils;
+
+import java.util.HashMap;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";

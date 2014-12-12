@@ -1,8 +1,8 @@
 package com.ferg.awfulapp.util;
 
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.v4.util.LruCache;
+
 import com.android.volley.toolbox.ImageLoader;
 
 public class LRUImageCache implements ImageLoader.ImageCache {

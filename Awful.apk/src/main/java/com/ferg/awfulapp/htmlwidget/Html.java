@@ -23,11 +23,6 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -58,6 +53,11 @@ import android.text.style.UnderlineSpan;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * This class processes HTML strings into displayable styled text.

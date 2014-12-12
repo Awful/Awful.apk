@@ -27,12 +27,6 @@
 
 package com.ferg.awfulapp.constants;
 
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.util.Log;
-import android.util.TypedValue;
-
 public class Constants {
     public static final boolean DEBUG = false;
 

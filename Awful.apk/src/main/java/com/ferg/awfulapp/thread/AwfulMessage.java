@@ -27,20 +27,9 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import com.ferg.awfulapp.util.AwfulError;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.view.View;
@@ -50,8 +39,16 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorPickerPreference;
-import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.util.AwfulError;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.File;
+import java.util.ArrayList;
 /**
  * SA Private Messages.
  * @author Geekner

@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp.provider;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -49,6 +47,8 @@ import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+
+import java.util.HashMap;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";

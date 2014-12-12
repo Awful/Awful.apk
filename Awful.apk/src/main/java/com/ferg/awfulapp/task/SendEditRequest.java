@@ -3,12 +3,13 @@ package com.ferg.awfulapp.task;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.widget.Toast;
+
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 
 /**

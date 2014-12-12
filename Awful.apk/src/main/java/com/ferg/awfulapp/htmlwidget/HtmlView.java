@@ -16,12 +16,6 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
-import org.jsoup.nodes.Element;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriMatcher;
@@ -52,6 +46,12 @@ import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.ferg.awfulapp.R;
+
+import org.jsoup.nodes.Element;
+
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * A light-weight alternative to {@link WebView}.

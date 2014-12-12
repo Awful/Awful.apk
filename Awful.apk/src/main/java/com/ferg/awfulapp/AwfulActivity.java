@@ -1,35 +1,17 @@
 package com.ferg.awfulapp;
 
-import java.io.File;
-import java.util.LinkedList;
-
-import com.ferg.awfulapp.task.FeatureRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.util.AwfulUtils;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.net.http.HttpResponseCache;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.support.v4.view.WindowCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -37,6 +19,12 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.util.AwfulUtils;
+
+import java.io.File;
+import java.util.LinkedList;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
