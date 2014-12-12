@@ -389,7 +389,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
     }
 
     private void copyUrl(int id) {
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);

@@ -359,7 +359,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
-        StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+        StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
         buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
@@ -403,7 +403,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-        StringBuffer buffer = new StringBuffer(1024);
+        StringBuilder buffer = new StringBuilder(1024);
         buffer.append("<div class='content'>\n");
 
         if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
@@ -440,7 +440,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         Template postTemplate = null;
 
         try {

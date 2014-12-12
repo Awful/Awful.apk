@@ -424,7 +424,7 @@ public class NetworkUtils {
     }
 
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
-        StringBuffer result = new StringBuffer("?");
+        StringBuilder result = new StringBuilder("?");
 
         if (aParams != null) {
             try {

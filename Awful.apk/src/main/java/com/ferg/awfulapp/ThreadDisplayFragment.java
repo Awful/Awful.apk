@@ -638,7 +638,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     	}
 
 	private String generateThreadUrl(String postId){
-    	StringBuffer url = new StringBuffer();
+    	StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
@@ -661,7 +661,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     }
 	
 	private String generatePostUrl(String postId){
-    	StringBuffer url = new StringBuffer();
+    	StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_GOTO);
