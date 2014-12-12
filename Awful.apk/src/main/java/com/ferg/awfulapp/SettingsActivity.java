@@ -436,15 +436,13 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void initMiscSettings() {
         CheckBoxPreference pref = (CheckBoxPreference) findPreference("enable_hardware_acceleration");
         if (pref != null) {
-            pref.setEnabled(AwfulUtils.isHoneycomb());
+            pref.setEnabled(true);
             // Not for you
             if (!AwfulUtils.isJellybean()) pref.setChecked(false);
         }
         pref = (CheckBoxPreference) findPreference("disable_gifs2");
         if (pref != null) {
-            pref.setEnabled(AwfulUtils.isHoneycomb());
-            // Not for you
-            if (!AwfulUtils.isHoneycomb()) pref.setChecked(false);
+            pref.setEnabled(true);
         }
 
         findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
@@ -548,9 +546,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     private void initPostSettings() {
         CheckBoxPreference pref = (CheckBoxPreference) findPreference("inline_youtube");
         if (pref != null) {
-            pref.setEnabled(AwfulUtils.isICS());
-            // Not for you
-            if (!AwfulUtils.isICS()) pref.setChecked(false);
+            pref.setEnabled(true);
         }
     }
 

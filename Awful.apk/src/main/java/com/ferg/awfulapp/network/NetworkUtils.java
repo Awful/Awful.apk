@@ -237,11 +237,7 @@ public class NetworkUtils {
             }
             edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
 
-            if (AwfulUtils.isGingerbread()) {
-                edit.apply();
-            } else {
-                edit.commit();
-            }
+            edit.apply();
 
             return true;
         }

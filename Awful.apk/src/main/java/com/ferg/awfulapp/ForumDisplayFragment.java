@@ -529,9 +529,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-			if(AwfulUtils.isHoneycomb()){
-				getActivity().invalidateOptionsMenu();
-			}
+			getActivity().invalidateOptionsMenu();
 			refreshInfo();
 			syncForum();
     	}

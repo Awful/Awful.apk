@@ -103,7 +103,7 @@ public class AwfulMessage extends AwfulPagedItem {
 			author.setText(auth +" - "+date);
 		}
 
-        ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_sticky);
+        ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
 
 		if (data.getInt(data.getColumnIndex(UNREAD))>0) {
 			unreadPM.setVisibility(View.VISIBLE);

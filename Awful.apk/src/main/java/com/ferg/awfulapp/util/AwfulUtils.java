@@ -38,21 +38,6 @@ import java.util.Map;
  * Created by matt on 9/11/13.
  */
 public class AwfulUtils {
-    /**
-	 * I guess this should really be named "isGingerbreadOrAbove()" but I suck at function naming.
-	 * @return
-	 */
-	public static boolean isGingerbread(){
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-	}
-
-    public static boolean isHoneycomb(){
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-	}
-
-    public static boolean isICS(){
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-	}
 
     public static boolean isJellybean(){
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;

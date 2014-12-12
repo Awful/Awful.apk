@@ -315,11 +315,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
         }
 
-		if (AwfulUtils.isHoneycomb()) {
-			if(!mPrefs.enableHardwareAcceleration){
-				mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-			}
-		}
+        if(!mPrefs.enableHardwareAcceleration){
+            mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+        }
+
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
 			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
@@ -545,7 +544,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         }
         MenuItem find = menu.findItem(R.id.find);
         if(find != null){
-            find.setVisible(AwfulUtils.isHoneycomb());
+            find.setVisible(true);
         }
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -777,16 +776,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 	}
     
 	private void toggleMarkUser(String username){
-		if(AwfulUtils.isHoneycomb()){
-			if(mPrefs.markedUsers.contains(username)){
-				mPrefs.unmarkUser(username);
-			}else{
-				mPrefs.markUser(username);
-			}
-		}else{
-			//TODO:Hide this shit
-			displayAlert(R.string.not_available_on_your_version, 0, R.drawable.ic_menu_load_fail);
-		}
+        if(mPrefs.markedUsers.contains(username)){
+            mPrefs.unmarkUser(username);
+        }else{
+            mPrefs.markUser(username);
+        }
 	}
 	
 	private void reportUser(final String postid){
@@ -1327,18 +1321,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage? AwfulUtils.isGingerbread()?gBImageUrlMenuItems:imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage?gBImageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage? AwfulUtils.isGingerbread()?0:1:2)){
+            	switch(aItem+(isImage?0:2)){
             	case 0:
         			Request request = new Request(link);
-        			if (!AwfulUtils.isHoneycomb()) {
-        				request.setShowRunningNotification(true);  
-        			} else {
-        				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        			}
+        			request.setShowRunningNotification(true);
         			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
         			request.allowScanningByMediaScanner();
         			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);

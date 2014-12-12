@@ -118,11 +118,9 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
-        if(AwfulUtils.isICS()){
-            HttpResponseCache cache = HttpResponseCache.getInstalled();
-            if(cache != null){
-                cache.flush();
-            }
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if(cache != null){
+            cache.flush();
         }
     }
     

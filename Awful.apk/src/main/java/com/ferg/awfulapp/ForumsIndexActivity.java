@@ -455,7 +455,6 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onResume();
         switch(mPrefs.alertIDShown+1){
             case 1:
-                if(AwfulUtils.isHoneycomb()){
                     new AlertDialog.Builder(this).
                             setTitle(getString(R.string.alert_title_1))
                             .setMessage(getString(R.string.alert_message_1))
@@ -473,7 +472,6 @@ public class ForumsIndexActivity extends AwfulActivity {
                                 }
                             })
                             .show();
-                }
                 mPrefs.setIntegerPreference("alert_id_shown", 1);
                 break;
         }

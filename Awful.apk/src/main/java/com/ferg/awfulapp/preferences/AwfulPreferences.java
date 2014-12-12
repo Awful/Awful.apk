@@ -288,61 +288,34 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         immersionMode			 = AwfulUtils.isKitKat()?mPrefs.getBoolean("immersion_mode", false):false;
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         transformer  		     = mPrefs.getString("transformer", "Default");
-        
-        if(AwfulUtils.isHoneycomb()){
-        	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
-        }else{
-        	markedUsers = new HashSet<String>();
-        }
+        markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
+
        	 //I have never seen this before oh god
 	}
 
 	public void setBooleanPreference(String key, boolean value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putBoolean(key, value).apply();
-		}else{
-			mPrefs.edit().putBoolean(key, value).commit();
-		}
+		mPrefs.edit().putBoolean(key, value).apply();
 	}
 
 	public void setStringPreference(String key, String value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putString(key, value).apply();
-		}else{
-			mPrefs.edit().putString(key, value).commit();
-		}
+        mPrefs.edit().putString(key, value).apply();
 	}
 
 	public void setLongPreference(String key, long value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putLong(key, value).apply();
-		}else{
-			mPrefs.edit().putLong(key, value).commit();
-		}
+
+		mPrefs.edit().putLong(key, value).apply();
 	}
 
 	public void setIntegerPreference(String key, int value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putInt(key, value).apply();
-		}else{
-			mPrefs.edit().putInt(key, value).commit();
-		}
+		mPrefs.edit().putInt(key, value).apply();
 	}
 	
 	public void setFloatPreference(String key, float value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putFloat(key, value).apply();
-		}else{
-			mPrefs.edit().putFloat(key, value).commit();
-		}
+		mPrefs.edit().putFloat(key, value).apply();
 	}
 	
 	public void setStringSetPreference(String key, Set<String> value){
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putStringSet(key, value).apply();
-		}else{
-			mPrefs.edit().putStringSet(key, value).commit();
-		}
+    	mPrefs.edit().putStringSet(key, value).apply();
 	}
 	
 	public void upgradePreferences() {
@@ -352,11 +325,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				// Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
 				boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
         		setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
-        		if(AwfulUtils.isGingerbread()){
-        			mPrefs.edit().remove("new_threads_first").apply();
-        		}else{
-        			mPrefs.edit().remove("new_threads_first").commit();
-        		}
+        		mPrefs.edit().remove("new_threads_first").apply();
         		newThreadsFirstUCP = newPrefsFirst;
 				break;
 			default://make sure to keep this break statement on the last case of this switch

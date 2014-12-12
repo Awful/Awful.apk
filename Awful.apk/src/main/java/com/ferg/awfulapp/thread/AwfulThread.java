@@ -258,7 +258,7 @@ public class AwfulThread extends AwfulPagedItem  {
         		tmp.put(AwfulForum.PARENT_ID, parentForumId);
         		tmp.put(AwfulForum.TITLE, href.first().text());
         		Elements subtext = sf.getElementsByTag("dd");
-        		if(subtext.size() >0){
+        		if(subtext.size() >1){
         			tmp.put(AwfulForum.SUBTEXT, subtext.first().text().replaceAll("\"", "").trim().substring(2));//ugh
         		}
         		result.add(tmp);

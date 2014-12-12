@@ -47,12 +47,10 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         if(mPref.sendUsernameInReport){
             ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
         }
-        if(AwfulUtils.isICS()){
-            try {
-                HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         networkQueue = Volley.newRequestQueue(this);
         imageCache = new LRUImageCache();
