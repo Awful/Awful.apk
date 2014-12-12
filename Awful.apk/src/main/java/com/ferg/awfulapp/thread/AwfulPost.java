@@ -356,11 +356,11 @@ public class AwfulPost {
 								continue;
 							}
 							if(vimeoXML.getElementsByTag("mobile_url").first() != null){
-								link = vimeoXML.getElementsByTag("mobile_url").first().text().toString();
+								link = vimeoXML.getElementsByTag("mobile_url").first().text();
 							}else{
-								link = vimeoXML.getElementsByTag("url").first().text().toString();
+								link = vimeoXML.getElementsByTag("url").first().text();
 							}
-							image = vimeoXML.getElementsByTag("thumbnail_large").first().text().toString();
+							image = vimeoXML.getElementsByTag("thumbnail_large").first().text();
 							src = link;
 						}else{
 							node.empty();
