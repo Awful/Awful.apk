@@ -8,7 +8,7 @@
 	<EditText
 		android:id="@+id/post_message"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="0dp"
 		android:singleLine="false"
         android:gravity="top"
         android:scrollbars="vertical"
