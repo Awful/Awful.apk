@@ -120,7 +120,7 @@ public class ColorPickerPreference
 		Bitmap bm = Bitmap.createBitmap(d, d, Config.ARGB_8888);
 		int w = bm.getWidth();
 		int h = bm.getHeight();
-		int c = color;
+		int c;
 		for (int i = 0; i < w; i++) {
 			for (int j = i; j < h; j++) {
 				c = (i <= 1 || j <= 1 || i >= w-2 || j >= h-2) ? Color.GRAY : color;
@@ -180,19 +180,19 @@ public class ColorPickerPreference
 	}
 
 	/**
-	 * For custom purposes. Not used by ColorPickerPreferrence
+	 * For custom purposes. Not used by ColorPickerPreference
 	 * @param color
 	 * @author Unknown
 	 */
     public static String convertToARGB(int color) {
-        String alpha = Integer.toHexString(Color.alpha(color));
+        //String alpha = Integer.toHexString(Color.alpha(color));
         String red = Integer.toHexString(Color.red(color));
         String green = Integer.toHexString(Color.green(color));
         String blue = Integer.toHexString(Color.blue(color));
 
-        if (alpha.length() == 1) {
-            alpha = "0" + alpha;
-        }
+        //if (alpha.length() == 1) {
+        //    alpha = "0" + alpha;
+        //}
 
         if (red.length() == 1) {
             red = "0" + red;

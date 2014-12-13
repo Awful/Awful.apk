@@ -745,7 +745,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     /** Initialise preferences on Theme Settings page */
     private void initThemeSettings() {
         Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
-        String lastTheme = mPrefs.theme;
 
         ListPreference themePref = (ListPreference) findPreference("theme");
         ListPreference layoutPref = (ListPreference) findPreference("layouts");

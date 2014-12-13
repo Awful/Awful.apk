@@ -105,7 +105,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         isTablet = AwfulUtils.isWidescreen(this);
-        int initialPage = -1;
+        int initialPage;
         if (savedInstanceState != null) {
             mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
             mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);

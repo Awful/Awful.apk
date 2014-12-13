@@ -284,8 +284,8 @@ public class AwfulPost {
 		
 			for(Element youTube : youtubeNodes){
 				String src = youTube.attr("src");
-				int height = Integer.parseInt(youTube.attr("height"));
-				int width = Integer.parseInt(youTube.attr("width"));
+				//int height = Integer.parseInt(youTube.attr("height"));
+				//int width = Integer.parseInt(youTube.attr("width"));
 				Matcher youtubeMatcher = youtubeHDId_regex.matcher(src);
 				if(youtubeMatcher.find()){
 					String videoId = youtubeMatcher.group(1);
@@ -630,7 +630,7 @@ public class AwfulPost {
 		aq.find(R.id.post_author).visible().text(data.getString(data.getColumnIndex(USERNAME))).textColor(current.getResources().getColor(R.color.default_post_font));
 //		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
 		aq.find(R.id.post_date).visible().text(data.getString(data.getColumnIndex(DATE))).textColor(current.getResources().getColor(R.color.default_post_font));
-		int background = 0;
+		int background;
 		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
 			background = current.getResources().getColor(R.color.background_read);
 		}else{

@@ -195,7 +195,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 		if(currentProgress > 0 && mSRL != null){
             mSRL.setRefreshing(false);
 		}
-		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
 		}

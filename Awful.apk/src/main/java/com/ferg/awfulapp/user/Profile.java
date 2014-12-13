@@ -47,10 +47,10 @@ public class Profile {
     }
 
     public static Profile withId(String aUserId) {
-		long time = System.currentTimeMillis();
         Profile result = new Profile();
 
         //TODO: This needs some major workover
+//        long time = System.currentTimeMillis();
 //        HashMap<String, String> params = new HashMap<String, String>();
 //        params.put(Constants.PARAM_ACTION, "getinfo");
 //        params.put(Constants.PARAM_USER_ID, aUserId);
