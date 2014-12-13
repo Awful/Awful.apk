@@ -566,11 +566,7 @@ public class AwfulProvider extends ContentProvider {
 						db.delete(table, unique_match+"=?", new String[]{value.getAsString(unique_match)});
 					}
 				}
-				try{
-					db.insertOrThrow(table, "", value);
-				}catch(SQLException sqle){
-					db.update(table, value, id_row+"=?", int2StrArray(value.getAsInteger(id_row)));
-				}
+				db.replace(table, "", value);
 				result++;
 			}
 
