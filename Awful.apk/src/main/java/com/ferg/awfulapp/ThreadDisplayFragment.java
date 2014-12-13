@@ -1258,16 +1258,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 		}
 	}
 
-	private String[] gBImageUrlMenuItems = new String[]{
-			"Download Image",
-			"Show Image Inline",
-			"Open URL",
-			"Copy URL",
-			"Share URL",
-			"Always Open URL"
-	};
-	
 	private String[] imageUrlMenuItems = new String[]{
+			"Download Image",
 			"Show Image Inline",
 			"Open URL",
 			"Copy URL",
@@ -1292,7 +1284,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?gBImageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
