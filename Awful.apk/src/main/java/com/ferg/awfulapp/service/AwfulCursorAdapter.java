@@ -53,7 +53,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
     private AwfulFragment mFragment;
 	private LayoutInflater inf;
 	private int mId;
-	private int selectedId = -1;
 	private AQuery aq;
 	private Messenger msgCallback;
 	
@@ -70,11 +69,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		aq = new AQuery(context);
         mFragment = fragment;
 	}
-	
-	public void setSelected(int id){
-		selectedId = id;
-	}
-	
+
 	public void setId(int id){
 		mId = id;
 	}

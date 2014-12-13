@@ -12,10 +12,8 @@ import org.jsoup.nodes.Document;
  * Created by Matthew on 8/9/13.
  */
 public class BookmarkColorRequest extends AwfulRequest<Void> {
-    private int threadId, postIndex;
     public BookmarkColorRequest(Context context, int threadId) {
         super(context, null);
-        this.threadId = threadId;
         addPostParam(Constants.PARAM_ACTION, "cat_toggle");
         addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(threadId));
     }
