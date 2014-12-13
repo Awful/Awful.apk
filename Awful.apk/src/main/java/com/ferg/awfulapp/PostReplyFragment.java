@@ -621,7 +621,7 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         return true;
-    };
+    }
 
     public void insertBBCode(BBCODE code){
     	if(selectionStart < 0){//we might be getting this from an earlier point

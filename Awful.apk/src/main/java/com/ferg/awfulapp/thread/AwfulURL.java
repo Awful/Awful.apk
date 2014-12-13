@@ -9,7 +9,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 public class AwfulURL {
 	
-	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE};
+	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE}
 	private long id;
 	private long pageNum = 1;
 	private int perPage = Constants.ITEMS_PER_PAGE;
