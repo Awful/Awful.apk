@@ -281,13 +281,8 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLa
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
             	Log.v(TAG,"Index cursor: "+aData.getCount());
-        		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
-        		if(aData.getCount() > 10 && aData.move(8) && dateIndex > -1){
-        			String timestamp = aData.getString(dateIndex);
-        			Timestamp upDate = new Timestamp(System.currentTimeMillis());
-        			if(timestamp != null && timestamp.length()>5){
-            			upDate = Timestamp.valueOf(timestamp);
-        			}
+        		if(aData.getCount() > 10){
+        			aData.move(8);
         		}
         		mTreeAdapter.setCursor(aData);
         	}
