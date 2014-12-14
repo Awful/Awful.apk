@@ -29,6 +29,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -562,7 +563,7 @@ public class ColorPickerView extends View {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 
 		boolean update = false;
 
@@ -696,7 +697,7 @@ public class ColorPickerView extends View {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
-			return getPrefferedWidth();
+			return getPreferredWidth();
 		}
 	}
 
@@ -704,13 +705,13 @@ public class ColorPickerView extends View {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
-			return getPrefferedHeight();
+			return getPreferredHeight();
 		}
 	}
 
-	private int getPrefferedWidth(){
+	private int getPreferredWidth(){
 
-		int width = getPrefferedHeight();
+		int width = getPreferredHeight();
 
 		if(mShowAlphaPanel){
 			width -= (PANEL_SPACING + ALPHA_PANEL_HEIGHT);
@@ -721,7 +722,7 @@ public class ColorPickerView extends View {
 
 	}
 
-	private int getPrefferedHeight(){
+	private int getPreferredHeight(){
 
 		int height = (int)(200 * mDensity);
 

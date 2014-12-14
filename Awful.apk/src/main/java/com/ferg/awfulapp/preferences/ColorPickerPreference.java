@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -85,7 +86,7 @@ public class ColorPickerPreference
 	}
 
 	@Override
-	protected void onBindView(View view) {
+	protected void onBindView(@NonNull View view) {
 		super.onBindView(view);
 		mView = view;
 		setPreviewColor();

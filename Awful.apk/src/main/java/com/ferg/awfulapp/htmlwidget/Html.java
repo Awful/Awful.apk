@@ -616,7 +616,7 @@ class HtmlToSpannedConverter {
         }
     }
 
-    public static final int
+    public static int
     convertValueToInt(CharSequence charSeq, int defaultValue)
     {
         if (null == charSeq)
@@ -713,8 +713,6 @@ class HtmlToSpannedConverter {
         if (where != len) {
             text.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-
-        return;
     }
 
     private static void startImg(SpannableStringBuilder text, Element node, Html.ImageGetter img) {

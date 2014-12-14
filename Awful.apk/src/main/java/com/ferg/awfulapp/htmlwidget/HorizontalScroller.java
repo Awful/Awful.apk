@@ -32,7 +32,7 @@ import android.widget.TextView;
  */
 public class HorizontalScroller extends HorizontalScrollView {
 
-    private static final int getMaxLineWidth(TextView textView) {
+    private static int getMaxLineWidth(TextView textView) {
         Layout layout = textView.getLayout();
         if (layout != null) {
             int lineCount = layout.getLineCount();
