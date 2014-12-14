@@ -66,7 +66,7 @@
             android:clearTaskOnLaunch="true" 
             />
         <activity android:name="com.ferg.awfulapp.MessageDisplayActivity"
-                  android:configChanges="orientation|keyboardHidden|screenSize"></activity>
+                  android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name="com.ferg.awfulapp.PrivateMessageActivity"
                   android:configChanges="orientation|keyboardHidden|screenSize">
         	<intent-filter>
@@ -81,7 +81,7 @@
 				  android:authorities="com.ferg.awfulapp.provider" />
         <meta-data android:name="com.google.android.backup.api_key"
 		    android:value="AEdPqrEAAAAIs68d9wLw6rnLPrSwTf193dR5QGZMSB3jsMhfBg" />
-        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider"></provider>
+        <provider android:label="@string/awful_web_provider" android:name="com.ferg.awfulapp.provider.AwfulWebProvider" android:authorities="com.ferg.awfulapp.webprovider" />
         <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />
