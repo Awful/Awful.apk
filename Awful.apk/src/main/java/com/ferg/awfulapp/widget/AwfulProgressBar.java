@@ -59,6 +59,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 
 	public AwfulProgressBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		if (this.isInEditMode()) { return; } // suppress errors during GUI dev
 		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
