@@ -52,11 +52,8 @@ public class AwfulUtils {
     }
 
     public static boolean isWidescreen(Context cont){
-		if(cont != null){
-			return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
-		}else{
-			return false;
-		}
+        return cont != null
+                && cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
 	}
 
     public static boolean isWidescreen(Configuration newConfig) {
@@ -69,11 +66,9 @@ public class AwfulUtils {
 	 * @return True if either width or height is large enough to count as widescreen.
 	 */
 	public static boolean canBeWidescreen(Context cont){
-		if(cont != null){
-			return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI;
-		}else{
-			return false;
-		}
+		return cont != null
+			&& (cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI
+				|| cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI);
 	}
 
     /**

@@ -240,12 +240,12 @@ public class AwfulMessage extends AwfulPagedItem {
 	        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+pref.theme);
 	       
 	        if(StringUtils.countMatches(pref.theme,".")>1 && css.exists() && css.isFile() && css.canRead()){
-	        	buffer.append("<link rel='stylesheet' href='"+Environment.getExternalStorageDirectory()+"/awful/"+pref.theme+"'>\n");
+	        	buffer.append("<link rel='stylesheet' href='").append(Environment.getExternalStorageDirectory()).append("/awful/").append(pref.theme).append("'>\n");
 	        }else{
-	            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+pref.theme+"'>\n");
+	            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(pref.theme).append("'>\n");
 	        }
 	        if(!pref.preferredFont.contains("default")){
-	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+pref.preferredFont+"'); }</style>\n");
+	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
 	        }
 	        buffer.append("</head><body>");
 	        buffer.append("<article><section class='postcontent'>");

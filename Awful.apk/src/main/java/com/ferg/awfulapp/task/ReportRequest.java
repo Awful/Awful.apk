@@ -33,9 +33,8 @@ public class ReportRequest extends AwfulRequest<String> {
     @Override
     protected String handleResponse(Document doc) throws AwfulError {
 
-		Document result = doc;
-		if(result.getElementById("content") != null){
-			Element standard = result.getElementsByClass("standard").first();
+		if(doc.getElementById("content") != null){
+			Element standard = doc.getElementsByClass("standard").first();
 			if(standard != null && standard.hasText()){
 				if(standard.text().contains("Thank you, but this thread has already been reported recently!")){
 					throw new AwfulError("Someone has already reported this thread recently");
@@ -44,9 +43,9 @@ public class ReportRequest extends AwfulRequest<String> {
 					return "Your alert has been submitted to the Moderators."; //"Thank you for your report";
 				}
 			}
-			throw new AwfulError("An error occured while trying to process your report");
+			throw new AwfulError("An error occurred while trying to process your report");
 		}
-		throw new AwfulError("An error occured while trying to send your report");
+		throw new AwfulError("An error occurred while trying to send your report");
     }
 
     @Override

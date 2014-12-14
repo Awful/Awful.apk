@@ -22,6 +22,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.AwfulError;
 
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -70,11 +71,12 @@ public abstract class AwfulRequest<T> {
     protected void addPostParam(String key, String value){
         if(key == null || value == null){
             //intentionally triggering that NPE here, so we can log it now instead of when it hits the volley queue
+            //noinspection ConstantConditions,RedundantStringToString
             Log.e("AWFULREQUEST", "PARAM NULL: "+key.toString()+" -v: "+value.toString());
         }
         if(attachParams != null){
             try {
-                attachParams.addPart(key, new StringBody(value));
+                attachParams.addPart(key, new StringBody(value, ContentType.TEXT_PLAIN));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -91,7 +93,7 @@ public abstract class AwfulRequest<T> {
             if(params != null){
                 for(Map.Entry<String, String> item : params.entrySet()){
                     try {
-                        attachParams.addPart(item.getKey(), new StringBody(item.getValue()));
+                        attachParams.addPart(item.getKey(), new StringBody(item.getValue(), ContentType.TEXT_PLAIN));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

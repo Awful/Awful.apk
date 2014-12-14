@@ -259,12 +259,12 @@ public class AwfulPost {
                 current.setRegDate(aCursor.getString(regdateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
-                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0 ? true : false);
+                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0);
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
-                current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
-                current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
-                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0 ? true : false);
-                current.setIsMod(aCursor.getInt(isModIndex) > 0 ? true : false);
+                current.setEditable(aCursor.getInt(editableIndex) == 1);
+                current.setIsOp(aCursor.getInt(isOpIndex) == 1);
+                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0);
+                current.setIsMod(aCursor.getInt(isModIndex) > 0);
                 current.setAvatar(aCursor.getString(avatarIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));

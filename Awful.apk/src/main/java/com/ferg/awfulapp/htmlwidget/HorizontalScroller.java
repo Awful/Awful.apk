@@ -17,6 +17,7 @@
 package com.ferg.awfulapp.htmlwidget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.View;
@@ -60,7 +61,7 @@ public class HorizontalScroller extends HorizontalScrollView {
     }
 
     @Override
-    protected void measureChild(View child, int parentWidthMeasureSpec, int parentHeightMeasureSpec) {
+    protected void measureChild(@NonNull View child, int parentWidthMeasureSpec, int parentHeightMeasureSpec) {
         ViewGroup.LayoutParams lp = child.getLayoutParams();
 
         int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec, getPaddingLeft()
@@ -72,7 +73,7 @@ public class HorizontalScroller extends HorizontalScrollView {
     }
 
     @Override
-    protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed,
+    protected void measureChildWithMargins(@NonNull View child, int parentWidthMeasureSpec, int widthUsed,
             int parentHeightMeasureSpec, int heightUsed) {
         MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
 

@@ -18,6 +18,7 @@ package com.ferg.awfulapp.widget;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -39,7 +40,7 @@ import com.ferg.awfulapp.R;
  * This class has been pulled from the Android platform source code, its an internal widget that hasn't been
  * made public so its included in the project in this fashion for use with the preferences screen; I have made
  * a few slight modifications to the code here, I simply put a MAX and MIN default in the code but these values
- * can still be set publically by calling code.
+ * can still be set publicly by calling code.
  *
  * @author Google
  */
@@ -377,7 +378,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         }
 
         @Override
-        public CharSequence filter(CharSequence source, int start, int end,
+        public CharSequence filter(@NonNull CharSequence source, int start, int end,
                 Spanned dest, int dstart, int dend) {
 
             CharSequence filtered = super.filter(source, start, end, dest, dstart, dend);

@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
@@ -495,7 +496,7 @@ public final class HtmlView extends TextView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         // Remember the location of the last touch event for getHitTestResult
         //
         // TODO: Support key-driven long-press events
@@ -712,7 +713,7 @@ public final class HtmlView extends TextView {
         }
 
         @Override
-        public void writeToParcel(Parcel out, int flags) {
+        public void writeToParcel(@NonNull Parcel out, int flags) {
             super.writeToParcel(out, flags);
             boolean hasHtml = (mHtml != null);
             out.writeInt(hasHtml ? 1 : 0);

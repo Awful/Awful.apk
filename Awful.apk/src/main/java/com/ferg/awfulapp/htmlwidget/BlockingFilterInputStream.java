@@ -16,6 +16,8 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
+import android.support.annotation.NonNull;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +37,7 @@ class BlockingFilterInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int count) throws IOException {
+    public int read(@NonNull byte[] buffer, int offset, int count) throws IOException {
         int total = 0;
         while (total < count) {
             int read = super.read(buffer, offset + total, count - total);
@@ -48,7 +50,7 @@ class BlockingFilterInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] buffer) throws IOException {
+    public int read(@NonNull byte[] buffer) throws IOException {
         int total = 0;
         while (total < buffer.length) {
             int offset = total;

@@ -39,6 +39,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -91,7 +92,6 @@ public class AwfulProvider extends ContentProvider {
 	private static HashMap<String, String> sThreadProjectionMap;
 	private static HashMap<String, String> sPostProjectionMap;
 	private static HashMap<String, String> sUCPThreadProjectionMap;
-	private static HashMap<String, String> sPMProjectionMap;
 	private static HashMap<String, String> sDraftProjectionMap;
 	private static HashMap<String, String> sPMReplyProjectionMap;
 	private static HashMap<String, String> sEmoteProjectionMap;
@@ -511,10 +511,9 @@ public class AwfulProvider extends ContentProvider {
     }
 
 	@Override
-	public int bulkInsert(Uri aUri, ContentValues[] aValues) {
+	public int bulkInsert(Uri aUri, @NonNull ContentValues[] aValues) {
         String table = null;
 		int result = 0;
-		String id_row = null;
 		String unique_match = null;
 		String unique_match2 = null;
 
@@ -524,33 +523,26 @@ public class AwfulProvider extends ContentProvider {
         switch(match) {
             case FORUM:
                 table = TABLE_FORUM;
-                id_row = AwfulForum.ID;//these ID rows are useless, they're required to be _id, remove this
                 break;
             case POST:
                 table = TABLE_POSTS;
-                id_row = AwfulPost.ID;
                 unique_match = AwfulPost.POST_INDEX;
                 unique_match2 = AwfulPost.THREAD_ID;
                 break;
             case THREAD:
                 table = TABLE_THREADS;
-                id_row = AwfulThread.ID;
                 break;
             case UCP_THREAD:
                 table = TABLE_UCP_THREADS;
-                id_row = AwfulThread.ID;
                 break;
 			case PM:
 				table = TABLE_PM;
-                id_row = AwfulMessage.ID;
 				break;
 			case DRAFT:
 				table = TABLE_DRAFTS;
-                id_row = AwfulMessage.ID;
 				break;
 			case EMOTE:
 				table = TABLE_EMOTES;
-                id_row = AwfulEmote.ID;
                 unique_match = AwfulEmote.TEXT;
 				break;
         }
@@ -617,9 +609,7 @@ public class AwfulProvider extends ContentProvider {
         long rowId = db.insert(table, "", aValues); 
         
         if (rowId > -1) {
-            Uri rowUri = ContentUris.withAppendedId(aUri, rowId);
-
-            return rowUri;
+            return ContentUris.withAppendedId(aUri, rowId);
         }
 
         throw new SQLException("Failed to insert row into " + aUri);
@@ -738,7 +728,6 @@ public class AwfulProvider extends ContentProvider {
         sPostProjectionMap = new HashMap<String, String>();
         sThreadProjectionMap = new HashMap<String, String>();
         sUCPThreadProjectionMap = new HashMap<String, String>();
-        sPMProjectionMap = new HashMap<String, String>();
         sDraftProjectionMap = new HashMap<String, String>();
         sPMReplyProjectionMap = new HashMap<String, String>();
         sEmoteProjectionMap = new HashMap<String, String>();
@@ -831,14 +820,7 @@ public class AwfulProvider extends ContentProvider {
         sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
 		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
-		
-		sPMProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
-		sPMProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
-		sPMProjectionMap.put(AwfulMessage.CONTENT, AwfulMessage.CONTENT);
-		sPMProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
-		sPMProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
-		sPMProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
-		
+
 		sDraftProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
 		sDraftProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
 		sDraftProjectionMap.put(AwfulPost.FORM_COOKIE, AwfulPost.FORM_COOKIE);
