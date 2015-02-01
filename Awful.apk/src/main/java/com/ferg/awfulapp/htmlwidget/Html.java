@@ -23,11 +23,6 @@
 
 package com.ferg.awfulapp.htmlwidget;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -59,6 +54,11 @@ import android.text.style.UnderlineSpan;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 /**
  * This class processes HTML strings into displayable styled text.
  * Not all HTML tags are supported.
@@ -69,7 +69,7 @@ class Html {
      */
     public static interface ImageGetter {
         /**
-         * This methos is called when the HTML parser encounters an
+         * This method is called when the HTML parser encounters an
          * &lt;img&gt; tag.  The <code>source</code> argument is the
          * string from the "src" attribute; the return value should be
          * a Drawable representation of the image or <code>null</code>
@@ -166,7 +166,7 @@ class Html {
                 }
             }
             if (needDiv) {
-                out.append("<div " + elements + ">");
+                out.append("<div ").append(elements).append(">");
             }
 
             withinDiv(out, text, i, next);
@@ -360,7 +360,7 @@ class Html {
             } else if (c == '&') {
                 out.append("&amp;");
             } else if (c > 0x7E || c < ' ') {
-                out.append("&#" + ((int) c) + ";");
+                out.append("&#").append((int) c).append(";");
             } else if (c == ' ') {
                 while (i + 1 < end && text.charAt(i + 1) == ' ') {
                     out.append("&nbsp;");
@@ -434,7 +434,7 @@ class HtmlToSpannedConverter {
 		for(int i=0;i<numChildren;i++) {
 			child = children.get(i);
 			if(!child.hasText()) {
-				traverse((Element) child);
+				traverse(child);
 			}else{
 				characters(child.text());
 			}
@@ -491,7 +491,8 @@ class HtmlToSpannedConverter {
     
     private void handleStartTag(Element node) {
     	String tag = node.nodeName();
-    	
+
+        //noinspection StatementWithEmptyBody
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emit the linebreaks when we handle the close tag.
@@ -616,7 +617,7 @@ class HtmlToSpannedConverter {
         }
     }
 
-    public static final int
+    public static int
     convertValueToInt(CharSequence charSeq, int defaultValue)
     {
         if (null == charSeq)
@@ -713,8 +714,6 @@ class HtmlToSpannedConverter {
         if (where != len) {
             text.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-
-        return;
     }
 
     private static void startImg(SpannableStringBuilder text, Element node, Html.ImageGetter img) {

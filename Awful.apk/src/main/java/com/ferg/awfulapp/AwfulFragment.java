@@ -27,31 +27,37 @@
 
 package com.ferg.awfulapp;
 
-import android.content.Intent;
-import android.os.Looper;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.*;
-import android.view.animation.Animation;
-import android.widget.PopupWindow;
-import com.android.volley.VolleyError;
-import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.task.AwfulRequest;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
 
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
 public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
@@ -189,7 +195,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 		if(currentProgress > 0 && mSRL != null){
             mSRL.setRefreshing(false);
 		}
-		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
 		}

@@ -29,18 +29,17 @@ package com.ferg.awfulapp.service;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Messenger;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.thread.*;
+import com.ferg.awfulapp.thread.AwfulThread;
 
 public class ThreadCursorAdapter extends CursorAdapter {
 	private static final String TAG = "ThreadCursorAdapter";

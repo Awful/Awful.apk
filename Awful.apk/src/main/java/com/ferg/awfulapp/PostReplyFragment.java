@@ -27,8 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -47,11 +45,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -60,14 +56,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -76,15 +67,21 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.task.*;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.EditRequest;
+import com.ferg.awfulapp.task.QuoteRequest;
+import com.ferg.awfulapp.task.ReplyRequest;
+import com.ferg.awfulapp.task.SendEditRequest;
+import com.ferg.awfulapp.task.SendPostRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
+
+import java.io.File;
 
 public class PostReplyFragment extends AwfulFragment {
     public static final int REQUEST_POST = 5;
@@ -624,7 +621,7 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         return true;
-    };
+    }
 
     public void insertBBCode(BBCODE code){
     	if(selectionStart < 0){//we might be getting this from an earlier point
@@ -909,19 +906,13 @@ public class PostReplyFragment extends AwfulFragment {
 
     private String getClipboardLink(){
         String link = null;
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
-            ClipboardManager cb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            String copy = String.valueOf(cb.getText());
-            if(copy.startsWith("http://") || copy.startsWith("https://")){
-                link = copy;
-            }
-        }else{
-            android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            String copy = String.valueOf(cb.getText());
-            if(copy.startsWith("http://") || copy.startsWith("https://")){
-                link = copy;
-            }
+
+        android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        String copy = String.valueOf(cb.getText());
+        if(copy.startsWith("http://") || copy.startsWith("https://")){
+            link = copy;
         }
+
         return link;
     }
 

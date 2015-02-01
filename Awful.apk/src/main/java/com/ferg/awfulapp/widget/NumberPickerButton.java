@@ -17,6 +17,7 @@
 package com.ferg.awfulapp.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -49,7 +50,7 @@ public class NumberPickerButton extends ImageButton {
     }
     
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         cancelLongpressIfRequired(event);
         return super.onTouchEvent(event);
     }

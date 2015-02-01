@@ -29,11 +29,17 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.*;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -43,31 +49,38 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkColorRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.MarkUnreadRequest;
-import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.util.Date;
@@ -376,37 +389,19 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
     }
 
     private void copyUrl(int id) {
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
 		url.append("=");
 		url.append(id);
 		
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
-			clipboard.setPrimaryClip(clip);
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+		clipboard.setPrimaryClip(clip);
 
-            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		} else {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
-
-			alert.setTitle("URL");
-
-			final EditText input = new EditText(this.getActivity());
-			input.setText(url.toString());
-			alert.setView(input);
-
-			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.dismiss();
-				}
-			});
-
-			alert.show();
-		}
+		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 	}
 
 	private void displayPagePicker() {

@@ -31,14 +31,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.*;
+import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -743,7 +745,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     /** Initialise preferences on Theme Settings page */
     private void initThemeSettings() {
         Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
-        String lastTheme = mPrefs.theme;
 
         ListPreference themePref = (ListPreference) findPreference("theme");
         ListPreference layoutPref = (ListPreference) findPreference("layouts");

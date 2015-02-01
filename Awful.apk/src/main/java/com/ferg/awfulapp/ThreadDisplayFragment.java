@@ -32,13 +32,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
-import android.content.*;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -56,9 +65,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.*;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -71,8 +87,20 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.task.*;
-import com.ferg.awfulapp.thread.*;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.MarkLastReadRequest;
+import com.ferg.awfulapp.task.PostRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.task.RedirectTask;
+import com.ferg.awfulapp.task.ReportRequest;
+import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.thread.AwfulPagedItem;
+import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -80,7 +108,12 @@ import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Uses intent extras:
@@ -588,7 +621,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     			copyThreadURL(null);
     			break;
     		case R.id.find:
-                //Find button is hidden in onPrepareOptionsMenu for anything pre-Honeycomb
     			this.mThreadView.showFindDialog(null, true);
     			break;
     		case R.id.keep_screen_on:
@@ -598,10 +630,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
             case R.id.bookmark:
                 toggleThreadBookmark();
                 break;
-//    		case R.id.thread_actions:
-//    			if(!AwfulUtils.isHoneycomb()){
-//    				fuckPreAPI11Forever(item);
-//    			}
     		default:
     			return super.onOptionsItemSelected(item);
     		}
@@ -609,53 +637,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     		return true;
     	}
 
-//	private void fuckPreAPI11Forever(final MenuItem item) {
-//        final CharSequence[] mThreadItems = {
-//        		getString(R.string.post_reply),
-//        		getString(R.string.bookmark),
-//        		getString(R.string.rate_thread),
-//        		getString(R.string.copy_url),
-//        		getString(R.string.share_thread),
-//        		getString(R.string.refresh),
-//        		getString(R.string.keep_screen_on),
-//            };
-//
-//
-//        	new AlertDialog.Builder(getActivity())
-//            .setTitle("Select an Action")
-//            .setItems(mThreadItems, new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface aDialog, int aItem) {
-//                	switch(aItem) {
-//                    case 0:
-//                        displayPostReplyDialog();
-//                        break;
-//
-//                    case 1:
-//                    	toggleThreadBookmark();
-//                        break;
-//            		case 2:
-//            			rateThread();
-//            			break;
-//            		case 3:
-//            			copyThreadURL(null);
-//            			break;
-//            		case 4:
-//            			startActivity(createShareIntent());
-//                    case 5:
-//                        refresh();
-//                        break;
-//            		case 6:
-//            			toggleScreenOn();
-//                        item.setChecked(!item.isChecked());
-//            			break;
-//                	}
-//                }
-//            })
-//            .show();
-//	}
-
 	private String generateThreadUrl(String postId){
-    	StringBuffer url = new StringBuffer();
+    	StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
@@ -678,7 +661,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     }
 	
 	private String generatePostUrl(String postId){
-    	StringBuffer url = new StringBuffer();
+    	StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_GOTO);
@@ -701,18 +684,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 
 	private void copyThreadURL(String postId) {
 		String url = generateThreadUrl(postId);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
-			clipboard.setPrimaryClip(clip);
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
+		clipboard.setPrimaryClip(clip);
 
-			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		} else {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(url);
-            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		}
+		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
 	}
 
 	private void rateThread() {
@@ -1203,13 +1180,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         	if(scrollCheckBounds == null){
         		scrollCheckBounds = new int[2];
         	}else{
-        		//GOOGLE DIDN'T ADD Arrays.copyOf TILL API 9 fuck
-        		//scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
-        		int[] newScrollCheckBounds = new int[scrollCheckBounds.length+2];
-        		for(int x = 0;x<scrollCheckBounds.length;x++){
-        			newScrollCheckBounds[x]=scrollCheckBounds[x];
-        		}
-        		scrollCheckBounds = newScrollCheckBounds;
+                scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
         	}
         	scrollCheckBounds[scrollCheckBounds.length-2] = min;
         	scrollCheckBounds[scrollCheckBounds.length-1] = max;
@@ -1287,16 +1258,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 		}
 	}
 
-	private String[] gBImageUrlMenuItems = new String[]{
-			"Download Image",
-			"Show Image Inline",
-			"Open URL",
-			"Copy URL",
-			"Share URL",
-			"Always Open URL"
-	};
-	
 	private String[] imageUrlMenuItems = new String[]{
+			"Download Image",
 			"Show Image Inline",
 			"Open URL",
 			"Copy URL",
@@ -1321,7 +1284,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
-        .setItems((isImage?gBImageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
+        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
         	       	
         	
             public void onClick(DialogInterface aDialog, int aItem) {
@@ -1359,14 +1322,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 	}
 	
 	private void copyToClipboard(String text){
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText("Copied URL", text);
-			clipboard.setPrimaryClip(clip);
-		} else {
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) this.getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(text);
-		}
+		ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText("Copied URL", text);
+		clipboard.setPrimaryClip(clip);
 	}
 	
 	private void startUrlIntent(String url){

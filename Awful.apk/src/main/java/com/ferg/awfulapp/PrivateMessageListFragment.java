@@ -28,10 +28,6 @@
 package com.ferg.awfulapp;
 
 
-import com.android.volley.VolleyError;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.PMListRequest;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -55,11 +51,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 

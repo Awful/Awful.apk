@@ -27,9 +27,6 @@
 
 package com.ferg.awfulapp.provider;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.res.AssetFileDescriptor;
@@ -38,6 +35,9 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class AwfulWebProvider extends ContentProvider {
 

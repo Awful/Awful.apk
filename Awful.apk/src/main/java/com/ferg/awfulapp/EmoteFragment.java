@@ -29,7 +29,6 @@ package com.ferg.awfulapp;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;

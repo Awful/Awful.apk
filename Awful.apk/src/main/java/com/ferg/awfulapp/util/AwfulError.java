@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
+
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -20,7 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * AwfulError
- * This is an error class that ecompases all the preditcable error states we will encounter from SA server responses.
+ * This is an error class that encompasses all the predictable error states we will encounter from SA server responses.
  * This currently covers Logged out, some site down messages, and probation status.
  */
 public class AwfulError extends VolleyError{
@@ -98,7 +100,7 @@ public class AwfulError extends VolleyError{
         }
         if(null != page.getElementById("closemsg")){
             String msg = page.getElementsByClass("reason").text().trim();
-            if(msg != null && msg.length() > 0){
+            if(msg.length() > 0){
                 error = new AwfulError(ERROR_FORUM_CLOSED, "Forums Closed - "+msg);
             }else{
                 error = new AwfulError(ERROR_FORUM_CLOSED);

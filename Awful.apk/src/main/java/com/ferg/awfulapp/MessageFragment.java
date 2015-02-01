@@ -10,7 +10,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -41,7 +40,6 @@ import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 

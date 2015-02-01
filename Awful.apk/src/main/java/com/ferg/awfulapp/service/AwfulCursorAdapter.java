@@ -39,7 +39,6 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -54,7 +53,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
     private AwfulFragment mFragment;
 	private LayoutInflater inf;
 	private int mId;
-	private int selectedId = -1;
 	private AQuery aq;
 	private Messenger msgCallback;
 	
@@ -71,11 +69,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		aq = new AQuery(context);
         mFragment = fragment;
 	}
-	
-	public void setSelected(int id){
-		selectedId = id;
-	}
-	
+
 	public void setId(int id){
 		mId = id;
 	}

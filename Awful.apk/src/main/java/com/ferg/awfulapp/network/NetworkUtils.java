@@ -30,13 +30,11 @@ package com.ferg.awfulapp.network;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulURL;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.Header;
@@ -50,7 +48,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -114,6 +113,7 @@ public class NetworkUtils {
 
         if (useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
 
+            @SuppressWarnings("StringBufferReplaceableByString")
             StringBuilder cookieBuilder = new StringBuilder();
             cookieBuilder.append(Constants.COOKIE_PREF_USERID);
             cookieBuilder.append('=');
@@ -178,11 +178,7 @@ public class NetworkUtils {
                 Constants.COOKIE_PREFERENCE,
                 Context.MODE_PRIVATE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.edit().clear().apply();
-        } else {
-            prefs.edit().clear().commit();
-        }
+        prefs.edit().clear().apply();
 
         // Then the memory store
         sHttpClient.getCookieStore().clear();
@@ -251,6 +247,7 @@ public class NetworkUtils {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
                 if (cookie.getName().contains(type)) {
 
+                    @SuppressWarnings("StringBufferReplaceableByString")
                     StringBuilder oven = new StringBuilder();
 
                     oven.append(type);
@@ -367,17 +364,17 @@ public class NetworkUtils {
             UrlEncodedFormEntity post = new UrlEncodedFormEntity(paramdata, "CP1252");
             httpPost.setEntity(post);
         } else {
-            MultipartEntity post = new MultipartEntity();
+            MultipartEntityBuilder post = MultipartEntityBuilder.create();
             for (NameValuePair data : paramdata) {
                 if ("attachment".equals(data.getName())) {
                     post.addPart(data.getName(), new FileBody(new File(data.getValue())));
                 } else {
                     if (data.getValue() != null) {
-                        post.addPart(data.getName(), new StringBody(data.getValue()));
+                        post.addPart(data.getName(), new StringBody(data.getValue(), ContentType.TEXT_PLAIN));
                     }
                 }
             }
-            httpPost.setEntity(post);
+            httpPost.setEntity(post.build());
         }
 
 
@@ -418,10 +415,7 @@ public class NetworkUtils {
         ArrayList<NameValuePair> result = new ArrayList<NameValuePair>();
 
         if (aParams != null) {
-            Iterator<?> iter = aParams.entrySet().iterator();
-
-            while (iter.hasNext()) {
-                Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
+            for (Map.Entry<String, String> param : aParams.entrySet()) {
                 result.add(new BasicNameValuePair(param.getKey(), param.getValue()));
             }
         }
@@ -430,18 +424,17 @@ public class NetworkUtils {
     }
 
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
-        StringBuffer result = new StringBuffer("?");
+        StringBuilder result = new StringBuilder("?");
 
         if (aParams != null) {
             try {
                 // Loop over each parameter and add it to the query string
-                Iterator<?> iter = aParams.entrySet().iterator();
+                Iterator<Map.Entry<String,String>> iter = aParams.entrySet().iterator();
 
                 while (iter.hasNext()) {
-                    @SuppressWarnings("unchecked")
-                    Map.Entry<String, String> param = (Map.Entry<String, String>) iter.next();
+                    Map.Entry<String, String> param = iter.next();
 
-                    result.append(param.getKey() + "=" + URLEncoder.encode((String) param.getValue(), "UTF-8"));
+                    result.append(param.getKey()).append("=").append(URLEncoder.encode(param.getValue(), "UTF-8"));
 
                     if (iter.hasNext()) {
                         result.append("&");

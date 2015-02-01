@@ -27,6 +27,39 @@
 
 package com.ferg.awfulapp.thread;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.Messenger;
+import android.text.TextUtils;
+import android.text.TextUtils.TruncateAt;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.androidquery.AQuery;
+import com.ferg.awfulapp.AwfulFragment;
+import com.ferg.awfulapp.ForumDisplayFragment;
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.ColorProvider;
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.MustacheException;
+import com.samskivert.mustache.Template;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,42 +71,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import android.text.TextUtils;
-import com.android.volley.toolbox.NetworkImageView;
-import com.ferg.awfulapp.AwfulActivity;
-import com.ferg.awfulapp.AwfulFragment;
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
-import android.os.Environment;
-import android.os.Messenger;
-import android.text.TextUtils.TruncateAt;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.androidquery.AQuery;
-import com.ferg.awfulapp.ForumDisplayFragment;
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.provider.ColorProvider;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.MustacheException;
-import com.samskivert.mustache.Template;
 
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
@@ -127,7 +124,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params, statusCallback, 50);
 	}
 
-	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) throws Exception{
+	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) {
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         Element threads = aResponse.getElementById("forum");
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
@@ -362,14 +359,14 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
-        StringBuffer buffer = new StringBuffer("<!DOCTYPE html>\n<html>\n<head>\n");
+        StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
         buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
         if(!(aPrefs.forceForumThemes && forumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
-            buffer.append("<link rel='stylesheet' href='file:///"+Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme+"'>\n");
+            buffer.append("<link rel='stylesheet' href='file:///").append(Environment.getExternalStorageDirectory()).append("/awful/").append(aPrefs.theme).append("'>\n");
         }else if(aPrefs.forceForumThemes){
             switch(forumId){
     			case(26):
@@ -383,14 +380,14 @@ public class AwfulThread extends AwfulPagedItem  {
                     buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
                     break;
                 default:
-                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(aPrefs.theme).append("'>\n");
                     break;
             }
         }else{
-            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/"+aPrefs.theme+"'>\n");
+            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(aPrefs.theme).append("'>\n");
         }
         if(!aPrefs.preferredFont.contains("default")){
-            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/"+aPrefs.preferredFont+"'); }</style>\n");
+            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(aPrefs.preferredFont).append("'); }</style>\n");
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
@@ -406,7 +403,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-        StringBuffer buffer = new StringBuffer(1024);
+        StringBuilder buffer = new StringBuilder(1024);
         buffer.append("<div class='content'>\n");
 
         if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
@@ -419,7 +416,7 @@ public class AwfulThread extends AwfulPagedItem  {
             if(unreadCount < aPosts.size() && unreadCount > 0){
                 buffer.append("    <article class='toggleread'>");
                 buffer.append("      <a>\n");
-                buffer.append("        <h3>Show "+(aPosts.size()-unreadCount)+" Previous Post"+(aPosts.size()-unreadCount > 1?"s":"")+"</h3>\n");
+                buffer.append("        <h3>Show ").append(aPosts.size() - unreadCount).append(" Previous Post").append(aPosts.size() - unreadCount > 1 ? "s" : "").append("</h3>\n");
                 buffer.append("      </a>\n");
                 buffer.append("    </article>");
             }
@@ -443,8 +440,8 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
     public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
-        StringBuffer buffer = new StringBuffer();
-        Template postTemplate = null;
+        StringBuilder buffer = new StringBuilder();
+        Template postTemplate;
 
         try {
         	Reader templateReader;
@@ -538,11 +535,11 @@ public class AwfulThread extends AwfulPagedItem  {
 
         info.setVisibility(View.VISIBLE);
         StringBuilder tmp = new StringBuilder();
-        tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)+" pgs");
+        tmp.append(AwfulPagedItem.indexToPage(data.getInt(data.getColumnIndex(POSTCOUNT)), prefs.postPerPage)).append(" pgs");
         if(hasViewedThread){
-            tmp.append(" | Last: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
+            tmp.append(" | Last: ").append(NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(LASTPOSTER))));
         }else{
-            tmp.append(" | OP: "+NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
+            tmp.append(" | OP: ").append(NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
         }
 
         info.setText(tmp.toString().trim());

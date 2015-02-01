@@ -31,17 +31,21 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.*;
-
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
+
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
@@ -150,7 +154,6 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
 		}

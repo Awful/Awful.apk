@@ -1,13 +1,8 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
-import android.os.Message;
-import android.preference.PreferenceManager;
 
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 /**

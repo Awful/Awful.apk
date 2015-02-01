@@ -17,20 +17,12 @@ public class ToggleViewPager extends ViewPager{
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if(swipeEnabled){
-            return super.onInterceptTouchEvent(ev);
-        }else{
-            return false;
-        }
+        return swipeEnabled && super.onInterceptTouchEvent(ev);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if(swipeEnabled){
-            return super.onTouchEvent(ev);
-        }else{
-            return false;
-        }
+        return swipeEnabled && super.onTouchEvent(ev);
     }
 
     public void setSwipeEnabled(boolean swipe){

@@ -12,10 +12,7 @@ import com.ToxicBakery.viewpager.transforms.AccordionTransformer;
 import com.ToxicBakery.viewpager.transforms.BackgroundToForegroundTransformer;
 import com.ToxicBakery.viewpager.transforms.CubeInTransformer;
 import com.ToxicBakery.viewpager.transforms.CubeOutTransformer;
-import com.ToxicBakery.viewpager.transforms.DefaultTransformer;
 import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
-import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
-import com.ToxicBakery.viewpager.transforms.FlipVerticalTransformer;
 import com.ToxicBakery.viewpager.transforms.ForegroundToBackgroundTransformer;
 import com.ToxicBakery.viewpager.transforms.RotateDownTransformer;
 import com.ToxicBakery.viewpager.transforms.RotateUpTransformer;
@@ -32,7 +29,6 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by matt on 9/11/13.
@@ -56,23 +52,12 @@ public class AwfulUtils {
     }
 
     public static boolean isWidescreen(Context cont){
-		if(cont != null){
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
-			}else{
-				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-			}
-		}else{
-			return false;
-		}
+        return cont != null
+                && cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
 	}
 
     public static boolean isWidescreen(Configuration newConfig) {
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-			return newConfig.screenWidthDp >= Constants.WIDESCREEN_DPI;
-		}else{
-			return (newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-		}
+		return newConfig.screenWidthDp >= Constants.WIDESCREEN_DPI;
 	}
 
     /**
@@ -81,15 +66,9 @@ public class AwfulUtils {
 	 * @return True if either width or height is large enough to count as widescreen.
 	 */
 	public static boolean canBeWidescreen(Context cont){
-		if(cont != null){
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
-				return cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI || cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI;
-			}else{
-				return (cont.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) > 0;
-			}
-		}else{
-			return false;
-		}
+		return cont != null
+			&& (cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI
+				|| cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI);
 	}
 
     /**

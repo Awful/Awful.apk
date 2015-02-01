@@ -27,6 +27,25 @@
 
 package com.ferg.awfulapp.preferences;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.util.TypedValue;
+
+import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.util.AwfulUtils;
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,26 +59,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.os.Build;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.util.TypedValue;
-
-import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.util.AwfulUtils;
-import com.google.gson.Gson;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -221,11 +220,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 
     public void setUsername(String aUsername) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            mPrefs.edit().putString("username", aUsername).apply();
-        } else {
-            mPrefs.edit().putString("username", aUsername).commit();
-        }
+        mPrefs.edit().putString("username", aUsername).apply();
     }
 
 	private void updateValues(SharedPreferences prefs) {
@@ -253,7 +248,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
         highlightOP				 = mPrefs.getBoolean("op_highlight", true);
         inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (AwfulUtils.isJellybean()?true:false));
+        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
@@ -285,7 +280,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         orientation				 = mPrefs.getString("orientation", "default");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
         p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
-        immersionMode			 = AwfulUtils.isKitKat()?mPrefs.getBoolean("immersion_mode", false):false;
+        immersionMode			 = AwfulUtils.isKitKat() && mPrefs.getBoolean("immersion_mode", false);
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         transformer  		     = mPrefs.getString("transformer", "Default");
         markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
@@ -388,7 +383,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
 				
 				if(!awfulFolder.exists()){
-					awfulFolder.mkdir();
+					if (!awfulFolder.mkdir()) {
+                        Log.i(TAG, "failed to create missing awful folder!");
+					}
 				}
 				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
 
@@ -419,17 +416,18 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		for (Object setting : settings.entrySet()) {
 			HashMap.Entry entry = (HashMap.Entry) setting;
 			String classname = entry.getValue().getClass().getSimpleName();
+            String key = (String)entry.getKey();
 			if("Boolean".equals(classname)){
-				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
+				setBooleanPreference(key, (Boolean)entry.getValue());
 			}else if("String".equals(classname)){
-				setStringPreference((String)entry.getKey(), (String)entry.getValue());
+				setStringPreference(key, (String)entry.getValue());
 			}else if("Float".equals(classname)){
-				setFloatPreference((String)entry.getKey(), (Float)entry.getValue());
+				setFloatPreference(key, (Float)entry.getValue());
 			}else{
-				if(longKeys.contains((String)entry.getKey())){
-					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());
+				if(longKeys.contains(key)){
+					setLongPreference(key, ((Double)entry.getValue()).longValue());
 				}else{
-					setIntegerPreference((String)entry.getKey(), ((Double)entry.getValue()).intValue());
+					setIntegerPreference(key, ((Double)entry.getValue()).intValue());
 				}
 			}
 		}

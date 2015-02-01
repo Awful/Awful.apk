@@ -42,7 +42,7 @@ public class AlphaPatternDrawable extends Drawable {
 	private int numRectanglesVertical;
 
 	/**
-	 * Bitmap in which the pattern will be cahched.
+	 * Bitmap in which the pattern will be cached.
 	 */
 	private Bitmap		mBitmap;
 
@@ -64,12 +64,12 @@ public class AlphaPatternDrawable extends Drawable {
 
 	@Override
 	public void setAlpha(int alpha) {
-		throw new UnsupportedOperationException("Alpha is not supported by this drawwable.");
+		throw new UnsupportedOperationException("Alpha is not supported by this drawable.");
 	}
 
 	@Override
 	public void setColorFilter(ColorFilter cf) {
-		throw new UnsupportedOperationException("ColorFilter is not supported by this drawwable.");
+		throw new UnsupportedOperationException("ColorFilter is not supported by this drawable.");
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class AlphaPatternDrawable extends Drawable {
 	/**
 	 * This will generate a bitmap with the pattern
 	 * as big as the rectangle we were allow to draw on.
-	 * We do this to chache the bitmap so we don't need to
+	 * We do this to cache the bitmap so we don't need to
 	 * recreate it each time draw() is called since it
 	 * takes a few milliseconds.
 	 */

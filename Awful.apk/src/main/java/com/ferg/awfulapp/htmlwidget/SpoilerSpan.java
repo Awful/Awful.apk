@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.htmlwidget;
 
+import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
@@ -16,7 +17,7 @@ public class SpoilerSpan extends ClickableSpan {
 	}
 
 	@Override
-	public void updateDrawState(TextPaint ds) {
+	public void updateDrawState(@NonNull TextPaint ds) {
 		if(clicked){
 			ds.setColor(clickedColor);
 		}else{

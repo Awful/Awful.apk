@@ -29,6 +29,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -326,7 +327,7 @@ public class ColorPickerView extends View {
 
 		canvas.drawRect(rect, mAlphaPaint);
 
-		if(mAlphaSliderText != null && mAlphaSliderText!= ""){
+		if(mAlphaSliderText != null && !mAlphaSliderText.equals("")){
 			canvas.drawText(mAlphaSliderText, rect.centerX(), rect.centerY() + 4 * mDensity, mAlphaTextPaint);
 		}
 
@@ -562,7 +563,7 @@ public class ColorPickerView extends View {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 
 		boolean update = false;
 
@@ -650,8 +651,8 @@ public class ColorPickerView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-		int width = 0;
-		int height = 0;
+		int width;
+		int height;
 		
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -696,7 +697,7 @@ public class ColorPickerView extends View {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
-			return getPrefferedWidth();
+			return getPreferredWidth();
 		}
 	}
 
@@ -704,13 +705,13 @@ public class ColorPickerView extends View {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
-			return getPrefferedHeight();
+			return getPreferredHeight();
 		}
 	}
 
-	private int getPrefferedWidth(){
+	private int getPreferredWidth(){
 
-		int width = getPrefferedHeight();
+		int width = getPreferredHeight();
 
 		if(mShowAlphaPanel){
 			width -= (PANEL_SPACING + ALPHA_PANEL_HEIGHT);
@@ -721,7 +722,7 @@ public class ColorPickerView extends View {
 
 	}
 
-	private int getPrefferedHeight(){
+	private int getPreferredHeight(){
 
 		int height = (int)(200 * mDensity);
 
@@ -901,7 +902,7 @@ public class ColorPickerView extends View {
 			mValShader = null;
 			mSatShader = null;
 			mHueShader = null;
-			mAlphaShader = null;;
+			mAlphaShader = null;
 
 			requestLayout();
 		}

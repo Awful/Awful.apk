@@ -41,10 +41,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -52,10 +52,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.TextView;
 
-//import com.ToxicBakery.viewpager.transforms.*;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -64,11 +62,9 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.ferg.awfulapp.widget.DepthPageTransformer;
 import com.ferg.awfulapp.widget.ToggleViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.LayoutParams;
-import android.widget.TextView;
+
+//import com.ToxicBakery.viewpager.transforms.*;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static final String TAG = "ForumsIndexActivity";
@@ -109,7 +105,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         isTablet = AwfulUtils.isWidescreen(this);
-        int initialPage = -1;
+        int initialPage;
         if (savedInstanceState != null) {
             mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
             mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
@@ -267,7 +263,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if(null != avatar){
             AQuery aq = new AQuery(this);
             if(null != mPrefs.userTitle) {
-                if("" != mPrefs.userTitle){
+                if(!("".equals(mPrefs.userTitle))){
                     aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
                 }else{
                     aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
@@ -455,23 +451,23 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onResume();
         switch(mPrefs.alertIDShown+1){
             case 1:
-                    new AlertDialog.Builder(this).
-                            setTitle(getString(R.string.alert_title_1))
-                            .setMessage(getString(R.string.alert_message_1))
-                            .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
-                                }
-                            })
-                            .show();
+                new AlertDialog.Builder(this).
+                        setTitle(getString(R.string.alert_title_1))
+                        .setMessage(getString(R.string.alert_message_1))
+                        .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
+                            }
+                        })
+                        .show();
                 mPrefs.setIntegerPreference("alert_id_shown", 1);
                 break;
         }
