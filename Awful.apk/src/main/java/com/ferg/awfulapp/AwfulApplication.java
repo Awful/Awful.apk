@@ -1,31 +1,31 @@
 package com.ferg.awfulapp;
 
-import android.app.Application;
-import android.graphics.Typeface;
-import android.net.http.HttpResponseCache;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.util.AwfulUtils;
-import com.ferg.awfulapp.util.LRUImageCache;
-
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
-@ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=9bf6cd4d", formKey = Constants.ACRA_FORMKEY) 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.util.LRUImageCache;
+
+import android.app.Application;
+import android.graphics.Typeface;
+import android.net.http.HttpResponseCache;
+import android.os.Message;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+
 public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static String TAG = "AwfulApplication";
 	
@@ -39,13 +39,14 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	private Typeface currentFont;
     @Override
     public void onCreate() {
-        ACRA.init(this);
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
-        if(mPref.sendUsernameInReport){
-            ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
-        }
+
+//        if(mPref.sendUsernameInReport){
+//            ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
+//        }
         try {
             HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
         } catch (Exception e) {
