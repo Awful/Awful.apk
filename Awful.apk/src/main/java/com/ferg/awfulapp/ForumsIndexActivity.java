@@ -104,7 +104,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        isTablet = AwfulUtils.isWidescreen(this);
+        isTablet = AwfulUtils.isTablet(this);
         int initialPage;
         if (savedInstanceState != null) {
             mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
@@ -798,7 +798,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         boolean oldTab = isTablet;
-        isTablet = AwfulUtils.isWidescreen(this);
+        isTablet = AwfulUtils.isTablet(this);
         if(oldTab != isTablet && mViewPager != null){
             if(isTablet){
                 mViewPager.setPageMargin(1);

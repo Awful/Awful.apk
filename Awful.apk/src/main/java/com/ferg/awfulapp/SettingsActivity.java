@@ -448,7 +448,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         }
 
         findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
-        boolean tab = AwfulUtils.canBeWidescreen(this);
+        boolean tab = AwfulUtils.isTablet(this);
         findPreference("page_layout").setEnabled(tab);
 //        if(!tab){
 //            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));

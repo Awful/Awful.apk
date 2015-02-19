@@ -3,9 +3,13 @@ package com.ferg.awfulapp.util;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.ToxicBakery.viewpager.transforms.ABaseTransformer;
 import com.ToxicBakery.viewpager.transforms.AccordionTransformer;
@@ -51,25 +55,21 @@ public class AwfulUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
-    public static boolean isWidescreen(Context cont){
-        return cont != null
-                && cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI;
+    public static boolean isTablet(Context cont){
+        return AwfulUtils.getScreenSizeInInch(cont) >= Constants.TABLET_MIN_SIZE;
 	}
 
-    public static boolean isWidescreen(Configuration newConfig) {
-		return newConfig.screenWidthDp >= Constants.WIDESCREEN_DPI;
-	}
-
-    /**
-	 * Similar to isWidescreen(), except will check to see if this device is large enough to be considered widescreen (700dp) in either orientation, even if it isn't in the current orientation.
-	 * @param cont
-	 * @return True if either width or height is large enough to count as widescreen.
-	 */
-	public static boolean canBeWidescreen(Context cont){
-		return cont != null
-			&& (cont.getResources().getConfiguration().screenWidthDp >= Constants.WIDESCREEN_DPI
-				|| cont.getResources().getConfiguration().screenHeightDp >= Constants.WIDESCREEN_DPI);
-	}
+    public static double getScreenSizeInInch(Context cont) {
+        Display display = ((WindowManager) cont.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        DisplayMetrics dm = new DisplayMetrics();
+        display.getMetrics(dm);
+        double x = Math.pow(size.x/dm.xdpi,2);
+        double y = Math.pow(size.y/dm.ydpi,2);
+        double screenInches = Math.sqrt(x+y);
+        return screenInches;
+    }
 
     /**
 	 * Parse an int from the given string, falling back to the provided number in case of failure.
