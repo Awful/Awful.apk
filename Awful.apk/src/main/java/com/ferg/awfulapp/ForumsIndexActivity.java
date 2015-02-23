@@ -98,6 +98,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     private int mThreadId = 0;
     private int mThreadPage = 1;
 
+    private boolean mPrimeRecreate = false;
+
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
 
@@ -449,6 +451,13 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if(mPrimeRecreate) {
+            mPrimeRecreate = false;
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
         switch(mPrefs.alertIDShown+1){
             case 1:
                 new AlertDialog.Builder(this).
@@ -820,5 +829,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     public void setNavThreadId(int threadId){
         this.mNavThreadId = threadId;
+    }
+
+    @Override
+    public void afterThemeChange() {
+        this.mPrimeRecreate = true;
     }
 }
