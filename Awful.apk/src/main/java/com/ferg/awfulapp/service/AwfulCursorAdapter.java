@@ -80,8 +80,8 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulThread.getView(current, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
-		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
+//		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+//			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
@@ -99,9 +99,9 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.forum_item, parent, false);
 			assert(false);
-		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			row = inf.inflate(R.layout.post_item, parent, false);
-			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
+//		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+//			row = inf.inflate(R.layout.post_item, parent, false);
+//			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
