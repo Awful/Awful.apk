@@ -105,6 +105,8 @@
     <string name="loading_failed">Loading Failed!</string>
     <string name="critical_error">Critical Error</string>
     <string name="not_available_on_your_version">Not available on this version of Android</string>
+    <string name="min_button_text">min</string>
+    <string name="max_button_text">max</string>
 
     <!--
         Start of Settings menu strings
@@ -132,14 +134,11 @@
     </string-array>
     <string name="about_libraries_title">Libraries:</string>
     <string-array name="about_libraries_array">
-        <item>ActionBarSherlock</item>
-        <item>ActionBar Pull To Refresh</item>
-        <item>ACRA / Bugsense</item>
         <item>Apache Commons-Lang3</item>
         <item>Apache HttpClient/HttpCore/HttpMime</item>
-        <item>HtmlCleaner</item>
-        <item>JSoup</item>
         <item>AQuery</item>
+        <item>Crashlytics</item>
+        <item>JSoup</item>
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>
     <string name="open_thread_summary">The most Awful thread on the forums</string>
