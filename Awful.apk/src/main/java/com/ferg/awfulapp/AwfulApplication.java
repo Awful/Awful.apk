@@ -11,30 +11,23 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.util.LRUImageCache;
 
 import android.app.Application;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.net.http.HttpResponseCache;
-import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
-	private static String TAG = "AwfulApplication";
+	private static final String TAG = "AwfulApplication";
 	
 	private AwfulPreferences mPref;
-	private HashMap<String, Typeface> fonts = new HashMap<String, Typeface>();
+	private final HashMap<String, Typeface> fonts = new HashMap<>();
 
     private RequestQueue networkQueue;
     private ImageLoader imageLoader;
@@ -47,11 +40,10 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         Fabric.with(this, new Crashlytics());
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref);
-        Crashlytics.setUserName(mPref.username);
 
-//        if(mPref.sendUsernameInReport){
-//            ACRA.getErrorReporter().putCustomData("SA Username", mPref.username);
-//        }
+        if(mPref.sendUsernameInReport){
+			Crashlytics.setUserName(mPref.username);
+        }
 
         try {
             HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
@@ -141,9 +133,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 				fonts.put(fileName, Typeface.createFromAsset(getAssets(), fileName));
 				Log.i(TAG, "Processed Font: "+fileName);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch( RuntimeException e){
+		} catch (IOException | RuntimeException e) {
 			e.printStackTrace();
 		}
 		onPreferenceChange(mPref);
