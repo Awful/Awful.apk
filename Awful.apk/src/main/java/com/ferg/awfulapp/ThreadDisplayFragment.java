@@ -75,8 +75,10 @@ import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,7 +86,6 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorPickerPreference;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -104,7 +105,6 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -919,19 +919,35 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     }
 
     private void displayPagePicker() {
-        final NumberPicker jumpToText = new NumberPicker(getActivity());
-
-         
-        jumpToText.setRange(1, getLastPage());
-        jumpToText.setCurrent(getPage());
+		View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+		final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
+		NumberPicker.setMinValue(1);
+		NumberPicker.setMaxValue(getLastPage());
+		NumberPicker.setValue(getPage());
+		Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
+		NumberPickerMin.setText(Integer.toString(1));
+		NumberPickerMin.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				NumberPicker.setValue(1);
+			}
+		});
+		Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
+		NumberPickerMax.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				NumberPicker.setValue(getLastPage());
+			}
+		});
+		NumberPickerMax.setText(Integer.toString(getLastPage()));
         new AlertDialog.Builder(getActivity())
             .setTitle("Jump to Page")
-            .setView(jumpToText)
+            .setView(NumberPickerView)
             .setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aWhich) {
                         try {
-                            int pageInt = jumpToText.getCurrent();
+                            int pageInt = NumberPicker.getValue();
                             if (pageInt > 0 && pageInt <= getLastPage()) {
                                 goToPage(pageInt);
                             }
@@ -1211,9 +1227,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
 			preferences.put("youtubeHighlight", "#ff00ff");
 			preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
 			preferences.put("postFontSize", Integer.toString(aPrefs.postFontSizePx));
-			preferences.put("postcolor", ColorPickerPreference.convertToARGB(ColorProvider.getTextColor()));
-			preferences.put("backgroundcolor", ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor()));
-			preferences.put("linkQuoteColor", ColorPickerPreference.convertToARGB(aPrefs.getResources().getColor(R.color.link_quote)));
+			preferences.put("postcolor", ColorProvider.convertToARGB(ColorProvider.getTextColor()));
+			preferences.put("backgroundcolor", ColorProvider.convertToARGB(ColorProvider.getBackgroundColor()));
+			preferences.put("linkQuoteColor", ColorProvider.convertToARGB(aPrefs.getResources().getColor(R.color.link_quote)));
 			preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
 			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
 			preferences.put("postjumpid", mPostJump);
