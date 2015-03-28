@@ -103,8 +103,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
 
 
-        mSRL = (SwipeRefreshLayout) result.findViewById(R.id.pm_swipe);
-
 
         mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
         this.getAwfulActivity().setSupportActionBar(mToolbar);
@@ -118,13 +116,18 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.pm_swipe);
+        mSRL.setOnRefreshListener(this);
+        mSRL.setColorSchemeResources(
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
     }
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-
-        mSRL.setOnRefreshListener(this);
 
         mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
@@ -156,6 +159,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
                 @Override
                 public void success(Void result) {
                     restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
+                    mSRL.setRefreshing(false);
                 }
 
                 @Override
@@ -165,6 +169,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
                         NetworkUtils.clearLoginCookies(getAwfulActivity());
                         getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
                     }
+                    mSRL.setRefreshing(false);
                     //The error is already passed to displayAlert by the request framework.
                 }
             }));

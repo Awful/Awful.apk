@@ -46,6 +46,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -97,6 +98,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     private int mForumPage = 1;
     private int mThreadId = 0;
     private int mThreadPage = 1;
+
+    private boolean mPrimeRecreate = false;
 
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
@@ -449,6 +452,13 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if(mPrimeRecreate) {
+            mPrimeRecreate = false;
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
         switch(mPrefs.alertIDShown+1){
             case 1:
                 new AlertDialog.Builder(this).
@@ -647,13 +657,18 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void onBackPressed() {
-        if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-            if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
-                mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-            }
+        if(mDrawerLayout.isDrawerOpen(Gravity.LEFT)){
+            mDrawerLayout.closeDrawers();
         }else{
-            super.onBackPressed();
+            if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+                if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+                }
+            }else{
+                super.onBackPressed();
+            }
         }
+
     }
 
     @Override
@@ -820,5 +835,10 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     public void setNavThreadId(int threadId){
         this.mNavThreadId = threadId;
+    }
+
+    @Override
+    public void afterThemeChange() {
+        this.mPrimeRecreate = true;
     }
 }

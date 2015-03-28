@@ -59,8 +59,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,7 +83,6 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.widget.NumberPicker;
 
 import java.util.Date;
 
@@ -405,17 +406,35 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
 	}
 
 	private void displayPagePicker() {
-        final NumberPicker jumpToText = new NumberPicker(getActivity());
-        jumpToText.setRange(1, getLastPage());
-        jumpToText.setCurrent(getPage());
+        View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+        final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
+        NumberPicker.setMinValue(1);
+        NumberPicker.setMaxValue(getLastPage());
+        NumberPicker.setValue(getPage());
+        Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
+        NumberPickerMin.setText(Integer.toString(1));
+        NumberPickerMin.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(1);
+            }
+        });
+        Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
+        NumberPickerMax.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(getLastPage());
+            }
+        });
+        NumberPickerMax.setText(Integer.toString(getLastPage()));
         new AlertDialog.Builder(getActivity())
             .setTitle("Jump to Page")
-            .setView(jumpToText)
+            .setView(NumberPickerView)
             .setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aWhich) {
                         try {
-                            int pageInt = jumpToText.getCurrent();
+                            int pageInt = NumberPicker.getValue();
                             if (pageInt > 0 && pageInt <= getLastPage()) {
                                 goToPage(pageInt);
                             }

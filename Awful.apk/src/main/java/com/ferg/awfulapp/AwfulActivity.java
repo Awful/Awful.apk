@@ -209,7 +209,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         }else{
             setTheme(R.style.Theme_AwfulTheme_Dark);
         }
-        recreate();
+        afterThemeChange();
 		updateActionbarTheme(prefs);
 	}
 	
@@ -226,7 +226,9 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 
 
 	
-
+    public void afterThemeChange() {
+        recreate();
+    }
 
 	@Override
 	public File getCacheDir() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:key="root_pref_screen">
+                android:key="root_pref_screen">
     <Preference
         android:key="about"
         android:title="@string/about"
