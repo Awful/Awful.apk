@@ -168,25 +168,25 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	
 	protected void displayForum(long forumId, long page){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().displayForum((int)forumId, (int)page);
+			getAwfulActivity().displayForum((int) forumId, (int) page);
 		}
 	}
 	
     public void displayPostReplyDialog(final int threadId, final int postId, final int type) {
 		if(getAwfulActivity() != null){
-			getAwfulActivity().runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-                    if(getActivity() != null){
+			getAwfulActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (getActivity() != null) {
                         startActivityForResult(
-                            new Intent(getActivity(), PostReplyActivity.class)
-                                .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                                .putExtra(Constants.EDITING, type)
-                                .putExtra(Constants.REPLY_POST_ID, postId),
-                            PostReplyFragment.REQUEST_POST);
+                                new Intent(getActivity(), PostReplyActivity.class)
+                                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                                        .putExtra(Constants.EDITING, type)
+                                        .putExtra(Constants.REPLY_POST_ID, postId),
+                                PostReplyFragment.REQUEST_POST);
                     }
-				}
-			});
+                }
+            });
 		}
     }
 	
@@ -414,26 +414,28 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             @Override
             public void onDismiss() {
                 popupAlert = null;
-                if(popupClose != null){
+                if (popupClose != null) {
                     mHandler.removeCallbacks(popupClose);
                     popupClose = null;
                 }
             }
         });
-        popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
-        if(timeoutMillis > 0){
-            popupClose = new Runnable() {
-                @Override
-                public void run() {
-                    //TODO fade out
-                    if(popupAlert != null){
-                        popupAlert.dismiss();
-                        popupAlert = null;
-                        popupClose = null;
+        if(getView() != null) {
+            popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+            if (timeoutMillis > 0) {
+                popupClose = new Runnable() {
+                    @Override
+                    public void run() {
+                        //TODO fade out
+                        if (popupAlert != null) {
+                            popupAlert.dismiss();
+                            popupAlert = null;
+                            popupClose = null;
+                        }
                     }
-                }
-            };
-            mHandler.postDelayed(popupClose, timeoutMillis);
+                };
+                mHandler.postDelayed(popupClose, timeoutMillis);
+            }
         }
     }
 

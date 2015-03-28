@@ -568,7 +568,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
     	if(DEBUG) Log.e(TAG, "onPrepareOptionsMenu");
-        if(menu == null){
+        if(menu == null || getActivity() == null){
             return;
         }
         MenuItem nextArrow = menu.findItem(R.id.next_page);
