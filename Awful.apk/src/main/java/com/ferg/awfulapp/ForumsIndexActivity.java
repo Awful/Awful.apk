@@ -46,6 +46,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -656,13 +657,18 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void onBackPressed() {
-        if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-            if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
-                mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-            }
+        if(mDrawerLayout.isDrawerOpen(Gravity.LEFT)){
+            mDrawerLayout.closeDrawers();
         }else{
-            super.onBackPressed();
+            if(mViewPager != null && mViewPager.getCurrentItem() > 0){
+                if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+                }
+            }else{
+                super.onBackPressed();
+            }
         }
+
     }
 
     @Override
