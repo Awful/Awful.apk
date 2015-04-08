@@ -506,7 +506,11 @@ public class PostReplyFragment extends AwfulFragment {
                 message.append(epocToSimpleDate(draftReplyTimestamp));
                 message.append(" ago");
             }
-            new AlertDialog.Builder(getAwfulApplication().getApplicationContext())
+            Activity act = this.getActivity();
+            if(act == null) {
+                return;
+            }
+            new AlertDialog.Builder(act)
                     .setIcon(R.drawable.ic_menu_reply)
                     .setTitle(title)
                     .setMessage(android.text.Html.fromHtml(message.toString()))

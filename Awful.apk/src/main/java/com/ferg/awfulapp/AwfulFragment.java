@@ -59,6 +59,7 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 
 public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
@@ -68,7 +69,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
-	protected SwipeRefreshLayout mSRL;
+	protected SwipyRefreshLayout mSRL;
 
     private PopupWindow popupAlert;
     private Runnable popupClose;

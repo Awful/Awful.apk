@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
@@ -15,12 +16,13 @@
         android:id="@+id/probationbar"
         layout="@layout/probationbar" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
         android:id="@+id/forum_swipe"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:direction="top">
 
         <ListView
             android:id="@+id/forum_list"
@@ -29,7 +31,7 @@
             android:cacheColorHint="@color/background"
             android:divider="@color/alt_background"
             android:dividerHeight="1dp" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
     <include
         android:id="@+id/pagebar"

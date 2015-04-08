@@ -83,6 +83,8 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.util.Date;
 
@@ -94,7 +96,7 @@ import java.util.Date;
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
     
     private ListView mListView;
     private ImageButton mRefreshBar;
@@ -182,7 +184,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
         super.onViewCreated(view, savedInstanceState);
 
 
-        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.forum_swipe);
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
         mSRL.setColorSchemeResources(
                 android.R.color.holo_green_light,
@@ -657,7 +659,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipeRefreshL
     }
 
     @Override
-    public void onRefresh() {
+    public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
         syncForum();
     }
 

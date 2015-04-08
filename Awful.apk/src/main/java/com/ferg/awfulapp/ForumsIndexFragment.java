@@ -61,6 +61,8 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ import pl.polidea.treeview.TreeNodeInfo;
 import pl.polidea.treeview.TreeStateManager;
 import pl.polidea.treeview.TreeViewList;
 
-public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
     
     private int selectedForum = 0;
     
@@ -130,13 +132,13 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLa
         super.onViewCreated(view, savedInstanceState);
 
 
-        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.index_swipe);
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.index_swipe);
         mSRL.setOnRefreshListener(this);
         mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+				android.R.color.holo_green_light,
+				android.R.color.holo_orange_light,
+				android.R.color.holo_red_light,
+				android.R.color.holo_blue_bright);
     }
 
     @Override
@@ -248,12 +250,12 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipeRefreshLa
         }
     }
 
-    @Override
-    public void onRefresh() {
-        syncForums();
-    }
+	@Override
+	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
+		syncForums();
+	}
 
-    private class ForumContentObserver extends ContentObserver{
+	private class ForumContentObserver extends ContentObserver{
         public ForumContentObserver(Handler handler) {
             super(handler);
         }

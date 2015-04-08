@@ -285,7 +285,7 @@ SALR.prototype.highlightOwnUsername = function() {
 
     var selector = '.postcontent:contains("' + that.javascriptinterface.getPreference("username") + '")';
     
-    var re = new RegExp(that.javascriptinterface.getPreference("username"), 'g');
+    var re = new RegExp('\\b'+that.javascriptinterface.getPreference("username")+'\\b', 'g');
     var styled = '<span class="usernameHighlight">' + that.javascriptinterface.getPreference("username") + '</span>';
     $(selector).each(function() {
         getTextNodesIn(this).forEach(function(node) {
