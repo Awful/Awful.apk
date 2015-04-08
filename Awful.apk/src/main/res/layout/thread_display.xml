@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
@@ -30,17 +31,18 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-            <android.support.v4.widget.SwipeRefreshLayout
+            <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
                 android:id="@+id/thread_swipe"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                app:direction="both">
 
                 <WebView
                     android:id="@+id/thread"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:background="@color/background" />
-            </android.support.v4.widget.SwipeRefreshLayout>
+            </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
     </LinearLayout>
 
     <include

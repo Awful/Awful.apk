@@ -424,13 +424,6 @@ public class AwfulThread extends AwfulPagedItem  {
 
         buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
 
-        if(!aPrefs.disablePullNext && lastPage > page) {
-            buffer.append("    <article id='taptorefresh'>");
-            buffer.append("      <a>\n");
-            buffer.append("        <h3>Tap for next page</h3>\n");
-            buffer.append("      </a>\n");
-            buffer.append("    </article>");
-        }
         if(page == lastPage){
             buffer.append("<div class='unread' ></div>\n");
         }

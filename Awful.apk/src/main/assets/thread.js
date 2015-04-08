@@ -151,21 +151,7 @@ function pageinit() {
     $.reorient.start();
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
-    if(listener.getPreference("disablePullNext") == "false"){
-        $('#taptorefresh').click(function(){
-            listener.onNextPage();
-        });
-    }
 };
-
-
-
-// $(window).on('load', function() {
-// //listener.debugMessage('load');
-// //window.stop();
-// });
-
-
 
 function registerPreBlocks(){
     $('pre').each(function(){

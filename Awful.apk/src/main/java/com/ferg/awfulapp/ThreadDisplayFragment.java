@@ -105,6 +105,8 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -123,7 +125,7 @@ import java.util.List;
  *
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
-public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
     private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
@@ -308,13 +310,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
         super.onViewCreated(view, savedInstanceState);
 
 
-        mSRL = (SwipeRefreshLayout) view.findViewById(R.id.thread_swipe);
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.thread_swipe);
         mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
-        mSRL.setEnabled(false);
+				android.R.color.holo_green_light,
+				android.R.color.holo_orange_light,
+				android.R.color.holo_red_light,
+				android.R.color.holo_blue_bright);
+		if(mPrefs.disablePullNext){
+			mSRL.setEnabled(false);
+		}
     }
 
 
@@ -1065,17 +1069,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipeRefresh
     
     private ClickInterface clickInterface = new ClickInterface();
 
-    @Override
-    public void onRefresh() {
-        if(getPage() < mLastPage){
-            goToPage(getPage()+1);
-        }else{
-            refresh();
-        }
-    }
+	@Override
+	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
+		if(swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP){
+			refresh();
+		}else{
+			if(getPage() < mLastPage){
+				goToPage(getPage()+1);
+			}else{
+				refresh();
+			}
+		}
+	}
 
 
-    private class ClickInterface {
+	private class ClickInterface {
         public static final int SEND_PM  = 0;
         public static final int REPORT_POST = 1;
         public static final int COPY_URL = 2;
