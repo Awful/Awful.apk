@@ -28,7 +28,7 @@
 package com.ferg.awfulapp.constants;
 
 public class Constants {
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     public static final String BASE_URL = "http://forums.somethingawful.com";
 
@@ -177,6 +177,9 @@ public class Constants {
     public static final int FORUM_ID_YOSPOS = 219;
     public static final int FORUM_ID_FYAD = 26;
     public static final int FORUM_ID_FYAD_SUB = 154;
+
+    public static final int FORUM_ID_BYOB = 268;
+    public static final int FORUM_ID_COOL_CREW = 196;
 
 
 }

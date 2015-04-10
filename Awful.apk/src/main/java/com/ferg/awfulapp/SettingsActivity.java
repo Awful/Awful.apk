@@ -448,7 +448,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
         }
 
         findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
-        boolean tab = AwfulUtils.isTablet(this);
+        boolean tab = AwfulUtils.isTablet(this, true);
         findPreference("page_layout").setEnabled(tab);
 //        if(!tab){
 //            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
@@ -546,10 +546,6 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
     /** Initialise preferences on Post Settings page */
     private void initPostSettings() {
-        CheckBoxPreference pref = (CheckBoxPreference) findPreference("inline_youtube");
-        if (pref != null) {
-            pref.setEnabled(true);
-        }
     }
 
     private void setPostSummaries() {
@@ -557,7 +553,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
 
         findPreference("default_post_font_size_dip").setSummary(String.valueOf(mPrefs.postFontSizeDip));
         findPreference("default_post_fixed_font_size_dip").setSummary(String.valueOf(mPrefs.postFixedFontSizeDip));
-        findPreference("post_per_page").setSummary(String.valueOf(mPrefs.postPerPage));
+        findPreference("post_per_page2").setSummary(String.valueOf(mPrefs.postPerPage));
         // set summaries for unavailable options
         for (String key : VERSION_DEPENDENT_KEYS_LIST) {
             Preference p = (Preference) findPreference(key);

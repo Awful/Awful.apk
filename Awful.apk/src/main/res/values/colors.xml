@@ -50,6 +50,11 @@
     <color name="fyad_secondary_post_font">#999999</color>
     <color name="fyad_background">#FFCCFF</color>
     <color name="fyad_alt_background">#FFCCCC</color>
+
+    <color name="byob_default_post_font">#006666</color>
+    <color name="byob_secondary_post_font">#CCFFFF</color>
+    <color name="byob_background">#9999FF</color>
+    <color name="byob_alt_background">#CCFFFF</color>
     
     <color name="profile_column">#e7eff5</color>
     <color name="selected_item">#33eeeeee</color>

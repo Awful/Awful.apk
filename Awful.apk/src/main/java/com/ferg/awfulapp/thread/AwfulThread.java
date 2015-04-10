@@ -365,18 +365,19 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
-        if(!(aPrefs.forceForumThemes && forumId == Constants.FORUM_ID_YOSPOS) && css.exists() && css.isFile() && css.canRead()){
+        if(!(aPrefs.forceForumThemes && (forumId == Constants.FORUM_ID_YOSPOS || forumId ==  Constants.FORUM_ID_BYOB || forumId ==  Constants.FORUM_ID_COOL_CREW || forumId ==  Constants.FORUM_ID_FYAD || forumId ==  Constants.FORUM_ID_FYAD_SUB)) && css.exists() && css.isFile() && css.canRead()){
             buffer.append("<link rel='stylesheet' href='file:///").append(Environment.getExternalStorageDirectory()).append("/awful/").append(aPrefs.theme).append("'>\n");
         }else if(aPrefs.forceForumThemes){
             switch(forumId){
-    			case(26):
+                case(Constants.FORUM_ID_FYAD):
+                case(Constants.FORUM_ID_FYAD_SUB):
 	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
 	    			break;
-                //RIP BYOB
-//        		case(208):
-//        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
-//        			break;
-                case(219):
+                case(Constants.FORUM_ID_BYOB):
+                case(Constants.FORUM_ID_COOL_CREW):
+        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
+        			break;
+                case(Constants.FORUM_ID_YOSPOS):
                     buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
                     break;
                 default:
@@ -497,6 +498,9 @@ public class AwfulThread extends AwfulPagedItem  {
 			}
             if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD_SUB){
                 ForumName = ColorProvider.FYAD;
+            }
+            if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_BYOB || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_COOL_CREW){
+                ForumName = ColorProvider.BYOB;
             }
 		}
 		TextView info = (TextView) current.findViewById(R.id.threadinfo);

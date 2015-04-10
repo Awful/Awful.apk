@@ -528,7 +528,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	
     private void setForumId(int aForum) {
 		mForumId = aForum;
-		if(mPrefs != null && mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+		if(mPrefs != null && mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_YOSPOS || mForumId == Constants.FORUM_ID_BYOB)){
 			onPreferenceChange(mPrefs);
 		}
 	}
@@ -813,10 +813,13 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		if(mListView != null){
 	        if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
-	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));        	
-	        }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
                 mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.FYAD));
                 mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.FYAD));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
+                mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.BYOB));
+                mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.BYOB));
             }else{
 	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor());
 	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
@@ -826,9 +829,12 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
 				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
-			}else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
                 aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.FYAD));
                 aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.FYAD));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
+                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.BYOB));
+                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.BYOB));
             }else{
 				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
 				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());

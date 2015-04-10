@@ -13,6 +13,10 @@ padding:0;
 margin:0;
 }
 
+.container {
+padding-bottom: 75px;
+}
+
 div.avatar {
 position:relative;
 display: table-cell;

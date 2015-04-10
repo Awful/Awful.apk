@@ -34,25 +34,25 @@ public class IndexRequest extends AwfulRequest<Void> {
 
         //optional section, parses username from PM notification field.
         Elements pmBlock = doc.getElementsByAttributeValue("id", "pm");
-        try{
-            if(pmBlock.size() >0){
+        try {
+            if (pmBlock.size() > 0) {
                 Elements bolded = pmBlock.first().getElementsByTag("b");
-                if(bolded.size() > 1){
+                if (bolded.size() > 1) {
                     String name = bolded.first().text().split("'")[0];
                     String unread = bolded.get(1).text();
                     Pattern findUnread = Pattern.compile("(\\d+)\\s+unread");
                     Matcher matchUnread = findUnread.matcher(unread);
                     int unreadCount = -1;
-                    if(matchUnread.find()){
+                    if (matchUnread.find()) {
                         unreadCount = Integer.parseInt(matchUnread.group(1));
                     }
                     Log.v("IndexRequest", "text: " + name + " - " + unreadCount);
-                    if(name != null && name.length() > 0){
-                        getPreferences().setUsername(name);
+                    if (name != null && name.length() > 0) {
+                        getPreferences().setStringPreference("username", name);
                     }
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             //this chunk is optional, no need to fail everything if it doesn't work out.
         }
         return null;

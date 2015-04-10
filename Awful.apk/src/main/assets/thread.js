@@ -151,6 +151,11 @@ function pageinit() {
     $.reorient.start();
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
+    $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend',function(){
+        listener.resumeSwipe();
+    }).on('touchstart',function(){
+        listener.haltSwipe();
+    })
 };
 
 function registerPreBlocks(){

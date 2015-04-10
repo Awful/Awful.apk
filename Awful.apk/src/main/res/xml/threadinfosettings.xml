@@ -12,7 +12,7 @@
           android:key="wrap_thread_titles"
           android:title="@string/wrap_titles"
           android:summary="@string/wrap_titles_summary"
-          android:defaultValue="true"
+          android:defaultValue="false"
           />
 		<CheckBoxPreference 
             android:key="color_bookmarks" 
@@ -23,7 +23,7 @@
         <CheckBoxPreference
           android:key="threadinfo_rating"
           android:title="@string/threadinfo_rating"
-          android:defaultValue="false"
+          android:defaultValue="true"
           />
       <PreferenceCategory android:title="@string/new_threads_first_category">
           <CheckBoxPreference

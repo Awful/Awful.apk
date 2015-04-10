@@ -88,6 +88,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean sendUsernameInReport;
 	public float scaleFactor;
 	public String orientation;
+	public String pageLayout;
 	
 	//THEME STUFF
 	public int postFontSizeDip;
@@ -137,7 +138,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean wrapThreadTitles;
     
     //EXPERIMENTAL STUFF
-    public boolean inlineYoutube;
+	public boolean inlineYoutube;
+	public boolean inlineTweets;
+	public boolean inlineVines;
+	public boolean inlineWebm;
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
@@ -219,10 +223,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-    public void setUsername(String aUsername) {
-        mPrefs.edit().putString("username", aUsername).apply();
-    }
-
 	private void updateValues(SharedPreferences prefs) {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
@@ -241,18 +241,21 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
-        postPerPage              = Math.max(Math.min(mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE), Constants.ITEMS_PER_PAGE),1);//can't make the preference page honor a max value
-       	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
+        postPerPage              = Math.max(Math.min(Integer.valueOf(mPrefs.getString("post_per_page2", String.valueOf(Constants.ITEMS_PER_PAGE))), Constants.ITEMS_PER_PAGE), 1);//can't make the preference page honor a max value
+       	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds", false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
         highlightOP				 = mPrefs.getBoolean("op_highlight", true);
-        inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+		inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+		inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
+		inlineVines            = mPrefs.getBoolean("inline_vines", false);
+		inlineWebm            = mPrefs.getBoolean("inline_webm", false);
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
-        wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
+        wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
-        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", false);
+        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", true);
         threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
         threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
         threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
@@ -264,10 +267,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);
-        hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
+        hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", true);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
-        disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
+        disableTimgs			 = mPrefs.getBoolean("disable_timgs", false);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
@@ -277,7 +280,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         userId					 = mPrefs.getInt("user_id", 0);
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
-        orientation				 = mPrefs.getString("orientation", "default");
+		orientation				 = mPrefs.getString("orientation", "default");
+		pageLayout				 = mPrefs.getString("page_layout", "auto");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
         p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
         immersionMode			 = AwfulUtils.isKitKat() && mPrefs.getBoolean("immersion_mode", false);

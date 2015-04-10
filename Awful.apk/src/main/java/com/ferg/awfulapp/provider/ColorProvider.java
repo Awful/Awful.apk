@@ -12,7 +12,8 @@ public class ColorProvider {
 	public static final String CLASSIC 	= "classic.css";
 	public static final String YOSPOS 	= "yospos.css";
     public static final String AMBERPOS = "amberpos.css";
-    public static final String FYAD     = "fyad.css";
+	public static final String FYAD     = "fyad.css";
+	public static final String BYOB     = "byob.css";
 
     public static final int[] BOOKMARK_COLORS = {R.color.bookmark_default, R.color.bookmark_orange, R.color.bookmark_red, R.color.bookmark_yellow};
     public static final int[] BOOKMARK_COLORS_DIM = {R.color.bookmark_default_dim, R.color.bookmark_orange_dim, R.color.bookmark_red_dim, R.color.bookmark_yellow_dim};
@@ -35,9 +36,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_default_post_font);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_default_post_font);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_default_post_font);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_default_post_font);
+		}
 		if(theme.endsWith(CLASSIC)){
 			return prefs.getResources().getColor(R.color.default_post_font);
 		}
@@ -61,9 +65,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_secondary_post_font);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_secondary_post_font);
+		}
 		if(theme.endsWith(CLASSIC)){
 			return prefs.getResources().getColor(R.color.secondary_post_font);
 		}
@@ -87,9 +94,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_background);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_background);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_background);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_background);
+		}
 		if(theme.endsWith(CLASSIC)){
 			return prefs.getResources().getColor(R.color.background);
 		}
@@ -123,9 +133,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_default_post_font);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_default_post_font);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_default_post_font);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_default_post_font);
+		}
 		if(theme.endsWith(CLASSIC)){
 			return prefs.getResources().getColor(R.color.bookmark_default);
 		}
@@ -145,9 +158,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_default_post_font);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_secondary_post_font);
+		}
 		if(theme.endsWith(CLASSIC)){
 			return prefs.getResources().getColor(R.color.bookmark_default_dim);
 		}
@@ -236,9 +252,12 @@ public class ColorProvider {
         if(theme.endsWith(AMBERPOS)){
             return prefs.getResources().getColor(R.color.amberpos_default_post_font);
         }
-        if(theme.endsWith(FYAD)){
-            return prefs.getResources().getColor(R.color.fyad_alt_background);
-        }
+		if(theme.endsWith(FYAD)){
+			return prefs.getResources().getColor(R.color.fyad_alt_background);
+		}
+		if(theme.endsWith(BYOB)){
+			return prefs.getResources().getColor(R.color.byob_alt_background);
+		}
         if(theme.endsWith(CLASSIC)){
             return prefs.getResources().getColor(R.color.holo_blue_light);
         }
@@ -250,14 +269,9 @@ public class ColorProvider {
 	}
 
 	public static String convertToARGB(int color) {
-		//String alpha = Integer.toHexString(Color.alpha(color));
 		String red = Integer.toHexString(Color.red(color));
 		String green = Integer.toHexString(Color.green(color));
 		String blue = Integer.toHexString(Color.blue(color));
-
-		//if (alpha.length() == 1) {
-		//    alpha = "0" + alpha;
-		//}
 
 		if (red.length() == 1) {
 			red = "0" + red;

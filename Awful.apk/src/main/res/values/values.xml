@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
-    <!-- Specifies a background drawable for the action bar. -->
     <attr name="sidebarAvatarOverlayBackground" format="color" />
+    <attr name="justPostButtonColor" format="color" />
+    <attr name="justPostButtonColorPressed" format="color" />
 </resources>

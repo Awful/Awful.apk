@@ -60,6 +60,7 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
@@ -227,6 +228,8 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     @Override
     public void requestStarted(AwfulRequest req) {
         if(mSRL != null){
+            // P2R Library is ... awful - part 1
+            mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
             mSRL.setRefreshing(true);
         }
     }
@@ -240,6 +243,12 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public void requestEnded(AwfulRequest req, VolleyError error) {
         if(mSRL != null){
             mSRL.setRefreshing(false);
+            // P2R Library is ... awful - part 2
+            if(this instanceof ThreadDisplayFragment){
+                mSRL.setDirection(SwipyRefreshLayoutDirection.BOTH);
+            }else{
+                mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
+            }
         }
         if(error instanceof AwfulError){
             displayAlert((AwfulError) error);

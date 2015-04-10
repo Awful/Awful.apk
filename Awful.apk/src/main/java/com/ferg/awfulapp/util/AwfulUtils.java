@@ -39,25 +39,37 @@ import java.util.HashMap;
  */
 public class AwfulUtils {
 
-    public static boolean isJellybean(){
+    public static boolean isJellybean() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
 
-    public static boolean isKitKat(){
+    public static boolean isKitKat() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
-    public static boolean isKitKatOnly(){
+    public static boolean isKitKatOnly() {
         return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
     }
 
-    public static boolean isLollipop(){
+    public static boolean isLollipop() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
-    public static boolean isTablet(Context cont){
+    public static boolean isTablet(Context cont, boolean forceCheck) {
+        if (!forceCheck) {
+            if (AwfulPreferences.getInstance().pageLayout.equals("phone")) {
+                return false;
+            }
+            if (AwfulPreferences.getInstance().pageLayout.equals("tablet")) {
+                return true;
+            }
+        }
         return AwfulUtils.getScreenSizeInInch(cont) >= Constants.TABLET_MIN_SIZE;
-	}
+    }
+
+    public static boolean isTablet(Context cont) {
+        return isTablet(cont, false);
+    }
 
     public static double getScreenSizeInInch(Context cont) {
         Display display = ((WindowManager) cont.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -65,63 +77,65 @@ public class AwfulUtils {
         display.getSize(size);
         DisplayMetrics dm = new DisplayMetrics();
         display.getMetrics(dm);
-        double x = Math.pow(size.x/dm.xdpi,2);
-        double y = Math.pow(size.y/dm.ydpi,2);
-        double screenInches = Math.sqrt(x+y);
+        double x = Math.pow(size.x / dm.xdpi, 2);
+        double y = Math.pow(size.y / dm.ydpi, 2);
+        double screenInches = Math.sqrt(x + y);
         return screenInches;
     }
 
     /**
-	 * Parse an int from the given string, falling back to the provided number in case of failure.
-	 * @param number String containing the int to be parsed.
-	 * @param fallback Number to return if parsing fails.
-	 * @return Either the parsed number or the fallback.
-	 */
-	public static int safeParseInt(String number, int fallback){
-		try{
-			return Integer.parseInt(number);
-		}catch(NumberFormatException nfe){
-			return fallback;
-		}
-	}
-
-    /**
-	 * Parse an long from the given string, falling back to the provided number in case of failure.
-	 * @param number String containing the long to be parsed.
-	 * @param fallback Number to return if parsing fails.
-	 * @return Either the parsed number or the fallback.
-	 */
-	public static long safeParseLong(String number, long fallback){
-		try{
-			return Long.parseLong(number);
-		}catch(NumberFormatException nfe){
-			return fallback;
-		}
-	}
-
-    public static String LogE(String tag, String message) {
-		Log.e(tag, message);
-		return message;
-	}
-
-    public static float getPixelsFromDIP(Context context, int dipValue) {
-		if(context != null){
-			return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, context.getResources().getDisplayMetrics());
-		}
-		return dipValue;
-	}
-
-    public static void trimDbEntries(ContentResolver cr){
-        int rowCount = 0;
-        rowCount += cr.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-        rowCount += cr.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-        rowCount += cr.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-        rowCount += cr.delete(AwfulEmote.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP+" < datetime('now','-7 days')", null);
-        Log.i("AwfulTrimDB","Trimming DB older than 7 days, culled: "+rowCount);
+     * Parse an int from the given string, falling back to the provided number in case of failure.
+     *
+     * @param number   String containing the int to be parsed.
+     * @param fallback Number to return if parsing fails.
+     * @return Either the parsed number or the fallback.
+     */
+    public static int safeParseInt(String number, int fallback) {
+        try {
+            return Integer.parseInt(number);
+        } catch (NumberFormatException nfe) {
+            return fallback;
+        }
     }
 
-    public static ABaseTransformer getViewPagerTransformer(){
-        HashMap<String,ABaseTransformer> transformerMap = new HashMap<String,ABaseTransformer>();
+    /**
+     * Parse an long from the given string, falling back to the provided number in case of failure.
+     *
+     * @param number   String containing the long to be parsed.
+     * @param fallback Number to return if parsing fails.
+     * @return Either the parsed number or the fallback.
+     */
+    public static long safeParseLong(String number, long fallback) {
+        try {
+            return Long.parseLong(number);
+        } catch (NumberFormatException nfe) {
+            return fallback;
+        }
+    }
+
+    public static String LogE(String tag, String message) {
+        Log.e(tag, message);
+        return message;
+    }
+
+    public static float getPixelsFromDIP(Context context, int dipValue) {
+        if (context != null) {
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, context.getResources().getDisplayMetrics());
+        }
+        return dipValue;
+    }
+
+    public static void trimDbEntries(ContentResolver cr) {
+        int rowCount = 0;
+        rowCount += cr.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
+        rowCount += cr.delete(AwfulPost.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
+        rowCount += cr.delete(AwfulThread.CONTENT_URI_UCP, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
+        rowCount += cr.delete(AwfulEmote.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
+        Log.i("AwfulTrimDB", "Trimming DB older than 7 days, culled: " + rowCount);
+    }
+
+    public static ABaseTransformer getViewPagerTransformer() {
+        HashMap<String, ABaseTransformer> transformerMap = new HashMap<String, ABaseTransformer>();
         transformerMap.put("Disabled", null);
         transformerMap.put("Accordion", new AccordionTransformer());
         transformerMap.put("BackgroundToForeground", new BackgroundToForegroundTransformer());
