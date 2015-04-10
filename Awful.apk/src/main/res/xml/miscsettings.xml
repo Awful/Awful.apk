@@ -54,12 +54,6 @@
 
         <PreferenceCategory android:title="@string/misc_category_navigation">
             <CheckBoxPreference
-                android:key="upper_next_arrow"
-                android:title="@string/show_next_page_button_at_top"
-                android:summary="@string/show_next_page_button_at_top_summary"
-                android:defaultValue="false"
-                />
-            <CheckBoxPreference
                 android:key="disable_pull_next"
                 android:title="@string/disable_pull_next"
                 android:summary="@string/disable_pull_next_summary"

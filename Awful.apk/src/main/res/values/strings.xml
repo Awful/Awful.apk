@@ -191,6 +191,12 @@
     <string name="op_highlight_summary">Use a themed background color</string>
     <string name="inline_videos">Embed videos</string>
     <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_tweets">Embed tweets</string>
+    <string name="inline_tweets_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_vines">Embed vines</string>
+    <string name="inline_vines_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_webm">Embed webm/gifvs</string>
+    <string name="inline_webm_summary">May cause scroll lag/graphical glitches</string>
     <string name="show_spoilers">Show all spoilers</string>
     <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
@@ -229,10 +235,11 @@
         <item>YOSPOS</item>
         <item>AmberPOS</item>
         <item>FYAD</item>
+        <item>BYOB</item>
         <item>Classic</item>
     </string-array>
     <string name="force_forum_themes">Force forum themes</string>
-    <string name="force_forum_themes_summary">Specific theme in YOSPOS and FYAD</string>
+    <string name="force_forum_themes_summary">Specific theme in YOSPOS, BYOB and FYAD</string>
     <string name="layouts">Layout</string>
     <string-array name="layouts">
         <item>Default</item>

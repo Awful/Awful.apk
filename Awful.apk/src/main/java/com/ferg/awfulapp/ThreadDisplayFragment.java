@@ -105,6 +105,7 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -139,6 +140,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
+
+	private FloatingActionButton mFAB;
 
     private WebView mThreadView;
 
@@ -175,6 +178,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private ThreadDisplayFragment mSelf = this;
 
 
+
+
     private String bodyHtml = "";
     private AsyncTask<Void, Void, String> redirect = null;
 
@@ -197,7 +202,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @Override
 		public void onPageFinished(WebView view, String url) {
-			Log.e(TAG,"PageFinished");
+			Log.e(TAG, "PageFinished");
 			setProgress(100);
             if(bodyHtml != null && bodyHtml.length() > 0){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
@@ -299,6 +304,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mProbationBar = (View) result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
+		mFAB.setOnClickListener(onButtonClick);
+		mFAB.setVisibility(View.GONE);
 		updateProbationBar();
 
 		return result;
@@ -346,15 +354,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
         if(DEBUG && AwfulUtils.isKitKat()) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
-        if(mPrefs.inlineYoutube){//YOUTUBE SUPPORT BLOWS
-        	mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
-        }
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
+			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
+		}
+		if (mPrefs.inlineWebm || mPrefs.inlineVines) {
+			mThreadView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+		}
+		if (mPrefs.inlineTweets && AwfulUtils.isJellybean()) {
+			mThreadView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+			mThreadView.getSettings().setAllowFileAccessFromFileURLs(true);
+			mThreadView.getSettings().setAllowFileAccess(true);
+			mThreadView.getSettings().setAllowContentAccess(true);
+		}
 
-        if(!mPrefs.enableHardwareAcceleration){
-            mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-        }
+		if (!mPrefs.enableHardwareAcceleration) {
+			mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+		}
 
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
@@ -575,10 +592,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(menu == null || getActivity() == null){
             return;
         }
-        MenuItem nextArrow = menu.findItem(R.id.next_page);
-        if(nextArrow != null){
-        	nextArrow.setVisible(mPrefs.upperNextArrow);
-        }
         MenuItem find = menu.findItem(R.id.find);
         if(find != null){
             find.setVisible(true);
@@ -591,15 +604,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                 bk.setTitle((threadBookmarked? getString(R.string.unbookmark):getString(R.string.bookmark)));
             }
             bk.setEnabled(!threadArchived);
-        }
-        MenuItem re = menu.findItem(R.id.reply);
-        if(re != null){
-            re.setEnabled(!threadClosed && !mPrefs.isOnProbation());
-            if(threadClosed){
-                re.setTitle("Thread Locked");
-            }else {
-                re.setTitle(R.string.post_reply);
-            }
         }
         MenuItem screen = menu.findItem(R.id.keep_screen_on);
         if(screen != null){
@@ -614,9 +618,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         switch(item.getItemId()) {
             case R.id.next_page:
             	goToPage(getPage() + 1);
-                break;
-            case R.id.reply:
-                displayPostReplyDialog();
                 break;
     		case R.id.rate_thread:
     			rateThread();
@@ -1016,15 +1017,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                     	goToPage(getPage() - 1);
             		}
                     break;
-                case R.id.reply:
-                    displayPostReplyDialog();
-                    break;
                 case R.id.refresh:
                 	refresh();
                     break;
-                case R.id.page_count:
-                	displayPagePicker();
-                	break;
+				case R.id.page_count:
+					displayPagePicker();
+					break;
                 case R.id.toggle_sidebar:
                     if (getPage() == getLastPage()) {
                         refresh();
@@ -1032,6 +1030,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                         goToPage(getPage() + 1);
                     }
                 	break;
+				case R.id.just_post:
+					displayPostReplyDialog();
+					break;
             }
         }
     };
@@ -1171,7 +1172,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public void debugMessage(final String msg) {
-        	Log.e(TAG,"Awful DEBUG: "+msg);
+        	Log.e(TAG, "Awful DEBUG: " + msg);
         }
 
         @JavascriptInterface
@@ -1182,11 +1183,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         @JavascriptInterface
         public void onNextPage() {
             mThreadView.post((new Runnable() {
-                @Override
-                public void run() {
-                    nextPageClick();
-                }
-            }));
+				@Override
+				public void run() {
+					nextPageClick();
+				}
+			}));
         }
 
         @JavascriptInterface
@@ -1240,17 +1241,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			preferences.put("linkQuoteColor", ColorProvider.convertToARGB(aPrefs.getResources().getColor(R.color.link_quote)));
 			preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
 			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
+			preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
+			preferences.put("inlineWebm", Boolean.toString(aPrefs.inlineWebm));
+			preferences.put("inlineVines", Boolean.toString(aPrefs.inlineVines));
 			preferences.put("postjumpid", mPostJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
             preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
             preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
             preferences.put("disablePullNext",Boolean.toString(aPrefs.disablePullNext));
         }
-        
-        @JavascriptInterface
-        public String getPreference(String preference) {
-            return preferences.get(preference);
-        }
+
+		@JavascriptInterface
+		public String getPreference(String preference) {
+			return preferences.get(preference);
+		}
+		@JavascriptInterface
+		public void haltSwipe() {
+			((ForumsIndexActivity)mSelf.getAwfulActivity()).preventSwipe();
+		}
+		@JavascriptInterface
+		public void resumeSwipe() {
+			((ForumsIndexActivity)mSelf.getAwfulActivity()).reenableSwipe();
+		}
 
     }
     
@@ -1536,6 +1548,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		}
                 invalidateOptionsMenu();
                 parent.setNavigationDrawer();
+				mFAB.setVisibility(View.VISIBLE);
+				if(threadClosed || threadArchived){
+					mFAB.setEnabled(false);
+				}else{
+					mFAB.setEnabled(true);
+				}
         	}
         }
         
@@ -1693,25 +1711,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 	}
 
-//	@Override
-//	public boolean canScrollX(int x, int y) {
-//		if(mPrefs.lockScrolling){
-//			return true;
-//		}
-//		if(mThreadView == null || scrollCheckBounds == null){
-//			return false;
-//		}
-//		y = y+mThreadView.getScrollY()+mThreadView.getTop();
-//		if(y > scrollCheckMaxBound || y < scrollCheckMinBound){
-//			return false;
-//		}
-//		for(int ix = 0; ix < scrollCheckBounds.length-1;ix+=2){
-//			if(y > scrollCheckBounds[ix] && y < scrollCheckBounds[ix+1]){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	public boolean canScrollX() {
+		return false;
+	}
 
 
 	@Override
@@ -1755,16 +1757,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     
     private String determineCSS(){
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
-        if(!(mPrefs.forceForumThemes && (mParentForumId == Constants.FORUM_ID_YOSPOS || mParentForumId == Constants.FORUM_ID_FYAD || mParentForumId == Constants.FORUM_ID_FYAD_SUB) ) && css.exists() && css.isFile() && css.canRead()){
+        if(!(mPrefs.forceForumThemes && (mParentForumId == Constants.FORUM_ID_YOSPOS || mParentForumId == Constants.FORUM_ID_FYAD || mParentForumId == Constants.FORUM_ID_FYAD_SUB || mParentForumId == Constants.FORUM_ID_BYOB || mParentForumId == Constants.FORUM_ID_COOL_CREW) ) && css.exists() && css.isFile() && css.canRead()){
         	return "file:///"+Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme;
         }else if(mPrefs.forceForumThemes){
         	switch(mParentForumId){
     			case(Constants.FORUM_ID_FYAD):
                 case(Constants.FORUM_ID_FYAD_SUB):
 	    			return "file:///android_asset/css/fyad.css";
-        		//RIP BYOB
-//        		case(208):
-//        			return "file:///android_asset/css/byob.css";
+				case(Constants.FORUM_ID_BYOB):
+				case(Constants.FORUM_ID_COOL_CREW):
+        			return "file:///android_asset/css/byob.css";
         		case(Constants.FORUM_ID_YOSPOS):
         			return "file:///android_asset/css/yospos.css";
         		default:

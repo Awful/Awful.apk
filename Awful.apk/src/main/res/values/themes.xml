@@ -10,6 +10,8 @@
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/background</item>
         <item name="sidebarAvatarOverlayBackground">@color/sidebarOverlay</item>
+        <item name="justPostButtonColor">@color/forums_blue</item>
+        <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
         <!-- The rest of your attributes -->
@@ -24,10 +26,36 @@
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/dark_alt_background</item>
         <item name="sidebarAvatarOverlayBackground">@color/sidebarOverlay_dark</item>
-
-
+        <item name="justPostButtonColor">@color/dark_background</item>
+        <item name="justPostButtonColorPressed">@color/dark_alt_background</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <!-- The rest of your attributes -->
+    </style>
+
+    <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.Dark">
+        <item name="colorAccent">@color/yospos_default_post_font</item>
+        <item name="justPostButtonColor">@color/yospos_default_post_font</item>
+        <item name="justPostButtonColorPressed">@color/yospos_secondary_post_font</item>
+    </style>
+
+    <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.Dark">
+        <item name="colorAccent">@color/amberpos_default_post_font</item>
+        <item name="justPostButtonColor">@color/amberpos_default_post_font</item>
+        <item name="justPostButtonColorPressed">@color/amberpos_secondary_post_font</item>
+    </style>
+
+    <style name="Theme.AwfulTheme.BYOB" parent="Theme.AwfulTheme">
+        <item name="colorAccent">@color/byob_secondary_post_font</item>
+        <item name="justPostButtonColor">@color/byob_background</item>
+        <item name="justPostButtonColorPressed">@color/byob_alt_background</item>
+        <item name="background">@color/byob_alt_background</item>
+    </style>
+
+    <style name="Theme.AwfulTheme.FYAD" parent="Theme.AwfulTheme">
+        <item name="colorAccent">@color/fyad_alt_background</item>
+        <item name="justPostButtonColor">@color/fyad_background</item>
+        <item name="justPostButtonColorPressed">@color/fyad_alt_background</item>
+        <item name="background">@color/fyad_alt_background</item>
     </style>
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">

@@ -1,18 +1,19 @@
-/********************************************************************************
+/**
+ * *****************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- *
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the software nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the software nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p/>
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,7 +24,8 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ * *****************************************************************************
+ */
 
 package com.ferg.awfulapp;
 
@@ -112,9 +114,9 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (savedInstanceState != null) {
             mForumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
             mForumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
-            setThreadPage(savedInstanceState.getInt(Constants.THREAD_PAGE,1));
-            setThreadId(savedInstanceState.getInt(Constants.THREAD_ID,0));
-            initialPage = savedInstanceState.getInt("viewPage",-1);
+            setThreadPage(savedInstanceState.getInt(Constants.THREAD_PAGE, 1));
+            setThreadId(savedInstanceState.getInt(Constants.THREAD_ID, 0));
+            initialPage = savedInstanceState.getInt("viewPage", -1);
         } else {
             initialPage = parseNewIntent(getIntent());
         }
@@ -123,11 +125,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if(!isTablet && !mPrefs.transformer.equals("Disabled")) {
+        if (!isTablet && !mPrefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
         mViewPager.setOffscreenPageLimit(2);
-        if(isTablet){
+        if (isTablet) {
             mViewPager.setPageMargin(1);
             //TODO what color should it use here?
             mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
@@ -202,10 +204,10 @@ public class ForumsIndexActivity extends AwfulActivity {
         final Activity self = this;
 
         TextView navIndex = (TextView) findViewById(R.id.sidebar_index);
-        if(null != navIndex){
+        if (null != navIndex) {
             navIndex.setVisibility(View.VISIBLE);
             navIndex.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view){
+                public void onClick(View view) {
                     displayForumIndex();
                     mDrawerLayout.closeDrawers();
                 }
@@ -214,35 +216,35 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         TextView navForum = (TextView) findViewById(R.id.sidebar_forum);
-        if(null != navForum){
-            if(mNavForumId != 0) {
+        if (null != navForum) {
+            if (mNavForumId != 0) {
                 navForum.setVisibility(View.VISIBLE);
                 navForum.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view){
+                    public void onClick(View view) {
                         displayForum(mNavForumId, 1);
                         mDrawerLayout.closeDrawers();
                     }
                 });
                 navForum.setText(StringProvider.getForumName(this, mNavForumId));
-            }else{
+            } else {
                 navForum.setVisibility(View.GONE);
             }
         }
 
         TextView navThread = (TextView) findViewById(R.id.sidebar_thread);
-        if(null != navThread){
-            if(mNavThreadId != 0) {
-                Log.d(TAG,"NavThread, Navforum: "+ mNavThreadId+" "+mNavForumId);
+        if (null != navThread) {
+            if (mNavThreadId != 0) {
+                Log.d(TAG, "NavThread, Navforum: " + mNavThreadId + " " + mNavForumId);
                 navThread.setVisibility(View.VISIBLE);
                 navThread.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage,false);
+                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage, false);
 
                         mDrawerLayout.closeDrawers();
                     }
                 });
                 navThread.setText(StringProvider.getThreadName(this, mNavThreadId));
-            }else{
+            } else {
                 navThread.setVisibility(View.GONE);
             }
         }
@@ -259,24 +261,24 @@ public class ForumsIndexActivity extends AwfulActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         TextView username = (TextView) findViewById(R.id.sidebar_username);
-        if(null != username){
+        if (null != username) {
             username.setText(mPrefs.username);
         }
         ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
-        if(null != avatar){
+        if (null != avatar) {
             AQuery aq = new AQuery(this);
-            if(null != mPrefs.userTitle) {
-                if(!("".equals(mPrefs.userTitle))){
+            if (null != mPrefs.userTitle) {
+                if (!("".equals(mPrefs.userTitle))) {
                     aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
-                }else{
+                } else {
                     aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
                 }
             }
         }
         TextView logout = (TextView) findViewById(R.id.sidebar_logout);
-        if(null != logout){
+        if (null != logout) {
             logout.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view){
+                public void onClick(View view) {
                     mDrawerLayout.closeDrawers();
                     new LogOutDialog(self).show();
                 }
@@ -285,11 +287,11 @@ public class ForumsIndexActivity extends AwfulActivity {
             logout.setVisibility(View.VISIBLE);
         }
         TextView messages = (TextView) findViewById(R.id.sidebar_pm);
-        if(null != messages){
+        if (null != messages) {
             messages.setEnabled(mPrefs.hasPlatinum);
-            messages.setVisibility(mPrefs.hasPlatinum?View.VISIBLE:View.GONE);
+            messages.setVisibility(mPrefs.hasPlatinum ? View.VISIBLE : View.GONE);
             messages.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view){
+                public void onClick(View view) {
                     mDrawerLayout.closeDrawers();
                     startActivity(new Intent().setClass(self, PrivateMessageActivity.class));
                 }
@@ -297,9 +299,9 @@ public class ForumsIndexActivity extends AwfulActivity {
             messages.setText(getResources().getText(R.string.private_message));
         }
         TextView bookmarks = (TextView) findViewById(R.id.sidebar_bookmarks);
-        if(null != bookmarks){
+        if (null != bookmarks) {
             bookmarks.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view){
+                public void onClick(View view) {
                     mDrawerLayout.closeDrawers();
                     startActivity(new Intent().setClass(self, ForumsIndexActivity.class)
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -308,12 +310,12 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             });
             bookmarks.setText(getResources().getText(R.string.user_cp));
-            bookmarks.setVisibility((Constants.USERCP_ID == mNavForumId?View.GONE:View.VISIBLE));
+            bookmarks.setVisibility((Constants.USERCP_ID == mNavForumId ? View.GONE : View.VISIBLE));
         }
         TextView settings = (TextView) findViewById(R.id.sidebar_settings);
-        if(null != settings){
+        if (null != settings) {
             settings.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view){
+                public void onClick(View view) {
                     mDrawerLayout.closeDrawers();
                     startActivity(new Intent().setClass(self, SettingsActivity.class));
                 }
@@ -329,7 +331,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat()&& mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -393,42 +395,43 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent); if(DEBUG) Log.e(TAG, "onNewIntent");
+        super.onNewIntent(intent);
+        if (DEBUG) Log.e(TAG, "onNewIntent");
         setIntent(intent);
         int initialPage = parseNewIntent(intent);
-        if(mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0){
+        if (mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0) {
             mViewPager.setCurrentItem(initialPage);
         }
-        if(mForumFragment != null){
+        if (mForumFragment != null) {
             mForumFragment.openForum(mForumId, mForumPage);
         }
-        if(mThreadFragment != null){
-            if(url.isThread() || url.isPost()){
+        if (mThreadFragment != null) {
+            if (url.isThread() || url.isPost()) {
                 mThreadFragment.openThread(url);
-            }else if(intent.getIntExtra(Constants.THREAD_ID, 0) > 0){
+            } else if (intent.getIntExtra(Constants.THREAD_ID, 0) > 0) {
                 mThreadFragment.openThread(mThreadId, mThreadPage);
             }
         }
     }
 
-    private int parseNewIntent(Intent intent){
+    private int parseNewIntent(Intent intent) {
         int initialPage = -1;
         mForumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         mForumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         setThreadPage(getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage));
         setThreadId(getIntent().getIntExtra(Constants.THREAD_ID, mThreadId));
-        if(mForumId == 2){//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
+        if (mForumId == 2) {//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
             mForumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
         }
-        if(getIntent().getData() != null && getIntent().getData().getScheme().equals("http")){
+        if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
             url = AwfulURL.parse(getIntent().getDataString());
-            switch(url.getType()){
+            switch (url.getType()) {
                 case FORUM:
                     mForumId = (int) url.getId();
                     mForumPage = (int) url.getPage();
                     break;
                 case THREAD:
-                    if(!url.isRedirect()){
+                    if (!url.isRedirect()) {
                         setThreadPage((int) url.getPage());
                         setThreadId((int) url.getId());
                     }
@@ -438,12 +441,12 @@ public class ForumsIndexActivity extends AwfulActivity {
                 default:
             }
         }
-        if(intent.getIntExtra(Constants.FORUM_ID,0) > 1 || url.isForum()){
+        if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum()) {
             initialPage = isTablet ? 0 : 1;
-        }else{
+        } else {
             skipLoad = !isTablet;
         }
-        if(intent.getIntExtra(Constants.THREAD_ID,0) > 0 || url.isRedirect() || url.isThread()){
+        if (intent.getIntExtra(Constants.THREAD_ID, 0) > 0 || url.isRedirect() || url.isThread()) {
             initialPage = 2;
         }
         return initialPage;
@@ -453,13 +456,13 @@ public class ForumsIndexActivity extends AwfulActivity {
     protected void onResume() {
         super.onResume();
 
-        if(mPrimeRecreate) {
+        if (mPrimeRecreate) {
             mPrimeRecreate = false;
             Intent intent = getIntent();
             finish();
             startActivity(intent);
         }
-        switch(mPrefs.alertIDShown+1){
+        switch (mPrefs.alertIDShown + 1) {
             case 1:
                 new AlertDialog.Builder(this).
                         setTitle(getString(R.string.alert_title_1))
@@ -486,7 +489,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(mForumFragment != null){
+        if (mForumFragment != null) {
             mForumId = mForumFragment.getForumId();
             mForumPage = mForumFragment.getPage();
         }
@@ -499,7 +502,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         outState.putInt(Constants.FORUM_PAGE, mForumPage);
         outState.putInt(Constants.THREAD_ID, mThreadId);
         outState.putInt(Constants.THREAD_PAGE, mThreadPage);
-        if(mViewPager != null){
+        if (mViewPager != null) {
             outState.putInt("viewPage", mViewPager.getCurrentItem());
         }
     }
@@ -526,7 +529,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         int oldThreadId = mThreadId;
         mThreadId = threadId;
         mNavThreadId = threadId;
-        if((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null){
+        if ((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null) {
             pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
         }
     }
@@ -535,7 +538,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         mThreadPage = page;
     }
 
-    public class ForumPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener{
+    public class ForumPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener {
         public ForumPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -545,12 +548,12 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         @Override
         public void onPageSelected(int arg0) {
-            if(DEBUG) Log.i(TAG,"onPageSelected: "+arg0);
-            if(visible != null){
+            if (DEBUG) Log.i(TAG, "onPageSelected: " + arg0);
+            if (visible != null) {
                 visible.onPageHidden();
             }
             AwfulFragment apf = (AwfulFragment) getItem(arg0);
-            if(apf != null){
+            if (apf != null) {
                 setActionbarTitle(apf.getTitle(), null);
                 apf.onPageVisible();
                 setProgress(apf.getProgressPercent());
@@ -559,26 +562,28 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
 
         @Override
-        public void onPageScrollStateChanged(int state) {}
+        public void onPageScrollStateChanged(int state) {
+        }
 
         @Override
         public Fragment getItem(int ix) {
-            switch(ix){
+            switch (ix) {
                 case 0:
-                    if(mIndexFragment == null){
+                    if (mIndexFragment == null) {
                         mIndexFragment = new ForumsIndexFragment();
                     }
                     return mIndexFragment;
                 case 1:
-                    if(mForumFragment == null){
+                    if (mForumFragment == null) {
                         mForumFragment = new ForumDisplayFragment(mForumId, mForumPage, skipLoad);
                     }
                     return mForumFragment;
                 case 2:
-                    if(mThreadFragment == null){
+                    if (mThreadFragment == null) {
                         mThreadFragment = new ThreadDisplayFragment();
                     }
                     return mThreadFragment;
@@ -590,13 +595,13 @@ public class ForumsIndexActivity extends AwfulActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             Object frag = super.instantiateItem(container, position);
-            if(frag instanceof ForumsIndexFragment){
+            if (frag instanceof ForumsIndexFragment) {
                 mIndexFragment = (ForumsIndexFragment) frag;
             }
-            if(frag instanceof ForumDisplayFragment){
+            if (frag instanceof ForumDisplayFragment) {
                 mForumFragment = (ForumDisplayFragment) frag;
             }
-            if(frag instanceof ThreadDisplayFragment){
+            if (frag instanceof ThreadDisplayFragment) {
                 mThreadFragment = (ThreadDisplayFragment) frag;
             }
             return frag;
@@ -604,7 +609,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         @Override
         public int getCount() {
-            if(getThreadId() < 1){
+            if (getThreadId() < 1) {
                 return 2;
             }
             return 3;
@@ -612,13 +617,13 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         @Override
         public int getItemPosition(Object object) {
-            if(mIndexFragment != null && mIndexFragment.equals(object)){
+            if (mIndexFragment != null && mIndexFragment.equals(object)) {
                 return 0;
             }
-            if(mForumFragment != null && mForumFragment.equals(object)){
+            if (mForumFragment != null && mForumFragment.equals(object)) {
                 return 1;
             }
-            if(mThreadFragment != null && mThreadFragment.equals(object)){
+            if (mThreadFragment != null && mThreadFragment.equals(object)) {
                 return 2;
             }
             return super.getItemPosition(object);
@@ -626,8 +631,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         @Override
         public float getPageWidth(int position) {
-            if(isTablet){
-                switch(position){
+            if (isTablet) {
+                switch (position) {
                     case 0:
                         return 0.4f;
                     case 1:
@@ -643,28 +648,29 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void setActionbarTitle(String aTitle, Object requestor) {
-        if(requestor != null && mViewPager != null){
+        if (requestor != null && mViewPager != null) {
             //This will only honor the request if the requestor is the currently active view.
-            if(requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)){
+            if (requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)) {
                 super.setActionbarTitle(aTitle, requestor);
-            }else{
-                if(DEBUG) Log.i(TAG,"Failed setActionbarTitle: "+aTitle+" - "+requestor.toString());
+            } else {
+                if (DEBUG)
+                    Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requestor.toString());
             }
-        }else{
+        } else {
             super.setActionbarTitle(aTitle, requestor);
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(mDrawerLayout.isDrawerOpen(Gravity.LEFT)){
+        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
             mDrawerLayout.closeDrawers();
-        }else{
-            if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-                if(!((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()){
-                    mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
+        } else {
+            if (mViewPager != null && mViewPager.getCurrentItem() > 0) {
+                if (!((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()) {
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
                 }
-            }else{
+            } else {
                 super.onBackPressed();
             }
         }
@@ -672,12 +678,12 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     @Override
-    public void displayForum(int id, int page){
-        Log.d(TAG,"displayForum "+ id);
+    public void displayForum(int id, int page) {
+        Log.d(TAG, "displayForum " + id);
         mForumId = id;
         mForumPage = page;
         setNavigationDrawer();
-        if(mForumFragment != null){
+        if (mForumFragment != null) {
             mForumFragment.openForum(id, page);
             if (mViewPager != null) {
                 mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
@@ -688,11 +694,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean isFragmentVisible(AwfulFragment awfulFragment) {
-        if(awfulFragment != null && mViewPager != null && pagerAdapter != null){
-            if(isTablet){
+        if (awfulFragment != null && mViewPager != null && pagerAdapter != null) {
+            if (isTablet) {
                 int itemPos = pagerAdapter.getItemPosition(awfulFragment);
-                return  itemPos == mViewPager.getCurrentItem() || itemPos == mViewPager.getCurrentItem()+1;
-            }else{
+                return itemPos == mViewPager.getCurrentItem() || itemPos == mViewPager.getCurrentItem() + 1;
+            } else {
                 return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
             }
         }
@@ -723,25 +729,25 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     @Override
-    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload){
-        Log.d(TAG,"displayThread "+ id+" " +forumId);
-        if(mViewPager != null){
-            if(mThreadFragment != null){
-                if(!forceReload && getThreadId() == id && getThreadPage() == page){
+    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload) {
+        Log.d(TAG, "displayThread " + id + " " + forumId);
+        if (mViewPager != null) {
+            if (mThreadFragment != null) {
+                if (!forceReload && getThreadId() == id && getThreadPage() == page) {
                     setThreadId(mNavThreadId);
 
                     setNavForumId(mThreadFragment.getParentForumId());
                     setNavigationDrawer();
-                }else{
+                } else {
                     mThreadFragment.openThread(id, page);
                     mViewPager.getAdapter().notifyDataSetChanged();
                 }
-            }else{
+            } else {
                 setThreadPage(page);
                 setThreadId(id);
             }
             mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
-        }else{
+        } else {
             super.displayThread(id, page, forumId, forumPg, forceReload);
         }
     }
@@ -749,13 +755,13 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void displayUserCP() {
-        displayForum(Constants.USERCP_ID,1);
+        displayForum(Constants.USERCP_ID, 1);
     }
 
 
     @Override
     public void displayForumIndex() {
-        if(mViewPager != null){
+        if (mViewPager != null) {
             mViewPager.setCurrentItem(0);
         }
     }
@@ -763,14 +769,14 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if(DEBUG) Log.e(TAG,"onActivityResult: " + request+" result: "+result);
+        if (DEBUG) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
-        if(request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK){
+        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
             mHandler.postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-                    if(mIndexFragment != null){
+                    if (mIndexFragment != null) {
                         mIndexFragment.refresh();
                     }
                 }
@@ -780,7 +786,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if(mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment)pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)){
+        if (mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);
@@ -789,19 +795,19 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void onPreferenceChange(AwfulPreferences prefs) {
         super.onPreferenceChange(prefs);
-        if(prefs.immersionMode && mDecorView == null){
+        if (prefs.immersionMode && mDecorView == null) {
             setupImmersion();
         }
-        if(mViewPager != null){
+        if (mViewPager != null) {
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
-        if(mDrawerLayout != null){
+        if (mDrawerLayout != null) {
             ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
-            if(null != avatar){
+            if (null != avatar) {
                 AQuery aq = new AQuery(this);
-                if(null != mPrefs.userTitle) {
+                if (null != mPrefs.userTitle) {
                     aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
-                }else{
+                } else {
                     aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
                 }
             }
@@ -814,12 +820,12 @@ public class ForumsIndexActivity extends AwfulActivity {
         super.onConfigurationChanged(newConfig);
         boolean oldTab = isTablet;
         isTablet = AwfulUtils.isTablet(this);
-        if(oldTab != isTablet && mViewPager != null){
-            if(isTablet){
+        if (oldTab != isTablet && mViewPager != null) {
+            if (isTablet) {
                 mViewPager.setPageMargin(1);
                 //TODO what color should it use here?
                 mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
-            }else{
+            } else {
                 mViewPager.setPageMargin(0);
             }
 
@@ -829,16 +835,24 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     }
 
-    public void setNavForumId(int forumId){
+    public void setNavForumId(int forumId) {
         this.mNavForumId = forumId;
     }
 
-    public void setNavThreadId(int threadId){
+    public void setNavThreadId(int threadId) {
         this.mNavThreadId = threadId;
     }
 
     @Override
     public void afterThemeChange() {
         this.mPrimeRecreate = true;
+    }
+
+    public void preventSwipe() {
+        this.mViewPager.setSwipeEnabled(false);
+    }
+
+    public void reenableSwipe() {
+        this.mViewPager.setSwipeEnabled(true);
     }
 }

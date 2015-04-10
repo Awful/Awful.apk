@@ -12,6 +12,10 @@ font-family: userselected, 'consolas', monaco, monospace;
 font-size:0.9em;
 }
 
+.container {
+padding-bottom: 75px;
+}
+
 div.avatar {
 position:relative;
 display: table-cell;

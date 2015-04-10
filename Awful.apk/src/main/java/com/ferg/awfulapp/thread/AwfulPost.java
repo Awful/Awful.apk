@@ -580,15 +580,7 @@ public class AwfulPost {
 						}
 					}
 
-					StringBuffer fixedContent = new StringBuffer();
-					Matcher fixCharMatch = fixCharacters_regex.matcher(entry.html());
-
-                    while (fixCharMatch.find()) {
-                        fixCharMatch.appendReplacement(fixedContent, "");
-                    }
-
-					fixCharMatch.appendTail(fixedContent);
-                    post.put(CONTENT, fixedContent.toString());
+                    post.put(CONTENT, entry.html());
 				}
 
 				if (type.equalsIgnoreCase("postdate")) {

@@ -43,7 +43,7 @@
             android:key="disable_timgs"
             android:title="@string/disable_timgs"
             android:summary="@string/disable_timgs_summary"
-            android:defaultValue="true"
+            android:defaultValue="false"
             />
     </PreferenceScreen>
 </PreferenceScreen>
