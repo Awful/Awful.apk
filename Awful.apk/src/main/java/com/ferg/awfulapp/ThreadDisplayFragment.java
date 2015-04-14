@@ -237,6 +237,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				}else{
 					showUrlMenu(aUrl);
 				}
+			case INDEX:
+				displayForumIndex();
 			}
 			return true;
 		}
@@ -907,6 +909,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                                     pushThread((int) result.getId(), (int) result.getPage(mPrefs.postPerPage), result.getFragment().replaceAll("\\D", ""));
                                 }
                             }
+							if(result.getType() == TYPE.INDEX) {
+								getAwfulActivity().displayForumIndex();
+							}
                         }else{
                             displayAlert(new AwfulError());
                         }
