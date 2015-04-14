@@ -438,6 +438,9 @@ public class ForumsIndexActivity extends AwfulActivity {
                     break;
                 case POST:
                     break;
+                case INDEX:
+                    displayForumIndex();
+                    break;
                 default:
             }
         }

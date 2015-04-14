@@ -392,6 +392,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }
         buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
+        buffer.append("<script src='file:///android_asset/fx.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/fx_methods.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
 
