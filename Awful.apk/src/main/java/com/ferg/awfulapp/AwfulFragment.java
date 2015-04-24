@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
@@ -72,7 +73,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
 
-    private PopupWindow popupAlert;
     private Runnable popupClose;
 	
 
@@ -136,13 +136,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     @Override
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
-        popupAlert = null;
+        this.cancelNetworkRequests();
+        mHandler.removeCallbacksAndMessages(null);
         mPrefs.unregisterCallback(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
+        this.cancelNetworkRequests();
+        mHandler.removeCallbacksAndMessages(null);
     }
     
     protected void displayForumIndex(){
@@ -343,64 +346,55 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public abstract boolean volumeScroll(KeyEvent event);
 
 
-    private static final int ALERT_DISPLAY_MILLIS = 3000;
     protected void displayAlert(int titleRes){
         if(getActivity() != null){
-            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+            displayAlert(getString(titleRes), null, 0, null);
         }
     }
 
     protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
         if(getActivity() != null){
             if(subtitleRes != 0){
-                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+                displayAlert(getString(titleRes), getString(subtitleRes), iconRes, null);
             }else{
-                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+                displayAlert(getString(titleRes), null, iconRes, null);
             }
         }
     }
 
     protected void displayAlert(AwfulError error){
-        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getIconResource(), error.getIconAnimation());
     }
 
     protected void displayAlert(String title){
-        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+        displayAlert(title, null, 0, null);
     }
 
     protected void displayAlert(String title, int iconRes){
-        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+        displayAlert(title, null, iconRes, null);
     }
 
     protected void displayAlert(String title, String subtext){
-        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+        displayAlert(title, subtext, 0, null);
     }
 
-    private void displayAlert(final String title, final String subtext, final int timeoutMillis, final int iconRes, final Animation animate){
+    private void displayAlert(final String title, final String subtext, final int iconRes, final Animation animate){
         if(Looper.getMainLooper().equals(Looper.myLooper())){
-            displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+            displayAlertInternal(title, subtext, iconRes, animate);
         }else{
             //post on main thread, if this is called from a secondary thread.
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+                    displayAlertInternal(title, subtext, iconRes, animate);
                 }
             });
         }
     }
 
-    private void displayAlertInternal(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+    private void displayAlertInternal(String title, String subtext, int iconRes, Animation animate){
         if(getActivity() == null){
             return;
-        }
-        if(popupAlert != null){
-            if(popupClose != null){
-                mHandler.removeCallbacks(popupClose);
-                popupClose = null;
-            }
-            popupAlert.dismiss();
-            popupAlert = null;
         }
         View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
         AQuery aq = new AQuery(popup);
@@ -417,36 +411,11 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
                 aq.find(R.id.popup_icon).image(iconRes);
             }
         }
-        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
-        popupAlert = new PopupWindow(popup, popupDimen, popupDimen);
-        popupAlert.setBackgroundDrawable(null);
-        popupAlert.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                popupAlert = null;
-                if (popupClose != null) {
-                    mHandler.removeCallbacks(popupClose);
-                    popupClose = null;
-                }
-            }
-        });
-        if(getView() != null) {
-            popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
-            if (timeoutMillis > 0) {
-                popupClose = new Runnable() {
-                    @Override
-                    public void run() {
-                        //TODO fade out
-                        if (popupAlert != null) {
-                            popupAlert.dismiss();
-                            popupAlert = null;
-                            popupClose = null;
-                        }
-                    }
-                };
-                mHandler.postDelayed(popupClose, timeoutMillis);
-            }
-        }
+        Toast toast = new Toast(getAwfulApplication());
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(popup);
+        toast.show();
     }
 
     protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
