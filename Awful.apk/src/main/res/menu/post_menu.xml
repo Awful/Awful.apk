@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/reply"
+        android:title="@string/post_reply"
+        android:icon="@drawable/ic_menu_reply"
+        />
+    <item
         android:id="@+id/bookmark"
         android:title="@string/bookmark"
         android:icon="@drawable/ic_menu_bookmark"
