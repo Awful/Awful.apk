@@ -102,8 +102,7 @@ public class AwfulLoginActivity extends AwfulActivity {
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-        boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
-        if (loggedIn) {
+        if (isLoggedIn()) {
             Log.e(TAG, "Already logged in! Closing AwfulLoginActivity!");
             this.finish();
         }

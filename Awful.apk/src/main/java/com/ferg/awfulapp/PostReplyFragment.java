@@ -860,7 +860,12 @@ public class PostReplyFragment extends AwfulFragment {
                 } else {
                     cr = getAwfulApplication().getApplicationContext().getContentResolver();
                 }
-                ContentValues post = new ContentValues(replyData);
+                ContentValues post;
+                if(replyData == null){
+                    post = new ContentValues();
+                }else{
+                    post = new ContentValues(replyData);
+                }
                 post.put(AwfulMessage.ID, mThreadId);
                 post.put(AwfulMessage.TYPE, mReplyType);
                 post.put(AwfulMessage.REPLY_CONTENT, content);
