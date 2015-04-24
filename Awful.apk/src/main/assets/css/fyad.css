@@ -11,10 +11,6 @@ background-image:url('file:///android_asset/images/fyadbg.jpg');
 font-family:Roboto, userselected, Verdana, Arial, sans-serif;
 }
 
-.container {
-padding-bottom: 75px;
-}
-
 div.avatar {
 position:relative;
 display: table-cell;

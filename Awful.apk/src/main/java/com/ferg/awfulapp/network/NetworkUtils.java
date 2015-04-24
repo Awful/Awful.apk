@@ -34,6 +34,7 @@ import android.os.Messenger;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulURL;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -174,6 +175,9 @@ public class NetworkUtils {
      */
     public static void clearLoginCookies(Context ctx) {
         // First clear out the persistent preferences...
+        if(null == ctx){
+            ctx = AwfulPreferences.getInstance().getContext();
+        }
         SharedPreferences prefs = ctx.getSharedPreferences(
                 Constants.COOKIE_PREFERENCE,
                 Context.MODE_PRIVATE);

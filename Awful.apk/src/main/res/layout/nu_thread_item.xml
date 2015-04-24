@@ -22,7 +22,7 @@
         android:layout_below="@id/thread_tag"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:visibility="gone"
         android:scaleType="fitXY"
         android:layout_marginTop="-16dp" />

@@ -237,8 +237,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				}else{
 					showUrlMenu(aUrl);
 				}
+				break;
 			case INDEX:
 				displayForumIndex();
+				break;
 			}
 			return true;
 		}
@@ -277,7 +279,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                 case POST:
                 	startPostRedirect(url.getURL(mPrefs.postPerPage));
                 	break;
+				case INDEX:
+					displayForumIndex();
+					break;
                 }
+
             }
         }
          
@@ -594,10 +600,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(menu == null || getActivity() == null){
             return;
         }
-        MenuItem find = menu.findItem(R.id.find);
-        if(find != null){
-            find.setVisible(true);
-        }
+		MenuItem find = menu.findItem(R.id.find);
+		if(find != null){
+			find.setVisible(true);
+		}
+		MenuItem reply = menu.findItem(R.id.reply);
+		if(reply != null){
+			reply.setVisible(mPrefs.noFAB);
+		}
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
             if(threadArchived){
@@ -618,6 +628,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     public boolean onOptionsItemSelected(MenuItem item) {
     	if(DEBUG) Log.e(TAG, "onOptionsItemSelected");
         switch(item.getItemId()) {
+			case R.id.reply:
+				displayPostReplyDialog();
+				break;
             case R.id.next_page:
             	goToPage(getPage() + 1);
                 break;
@@ -1012,9 +1025,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.next_page:
-                    nextPageClick();
-                    break;
+				case R.id.next_page:
+					nextPageClick();
+					break;
                 case R.id.prev_page:
                 	if (getPage() <= 1) {
             			refresh();
@@ -1553,11 +1566,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		}
                 invalidateOptionsMenu();
                 parent.setNavigationDrawer();
-				mFAB.setVisibility(View.VISIBLE);
-				if(threadClosed || threadArchived){
-					mFAB.setEnabled(false);
-				}else{
-					mFAB.setEnabled(true);
+				if(!mPrefs.noFAB) {
+					mFAB.setVisibility(View.VISIBLE);
+					if (threadClosed || threadArchived) {
+						mFAB.setEnabled(false);
+					} else {
+						mFAB.setEnabled(true);
+					}
 				}
         	}
         }

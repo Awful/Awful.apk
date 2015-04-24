@@ -11,10 +11,6 @@ background-color:#0d0d0d;
 font-family:Roboto, userselected, Verdana, Arial, sans-serif;
 }
 
-.container {
-padding-bottom: 75px;
-}
-
 div.avatar {
 position:relative;
 display: table-cell;

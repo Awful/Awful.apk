@@ -120,7 +120,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean disableTimgs;
 	public boolean volumeScroll;
 	public boolean coloredBookmarks;
-    public boolean hideSignatures;
+	public boolean hideSignatures;
+	public boolean noFAB;
 	/**
 	 * TO BE REMOVED
 	 * forces threadview into specific layout, values: auto - phone - tablet 
@@ -275,7 +276,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
-        forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
+		forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
+		noFAB					 = mPrefs.getBoolean("no_fab", false);
         probationTime			 = mPrefs.getLong("probation_time", 0);
         userId					 = mPrefs.getInt("user_id", 0);
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);

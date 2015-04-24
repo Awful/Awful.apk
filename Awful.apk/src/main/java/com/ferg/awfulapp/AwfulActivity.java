@@ -74,7 +74,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        loggedIn = NetworkUtils.restoreLoginCookies(this);
+        loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
     }
 
     @Override
@@ -231,7 +231,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	
 	protected boolean isLoggedIn(){
 		if(!loggedIn){
-			loggedIn = NetworkUtils.restoreLoginCookies(this);
+			loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
 		}
 		return loggedIn;
 	}

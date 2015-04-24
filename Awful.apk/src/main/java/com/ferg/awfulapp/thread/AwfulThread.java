@@ -400,7 +400,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
 
-        buffer.append("</head><body><div id='container' class='container' ></div></body></html>");
+        buffer.append("</head><body><div id='container' class='container' "+(!aPrefs.noFAB?"style='padding-bottom:75px'":"")+"></div></body></html>");
         return buffer.toString();
     }
 
@@ -473,7 +473,7 @@ public class AwfulThread extends AwfulPagedItem  {
         	postData.put("regDate", post.getRegDate());
         	postData.put("mod", (post.isMod())?"mod":null);
         	postData.put("admin", (post.isAdmin())?"admin":null);
-        	postData.put("avatarText", post.getAvatarText());
+        	postData.put("avatarText", ""+post.getAvatarText());
         	postData.put("lastReadUrl",  post.getLastReadUrl());
         	postData.put("notOnProbation", (aPrefs.isOnProbation())?null:"notOnProbation");
         	postData.put("editable", (post.isEditable())?"editable":null);
