@@ -100,6 +100,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public String layout;
 	public String preferredFont;
 	public boolean alternateBackground;
+	public boolean amberDefaultPos;
 	
 	//THREAD STUFF
 	public int postPerPage;
@@ -289,6 +290,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         immersionMode			 = AwfulUtils.isKitKat() && mPrefs.getBoolean("immersion_mode", false);
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         transformer  		     = mPrefs.getString("transformer", "Default");
+		amberDefaultPos  		 = mPrefs.getBoolean("amber_default_pos", false);
         markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
 
        	 //I have never seen this before oh god

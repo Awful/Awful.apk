@@ -37,5 +37,10 @@
         android:title="@string/keep_screen_on"
         android:checkable="true"
         />
+    <item
+        android:id="@+id/yospos"
+        android:title="@string/yospos"
+        android:icon="@drawable/ic_menu_yospos"
+        />
 	
 </menu>
