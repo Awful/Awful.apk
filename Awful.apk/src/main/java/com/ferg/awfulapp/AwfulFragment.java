@@ -72,8 +72,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
-
-    private Runnable popupClose;
 	
 
     protected Handler mHandler = new Handler();
