@@ -153,6 +153,10 @@ function pageinit() {
 
     $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend',function(){
         listener.resumeSwipe();
+    }).on('touchleave',function(){
+        listener.resumeSwipe();
+    }).on('touchcancel',function(){
+        listener.resumeSwipe();
     }).on('touchstart',function(){
         listener.haltSwipe();
     })
