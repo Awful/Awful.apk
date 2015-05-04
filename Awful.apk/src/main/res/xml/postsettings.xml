@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceScreen android:title="@string/prefs_post_display">
         <Preference
             android:key="default_post_font_size_dip"
             android:title="@string/default_post_font_size"
@@ -19,81 +18,63 @@
             android:defaultValue="40"
             android:inputType="number"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="hide_old_posts"
             android:title="@string/hide_old_posts"
             android:summary="@string/hide_old_posts_summary"
             android:defaultValue="true"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="no_fab"
             android:title="@string/no_fab"
             android:summary="@string/no_fab_summary"
             android:defaultValue="false"
             />
-        <PreferenceScreen android:title="@string/highlighting_settings_title">
-            <CheckBoxPreference
-                android:key="user_highlight"
-                android:title="@string/user_highlight"
-                android:summary="@string/user_highlight_summary"
-                android:defaultValue="true"
-                />
-            <CheckBoxPreference
-                android:key="user_quotes"
-                android:title="@string/user_quote"
-                android:summary="@string/user_quote_summary"
-                android:defaultValue="true"
-                />
-            <CheckBoxPreference
-                android:key="self_highlight"
-                android:title="@string/self_highlight"
-                android:summary="@string/self_highlight_summary"
-                android:defaultValue="true"
-                />
-            <CheckBoxPreference
-                android:key="op_highlight"
-                android:title="@string/op_highlight"
-                android:summary="@string/op_highlight_summary"
-                android:defaultValue="true"
-                />
+
+        <PreferenceScreen android:title="@string/highlighting_settings_title"
+            android:key="highlighting"
+            android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings">
         </PreferenceScreen>
-        <CheckBoxPreference
+
+        <SwitchPreference
             android:key="inline_youtube"
             android:title="@string/inline_videos"
             android:summary="@string/inline_videos_summary"
             android:defaultValue="true"
             />
         <!-- doesn't work yet
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="inline_tweets"
             android:title="@string/inline_tweets"
             android:summary="@string/inline_tweets_summary"
             android:defaultValue="false"
             />-->
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="inline_webm"
             android:title="@string/inline_webm"
             android:summary="@string/inline_webm_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="inline_vines"
             android:title="@string/inline_vines"
             android:summary="@string/inline_vines_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="show_all_spoilers"
             android:title="@string/show_spoilers"
             android:summary="@string/show_spoilers_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="hide_signatures"
             android:title="@string/hide_signatures"
             android:summary="@string/hide_signatures_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference android:key="always_open_urls" android:title="@string/always_open_urls" android:summary="@string/always_open_urls_summary" android:defaultValue="false" />
-    </PreferenceScreen>
+        <SwitchPreference android:key="always_open_urls"
+            android:title="@string/always_open_urls"
+            android:summary="@string/always_open_urls_summary"
+            android:defaultValue="false" />
 </PreferenceScreen>

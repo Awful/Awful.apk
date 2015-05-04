@@ -61,6 +61,7 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.thread.AwfulURL;

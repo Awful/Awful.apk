@@ -41,7 +41,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
@@ -161,8 +160,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	HashSet<String> longKeys;
 	
 
-    public static interface AwfulPreferenceUpdate{
-        public void onPreferenceChange(AwfulPreferences preferences);
+    public interface AwfulPreferenceUpdate{
+        void onPreferenceChange(AwfulPreferences preferences);
     }
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
@@ -170,14 +169,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 */
 	private AwfulPreferences(Context context) {
 		mContext = context;
-
-		PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
+		// this is sort of redundant with what's going on in updateValues(), but best to be sure eh
+		SettingsActivity.setDefaultsFromXml(context);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 		upgradePreferences();
 		
-		longKeys = new HashSet<String>();
+		longKeys = new HashSet<>();
 		longKeys.add("probation_time");
 	}
 

@@ -112,6 +112,8 @@
         Start of Settings menu strings
     -->
 
+    <string name="settings_activity_title">Settings</string>
+
     <!-- Main page -->
     <string name="about">About…</string>
     <string name="about_summary">Contributors and library licenses</string>

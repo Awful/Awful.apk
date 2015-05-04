@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceScreen android:title="@string/prefs_misc">
         <PreferenceCategory android:title="@string/misc_category_performance">
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="enable_hardware_acceleration"
                 android:title="@string/enable_hardware_acceleration"
                 android:summary="@string/enable_hardware_acceleration_summary"
                 android:defaultValue="true"
                 android:enabled="false"
                 />
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="disable_gifs2"
                 android:title="@string/disable_gifs"
                 android:summary="@string/disable_gifs_summary"
@@ -35,7 +34,7 @@
                 android:entryValues="@array/orientation_values"
                 android:defaultValue="default"
                 />
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="immersion_mode"
                 android:title="@string/immersion_mode"
                 android:summary="@string/immersion_mode_summary"
@@ -53,7 +52,7 @@
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/misc_category_navigation">
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="disable_pull_next"
                 android:title="@string/disable_pull_next"
                 android:summary="@string/disable_pull_next_summary"
@@ -65,13 +64,13 @@
                 android:summary="@string/pull_to_refresh_distance_summary"
                 android:defaultValue="0.5"
                 />
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="lock_scrolling"
                 android:title="@string/lock_scrolling"
                 android:summary="@string/lock_scrolling_summary"
                 android:defaultValue="false"
                 />
-            <CheckBoxPreference
+            <SwitchPreference
                 android:key="volume_scroll"
                 android:title="@string/volume_scroll"
                 android:summary="@string/volume_scroll_summary"
@@ -79,5 +78,4 @@
                 />
         </PreferenceCategory>
 
-    </PreferenceScreen>
 </PreferenceScreen>
