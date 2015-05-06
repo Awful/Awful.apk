@@ -141,6 +141,7 @@
         <item>Apache HttpClient/HttpCore/HttpMime</item>
         <item>AQuery</item>
         <item>Crashlytics</item>
+        <item>Google Material Design icons</item>
         <item>JSoup</item>
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>

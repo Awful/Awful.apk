@@ -2,6 +2,7 @@
 <resources>
     <color name="forums_blue">#006699</color>
     <color name="forums_blue_darker">#00537E</color>
+    <color name="forums_blue_darkest">#00314b</color>
     <color name="forums_gray">#f4f4f4</color>
     <color name="holo_blue_light">#ff33b5e5</color>
     

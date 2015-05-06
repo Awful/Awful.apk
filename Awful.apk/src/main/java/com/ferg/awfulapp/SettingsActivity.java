@@ -288,7 +288,7 @@ public class SettingsActivity extends PreferenceActivity implements AwfulPrefere
     // This is called before the XML is loaded on a fresh install, so setSummaries checks the
     // hierarchy is loaded before trying to do anything (otherwise there's NPEs)
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		setSummaries();
         if(!prefs.theme.equals(this.currentThemeName)) {
             if (prefs.theme.equals(ColorProvider.DEFAULT)) {

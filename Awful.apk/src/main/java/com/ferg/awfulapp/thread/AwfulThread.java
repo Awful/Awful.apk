@@ -30,6 +30,7 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -586,7 +587,9 @@ public class AwfulThread extends AwfulPagedItem  {
         }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
         	aq.id(R.id.thread_sticky).gone();
-        	aq.id(R.id.thread_locked).visible().image(current.getResources().getDrawable(R.drawable.light_inline_lock));
+            int[] attrs = { R.attr.iconMenuLockedDark };
+            TypedArray ta = current.getContext().getTheme().obtainStyledAttributes(attrs);
+        	aq.id(R.id.thread_locked).visible().image(ta.getDrawable(0));
             current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }else{
         	aq.id(R.id.thread_locked).gone();

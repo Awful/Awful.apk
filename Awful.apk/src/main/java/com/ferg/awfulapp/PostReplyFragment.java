@@ -465,8 +465,8 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     @Override
-    public void onPreferenceChange(AwfulPreferences prefs) {
-        super.onPreferenceChange(prefs);
+    public void onPreferenceChange(AwfulPreferences prefs, String key) {
+        super.onPreferenceChange(prefs, key);
         //refresh the menu to show/hide attach option (plat only)
         invalidateOptionsMenu();
     }
@@ -511,7 +511,7 @@ public class PostReplyFragment extends AwfulFragment {
                 return;
             }
             new AlertDialog.Builder(act)
-                    .setIcon(R.drawable.ic_menu_reply)
+                    .setIcon(R.attr.iconMenuReply)
                     .setTitle(title)
                     .setMessage(android.text.Html.fromHtml(message.toString()))
                     .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {

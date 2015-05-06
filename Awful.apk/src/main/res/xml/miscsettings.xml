@@ -36,6 +36,12 @@
                 android:defaultValue="default"
                 />
             <CheckBoxPreference
+                android:key="no_fab"
+                android:title="@string/no_fab"
+                android:summary="@string/no_fab_summary"
+                android:defaultValue="false"
+                />
+            <CheckBoxPreference
                 android:key="immersion_mode"
                 android:title="@string/immersion_mode"
                 android:summary="@string/immersion_mode_summary"

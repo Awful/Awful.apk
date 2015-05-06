@@ -29,6 +29,7 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -100,7 +101,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
-		onPreferenceChange(mPrefs);
+		onPreferenceChange(mPrefs, null);
 		if(mProgressBar != null){
 			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
 		}
@@ -259,7 +260,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     }
 
     @Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		if(mSRL != null){
             DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
             float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
@@ -403,10 +404,13 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             aq.find(R.id.popup_subtitle).visible().text(subtext);
         }
         if(iconRes != 0){
+
+            int [] attrs = { iconRes};
+            TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
             if(animate != null){
-                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+                aq.find(R.id.popup_icon).image(ta.getDrawable(0)).animate(animate);
             }else{
-                aq.find(R.id.popup_icon).image(iconRes);
+                aq.find(R.id.popup_icon).image(ta.getDrawable(0));
             }
         }
         Toast toast = new Toast(getAwfulApplication());

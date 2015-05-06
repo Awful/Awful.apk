@@ -39,7 +39,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         super.onCreate();
         Fabric.with(this, new Crashlytics());
         mPref = AwfulPreferences.getInstance(this, this);
-        onPreferenceChange(mPref);
+        onPreferenceChange(mPref,null);
 
         if(mPref.sendUsernameInReport){
 			Crashlytics.setUserName(mPref.username);
@@ -107,7 +107,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		currentFont = fonts.get(mPref.preferredFont);
 		Log.e(TAG,"FONT SELECTED: "+mPref.preferredFont);
 	}
@@ -136,7 +136,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		} catch (IOException | RuntimeException e) {
 			e.printStackTrace();
 		}
-		onPreferenceChange(mPref);
+		onPreferenceChange(mPref, null);
 	}
 
 	@Override

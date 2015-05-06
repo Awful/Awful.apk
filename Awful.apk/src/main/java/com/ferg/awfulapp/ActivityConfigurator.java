@@ -48,7 +48,7 @@ public class ActivityConfigurator implements AwfulPreferences.AwfulPreferenceUpd
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		setOrientation();
 	}
 }
