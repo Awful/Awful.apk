@@ -80,7 +80,7 @@ function pageinit() {
 	        if($(id).size() > 0){
 	            $(this).click(function(e){
 	                e.preventDefault();
-                    if($(id).css("display") !== "none"){
+                    if($(id).css("display") == "none"){
                         var count = $('.read').size();
                         $('.toggleread').hide();
                         $('.read').show(0, function(){
