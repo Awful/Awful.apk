@@ -218,8 +218,8 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
     
 	@Override
-	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		super.onPreferenceChange(mPrefs);
+	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		if(mForumTree != null){
 			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
 			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());

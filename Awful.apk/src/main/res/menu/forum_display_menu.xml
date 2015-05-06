@@ -3,28 +3,28 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 	>
-	<item android:id="@+id/user_cp" app:showAsAction="ifRoom" android:title="@string/usercp" android:icon="@drawable/ic_interface_bookmarks" />
+	<item android:id="@+id/user_cp" app:showAsAction="ifRoom" android:title="@string/usercp" android:icon="?attr/iconMenuBookmark" />
 	<item
 		android:id="@+id/go_to"
-		android:icon="@drawable/ic_menu_gotopage"
+		android:icon="?attr/iconMenuGoToPage"
 		android:title="@string/go_to"
 		/>
 	<item
 		android:id="@+id/refresh"
-		android:icon="@drawable/ic_menu_load"
+		android:icon="?attr/iconMenuRefresh"
 		android:title="@string/refresh" />
     <item 
         android:id="@+id/pm" 
-        android:icon="@drawable/ic_menu_mail"
+        android:icon="?attr/iconMenuMail"
         android:title="@string/private_message"
         />
 	<item
 		android:id="@+id/settings"
-		android:icon="@drawable/ic_menu_settings"
+		android:icon="?attr/iconMenuSettings"
 		android:title="@string/settings" />
 	<item
 		android:title="@string/logout"
         android:id="@+id/logout"
-        android:icon="@drawable/ic_menu_logout"/>
+        android:icon="?attr/iconMenuLogout"/>
 	
 </menu>

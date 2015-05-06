@@ -3,60 +3,59 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:id="@+id/page_indicator"
-    android:background="#000000" >
+    android:background="#000000">
 
-            <ImageButton
-                 android:id="@+id/prev_page"
-                 android:layout_height="match_parent"
-                 android:scaleType="fitCenter"
-                 android:src="@drawable/ic_menu_arrowleft"
-                 android:layout_width="wrap_content"
-                 android:visibility="invisible"
-                 android:layout_weight="1"
-                 style="@style/ActionBarButton"/>
+    <ImageButton
+        android:id="@+id/prev_page"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="?attr/iconMenuArrowLeft"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_weight="1"
+        style="@style/ActionBarButton" />
 
-            
-            <ImageButton
-                android:id="@+id/refresh"
-                style="@style/ActionBarButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                 android:scaleType="fitCenter"
-                android:layout_weight="1"
-                android:src="@drawable/ic_actionbar_load"
-                 />
 
-            <TextView
-                android:id="@+id/page_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-			    android:paddingTop="6dp"
-			    android:paddingBottom="6dp"
-                android:gravity="center"
-                android:textColor="#CCFFFFFF"
-                android:textSize="@dimen/abc_text_size_title_material_toolbar"
-                 android:layout_weight="1"
-                android:clickable="true" />
-            
-			<ImageButton
-			    android:id="@+id/toggle_sidebar"
-			    style="@style/ActionBarButton"
-			    android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                 android:scaleType="fitCenter"
-               	android:visibility="invisible"
-                 android:layout_weight="1"
-			    android:src="@drawable/ic_menu_sidebar" />
-			
-            <ImageButton
-                 android:id="@+id/next_page"
-                 android:layout_height="match_parent"
-                 android:scaleType="fitCenter"
-                 android:src="@drawable/ic_menu_arrowright"
-                 android:layout_width="wrap_content"
-                 android:visibility="invisible"
-                 android:layout_weight="1"
-                 style="@style/ActionBarButton"/>
+    <ImageButton
+        android:id="@+id/refresh"
+        style="@style/ActionBarButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:layout_weight="1"
+        android:src="?attr/iconMenuRefresh" />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/page_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:gravity="center"
+        android:textColor="#CCFFFFFF"
+        android:textSize="@dimen/abc_text_size_title_material_toolbar"
+        android:layout_weight="1"
+        android:clickable="true" />
+
+    <ImageButton
+        android:id="@+id/toggle_sidebar"
+        style="@style/ActionBarButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        android:layout_weight="1"
+        android:src="?attr/iconMenuRefresh" />
+
+    <ImageButton
+        android:id="@+id/next_page"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="?attr/iconMenuArrowRight"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_weight="1"
+        style="@style/ActionBarButton" />
+
+</LinearLayout>

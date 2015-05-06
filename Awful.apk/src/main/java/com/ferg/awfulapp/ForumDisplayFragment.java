@@ -164,7 +164,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
-        mToggleSidebar.setImageResource(R.drawable.ic_actionbar_load);
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
@@ -404,7 +403,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
 		clipboard.setPrimaryClip(clip);
 
-		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
+		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
 	}
 
 	private void displayPagePicker() {
@@ -497,8 +496,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     };
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		super.onPreferenceChange(mPrefs);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		getAwfulActivity().setPreferredFont(mPageCountText);	
 		updateColors();
 	}
@@ -529,7 +528,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     private void setForumId(int aForum) {
 		mForumId = aForum;
 		if(mPrefs != null && mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_YOSPOS || mForumId == Constants.FORUM_ID_BYOB)){
-			onPreferenceChange(mPrefs);
+			onPreferenceChange(mPrefs, null);
 		}
 	}
     
@@ -563,7 +562,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                             mToggleSidebar.setColorFilter(0);
                             loadFailed = false;
                             refreshInfo();
-                            mListView.setSelection(mListView.getFirstVisiblePosition());
+                            mListView.setSelectionAfterHeaderView();
                         }
 
                         @Override
@@ -576,6 +575,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;
+                            mListView.setSelectionAfterHeaderView();
                         }
                     }
             ));
@@ -594,7 +594,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_menu_load_success);
+                displayAlert(R.string.mark_unread_success, 0, R.attr.iconMenuLoadSuccess);
                 refreshInfo();
             }
 

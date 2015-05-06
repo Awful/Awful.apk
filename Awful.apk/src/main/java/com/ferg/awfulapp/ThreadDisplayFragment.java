@@ -40,6 +40,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -65,6 +66,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
@@ -111,6 +113,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -421,26 +424,29 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 	
 	public void updatePageBar(){
-		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
+		mPageCountText.setText("Page " + getPage() + "/" + (getLastPage() > 0 ? getLastPage() : "?"));
 		if(getActivity() != null){
 			invalidateOptionsMenu();
 		}
 		mRefreshBar.setVisibility(View.VISIBLE);
 		mPrevPage.setVisibility(View.VISIBLE);
 		mNextPage.setVisibility(View.VISIBLE);
+		int [] attrs = { R.attr.iconMenuRefresh, R.attr.iconMenuArrowLeft, R.attr.iconMenuArrowRight};
+		TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
 		if (getPage() <= 1) {
-			mPrevPage.setImageResource(R.drawable.ic_actionbar_load);
+
+			mPrevPage.setImageDrawable(ta.getDrawable(0));
 			mPrevPage.setVisibility(View.VISIBLE);
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
-			mPrevPage.setImageResource(R.drawable.ic_menu_arrowleft);
+			mPrevPage.setImageDrawable(ta.getDrawable(1));
 		}
 
 		if (getPage() == getLastPage()) {
-			mNextPage.setImageResource(R.drawable.ic_actionbar_load);
+			mNextPage.setImageDrawable(ta.getDrawable(0));
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
-			mNextPage.setImageResource(R.drawable.ic_menu_arrowright);
+			mNextPage.setImageDrawable(ta.getDrawable(2));
 		}
 
         if(mThreadView != null){
@@ -617,10 +623,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             }
             bk.setEnabled(!threadArchived);
         }
-        MenuItem screen = menu.findItem(R.id.keep_screen_on);
-        if(screen != null){
-            screen.setChecked(keepScreenOn);
-        }
+		MenuItem screen = menu.findItem(R.id.keep_screen_on);
+		if(screen != null){
+			screen.setChecked(keepScreenOn);
+		}
+		MenuItem yospos = menu.findItem(R.id.yospos);
+		if(yospos != null){
+			yospos.setVisible(mParentForumId == Constants.FORUM_ID_YOSPOS);
+		}
     }
     
     @SuppressLint("NewApi")
@@ -650,6 +660,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             case R.id.bookmark:
                 toggleThreadBookmark();
                 break;
+			case R.id.yospos:
+				toggleYospos();
+				break;
     		default:
     			return super.onOptionsItemSelected(item);
     		}
@@ -709,7 +722,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
 		clipboard.setPrimaryClip(clip);
 
-		displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
+		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
 	}
 
 	private void rateThread() {
@@ -720,16 +733,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		builder.setTitle("Rate this thread");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-                queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
-                    @Override
-                    public void success(Void result) {
-                        displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_menu_emote);
-                    }
+				queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+					@Override
+					public void success(Void result) {
+						displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.attr.iconMenuEmote);
+					}
 
-                    @Override
-                    public void failure(VolleyError error) {
-                    }
-                }));
+					@Override
+					public void failure(VolleyError error) {
+					}
+				}));
 			}
 		});
 		AlertDialog alert = builder.create();
@@ -793,12 +806,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		      queueRequest(new ReportRequest(getActivity(), postid, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
                   @Override
                   public void success(String result) {
-                      displayAlert(result, R.drawable.ic_menu_emote);
+                      displayAlert(result, R.attr.iconMenuEmote);
                   }
 
                   @Override
                   public void failure(VolleyError error) {
-                      displayAlert(error.getMessage(), R.drawable.ic_menu_emote);
+                      displayAlert(error.getMessage(), R.attr.iconMenuEmote);
                   }
               }));
 		    }
@@ -826,34 +839,34 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(getActivity() != null){
         	bodyHtml = "";
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
-                @Override
-                public void success(Integer result) {
-                    refreshInfo();
-                    if(result == getPage()){
-                        setProgress(75);
-                        refreshPosts();
-                        mNextPage.setColorFilter(0);
-                        mPrevPage.setColorFilter(0);
-                        mRefreshBar.setColorFilter(0);
-                    }else{
-                        Log.e(TAG, "Page mismatch: "+getPage()+" - "+result);
-                    }
-                }
+				@Override
+				public void success(Integer result) {
+					refreshInfo();
+					if (result == getPage()) {
+						setProgress(75);
+						refreshPosts();
+						mNextPage.setColorFilter(0);
+						mPrevPage.setColorFilter(0);
+						mRefreshBar.setColorFilter(0);
+					} else {
+						Log.e(TAG, "Page mismatch: " + getPage() + " - " + result);
+					}
+				}
 
-                @Override
-                public void failure(VolleyError error) {
-                    if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
-                        Log.e(TAG, "Error: "+error.getMessage());
-                        NetworkUtils.clearLoginCookies(getAwfulActivity());
-                        getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
-                    }
-                    refreshInfo();
-                    refreshPosts();
-                    mNextPage.setColorFilter(0);
-                    mPrevPage.setColorFilter(0);
-                    mRefreshBar.setColorFilter(0);
-                }
-            }), true);
+				@Override
+				public void failure(VolleyError error) {
+					if (null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")) {
+						Log.e(TAG, "Error: " + error.getMessage());
+						NetworkUtils.clearLoginCookies(getAwfulActivity());
+						getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
+					}
+					refreshInfo();
+					refreshPosts();
+					mNextPage.setColorFilter(0);
+					mPrevPage.setColorFilter(0);
+					mRefreshBar.setColorFilter(0);
+				}
+			}), true);
         }
     }
 
@@ -864,11 +877,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
     
     private void markLastRead(int index) {
-        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_menu_lastread);
+        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.attr.iconMenuLastRead);
         queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_menu_lastread);
+                displayAlert(R.string.mark_last_read_success, 0, R.attr.iconMenuLastRead);
                 refreshInfo();
                 refreshPosts();
             }
@@ -880,21 +893,27 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }));
     }
 
-    private void toggleThreadBookmark() {
-        if(getActivity() != null){
-            queueRequest(new BookmarkRequest(getActivity(), getThreadId(), !threadBookmarked).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
-                @Override
-                public void success(Void result) {
-                    refreshInfo();
-                }
+	private void toggleThreadBookmark() {
+		if(getActivity() != null){
+			queueRequest(new BookmarkRequest(getActivity(), getThreadId(), !threadBookmarked).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+				@Override
+				public void success(Void result) {
+					refreshInfo();
+				}
 
-                @Override
-                public void failure(VolleyError error) {
-                    refreshInfo();
-                }
-            }));
-        }
-    }
+				@Override
+				public void failure(VolleyError error) {
+					refreshInfo();
+				}
+			}));
+		}
+	}
+
+	private void toggleYospos() {
+		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
+		mPrefs.setBooleanPreference("amber_default_pos", mPrefs.amberDefaultPos);
+		mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+	}
     
     private void startPostRedirect(final String postUrl) {
         if(getActivity() != null){
@@ -1361,7 +1380,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			break;
             	case 3:
             		copyToClipboard(url);
-        			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
+        			displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
         			break;
             	case 4:
             		startActivity(createShareIntent(url));
@@ -1396,8 +1415,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 	
 	@Override
-	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		super.onPreferenceChange(mPrefs);
+	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
         if(null != getAwfulActivity()){
 		    getAwfulActivity().setPreferredFont(mPageCountText);
         }
@@ -1768,12 +1787,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         //TODO icon
 		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
 	}
-    
-//    @Override
-//    public void onLowMemory() {
-//    	super.onLowMemory();
-//    	mThreadView.freeMemory();
-//    }
+
     
     private String determineCSS(){
         File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
@@ -1783,12 +1797,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	switch(mParentForumId){
     			case(Constants.FORUM_ID_FYAD):
                 case(Constants.FORUM_ID_FYAD_SUB):
-	    			return "file:///android_asset/css/fyad.css";
+					return "file:///android_asset/css/fyad.css";
 				case(Constants.FORUM_ID_BYOB):
 				case(Constants.FORUM_ID_COOL_CREW):
         			return "file:///android_asset/css/byob.css";
         		case(Constants.FORUM_ID_YOSPOS):
-        			return "file:///android_asset/css/yospos.css";
+					if(mPrefs.amberDefaultPos){
+						return "file:///android_asset/css/amberpos.css";
+					}else{
+						return "file:///android_asset/css/yospos.css";
+					}
         		default:
         			return "file:///android_asset/css/"+mPrefs.theme;
         	}

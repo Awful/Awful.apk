@@ -30,6 +30,7 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -345,13 +346,13 @@ public class AwfulThread extends AwfulPagedItem  {
             Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
         }
         
-        AwfulPost.syncPosts(contentResolv, 
-        					response, 
-        					aThreadId, 
-        					((unread == 0 && hasViewedThread == 0) ? 0 : totalReplies-unread),
-        					opId, 
-        					aPrefs,
-        					AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
+        AwfulPost.syncPosts(contentResolv,
+                response,
+                aThreadId,
+                ((unread == 0 && hasViewedThread == 0) ? 0 : totalReplies - unread),
+                opId,
+                aPrefs,
+                AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
         
     	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
     		contentResolv.insert(CONTENT_URI, thread);
@@ -378,7 +379,11 @@ public class AwfulThread extends AwfulPagedItem  {
         			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
         			break;
                 case(Constants.FORUM_ID_YOSPOS):
-                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
+                    if(aPrefs.amberDefaultPos){
+                        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/amberpos.css'>\n");
+                    }else{
+                        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
+                    }
                     break;
                 default:
                     buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(aPrefs.theme).append("'>\n");
@@ -495,7 +500,11 @@ public class AwfulThread extends AwfulPagedItem  {
 		String ForumName = null;
 		if(prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)){
 			if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_YOSPOS){
-				ForumName = ColorProvider.YOSPOS;
+                if(prefs.amberDefaultPos){
+                    ForumName = ColorProvider.AMBERPOS;
+                }else{
+                    ForumName = ColorProvider.YOSPOS;
+                }
 			}
             if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD_SUB){
                 ForumName = ColorProvider.FYAD;
@@ -578,7 +587,9 @@ public class AwfulThread extends AwfulPagedItem  {
         }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
         	aq.id(R.id.thread_sticky).gone();
-        	aq.id(R.id.thread_locked).visible().image(current.getResources().getDrawable(R.drawable.light_inline_lock));
+            int[] attrs = { R.attr.iconMenuLockedDark };
+            TypedArray ta = current.getContext().getTheme().obtainStyledAttributes(attrs);
+        	aq.id(R.id.thread_locked).visible().image(ta.getDrawable(0));
             current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }else{
         	aq.id(R.id.thread_locked).gone();

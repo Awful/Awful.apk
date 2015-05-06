@@ -93,7 +93,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
-		onPreferenceChange(mPrefs);
+		onPreferenceChange(mPrefs, null);
 		if(mProgressBar != null){
 			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
 		}
@@ -180,7 +180,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		
 	}
 	

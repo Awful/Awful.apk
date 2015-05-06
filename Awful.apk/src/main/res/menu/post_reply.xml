@@ -4,18 +4,18 @@
 
     <item
         android:id="@+id/submit_button"
-        android:icon="@drawable/ic_menu_post"
+        android:icon="?attr/iconMenuSend"
         app:showAsAction="always"
         android:title="@string/submit"/>
     <item
         android:id="@+id/bbcode"
-        android:icon="@drawable/ic_actionbar_dropdown"
+        android:icon="?attr/iconMenuExpandMore"
         app:showAsAction="ifRoom"
         android:title="@string/bbcode">
         <menu>
             <item
                 android:id="@+id/emotes"
-                android:icon="@drawable/ic_menu_emote"
+                android:icon="?attr/iconMenuEmoteDark"
                 android:title="Emotes"/>
             <item
                 android:id="@+id/bbcode_bold"
@@ -59,7 +59,7 @@
     </item>
     <item
         android:id="@+id/discard"
-        android:icon="@drawable/ic_menu_load_fail"
+        android:icon="?attr/iconMenuLoadFailedDark"
         app:showAsAction="never|withText"
         android:title="@string/menu_discard">
     </item>

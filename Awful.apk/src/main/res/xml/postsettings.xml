@@ -25,12 +25,6 @@
             android:summary="@string/hide_old_posts_summary"
             android:defaultValue="true"
             />
-        <CheckBoxPreference
-            android:key="no_fab"
-            android:title="@string/no_fab"
-            android:summary="@string/no_fab_summary"
-            android:defaultValue="false"
-            />
         <PreferenceScreen android:title="@string/highlighting_settings_title">
             <CheckBoxPreference
                 android:key="user_highlight"

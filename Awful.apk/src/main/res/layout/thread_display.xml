@@ -47,7 +47,7 @@
             android:id="@+id/just_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_icon="@drawable/ic_menu_reply"
+            fab:fab_icon="?attr/iconMenuCreate"
             fab:fab_plusIconColor="@color/actionbar_font_color"
             fab:fab_colorNormal="?attr/justPostButtonColor"
             fab:fab_colorPressed="?attr/justPostButtonColorPressed"

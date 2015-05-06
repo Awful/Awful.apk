@@ -93,7 +93,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 	
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 			this.setPaint(getContext());
 	}
 
