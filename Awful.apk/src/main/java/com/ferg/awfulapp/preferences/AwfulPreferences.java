@@ -1,18 +1,19 @@
-/********************************************************************************
+/**
+ * *****************************************************************************
  * Copyright (c) 2012, Matthew Shepard
  * All rights reserved.
- * 
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the software nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the software nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p/>
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,7 +24,8 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ * *****************************************************************************
+ */
 
 package com.ferg.awfulapp.preferences;
 
@@ -41,6 +43,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
@@ -67,102 +70,101 @@ import java.util.Set;
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
     private static final String TAG = "AwfulPreferences";
-	
-	private static AwfulPreferences mSelf;
-	
-	private SharedPreferences mPrefs;
+
+    private static AwfulPreferences mSelf;
+
+    private SharedPreferences mPrefs;
 
 
     private Context mContext;
-	private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
-	
-	//GENERAL STUFF
-	public String username;
+    private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
+
+    //GENERAL STUFF
+    public String username;
     public String userTitle;
-	public int userId;
-	public boolean hasPlatinum;
-	public boolean hasArchives;
-	public boolean hasNoAds;
-	public boolean debugMode;
-	public boolean sendUsernameInReport;
-	public float scaleFactor;
-	public String orientation;
-	public String pageLayout;
-	
-	//THEME STUFF
-	public int postFontSizeDip;
+    public int userId;
+    public boolean hasPlatinum;
+    public boolean hasArchives;
+    public boolean hasNoAds;
+    public boolean debugMode;
+    public boolean sendUsernameInReport;
+    public float scaleFactor;
+    public String orientation;
+    public String pageLayout;
+
+    //THEME STUFF
+    public int postFontSizeDip;
     public int postFixedFontSizeDip;
-	public int postFontSizePx;
-	public boolean lockScrolling;
-	public String theme;
-	public boolean forceForumThemes;
-	public String layout;
-	public String preferredFont;
-	public boolean alternateBackground;
-	
-	//THREAD STUFF
-	public int postPerPage;
-	public boolean imagesEnabled;
-	public boolean no3gImages;
-	public boolean avatarsEnabled;
-	public boolean showSmilies;
-	public boolean hideOldImages;
+    public int postFontSizePx;
+    public boolean lockScrolling;
+    public String theme;
+    public boolean forceForumThemes;
+    public String layout;
+    public String preferredFont;
+    public boolean alternateBackground;
+    public boolean amberDefaultPos;
+
+    //THREAD STUFF
+    public int postPerPage;
+    public boolean imagesEnabled;
+    public boolean no3gImages;
+    public boolean avatarsEnabled;
+    public boolean showSmilies;
+    public boolean hideOldImages;
     public boolean highlightUserQuote;
     public boolean highlightUsername;
     public boolean highlightSelf;
     public boolean highlightOP;
-	public boolean showAllSpoilers;
-	public String imgurThumbnails;
-	public boolean upperNextArrow;
-	public boolean disableGifs;
-	public boolean hideOldPosts;
-	public boolean disableTimgs;
-	public boolean volumeScroll;
-	public boolean coloredBookmarks;
-	public boolean hideSignatures;
-	public boolean noFAB;
-	/**
-	 * TO BE REMOVED
-	 * forces threadview into specific layout, values: auto - phone - tablet 
-	 */
-	public boolean alwaysOpenUrls;
-	
-	//FORUM STUFF
-	public boolean newThreadsFirstUCP;
-	public boolean newThreadsFirstForum;
-	public boolean threadInfo_Rating;
-	public boolean threadInfo_Author;
-	public boolean threadInfo_Killed;
-	public boolean threadInfo_Page;
-	public boolean threadInfo_Tag;
+    public boolean showAllSpoilers;
+    public String imgurThumbnails;
+    public boolean upperNextArrow;
+    public boolean disableGifs;
+    public boolean hideOldPosts;
+    public boolean disableTimgs;
+    public boolean volumeScroll;
+    public boolean coloredBookmarks;
+    public boolean hideSignatures;
+    public boolean noFAB;
+    /**
+     * TO BE REMOVED
+     * forces threadview into specific layout, values: auto - phone - tablet
+     */
+    public boolean alwaysOpenUrls;
+
+    //FORUM STUFF
+    public boolean newThreadsFirstUCP;
+    public boolean newThreadsFirstForum;
+    public boolean threadInfo_Rating;
+    public boolean threadInfo_Tag;
     public boolean wrapThreadTitles;
-    
+
     //EXPERIMENTAL STUFF
-	public boolean inlineYoutube;
-	public boolean inlineTweets;
-	public boolean inlineVines;
-	public boolean inlineWebm;
+    public boolean inlineYoutube;
+    public boolean inlineTweets;
+    public boolean inlineVines;
+    public boolean inlineWebm;
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
-	public boolean showIgnoreWarning;
-	public String ignoreFormkey;
-	public Set<String> markedUsers;
+    public boolean showIgnoreWarning;
+    public String ignoreFormkey;
+    public Set<String> markedUsers;
     public Float p2rDistance;
     public boolean immersionMode;
     public String transformer;
 
     public int alertIDShown;
-	
-	private static final int PREFERENCES_VERSION = 1;
-	private int currPrefVersion;
-	
-	HashSet<String> longKeys;
-	
 
-    public interface AwfulPreferenceUpdate{
-        void onPreferenceChange(AwfulPreferences preferences);
+    private static final int PREFERENCES_VERSION = 1;
+    private int currPrefVersion;
+
+    HashSet<String> longKeys;
+
+
+    public static interface AwfulPreferenceUpdate {
+        public void onPreferenceChange(AwfulPreferences preferences, String key);
     }
+
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
@@ -219,7 +221,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
 		for(AwfulPreferenceUpdate auc : mCallback){
-			auc.onPreferenceChange(this);
+            auc.onPreferenceChange(this, key);
 		}
 	}
 
@@ -256,9 +258,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
         threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", true);
-        threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
-        threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
-        threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
@@ -288,10 +287,11 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         immersionMode			 = AwfulUtils.isKitKat() && mPrefs.getBoolean("immersion_mode", false);
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         transformer  		     = mPrefs.getString("transformer", "Default");
+		amberDefaultPos  		 = mPrefs.getBoolean("amber_default_pos", false);
         markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
 
-       	 //I have never seen this before oh god
-	}
+        //I have never seen this before oh god
+    }
 
 	public void setBooleanPreference(String key, boolean value) {
 		mPrefs.edit().putBoolean(key, value).apply();

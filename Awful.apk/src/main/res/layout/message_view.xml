@@ -73,7 +73,7 @@
                     android:id="@+id/hide_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_menu_dropdown_up" />
+                    android:src="?attr/iconMenuExpandMore" />
             </LinearLayout>
         </LinearLayout>
         <WebView

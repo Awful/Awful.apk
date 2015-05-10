@@ -193,7 +193,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
 
     @Override
-    public void onPreferenceChange(AwfulPreferences preferences) {
+    public void onPreferenceChange(AwfulPreferences preferences, String key) {
         // update the summaries on any loaded fragments
         for (String tag : new String[] {ROOT_FRAGMENT_TAG, SUBMENU_FRAGMENT_TAG}) {
             SettingsFragment fragment = (SettingsFragment) getFragmentManager().findFragmentByTag(tag);

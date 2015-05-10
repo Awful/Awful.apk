@@ -48,6 +48,7 @@
     <string name="share_thread">Share thread</string>
     <string name="find">Find on page</string>
     <string name="keep_screen_on">Keep screen on</string>
+    <string name="yospos">YOSPOS</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -142,6 +143,7 @@
         <item>Apache HttpClient/HttpCore/HttpMime</item>
         <item>AQuery</item>
         <item>Crashlytics</item>
+        <item>Google Material Design icons</item>
         <item>JSoup</item>
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>

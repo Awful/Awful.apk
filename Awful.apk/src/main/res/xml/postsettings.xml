@@ -24,12 +24,6 @@
             android:summary="@string/hide_old_posts_summary"
             android:defaultValue="true"
             />
-        <SwitchPreference
-            android:key="no_fab"
-            android:title="@string/no_fab"
-            android:summary="@string/no_fab_summary"
-            android:defaultValue="false"
-            />
 
         <PreferenceScreen android:title="@string/highlighting_settings_title"
             android:key="highlighting"

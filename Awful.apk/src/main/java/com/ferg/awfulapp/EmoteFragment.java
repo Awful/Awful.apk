@@ -84,8 +84,8 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		super.onPreferenceChange(prefs);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(prefs, key);
 	}
 
 	@Override

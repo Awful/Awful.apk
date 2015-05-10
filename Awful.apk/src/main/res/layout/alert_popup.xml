@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/popup_icon"
-        android:src="@drawable/ic_menu_load_fail"
+        android:src="?attr/iconMenuLoadFailed"
         android:layout_centerHorizontal="true"
         android:padding="2dp"/>
 

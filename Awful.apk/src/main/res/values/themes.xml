@@ -14,7 +14,54 @@
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
-        <!-- The rest of your attributes -->
+        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <!-- icons -->
+        <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
+        <item name="iconMenuLoadFailedDark">@drawable/ic_error_grey600_36dp</item>
+        <item name="iconMenuLoadSuccess">@drawable/ic_beenhere_white_36dp</item>
+        <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
+        <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
+        <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
+        <item name="iconMenuExpandMore">@drawable/ic_expand_more_white_36dp</item>
+        <item name="iconMenuRefresh">@drawable/ic_refresh_white_36dp</item>
+        <item name="iconMenuRefreshDark">@drawable/ic_refresh_grey600_36dp</item>
+        <item name="iconMenuCreate">@drawable/ic_create_white_36dp</item>
+        <item name="iconMenuCreateDark">@drawable/ic_create_grey600_36dp</item>
+        <item name="iconMenuSend">@drawable/ic_send_white_36dp</item>
+        <item name="iconMenuSendDark">@drawable/ic_send_grey600_36dp</item>
+        <item name="iconMenuMail">@drawable/ic_mail_white_36dp</item>
+        <item name="iconMenuMailDark">@drawable/ic_mail_grey600_36dp</item>
+        <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
+        <item name="iconMenuMailReadDark">@drawable/ic_drafts_grey600_36dp</item>
+        <item name="iconMenuInbox">@drawable/ic_inbox_white_36dp</item>
+        <item name="iconMenuReply">@drawable/ic_reply_white_36dp</item>
+        <item name="iconMenuReplyDark">@drawable/ic_reply_grey600_36dp</item>
+        <item name="iconMenuBookmark">@drawable/ic_book_white_36dp</item>
+        <item name="iconMenuBookmarkDark">@drawable/ic_book_grey600_36dp</item>
+        <item name="iconMenuNewUnread">@drawable/ic_markunread_mailbox_white_36dp</item>
+        <item name="iconMenuLocked">@drawable/ic_https_white_36dp</item>
+        <item name="iconMenuLockedDark">@drawable/ic_https_grey600_36dp</item>
+        <item name="iconMenuLogout">@drawable/ic_exit_to_app_white_36dp</item>
+        <item name="iconMenuLogoutDark">@drawable/ic_exit_to_app_grey600_36dp</item>
+        <item name="iconMenuSettings">@drawable/ic_settings_white_36dp</item>
+        <item name="iconMenuSettingsDark">@drawable/ic_settings_grey600_36dp</item>
+        <item name="iconMenuGoToPage">@drawable/ic_fast_forward_white_36dp</item>
+        <item name="iconMenuGoToPageDark">@drawable/ic_fast_forward_grey600_36dp</item>
+        <item name="iconMenuEmote">@drawable/ic_tag_faces_white_36dp</item>
+        <item name="iconMenuEmoteDark">@drawable/ic_tag_faces_grey600_36dp</item>
+        <item name="iconMenuRate">@drawable/ic_looks_5_white_36dp</item>
+        <item name="iconMenuRateDark">@drawable/ic_looks_5_grey600_36dp</item>
+        <item name="iconMenuLastRead">@drawable/ic_remove_red_eye_white_36dp</item>
+        <item name="iconMenuLastReadDark">@drawable/ic_remove_red_eye_grey600_36dp</item>
+        <item name="iconMenuShare">@drawable/ic_share_white_36dp</item>
+        <item name="iconMenuShareDark">@drawable/ic_share_grey600_36dp</item>
+        <item name="iconMenuFindInPage">@drawable/ic_find_in_page_white_36dp</item>
+        <item name="iconMenuFindInPageDark">@drawable/ic_find_in_page_grey600_36dp</item>
+        <item name="iconMenuLink">@drawable/ic_insert_link_white_36dp</item>
+        <item name="iconMenuLinkDark">@drawable/ic_insert_link_grey600_36dp</item>
+        <item name="iconMenuYospos">@drawable/ic_menu_yospos</item>
+        <item name="iconMenuYosposDark">@drawable/ic_menu_yospos_dark</item>
+
     </style>
 
     <style name="Theme.AwfulTheme.Dark" parent="Theme.AppCompat.NoActionBar">
@@ -26,10 +73,56 @@
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/dark_alt_background</item>
         <item name="sidebarAvatarOverlayBackground">@color/sidebarOverlay_dark</item>
-        <item name="justPostButtonColor">@color/dark_background</item>
-        <item name="justPostButtonColorPressed">@color/dark_alt_background</item>
+        <item name="justPostButtonColor">@color/forums_blue_darkest</item>
+        <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <!-- The rest of your attributes -->
+        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
+        <!-- icons -->
+        <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
+        <item name="iconMenuLoadFailedDark">@drawable/ic_error_white_36dp</item>
+        <item name="iconMenuLoadSuccess">@drawable/ic_beenhere_white_36dp</item>
+        <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
+        <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
+        <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
+        <item name="iconMenuExpandMore">@drawable/ic_expand_more_white_36dp</item>
+        <item name="iconMenuRefresh">@drawable/ic_refresh_white_36dp</item>
+        <item name="iconMenuRefreshDark">@drawable/ic_refresh_white_36dp</item>
+        <item name="iconMenuCreate">@drawable/ic_create_white_36dp</item>
+        <item name="iconMenuCreateDark">@drawable/ic_create_white_36dp</item>
+        <item name="iconMenuSend">@drawable/ic_send_white_36dp</item>
+        <item name="iconMenuSendDark">@drawable/ic_send_white_36dp</item>
+        <item name="iconMenuMail">@drawable/ic_mail_white_36dp</item>
+        <item name="iconMenuMailDark">@drawable/ic_mail_white_36dp</item>
+        <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
+        <item name="iconMenuMailReadDark">@drawable/ic_drafts_white_36dp</item>
+        <item name="iconMenuInbox">@drawable/ic_inbox_white_36dp</item>
+        <item name="iconMenuReply">@drawable/ic_reply_white_36dp</item>
+        <item name="iconMenuReplyDark">@drawable/ic_reply_white_36dp</item>
+        <item name="iconMenuBookmark">@drawable/ic_book_white_36dp</item>
+        <item name="iconMenuBookmarkDark">@drawable/ic_book_white_36dp</item>
+        <item name="iconMenuNewUnread">@drawable/ic_markunread_mailbox_white_36dp</item>
+        <item name="iconMenuLocked">@drawable/ic_https_white_36dp</item>
+        <item name="iconMenuLockedDark">@drawable/ic_https_white_36dp</item>
+        <item name="iconMenuLogout">@drawable/ic_exit_to_app_white_36dp</item>
+        <item name="iconMenuLogoutDark">@drawable/ic_exit_to_app_white_36dp</item>
+        <item name="iconMenuSettings">@drawable/ic_settings_white_36dp</item>
+        <item name="iconMenuSettingsDark">@drawable/ic_settings_white_36dp</item>
+        <item name="iconMenuGoToPage">@drawable/ic_fast_forward_white_36dp</item>
+        <item name="iconMenuGoToPageDark">@drawable/ic_fast_forward_white_36dp</item>
+        <item name="iconMenuEmote">@drawable/ic_tag_faces_white_36dp</item>
+        <item name="iconMenuEmoteDark">@drawable/ic_tag_faces_white_36dp</item>
+        <item name="iconMenuRate">@drawable/ic_looks_5_white_36dp</item>
+        <item name="iconMenuRateDark">@drawable/ic_looks_5_white_36dp</item>
+        <item name="iconMenuLastRead">@drawable/ic_remove_red_eye_white_36dp</item>
+        <item name="iconMenuLastReadDark">@drawable/ic_remove_red_eye_white_36dp</item>
+        <item name="iconMenuShare">@drawable/ic_share_white_36dp</item>
+        <item name="iconMenuShareDark">@drawable/ic_share_white_36dp</item>
+        <item name="iconMenuFindInPage">@drawable/ic_find_in_page_white_36dp</item>
+        <item name="iconMenuFindInPageDark">@drawable/ic_find_in_page_white_36dp</item>
+        <item name="iconMenuLink">@drawable/ic_insert_link_white_36dp</item>
+        <item name="iconMenuLinkDark">@drawable/ic_insert_link_white_36dp</item>
+        <item name="iconMenuYospos">@drawable/ic_menu_yospos</item>
+        <item name="iconMenuYosposDark">@drawable/ic_menu_yospos</item>
     </style>
 
     <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.Dark">

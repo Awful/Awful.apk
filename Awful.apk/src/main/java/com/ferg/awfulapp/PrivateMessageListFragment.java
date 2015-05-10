@@ -30,6 +30,7 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -63,6 +64,8 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.util.AwfulUtils;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 
 public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	
@@ -77,6 +80,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private SwipeRefreshLayout mSRL;
 
     private Toolbar mToolbar;
+
+    private FloatingActionButton mFAB;
     
     private int currentFolder = FOLDER_INBOX;
 
@@ -109,6 +114,11 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         this.getAwfulActivity().setSupportActionBar(mToolbar);
         this.getAwfulActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mPMList = (ListView) result.findViewById(R.id.message_listview);
+
+
+        mFAB  = (FloatingActionButton) result.findViewById(R.id.just_pm);
+        mFAB.setOnClickListener(onButtonClick);
+        mFAB.setVisibility((mPrefs.noFAB ? View.GONE : View.VISIBLE));
 
         return result;
     }
@@ -161,6 +171,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
                 public void success(Void result) {
                     restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
                     mSRL.setRefreshing(false);
+                    mPMList.setSelectionAfterHeaderView();
                 }
 
                 @Override
@@ -199,6 +210,15 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         if(menu.size() == 0){
             inflater.inflate(R.menu.private_message_menu, menu);
         }
+
+        MenuItem newPM = menu.findItem(R.id.new_pm);
+        if(null != newPM){
+            newPM.setVisible(mPrefs.noFAB);
+        }
+        MenuItem sendPM = menu.findItem(R.id.send_pm);
+        if(null != sendPM){
+            sendPM.setVisible(AwfulUtils.isTablet(getActivity()));
+        }
     }
     
     @Override
@@ -220,6 +240,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
             setTitle(getTitle());
+            changeIcon(item);
         	syncPMs();
         	break;
         case R.id.settings:
@@ -230,10 +251,26 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         }
         return true;
     }
-    
+
+    private void changeIcon(MenuItem item) {
+        int[] attrs;
+        if(currentFolder == FOLDER_SENT){
+            attrs = new int[]{ R.attr.iconMenuInbox };
+        }else{
+            attrs = new int[]{ R.attr.iconMenuArrowRight };
+        }
+        TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
+        item.setIcon(ta.getDrawable(0));
+    }
+
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
+                case R.id.just_pm:
+                    if(getActivity() instanceof PrivateMessageActivity){
+                        ((PrivateMessageActivity) getActivity()).showMessage(null, 0);
+                    }
+                    break;
                 case R.id.new_pm:
                     startActivity(new Intent().setClass(getActivity(), MessageDisplayActivity.class));
                     break;
@@ -255,8 +292,13 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     };
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		updateColors(mPrefs);
+	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
+        super.onPreferenceChange(mPrefs, key);
+        updateColors(mPrefs);
+        if("no_fab".equals(key)){
+            mFAB.setVisibility((mPrefs.noFAB ? View.GONE : View.VISIBLE));
+            invalidateOptionsMenu();
+        }
 	}
 	private class PMIndexCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
         public PMIndexCallback(Handler handler) {

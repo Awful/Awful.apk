@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
 
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -14,8 +15,13 @@
         android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="?attr/awfulPopUpTheme"
         />
+    <RelativeLayout
+        android:id="@+id/thread_container"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
     <android.support.v4.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pm_swipe"
@@ -29,5 +35,19 @@
         android:dividerHeight="1px"
 		android:cacheColorHint="@color/background"
 		/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>        <com.getbase.floatingactionbutton.FloatingActionButton
+    android:id="@+id/just_pm"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    fab:fab_icon="?attr/iconMenuCreate"
+    fab:fab_plusIconColor="@color/actionbar_font_color"
+    fab:fab_colorNormal="?attr/justPostButtonColor"
+    fab:fab_colorPressed="?attr/justPostButtonColorPressed"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginBottom="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginEnd="16dp"/>
+</RelativeLayout>
 </LinearLayout>

@@ -14,7 +14,7 @@
         android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="?attr/awfulPopUpTheme"
         />
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"

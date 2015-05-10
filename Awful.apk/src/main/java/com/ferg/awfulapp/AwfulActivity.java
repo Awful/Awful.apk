@@ -211,21 +211,24 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     }
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)){
-            setTheme(R.style.Theme_AwfulTheme);
-        }else if(mPrefs.theme.equals(ColorProvider.FYAD)){
-            setTheme(R.style.Theme_AwfulTheme_FYAD);
-        }else if(mPrefs.theme.equals(ColorProvider.BYOB)){
-            setTheme(R.style.Theme_AwfulTheme_BYOB);
-        }else if(mPrefs.theme.equals(ColorProvider.YOSPOS)){
-            setTheme(R.style.Theme_AwfulTheme_YOSPOS);
-        }else if(mPrefs.theme.equals(ColorProvider.AMBERPOS)){
-            setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
-        }else{
-            setTheme(R.style.Theme_AwfulTheme_Dark);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+        Log.d(TAG, "Key changed: "+key);
+        if("theme".equals(key)) {
+            if (mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)) {
+                setTheme(R.style.Theme_AwfulTheme);
+            } else if (mPrefs.theme.equals(ColorProvider.FYAD)) {
+                setTheme(R.style.Theme_AwfulTheme_FYAD);
+            } else if (mPrefs.theme.equals(ColorProvider.BYOB)) {
+                setTheme(R.style.Theme_AwfulTheme_BYOB);
+            } else if (mPrefs.theme.equals(ColorProvider.YOSPOS)) {
+                setTheme(R.style.Theme_AwfulTheme_YOSPOS);
+            } else if (mPrefs.theme.equals(ColorProvider.AMBERPOS)) {
+                setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
+            } else {
+                setTheme(R.style.Theme_AwfulTheme_Dark);
+            }
+            afterThemeChange();
         }
-        afterThemeChange();
 		updateActionbarTheme(prefs);
 	}
 	

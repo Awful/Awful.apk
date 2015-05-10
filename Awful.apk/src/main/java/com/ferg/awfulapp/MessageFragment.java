@@ -232,7 +232,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                 }
                 if(getActivity() instanceof MessageDisplayActivity){
                     getActivity().finish();
-                    displayAlert("Message Sent!", R.drawable.ic_menu_load_success);
+                    displayAlert("Message Sent!", R.attr.iconMenuLoadSuccess);
                 }
             }
 
@@ -324,7 +324,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		if(getView() != null){
 			updateColors(getView(), prefs);
 		}else{

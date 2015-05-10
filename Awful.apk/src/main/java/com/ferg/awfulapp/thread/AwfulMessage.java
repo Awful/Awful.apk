@@ -29,9 +29,11 @@ package com.ferg.awfulapp.thread;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -102,23 +104,28 @@ public class AwfulMessage extends AwfulPagedItem {
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
 
-		if (data.getInt(data.getColumnIndex(UNREAD))>0) {
-			unreadPM.setVisibility(View.VISIBLE);
-            unreadPM.setImageResource(R.drawable.ic_menu_mail);
-		}else{
-			unreadPM.setVisibility(View.GONE);
-		}
+		unreadPM.setVisibility(View.VISIBLE);
+		Log.e(TAG, author.getText() +" "+ data.getInt(data.getColumnIndex(UNREAD)));
 
-//		if(aPref != null){
-//			title.setTextColor(ColorProvider.getTextColor());
-//			author.setTextColor(ColorProvider.getAltTextColor());
-//		}
-//		if(selected){
-//			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-//		}else{
-//			current.findViewById(R.id.selector).setVisibility(View.GONE);
-//		}
-		
+		int[] attrs;
+		switch (data.getInt(data.getColumnIndex(UNREAD))){
+			default:
+			case 0:
+				//unread
+				attrs = new int[]{ R.attr.iconMenuMailReadDark };
+				break;
+			case 1:
+				//read
+				attrs = new int[]{ R.attr.iconMenuMailDark };
+				break;
+			case 2:
+				//replied
+				attrs = new int[]{ R.attr.iconMenuReplyDark };
+				break;
+		}
+		TypedArray ta = current.getContext().getTheme().obtainStyledAttributes(attrs);
+		unreadPM.setImageDrawable(ta.getDrawable(0));
+
 		return current;
 	}
 	
@@ -169,8 +176,10 @@ public class AwfulMessage extends AwfulPagedItem {
 					pm.put(AUTHOR, row.get(3).text());
 					pm.put(DATE, row.get(4).text());
 					pm.put(CONTENT, " ");
-					if(row.first().getAllElements().first().attr("src").contains("newpm.gif")){
+					if(row.first().getElementsByTag("img").first().attr("src").endsWith("newpm.gif")){
 						pm.put(UNREAD, 1);
+					}else if(row.first().getElementsByTag("img").first().attr("src").endsWith("pmreplied.gif")){
+						pm.put(UNREAD, 2);
 					}else{
 						pm.put(UNREAD, 0);
 					}

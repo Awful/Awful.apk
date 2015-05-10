@@ -58,7 +58,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/login_text_container"
         android:drawablePadding="15dip"
-        android:drawableRight="@drawable/ic_menu_arrowright"
+        android:drawableRight="?attr/iconMenuArrowRight"
         android:padding="15dip"
         android:text="@string/login"
         android:background="#AAFFFFFF" />

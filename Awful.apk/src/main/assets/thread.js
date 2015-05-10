@@ -80,7 +80,7 @@ function pageinit() {
 	        if($(id).size() > 0){
 	            $(this).click(function(e){
 	                e.preventDefault();
-                    if($(id).css("display") !== "none"){
+                    if($(id).css("display") == "none"){
                         var count = $('.read').size();
                         $('.toggleread').hide();
                         $('.read').show(0, function(){
@@ -152,6 +152,10 @@ function pageinit() {
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
     $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend',function(){
+        listener.resumeSwipe();
+    }).on('touchleave',function(){
+        listener.resumeSwipe();
+    }).on('touchcancel',function(){
         listener.resumeSwipe();
     }).on('touchstart',function(){
         listener.haltSwipe();
