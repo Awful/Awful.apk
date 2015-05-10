@@ -712,7 +712,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread List update.");
-            refreshInfo();
         }
     }
 	
@@ -756,7 +755,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread Data update.");
-        	refreshInfo();
         }
     }
 	
