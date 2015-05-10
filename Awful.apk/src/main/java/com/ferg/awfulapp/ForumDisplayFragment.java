@@ -520,6 +520,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 			mPage = pageInt;
 			updatePageBar();
 			updateProbationBar();
+            // interrupt any scrolling animation and jump to the top of the page
+            mListView.smoothScrollBy(0,0);
+            mListView.setSelection(0);
+            // display the chosen page (may be cached), then update its contents
 			refreshInfo();
 			syncForum();
 		}
