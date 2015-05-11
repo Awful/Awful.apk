@@ -166,64 +166,64 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     }
 
     /**
-     * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
-     * @param context
-     */
-    private AwfulPreferences(Context context) {
-        mContext = context;
+	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
+	 * @param context
+	 */
+	private AwfulPreferences(Context context) {
+		mContext = context;
+		// this is sort of redundant with what's going on in updateValues(), but best to be sure eh
+		SettingsActivity.setDefaultsFromXml(context);
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		mPrefs.registerOnSharedPreferenceChangeListener(this);
+		updateValues(mPrefs);
+		upgradePreferences();
+		
+		longKeys = new HashSet<>();
+		longKeys.add("probation_time");
+	}
 
-        PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
-        updateValues(mPrefs);
-        upgradePreferences();
+	
+	public static AwfulPreferences getInstance(){
+		return mSelf;
+	}
+	
+	public static AwfulPreferences getInstance(Context context){
+		if(mSelf == null){
+			mSelf = new AwfulPreferences(context);
+		}
+		return mSelf;
+	}
+	
+	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback){
+		mCallback.add(updateCallback);
+		return getInstance(context);
+	}
 
-        longKeys = new HashSet<String>();
-        longKeys.add("probation_time");
-    }
+	public void unRegisterListener(){
+		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+	}
 
-
-    public static AwfulPreferences getInstance() {
-        return mSelf;
-    }
-
-    public static AwfulPreferences getInstance(Context context) {
-        if (mSelf == null) {
-            mSelf = new AwfulPreferences(context);
-        }
-        return mSelf;
-    }
-
-    public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback) {
-        mCallback.add(updateCallback);
-        return getInstance(context);
-    }
-
-    public void unRegisterListener() {
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    public SharedPreferences getPrefs() {
-        return mPrefs;
-    }
-
-    public void registerCallback(AwfulPreferenceUpdate client) {
-        if (!mCallback.contains(client)) {
-            mCallback.add(client);
-        }
-    }
-
-    public void unregisterCallback(AwfulPreferenceUpdate client) {
-        mCallback.remove(client);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        updateValues(prefs);
-        for (AwfulPreferenceUpdate auc : mCallback) {
+	public SharedPreferences getPrefs(){
+		return mPrefs;
+	}
+	
+	public void registerCallback(AwfulPreferenceUpdate client){
+		if(!mCallback.contains(client)){
+			mCallback.add(client);
+		}
+	}
+	
+	public void unregisterCallback(AwfulPreferenceUpdate client){
+		mCallback.remove(client);
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+		updateValues(prefs);
+		for(AwfulPreferenceUpdate auc : mCallback){
             auc.onPreferenceChange(this, key);
-        }
-    }
+		}
+	}
 
 	private void updateValues(SharedPreferences prefs) {
 		Resources res = mContext.getResources();
@@ -293,166 +293,167 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         //I have never seen this before oh god
     }
 
-    public void setBooleanPreference(String key, boolean value) {
-        mPrefs.edit().putBoolean(key, value).apply();
-    }
+	public void setBooleanPreference(String key, boolean value) {
+		mPrefs.edit().putBoolean(key, value).apply();
+	}
 
-    public void setStringPreference(String key, String value) {
+	public void setStringPreference(String key, String value) {
         mPrefs.edit().putString(key, value).apply();
-    }
+	}
 
-    public void setLongPreference(String key, long value) {
+	public void setLongPreference(String key, long value) {
 
-        mPrefs.edit().putLong(key, value).apply();
-    }
+		mPrefs.edit().putLong(key, value).apply();
+	}
 
-    public void setIntegerPreference(String key, int value) {
-        mPrefs.edit().putInt(key, value).apply();
-    }
+	public void setIntegerPreference(String key, int value) {
+		mPrefs.edit().putInt(key, value).apply();
+	}
+	
+	public void setFloatPreference(String key, float value) {
+		mPrefs.edit().putFloat(key, value).apply();
+	}
+	
+	public void setStringSetPreference(String key, Set<String> value){
+    	mPrefs.edit().putStringSet(key, value).apply();
+	}
+	
+	public void upgradePreferences() {
+		if(currPrefVersion < PREFERENCES_VERSION) {
+			switch(currPrefVersion) {//this switch intentionally falls through!
+			case 0:
+				// Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
+				boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
+        		setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
+        		mPrefs.edit().remove("new_threads_first").apply();
+        		newThreadsFirstUCP = newPrefsFirst;
+				break;
+			default://make sure to keep this break statement on the last case of this switch
+				break;
+			}
 
-    public void setFloatPreference(String key, float value) {
-        mPrefs.edit().putFloat(key, value).apply();
-    }
+			//update the preferences so this doesn't run again
+    		setIntegerPreference("curr_pref_version", PREFERENCES_VERSION);
+    		currPrefVersion = PREFERENCES_VERSION;
+		}
+	}
+	
 
-    public void setStringSetPreference(String key, Set<String> value) {
-        mPrefs.edit().putStringSet(key, value).apply();
-    }
+	public Resources getResources(){
+		return mContext.getResources();
+	}
+	
+	public boolean isOnProbation(){
+		if(probationTime == 0){
+			return false;
+		}else{
+			if(new Date(probationTime).compareTo(new Date()) < 0){
+				setLongPreference("probation_time", 0);
+				return false;
+			}
+			return true;
+		}
+	}
+	
+	public boolean hasFlash(){
+		try {
+		  PackageManager pm =  mContext.getPackageManager();
+		  ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
+		  if (ai != null)
+		    return true;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
+		return false;
+	}
 
-    public void upgradePreferences() {
-        if (currPrefVersion < PREFERENCES_VERSION) {
-            switch (currPrefVersion) {//this switch intentionally falls through!
-                case 0:
-                    // Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
-                    boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
-                    setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
-                    mPrefs.edit().remove("new_threads_first").apply();
-                    newThreadsFirstUCP = newPrefsFirst;
-                    break;
-                default://make sure to keep this break statement on the last case of this switch
-                    break;
-            }
+	public boolean canLoadImages() {
+		ConnectivityManager conman = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		return imagesEnabled && !(no3gImages && !conman.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+	}
+	
+	public boolean canLoadAvatars(){
+		return avatarsEnabled && canLoadImages();
+	}
+	
+	public void exportSettings(){
+		Map settings = mPrefs.getAll();
+		Calendar date = Calendar.getInstance();
+		Gson gson = new Gson();
+		String settingsJson = gson.toJson(settings);
+	    try {
+		PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
 
-            //update the preferences so this doesn't run again
-            setIntegerPreference("curr_pref_version", PREFERENCES_VERSION);
-            currPrefVersion = PREFERENCES_VERSION;
-        }
-    }
-
-
-    public Resources getResources() {
-        return mContext.getResources();
-    }
-
-    public boolean isOnProbation() {
-        if (probationTime == 0) {
-            return false;
-        } else {
-            if (new Date(probationTime).compareTo(new Date()) < 0) {
-                setLongPreference("probation_time", 0);
-                return false;
-            }
-            return true;
-        }
-    }
-
-    public boolean hasFlash() {
-        try {
-            PackageManager pm = mContext.getPackageManager();
-            ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
-            if (ai != null)
-                return true;
-        } catch (NameNotFoundException e) {
-            return false;
-        }
-        return false;
-    }
-
-    public boolean canLoadImages() {
-        ConnectivityManager conman = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return imagesEnabled && !(no3gImages && !conman.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
-    }
-
-    public boolean canLoadAvatars() {
-        return avatarsEnabled && canLoadImages();
-    }
-
-    public void exportSettings() {
-        Map settings = mPrefs.getAll();
-        Calendar date = Calendar.getInstance();
-        Gson gson = new Gson();
-        String settingsJson = gson.toJson(settings);
-        try {
-            PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
-
-            if (Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
-                File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/awful");
-
-                if (!awfulFolder.exists()) {
-                    if (!awfulFolder.mkdir()) {
+			if(Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
+				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
+				
+				if(!awfulFolder.exists()){
+					if (!awfulFolder.mkdir()) {
                         Log.i(TAG, "failed to create missing awful folder!");
-                    }
-                }
-                Log.i(TAG, "exporting settings to file: awful-" + pInfo.versionCode + "-" + date.get(Calendar.DATE) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.YEAR) + ".settings");
+					}
+				}
+				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
 
-                FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), "awful-" + pInfo.versionCode + "-" + date.get(Calendar.DATE) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.YEAR) + ".settings"));
-                out.write(settingsJson.getBytes());
-                out.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void importSettings(File settingsFile) {
-        Log.i(TAG, "importing settings from file: " + settingsFile.getName());
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(settingsFile));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        Gson gson = new Gson();
-        Map settings = gson.fromJson(br, mPrefs.getAll().getClass());
-        for (Object setting : settings.entrySet()) {
-            HashMap.Entry entry = (HashMap.Entry) setting;
-            String classname = entry.getValue().getClass().getSimpleName();
-            String key = (String) entry.getKey();
-            if ("Boolean".equals(classname)) {
-                setBooleanPreference(key, (Boolean) entry.getValue());
-            } else if ("String".equals(classname)) {
-                setStringPreference(key, (String) entry.getValue());
-            } else if ("Float".equals(classname)) {
-                setFloatPreference(key, (Float) entry.getValue());
-            } else {
-                if (longKeys.contains(key)) {
-                    setLongPreference(key, ((Double) entry.getValue()).longValue());
-                } else {
-                    setIntegerPreference(key, ((Double) entry.getValue()).intValue());
-                }
-            }
-        }
-        updateValues(mPrefs);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        unRegisterListener();
-        super.finalize();
-    }
-
-    public void markUser(String username) {
-        markedUsers.add(username);
-        setStringSetPreference("marked_users", markedUsers);
-    }
-
-    public void unmarkUser(String username) {
-        markedUsers.remove(username);
-        setStringSetPreference("marked_users", markedUsers);
-    }
+	        	FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), "awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings"));
+	        	out.write(settingsJson.getBytes());
+	        	out.close();
+	        }
+	    }
+	    catch (IOException e) {
+			e.printStackTrace();
+	    } catch (NameNotFoundException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void importSettings(File settingsFile){
+		Log.i(TAG, "importing settings from file: "+settingsFile.getName());
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(settingsFile));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		Gson gson = new Gson();
+		Map settings = gson.fromJson(br, mPrefs.getAll().getClass());
+		for (Object setting : settings.entrySet()) {
+			HashMap.Entry entry = (HashMap.Entry) setting;
+			String classname = entry.getValue().getClass().getSimpleName();
+            String key = (String)entry.getKey();
+			if("Boolean".equals(classname)){
+				setBooleanPreference(key, (Boolean)entry.getValue());
+			}else if("String".equals(classname)){
+				setStringPreference(key, (String)entry.getValue());
+			}else if("Float".equals(classname)){
+				setFloatPreference(key, (Float)entry.getValue());
+			}else{
+				if(longKeys.contains(key)){
+					setLongPreference(key, ((Double)entry.getValue()).longValue());
+				}else{
+					setIntegerPreference(key, ((Double)entry.getValue()).intValue());
+				}
+			}
+		}
+		updateValues(mPrefs);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		unRegisterListener();
+		super.finalize();
+	}
+	
+	public void markUser(String username){
+		markedUsers.add(username);
+		setStringSetPreference("marked_users", markedUsers);
+	}
+	
+	public void unmarkUser(String username){
+		markedUsers.remove(username);
+		setStringSetPreference("marked_users", markedUsers);
+	}
 
     /**
      * Only use in emergencies, terrible hack
