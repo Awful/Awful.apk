@@ -245,7 +245,7 @@ public class ForumsIndexActivity extends AwfulActivity {
             if (mNavThreadId != 0) {
                 TextView navThread = (TextView) navThreadLayout.findViewById(R.id.drawer_text);
                 Log.d(TAG, "NavThread, Navforum: " + mNavThreadId + " " + mNavForumId);
-                navThread.setVisibility(View.VISIBLE);
+                navThreadLayout.setVisibility(View.VISIBLE);
                 navThread.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage, false);
