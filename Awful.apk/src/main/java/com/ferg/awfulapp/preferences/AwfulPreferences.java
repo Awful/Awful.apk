@@ -43,7 +43,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
@@ -54,13 +53,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -77,7 +76,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
 
     private Context mContext;
-    private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
+	private final WeakHashMap<AwfulPreferenceUpdate, Object> mCallback = new WeakHashMap<>();
 
     //GENERAL STUFF
     public String username;
@@ -194,9 +193,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mSelf;
 	}
 	
-	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback){
-		mCallback.add(updateCallback);
-		return getInstance(context);
+	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback) {
+		AwfulPreferences instance = getInstance(context);
+		instance.registerCallback(updateCallback);
+		return instance;
 	}
 
 	public void unRegisterListener(){
@@ -207,10 +207,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mPrefs;
 	}
 	
-	public void registerCallback(AwfulPreferenceUpdate client){
-		if(!mCallback.contains(client)){
-			mCallback.add(client);
-		}
+	public void registerCallback(AwfulPreferenceUpdate client) {
+		mCallback.put(client, null);
 	}
 	
 	public void unregisterCallback(AwfulPreferenceUpdate client){
@@ -220,8 +218,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
-		for(AwfulPreferenceUpdate auc : mCallback){
-            auc.onPreferenceChange(this, key);
+		for (AwfulPreferenceUpdate auc : mCallback.keySet()) {
+			if (auc != null) {
+				auc.onPreferenceChange(this, key);
+			}
 		}
 	}
 
