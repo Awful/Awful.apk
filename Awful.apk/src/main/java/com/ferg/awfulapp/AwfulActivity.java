@@ -124,6 +124,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onDestroy() {
         super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mConf.onDestroy();
+        mPrefs.unregisterCallback(this);
     }
 
 

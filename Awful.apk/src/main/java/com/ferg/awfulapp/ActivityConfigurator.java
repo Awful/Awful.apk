@@ -32,7 +32,9 @@ public class ActivityConfigurator implements AwfulPreferences.AwfulPreferenceUpd
 	
 	public void onStop() {}
 	
-	public void onDestroy() {}
+	public void onDestroy() {
+		mPrefs.unregisterCallback(this);
+	}
 	
 	private void setOrientation() {
 		String orientationStr = mPrefs.orientation;
