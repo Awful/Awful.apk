@@ -74,7 +74,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
     }
 
     @Override
@@ -87,7 +86,8 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "onResume");
         mConf.onResume();
-        
+        // check login state when coming back into use, instead of in onCreate
+        loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
         if (isLoggedIn()) {
         	if(mPrefs.ignoreFormkey == null || mPrefs.userTitle == null){
         		 getAwfulApplication().queueRequest(new ProfileRequest(this, null).build(null, null));
@@ -124,6 +124,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onDestroy() {
         super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mConf.onDestroy();
+        mPrefs.unregisterCallback(this);
     }
 
 

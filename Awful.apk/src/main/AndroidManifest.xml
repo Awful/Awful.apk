@@ -43,7 +43,10 @@
         <activity
                 android:name="com.ferg.awfulapp.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.AppCompat.Light" android:launchMode="singleTop"/>
-        <activity android:name="com.ferg.awfulapp.SettingsActivity" android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name="com.ferg.awfulapp.preferences.SettingsActivity"
+            android:label="@string/settings_activity_title"
+            android:configChanges="keyboardHidden" />
         <activity
             android:name="com.ferg.awfulapp.PostReplyActivity"
             android:windowSoftInputMode="adjustResize"
