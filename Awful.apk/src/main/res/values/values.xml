@@ -20,6 +20,8 @@
     <attr name="iconMenuCreateDark" format="reference" />
     <attr name="iconMenuSend" format="reference" />
     <attr name="iconMenuSendDark" format="reference" />
+    <attr name="iconMenuSendSmall" format="reference" />
+    <attr name="iconMenuSendDarkSmall" format="reference" />
     <attr name="iconMenuMail" format="reference" />
     <attr name="iconMenuMailDark" format="reference" />
     <attr name="iconMenuMailRead" format="reference" />
@@ -52,4 +54,28 @@
     <attr name="iconMenuLinkDark" format="reference" />
     <attr name="iconMenuYospos" format="reference" />
     <attr name="iconMenuYosposDark" format="reference" />
+    <attr name="iconMenuFormat" format="reference" />
+    <attr name="iconMenuFormatSmall" format="reference" />
+    <attr name="iconMenuFormatDark" format="reference" />
+    <attr name="iconMenuFormatDarkSmall" format="reference" />
+    <attr name="iconMenuUnderline" format="reference" />
+    <attr name="iconMenuUnderlineDark" format="reference" />
+    <attr name="iconMenuBold" format="reference" />
+    <attr name="iconMenuBoldDark" format="reference" />
+    <attr name="iconMenuStrike" format="reference" />
+    <attr name="iconMenuStrikeDark" format="reference" />
+    <attr name="iconMenuItalic" format="reference" />
+    <attr name="iconMenuItalicDark" format="reference" />
+    <attr name="iconMenuQuote" format="reference" />
+    <attr name="iconMenuQuoteDark" format="reference" />
+    <attr name="iconMenuImage" format="reference" />
+    <attr name="iconMenuImageDark" format="reference" />
+    <attr name="iconMenuThumbnail" format="reference" />
+    <attr name="iconMenuThumbnailDark" format="reference" />
+    <attr name="iconMenuSpoiler" format="reference" />
+    <attr name="iconMenuSpoilerDark" format="reference" />
+    <attr name="iconMenuVideo" format="reference" />
+    <attr name="iconMenuVideoDark" format="reference" />
+    <attr name="iconMenuCode" format="reference" />
+    <attr name="iconMenuCodeDark" format="reference" />
 </resources>
