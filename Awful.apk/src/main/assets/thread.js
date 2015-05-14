@@ -88,6 +88,8 @@ function pageinit() {
                                 window.scrollTo(0,$(id).offset().top);
                             }
                         });
+                    }else{
+                        window.scrollTo(0,$(id).offset().top);
                     }
 	            });
 	        }

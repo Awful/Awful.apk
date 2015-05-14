@@ -18,7 +18,7 @@
         <!-- icons -->
         <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
         <item name="iconMenuLoadFailedDark">@drawable/ic_error_grey600_36dp</item>
-        <item name="iconMenuLoadSuccess">@drawable/ic_beenhere_white_36dp</item>
+        <item name="iconMenuLoadSuccess">@drawable/ic_check_circle_white_36dp</item>
         <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
         <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
         <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
@@ -29,6 +29,8 @@
         <item name="iconMenuCreateDark">@drawable/ic_create_grey600_36dp</item>
         <item name="iconMenuSend">@drawable/ic_send_white_36dp</item>
         <item name="iconMenuSendDark">@drawable/ic_send_grey600_36dp</item>
+        <item name="iconMenuSendSmall">@drawable/ic_send_white_24dp</item>
+        <item name="iconMenuSendDarkSmall">@drawable/ic_send_grey600_24dp</item>
         <item name="iconMenuMail">@drawable/ic_mail_white_36dp</item>
         <item name="iconMenuMailDark">@drawable/ic_mail_grey600_36dp</item>
         <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
@@ -41,8 +43,8 @@
         <item name="iconMenuNewUnread">@drawable/ic_markunread_mailbox_white_36dp</item>
         <item name="iconMenuLocked">@drawable/ic_https_white_36dp</item>
         <item name="iconMenuLockedDark">@drawable/ic_https_grey600_36dp</item>
-        <item name="iconMenuLogout">@drawable/ic_exit_to_app_white_36dp</item>
-        <item name="iconMenuLogoutDark">@drawable/ic_exit_to_app_grey600_36dp</item>
+        <item name="iconMenuLogout">@drawable/ic_power_settings_new_white_36dp</item>
+        <item name="iconMenuLogoutDark">@drawable/ic_power_settings_new_grey600_36dp</item>
         <item name="iconMenuSettings">@drawable/ic_settings_white_36dp</item>
         <item name="iconMenuSettingsDark">@drawable/ic_settings_grey600_36dp</item>
         <item name="iconMenuGoToPage">@drawable/ic_fast_forward_white_36dp</item>
@@ -61,6 +63,30 @@
         <item name="iconMenuLinkDark">@drawable/ic_insert_link_grey600_36dp</item>
         <item name="iconMenuYospos">@drawable/ic_menu_yospos</item>
         <item name="iconMenuYosposDark">@drawable/ic_menu_yospos_dark</item>
+        <item name="iconMenuFormat">@drawable/ic_text_format_white_36dp</item>
+        <item name="iconMenuFormatSmall">@drawable/ic_text_format_white_24dp</item>
+        <item name="iconMenuFormatDark">@drawable/ic_text_format_grey600_36dp</item>
+        <item name="iconMenuFormatDarkSmall">@drawable/ic_text_format_grey600_24dp</item>
+        <item name="iconMenuUnderline">@drawable/ic_format_underline_white_36dp</item>
+        <item name="iconMenuUnderlineDark">@drawable/ic_format_underline_grey600_36dp</item>
+        <item name="iconMenuBold">@drawable/ic_format_bold_white_36dp</item>
+        <item name="iconMenuBoldDark">@drawable/ic_format_bold_grey600_36dp</item>
+        <item name="iconMenuStrike">@drawable/ic_strikethrough_s_white_36dp</item>
+        <item name="iconMenuStrikeDark">@drawable/ic_strikethrough_s_grey600_36dp</item>
+        <item name="iconMenuItalic">@drawable/ic_format_italic_white_36dp</item>
+        <item name="iconMenuItalicDark">@drawable/ic_format_italic_grey600_36dp</item>
+        <item name="iconMenuQuote">@drawable/ic_format_quote_white_36dp</item>
+        <item name="iconMenuQuoteDark">@drawable/ic_format_quote_grey600_36dp</item>
+        <item name="iconMenuImage">@drawable/ic_panorama_white_36dp</item>
+        <item name="iconMenuImageDark">@drawable/ic_panorama_grey600_36dp</item>
+        <item name="iconMenuThumbnail">@drawable/ic_insert_photo_white_36dp</item>
+        <item name="iconMenuThumbnailDark">@drawable/ic_insert_photo_grey600_36dp</item>
+        <item name="iconMenuSpoiler">@drawable/ic_dehaze_white_36dp</item>
+        <item name="iconMenuSpoilerDark">@drawable/ic_dehaze_grey600_36dp</item>
+        <item name="iconMenuVideo">@drawable/ic_movie_white_36dp</item>
+        <item name="iconMenuVideoDark">@drawable/ic_movie_grey600_36dp</item>
+        <item name="iconMenuCode">@drawable/ic_code_white_36dp</item>
+        <item name="iconMenuCodeDark">@drawable/ic_code_grey600_36dp</item>
 
     </style>
 
@@ -80,7 +106,7 @@
         <!-- icons -->
         <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
         <item name="iconMenuLoadFailedDark">@drawable/ic_error_white_36dp</item>
-        <item name="iconMenuLoadSuccess">@drawable/ic_beenhere_white_36dp</item>
+        <item name="iconMenuLoadSuccess">@drawable/ic_check_circle_white_36dp</item>
         <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
         <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
         <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
@@ -91,6 +117,8 @@
         <item name="iconMenuCreateDark">@drawable/ic_create_white_36dp</item>
         <item name="iconMenuSend">@drawable/ic_send_white_36dp</item>
         <item name="iconMenuSendDark">@drawable/ic_send_white_36dp</item>
+        <item name="iconMenuSendSmall">@drawable/ic_send_white_24dp</item>
+        <item name="iconMenuSendDarkSmall">@drawable/ic_send_white_24dp</item>
         <item name="iconMenuMail">@drawable/ic_mail_white_36dp</item>
         <item name="iconMenuMailDark">@drawable/ic_mail_white_36dp</item>
         <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
@@ -103,8 +131,8 @@
         <item name="iconMenuNewUnread">@drawable/ic_markunread_mailbox_white_36dp</item>
         <item name="iconMenuLocked">@drawable/ic_https_white_36dp</item>
         <item name="iconMenuLockedDark">@drawable/ic_https_white_36dp</item>
-        <item name="iconMenuLogout">@drawable/ic_exit_to_app_white_36dp</item>
-        <item name="iconMenuLogoutDark">@drawable/ic_exit_to_app_white_36dp</item>
+        <item name="iconMenuLogout">@drawable/ic_power_settings_new_white_36dp</item>
+        <item name="iconMenuLogoutDark">@drawable/ic_power_settings_new_white_36dp</item>
         <item name="iconMenuSettings">@drawable/ic_settings_white_36dp</item>
         <item name="iconMenuSettingsDark">@drawable/ic_settings_white_36dp</item>
         <item name="iconMenuGoToPage">@drawable/ic_fast_forward_white_36dp</item>
@@ -123,6 +151,30 @@
         <item name="iconMenuLinkDark">@drawable/ic_insert_link_white_36dp</item>
         <item name="iconMenuYospos">@drawable/ic_menu_yospos</item>
         <item name="iconMenuYosposDark">@drawable/ic_menu_yospos</item>
+        <item name="iconMenuFormat">@drawable/ic_text_format_white_36dp</item>
+        <item name="iconMenuFormatSmall">@drawable/ic_text_format_white_36dp</item>
+        <item name="iconMenuFormatDark">@drawable/ic_text_format_white_36dp</item>
+        <item name="iconMenuFormatDarkSmall">@drawable/ic_text_format_white_36dp</item>
+        <item name="iconMenuUnderline">@drawable/ic_format_underline_white_36dp</item>
+        <item name="iconMenuUnderlineDark">@drawable/ic_format_underline_white_36dp</item>
+        <item name="iconMenuBold">@drawable/ic_format_bold_white_36dp</item>
+        <item name="iconMenuBoldDark">@drawable/ic_format_bold_white_36dp</item>
+        <item name="iconMenuStrike">@drawable/ic_strikethrough_s_white_36dp</item>
+        <item name="iconMenuStrikeDark">@drawable/ic_strikethrough_s_white_36dp</item>
+        <item name="iconMenuItalic">@drawable/ic_format_italic_white_36dp</item>
+        <item name="iconMenuItalicDark">@drawable/ic_format_italic_white_36dp</item>
+        <item name="iconMenuQuote">@drawable/ic_format_quote_white_36dp</item>
+        <item name="iconMenuQuoteDark">@drawable/ic_format_quote_white_36dp</item>
+        <item name="iconMenuImage">@drawable/ic_panorama_white_36dp</item>
+        <item name="iconMenuImageDark">@drawable/ic_panorama_white_36dp</item>
+        <item name="iconMenuThumbnail">@drawable/ic_insert_photo_white_36dp</item>
+        <item name="iconMenuThumbnailDark">@drawable/ic_insert_photo_white_36dp</item>
+        <item name="iconMenuSpoiler">@drawable/ic_dehaze_white_36dp</item>
+        <item name="iconMenuSpoilerDark">@drawable/ic_dehaze_white_36dp</item>
+        <item name="iconMenuVideo">@drawable/ic_movie_white_36dp</item>
+        <item name="iconMenuVideoDark">@drawable/ic_movie_white_36dp</item>
+        <item name="iconMenuCode">@drawable/ic_code_white_36dp</item>
+        <item name="iconMenuCodeDark">@drawable/ic_code_white_36dp</item>
     </style>
 
     <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.Dark">

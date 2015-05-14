@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/submit_button"
-        android:icon="?attr/iconMenuSend"
+        android:icon="?attr/iconMenuSendSmall"
         app:showAsAction="always"
         android:title="@string/submit"/>
     <item
         android:id="@+id/bbcode"
-        android:icon="?attr/iconMenuExpandMore"
+        android:icon="?attr/iconMenuFormatSmall"
         app:showAsAction="ifRoom"
         android:title="@string/bbcode">
         <menu>
@@ -19,36 +19,47 @@
                 android:title="Emotes"/>
             <item
                 android:id="@+id/bbcode_bold"
+                android:icon="?attr/iconMenuBoldDark"
                 android:title="Bold"/>
             <item
                 android:id="@+id/bbcode_italics"
+                android:icon="?attr/iconMenuItalicDark"
                 android:title="Italics"/>
             <item
                 android:id="@+id/bbcode_underline"
+                android:icon="?attr/iconMenuUnderlineDark"
                 android:title="Underline"/>
             <item
                 android:id="@+id/bbcode_strikeout"
+                android:icon="?attr/iconMenuStrikeDark"
                 android:title="Strikeout"/>
             <item
                 android:id="@+id/bbcode_image"
+                android:icon="?attr/iconMenuImageDark"
                 android:title="Image Tag"/>
             <item
                 android:id="@+id/bbcode_thumbnail"
+                android:icon="?attr/iconMenuThumbnailDark"
                 android:title="Thumbnail Tag"/>
             <item
                 android:id="@+id/bbcode_url"
+                android:icon="?attr/iconMenuLinkDark"
                 android:title="Insert URL"/>
             <item
                 android:id="@+id/bbcode_video"
+                android:icon="?attr/iconMenuVideoDark"
                 android:title="Insert Video"/>
             <item
                 android:id="@+id/bbcode_quote"
+                android:icon="?attr/iconMenuQuoteDark"
                 android:title="Quote Block"/>
             <item
                 android:id="@+id/bbcode_spoiler"
+                android:icon="?attr/iconMenuSpoilerDark"
                 android:title="Spoiler Block"/>
             <item
                 android:id="@+id/bbcode_code"
+                android:icon="?attr/iconMenuCodeDark"
                 android:title="Code Block"/>
         </menu>
     </item>
