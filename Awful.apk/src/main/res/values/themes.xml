@@ -15,6 +15,7 @@
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="windowActionModeOverlay">true</item>
         <!-- icons -->
         <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
         <item name="iconMenuLoadFailedDark">@drawable/ic_error_grey600_36dp</item>
@@ -103,6 +104,7 @@
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="windowActionModeOverlay">true</item>
         <!-- icons -->
         <item name="iconMenuLoadFailed">@drawable/ic_error_white_36dp</item>
         <item name="iconMenuLoadFailedDark">@drawable/ic_error_white_36dp</item>
