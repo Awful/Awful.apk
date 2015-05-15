@@ -571,6 +571,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 			mPage = pageInt;
 			updatePageBar();
 			updateProbationBar();
+            // interrupt any scrolling animation and jump to the top of the page
+            mListView.smoothScrollBy(0,0);
+            mListView.setSelection(0);
+            // display the chosen page (may be cached), then update its contents
 			refreshInfo();
 			syncForum();
 		}
@@ -759,7 +763,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread List update.");
-            refreshInfo();
         }
     }
 	
@@ -803,7 +806,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread Data update.");
-        	refreshInfo();
         }
     }
 	
