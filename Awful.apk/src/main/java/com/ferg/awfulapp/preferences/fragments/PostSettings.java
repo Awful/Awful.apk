@@ -1,14 +1,18 @@
 package com.ferg.awfulapp.preferences.fragments;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.preference.Preference;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -32,6 +36,10 @@ public class PostSettings extends SettingsFragment {
                 "default_post_font_size_dip",
                 "default_post_fixed_font_size_dip"
         });
+
+        prefClickListeners.put(new PostsPerPageListener(), new String[] {
+                "posts_per_page"
+        });
     }
 
     @Override
@@ -40,7 +48,7 @@ public class PostSettings extends SettingsFragment {
                 .setSummary(String.valueOf(mPrefs.postFontSizeDip));
         findPreference("default_post_fixed_font_size_dip")
                 .setSummary(String.valueOf(mPrefs.postFixedFontSizeDip));
-        findPreference("post_per_page2")
+        findPreference("posts_per_page")
                 .setSummary(String.valueOf(mPrefs.postPerPage));
     }
 
@@ -100,6 +108,52 @@ public class PostSettings extends SettingsFragment {
             mFontSizeText.setText((bar.getProgress()+minSize)+ "  Get out");
             mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+minSize));
             mFontSizeDialog.show();
+            return true;
+        }
+    }
+
+    private class PostsPerPageListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(final Preference preference) {
+
+            final View pickerView = getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+            final NumberPicker  picker = (NumberPicker) pickerView.findViewById(R.id.pagePicker);
+            final Button        minButton = (Button) pickerView.findViewById(R.id.min);
+            final Button        maxButton = (Button) pickerView.findViewById(R.id.max);
+            final int minPages = 1;
+            final int maxPages = Constants.ITEMS_PER_PAGE;
+
+            picker.setMinValue(minPages);
+            picker.setMaxValue(maxPages);
+            picker.setValue(mPrefs.postPerPage);
+            minButton.setText(Integer.toString(minPages));
+            maxButton.setText(Integer.toString(maxPages));
+
+            View.OnClickListener buttonsListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (v == minButton) {
+                        picker.setValue(minPages);
+                    } else if (v == maxButton) {
+                        picker.setValue(maxPages);
+                    }
+                }
+            };
+            minButton.setOnClickListener(buttonsListener);
+            maxButton.setOnClickListener(buttonsListener);
+
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Posts per page")
+                    .setView(pickerView)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface aDialog, int aWhich) {
+                                    mPrefs.setIntegerPreference(preference.getKey(), picker.getValue());
+                                }
+                            })
+                    .setNegativeButton("Cancel", null)
+                    .show();
             return true;
         }
     }

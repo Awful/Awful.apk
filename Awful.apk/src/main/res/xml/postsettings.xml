@@ -11,12 +11,10 @@
             android:title="@string/default_post_fixed_font_size"
             android:defaultValue="13"
             />
-        <EditTextPreference
-            android:key="post_per_page2"
+        <Preference
+            android:key="posts_per_page"
             android:title="@string/setting_posts_per_page"
-            android:summary="@string/setting_posts_per_page_summary"
             android:defaultValue="40"
-            android:inputType="number"
             />
         <SwitchPreference
             android:key="hide_old_posts"
