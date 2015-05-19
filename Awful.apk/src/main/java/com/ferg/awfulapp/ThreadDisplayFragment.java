@@ -45,6 +45,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -370,7 +371,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
 			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
 		}
-		if (mPrefs.inlineWebm || mPrefs.inlineVines) {
+		if ( AwfulUtils.isNewerThan(Build.VERSION_CODES.JELLY_BEAN_MR1) && (mPrefs.inlineWebm || mPrefs.inlineVines)) {
 			mThreadView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 		}
 		if (mPrefs.inlineTweets && AwfulUtils.isJellybean()) {
