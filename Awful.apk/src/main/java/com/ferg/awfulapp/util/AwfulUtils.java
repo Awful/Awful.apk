@@ -39,6 +39,11 @@ import java.util.HashMap;
  */
 public class AwfulUtils {
 
+    public static boolean isNewerThan(int code) {
+        return Build.VERSION.SDK_INT >= code;
+    }
+
+
     public static boolean isJellybean() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
