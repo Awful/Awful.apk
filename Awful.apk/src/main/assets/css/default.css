@@ -52,7 +52,7 @@ article {
 border-radius:.15em;
 background-color:#FFF;
 color:#828282;
-box-shadow:0 .15em 0 #dbdadb;
+box-shadow: 0 .15em 0.05em #ccc;
 margin:10px 5px;
 padding:15px;
 }
