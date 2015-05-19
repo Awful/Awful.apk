@@ -255,9 +255,9 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private void changeIcon(MenuItem item) {
         int[] attrs;
         if(currentFolder == FOLDER_SENT){
-            attrs = new int[]{ R.attr.iconMenuInbox };
+            attrs = new int[]{ R.attr.iconMenuInboxSmall };
         }else{
-            attrs = new int[]{ R.attr.iconMenuArrowRight };
+            attrs = new int[]{ R.attr.iconMenuOutbox };
         }
         TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
         item.setIcon(ta.getDrawable(0));

@@ -27,6 +27,8 @@
     <attr name="iconMenuMailRead" format="reference" />
     <attr name="iconMenuMailReadDark" format="reference" />
     <attr name="iconMenuInbox" format="reference" />
+    <attr name="iconMenuInboxSmall" format="reference" />
+    <attr name="iconMenuOutbox" format="reference" />
     <attr name="iconMenuReply" format="reference" />
     <attr name="iconMenuReplyDark" format="reference" />
     <attr name="iconMenuBookmark" format="reference" />

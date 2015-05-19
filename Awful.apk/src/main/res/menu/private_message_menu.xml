@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/toggle_folder"
-        android:icon="?attr/iconMenuArrowRight"
+        android:icon="?attr/iconMenuOutbox"
         android:title="@string/toggle_folder"
         app:showAsAction="always" />
     <item

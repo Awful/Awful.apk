@@ -37,6 +37,8 @@
         <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
         <item name="iconMenuMailReadDark">@drawable/ic_drafts_grey600_36dp</item>
         <item name="iconMenuInbox">@drawable/ic_inbox_white_36dp</item>
+        <item name="iconMenuInboxSmall">@drawable/ic_inbox_white_24dp</item>
+        <item name="iconMenuOutbox">@drawable/ic_drawer_outbox_24dp</item>
         <item name="iconMenuReply">@drawable/ic_reply_white_36dp</item>
         <item name="iconMenuReplyDark">@drawable/ic_reply_grey600_36dp</item>
         <item name="iconMenuBookmark">@drawable/ic_book_white_36dp</item>
@@ -126,6 +128,8 @@
         <item name="iconMenuMailRead">@drawable/ic_drafts_white_36dp</item>
         <item name="iconMenuMailReadDark">@drawable/ic_drafts_white_36dp</item>
         <item name="iconMenuInbox">@drawable/ic_inbox_white_36dp</item>
+        <item name="iconMenuInboxSmall">@drawable/ic_inbox_white_24dp</item>
+        <item name="iconMenuOutbox">@drawable/ic_drawer_outbox_24dp</item>
         <item name="iconMenuReply">@drawable/ic_reply_white_36dp</item>
         <item name="iconMenuReplyDark">@drawable/ic_reply_white_36dp</item>
         <item name="iconMenuBookmark">@drawable/ic_book_white_36dp</item>
