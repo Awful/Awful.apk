@@ -243,7 +243,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
-        postPerPage              = Math.max(Math.min(Integer.valueOf(mPrefs.getString("post_per_page2", String.valueOf(Constants.ITEMS_PER_PAGE))), Constants.ITEMS_PER_PAGE), 1);//can't make the preference page honor a max value
+        postPerPage              = mPrefs.getInt("posts_per_page", Constants.ITEMS_PER_PAGE);
        	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds", false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
