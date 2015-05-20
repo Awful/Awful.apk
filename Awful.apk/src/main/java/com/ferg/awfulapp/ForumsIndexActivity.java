@@ -877,7 +877,9 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
-        mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        if (!AwfulUtils.isTablet(this) && !prefs.transformer.equals("Disabled")) {
+            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
+        }
     }
 
     @Override
