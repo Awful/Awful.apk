@@ -39,7 +39,7 @@ import java.util.HashMap;
  */
 public class AwfulUtils {
 
-    public static boolean isNewerThan(int code) {
+    public static boolean isAtLeast(int code) {
         return Build.VERSION.SDK_INT >= code;
     }
 
