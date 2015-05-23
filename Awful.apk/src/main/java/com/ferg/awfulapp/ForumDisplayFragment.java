@@ -551,6 +551,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		super.onPreferenceChange(mPrefs, key);
 		getAwfulActivity().setPreferredFont(mPageCountText);	
 		updateColors();
+        if(null != mListView) {
+            mListView.invalidate();
+            mListView.invalidateViews();
+        }
 	}
 	
 	public int getForumId(){

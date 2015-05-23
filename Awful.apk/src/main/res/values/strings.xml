@@ -207,8 +207,8 @@
     <string name="hide_signatures_summary">Even when enabled in the browser</string>
     <string name="always_open_urls">Always open links</string>
     <string name="always_open_urls_summary">Disable link options menu</string>
-    <string name="no_fab">Disable FAB</string>
-    <string name="no_fab_summary">No Floating Action Button in the thread view</string>
+    <string name="no_fab">Disable FABs</string>
+    <string name="no_fab_summary">Disable all Floating Action Buttons (thread view, pm list)</string>
 
     <!-- Image Settings page -->
     <string name="load_images">Load images</string>
