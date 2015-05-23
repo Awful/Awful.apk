@@ -1432,6 +1432,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if(clickInterface != null){
 			clickInterface.preparePreferences();
 		}
+		if(mFAB != null) {
+			mFAB.setVisibility((mPrefs.noFAB?View.GONE:View.VISIBLE));
+		}
 	}
 
 	public void setPostJump(String postID) {
