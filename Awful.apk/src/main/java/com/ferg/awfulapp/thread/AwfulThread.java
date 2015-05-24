@@ -33,6 +33,7 @@ import android.content.ContentValues;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -46,6 +47,7 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulFragment;
+import com.ferg.awfulapp.AwfulRatings;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -172,10 +174,9 @@ public class AwfulThread extends AwfulPagedItem  {
                 Element rating = node.getElementsByClass("rating").first();
                 if(rating != null && rating.children().size() > 0){
                 	Element img = rating.children().first();
-                	int rate = Integer.parseInt(""+img.attr("src").charAt(img.attr("src").length()-10));
-                	thread.put(RATING, rate);
+                	thread.put(RATING, AwfulRatings.getRating(img.attr("src")));
                 }else{
-                	thread.put(RATING,0);
+                	thread.put(RATING, AwfulRatings.NO_RATING);
                 }
 
                 Elements tarIcon = node.getElementsByClass("icon");
@@ -405,7 +406,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
         buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
 
-        buffer.append("</head><body><div id='container' class='container' "+(!aPrefs.noFAB?"style='padding-bottom:75px'":"")+"></div></body></html>");
+        buffer.append("</head><body><div id='container' class='container' " + (!aPrefs.noFAB ? "style='padding-bottom:75px'" : "") + "></div></body></html>");
         return buffer.toString();
     }
 
@@ -551,35 +552,22 @@ public class AwfulThread extends AwfulPagedItem  {
 
         info.setText(tmp.toString().trim());
 
-		if(prefs.threadInfo_Rating){
-			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(tagFile != null){
-				switch(data.getInt(data.getColumnIndex(RATING))){
-				case(1):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_1stars));
-					break;
-				case(2):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_2stars));
-					break;
-				case(3):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_3stars));
-					break;
-				case(4):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_4stars));
-					break;
-				case(5):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_5stars));
-					break;
-				default:
-					aq.id(R.id.thread_rating).gone();
-					break;
-				}
-			}else{
-				aq.id(R.id.thread_rating).gone();
-			}
-		}else{
-			aq.id(R.id.thread_rating).gone();
-		}
+        boolean showRating = false;
+        if (prefs.threadInfo_Rating) {
+            int rating = data.getInt(data.getColumnIndex(RATING));
+            Drawable ratingIcon = AwfulRatings.getDrawable(rating, current.getResources());
+            if (ratingIcon != null) {
+                aq.id(R.id.thread_rating).visible().image(ratingIcon);
+                // total hack until the layouts are sorted out to handle this properly
+                if (AwfulRatings.getType(rating) == AwfulRatings.TYPE_FILM_DUMP) {
+                    aq.id(R.id.thread_tag).visible();
+                }
+                showRating = true;
+            }
+        }
+        if (!showRating) {
+            aq.id(R.id.thread_rating).gone();
+        }
 		
         if(stuck){
             aq.id(R.id.thread_sticky).visible().image(current.getResources().getDrawable(R.drawable.ic_sticky));
