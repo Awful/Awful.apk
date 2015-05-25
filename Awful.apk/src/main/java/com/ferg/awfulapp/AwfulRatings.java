@@ -58,17 +58,17 @@ public abstract class AwfulRatings {
         tempRatings.add(new Rating(TYPE_NORMAL, "2", R.drawable.rating_2stars));
         tempRatings.add(new Rating(TYPE_NORMAL, "1", R.drawable.rating_1stars));
 
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "5.0", R.drawable.rating_review_5_0_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "4.5", R.drawable.rating_review_4_5_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "4.0", R.drawable.rating_review_4_0_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "3.5", R.drawable.rating_review_3_5_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "3.0", R.drawable.rating_review_3_0_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "2.5", R.drawable.rating_review_2_5_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "2.0", R.drawable.rating_review_2_0_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "1.5", R.drawable.rating_review_1_5_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "1.0", R.drawable.rating_review_1_0_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "0.5", R.drawable.rating_review_0_5_stars));
-        tempRatings.add(new Rating(TYPE_FILM_DUMP, "0.0", R.drawable.rating_review_0_0_stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "5.0", R.drawable.rating_5_0stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "4.5", R.drawable.rating_4_5stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "4.0", R.drawable.rating_4_0stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "3.5", R.drawable.rating_3_5stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "3.0", R.drawable.rating_3_0stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "2.5", R.drawable.rating_2_5stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "2.0", R.drawable.rating_2_0stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "1.5", R.drawable.rating_1_5stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "1.0", R.drawable.rating_1_0stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "0.5", R.drawable.rating_0_5stars));
+        tempRatings.add(new Rating(TYPE_FILM_DUMP, "0.0", R.drawable.rating_0_0stars));
 
         // no touching!
         ratings = Collections.unmodifiableList(tempRatings);

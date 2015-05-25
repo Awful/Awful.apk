@@ -552,20 +552,24 @@ public class AwfulThread extends AwfulPagedItem  {
 
         info.setText(tmp.toString().trim());
 
-        boolean showRating = false;
+        /*
+            Ratings
+         */
+        boolean showRatingView = false;
         if (prefs.threadInfo_Rating) {
             int rating = data.getInt(data.getColumnIndex(RATING));
             Drawable ratingIcon = AwfulRatings.getDrawable(rating, current.getResources());
             if (ratingIcon != null) {
-                aq.id(R.id.thread_rating).visible().image(ratingIcon);
-                // total hack until the layouts are sorted out to handle this properly
+                // kind of a hack until the layouts are sorted out to handle this properly
                 if (AwfulRatings.getType(rating) == AwfulRatings.TYPE_FILM_DUMP) {
-                    aq.id(R.id.thread_tag).visible();
+                    aq.id(R.id.thread_tag).visible().image(ratingIcon);
+                } else {
+                    aq.id(R.id.thread_rating).visible().image(ratingIcon);
+                    showRatingView = true;
                 }
-                showRating = true;
             }
         }
-        if (!showRating) {
+        if (!showRatingView) {
             aq.id(R.id.thread_rating).gone();
         }
 		
