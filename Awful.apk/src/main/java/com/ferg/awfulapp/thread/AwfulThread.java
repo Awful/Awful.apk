@@ -47,7 +47,6 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulFragment;
-import com.ferg.awfulapp.AwfulRatings;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -104,8 +103,9 @@ public class AwfulThread extends AwfulPagedItem  {
 
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
-	
-	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+    public static final String TAG_EXTRA    = "tag_extra";
+
+    private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 
 
@@ -131,7 +131,7 @@ public class AwfulThread extends AwfulPagedItem  {
         ArrayList<ContentValues> result = new ArrayList<ContentValues>();
         Element threads = aResponse.getElementById("forum");
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        Log.v(TAG,"Update time: "+update_time);
+        Log.v(TAG, "Update time: " + update_time);
 		for(Element node : threads.getElementsByClass("thread")){
             try {
     			ContentValues thread = new ContentValues();
@@ -172,10 +172,10 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
                 
                 Element rating = node.getElementsByClass("rating").first();
-                if(rating != null && rating.children().size() > 0){
+                if (rating != null && rating.children().size() > 0){
                 	Element img = rating.children().first();
-                	thread.put(RATING, AwfulRatings.getRating(img.attr("src")));
-                }else{
+                	thread.put(RATING, AwfulRatings.getId(img.attr("src")));
+                } else {
                 	thread.put(RATING, AwfulRatings.NO_RATING);
                 }
 
@@ -195,6 +195,17 @@ public class AwfulThread extends AwfulPagedItem  {
                     }
                 }
 
+                /*
+                    secondary tags
+                 */
+                Element extraTag = node.getElementsByClass("icon2").first();
+                if (extraTag != null && extraTag.children().size() > 0){
+                    Element img = extraTag.children().first();
+                    thread.put(TAG_EXTRA, ExtraTags.getId(img.attr("src")));
+                } else {
+                    thread.put(TAG_EXTRA, ExtraTags.NO_TAG);
+                }
+
                 Elements tarUser = node.getElementsByClass("author");
                 if (tarUser.size() > 0) {
                     // There's got to be a better way to do this
@@ -204,13 +215,13 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
 
                 Elements tarCount = node.getElementsByClass("count");
-                if (tarCount.size() > 0 && tarCount.first().getAllElements().size() >0) {
+                if (tarCount.size() > 0 && tarCount.first().getAllElements().size() > 0) {
                     thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
 					thread.put(HAS_VIEWED_THREAD, 1);
                 } else {
 					thread.put(UNREADCOUNT, 0);
                 	Elements tarXCount = node.getElementsByClass("x");
-                	// If there are X's then the user has viewed the thread
+                    // If there are X's then the user has viewed the thread
 					thread.put(HAS_VIEWED_THREAD, (tarXCount.isEmpty()?0:1));
                 }
                 Elements tarStar = node.getElementsByClass("star");
@@ -538,8 +549,27 @@ public class AwfulThread extends AwfulPagedItem  {
                 }else{
                     threadTag.setImageResource(imageID);
                 }
-			}
+
+            }
 		}
+
+
+        /*
+            Tag overlay (secondary tags etc)
+         */
+        boolean showTagOverlay = false;
+        int tagId = data.getInt(data.getColumnIndex(TAG_EXTRA));
+        if (ExtraTags.getType(tagId) != ExtraTags.TYPE_NO_TAG) {
+            Drawable tagIcon = ExtraTags.getDrawable(tagId, current.getResources());
+            if (tagIcon != null) {
+                aq.id(R.id.thread_tag_overlay).image(tagIcon);
+                showTagOverlay = true;
+            }
+        }
+        if (!showTagOverlay) {
+            aq.id(R.id.thread_tag_overlay).gone();
+        }
+
 
         info.setVisibility(View.VISIBLE);
         StringBuilder tmp = new StringBuilder();
@@ -551,6 +581,7 @@ public class AwfulThread extends AwfulPagedItem  {
         }
 
         info.setText(tmp.toString().trim());
+
 
         /*
             Ratings
