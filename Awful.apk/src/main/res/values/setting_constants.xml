@@ -12,6 +12,7 @@
         <item>yospos.css</item>
         <item>amberpos.css</item>
         <item>fyad.css</item>
+        <item>byob.css</item>
         <item>classic.css</item>
     </string-array>
     <string-array name="layouts_values">
@@ -29,4 +30,20 @@
 		<item>phone</item>
 		<item>tablet</item>
 	</string-array>
+    <string-array name="transformer_values">
+        <item>Disabled</item>
+        <item>Accordion</item>
+        <item>BackgroundToForeground</item>
+        <item>CubeIn</item>
+        <item>CubeOut</item>
+        <item>DepthPage</item>
+        <item>ForegroundToBackground</item>
+        <item>RotateDown</item>
+        <item>RotateUp</item>
+        <item>Stack</item>
+        <item>Tablet</item>
+        <item>ZoomIn</item>
+        <item>ZoomOutSlide</item>
+        <item>ZoomOut</item>
+    </string-array>
 </resources>

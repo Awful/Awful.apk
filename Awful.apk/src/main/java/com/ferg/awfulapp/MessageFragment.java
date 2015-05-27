@@ -10,12 +10,10 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -34,7 +32,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.ColorPickerPreference;
+import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -42,7 +40,6 @@ import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 
@@ -156,11 +153,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         
 	}
 	
-	private void setActionBar() {
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.setDisplayHomeAsUpEnabled(true);
-    }
-	
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(menu.size() == 0){
@@ -240,7 +232,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                 }
                 if(getActivity() instanceof MessageDisplayActivity){
                     getActivity().finish();
-                    displayAlert("Message Sent!", R.drawable.ic_menu_load_success);
+                    displayAlert("Message Sent!", R.attr.iconMenuLoadSuccess);
                 }
             }
 
@@ -270,10 +262,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 	@Override
 	public void onResume(){
-		if(!AwfulUtils.isWidescreen(getActivity())){
-			ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        	action.hide();
-		}
 		super.onResume();
 		resumeWebView();
 
@@ -286,13 +274,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			saveReply();
 		}
         pauseWebView();
-	}
-
-	@Override
-	public void onStop(){
-		super.onStop();
-        ActionBar action = ((AwfulActivity) getActivity()).getSupportActionBar();
-        action.show();
 	}
 
 	@Override
@@ -343,7 +324,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		if(getView() != null){
 			updateColors(getView(), prefs);
 		}else{
@@ -459,7 +441,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
     }
 	
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorPickerPreference.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ColorProvider.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}
 	
     @SuppressLint("NewApi")

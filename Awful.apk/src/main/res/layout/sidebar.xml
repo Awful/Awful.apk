@@ -7,60 +7,27 @@
     android:layout_gravity="left"
     android:choiceMode="singleChoice"
     android:dividerHeight="0dp"
-    android:background="#111"
+    android:background="?attr/background"
     android:clickable="true"
     >
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="150dp">
+        android:layout_height="75dp">
         <ImageView
             android:id="@+id/sidebar_avatar"
             android:layout_width="fill_parent"
             android:layout_centerInParent="true"
             android:layout_height="fill_parent"
             android:scaleType="centerCrop"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:baselineAligned="false"
             android:layout_alignParentTop="true"
-            android:background="#99333333">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="48dp"
-                android:gravity="right"
-                android:layout_alignParentTop="true">
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/sidebar_logout"
-                    android:src="@drawable/ic_menu_logout"
-                    android:layout_marginRight="5dp" />
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/sidebar_settings"
-                    android:src="@drawable/ic_menu_settings"
-                    android:layout_marginRight="5dp" />
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/sidebar_pm"
-                    android:src="@drawable/ic_menu_mail"
-                    android:layout_marginRight="5dp" />
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/sidebar_bookmarks"
-                    android:src="@drawable/ic_menu_bookmarks"
-                    android:layout_marginRight="5dp" />
-            </LinearLayout>
+            android:background="?attr/sidebarAvatarOverlayBackground">
 
 
             <TextView
@@ -88,4 +55,26 @@
         android:id="@+id/sidebar_thread"
         android:layout_width="fill_parent"
         />
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_bookmarks"
+        android:layout_width="fill_parent"
+        />
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_pm"
+        android:layout_width="fill_parent"
+        />
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_settings"
+        android:layout_width="fill_parent"
+        />
+    <include layout="@layout/drawer_list_item"
+        android:id="@+id/sidebar_logout"
+        android:layout_width="fill_parent"
+        />
+
 </LinearLayout>

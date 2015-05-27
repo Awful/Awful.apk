@@ -1,13 +1,8 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
-import android.os.Message;
-import android.preference.PreferenceManager;
 
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 /**
@@ -37,7 +32,9 @@ public class ActivityConfigurator implements AwfulPreferences.AwfulPreferenceUpd
 	
 	public void onStop() {}
 	
-	public void onDestroy() {}
+	public void onDestroy() {
+		mPrefs.unregisterCallback(this);
+	}
 	
 	private void setOrientation() {
 		String orientationStr = mPrefs.orientation;
@@ -53,7 +50,7 @@ public class ActivityConfigurator implements AwfulPreferences.AwfulPreferenceUpd
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		setOrientation();
 	}
 }

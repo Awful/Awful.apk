@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
@@ -24,7 +25,12 @@
 		android:smoothScrollbar="true"
 		/>
     -->
-
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/index_swipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:direction="top">
     <pl.polidea.treeview.TreeViewList
         android:id="@+id/index_pull_tree_view"
         android:layout_width="fill_parent"
@@ -33,5 +39,5 @@
         android:divider="#8c8c8c"
         android:dividerHeight="1dp"
         android:drawSelectorOnTop="false" />
-
+</com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 </LinearLayout>

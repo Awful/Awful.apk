@@ -28,15 +28,22 @@
 package com.ferg.awfulapp;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 
 public class PostReplyActivity extends AwfulActivity {
+
+    private Toolbar mToolbar;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply_activity);
+
+        mToolbar = (Toolbar) findViewById(R.id.awful_toolbar_reply);
+        setSupportActionBar(mToolbar);
         setActionBar();
     }
 

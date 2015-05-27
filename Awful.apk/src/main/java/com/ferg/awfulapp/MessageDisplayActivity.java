@@ -2,7 +2,6 @@ package com.ferg.awfulapp;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Window;
 
 import com.ferg.awfulapp.constants.Constants;
 

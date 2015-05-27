@@ -1,23 +1,28 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.1'
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 apply plugin: 'android'
+apply plugin: 'io.fabric'
 
 repositories {
     mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://jitpack.io' }
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 14
         targetSdkVersion 21
     }
 
@@ -38,18 +43,22 @@ android {
 }
 
 dependencies {
-        compile 'com.android.support:appcompat-v7:20.+'
-        compile fileTree(dir: 'libs', include: '*.jar')
-        compile project(':libraries:ActionBar-PullToRefresh')
+        compile 'com.android.support:appcompat-v7:21.+'
         compile project(':libraries:tree-view-list-android')
-        compile project(':libraries:volley')
-        compile 'ch.acra:acra:4.5.+'
-        //    compile 'com.googlecode.android-query:android-query:0.25.+'
-        compile 'com.google.code.gson:gson:2.2.+'
-        compile 'org.jsoup:jsoup:1.7.2'
-        compile 'joda-time:joda-time:2.3'
-        compile 'com.samskivert:jmustache:1.8'
-        compile 'org.apache.httpcomponents:httpmime:4.3.1'
-        compile 'org.apache.httpcomponents:httpcore:4.3'
-        compile 'org.apache.commons:commons-lang3:3.1'
+        compile 'com.mcxiaoke.volley:library:1.+'
+        compile 'com.github.androidquery:androidquery:0.26.8'
+        compile 'com.google.code.gson:gson:2.3.1'
+        compile 'org.jsoup:jsoup:1.8.2'
+        compile 'joda-time:joda-time:2.7'
+        compile 'com.samskivert:jmustache:1.10'
+        compile 'org.apache.httpcomponents:httpmime:4.4.1'
+        compile 'org.apache.httpcomponents:httpcore:4.4.1'
+        compile 'org.apache.commons:commons-lang3:3.4'
+        compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32'
+        //    compile 'com.github.orangegangsters:swipy:1.2.0@aar'
+        compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
+        compile 'com.getbase:floatingactionbutton:1.9.0'
+        compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+            transitive = true;
+        }
 }

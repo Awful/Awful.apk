@@ -73,7 +73,7 @@ article.self {
 background-color:#1A4000;
 }
 
-article.toggleread {
+article.toggleread, article#taptorefresh {
 text-align: center;
 padding:5px;
 }

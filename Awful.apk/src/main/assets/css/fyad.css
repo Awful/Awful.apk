@@ -81,7 +81,7 @@ article.self {
 background-color:#ECFFD9;
 }
 
-article.toggleread {
+article.toggleread, article#taptorefresh {
 text-align: center;
 padding:5px;
 }

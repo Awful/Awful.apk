@@ -27,12 +27,6 @@
 
 package com.ferg.awfulapp.constants;
 
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.util.Log;
-import android.util.TypedValue;
-
 public class Constants {
     public static final boolean DEBUG = false;
 
@@ -135,8 +129,6 @@ public class Constants {
     public static final int ITEMS_PER_PAGE = 40;
     //we can have up to 80 threads per forum page (SAMart)
     public static final int THREADS_PER_PAGE = 80;
-
-    public static final String ACRA_FORMKEY = "dGUycmYyNGV1SG5heXlaZlVkTl92T2c6MQ";
     
     //asynctasks are managed by ID number, but PM page has no id
 	public static final int PRIVATE_MESSAGE_THREAD = 998;//can't use negative numbers anymore.
@@ -176,7 +168,7 @@ public class Constants {
     public static final int DEFAULT_FIXED_FONT_SIZE = 13;
     public static final int MINIMUM_FONT_SIZE = 5;
 	
-	public static final int WIDESCREEN_DPI = 700;//everything above this is considered tablet layout
+	public static final double TABLET_MIN_SIZE = 6.5; //everything above this is considered tablet layout
 
     public static final String REPLY_POST_ID = "reply_post_id";
     public static final String REPLY_THREAD_ID = "reply_thread_id";
@@ -185,6 +177,9 @@ public class Constants {
     public static final int FORUM_ID_YOSPOS = 219;
     public static final int FORUM_ID_FYAD = 26;
     public static final int FORUM_ID_FYAD_SUB = 154;
+
+    public static final int FORUM_ID_BYOB = 268;
+    public static final int FORUM_ID_COOL_CREW = 196;
 
 
 }

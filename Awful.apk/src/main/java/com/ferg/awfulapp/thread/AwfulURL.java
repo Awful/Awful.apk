@@ -9,7 +9,7 @@ import com.ferg.awfulapp.util.AwfulUtils;
 
 public class AwfulURL {
 	
-	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE};
+	public static enum TYPE{FORUM,THREAD,POST,EXTERNAL,NONE,INDEX}
 	private long id;
 	private long pageNum = 1;
 	private int perPage = Constants.ITEMS_PER_PAGE;
@@ -92,32 +92,34 @@ public class AwfulURL {
 			if(uri.getQueryParameter(Constants.PARAM_PER_PAGE) != null){
 				aurl.perPage = AwfulUtils.safeParseInt(uri.getQueryParameter(Constants.PARAM_PER_PAGE), Constants.ITEMS_PER_PAGE);
 			}
-			if(Constants.PATH_FORUM.contains(uri.getLastPathSegment())){
+			if(Constants.PATH_FORUM.equals(uri.getLastPathSegment())){
 				aurl.type = TYPE.FORUM;
 				aurl.perPage = Constants.THREADS_PER_PAGE;
 				if(uri.getQueryParameter(Constants.PARAM_FORUM_ID) != null){
 					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_FORUM_ID), 1);
 				}
-			}else if(Constants.PATH_BOOKMARKS.contains(uri.getLastPathSegment()) || Constants.PATH_USERCP.contains(uri.getLastPathSegment())){
+			}else if(Constants.PATH_BOOKMARKS.equals(uri.getLastPathSegment()) || Constants.PATH_USERCP.equals(uri.getLastPathSegment())){
 				aurl.type = TYPE.FORUM;
 				aurl.perPage = Constants.THREADS_PER_PAGE;
 				aurl.id = Constants.USERCP_ID;
-			}else if(Constants.PATH_THREAD.contains(uri.getLastPathSegment())){
+			}else if(Constants.PATH_THREAD.equals(uri.getLastPathSegment())) {
 				aurl.type = TYPE.THREAD;
-				if(uri.getQueryParameter(Constants.PARAM_THREAD_ID) != null){
+				if (uri.getQueryParameter(Constants.PARAM_THREAD_ID) != null) {
 					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_THREAD_ID), 0);
 				}
-				if(uri.getQueryParameter(Constants.PARAM_GOTO) != null){
+				if (uri.getQueryParameter(Constants.PARAM_GOTO) != null) {
 					aurl.gotoParam = uri.getQueryParameter(Constants.PARAM_GOTO);
-					if(Constants.VALUE_POST.equalsIgnoreCase(aurl.gotoParam)){
+					if (Constants.VALUE_POST.equalsIgnoreCase(aurl.gotoParam)) {
 						aurl.type = TYPE.POST;
 						aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID), 0);
 					}
 				}
-				if(Constants.ACTION_SHOWPOST.equalsIgnoreCase(uri.getQueryParameter(Constants.PARAM_ACTION))){
+				if (Constants.ACTION_SHOWPOST.equalsIgnoreCase(uri.getQueryParameter(Constants.PARAM_ACTION))) {
 					aurl.type = TYPE.POST;
 					aurl.id = AwfulUtils.safeParseLong(uri.getQueryParameter(Constants.PARAM_POST_ID), 0);
 				}
+			}else if("index.php".equalsIgnoreCase(uri.getLastPathSegment()) || uri.getPath() == null || uri.getPath().length() < 2){
+				aurl.type = TYPE.INDEX;
 			}else{
 				aurl.type = TYPE.EXTERNAL;
 				aurl.externalURL = url;
@@ -169,6 +171,8 @@ public class AwfulURL {
 			break;
 		case EXTERNAL:
 			return externalURL;
+		case INDEX:
+			return Constants.BASE_URL;
 		}
 		return (url == null? "" : url.toString());
 	}

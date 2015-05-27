@@ -29,49 +29,64 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.*;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
+import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkColorRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.MarkUnreadRequest;
-import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
-import com.ferg.awfulapp.util.AwfulUtils;
-import com.ferg.awfulapp.widget.NumberPicker;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.util.Date;
-
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
 
 /**
  * Uses intent extras:
@@ -81,7 +96,7 @@ import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDeleg
  *
  *  Can also handle an HTTP intent that refers to an SA forumdisplay.php? url.
  */
-public class ForumDisplayFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
     
     private ListView mListView;
     private ImageButton mRefreshBar;
@@ -149,32 +164,38 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
 		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
 		mToggleSidebar.setOnClickListener(onButtonClick);
-        mToggleSidebar.setImageResource(R.drawable.ic_actionbar_load);
 		mNextPage.setOnClickListener(onButtonClick);
 		mPrevPage.setOnClickListener(onButtonClick);
 		mRefreshBar.setOnClickListener(onButtonClick);
 		mPageCountText.setOnClickListener(onButtonClick);
 		updatePageBar();
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+
 		updateProbationBar();
 		
         return result;
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
+        mSRL.setOnRefreshListener(this);
+        mSRL.setColorSchemeResources(
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
+    }
+
+    @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mListView,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setEnabled(true);
-        }else{
-            Log.e("mP2RAttacher", "PTR MISSING");
-        }
 
     	if(aSavedState != null){
         	Log.i(TAG,"Restoring state!");
@@ -278,9 +299,9 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	public void onPageVisible() {
 		updateColors();
 		syncForumsIfStale();
-		if(mP2RAttacher != null){
-			mP2RAttacher.setPullFromBottom(false);
-		}
+//		if(mP2RAttacher != null){
+//			mP2RAttacher.setPullFromBottom(false);
+//		}
         refreshInfo();
 	}
 	
@@ -345,8 +366,12 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
             	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
-        		int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
-            	viewThread((int) info.id,lastPage);
+                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
+                viewThread((int) info.id,lastPage);
+                return true;
+            case R.id.go_to_page:
+                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
+                selectPage((int) info.id, maxPage);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
@@ -364,57 +389,104 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 
         return false;
     }
-    
+
+    //TODO: combine with displayPagePicker()
+    private void selectPage(final int threadId, final int maxPage) {
+        View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+        final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
+        NumberPicker.setMinValue(1);
+        NumberPicker.setMaxValue(maxPage);
+        NumberPicker.setValue(maxPage);
+        Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
+        NumberPickerMin.setText(Integer.toString(1));
+        NumberPickerMin.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(1);
+            }
+        });
+        Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
+        NumberPickerMax.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(maxPage);
+            }
+        });
+        NumberPickerMax.setText(Integer.toString(maxPage));
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Jump to Page")
+                .setView(NumberPickerView)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface aDialog, int aWhich) {
+                                try {
+                                    int pageInt = NumberPicker.getValue();
+                                    if (pageInt > 0 && pageInt <= maxPage) {
+                                        viewThread(threadId, pageInt);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Not a valid number: " + e.toString());
+                                    Toast.makeText(getActivity(),
+                                            R.string.invalid_page, Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    Log.e(TAG, e.toString());
+                                }
+                            }
+                        })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     private void viewThread(int id, int page){
     	displayThread(id, page, getForumId(), getPage(), true);
     }
 
     private void copyUrl(int id) {
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(Constants.FUNCTION_THREAD);
 		url.append("?");
 		url.append(Constants.PARAM_THREAD_ID);
 		url.append("=");
 		url.append(id);
 		
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-					Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
-			clipboard.setPrimaryClip(clip);
+		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+		clipboard.setPrimaryClip(clip);
 
-            displayAlert(R.string.copy_url_success, 0, R.drawable.ic_menu_link);
-		} else {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this.getActivity());
-
-			alert.setTitle("URL");
-
-			final EditText input = new EditText(this.getActivity());
-			input.setText(url.toString());
-			alert.setView(input);
-
-			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					dialog.dismiss();
-				}
-			});
-
-			alert.show();
-		}
+		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
 	}
 
 	private void displayPagePicker() {
-        final NumberPicker jumpToText = new NumberPicker(getActivity());
-        jumpToText.setRange(1, getLastPage());
-        jumpToText.setCurrent(getPage());
+        View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+        final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
+        NumberPicker.setMinValue(1);
+        NumberPicker.setMaxValue(getLastPage());
+        NumberPicker.setValue(getPage());
+        Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
+        NumberPickerMin.setText(Integer.toString(1));
+        NumberPickerMin.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(1);
+            }
+        });
+        Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
+        NumberPickerMax.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPicker.setValue(getLastPage());
+            }
+        });
+        NumberPickerMax.setText(Integer.toString(getLastPage()));
         new AlertDialog.Builder(getActivity())
             .setTitle("Jump to Page")
-            .setView(jumpToText)
+            .setView(NumberPickerView)
             .setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface aDialog, int aWhich) {
                         try {
-                            int pageInt = jumpToText.getCurrent();
+                            int pageInt = NumberPicker.getValue();
                             if (pageInt > 0 && pageInt <= getLastPage()) {
                                 goToPage(pageInt);
                             }
@@ -475,10 +547,14 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     };
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		super.onPreferenceChange(mPrefs);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		getAwfulActivity().setPreferredFont(mPageCountText);	
 		updateColors();
+        if(null != mListView) {
+            mListView.invalidate();
+            mListView.invalidateViews();
+        }
 	}
 	
 	public int getForumId(){
@@ -499,6 +575,10 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 			mPage = pageInt;
 			updatePageBar();
 			updateProbationBar();
+            // interrupt any scrolling animation and jump to the top of the page
+            mListView.smoothScrollBy(0,0);
+            mListView.setSelection(0);
+            // display the chosen page (may be cached), then update its contents
 			refreshInfo();
 			syncForum();
 		}
@@ -506,8 +586,8 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	
     private void setForumId(int aForum) {
 		mForumId = aForum;
-		if(mPrefs != null && mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
-			onPreferenceChange(mPrefs);
+		if(mPrefs != null && mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_YOSPOS || mForumId == Constants.FORUM_ID_BYOB)){
+			onPreferenceChange(mPrefs, null);
 		}
 	}
     
@@ -523,9 +603,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
     	lastRefresh = 0;
     	loadFailed = false;
     	if(getActivity() != null){
-			if(AwfulUtils.isHoneycomb()){
-				getActivity().invalidateOptionsMenu();
-			}
+			getActivity().invalidateOptionsMenu();
 			refreshInfo();
 			syncForum();
     	}
@@ -543,6 +621,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
                             mToggleSidebar.setColorFilter(0);
                             loadFailed = false;
                             refreshInfo();
+                            mListView.setSelectionAfterHeaderView();
                         }
 
                         @Override
@@ -555,6 +634,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
                             refreshInfo();
                             lastRefresh = System.currentTimeMillis();
                             loadFailed = true;
+                            mListView.setSelectionAfterHeaderView();
                         }
                     }
             ));
@@ -573,7 +653,7 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_menu_load_success);
+                displayAlert(R.string.mark_unread_success, 0, R.attr.iconMenuLoadSuccess);
                 refreshInfo();
             }
 
@@ -637,6 +717,11 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         }));
     }
 
+    @Override
+    public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
+        syncForum();
+    }
+
     private class ForumContentsCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public ForumContentsCallback(Handler handler) {
@@ -682,7 +767,6 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread List update.");
-            refreshInfo();
         }
     }
 	
@@ -726,7 +810,6 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
         @Override
         public void onChange (boolean selfChange){
         	if(DEBUG) Log.e(TAG,"Thread Data update.");
-        	refreshInfo();
         }
     }
 	
@@ -738,10 +821,15 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 	}
 	
 	private void closeLoaders(){
-		if(getActivity() != null){
-	        getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
-	        getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
-		}
+        //FIXME:
+        try {
+            if (getActivity() != null) {
+                getLoaderManager().destroyLoader(Constants.FORUM_THREADS_LOADER_ID);
+                getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
+            }
+        }catch(NullPointerException npe){
+            Log.e(TAG,npe.getStackTrace().toString());
+        }
 	}
 	
 	public String getTitle(){
@@ -782,10 +870,13 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		if(mListView != null){
 	        if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
-	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));        	
-	        }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
+	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
                 mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.FYAD));
                 mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.FYAD));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
+                mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.BYOB));
+                mListView.setCacheColorHint(ColorProvider.getBackgroundColor(ColorProvider.BYOB));
             }else{
 	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor());
 	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
@@ -795,9 +886,12 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
 				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
-			}else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
                 aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.FYAD));
                 aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.FYAD));
+            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
+                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.BYOB));
+                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.BYOB));
             }else{
 				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
 				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
@@ -808,8 +902,4 @@ public class ForumDisplayFragment extends AwfulFragment implements PullToRefresh
 		}
 	}	
 
-	@Override
-	public void onRefreshStarted(View view) {
-		syncForum();
-	}
 }

@@ -2,66 +2,90 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="4dp"
-    android:paddingBottom="6dp">
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="30dp"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/unread_count"
-        android:textColor="@color/default_post_font"
-        android:layout_marginLeft="8dp"
-        android:layout_marginBottom="2dp"
-        android:textSize="18dip" />
+    android:minHeight="72dp"
+    android:paddingBottom="4dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="4dp"
+    android:paddingTop="4dp">
 
-    <com.android.volley.toolbox.NetworkImageView
+
+    <ImageView
         android:id="@+id/thread_tag"
-        android:layout_width="60dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp" />
+
+    <ImageView
+        android:id="@+id/thread_tag_overlay"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignTop="@+id/thread_tag"
+        android:layout_alignRight="@+id/thread_tag"
+        android:layout_marginRight="-4dp"
+        android:layout_marginTop="-4dp"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/thread_rating"
+        android:layout_width="40dp"
         android:layout_height="15dp"
-        android:layout_below="@id/title"
-        android:layout_marginLeft="8dp" />
-    
-            
-    <ImageView
-            android:id="@+id/thread_rating"
-            android:layout_width="40dp"
-            android:layout_height="15dp"
-            android:layout_below="@id/title"
-            android:layout_toRightOf="@+id/thread_tag"
-        	android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:visibility="gone" />
-    <ImageView
-            android:id="@+id/thread_locked"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_below="@id/title"
-            android:layout_toRightOf="@+id/thread_rating"
-            android:visibility="gone" />
-   <ImageView
+        android:layout_below="@id/thread_tag"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="-16dp"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/unread_count"
+        android:layout_toRightOf="@+id/thread_tag">
+
+        <ImageView
             android:id="@+id/thread_sticky"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_below="@id/title"
-            android:layout_toRightOf="@+id/thread_locked"
-        	android:layout_marginLeft="4dp"
+            android:layout_alignParentLeft="true"
             android:layout_marginRight="4dp"
             android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/threadinfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_toRightOf="@+id/thread_sticky"
-        android:layout_toLeftOf="@+id/unread_count"
-        android:layout_alignTop="@+id/thread_tag"
-        android:includeFontPadding="false"
-        android:layout_marginLeft="4dp"
-        android:textColor="@color/secondary_post_font"
-        android:textSize="12dip" />
+        <ImageView
+            android:id="@+id/thread_locked"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_toRightOf="@+id/thread_sticky"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/threadinfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/thread_locked"
+            android:includeFontPadding="false"
+            android:textColor="@color/secondary_post_font"
+            android:textSize="14dip" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/threadinfo"
+            android:maxLines="2"
+            android:textColor="@color/default_post_font"
+            android:textSize="16sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></FrameLayout>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/unread_count"
@@ -70,10 +94,9 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="12dip"
-        android:layout_marginRight="4dip"
-        android:minWidth="30dp"
-        android:gravity="center_horizontal"
         android:background="@drawable/unread_counter"
+        android:gravity="center_horizontal"
+        android:minWidth="30dp"
         android:textColor="#ffffff"
         android:textSize="14dip"
         android:textStyle="bold" />

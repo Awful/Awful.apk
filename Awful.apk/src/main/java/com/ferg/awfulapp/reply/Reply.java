@@ -27,18 +27,18 @@
 
 package com.ferg.awfulapp.reply;
 
-import java.util.HashMap;
-
-import com.ferg.awfulapp.util.AwfulError;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import android.content.ContentValues;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.util.AwfulError;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.util.HashMap;
 
 public class Reply {
     private static final String TAG = "Reply";
@@ -145,7 +145,7 @@ public class Reply {
         edit.put(AwfulMessage.REPLY_CONTENT, getMessageContent(response));
         edit.put(AwfulPost.FORM_BOOKMARK, getBookmarkOption(response));
         edit.put(AwfulPost.FORM_SIGNATURE, getSignatureOption(response));
-        edit.put(AwfulPost.FORM_DISABLE_SMILIES, getDisableEmotsOption(response));
+        edit.put(AwfulPost.FORM_DISABLE_SMILIES, getDisableEmotesOption(response));
         edit.put(AwfulPost.REPLY_ORIGINAL_CONTENT, edit.getAsString(AwfulMessage.REPLY_CONTENT));
         edit.put(AwfulPost.EDIT_POST_ID, postId);
         return edit;
@@ -169,9 +169,9 @@ public class Reply {
         }
     }
 
-    public static final String getDisableEmotsOption(Document data){
-        Element formDisableEmots = data.getElementsByAttributeValue("name", AwfulMessage.REPLY_DISABLE_SMILIES).first();
-        if(formDisableEmots.hasAttr("checked")){
+    public static final String getDisableEmotesOption(Document data){
+        Element formDisableEmotes = data.getElementsByAttributeValue("name", AwfulMessage.REPLY_DISABLE_SMILIES).first();
+        if(formDisableEmotes.hasAttr("checked")){
             return "checked";
         }else{
             return "";

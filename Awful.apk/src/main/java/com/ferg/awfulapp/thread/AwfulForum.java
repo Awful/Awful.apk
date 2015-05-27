@@ -27,22 +27,12 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -54,6 +44,15 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AwfulForum extends AwfulPagedItem {
     private static final String TAG = "AwfulForum";

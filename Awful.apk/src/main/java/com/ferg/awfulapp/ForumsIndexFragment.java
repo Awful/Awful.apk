@@ -36,45 +36,47 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
-
-import pl.polidea.treeview.*;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.viewdelegates.AbsListViewDelegate;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshAttacher.OnRefreshListener {
+import pl.polidea.treeview.AbstractTreeViewAdapter;
+import pl.polidea.treeview.InMemoryTreeStateManager;
+import pl.polidea.treeview.TreeBuilder;
+import pl.polidea.treeview.TreeNodeInfo;
+import pl.polidea.treeview.TreeStateManager;
+import pl.polidea.treeview.TreeViewList;
+
+public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
     
     private int selectedForum = 0;
     
@@ -88,7 +90,6 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 	private ImageButton mProbationButton;
 
     private ForumContentObserver forumObserver;
-	
 	
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback();
 
@@ -118,23 +119,31 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
         mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
         mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
 
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+
 		updateProbationBar();
         return result;
     }
 
-	@Override
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.index_swipe);
+        mSRL.setOnRefreshListener(this);
+        mSRL.setColorSchemeResources(
+				android.R.color.holo_green_light,
+				android.R.color.holo_orange_light,
+				android.R.color.holo_red_light,
+				android.R.color.holo_blue_bright);
+    }
+
+    @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
-
-        mP2RAttacher = this.getAwfulActivity().getPullToRefreshAttacher();
-        if(mP2RAttacher != null){
-            mP2RAttacher.addRefreshableView(mForumTree,new AbsListViewDelegate(), this);
-            mP2RAttacher.setPullFromBottom(false);
-            mP2RAttacher.setEnabled(true);
-        }
 
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
@@ -159,9 +168,9 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 	@Override
 	public void onPageVisible() {
 		if(DEBUG) Log.e(TAG, "onPageVisible");
-		if(mP2RAttacher != null){
-			mP2RAttacher.setPullFromBottom(false);
-		}
+//		if(mP2RAttacher != null){
+//			mP2RAttacher.setPullFromBottom(false);
+//		}
 	}
 	
 	@Override
@@ -209,8 +218,8 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 
     
 	@Override
-	public void onPreferenceChange(AwfulPreferences mPrefs) {
-		super.onPreferenceChange(mPrefs);
+	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
+		super.onPreferenceChange(mPrefs, key);
 		if(mForumTree != null){
 			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
 			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
@@ -241,7 +250,12 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
         }
     }
 
-    private class ForumContentObserver extends ContentObserver{
+	@Override
+	public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
+		syncForums();
+	}
+
+	private class ForumContentObserver extends ContentObserver{
         public ForumContentObserver(Handler handler) {
             super(handler);
         }
@@ -269,13 +283,8 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
             	Log.v(TAG,"Index cursor: "+aData.getCount());
-        		int dateIndex = aData.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP);
-        		if(aData.getCount() > 10 && aData.move(8) && dateIndex > -1){
-        			String timestamp = aData.getString(dateIndex);
-        			Timestamp upDate = new Timestamp(System.currentTimeMillis());
-        			if(timestamp != null && timestamp.length()>5){
-            			upDate = Timestamp.valueOf(timestamp);
-        			}
+        		if(aData.getCount() > 10){
+        			aData.move(8);
         		}
         		mTreeAdapter.setCursor(aData);
         	}
@@ -478,8 +487,4 @@ public class ForumsIndexFragment extends AwfulFragment implements PullToRefreshA
 		});
 	}
 
-	@Override
-	public void onRefreshStarted(View view) {
-		syncForums();
-	}
 }
