@@ -38,6 +38,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -510,8 +511,10 @@ public class PostReplyFragment extends AwfulFragment {
             if(act == null) {
                 return;
             }
+            int[] attrs = { R.attr.iconMenuReplyDark};
+            TypedArray ta = act.getTheme().obtainStyledAttributes(attrs);
             new AlertDialog.Builder(act)
-                    .setIcon(R.attr.iconMenuReply)
+                    .setIcon(ta.getDrawable(0))
                     .setTitle(title)
                     .setMessage(android.text.Html.fromHtml(message.toString()))
                     .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
