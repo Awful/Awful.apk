@@ -5,16 +5,18 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:visibility="gone"
-        android:background="#FF000000" >
+        android:background="#FF000000" >
+
         <ImageButton
                 android:id="@+id/move_up"
                 style="@style/ActionBarButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                  android:layout_weight="0.1"
-                android:src="@drawable/ic_menu_dropdown_up"
+                android:src="?attr/iconMenuExpandMore"
                  />
-
+
+
         <TextView
             android:id="@+id/second_titlebar"
             android:layout_width="wrap_content"

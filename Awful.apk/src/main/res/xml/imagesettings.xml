@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceScreen android:key="image_settings"
-                      android:title="@string/image_settings">
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="images_enabled"
             android:title="@string/load_images"
             android:summary="@string/load_images_summary"
             android:defaultValue="true"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="no_3g_images"
             android:title="@string/no_3g_images"
             android:summary="@string/no_3g_images_summary"
             android:defaultValue="false"
             android:dependency="images_enabled"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="hide_read_images"
             android:title="@string/hide_read_images"
             android:summary="@string/hide_read_images_summary"
             android:defaultValue="false"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="avatars_enabled"
             android:title="@string/load_avatars"
             android:defaultValue="true"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="show_smilies"
             android:title="@string/show_smilies"
             android:summary="@string/show_smilies_summary"
@@ -39,11 +37,10 @@
             android:entryValues="@array/imgur_thumbnails_values"
             android:defaultValue="d"
             />
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="disable_timgs"
             android:title="@string/disable_timgs"
             android:summary="@string/disable_timgs_summary"
-            android:defaultValue="true"
+            android:defaultValue="false"
             />
-    </PreferenceScreen>
 </PreferenceScreen>

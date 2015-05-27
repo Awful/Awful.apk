@@ -27,14 +27,14 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.util.regex.Pattern;
+import android.util.Log;
+
+import com.ferg.awfulapp.constants.Constants;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import android.util.Log;
-
-import com.ferg.awfulapp.constants.Constants;
+import java.util.regex.Pattern;
 
 public abstract class AwfulPagedItem {
     private static final String TAG = "AwfulPagedItem";

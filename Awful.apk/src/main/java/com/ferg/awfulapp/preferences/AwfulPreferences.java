@@ -1,18 +1,19 @@
-/********************************************************************************
+/**
+ * *****************************************************************************
  * Copyright (c) 2012, Matthew Shepard
  * All rights reserved.
- * 
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the software nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the software nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p/>
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,23 +24,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ * *****************************************************************************
+ */
 
 package com.ferg.awfulapp.preferences;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -50,16 +38,28 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * This class acts as a convenience wrapper and simple cache for commonly used preference values. 
@@ -69,110 +69,115 @@ import com.google.gson.Gson;
 public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
     private static final String TAG = "AwfulPreferences";
-	
-	private static AwfulPreferences mSelf;
-	
-	private SharedPreferences mPrefs;
+
+    private static AwfulPreferences mSelf;
+
+    private SharedPreferences mPrefs;
 
 
     private Context mContext;
-	private static ArrayList<AwfulPreferenceUpdate> mCallback = new ArrayList<AwfulPreferenceUpdate>();
-	
-	//GENERAL STUFF
-	public String username;
+	private final WeakHashMap<AwfulPreferenceUpdate, Object> mCallback = new WeakHashMap<>();
+
+    //GENERAL STUFF
+    public String username;
     public String userTitle;
-	public int userId;
-	public boolean hasPlatinum;
-	public boolean hasArchives;
-	public boolean hasNoAds;
-	public boolean debugMode;
-	public boolean sendUsernameInReport;
-	public float scaleFactor;
-	public String orientation;
-	
-	//THEME STUFF
-	public int postFontSizeDip;
+    public int userId;
+    public boolean hasPlatinum;
+    public boolean hasArchives;
+    public boolean hasNoAds;
+    public boolean debugMode;
+    public boolean sendUsernameInReport;
+    public float scaleFactor;
+    public String orientation;
+    public String pageLayout;
+
+    //THEME STUFF
+    public int postFontSizeDip;
     public int postFixedFontSizeDip;
-	public int postFontSizePx;
-	public boolean lockScrolling;
-	public String theme;
-	public boolean forceForumThemes;
-	public String layout;
-	public String preferredFont;
-	public boolean alternateBackground;
-	
-	//THREAD STUFF
-	public int postPerPage;
-	public boolean imagesEnabled;
-	public boolean no3gImages;
-	public boolean avatarsEnabled;
-	public boolean showSmilies;
-	public boolean hideOldImages;
+    public int postFontSizePx;
+    public boolean lockScrolling;
+    public String theme;
+    public boolean forceForumThemes;
+    public String layout;
+    public String preferredFont;
+    public boolean alternateBackground;
+    public boolean amberDefaultPos;
+
+    //THREAD STUFF
+    public int postPerPage;
+    public boolean imagesEnabled;
+    public boolean no3gImages;
+    public boolean avatarsEnabled;
+    public boolean showSmilies;
+    public boolean hideOldImages;
     public boolean highlightUserQuote;
     public boolean highlightUsername;
     public boolean highlightSelf;
     public boolean highlightOP;
-	public boolean showAllSpoilers;
-	public String imgurThumbnails;
-	public boolean upperNextArrow;
-	public boolean disableGifs;
-	public boolean hideOldPosts;
-	public boolean disableTimgs;
-	public boolean volumeScroll;
-	public boolean coloredBookmarks;
+    public boolean showAllSpoilers;
+    public String imgurThumbnails;
+    public boolean upperNextArrow;
+    public boolean disableGifs;
+    public boolean hideOldPosts;
+    public boolean disableTimgs;
+    public boolean volumeScroll;
+    public boolean coloredBookmarks;
     public boolean hideSignatures;
-	/**
-	 * TO BE REMOVED
-	 * forces threadview into specific layout, values: auto - phone - tablet 
-	 */
-	public boolean alwaysOpenUrls;
-	
-	//FORUM STUFF
-	public boolean newThreadsFirstUCP;
-	public boolean newThreadsFirstForum;
-	public boolean threadInfo_Rating;
-	public boolean threadInfo_Author;
-	public boolean threadInfo_Killed;
-	public boolean threadInfo_Page;
-	public boolean threadInfo_Tag;
+    public boolean noFAB;
+    /**
+     * TO BE REMOVED
+     * forces threadview into specific layout, values: auto - phone - tablet
+     */
+    public boolean alwaysOpenUrls;
+
+    //FORUM STUFF
+    public boolean newThreadsFirstUCP;
+    public boolean newThreadsFirstForum;
+    public boolean threadInfo_Rating;
+    public boolean threadInfo_Tag;
     public boolean wrapThreadTitles;
-    
+
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
+    public boolean inlineTweets;
+    public boolean inlineVines;
+    public boolean inlineWebm;
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
-	public boolean showIgnoreWarning;
-	public String ignoreFormkey;
-	public Set<String> markedUsers;
+    public boolean showIgnoreWarning;
+    public String ignoreFormkey;
+    public Set<String> markedUsers;
     public Float p2rDistance;
     public boolean immersionMode;
+    public String transformer;
 
     public int alertIDShown;
-	
-	private static final int PREFERENCES_VERSION = 1;
-	private int currPrefVersion;
-	
-	HashSet<String> longKeys;
-	
 
-    public static interface AwfulPreferenceUpdate{
-        public void onPreferenceChange(AwfulPreferences preferences);
+    private static final int PREFERENCES_VERSION = 1;
+    private int currPrefVersion;
+
+    HashSet<String> longKeys;
+
+
+    public static interface AwfulPreferenceUpdate {
+        public void onPreferenceChange(AwfulPreferences preferences, String key);
     }
+
     /**
 	 * Constructs a new AwfulPreferences object, registers preference change listener, and updates values.
 	 * @param context
 	 */
 	private AwfulPreferences(Context context) {
 		mContext = context;
-
-		PreferenceManager.setDefaultValues(mContext, R.xml.settings, false);
+		// this is sort of redundant with what's going on in updateValues(), but best to be sure eh
+		SettingsActivity.setDefaultsFromXml(context);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		updateValues(mPrefs);
 		upgradePreferences();
 		
-		longKeys = new HashSet<String>();
+		longKeys = new HashSet<>();
 		longKeys.add("probation_time");
 	}
 
@@ -188,9 +193,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mSelf;
 	}
 	
-	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback){
-		mCallback.add(updateCallback);
-		return getInstance(context);
+	public static AwfulPreferences getInstance(Context context, AwfulPreferenceUpdate updateCallback) {
+		AwfulPreferences instance = getInstance(context);
+		instance.registerCallback(updateCallback);
+		return instance;
 	}
 
 	public void unRegisterListener(){
@@ -201,10 +207,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		return mPrefs;
 	}
 	
-	public void registerCallback(AwfulPreferenceUpdate client){
-		if(!mCallback.contains(client)){
-			mCallback.add(client);
-		}
+	public void registerCallback(AwfulPreferenceUpdate client) {
+		mCallback.put(client, null);
 	}
 	
 	public void unregisterCallback(AwfulPreferenceUpdate client){
@@ -214,18 +218,12 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 		updateValues(prefs);
-		for(AwfulPreferenceUpdate auc : mCallback){
-			auc.onPreferenceChange(this);
+		for (AwfulPreferenceUpdate auc : mCallback.keySet()) {
+			if (auc != null) {
+				auc.onPreferenceChange(this, key);
+			}
 		}
 	}
-
-    public void setUsername(String aUsername) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            mPrefs.edit().putString("username", aUsername).apply();
-        } else {
-            mPrefs.edit().putString("username", aUsername).commit();
-        }
-    }
 
 	private void updateValues(SharedPreferences prefs) {
 		Resources res = mContext.getResources();
@@ -245,21 +243,21 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         avatarsEnabled           = mPrefs.getBoolean("avatars_enabled", true);
         hideOldImages            = mPrefs.getBoolean("hide_read_images", false);
         showSmilies              = mPrefs.getBoolean("show_smilies", true);
-        postPerPage              = Math.max(Math.min(mPrefs.getInt("post_per_page", Constants.ITEMS_PER_PAGE), Constants.ITEMS_PER_PAGE),1);//can't make the preference page honor a max value
-       	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds",false);
+        postPerPage              = mPrefs.getInt("posts_per_page", Constants.ITEMS_PER_PAGE);
+       	alternateBackground      = mPrefs.getBoolean("alternate_backgrounds", false);
         highlightUserQuote       = mPrefs.getBoolean("user_quotes", true);
         highlightUsername        = mPrefs.getBoolean("user_highlight", true);
         highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
         highlightOP				 = mPrefs.getBoolean("op_highlight", true);
-        inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", (AwfulUtils.isJellybean()?true:false));
+		inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
+		inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
+		inlineVines            = mPrefs.getBoolean("inline_vines", false);
+		inlineWebm            = mPrefs.getBoolean("inline_webm", false);
+        enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
-        wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", true);
+        wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);
         showAllSpoilers			 = mPrefs.getBoolean("show_all_spoilers", false);
-        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", false);
-        threadInfo_Author		 = mPrefs.getBoolean("threadinfo_author", false);
-        threadInfo_Killed		 = mPrefs.getBoolean("threadinfo_killed", true);
-        threadInfo_Page		 	 = mPrefs.getBoolean("threadinfo_pages", true);
+        threadInfo_Rating		 = mPrefs.getBoolean("threadinfo_rating", true);
         threadInfo_Tag		 	 = mPrefs.getBoolean("threadinfo_tag", true);
         imgurThumbnails			 = mPrefs.getString("imgur_thumbnails", "d");
         newThreadsFirstUCP		 = mPrefs.getBoolean("new_threads_first_ucp", false);
@@ -268,79 +266,56 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         upperNextArrow		     = mPrefs.getBoolean("upper_next_arrow", false);
         sendUsernameInReport	 = mPrefs.getBoolean("send_username_in_report", true);
         disableGifs	 			 = mPrefs.getBoolean("disable_gifs2", true);
-        hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", false);
+        hideOldPosts	 	 	 = mPrefs.getBoolean("hide_old_posts", true);
         alwaysOpenUrls	 	 	 = mPrefs.getBoolean("always_open_urls", false);
         lockScrolling			 = mPrefs.getBoolean("lock_scrolling", false);
-        disableTimgs			 = mPrefs.getBoolean("disable_timgs", true);
+        disableTimgs			 = mPrefs.getBoolean("disable_timgs", false);
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
         volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
-        forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
+		forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
+		noFAB					 = mPrefs.getBoolean("no_fab", false);
         probationTime			 = mPrefs.getLong("probation_time", 0);
         userId					 = mPrefs.getInt("user_id", 0);
         showIgnoreWarning		 = mPrefs.getBoolean("show_ignore_warning", true);
         ignoreFormkey			 = mPrefs.getString("ignore_formkey", null);
-        orientation				 = mPrefs.getString("orientation", "default");
+		orientation				 = mPrefs.getString("orientation", "default");
+		pageLayout				 = mPrefs.getString("page_layout", "auto");
         coloredBookmarks		 = mPrefs.getBoolean("color_bookmarks", false);
         p2rDistance				 = mPrefs.getFloat("pull_to_refresh_distance", 0.5f);
-        immersionMode			 = AwfulUtils.isKitKat()?mPrefs.getBoolean("immersion_mode", false):false;
+        immersionMode			 = AwfulUtils.isKitKat() && mPrefs.getBoolean("immersion_mode", false);
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
-        
-        if(AwfulUtils.isHoneycomb()){
-        	markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
-        }else{
-        	markedUsers = new HashSet<String>();
-        }
-       	 //I have never seen this before oh god
-	}
+        transformer  		     = mPrefs.getString("transformer", "Default");
+		amberDefaultPos  		 = mPrefs.getBoolean("amber_default_pos", false);
+        markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
+
+        //I have never seen this before oh god
+    }
 
 	public void setBooleanPreference(String key, boolean value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putBoolean(key, value).apply();
-		}else{
-			mPrefs.edit().putBoolean(key, value).commit();
-		}
+		mPrefs.edit().putBoolean(key, value).apply();
 	}
 
 	public void setStringPreference(String key, String value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putString(key, value).apply();
-		}else{
-			mPrefs.edit().putString(key, value).commit();
-		}
+        mPrefs.edit().putString(key, value).apply();
 	}
 
 	public void setLongPreference(String key, long value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putLong(key, value).apply();
-		}else{
-			mPrefs.edit().putLong(key, value).commit();
-		}
+
+		mPrefs.edit().putLong(key, value).apply();
 	}
 
 	public void setIntegerPreference(String key, int value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putInt(key, value).apply();
-		}else{
-			mPrefs.edit().putInt(key, value).commit();
-		}
+		mPrefs.edit().putInt(key, value).apply();
 	}
 	
 	public void setFloatPreference(String key, float value) {
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putFloat(key, value).apply();
-		}else{
-			mPrefs.edit().putFloat(key, value).commit();
-		}
+		mPrefs.edit().putFloat(key, value).apply();
 	}
 	
 	public void setStringSetPreference(String key, Set<String> value){
-		if(AwfulUtils.isGingerbread()){
-			mPrefs.edit().putStringSet(key, value).apply();
-		}else{
-			mPrefs.edit().putStringSet(key, value).commit();
-		}
+    	mPrefs.edit().putStringSet(key, value).apply();
 	}
 	
 	public void upgradePreferences() {
@@ -350,11 +325,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				// Removing new_threads_first preference and applying it to new new_threads_first_ucp preference
 				boolean newPrefsFirst = mPrefs.getBoolean("new_threads_first", false);
         		setBooleanPreference("new_threads_first_ucp", newPrefsFirst);
-        		if(AwfulUtils.isGingerbread()){
-        			mPrefs.edit().remove("new_threads_first").apply();
-        		}else{
-        			mPrefs.edit().remove("new_threads_first").commit();
-        		}
+        		mPrefs.edit().remove("new_threads_first").apply();
         		newThreadsFirstUCP = newPrefsFirst;
 				break;
 			default://make sure to keep this break statement on the last case of this switch
@@ -417,7 +388,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
 				
 				if(!awfulFolder.exists()){
-					awfulFolder.mkdir();
+					if (!awfulFolder.mkdir()) {
+                        Log.i(TAG, "failed to create missing awful folder!");
+					}
 				}
 				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
 
@@ -448,17 +421,18 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		for (Object setting : settings.entrySet()) {
 			HashMap.Entry entry = (HashMap.Entry) setting;
 			String classname = entry.getValue().getClass().getSimpleName();
+            String key = (String)entry.getKey();
 			if("Boolean".equals(classname)){
-				setBooleanPreference((String)entry.getKey(), (Boolean)entry.getValue());
+				setBooleanPreference(key, (Boolean)entry.getValue());
 			}else if("String".equals(classname)){
-				setStringPreference((String)entry.getKey(), (String)entry.getValue());
+				setStringPreference(key, (String)entry.getValue());
 			}else if("Float".equals(classname)){
-				setFloatPreference((String)entry.getKey(), (Float)entry.getValue());
+				setFloatPreference(key, (Float)entry.getValue());
 			}else{
-				if(longKeys.contains((String)entry.getKey())){
-					setLongPreference((String)entry.getKey(), ((Double)entry.getValue()).longValue());
+				if(longKeys.contains(key)){
+					setLongPreference(key, ((Double)entry.getValue()).longValue());
 				}else{
-					setIntegerPreference((String)entry.getKey(), ((Double)entry.getValue()).intValue());
+					setIntegerPreference(key, ((Double)entry.getValue()).intValue());
 				}
 			}
 		}

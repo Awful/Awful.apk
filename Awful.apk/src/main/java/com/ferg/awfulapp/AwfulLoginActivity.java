@@ -1,18 +1,19 @@
-/********************************************************************************
+/**
+ * *****************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * 
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the software nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the software nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p/>
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,11 +24,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ * *****************************************************************************
+ */
 
 package com.ferg.awfulapp;
-
-import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -49,9 +49,8 @@ import android.widget.Toast;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.task.FeatureRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.util.AwfulUtils;
+
+import java.util.HashMap;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -63,10 +62,9 @@ public class AwfulLoginActivity extends AwfulActivity {
     private EditText mPassword;
 
     private ProgressDialog mDialog;
-    
+
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.login);
@@ -75,42 +73,41 @@ public class AwfulLoginActivity extends AwfulActivity {
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
         mPassword.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if(actionId == EditorInfo.IME_ACTION_DONE){
-					loginClick();
-				}
-				if(event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
-					loginClick();
-				}
-				return false;
-			}
-		});
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    loginClick();
+                }
+                if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    loginClick();
+                }
+                return false;
+            }
+        });
 
         mLogin.setOnClickListener(onLoginClick);
 
         mUsername.requestFocus();
-        
-        final ImageView image = (ImageView) findViewById(R.id.dealwithit); 
+
+        final ImageView image = (ImageView) findViewById(R.id.dealwithit);
         image.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				((AnimationDrawable) image.getDrawable()).start();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                ((AnimationDrawable) image.getDrawable()).start();
+            }
+        });
     }
 
     //Not sure if this needs a @Override since it worked without one
-    public void onResume(){
-    	super.onResume();
-		Log.i(TAG,"onResume");
-    	boolean loggedIn = NetworkUtils.restoreLoginCookies(this);
-		if (loggedIn) {
-			Log.e(TAG,"Already logged in! Closing AwfulLoginActivity!");
-			this.finish();
-		}
+    public void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume");
+        if (isLoggedIn()) {
+            Log.e(TAG, "Already logged in! Closing AwfulLoginActivity!");
+            this.finish();
+        }
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
@@ -123,7 +120,7 @@ public class AwfulLoginActivity extends AwfulActivity {
             mLoginTask.cancel(true);
         }
     }
-        
+
     @Override
     public void onStop() {
         super.onStop();
@@ -136,7 +133,7 @@ public class AwfulLoginActivity extends AwfulActivity {
             mLoginTask.cancel(true);
         }
     }
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -150,29 +147,29 @@ public class AwfulLoginActivity extends AwfulActivity {
         }
     }
 
-	private void loginClick(){
+    private void loginClick() {
         String username = NetworkUtils.encodeHtml(mUsername.getText().toString());
         String password = NetworkUtils.encodeHtml(mPassword.getText().toString());
 
         mLoginTask = new LoginTask();
-        mLoginTask.execute(new String[] {username, password});
+        mLoginTask.execute(new String[]{username, password});
     }
 
     private View.OnClickListener onLoginClick = new View.OnClickListener() {
         public void onClick(View aView) {
-        	loginClick();
+            loginClick();
         }
     };
-    
+
     private class LoginTask extends AsyncTask<String, Void, Boolean> {
         public void onPreExecute() {
-            mDialog = ProgressDialog.show(AwfulLoginActivity.this, "Logging In", 
-                "Hold on...", true);
+            mDialog = ProgressDialog.show(AwfulLoginActivity.this, "Logging In",
+                    "Hold on...", true);
         }
 
         public Boolean doInBackground(String... aParams) {
-        	boolean result = false;
-        	
+            boolean result = false;
+
             if (!isCancelled()) {
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put(Constants.PARAM_USERNAME, aParams[0]);
@@ -185,7 +182,7 @@ public class AwfulLoginActivity extends AwfulActivity {
 
                     // Write username to preferences for SALR features
                     AwfulPreferences prefs = AwfulPreferences.getInstance(AwfulLoginActivity.this);
-                    prefs.setUsername(aParams[0]);
+                    prefs.setStringPreference("username", aParams[0]);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
@@ -204,7 +201,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                 int loginStatusResource = succeeded ? R.string.login_succeeded : R.string.login_failed;
                 Toast.makeText(AwfulLoginActivity.this, loginStatusResource, Toast.LENGTH_SHORT).show();
 
-                if(succeeded) {
+                if (succeeded) {
                     setResult(Activity.RESULT_OK);
                     finish();
                 } else {

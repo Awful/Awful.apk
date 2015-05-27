@@ -2,10 +2,12 @@ package com.ferg.awfulapp.task;
 
 import android.content.Context;
 import android.net.Uri;
+
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
+
 import org.jsoup.nodes.Document;
 
 /**

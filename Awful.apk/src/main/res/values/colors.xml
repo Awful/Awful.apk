@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="forums_blue">#006699</color>
+    <color name="forums_blue_darker">#00537E</color>
+    <color name="forums_blue_darkest">#00314b</color>
     <color name="forums_gray">#f4f4f4</color>
     <color name="holo_blue_light">#ff33b5e5</color>
     
     <color name="default_post_font">#555555</color>    
     <color name="forum_title">#484848</color>
     <color name="secondary_post_font">#989898</color>
-    <color name="background">#f4f4f4</color>
+    <color name="background">#ffffff</color>
     <color name="alt_background">#dfdfdf</color>
     <color name="background_read">#ddeeff</color>
     <color name="font_read">#777777</color>
@@ -49,6 +51,11 @@
     <color name="fyad_secondary_post_font">#999999</color>
     <color name="fyad_background">#FFCCFF</color>
     <color name="fyad_alt_background">#FFCCCC</color>
+
+    <color name="byob_default_post_font">#006666</color>
+    <color name="byob_secondary_post_font">#CCFFFF</color>
+    <color name="byob_background">#9999FF</color>
+    <color name="byob_alt_background">#CCFFFF</color>
     
     <color name="profile_column">#e7eff5</color>
     <color name="selected_item">#33eeeeee</color>
@@ -62,4 +69,8 @@
     <color name="bookmark_orange_dim">#7fe28d00</color>
     <color name="bookmark_red_dim">#7fb4171f</color>
     <color name="bookmark_yellow_dim">#7fdfdd6d</color><!--darker alternative: #bdbc2a-->
+
+
+    <color name="sidebarOverlay">#99CCCCCC</color>
+    <color name="sidebarOverlay_dark">#99CCCCCC</color>
 </resources>

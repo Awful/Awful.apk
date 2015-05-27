@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="48dp"
-    android:textAlignment="center"
-    android:textSize="20sp"
-    android:textIsSelectable="false"
-    android:singleLine="true"
-    android:gravity="center_vertical"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:visibility="gone"
-    >
+    android:visibility="gone">
 
-</TextView>
+    <ImageView
+        android:id="@+id/drawer_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_mail_grey600_36dp"
+        android:layout_margin="12dp" />
+
+    <TextView
+        android:id="@+id/drawer_text"
+        android:layout_toRightOf="@+id/drawer_icon"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:singleLine="true"
+        android:textAlignment="center"
+        android:textIsSelectable="false"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</RelativeLayout>

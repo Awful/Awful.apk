@@ -28,22 +28,24 @@
 package com.ferg.awfulapp;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.text.method.ScrollingMovementMethod;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.view.Window;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.ColorProvider;
+
+import java.lang.reflect.Method;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
     private String pmIntentID;
+    private Toolbar mToolbar;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +53,7 @@ public class PrivateMessageActivity extends AwfulActivity {
         setContentView(R.layout.fragment_pane);
         mPrefs = AwfulPreferences.getInstance(this, this);
 
-        setActionBar();
+        //setActionBar();
         setActionbarTitle("Private Messages", null);
 
         if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
@@ -112,6 +114,29 @@ public class PrivateMessageActivity extends AwfulActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu)
+    {
+        if(featureId == Window.FEATURE_ACTION_BAR && menu != null){
+            if(menu.getClass().getSimpleName().equals("MenuBuilder")){
+                try{
+                    Method m = menu.getClass().getDeclaredMethod(
+                            "setOptionalIconsVisible", Boolean.TYPE);
+                    m.setAccessible(true);
+                    m.invoke(menu, true);
+                }
+                catch(NoSuchMethodException e){
+                    Log.e(TAG, "onMenuOpened", e);
+                }
+                catch(Exception e){
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return super.onMenuOpened(featureId, menu);
     }
 
     public void returnHome() {

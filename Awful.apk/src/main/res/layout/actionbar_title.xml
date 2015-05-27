@@ -13,7 +13,7 @@
     android:paddingRight="10dp"
     android:focusableInTouchMode="true"
     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-    android:textSize="@dimen/abc_action_bar_title_text_size"
+    android:textSize="@dimen/abc_text_size_title_material_toolbar"
     android:text="@string/forums_title"
     android:textStyle="bold"
     android:gravity="center_vertical" >

@@ -29,7 +29,6 @@ package com.ferg.awfulapp;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -85,8 +84,8 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	}
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		super.onPreferenceChange(prefs);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		super.onPreferenceChange(prefs, key);
 	}
 
 	@Override

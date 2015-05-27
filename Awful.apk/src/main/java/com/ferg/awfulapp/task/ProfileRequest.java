@@ -3,8 +3,10 @@ package com.ferg.awfulapp.task;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

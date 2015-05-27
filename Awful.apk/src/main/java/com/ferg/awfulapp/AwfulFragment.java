@@ -27,33 +27,42 @@
 
 package com.ferg.awfulapp;
 
-import android.content.Intent;
-import android.os.Looper;
-import android.support.v4.app.LoaderManager;
-import android.text.TextUtils;
-import android.view.*;
-import android.view.animation.Animation;
-import android.widget.PopupWindow;
-import com.android.volley.VolleyError;
-import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.task.AwfulRequest;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
@@ -63,10 +72,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
-	protected PullToRefreshAttacher mP2RAttacher;
-
-    private PopupWindow popupAlert;
-    private Runnable popupClose;
+	protected SwipyRefreshLayout mSRL;
 	
 
     protected Handler mHandler = new Handler();
@@ -95,7 +101,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
-		onPreferenceChange(mPrefs);
+		onPreferenceChange(mPrefs, null);
 		if(mProgressBar != null){
 			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
 		}
@@ -129,13 +135,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     @Override
     public void onDestroy() {
     	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
-        popupAlert = null;
+        this.cancelNetworkRequests();
+        mHandler.removeCallbacksAndMessages(null);
         mPrefs.unregisterCallback(this);
     }
 
     @Override
     public void onDetach() {
         super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
+        this.cancelNetworkRequests();
+        mHandler.removeCallbacksAndMessages(null);
     }
     
     protected void displayForumIndex(){
@@ -163,39 +172,35 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	
 	protected void displayForum(long forumId, long page){
 		if(getAwfulActivity() != null){
-			getAwfulActivity().displayForum((int)forumId, (int)page);
+			getAwfulActivity().displayForum((int) forumId, (int) page);
 		}
 	}
 	
     public void displayPostReplyDialog(final int threadId, final int postId, final int type) {
 		if(getAwfulActivity() != null){
-			getAwfulActivity().runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-                    if(getActivity() != null){
+			getAwfulActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (getActivity() != null) {
                         startActivityForResult(
-                            new Intent(getActivity(), PostReplyActivity.class)
-                                .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                                .putExtra(Constants.EDITING, type)
-                                .putExtra(Constants.REPLY_POST_ID, postId),
-                            PostReplyFragment.REQUEST_POST);
+                                new Intent(getActivity(), PostReplyActivity.class)
+                                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                                        .putExtra(Constants.EDITING, type)
+                                        .putExtra(Constants.REPLY_POST_ID, postId),
+                                PostReplyFragment.REQUEST_POST);
                     }
-				}
-			});
+                }
+            });
 		}
     }
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		if(currentProgress > 0 && mP2RAttacher != null){
-	    	mP2RAttacher.setRefreshComplete();
+		if(currentProgress > 0 && mSRL != null){
+            mSRL.setRefreshing(false);
 		}
-		AwfulActivity aa = getAwfulActivity();
 		if(mProgressBar != null){
 			mProgressBar.setProgress(percent);
-            if(aa != null){
-                aa.hideProgressBar();
-            }
 		}
 	}
 	
@@ -224,14 +229,10 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
     public void requestStarted(AwfulRequest req) {
-        AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-            aa.setSupportProgressBarVisibility(false);
-            if(mP2RAttacher != null){
-                mP2RAttacher.setRefreshing(true);
-            }else {
-                aa.setSupportProgressBarIndeterminateVisibility(true);
-            }
+        if(mSRL != null){
+            // P2R Library is ... awful - part 1
+            mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
+            mSRL.setRefreshing(true);
         }
     }
 
@@ -242,13 +243,14 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
     public void requestEnded(AwfulRequest req, VolleyError error) {
-        AwfulActivity aa = getAwfulActivity();
-        if(aa != null){
-            aa.setSupportProgressBarIndeterminateVisibility(false);
-            aa.setSupportProgressBarVisibility(false);
-        }
-        if(mP2RAttacher != null){
-            mP2RAttacher.setRefreshComplete();
+        if(mSRL != null){
+            mSRL.setRefreshing(false);
+            // P2R Library is ... awful - part 2
+            if(this instanceof ThreadDisplayFragment){
+                mSRL.setDirection(SwipyRefreshLayoutDirection.BOTH);
+            }else{
+                mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
+            }
         }
         if(error instanceof AwfulError){
             displayAlert((AwfulError) error);
@@ -258,9 +260,12 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     }
 
     @Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
-		if(mP2RAttacher != null){
-			mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+		if(mSRL != null){
+            DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+            float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+
+            mSRL.setDistanceToTriggerSync(Math.round(prefs.p2rDistance*dpHeight));
 		}
 	}
 
@@ -340,64 +345,55 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public abstract boolean volumeScroll(KeyEvent event);
 
 
-    private static final int ALERT_DISPLAY_MILLIS = 3000;
     protected void displayAlert(int titleRes){
         if(getActivity() != null){
-            displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, 0, null);
+            displayAlert(getString(titleRes), null, 0, null);
         }
     }
 
     protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
         if(getActivity() != null){
             if(subtitleRes != 0){
-                displayAlert(getString(titleRes), getString(subtitleRes), ALERT_DISPLAY_MILLIS, iconRes, null);
+                displayAlert(getString(titleRes), getString(subtitleRes), iconRes, null);
             }else{
-                displayAlert(getString(titleRes), null, ALERT_DISPLAY_MILLIS, iconRes, null);
+                displayAlert(getString(titleRes), null, iconRes, null);
             }
         }
     }
 
     protected void displayAlert(AwfulError error){
-        displayAlert(error.getMessage(), error.getSubMessage(), error.getAlertTime(), error.getIconResource(), error.getIconAnimation());
+        displayAlert(error.getMessage(), error.getSubMessage(), error.getIconResource(), error.getIconAnimation());
     }
 
     protected void displayAlert(String title){
-        displayAlert(title, null, ALERT_DISPLAY_MILLIS, 0, null);
+        displayAlert(title, null, 0, null);
     }
 
     protected void displayAlert(String title, int iconRes){
-        displayAlert(title, null, ALERT_DISPLAY_MILLIS, iconRes, null);
+        displayAlert(title, null, iconRes, null);
     }
 
     protected void displayAlert(String title, String subtext){
-        displayAlert(title, subtext, ALERT_DISPLAY_MILLIS, 0, null);
+        displayAlert(title, subtext, 0, null);
     }
 
-    private void displayAlert(final String title, final String subtext, final int timeoutMillis, final int iconRes, final Animation animate){
+    private void displayAlert(final String title, final String subtext, final int iconRes, final Animation animate){
         if(Looper.getMainLooper().equals(Looper.myLooper())){
-            displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+            displayAlertInternal(title, subtext, iconRes, animate);
         }else{
             //post on main thread, if this is called from a secondary thread.
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    displayAlertInternal(title, subtext, timeoutMillis, iconRes, animate);
+                    displayAlertInternal(title, subtext, iconRes, animate);
                 }
             });
         }
     }
 
-    private void displayAlertInternal(String title, String subtext, int timeoutMillis, int iconRes, Animation animate){
+    private void displayAlertInternal(String title, String subtext, int iconRes, Animation animate){
         if(getActivity() == null){
             return;
-        }
-        if(popupAlert != null){
-            if(popupClose != null){
-                mHandler.removeCallbacks(popupClose);
-                popupClose = null;
-            }
-            popupAlert.dismiss();
-            popupAlert = null;
         }
         View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
         AQuery aq = new AQuery(popup);
@@ -408,40 +404,20 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             aq.find(R.id.popup_subtitle).visible().text(subtext);
         }
         if(iconRes != 0){
+
+            int [] attrs = { iconRes};
+            TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
             if(animate != null){
-                aq.find(R.id.popup_icon).image(iconRes).animate(animate);
+                aq.find(R.id.popup_icon).image(ta.getDrawable(0)).animate(animate);
             }else{
-                aq.find(R.id.popup_icon).image(iconRes);
+                aq.find(R.id.popup_icon).image(ta.getDrawable(0));
             }
         }
-        int popupDimen = (int) getResources().getDimension(R.dimen.popup_size);
-        popupAlert = new PopupWindow(popup, popupDimen, popupDimen);
-        popupAlert.setBackgroundDrawable(null);
-        popupAlert.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                popupAlert = null;
-                if(popupClose != null){
-                    mHandler.removeCallbacks(popupClose);
-                    popupClose = null;
-                }
-            }
-        });
-        popupAlert.showAtLocation(getView(), Gravity.CENTER, 0, 0);
-        if(timeoutMillis > 0){
-            popupClose = new Runnable() {
-                @Override
-                public void run() {
-                    //TODO fade out
-                    if(popupAlert != null){
-                        popupAlert.dismiss();
-                        popupAlert = null;
-                        popupClose = null;
-                    }
-                }
-            };
-            mHandler.postDelayed(popupClose, timeoutMillis);
-        }
+        Toast toast = new Toast(getAwfulApplication());
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(popup);
+        toast.show();
     }
 
     protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {

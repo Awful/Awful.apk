@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="@color/background"
-    >
-    <com.ferg.awfulapp.widget.AwfulProgressBar 
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="4dp"
-		android:visibility="gone"
-       />
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:visibility="gone" />
+
     <include
         android:id="@+id/probationbar"
-        layout="@layout/probationbar"
-        />
-	<ListView
-		android:id="@+id/forum_list" 
-		android:layout_width="fill_parent"
-		android:layout_height="0dip"
-        android:divider="#8c8c8c"
-        android:dividerHeight="1dp"
-		android:cacheColorHint="@color/background"
+        layout="@layout/probationbar" />
+
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/forum_swipe"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-		/>
-	<include 
+        android:orientation="vertical"
+        app:direction="top">
+
+        <ListView
+            android:id="@+id/forum_list"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:cacheColorHint="@color/background"
+            android:divider="@color/alt_background"
+            android:dividerHeight="1dp" />
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+
+    <include
         android:id="@+id/pagebar"
-        layout="@layout/pagebar"
-        />
+        layout="@layout/pagebar" />
 </LinearLayout>

@@ -32,7 +32,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -60,6 +59,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 
 	public AwfulProgressBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		if (this.isInEditMode()) { return; } // suppress errors during GUI dev
 		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
@@ -93,7 +93,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 	
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 			this.setPaint(getContext());
 	}
 

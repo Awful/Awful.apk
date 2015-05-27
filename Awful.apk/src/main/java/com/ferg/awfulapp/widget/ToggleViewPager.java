@@ -1,9 +1,15 @@
 package com.ferg.awfulapp.widget;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+
+import com.ferg.awfulapp.ForumsIndexActivity;
+import com.ferg.awfulapp.ThreadDisplayFragment;
 
 public class ToggleViewPager extends ViewPager{
     private boolean swipeEnabled = true;
@@ -17,20 +23,12 @@ public class ToggleViewPager extends ViewPager{
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if(swipeEnabled){
-            return super.onInterceptTouchEvent(ev);
-        }else{
-            return false;
-        }
+        return swipeEnabled && super.onInterceptTouchEvent(ev);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if(swipeEnabled){
-            return super.onTouchEvent(ev);
-        }else{
-            return false;
-        }
+        return swipeEnabled && super.onTouchEvent(ev);
     }
 
     public void setSwipeEnabled(boolean swipe){

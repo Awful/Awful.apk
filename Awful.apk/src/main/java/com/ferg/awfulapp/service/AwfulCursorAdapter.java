@@ -39,7 +39,6 @@ import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -54,7 +53,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
     private AwfulFragment mFragment;
 	private LayoutInflater inf;
 	private int mId;
-	private int selectedId = -1;
 	private AQuery aq;
 	private Messenger msgCallback;
 	
@@ -71,11 +69,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		aq = new AQuery(context);
         mFragment = fragment;
 	}
-	
-	public void setSelected(int id){
-		selectedId = id;
-	}
-	
+
 	public void setId(int id){
 		mId = id;
 	}
@@ -86,8 +80,8 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			AwfulThread.getView(current, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
-		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
+//		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+//			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
@@ -100,16 +94,16 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	public View newView(Context context, Cursor data, ViewGroup parent) {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			row = inf.inflate(R.layout.thread_item, parent, false);
+			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulThread.getView(row, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			row = inf.inflate(R.layout.thread_item, parent, false);
+			row = inf.inflate(R.layout.forum_item, parent, false);
 			assert(false);
-		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-			row = inf.inflate(R.layout.post_item, parent, false);
-			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
+//		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
+//			row = inf.inflate(R.layout.post_item, parent, false);
+//			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
-			row = inf.inflate(R.layout.thread_item, parent, false);
+			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			row = inf.inflate(R.layout.emote_grid_item, parent, false);

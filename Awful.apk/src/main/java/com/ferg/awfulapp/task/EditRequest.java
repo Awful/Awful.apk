@@ -3,10 +3,12 @@ package com.ferg.awfulapp.task;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.reply.Reply;
 import com.ferg.awfulapp.util.AwfulError;
+
 import org.jsoup.nodes.Document;
 
 import java.sql.Timestamp;

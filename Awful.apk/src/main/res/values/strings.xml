@@ -48,6 +48,7 @@
     <string name="share_thread">Share thread</string>
     <string name="find">Find on page</string>
     <string name="keep_screen_on">Keep screen on</string>
+    <string name="yospos">YOSPOS</string>
 
     <string name="next_page">Next page</string>
     <string name="mark_last_read_progress">Marking Last-Read</string>
@@ -96,7 +97,7 @@
     animation\" option.
     </string>
     <string name="alert_title_1">Please Note: GIFs</string>
-    <string name="alert_ok">Ok</string>
+    <string name="alert_ok">@android:string/ok</string>
     <string name="alert_settings">Settings</string>
     <string name="thread_actions">Thread actions</string>
 
@@ -105,10 +106,14 @@
     <string name="loading_failed">Loading Failed!</string>
     <string name="critical_error">Critical Error</string>
     <string name="not_available_on_your_version">Not available on this version of Android</string>
+    <string name="min_button_text">min</string>
+    <string name="max_button_text">max</string>
 
     <!--
         Start of Settings menu strings
     -->
+
+    <string name="settings_activity_title">Settings</string>
 
     <!-- Main page -->
     <string name="about">About…</string>
@@ -129,17 +134,17 @@
         <item>spanky the dolphin</item>
         <item>JingleBells</item>
         <item>baka kaba</item>
+        <item>The Dave</item>
+        <item>Diabolik900</item>
     </string-array>
     <string name="about_libraries_title">Libraries:</string>
     <string-array name="about_libraries_array">
-        <item>ActionBarSherlock</item>
-        <item>ActionBar Pull To Refresh</item>
-        <item>ACRA / Bugsense</item>
         <item>Apache Commons-Lang3</item>
         <item>Apache HttpClient/HttpCore/HttpMime</item>
-        <item>HtmlCleaner</item>
-        <item>JSoup</item>
         <item>AQuery</item>
+        <item>Crashlytics</item>
+        <item>Google Material Design icons</item>
+        <item>JSoup</item>
     </string-array>
     <string name="open_thread">Go to the Awful thread</string>
     <string name="open_thread_summary">The most Awful thread on the forums</string>
@@ -159,7 +164,7 @@
     <!-- Thread Settings page -->
     <string name="threadinfo_tag">Show tags</string>
     <string name="threadinfo_tag_summary">Forum and thread category icons</string>
-    <string name="wrap_titles">Wrap thread titles</string>
+    <string name="wrap_titles">Wrap forum titles</string>
     <string name="wrap_titles_summary">Allow multi-line titles</string>
     <string name="color_bookmarks">Color bookmarks</string>
     <string name="color_bookmarks_summary">Use \'star\' colors for unread post counts</string>
@@ -190,12 +195,20 @@
     <string name="op_highlight_summary">Use a themed background color</string>
     <string name="inline_videos">Embed videos</string>
     <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_tweets">Embed tweets</string>
+    <string name="inline_tweets_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_vines">Embed vines</string>
+    <string name="inline_vines_summary">May cause scroll lag/graphical glitches</string>
+    <string name="inline_webm">Embed webm/gifvs</string>
+    <string name="inline_webm_summary">May cause scroll lag/graphical glitches</string>
     <string name="show_spoilers">Show all spoilers</string>
     <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
     <string name="hide_signatures_summary">Even when enabled in the browser</string>
     <string name="always_open_urls">Always open links</string>
     <string name="always_open_urls_summary">Disable link options menu</string>
+    <string name="no_fab">Disable FABs</string>
+    <string name="no_fab_summary">Disable all Floating Action Buttons (thread view, pm list)</string>
 
     <!-- Image Settings page -->
     <string name="load_images">Load images</string>
@@ -228,10 +241,11 @@
         <item>YOSPOS</item>
         <item>AmberPOS</item>
         <item>FYAD</item>
+        <item>BYOB</item>
         <item>Classic</item>
     </string-array>
     <string name="force_forum_themes">Force forum themes</string>
-    <string name="force_forum_themes_summary">Specific theme in YOSPOS and FYAD</string>
+    <string name="force_forum_themes_summary">Specific theme in YOSPOS, BYOB and FYAD</string>
     <string name="layouts">Layout</string>
     <string-array name="layouts">
         <item>Default</item>
@@ -272,7 +286,23 @@
     <string name="lock_scrolling_summary">No horizontal swiping navigation</string>
     <string name="volume_scroll">Volume button scrolling</string>
     <string name="volume_scroll_summary">Use volume controls to scroll threads</string>
-
+    <string name="transformer">Page transformation</string>
+    <string-array name="transformer">
+        <item>Disabled</item>
+        <item>Accordion</item>
+        <item>Background To Foreground</item>
+        <item>Cube In</item>
+        <item>Cube Out</item>
+        <item>Depth Page</item>
+        <item>Foreground To Background</item>
+        <item>Rotate Down</item>
+        <item>Rotate Up</item>
+        <item>Stack</item>
+        <item>Tablet</item>
+        <item>Zoom In</item>
+        <item>Zoom Out Slide</item>
+        <item>Zoom Out</item>
+    </string-array>
 
     <!-- Account settings page -->
     <string name="username_pref">Username</string>

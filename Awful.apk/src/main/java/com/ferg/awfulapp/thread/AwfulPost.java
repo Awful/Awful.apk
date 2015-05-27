@@ -27,19 +27,6 @@
 
 package com.ferg.awfulapp.thread;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.ferg.awfulapp.util.AwfulUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
-import org.jsoup.select.Elements;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -58,10 +45,22 @@ import android.widget.HorizontalScrollView;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.htmlwidget.HtmlView;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.util.AwfulUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.Elements;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -259,12 +258,12 @@ public class AwfulPost {
                 current.setRegDate(aCursor.getString(regdateIndex));
                 current.setUserId(aCursor.getString(userIdIndex));
                 current.setUsername(aCursor.getString(usernameIndex));
-                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0 ? true : false);
+                current.setPreviouslyRead(aCursor.getInt(previouslyReadIndex) > 0);
                 current.setLastReadUrl(aCursor.getInt(postIndexIndex)+"");
-                current.setEditable(aCursor.getInt(editableIndex) == 1 ? true : false);
-                current.setIsOp(aCursor.getInt(isOpIndex) == 1 ? true : false);
-                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0 ? true : false);
-                current.setIsMod(aCursor.getInt(isModIndex) > 0 ? true : false);
+                current.setEditable(aCursor.getInt(editableIndex) == 1);
+                current.setIsOp(aCursor.getInt(isOpIndex) == 1);
+                current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0);
+                current.setIsMod(aCursor.getInt(isModIndex) > 0);
                 current.setAvatar(aCursor.getString(avatarIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
@@ -284,15 +283,15 @@ public class AwfulPost {
 		
 			for(Element youTube : youtubeNodes){
 				String src = youTube.attr("src");
-				int height = Integer.parseInt(youTube.attr("height"));
-				int width = Integer.parseInt(youTube.attr("width"));
+				//int height = Integer.parseInt(youTube.attr("height"));
+				//int width = Integer.parseInt(youTube.attr("width"));
 				Matcher youtubeMatcher = youtubeHDId_regex.matcher(src);
 				if(youtubeMatcher.find()){
 					String videoId = youtubeMatcher.group(1);
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
                     Log.e(TAG," Build.VERSION:"+  Build.VERSION.RELEASE);
-                    if(!AwfulUtils.isICS() || (AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4")){
+                    if(AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")){
                         Element youtubeContainer = new Element(Tag.valueOf("div"),"");
                         youtubeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
@@ -356,11 +355,11 @@ public class AwfulPost {
 								continue;
 							}
 							if(vimeoXML.getElementsByTag("mobile_url").first() != null){
-								link = vimeoXML.getElementsByTag("mobile_url").first().text().toString();
+								link = vimeoXML.getElementsByTag("mobile_url").first().text();
 							}else{
-								link = vimeoXML.getElementsByTag("url").first().text().toString();
+								link = vimeoXML.getElementsByTag("url").first().text();
 							}
-							image = vimeoXML.getElementsByTag("thumbnail_large").first().text().toString();
+							image = vimeoXML.getElementsByTag("thumbnail_large").first().text();
 							src = link;
 						}else{
 							node.empty();
@@ -371,7 +370,7 @@ public class AwfulPost {
 							continue;
 						}
 
-						if(inline && (!AwfulUtils.isICS() || (AwfulUtils.isKitKatOnly() && Build.VERSION.RELEASE != "4.4.4"))){
+						if(inline && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))){
                             Element nodeContainer = new Element(Tag.valueOf("div"),"");
                             nodeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
                             Element nodeLink = new Element(Tag.valueOf("a"),"");
@@ -385,7 +384,7 @@ public class AwfulPost {
                             nodeContainer.appendChild(nodeLink);
                             node.replaceWith(nodeContainer);
 
-						}else if(inline && AwfulUtils.isICS()){
+						}else if(inline){
 							//do nothing, let JS do that
 						
 						}else{
@@ -581,15 +580,7 @@ public class AwfulPost {
 						}
 					}
 
-					StringBuffer fixedContent = new StringBuffer();
-					Matcher fixCharMatch = fixCharacters_regex.matcher(entry.html());
-
-                    while (fixCharMatch.find()) {
-                        fixCharMatch.appendReplacement(fixedContent, "");
-                    }
-
-					fixCharMatch.appendTail(fixedContent);
-                    post.put(CONTENT, fixedContent.toString());
+                    post.put(CONTENT, entry.html());
 				}
 
 				if (type.equalsIgnoreCase("postdate")) {
@@ -624,13 +615,13 @@ public class AwfulPost {
     	return result;
     }
 
-	public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
+	/*public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
 		aq.recycle(current);
 //		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(current.getResources().getColor(R.color.default_post_font));
 		aq.find(R.id.post_author).visible().text(data.getString(data.getColumnIndex(USERNAME))).textColor(current.getResources().getColor(R.color.default_post_font));
 //		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
 		aq.find(R.id.post_date).visible().text(data.getString(data.getColumnIndex(DATE))).textColor(current.getResources().getColor(R.color.default_post_font));
-		int background = 0;
+		int background;
 		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
 			background = current.getResources().getColor(R.color.background_read);
 		}else{
@@ -687,6 +678,6 @@ public class AwfulPost {
 			}
 		});
 		aq.find(R.id.post_button_scoller).backgroundColor(current.getResources().getColor(R.color.background)).gone();
-	}
+	}*/
 
 }

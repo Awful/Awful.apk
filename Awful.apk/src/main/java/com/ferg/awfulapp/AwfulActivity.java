@@ -1,35 +1,17 @@
 package com.ferg.awfulapp;
 
-import java.io.File;
-import java.util.LinkedList;
-
-import com.ferg.awfulapp.task.FeatureRequest;
-import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.util.AwfulUtils;
-
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher.Options;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.net.http.HttpResponseCache;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -37,7 +19,12 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.widget.AwfulHeaderTransformer;
+import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.util.AwfulUtils;
+
+import java.io.File;
+import java.util.LinkedList;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -62,8 +49,6 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     
     protected AwfulPreferences mPrefs;
     
-	protected PullToRefreshAttacher mP2RAttacher;
-    
     public void reauthenticate(){
     	NetworkUtils.clearLoginCookies(this);
         startActivityForResult(new Intent(this, AwfulLoginActivity.class), Constants.LOGIN_ACTIVITY_REQUEST);
@@ -71,20 +56,24 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mPrefs = AwfulPreferences.getInstance(this,this);
+        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)){
+            setTheme(R.style.Theme_AwfulTheme);
+        }else if(mPrefs.theme.equals(ColorProvider.FYAD)){
+            setTheme(R.style.Theme_AwfulTheme_FYAD);
+        }else if(mPrefs.theme.equals(ColorProvider.BYOB)){
+            setTheme(R.style.Theme_AwfulTheme_BYOB);
+        }else if(mPrefs.theme.equals(ColorProvider.YOSPOS)){
+            setTheme(R.style.Theme_AwfulTheme_YOSPOS);
+        }else if(mPrefs.theme.equals(ColorProvider.AMBERPOS)){
+            setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
+        }else{
+            setTheme(R.style.Theme_AwfulTheme_Dark);
+        }
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate");
         aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
-        mPrefs = AwfulPreferences.getInstance(this, this);
-        supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR);
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        supportRequestWindowFeature(Window.FEATURE_PROGRESS);
-        loggedIn = NetworkUtils.restoreLoginCookies(this);
-    	Options p2roptions = new Options();
-    	p2roptions.headerTransformer = new AwfulHeaderTransformer();
-    	p2roptions.refreshOnUp = true;
-    	p2roptions.refreshScrollDistance = mPrefs.p2rDistance;
-    	mP2RAttacher = PullToRefreshAttacher.get(this, p2roptions);
     }
 
     @Override
@@ -97,7 +86,8 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "onResume");
         mConf.onResume();
-        
+        // check login state when coming back into use, instead of in onCreate
+        loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
         if (isLoggedIn()) {
         	if(mPrefs.ignoreFormkey == null || mPrefs.userTitle == null){
         		 getAwfulApplication().queueRequest(new ProfileRequest(this, null).build(null, null));
@@ -124,11 +114,9 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onStop() {
         super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
         mConf.onStop();
-        if(AwfulUtils.isICS()){
-            HttpResponseCache cache = HttpResponseCache.getInstalled();
-            if(cache != null){
-                cache.flush();
-            }
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if(cache != null){
+            cache.flush();
         }
     }
     
@@ -136,6 +124,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void onDestroy() {
         super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
         mConf.onDestroy();
+        mPrefs.unregisterCallback(this);
     }
 
 
@@ -149,6 +138,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	}
 
 	protected void setActionBar() {
+
         ActionBar action = getSupportActionBar();
         action.setDisplayShowTitleEnabled(false);
         action.setCustomView(R.layout.actionbar_title);
@@ -162,7 +152,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     protected void updateActionbarTheme(AwfulPreferences aPrefs){
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
-	        action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+	        //action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
 	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor());
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
@@ -220,20 +210,32 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
     public void setPreferredFont(View view){
     	setPreferredFont(view, -1);
     }
-    
-    public static boolean isHoneycomb(){
-    	return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
 
 	@Override
-	public void onPreferenceChange(AwfulPreferences prefs) {
+	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+        Log.d(TAG, "Key changed: "+key);
+        if("theme".equals(key)) {
+            if (mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)) {
+                setTheme(R.style.Theme_AwfulTheme);
+            } else if (mPrefs.theme.equals(ColorProvider.FYAD)) {
+                setTheme(R.style.Theme_AwfulTheme_FYAD);
+            } else if (mPrefs.theme.equals(ColorProvider.BYOB)) {
+                setTheme(R.style.Theme_AwfulTheme_BYOB);
+            } else if (mPrefs.theme.equals(ColorProvider.YOSPOS)) {
+                setTheme(R.style.Theme_AwfulTheme_YOSPOS);
+            } else if (mPrefs.theme.equals(ColorProvider.AMBERPOS)) {
+                setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
+            } else {
+                setTheme(R.style.Theme_AwfulTheme_Dark);
+            }
+            afterThemeChange();
+        }
 		updateActionbarTheme(prefs);
-		mP2RAttacher.setRefreshScrollDistance(prefs.p2rDistance);
 	}
 	
 	protected boolean isLoggedIn(){
 		if(!loggedIn){
-			loggedIn = NetworkUtils.restoreLoginCookies(this);
+			loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
 		}
 		return loggedIn;
 	}
@@ -242,28 +244,15 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 		return true;
 	}
 
-	public void setLoadProgress(int percent) {
-		setSupportProgressBarVisibility(percent<100);
-    	setSupportProgressBarIndeterminateVisibility(false);
-		setSupportProgress(percent*100);
-	}
-	
-	public void hideProgressBar(){
-		setSupportProgressBarVisibility(false);
-    	setSupportProgressBarIndeterminateVisibility(false);
-	}
 
 	
-
+    public void afterThemeChange() {
+        recreate();
+    }
 
 	@Override
 	public File getCacheDir() {
 		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
 		return super.getCacheDir();
 	}
-	
-	
-	PullToRefreshAttacher getPullToRefreshAttacher() {
-        return mP2RAttacher;
-    }
 }
