@@ -30,9 +30,12 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -76,40 +79,52 @@ import java.util.regex.Pattern;
 public class AwfulThread extends AwfulPagedItem  {
     private static final String TAG = "AwfulThread";
 
-    public static final String PATH     = "/thread";
+    public static final String PATH         = "/thread";
     public static final String UCP_PATH     = "/ucpthread";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+    public static final Uri CONTENT_URI     = Uri.parse("content://" + Constants.AUTHORITY + PATH);
 	public static final Uri CONTENT_URI_UCP = Uri.parse("content://" + Constants.AUTHORITY + UCP_PATH);
     
-    public static final String ID 		="_id";
-    public static final String INDEX 		="thread_index";
-    public static final String FORUM_ID 	="forum_id";
-    public static final String TITLE 		="title";
-    public static final String POSTCOUNT 	="post_count";
-    public static final String UNREADCOUNT  ="unread_count";
-    public static final String AUTHOR 		="author";
-    public static final String AUTHOR_ID 	="author_id";
-	public static final String LOCKED = "locked";
-	public static final String BOOKMARKED = "bookmarked";
-	public static final String STICKY = "sticky";
-	public static final String CATEGORY = "category";
-	public static final String LASTPOSTER = "killedby";
-	public static final String FORUM_TITLE = "forum_title";
-	public static final String HAS_NEW_POSTS = "has_new_posts";
-    public static final String HAS_VIEWED_THREAD = "has_viewed_thread";
-    public static final String ARCHIVED = "archived";
-	public static final String RATING = "rating";
+    public static final String ID 		            = "_id";
+    public static final String INDEX 		        = "thread_index";
+    public static final String FORUM_ID 	        = "forum_id";
+    public static final String TITLE 		        = "title";
+    public static final String POSTCOUNT 	        = "post_count";
+    public static final String UNREADCOUNT          = "unread_count";
+    public static final String AUTHOR 		        = "author";
+    public static final String AUTHOR_ID 	        = "author_id";
+	public static final String LOCKED               = "locked";
+	public static final String BOOKMARKED           = "bookmarked";
+	public static final String STICKY               = "sticky";
+	public static final String CATEGORY             = "category";
+	public static final String LASTPOSTER           = "killedby";
+	public static final String FORUM_TITLE          = "forum_title";
+	public static final String HAS_NEW_POSTS        = "has_new_posts";
+    public static final String HAS_VIEWED_THREAD    = "has_viewed_thread";
+    public static final String ARCHIVED             = "archived";
+	public static final String RATING               = "rating";
+    public static final String TAG_URL 		        = "tag_url";
+    public static final String TAG_CACHEFILE 	    = "tag_cachefile";
+    public static final String TAG_EXTRA            = "tag_extra";
 
-    public static final String TAG_URL 		="tag_url";
-    public static final String TAG_CACHEFILE 	="tag_cachefile";
-	
-	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
+    /** All the scripts used in generating HTML */
+    private static final String[] JS_FILES = {
+        "zepto.min.js",
+        "selector.js",
+        "fx.js",
+        "fx_methods.js",
+        "reorient.js",
+        "json2.js",
+        "salr.js",
+        "thread.js"
+    };
+
+    private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 
 
 	
     public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> params = new HashMap<>();
         params.put(Constants.PARAM_FORUM_ID, Integer.toString(aForumId));
 
 		if (aPage != 0) {
@@ -120,16 +135,16 @@ public class AwfulThread extends AwfulPagedItem  {
 	}
 	
     public static Document getUserCPThreads(int aPage, Messenger statusCallback) throws Exception {
-    	HashMap<String, String> params = new HashMap<String, String>();
+    	HashMap<String, String> params = new HashMap<>();
 		params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
         return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params, statusCallback, 50);
 	}
 
 	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) {
-        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
+        ArrayList<ContentValues> result = new ArrayList<>();
         Element threads = aResponse.getElementById("forum");
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        Log.v(TAG,"Update time: "+update_time);
+        Log.v(TAG, "Update time: " + update_time);
 		for(Element node : threads.getElementsByClass("thread")){
             try {
     			ContentValues thread = new ContentValues();
@@ -170,12 +185,11 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
                 
                 Element rating = node.getElementsByClass("rating").first();
-                if(rating != null && rating.children().size() > 0){
+                if (rating != null && rating.children().size() > 0){
                 	Element img = rating.children().first();
-                	int rate = Integer.parseInt(""+img.attr("src").charAt(img.attr("src").length()-10));
-                	thread.put(RATING, rate);
-                }else{
-                	thread.put(RATING,0);
+                	thread.put(RATING, AwfulRatings.getId(img.attr("src")));
+                } else {
+                	thread.put(RATING, AwfulRatings.NO_RATING);
                 }
 
                 Elements tarIcon = node.getElementsByClass("icon");
@@ -194,6 +208,17 @@ public class AwfulThread extends AwfulPagedItem  {
                     }
                 }
 
+                /*
+                    secondary tags
+                 */
+                Element extraTag = node.getElementsByClass("icon2").first();
+                if (extraTag != null && extraTag.children().size() > 0){
+                    Element img = extraTag.children().first();
+                    thread.put(TAG_EXTRA, ExtraTags.getId(img.attr("src")));
+                } else {
+                    thread.put(TAG_EXTRA, ExtraTags.NO_TAG);
+                }
+
                 Elements tarUser = node.getElementsByClass("author");
                 if (tarUser.size() > 0) {
                     // There's got to be a better way to do this
@@ -203,13 +228,13 @@ public class AwfulThread extends AwfulPagedItem  {
                 }
 
                 Elements tarCount = node.getElementsByClass("count");
-                if (tarCount.size() > 0 && tarCount.first().getAllElements().size() >0) {
+                if (tarCount.size() > 0 && tarCount.first().getAllElements().size() > 0) {
                     thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
 					thread.put(HAS_VIEWED_THREAD, 1);
                 } else {
 					thread.put(UNREADCOUNT, 0);
                 	Elements tarXCount = node.getElementsByClass("x");
-                	// If there are X's then the user has viewed the thread
+                    // If there are X's then the user has viewed the thread
 					thread.put(HAS_VIEWED_THREAD, (tarXCount.isEmpty()?0:1));
                 }
                 Elements tarStar = node.getElementsByClass("star");
@@ -242,7 +267,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	}
 	
 	public static ArrayList<ContentValues> parseSubforums(Document aResponse, int parentForumId){
-        ArrayList<ContentValues> result = new ArrayList<ContentValues>();
+        ArrayList<ContentValues> result = new ArrayList<>();
 		Elements subforums = aResponse.getElementsByClass("subforum");
         for(Element sf : subforums){
         	Elements href = sf.getElementsByAttribute("href");
@@ -271,12 +296,12 @@ public class AwfulThread extends AwfulPagedItem  {
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
     	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
 		if(threadData.moveToFirst()){
-			totalReplies = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
-			unread = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
-            postcount = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
-			opId = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
+			totalReplies    = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
+			unread          = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
+            postcount       = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
+			opId            = threadData.getInt(threadData.getColumnIndex(AUTHOR_ID));
 			hasViewedThread = threadData.getInt(threadData.getColumnIndex(HAS_VIEWED_THREAD));
-			bookmarkStatus = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
+			bookmarkStatus  = threadData.getInt(threadData.getColumnIndex(BOOKMARKED));
 		}
         
         ContentValues thread = new ContentValues();
@@ -365,47 +390,53 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
         buffer.append("<meta name='format-detection' content='telephone=no' />\n");
         buffer.append("<meta name='format-detection' content='address=no' />\n");
-        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.theme);
-        if(!(aPrefs.forceForumThemes && (forumId == Constants.FORUM_ID_YOSPOS || forumId ==  Constants.FORUM_ID_BYOB || forumId ==  Constants.FORUM_ID_COOL_CREW || forumId ==  Constants.FORUM_ID_FYAD || forumId ==  Constants.FORUM_ID_FYAD_SUB)) && css.exists() && css.isFile() && css.canRead()){
-            buffer.append("<link rel='stylesheet' href='file:///").append(Environment.getExternalStorageDirectory()).append("/awful/").append(aPrefs.theme).append("'>\n");
-        }else if(aPrefs.forceForumThemes){
-            switch(forumId){
+
+        // set the css if we need to force a forum theme
+        String themeCss = null;
+        if(aPrefs.forceForumThemes){
+            switch (forumId) {
                 case(Constants.FORUM_ID_FYAD):
                 case(Constants.FORUM_ID_FYAD_SUB):
-	    			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/fyad.css'>\n");
-	    			break;
+                    themeCss = "fyad.css";
+                    break;
                 case(Constants.FORUM_ID_BYOB):
                 case(Constants.FORUM_ID_COOL_CREW):
-        			buffer.append("<link rel='stylesheet' href='file:///android_asset/css/byob.css'>\n");
-        			break;
-                case(Constants.FORUM_ID_YOSPOS):
-                    if(aPrefs.amberDefaultPos){
-                        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/amberpos.css'>\n");
-                    }else{
-                        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/yospos.css'>\n");
-                    }
+                    themeCss = "byob.css";
                     break;
-                default:
-                    buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(aPrefs.theme).append("'>\n");
+                case(Constants.FORUM_ID_YOSPOS):
+                    themeCss = aPrefs.amberDefaultPos ? "amberpos.css" : "yospos.css";
                     break;
             }
-        }else{
-            buffer.append("<link rel='stylesheet' href='file:///android_asset/css/").append(aPrefs.theme).append("'>\n");
         }
+
+        final String awfulFolder = Environment.getExternalStorageDirectory() + "/awful/";
+        // if we haven't forced a theme, work out if the user's theme is a custom one
+        boolean useCustomCss = false;
+        if (themeCss == null) {
+            File customCssFile = new File(awfulFolder + aPrefs.theme);
+            if (customCssFile.isFile() && customCssFile.canRead()) {
+                useCustomCss = true;
+            }
+            themeCss = aPrefs.theme;
+        }
+        // build the link tag, using the custom css path if necessary
+        buffer.append("<link rel='stylesheet' href='file:///");
+        buffer.append(useCustomCss ? awfulFolder : "android_asset/css/");
+        buffer.append(themeCss).append("'>\n");
+
+
         if(!aPrefs.preferredFont.contains("default")){
             buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(aPrefs.preferredFont).append("'); }</style>\n");
         }
-        buffer.append("<script src='file:///android_asset/zepto.min.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/selector.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/fx.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/fx_methods.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/reorient.js' type='text/javascript'></script>\n");
+        for (String scriptName : JS_FILES) {
+            buffer.append("<script src='file:///android_asset/")
+                    .append(scriptName)
+                    .append("' type='text/javascript'></script>\n");
+        }
 
-        buffer.append("<script src='file:///android_asset/json2.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/salr.js' type='text/javascript'></script>\n");
-        buffer.append("<script src='file:///android_asset/thread.js' type='text/javascript'></script>\n");
-
-        buffer.append("</head><body><div id='container' class='container' "+(!aPrefs.noFAB?"style='padding-bottom:75px'":"")+"></div></body></html>");
+        buffer.append("</head><body><div id='container' class='container' ")
+                .append((!aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
+                .append("></div></body></html>");
         return buffer.toString();
     }
 
@@ -423,7 +454,9 @@ public class AwfulThread extends AwfulPagedItem  {
             if(unreadCount < aPosts.size() && unreadCount > 0){
                 buffer.append("    <article class='toggleread'>");
                 buffer.append("      <a>\n");
-                buffer.append("        <h3>Show ").append(aPosts.size() - unreadCount).append(" Previous Post").append(aPosts.size() - unreadCount > 1 ? "s" : "").append("</h3>\n");
+                final int prevPosts = aPosts.size() - unreadCount;
+                buffer.append("        <h3>Show ")
+                        .append(prevPosts).append(" Previous Post").append(prevPosts > 1 ? "s" : "").append("</h3>\n");
                 buffer.append("      </a>\n");
                 buffer.append("    </article>");
             }
@@ -444,45 +477,44 @@ public class AwfulThread extends AwfulPagedItem  {
         Template postTemplate;
 
         try {
-        	Reader templateReader;
-        	if(!"default".equals(aPrefs.layout)){
-        		File template = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.layout);
-        		if(template.exists() && template.isFile() && template.canRead()){
-            		templateReader = new FileReader(template);
-        		}else{
-            		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
-            	}
-        	}else{
-        		templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
-        	}
-        	postTemplate = Mustache.compiler().compile(templateReader);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "";
-		}
-
+            Reader templateReader = null;
+            if (!"default".equals(aPrefs.layout)) {
+                File template = new File(Environment.getExternalStorageDirectory()+"/awful/"+aPrefs.layout);
+                if (template.isFile() && template.canRead()) {
+                    templateReader = new FileReader(template);
+                }
+            }
+            if (templateReader == null) {
+                templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
+            }
+            postTemplate = Mustache.compiler().compile(templateReader);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
 
         for (AwfulPost post : aPosts) {
+        	Map<String, String> postData = new HashMap<>();
+            String username = post.getUsername();
+            String avatar   = post.getAvatar();
 
-        	Map<String, String> postData = new HashMap<String, String>();
-        	
         	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
-        	postData.put("isOP", (aPrefs.highlightOP && post.isOp())?"op":null);
-        	postData.put("isMarked", (aPrefs.markedUsers.contains(post.getUsername()))?"marked":null);
+        	postData.put("isOP", (aPrefs.highlightOP && post.isOp()) ? "op" : null);
+            postData.put("isMarked", (aPrefs.markedUsers.contains(username)) ? "marked" : null);
         	postData.put("postID", post.getId());
-        	postData.put("isSelf", (aPrefs.highlightSelf && post.getUsername().equals(aPrefs.username)) ? "self" : null);
-        	postData.put("avatarURL", (aPrefs.canLoadAvatars() && post.getAvatar() != null &&  post.getAvatar().length()>0) ? post.getAvatar() : null);
-        	postData.put("username", post.getUsername());
+        	postData.put("isSelf", (aPrefs.highlightSelf && username.equals(aPrefs.username)) ? "self" : null);
+            postData.put("avatarURL", (aPrefs.canLoadAvatars() && avatar != null && avatar.length() > 0 ) ? avatar : null);
+        	postData.put("username", username);
         	postData.put("userID", post.getUserId());
         	postData.put("postDate", post.getDate());
         	postData.put("regDate", post.getRegDate());
-        	postData.put("mod", (post.isMod())?"mod":null);
-        	postData.put("admin", (post.isAdmin())?"admin":null);
+        	postData.put("mod", (post.isMod()) ? "mod" : null);
+        	postData.put("admin", (post.isAdmin()) ? "admin" : null);
         	postData.put("avatarText", ""+post.getAvatarText());
-        	postData.put("lastReadUrl",  post.getLastReadUrl());
-        	postData.put("notOnProbation", (aPrefs.isOnProbation())?null:"notOnProbation");
-        	postData.put("editable", (post.isEditable())?"editable":null);
-        	postData.put("postcontent",  post.getContent());
+        	postData.put("lastReadUrl", post.getLastReadUrl());
+        	postData.put("notOnProbation",(aPrefs.isOnProbation()) ? null : "notOnProbation");
+        	postData.put("editable",(post.isEditable()) ? "editable" : null);
+        	postData.put("postcontent", post.getContent());
         	
         	try{
         		buffer.append(postTemplate.execute(postData));
@@ -490,55 +522,71 @@ public class AwfulThread extends AwfulPagedItem  {
         		e.printStackTrace();
         	}
         }
-
         return buffer.toString();
     }
 
 	@SuppressWarnings("deprecation")
 	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, AwfulFragment parent) {
-		aq.recycle(current);
-		String ForumName = null;
-		if(prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)){
-			if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_YOSPOS){
-                if(prefs.amberDefaultPos){
-                    ForumName = ColorProvider.AMBERPOS;
-                }else{
-                    ForumName = ColorProvider.YOSPOS;
-                }
-			}
-            if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_FYAD_SUB){
-                ForumName = ColorProvider.FYAD;
+        aq.recycle(current);
+        Resources resources = current.getResources();
+        Context context = current.getContext();
+
+        String ForumName = null;
+        if (prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)) {
+            switch (((ForumDisplayFragment) parent).getForumId()) {
+                case Constants.FORUM_ID_YOSPOS:
+                    ForumName = prefs.amberDefaultPos ? ColorProvider.AMBERPOS : ColorProvider.YOSPOS;
+                    break;
+                case Constants.FORUM_ID_FYAD:
+                case Constants.FORUM_ID_FYAD_SUB:
+                    ForumName = ColorProvider.FYAD;
+                    break;
+                case Constants.FORUM_ID_BYOB:
+                case Constants.FORUM_ID_COOL_CREW:
+                    ForumName = ColorProvider.BYOB;
+                    break;
             }
-            if(((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_BYOB || ((ForumDisplayFragment)parent).getForumId() == Constants.FORUM_ID_COOL_CREW){
-                ForumName = ColorProvider.BYOB;
-            }
-		}
-		TextView info = (TextView) current.findViewById(R.id.threadinfo);
-		TextView title = (TextView) current.findViewById(R.id.title);
+        }
+
+        TextView info   = (TextView) current.findViewById(R.id.threadinfo);
+        TextView title  = (TextView) current.findViewById(R.id.title);
         TextView unread = (TextView) current.findViewById(R.id.unread_count);
-		boolean stuck = data.getInt(data.getColumnIndex(STICKY)) >0;
+        boolean stuck   = data.getInt(data.getColumnIndex(STICKY)) >0;
         int unreadCount = data.getInt(data.getColumnIndex(UNREADCOUNT));
-        int bookmarked = data.getInt(data.getColumnIndex(BOOKMARKED));
+        int bookmarked  = data.getInt(data.getColumnIndex(BOOKMARKED));
         boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
 
         ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
-		if(!prefs.threadInfo_Tag){
-            threadTag.setVisibility(View.GONE);
-		}else{
+        threadTag.setVisibility(View.GONE);
+        if (prefs.threadInfo_Tag) {
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(TextUtils.isEmpty(tagFile)){
-                threadTag.setVisibility(View.GONE);
-			}else{
+			if (!TextUtils.isEmpty(tagFile)) {
+                threadTag.setVisibility(View.VISIBLE);
                 String url = data.getString(data.getColumnIndex(TAG_URL));
                 String localFileName = "@drawable/"+url.substring(url.lastIndexOf('/') + 1,url.lastIndexOf('.')).replace('-','_').toLowerCase();
-                int imageID = current.getResources().getIdentifier(localFileName, null, current.getContext().getPackageName());
-                if(imageID == 0) {
-                    aq.id(R.id.thread_tag).image(url).visible();
-                }else{
+
+                int imageID = resources.getIdentifier(localFileName, null, context.getPackageName());
+                if (imageID == 0) {
+                    aq.id(R.id.thread_tag).image(url);
+                } else {
                     threadTag.setImageResource(imageID);
                 }
-			}
+            }
 		}
+
+
+        /*
+            Tag overlay (secondary tags etc)
+         */
+        aq.id(R.id.thread_tag_overlay).gone();
+        int tagId = data.getInt(data.getColumnIndex(TAG_EXTRA));
+        if (ExtraTags.getType(tagId) != ExtraTags.TYPE_NO_TAG) {
+            Drawable tagIcon = ExtraTags.getDrawable(tagId, resources);
+            if (tagIcon != null) {
+                aq.id(R.id.thread_tag_overlay).visible().image(tagIcon);
+            }
+        }
+
 
         info.setVisibility(View.VISIBLE);
         StringBuilder tmp = new StringBuilder();
@@ -548,72 +596,60 @@ public class AwfulThread extends AwfulPagedItem  {
         }else{
             tmp.append(" | OP: ").append(NetworkUtils.unencodeHtml(data.getString(data.getColumnIndex(AUTHOR))));
         }
-
         info.setText(tmp.toString().trim());
 
-		if(prefs.threadInfo_Rating){
-			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
-			if(tagFile != null){
-				switch(data.getInt(data.getColumnIndex(RATING))){
-				case(1):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_1stars));
-					break;
-				case(2):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_2stars));
-					break;
-				case(3):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_3stars));
-					break;
-				case(4):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_4stars));
-					break;
-				case(5):
-					aq.id(R.id.thread_rating).visible().image(current.getResources().getDrawable(R.drawable.rating_5stars));
-					break;
-				default:
-					aq.id(R.id.thread_rating).gone();
-					break;
-				}
-			}else{
-				aq.id(R.id.thread_rating).gone();
-			}
-		}else{
-			aq.id(R.id.thread_rating).gone();
-		}
-		
-        if(stuck){
-            aq.id(R.id.thread_sticky).visible().image(current.getResources().getDrawable(R.drawable.ic_sticky));
-        	aq.id(R.id.thread_locked).gone();
-        }else if(data.getInt(data.getColumnIndex(LOCKED)) > 0){
-            //don't show lock if sticky, aka: every rules thread
-        	aq.id(R.id.thread_sticky).gone();
-            int[] attrs = { R.attr.iconMenuLockedDark };
-            TypedArray ta = current.getContext().getTheme().obtainStyledAttributes(attrs);
-        	aq.id(R.id.thread_locked).visible().image(ta.getDrawable(0));
-            current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
-        }else{
-        	aq.id(R.id.thread_locked).gone();
-        	aq.id(R.id.thread_sticky).gone();
+
+        /*
+            Ratings
+         */
+        aq.id(R.id.thread_rating).gone();
+        if (prefs.threadInfo_Rating) {
+            int rating = data.getInt(data.getColumnIndex(RATING));
+            Drawable ratingIcon = AwfulRatings.getDrawable(rating, resources);
+            if (ratingIcon != null) {
+                // replace thread tag with special rating tag in the Film Dump
+                if (AwfulRatings.getType(rating) == AwfulRatings.TYPE_FILM_DUMP) {
+                    aq.id(R.id.thread_tag).visible().image(ratingIcon);
+                } else {
+                    aq.id(R.id.thread_rating).visible().image(ratingIcon);
+                }
+            }
         }
 
-		unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
-		if(hasViewedThread) {
-			unread.setVisibility(View.VISIBLE);
-			unread.setText(Integer.toString(unreadCount));
-			GradientDrawable counter = (GradientDrawable) current.getResources().getDrawable(R.drawable.unread_counter).mutate();
-            counter.setColor(ColorProvider.getUnreadColor(ForumName, unreadCount < 1, bookmarked));
-            unread.setBackgroundDrawable(counter);
-		}else{
-			unread.setVisibility(View.GONE);
-		}
+
+        aq.id(R.id.thread_locked).gone();
+        aq.id(R.id.thread_sticky).gone();
+        if (stuck) {
+            aq.id(R.id.thread_sticky).visible().image(resources.getDrawable(R.drawable.ic_sticky));
+        } else if (data.getInt(data.getColumnIndex(LOCKED)) > 0){
+            //don't show lock if sticky, aka: every rules thread
+            int[] attrs = { R.attr.iconMenuLockedDark };
+            TypedArray ta = context.getTheme().obtainStyledAttributes(attrs);
+            aq.id(R.id.thread_locked).visible().image(ta.getDrawable(0));
+            current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
+        }
+
+        unread.setVisibility(View.GONE);
+        if(hasViewedThread) {
+            unread.setVisibility(View.VISIBLE);
+            unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
+            unread.setText(Integer.toString(unreadCount));
+            GradientDrawable counter = (GradientDrawable) resources.getDrawable(R.drawable.unread_counter);
+            if (counter != null) {
+                counter.mutate();
+                counter.setColor(ColorProvider.getUnreadColor(ForumName, unreadCount < 1, bookmarked));
+                unread.setBackgroundDrawable(counter);
+            }
+        }
+
 		title.setTypeface(null, Typeface.NORMAL);
-		if(data.getString(data.getColumnIndex(TITLE)) != null){
-			title.setText(data.getString(data.getColumnIndex(TITLE)));
+        String titleText = data.getString(data.getColumnIndex(TITLE));
+        if(titleText != null){
+			title.setText(titleText);
 		}
         title.setTextColor(ColorProvider.getTextColor(ForumName));
         info.setTextColor(ColorProvider.getAltTextColor(ForumName));
         title.setEllipsize(TruncateAt.END);
-
 	}
 	
 }

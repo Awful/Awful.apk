@@ -60,7 +60,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 28;
+    private static final int DATABASE_VERSION = 29;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -112,6 +112,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.LASTPOSTER,
 		AwfulThread.TAG_URL,
 		AwfulThread.TAG_CACHEFILE,
+        AwfulThread.TAG_EXTRA,
 		AwfulThread.FORUM_TITLE,
 		AwfulThread.HAS_NEW_POSTS,
 		AwfulThread.HAS_VIEWED_THREAD,
@@ -249,6 +250,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.LASTPOSTER   	+ " VARCHAR," +
                 AwfulThread.TAG_URL      + " VARCHAR,"    + 
                 AwfulThread.TAG_CACHEFILE + " VARCHAR,"   +
+                AwfulThread.TAG_EXTRA + " INTEGER, "      +
                 AwfulThread.HAS_VIEWED_THREAD + " INTEGER, " +
                 AwfulThread.ARCHIVED + " INTEGER, " +
                 AwfulThread.RATING + " INTEGER, " +
@@ -352,7 +354,7 @@ public class AwfulProvider extends ContentProvider {
                 createPostTable(aDb);
                 
                 //added attachment to draft table
-                aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulMessage.REPLY_ATTACHMENT + " VARCHAR");
+                aDb.execSQL("ALTER TABLE " + TABLE_DRAFTS + " ADD COLUMN " + AwfulMessage.REPLY_ATTACHMENT + " VARCHAR");
         	case 20:
         		// Update the threads table
         		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.HAS_VIEWED_THREAD + " INTEGER");
@@ -362,7 +364,7 @@ public class AwfulProvider extends ContentProvider {
         		//added bookmark setting to draft table
                 aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulPost.FORM_BOOKMARK + " VARCHAR");
         	case 24:
-        		aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.RATING + " INTEGER");
+        		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.RATING + " INTEGER");
         	case 25:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
                 createThreadTable(aDb);
@@ -372,6 +374,8 @@ public class AwfulProvider extends ContentProvider {
             case 27:
                 aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
                 createPMTable(aDb);
+            case 28:
+                aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.TAG_EXTRA + " INTEGER");
                     break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -792,6 +796,7 @@ public class AwfulProvider extends ContentProvider {
         sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
         sThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
 		sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
+		sThreadProjectionMap.put(AwfulThread.TAG_EXTRA, TABLE_THREADS+"."+AwfulThread.TAG_EXTRA+" AS "+AwfulThread.TAG_EXTRA);
 		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
 		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
 		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
@@ -813,6 +818,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
 		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
+		sUCPThreadProjectionMap.put(AwfulThread.TAG_EXTRA, AwfulThread.TAG_EXTRA);
 		sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
 		sUCPThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+AwfulThread.HAS_NEW_POSTS);
 		sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);

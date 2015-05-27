@@ -18,6 +18,17 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp" />
 
+    <ImageView
+        android:id="@+id/thread_tag_overlay"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignTop="@+id/thread_tag"
+        android:layout_alignRight="@+id/thread_tag"
+        android:layout_marginRight="-4dp"
+        android:layout_marginTop="-4dp"
+        android:scaleType="fitXY" />
 
     <ImageView
         android:id="@+id/thread_rating"
@@ -70,6 +81,10 @@
             android:maxLines="2"
             android:textColor="@color/default_post_font"
             android:textSize="16sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></FrameLayout>
     </RelativeLayout>
 
     <TextView
