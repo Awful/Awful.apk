@@ -1500,11 +1500,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	
 	public void deselectUser(String postId){
         bodyHtml = "";
-        aq.find(R.id.thread_userpost_notice).gone();
         if(mThreadView != null){
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+					aq.find(R.id.thread_userpost_notice).gone();
                     mThreadView.loadUrl("javascript:loadpagehtml()");
                 }
             });
