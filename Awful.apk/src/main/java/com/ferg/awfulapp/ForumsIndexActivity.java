@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -133,7 +134,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if (!isTablet && !mPrefs.transformer.equals("Disabled")) {
+        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !mPrefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
         mViewPager.setOffscreenPageLimit(2);
@@ -877,7 +878,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 }
             }
         }
-        if (!AwfulUtils.isTablet(this) && !prefs.transformer.equals("Disabled")) {
+        if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !prefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
     }
