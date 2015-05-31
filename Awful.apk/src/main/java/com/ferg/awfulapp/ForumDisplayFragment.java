@@ -597,6 +597,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         }
     	closeLoaders();
     	setForumId(id);//if the fragment isn't attached yet, just set the values and let the lifecycle handle it
+        ((ForumsIndexActivity) getActivity()).setNavIds(id, null);
     	updateColors();
     	mPage = page;
     	mLastPage = 0;
