@@ -780,7 +780,13 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void sendPost() {
-        ContentValues cv = new ContentValues(replyData);
+        ContentValues cv;
+        if(replyData != null){
+            cv = new ContentValues(replyData);
+
+        }else{
+            cv = new ContentValues();
+        }
         String content = mMessage.getText().toString().trim();
         if (TextUtils.isEmpty(content)) {
             displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
