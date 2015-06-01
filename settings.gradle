@@ -1,1 +1,1 @@
-include ':Awful.apk', ':libraries:ActionBar-PullToRefresh', ':libraries:tree-view-list-android', ':libraries:volley'
+include ':Awful.apk', ':libraries:tree-view-list-android'

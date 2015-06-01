@@ -1,6 +1,7 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.app.Dialog;
+import android.os.Build;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
@@ -25,7 +26,8 @@ public class MiscSettings extends SettingsFragment {
         VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new String[] {
                 "disable_gifs2",
                 "enable_hardware_acceleration",
-                "immersion_mode"
+                "immersion_mode",
+                "transformer"
         };
         prefClickListeners.put(new P2RDistanceListener(), new String[] {
                 "pull_to_refresh_distance"
@@ -49,7 +51,9 @@ public class MiscSettings extends SettingsFragment {
 
         findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
         boolean tab = AwfulUtils.isTablet(getActivity(), true);
+        boolean jellybeanMr1 = AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1);
         findPreference("page_layout").setEnabled(tab);
+        findPreference("transformer").setEnabled(jellybeanMr1&&!tab);
 //        if(!tab){
 //            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
 //        }
