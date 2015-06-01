@@ -214,7 +214,7 @@ public class AwfulActivity extends ActionBarActivity implements AwfulPreferences
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
         Log.d(TAG, "Key changed: "+key);
-        if("theme".equals(key)) {
+        if("theme".equals(key) || "page_layout".equals(key)) {
             if (mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)) {
                 setTheme(R.style.Theme_AwfulTheme);
             } else if (mPrefs.theme.equals(ColorProvider.FYAD)) {
