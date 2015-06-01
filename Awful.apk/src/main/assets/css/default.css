@@ -49,10 +49,10 @@ max-height:100px;
 }
 
 article {
-border-radius:.15em;
+border-radius:2px;
 background-color:#FFF;
 color:#828282;
-box-shadow: 0 .15em 0.05em #ccc;
+box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.26);
 margin:10px 5px;
 padding:15px;
 }
@@ -91,6 +91,7 @@ padding:5px;
 }
 
 section.postcontent {
+color: #555;
 word-wrap: break-word;
 }
 
