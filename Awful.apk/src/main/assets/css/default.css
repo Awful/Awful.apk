@@ -135,10 +135,11 @@ word-wrap: normal;
 section.postcontent .editedby {
 font-style:italic;
 font-size: 0.7em;
+color: #828282;
 }
 
 section.postcontent .bbc-spoiler{
-background: #828282;
+background: #555;
 }
 
 section.postcontent .bbc-spoiler * {
