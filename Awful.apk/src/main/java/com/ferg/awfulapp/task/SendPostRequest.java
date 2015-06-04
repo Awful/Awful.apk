@@ -40,6 +40,8 @@ public class SendPostRequest extends AwfulRequest<Void> {
             Toast.makeText(context, "Attaching: " + reply.getAsString(AwfulMessage.REPLY_ATTACHMENT), Toast.LENGTH_LONG).show();
             attachFile(Constants.PARAM_ATTACHMENT, reply.getAsString(AwfulMessage.REPLY_ATTACHMENT));
         }
+
+        buildFinalRequest();
     }
 
     @Override

@@ -22,8 +22,10 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.AwfulError;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.jsoup.Jsoup;
@@ -44,7 +46,8 @@ public abstract class AwfulRequest<T> {
     private String baseUrl;
     private Handler handle;
     private Map<String, String> params = null;
-    private MultipartEntity attachParams = null;
+    private MultipartEntityBuilder attachParams = MultipartEntityBuilder.create();
+    private HttpEntity httpEntity = null;
     private ProgressListener progressListener;
     public AwfulRequest(Context context, String apiUrl) {
         cont = context;
@@ -89,7 +92,7 @@ public abstract class AwfulRequest<T> {
 
     protected void attachFile(String key, String filename){
         if(attachParams == null){
-            attachParams = new MultipartEntity();
+            attachParams = MultipartEntityBuilder.create();
             if(params != null){
                 for(Map.Entry<String, String> item : params.entrySet()){
                     try {
@@ -101,6 +104,11 @@ public abstract class AwfulRequest<T> {
             }
         }
         attachParams.addPart(key, new FileBody(new File(filename)));
+    }
+
+    protected void buildFinalRequest()
+    {
+        httpEntity = attachParams.build();
     }
 
     protected void setPostParams(Map<String, String> post){
@@ -328,7 +336,7 @@ public abstract class AwfulRequest<T> {
             if(attachParams != null){
                 try{
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                    attachParams.writeTo(bytes);
+                    httpEntity.writeTo(bytes);
                     return bytes.toByteArray();
                 }catch(IOException ioe){
                     Log.e("AwfulRequest", "Failed to convert body bytestream");
@@ -340,7 +348,7 @@ public abstract class AwfulRequest<T> {
         @Override
         public String getBodyContentType() {
             if(attachParams != null){
-                return attachParams.getContentType().getValue();
+                return httpEntity.getContentType().getValue();
             }
             return super.getBodyContentType();
         }

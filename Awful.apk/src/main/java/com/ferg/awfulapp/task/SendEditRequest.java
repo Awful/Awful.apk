@@ -40,6 +40,8 @@ public class SendEditRequest extends AwfulRequest<Void> {
         if(reply.containsKey(AwfulMessage.REPLY_ATTACHMENT)){
             attachFile(Constants.PARAM_ATTACHMENT, reply.getAsString(AwfulMessage.REPLY_ATTACHMENT));
         }
+
+        buildFinalRequest();
     }
 
     @Override
