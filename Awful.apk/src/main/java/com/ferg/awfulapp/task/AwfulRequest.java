@@ -24,7 +24,6 @@ import com.ferg.awfulapp.util.AwfulError;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -42,6 +41,10 @@ import java.util.Map;
  * Created by Matt Shepard on 8/7/13.
  */
 public abstract class AwfulRequest<T> {
+
+    /** Used for identifying request types when cancelling, reassign this in subclasses */
+    public static final Object REQUEST_TAG = new Object();
+
     private Context cont;
     private String baseUrl;
     private Handler handle;
@@ -70,6 +73,12 @@ public abstract class AwfulRequest<T> {
          */
         public void failure(VolleyError error);
     }
+
+
+    public Object getRequestTag() {
+        return REQUEST_TAG;
+    }
+
 
     protected void addPostParam(String key, String value){
         if(key == null || value == null){
@@ -167,7 +176,9 @@ public abstract class AwfulRequest<T> {
                 helper = null;
             }
         }
-        return new ActualRequest(generateUrl(helper), successListener, errorListener);
+        final ActualRequest actualRequest = new ActualRequest(generateUrl(helper), successListener, errorListener);
+        actualRequest.setTag(getRequestTag());
+        return actualRequest;
     }
 
     /**

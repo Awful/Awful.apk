@@ -143,7 +143,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "Start");
+        super.onActivityCreated(aSavedState);
 
         dataManager = new InMemoryTreeStateManager<ForumEntry>();
         dataManager.setVisibleByDefault(false);
@@ -151,15 +151,10 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
         mForumTree.setAdapter(mTreeAdapter);
         syncForums();
     }
-
-    @Override
-    public void onStart() {
-        super.onStart(); if(DEBUG) Log.e(TAG, "Start");
-    }
     
     @Override
     public void onResume() {
-        super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
+        super.onResume();
 		restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, forumObserver);
 		updateProbationBar();
@@ -183,32 +178,19 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
         return TAG;
     }
 
-    @Override
+
+	@Override
+	protected void cancelNetworkRequests() {
+		super.cancelNetworkRequests();
+		NetworkUtils.cancelRequests(IndexRequest.REQUEST_TAG);
+	}
+
+	@Override
     public void onPause() {
-        super.onPause(); if(DEBUG) Log.e(TAG, "Pause");
+        super.onPause();
         getActivity().getContentResolver().unregisterContentObserver(forumObserver);
 		getLoaderManager().destroyLoader(Constants.FORUM_INDEX_LOADER_ID);
     }
-        
-    @Override
-    public void onStop() {
-        super.onStop(); if(DEBUG) Log.e(TAG, "Stop");
-    }
-    
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView(); if(DEBUG) Log.e(TAG, "DestroyView");
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy(); if(DEBUG) Log.e(TAG, "Destroy");
-    }
-
-	@Override
-	public void onDetach() {
-		super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
-	}
 
     public void displayUserCP() {
     	if (getActivity() != null) {
@@ -231,6 +213,9 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 	
 	private void syncForums() {
         if(getActivity() != null){
+			// cancel pending forum index loading requests
+			NetworkUtils.cancelRequests(IndexRequest.REQUEST_TAG);
+			// call this with cancelOnDestroy=false to retain the request's specific type tag
             queueRequest(new IndexRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
                 public void success(Void result) {
@@ -247,7 +232,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
                     }
                     restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
-            }));
+            }), false);
         }
     }
 

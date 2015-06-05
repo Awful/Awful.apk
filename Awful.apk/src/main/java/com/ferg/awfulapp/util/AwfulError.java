@@ -112,8 +112,8 @@ public class AwfulError extends VolleyError{
             NetworkUtils.logCookies();
 
             CookieManager ckiemonster = CookieManager.getInstance();
-            String cookie = ckiemonster.getCookie(Constants.BASE_URL);
-            Log.w(TAG, "WebView CookieManager cookie for BASE_URL:" + cookie);
+            String cookie = ckiemonster.getCookie(Constants.COOKIE_DOMAIN);
+            Log.w(TAG, "WebView CookieManager cookie for COOKIE_DOMAIN:" + cookie);
 
             // TODO fix the actual problem, probably repeated network requests in a short space of time
             if (!NetworkUtils.dodgeLogoutBullet()) {

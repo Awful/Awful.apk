@@ -37,6 +37,8 @@ import android.util.Log;
 import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.HttpClientStack;
+import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.constants.Constants;
@@ -102,15 +104,25 @@ public class NetworkUtils {
     private static final String COOKIE_HEADER = "Cookie";
 
 
+    static {
+        HttpParams httpPar = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
+        HttpConnectionParams.setSoTimeout(httpPar, 20000);//timeout to wait if no data transfer occurs //TODO bumped to 20, but we need to monitor cell status now
+        HttpConnectionParams.setSocketBufferSize(httpPar, 65548);
+        HttpClientParams.setRedirecting(httpPar, false);
+        sHttpClient = new DefaultHttpClient(httpPar);
+    }
+
+
     /**
      * Initialise request handling and caching - call this early!
      * @param context   A context used to create a cache dir
      */
     public static void init(Context context) {
-        mNetworkQueue   = Volley.newRequestQueue(context);
+        mNetworkQueue = Volley.newRequestQueue(context);
         // TODO: find out if this is even being used anywhere
-        mImageCache     = new LRUImageCache();
-        mImageLoader    = new ImageLoader(mNetworkQueue, mImageCache);
+        mImageCache = new LRUImageCache();
+        mImageLoader = new ImageLoader(mNetworkQueue, mImageCache);
 
         try {
             HttpResponseCache.install(new File(context.getCacheDir(), "httpcache"), 5242880);
@@ -134,7 +146,6 @@ public class NetworkUtils {
         }
     }
 
-
     public static void queueRequest(Request request){
         if (mNetworkQueue != null) {
             mNetworkQueue.add(request);
@@ -143,6 +154,7 @@ public class NetworkUtils {
         }
     }
 
+
     public static void cancelRequests(Object tag){
         if (mNetworkQueue != null) {
             mNetworkQueue.cancelAll(tag);
@@ -150,7 +162,6 @@ public class NetworkUtils {
             Log.w(TAG, "Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
         }
     }
-
 
     public static void setCookieHeaders(Map<String, String> headers) {
         if (cookie.length() > 0) {
@@ -165,7 +176,7 @@ public class NetworkUtils {
      *
      * @return Whether stored cookie values were found & initialized
      */
-    public static boolean restoreLoginCookies(Context ctx) {
+    public static synchronized boolean restoreLoginCookies(Context ctx) {
         SharedPreferences prefs = ctx.getSharedPreferences(
                 Constants.COOKIE_PREFERENCE,
                 Context.MODE_PRIVATE);
@@ -199,12 +210,13 @@ public class NetworkUtils {
                 tempCookie.setPath(Constants.COOKIE_PATH);
             }
 
-            CookieStore jar = new BasicCookieStore();
+            CookieStore jar = sHttpClient.getCookieStore();
             jar.addCookie(useridCookie);
             jar.addCookie(passwordCookie);
             sHttpClient.setCookieStore(jar);
 
             Log.w(TAG, "Cookies restored from prefs");
+            Log.w(TAG, "Cookie dump: " + jar.toString());
             return true;
         } else {
             String logMsg = "Unable to restore cookies! Reasons:\n";
@@ -222,7 +234,7 @@ public class NetworkUtils {
      * Clears cookies from both the current client's store and
      * the persistent SharedPreferences. Effectively, logs out.
      */
-    public static void clearLoginCookies(Context ctx) {
+    public static synchronized void clearLoginCookies(Context ctx) {
         // First clear out the persistent preferences...
         if(null == ctx){
             ctx = AwfulPreferences.getInstance().getContext();
@@ -244,7 +256,7 @@ public class NetworkUtils {
      *
      * @return Whether any login cookies were successfully saved
      */
-    public static boolean saveLoginCookies(Context ctx) {
+    public static synchronized boolean saveLoginCookies(Context ctx) {
         SharedPreferences prefs = ctx.getSharedPreferences(
                 Constants.COOKIE_PREFERENCE,
                 Context.MODE_PRIVATE);
@@ -302,7 +314,7 @@ public class NetworkUtils {
         return true;
     }
 
-    public static String getCookieString(String type) {
+    public static synchronized String getCookieString(String type) {
         List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
@@ -349,6 +361,7 @@ public class NetworkUtils {
         return response;
     }
 
+
     public static void delete(String aUrl) throws Exception {
         Log.i(TAG, "DELETE: " + aUrl);
         HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
@@ -356,7 +369,6 @@ public class NetworkUtils {
             throw new Exception("ERROR: " + hResponse.getStatusLine().getStatusCode());
         }
     }
-
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
         URI location;
@@ -392,10 +404,10 @@ public class NetworkUtils {
         return post(new URI(aUrl), aParams, null, 0);
     }
 
+
     public static Document post(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
         return post(new URI(aUrl), aParams, statusCallback, midpointPercent);
     }
-
 
     public static Document post(URI location, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
         Document response = null;
@@ -490,28 +502,6 @@ public class NetworkUtils {
         }
 
         return result.toString();
-    }
-
-    static {
-        if (sHttpClient == null) {
-            HttpParams httpPar = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
-            HttpConnectionParams.setSoTimeout(httpPar, 20000);//timeout to wait if no data transfer occurs //TODO bumped to 20, but we need to monitor cell status now
-            HttpConnectionParams.setSocketBufferSize(httpPar, 65548);
-            HttpClientParams.setRedirecting(httpPar, false);
-            sHttpClient = new DefaultHttpClient(httpPar);
-        }
-
-//        sCleaner = new HtmlCleaner();
-//        CleanerTransformations ct = new CleanerTransformations();
-//        ct.addTransformation(new TagTransformation("script"));
-//        ct.addTransformation(new TagTransformation("meta"));
-//        ct.addTransformation(new TagTransformation("head"));
-//        sCleaner.setTransformations(ct);
-//        CleanerProperties properties = sCleaner.getProperties();
-//        properties.setOmitComments(true);
-//        properties.setRecognizeUnicodeChars(false);
-//        properties.setUseEmptyElementTags(false);
     }
 
     public static void logCookies() {

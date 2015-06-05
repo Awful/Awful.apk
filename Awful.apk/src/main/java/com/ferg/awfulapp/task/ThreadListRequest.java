@@ -13,12 +13,22 @@ import org.jsoup.nodes.Document;
  * Created by matt on 8/7/13.
  */
 public class ThreadListRequest extends AwfulRequest<Void> {
+
+    public static final Object REQUEST_TAG = new Object();
+
     private int forumId, page;
     public ThreadListRequest(Context context, int forumId, int page) {
         super(context, forumId == Constants.USERCP_ID ? Constants.FUNCTION_BOOKMARK : Constants.FUNCTION_FORUM);
         this.forumId = forumId;
         this.page = page;
     }
+
+
+    @Override
+    public Object getRequestTag() {
+        return REQUEST_TAG;
+    }
+
 
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {

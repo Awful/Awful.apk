@@ -306,6 +306,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public void queueRequest(Request request){
         queueRequest(request, false);
     }
+
+    /**
+     * Queue a network {@link Request}.
+     * Set true to tag the request with the fragment, so it will be cancelled
+     * when the fragment is destroyed. Set false if you want to retain the request's
+     * default tag, e.g. so pending {@link com.ferg.awfulapp.task.PostRequest}s can
+     * be cancelled when starting a new one.
+     * @param request           A Volley request
+     * @param cancelOnDestroy   Whether to tag with the fragment and automatically cancel
+     */
     public void queueRequest(Request request, boolean cancelOnDestroy){
         if(request != null){
             if(cancelOnDestroy){

@@ -472,11 +472,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			}
 		});
 	}
-
-    @Override
-    public void onStart() {
-        super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
-    }
     
 
     @Override
@@ -544,30 +539,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	mThreadView.onPause();
         }
     }
-        
-    @Override
-    public void onStop() {
-        super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-    }
-    
-    @Override
-    public void onDestroyView(){
-    	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-    }
+
+	@Override
+	protected void cancelNetworkRequests() {
+		super.cancelNetworkRequests();
+		NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+	}
+
 
     @Override
     public void onDestroy() {
-        super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
+        super.onDestroy();
         getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
-    }
-
     
-    public void refreshSessionCookie(){
+    public synchronized void refreshSessionCookie(){
         if(mThreadView != null){
         	if(DEBUG) Log.e(TAG,"SETTING COOKIES");
         	CookieSyncManager.createInstance(getActivity());
@@ -833,9 +820,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     
     private void syncThread() {
         if(getActivity() != null){
-			// this call should always happen surely, not just when calling goToPage()?
-			cancelNetworkRequests();
+			// cancel pending post loading requests
+			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
         	bodyHtml = "";
+			// call this with cancelOnDestroy=false to retain the request's specific type tag
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
 				@Override
 				public void success(Integer result) {
@@ -865,7 +853,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					mPrevPage.setColorFilter(0);
 					mRefreshBar.setColorFilter(0);
 				}
-			}), true);
+			}), false);
         }
     }
     

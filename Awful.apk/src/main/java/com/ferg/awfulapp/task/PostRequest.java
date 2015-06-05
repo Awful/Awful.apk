@@ -14,6 +14,9 @@ import org.jsoup.nodes.Document;
  * Created by matt on 8/7/13.
  */
 public class PostRequest extends AwfulRequest<Integer> {
+
+    public static final Object REQUEST_TAG = new Object();
+
     private int threadId, page, userId;
     public PostRequest(Context context, int threadId, int page, int userId) {
         super(context, Constants.FUNCTION_THREAD);
@@ -21,6 +24,13 @@ public class PostRequest extends AwfulRequest<Integer> {
         this.page = page;
         this.userId = userId;
     }
+
+
+    @Override
+    public Object getRequestTag() {
+        return REQUEST_TAG;
+    }
+
 
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
