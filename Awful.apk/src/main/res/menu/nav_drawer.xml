@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sidebar_index"
+        android:title="@string/drawer_title"/>
+    <item
+        android:id="@+id/sidebar_forum"
+        android:title=""/>
+    <item
+        android:id="@+id/sidebar_thread"
+        android:title=""/>
+
+    <group
+        android:id="@+id/main_nav_options">
+        <item
+            android:id="@+id/sidebar_bookmarks"
+            android:icon="?attr/iconMenuBookmarkDark"
+            android:title="@string/user_cp" />
+        <item
+            android:id="@+id/sidebar_pm"
+            android:icon="?attr/iconMenuMailDark"
+            android:title="@string/private_message" />
+        <item
+            android:id="@+id/sidebar_settings"
+            android:icon="?attr/iconMenuSettingsDark"
+            android:title="@string/settings" />
+        <item
+            android:id="@+id/sidebar_logout"
+            android:icon="?attr/iconMenuLogoutDark"
+            android:title="@string/logout" />
+    </group>
+
+</menu>
