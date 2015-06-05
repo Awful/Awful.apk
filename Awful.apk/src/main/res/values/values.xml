@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="sidebarAvatarOverlayBackground" format="color" />
+    <attr name="navbarBackground" format="color" />
+    <attr name="navbarUsernameColor" format="color" />
     <attr name="justPostButtonColor" format="color" />
     <attr name="justPostButtonColorPressed" format="color" />
 

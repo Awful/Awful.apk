@@ -9,7 +9,8 @@
         <item name="colorPrimaryDark">@color/forums_blue_darker</item>
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/background</item>
-        <item name="sidebarAvatarOverlayBackground">@color/sidebarOverlay</item>
+        <item name="navbarBackground">@color/forums_blue_darker</item>
+        <item name="navbarUsernameColor">@color/background</item>
         <item name="justPostButtonColor">@color/forums_blue</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
@@ -101,7 +102,8 @@
         <item name="colorPrimaryDark">@color/dark_alt_background</item>
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/dark_alt_background</item>
-        <item name="sidebarAvatarOverlayBackground">@color/sidebarOverlay_dark</item>
+        <item name="navbarBackground">@color/dark_alt_background</item>
+        <item name="navbarUsernameColor">@color/background</item>
         <item name="justPostButtonColor">@color/forums_blue_darkest</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>

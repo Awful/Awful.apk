@@ -43,22 +43,22 @@ android {
 }
 
 dependencies {
-        compile 'com.android.support:appcompat-v7:21.+'
-        compile project(':libraries:tree-view-list-android')
-        compile 'com.mcxiaoke.volley:library:1.+'
-        compile 'com.github.androidquery:androidquery:0.26.8'
-        compile 'com.google.code.gson:gson:2.3.1'
-        compile 'org.jsoup:jsoup:1.8.2'
-        compile 'joda-time:joda-time:2.7'
-        compile 'com.samskivert:jmustache:1.10'
-        compile 'org.apache.httpcomponents:httpmime:4.3.1'
-        compile 'org.apache.httpcomponents:httpcore:4.3.1'
-        compile 'org.apache.commons:commons-lang3:3.4'
-        compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32'
-        //    compile 'com.github.orangegangsters:swipy:1.2.0@aar'
-        compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
-        compile 'com.getbase:floatingactionbutton:1.9.0'
-        compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
-            transitive = true;
-        }
+    compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:design:22.2.0'
+    compile project(':libraries:tree-view-list-android')
+    compile 'com.mcxiaoke.volley:library:1.+'
+    compile 'com.github.androidquery:androidquery:0.26.8'
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'org.jsoup:jsoup:1.8.2'
+    compile 'joda-time:joda-time:2.7'
+    compile 'com.samskivert:jmustache:1.10'
+    compile 'org.apache.httpcomponents:httpmime:4.4.1'
+    compile 'org.apache.httpcomponents:httpcore:4.4.1'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32'
+    //    compile 'com.github.orangegangsters:swipy:1.2.0@aar'
+    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+        transitive = true;
+    }
 }

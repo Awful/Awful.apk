@@ -65,7 +65,7 @@ import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.getbase.floatingactionbutton.FloatingActionButton;
+import android.support.design.widget.FloatingActionButton;
 
 public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	

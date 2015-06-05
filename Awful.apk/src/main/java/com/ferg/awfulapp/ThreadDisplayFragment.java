@@ -51,6 +51,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -106,7 +107,6 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -513,9 +513,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 //        	mP2RAttacher.setPullFromBottom(true);
 //        }
         if(parent != null && mParentForumId != 0){
-            parent.setNavForumId(mParentForumId);
-            parent.setNavThreadId(getThreadId());
-            parent.setNavigationDrawer();
+			parent.setNavIds(mParentForumId, getThreadId());
         }
 	}
 
@@ -1472,10 +1470,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         return parent.getThreadPage();
 	}
 	public void setPage(int aPage){
-		parent.setThreadPage(aPage);
+		parent.setThread(null, aPage);
 	}
 	public void setThreadId(int aThreadId){
-        parent.setThreadId(aThreadId);
+        parent.setThread(aThreadId, null);
 	}
 	
 	public void selectUser(int id, String name){
@@ -1569,10 +1567,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
                 threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
-                //Same thread, already done this, don't override the forum name
-                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
-                    parent.setNavForumId(mParentForumId);
-                }
+//                //Same thread, already done this, don't override the forum name
+//                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
+//                    parent.setNavForumId(mParentForumId);
+//
+//                }
+				parent.setNavIds(mParentForumId, getThreadId());
                 setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
         		updateProbationBar();
@@ -1585,15 +1585,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			shareProvider.setShareIntent(createShareIntent());
         		}
                 invalidateOptionsMenu();
-                parent.setNavigationDrawer();
-				if(!mPrefs.noFAB) {
-					mFAB.setVisibility(View.VISIBLE);
-					if (threadClosed || threadArchived) {
-						mFAB.setEnabled(false);
-					} else {
-						mFAB.setEnabled(true);
-					}
-				}
+				mFAB.setVisibility((mPrefs.noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
         	}
         }
         
