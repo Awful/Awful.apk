@@ -288,7 +288,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 if (!("".equals(mPrefs.userTitle))) {
                     aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
                 } else {
-                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
+                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon).backgroundColorId(R.color.forums_blue);
                 }
             }
             if (AwfulUtils.isLollipop()) {

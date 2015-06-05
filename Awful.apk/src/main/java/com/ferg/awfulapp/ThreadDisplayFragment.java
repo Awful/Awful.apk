@@ -51,6 +51,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -106,7 +107,6 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -1585,14 +1585,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			shareProvider.setShareIntent(createShareIntent());
         		}
                 invalidateOptionsMenu();
-				if(!mPrefs.noFAB) {
-					mFAB.setVisibility(View.VISIBLE);
-					if (threadClosed || threadArchived) {
-						mFAB.setEnabled(false);
-					} else {
-						mFAB.setEnabled(true);
-					}
-				}
+				mFAB.setVisibility((mPrefs.noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
         	}
         }
         
