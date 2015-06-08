@@ -178,6 +178,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
                 public void failure(VolleyError error) {
                     if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
                         Log.e(TAG, "Error: "+error.getMessage());
+                        Log.e(TAG, "!!!Failed to sync PMs - You are now LOGGED OUT");
                         NetworkUtils.clearLoginCookies(getAwfulActivity());
                         getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
                     }

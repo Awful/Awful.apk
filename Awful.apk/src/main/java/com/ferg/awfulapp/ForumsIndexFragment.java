@@ -241,6 +241,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
                 public void failure(VolleyError error) {
                     if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
                         Log.e(TAG, "Error: "+error.getMessage());
+						Log.e(TAG, "!!!Failed to sync forum index - You are now LOGGED OUT");
                         NetworkUtils.clearLoginCookies(getAwfulActivity());
                         getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
                     }

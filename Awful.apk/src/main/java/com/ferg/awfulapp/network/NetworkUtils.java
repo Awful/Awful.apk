@@ -30,12 +30,19 @@ package com.ferg.awfulapp.network;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.http.HttpResponseCache;
 import android.os.Messenger;
 import android.util.Log;
 
+import com.android.volley.Cache;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulURL;
+import com.ferg.awfulapp.util.LRUImageCache;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.Header;
@@ -74,6 +81,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,8 +94,63 @@ public class NetworkUtils {
 
     private static DefaultHttpClient sHttpClient;
 
+    private static RequestQueue     mNetworkQueue;
+    private static LRUImageCache    mImageCache;
+    private static ImageLoader      mImageLoader;
+
     private static String cookie = null;
     private static final String COOKIE_HEADER = "Cookie";
+
+
+    /**
+     * Initialise request handling and caching - call this early!
+     * @param context   A context used to create a cache dir
+     */
+    public static void init(Context context) {
+        mNetworkQueue   = Volley.newRequestQueue(context);
+        // TODO: find out if this is even being used anywhere
+        mImageCache     = new LRUImageCache();
+        mImageLoader    = new ImageLoader(mNetworkQueue, mImageCache);
+
+        try {
+            HttpResponseCache.install(new File(context.getCacheDir(), "httpcache"), 5242880);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void clearImageCache() {
+        if (mImageCache != null) {
+            mImageCache.clear();
+        }
+    }
+
+
+    public static void clearDiskCache() {
+        Cache diskCache;
+        if (mNetworkQueue != null && (diskCache = mNetworkQueue.getCache()) != null) {
+            diskCache.clear();
+        }
+    }
+
+
+    public static void queueRequest(Request request){
+        if (mNetworkQueue != null) {
+            mNetworkQueue.add(request);
+        } else {
+            Log.w(TAG, "Can't queue request - NetworkQueue is null, has NetworkUtils been initialised?");
+        }
+    }
+
+    public static void cancelRequests(Object tag){
+        if (mNetworkQueue != null) {
+            mNetworkQueue.cancelAll(tag);
+        } else {
+            Log.w(TAG, "Can't cancel requests - NetworkQueue is null, has NetworkUtils been initialised?");
+        }
+    }
+
 
     public static void setCookieHeaders(Map<String, String> headers) {
         if (cookie.length() > 0) {
@@ -113,56 +176,42 @@ public class NetworkUtils {
         long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
 
         if (useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
+            cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
+                    Constants.COOKIE_PREF_USERID, useridCookieValue,
+                    Constants.COOKIE_PREF_PASSWORD, passwordCookieValue,
+                    Constants.COOKIE_PREF_SESSIONID, sessionidCookieValue,
+                    Constants.COOKIE_PREF_SESSIONHASH, sessionhashCookieValue);
 
-            @SuppressWarnings("StringBufferReplaceableByString")
-            StringBuilder cookieBuilder = new StringBuilder();
-            cookieBuilder.append(Constants.COOKIE_PREF_USERID);
-            cookieBuilder.append('=');
-            cookieBuilder.append(useridCookieValue);
-            cookieBuilder.append(';');
-            cookieBuilder.append(Constants.COOKIE_PREF_PASSWORD);
-            cookieBuilder.append('=');
-            cookieBuilder.append(passwordCookieValue);
-            cookieBuilder.append(';');
-            cookieBuilder.append(Constants.COOKIE_PREF_SESSIONID);
-            cookieBuilder.append('=');
-            cookieBuilder.append(sessionidCookieValue);
-            cookieBuilder.append(';');
-            cookieBuilder.append(Constants.COOKIE_PREF_SESSIONHASH);
-            cookieBuilder.append('=');
-            cookieBuilder.append(sessionhashCookieValue);
-            cookieBuilder.append(';');
-            cookie = cookieBuilder.toString();
+            BasicClientCookie useridCookie =
+                    new BasicClientCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
+            BasicClientCookie passwordCookie =
+                    new BasicClientCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
+            BasicClientCookie sessionidCookie =
+                    new BasicClientCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
+            BasicClientCookie sessionhashCookie =
+                    new BasicClientCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
 
             Date expiryDate = new Date(expiry);
-
-            BasicClientCookie useridCookie = new BasicClientCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
-            useridCookie.setDomain(Constants.COOKIE_DOMAIN);
-            useridCookie.setExpiryDate(expiryDate);
-            useridCookie.setPath(Constants.COOKIE_PATH);
-
-            BasicClientCookie passwordCookie = new BasicClientCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
-            passwordCookie.setDomain(Constants.COOKIE_DOMAIN);
-            passwordCookie.setExpiryDate(expiryDate);
-            passwordCookie.setPath(Constants.COOKIE_PATH);
-
-            BasicClientCookie sessionidCookie = new BasicClientCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
-            sessionidCookie.setDomain(Constants.COOKIE_DOMAIN);
-            sessionidCookie.setExpiryDate(expiryDate);
-            sessionidCookie.setPath(Constants.COOKIE_PATH);
-
-            BasicClientCookie sessionhashCookie = new BasicClientCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
-            sessionhashCookie.setDomain(Constants.COOKIE_DOMAIN);
-            sessionhashCookie.setExpiryDate(expiryDate);
-            sessionhashCookie.setPath(Constants.COOKIE_PATH);
+            BasicClientCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
+            for (BasicClientCookie tempCookie : allCookies) {
+                tempCookie.setDomain(Constants.COOKIE_DOMAIN);
+                tempCookie.setExpiryDate(expiryDate);
+                tempCookie.setPath(Constants.COOKIE_PATH);
+            }
 
             CookieStore jar = new BasicCookieStore();
             jar.addCookie(useridCookie);
             jar.addCookie(passwordCookie);
             sHttpClient.setCookieStore(jar);
 
+            Log.w(TAG, "Cookies restored from prefs");
             return true;
         } else {
+            String logMsg = "Unable to restore cookies! Reasons:\n";
+            logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
+            logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
+            logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
+            Log.w(TAG, logMsg);
             cookie = "";
         }
 
@@ -209,40 +258,48 @@ public class NetworkUtils {
         List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
-                if (cookie.getName().equals(Constants.COOKIE_NAME_USERID)) {
-                    useridValue = cookie.getValue();
-                    expires = cookie.getExpiryDate();
-                } else if (cookie.getName().equals(Constants.COOKIE_NAME_PASSWORD)) {
-                    passwordValue = cookie.getValue();
-                    expires = cookie.getExpiryDate();
-                } else if (cookie.getName().equals(Constants.COOKIE_NAME_SESSIONID)) {
-                    sessionId = cookie.getValue();
-                    expires = cookie.getExpiryDate();
-                } else if (cookie.getName().equals(Constants.COOKIE_NAME_SESSIONHASH)) {
-                    sessionHash = cookie.getValue();
-                    expires = cookie.getExpiryDate();
+                final String cookieName = cookie.getName();
+                switch (cookieName) {
+                    case Constants.COOKIE_NAME_USERID:
+                        useridValue = cookie.getValue();
+                        break;
+                    case Constants.COOKIE_NAME_PASSWORD:
+                        passwordValue = cookie.getValue();
+                        break;
+                    case Constants.COOKIE_NAME_SESSIONID:
+                        sessionId = cookie.getValue();
+                        break;
+                    case Constants.COOKIE_NAME_SESSIONHASH:
+                        sessionHash = cookie.getValue();
+                        break;
+                }
+                // keep the soonest valid expiry in case they don't match
+                Date cookieExpiryDate = cookie.getExpiryDate();
+                if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
+                    expires = cookieExpiryDate;
                 }
             }
         }
 
-        if (useridValue != null && passwordValue != null) {
-            Editor edit = prefs.edit();
-            edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
-            edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
-            if (sessionId != null && sessionId.length() > 0) {
-                edit.putString(Constants.COOKIE_PREF_SESSIONID, sessionId);
-            }
-            if (sessionHash != null && sessionHash.length() > 0) {
-                edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
-            }
-            edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
-
-            edit.apply();
-
-            return true;
+        if (useridValue == null || passwordValue == null) {
+            return false;
         }
 
-        return false;
+        Editor edit = prefs.edit();
+        edit.putString(Constants.COOKIE_PREF_USERID, useridValue);
+        edit.putString(Constants.COOKIE_PREF_PASSWORD, passwordValue);
+        if (sessionId != null && sessionId.length() > 0) {
+            edit.putString(Constants.COOKIE_PREF_SESSIONID, sessionId);
+        }
+        if (sessionHash != null && sessionHash.length() > 0) {
+            edit.putString(Constants.COOKIE_PREF_SESSIONHASH, sessionHash);
+        }
+        if (expires != null) {
+            edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
+        }
+
+        edit.apply();
+        return true;
     }
 
     public static String getCookieString(String type) {
@@ -250,19 +307,11 @@ public class NetworkUtils {
         for (Cookie cookie : cookies) {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
                 if (cookie.getName().contains(type)) {
-
-                    @SuppressWarnings("StringBufferReplaceableByString")
-                    StringBuilder oven = new StringBuilder();
-
-                    oven.append(type);
-                    oven.append("=");
-                    oven.append(cookie.getValue());
-                    oven.append("; domain=");
-                    oven.append(cookie.getDomain());
-                    return oven.toString();
+                    return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
                 }
             }
         }
+        Log.w(TAG, "getCookieString couldn't find type: " + type);
         return "";
     }
 
@@ -287,12 +336,7 @@ public class NetworkUtils {
 
         Log.i(TAG, "Fetching " + location);
 
-        HttpGet httpGet;
-        HttpResponse httpResponse;
-
-        httpGet = new HttpGet(location);
-        httpResponse = sHttpClient.execute(httpGet);
-
+        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
@@ -315,7 +359,6 @@ public class NetworkUtils {
 
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
-        String redirect = null;
         URI location;
         if (aParams != null) {
             location = new URI(aUrl + getQueryStringParameters(aParams));
@@ -323,13 +366,12 @@ public class NetworkUtils {
             location = new URI(aUrl);
         }
 
-        HttpGet httpGet = new HttpGet(location);
-        HttpResponse httpResponse = sHttpClient.execute(httpGet);
+        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
         Header redirectLocation = httpResponse.getFirstHeader("Location");
         if (redirectLocation != null) {
-            redirect = redirectLocation.getValue();
+            return redirectLocation.getValue();
         }
-        return redirect;
+        return null;
     }
 
     public static InputStream getStream(String aUrl) throws Exception {
@@ -337,10 +379,8 @@ public class NetworkUtils {
 
         Log.i(TAG, "Fetching " + location);
 
-        HttpGet httpGet;
         HttpResponse httpResponse;
-        httpGet = new HttpGet(location);
-        httpResponse = sHttpClient.execute(httpGet);
+        httpResponse = sHttpClient.execute(new HttpGet(location));
         return httpResponse.getEntity().getContent();
     }
 
@@ -381,9 +421,7 @@ public class NetworkUtils {
             httpPost.setEntity(post.build());
         }
 
-
         HttpResponse httpResponse = sHttpClient.execute(httpPost);
-
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
@@ -522,5 +560,43 @@ public class NetworkUtils {
         }
         fixCharMatch.appendTail(unencodedContent);
         return unencodedContent.toString();
+    }
+
+
+
+    /*
+        Stupid garbage to stave off forced logouts
+     */
+
+    private static final int MAX_REPEATED_LOGOUT_DODGES = 4;
+    private static AtomicInteger remaining_dodges = new AtomicInteger(MAX_REPEATED_LOGOUT_DODGES);
+
+    /**
+     * If a request hits the 'not registered' page, check if the user actually has
+     * login cookies, and ignore a few of them. Call {@link #resetDodges()} when a
+     * request succeeds normally, to reset the allowed failures counter
+     * @return  True if the problem should be ignored, false if the user should be logged out
+     */
+    public synchronized static boolean dodgeLogoutBullet() {
+        String username = NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID);
+        String password = NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD);
+        if ("".equals(username) || "".equals(password)) {
+            Log.w(TAG, "Your cookie is broken though, better log in");
+            return false;
+        }
+        Log.w(TAG, "Looks like you're logged in to me though...");
+        if (remaining_dodges.decrementAndGet() <= 0) {
+            Log.w(TAG, "But it's happened " + MAX_REPEATED_LOGOUT_DODGES + " times in a row, logging out");
+            return false;
+        }
+        Log.w(TAG, "Letting it slide, " + remaining_dodges.get() + " chances remaining");
+        return true;
+    }
+
+    /**
+     * Reset the failure counter, call this after a request passes the 'unregistered' check
+     */
+    public static void resetDodges() {
+        remaining_dodges.set(MAX_REPEATED_LOGOUT_DODGES);
     }
 }

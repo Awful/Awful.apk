@@ -464,10 +464,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mProbationBar.setVisibility(View.VISIBLE);
 		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
 		mProbationButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
 				startActivity(openThread);
 			}
 		});
@@ -833,6 +833,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     
     private void syncThread() {
         if(getActivity() != null){
+			// this call should always happen surely, not just when calling goToPage()?
+			cancelNetworkRequests();
         	bodyHtml = "";
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
 				@Override
@@ -853,6 +855,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				public void failure(VolleyError error) {
 					if (null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")) {
 						Log.e(TAG, "Error: " + error.getMessage());
+						Log.e(TAG, "!!!Failed to sync thread - You are now LOGGED OUT");
 						NetworkUtils.clearLoginCookies(getAwfulActivity());
 						getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
 					}
@@ -863,12 +866,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					mRefreshBar.setColorFilter(0);
 				}
 			}), true);
-        }
-    }
-
-    private void cancelOldSync(){
-        if(getActivity() != null){
-            cancelNetworkRequests();
         }
     }
     
@@ -1449,7 +1446,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
 			}
-            cancelOldSync();
 	        syncThread();
 		}
 	}

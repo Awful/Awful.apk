@@ -69,6 +69,8 @@ public class AwfulLoginActivity extends AwfulActivity {
 
         setContentView(R.layout.login);
 
+        NetworkUtils.logCookies();
+
         mLogin = (Button) findViewById(R.id.login);
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);

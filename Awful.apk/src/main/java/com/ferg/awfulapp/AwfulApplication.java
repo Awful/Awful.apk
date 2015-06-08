@@ -11,6 +11,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.util.LRUImageCache;
 
 import android.app.Application;
@@ -28,15 +29,12 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	
 	private AwfulPreferences mPref;
 	private final HashMap<String, Typeface> fonts = new HashMap<>();
-
-    private RequestQueue networkQueue;
-    private ImageLoader imageLoader;
-    private LRUImageCache imageCache;
-
 	private Typeface currentFont;
+
     @Override
     public void onCreate() {
         super.onCreate();
+		NetworkUtils.init(this);
         Fabric.with(this, new Crashlytics());
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref,null);
@@ -44,15 +42,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         if(mPref.sendUsernameInReport){
 			Crashlytics.setUserName(mPref.username);
         }
-
-        try {
-            HttpResponseCache.install(new File(getCacheDir(), "httpcache"), 5242880);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        networkQueue = Volley.newRequestQueue(this);
-        imageCache = new LRUImageCache();
-        imageLoader = new ImageLoader(networkQueue, imageCache);
     }
 
 	public void setFontFromPreference(TextView textView, int flags){
@@ -141,41 +130,22 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
 	@Override
 	public File getCacheDir() {
-		Log.e(TAG,"getCacheDir(): "+super.getCacheDir());
+		Log.e(TAG, "getCacheDir(): " + super.getCacheDir());
 		return super.getCacheDir();
 	}
 
-    public void queueRequest(Request request){
-        networkQueue.add(request);
-    }
-
-    public void cancelRequests(Object tag){
-        networkQueue.cancelAll(tag);
-    }
-
-    public ImageLoader getImageLoader(){
-        return imageLoader;
-    }
 
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        if(level != Application.TRIM_MEMORY_UI_HIDDEN && level != Application.TRIM_MEMORY_BACKGROUND && imageCache != null){
-            imageCache.clear();
+        if(level != Application.TRIM_MEMORY_UI_HIDDEN && level != Application.TRIM_MEMORY_BACKGROUND){
+			NetworkUtils.clearImageCache();
         }
     }
 
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
-        if(imageCache != null){
-            imageCache.clear();
-        }
-    }
-
-    public void clearDiskCache(){
-        if(networkQueue != null && networkQueue.getCache() != null){
-            networkQueue.getCache().clear();
-        }
+		super.onLowMemory();
+		NetworkUtils.clearImageCache();
     }
 }

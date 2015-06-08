@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
 
@@ -41,21 +42,20 @@ public class AccountSettings extends SettingsFragment {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             final Dialog dialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Account Features", true);
-            ((AwfulApplication)getActivity().getApplication())
-                    .queueRequest(new FeatureRequest(getActivity())
-                            .build(null, new AwfulRequest.AwfulResultCallback<Void>() {
-                                @Override
-                                public void success(Void result) {
-                                    dialog.dismiss();
-                                    setSummaries();
-                                }
+            NetworkUtils.queueRequest(new FeatureRequest(getActivity())
+                    .build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+                        @Override
+                        public void success(Void result) {
+                            dialog.dismiss();
+                            setSummaries();
+                        }
 
-                                @Override
-                                public void failure(VolleyError error) {
-                                    dialog.dismiss();
-                                    Toast.makeText(getActivity(), "An error occured", Toast.LENGTH_LONG).show();
-                                }
-                            }));
+                        @Override
+                        public void failure(VolleyError error) {
+                            dialog.dismiss();
+                            Toast.makeText(getActivity(), "An error occured", Toast.LENGTH_LONG).show();
+                        }
+                    }));
             return true;
         }
     }

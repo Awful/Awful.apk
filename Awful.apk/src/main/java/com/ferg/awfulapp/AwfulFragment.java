@@ -56,6 +56,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -306,27 +307,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         queueRequest(request, false);
     }
     public void queueRequest(Request request, boolean cancelOnDestroy){
-        AwfulApplication app = getAwfulApplication();
-        if(app != null && request != null){
+        if(request != null){
             if(cancelOnDestroy){
                 request.setTag(this);
             }
-            app.queueRequest(request);
+            NetworkUtils.queueRequest(request);
         }
     }
 
     protected void cancelNetworkRequests(){
-        AwfulApplication app = getAwfulApplication();
-        if(app != null){
-            app.cancelRequests(this);
-        }
-    }
-
-    public ImageLoader getImageLoader(){
-        if(getAwfulApplication() != null){
-            return getAwfulApplication().getImageLoader();
-        }
-        return null;
+        NetworkUtils.cancelRequests(this);
     }
 
 

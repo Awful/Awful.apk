@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
+import android.webkit.CookieManager;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
@@ -16,7 +18,9 @@ import org.jsoup.nodes.Element;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +30,7 @@ import java.util.regex.Pattern;
  * This currently covers Logged out, some site down messages, and probation status.
  */
 public class AwfulError extends VolleyError{
+    private static final String TAG = "AwfulError";
     private int errorCode = 0;
     private String errorMessage = null;
 
@@ -42,7 +47,7 @@ public class AwfulError extends VolleyError{
     public AwfulError(int code, String message) {
         errorCode = code;
         errorMessage = message;
-        Log.e("AwfulError", "Error: "+code+" - "+getMessage());
+        Log.e(TAG, "Error: "+code+" - "+getMessage());
     }
 
     /**
@@ -92,12 +97,34 @@ public class AwfulError extends VolleyError{
      */
     public static AwfulError checkPageErrors(Document page, AwfulPreferences prefs) {
         AwfulError error = null;
+
         if(null != page.getElementById("notregistered")){
             error = new AwfulError(ERROR_LOGGED_OUT);
-            NetworkUtils.clearLoginCookies(prefs.getContext());
-            prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
-            Log.e("AwfulError","ERROR_LOGGED_OUT");
+            Log.e(TAG, "!!!Page says not registered - You are now LOGGED OUT");
+            Log.w(TAG, "NetworkUtils Cookie Headers dump:");
+            Map<String, String> headerMap = new HashMap<>();
+            NetworkUtils.setCookieHeaders(headerMap);
+            for (Map.Entry header : headerMap.entrySet()) {
+                Log.w(TAG, "Header key: " + header.getKey() + " value: " + header.getValue());
+            }
+
+            Log.w(TAG, "HttpClient CookieStore dump:");
+            NetworkUtils.logCookies();
+
+            CookieManager ckiemonster = CookieManager.getInstance();
+            String cookie = ckiemonster.getCookie(Constants.BASE_URL);
+            Log.w(TAG, "WebView CookieManager cookie for BASE_URL:" + cookie);
+
+            // TODO fix the actual problem, probably repeated network requests in a short space of time
+            if (!NetworkUtils.dodgeLogoutBullet()) {
+                NetworkUtils.clearLoginCookies(prefs.getContext());
+                prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
+                Log.e(TAG,"ERROR_LOGGED_OUT");
+            }
+        } else {
+            NetworkUtils.resetDodges();
         }
+
         if(null != page.getElementById("closemsg")){
             String msg = page.getElementsByClass("reason").text().trim();
             if(msg.length() > 0){

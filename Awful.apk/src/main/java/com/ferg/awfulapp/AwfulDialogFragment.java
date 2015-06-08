@@ -50,6 +50,7 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -216,31 +217,21 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {	}
 
-    protected AwfulApplication getAwfulApplication(){
-        AwfulActivity act = getAwfulActivity();
-        if(act != null){
-            return (AwfulApplication) act.getApplication();
-        }
-        return null;
-    }
     public void queueRequest(Request request){
         queueRequest(request, false);
     }
+
     public void queueRequest(Request request, boolean cancelOnDestroy){
-        AwfulApplication app = getAwfulApplication();
-        if(app != null && request != null){
+        if(request != null){
             if(cancelOnDestroy){
                 request.setTag(this);
             }
-            app.queueRequest(request);
+            NetworkUtils.queueRequest(request);
         }
     }
 
     protected void cancelNetworkRequests(){
-        AwfulApplication app = getAwfulApplication();
-        if(app != null){
-            app.cancelRequests(this);
-        }
+        NetworkUtils.cancelRequests(this);
     }
 
     @Override
