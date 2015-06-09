@@ -67,10 +67,14 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.LogOutDialog;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
+import com.ferg.awfulapp.task.IndexRequest;
+import com.ferg.awfulapp.task.PostRequest;
+import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
@@ -743,20 +747,6 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                if(mViewPager != null && mViewPager.getCurrentItem() > 0){
-//                    if(mViewPager.getCurrentItem() == 2 && mThreadFragment != null && mThreadFragment.getParentForumId() > 0){
-//                        displayForum(mThreadFragment.getParentForumId(), 1);
-//                    }else{
-//                        mViewPager.setCurrentItem(mViewPager.getCurrentItem()-1);
-//                    }
-//                    return true;
-//                }
-//                break;
-//            default:
-//                break;
-//        }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -916,5 +906,11 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     public void reenableSwipe() {
         this.mViewPager.setSwipeEnabled(true);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }

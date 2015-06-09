@@ -18,9 +18,19 @@ import java.util.regex.Pattern;
  * Created by matt on 8/7/13.
  */
 public class IndexRequest extends AwfulRequest<Void> {
+
+    public static final Object REQUEST_TAG = new Object();
+
     public IndexRequest(Context context) {
         super(context, null);
     }
+
+
+    @Override
+    public Object getRequestTag() {
+        return REQUEST_TAG;
+    }
+
 
     @Override
     protected String generateUrl(Uri.Builder build) {

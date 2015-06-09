@@ -275,11 +275,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 			}
 		});
 	}
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
     
     @Override
     public void onResume() {
@@ -304,37 +299,29 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 //		}
         refreshInfo();
 	}
-	
+
 	@Override
 	public void onPageHidden() {
-		
+
 	}
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-    
+
     @Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState); if(DEBUG) Log.e(TAG,"onSaveInstanceState");
         outState.putInt(Constants.FORUM_PAGE, getPage());
     	outState.putInt(Constants.FORUM_ID, getForumId());
 	}
-    
-	@Override
+
+    @Override
+    protected void cancelNetworkRequests() {
+        super.cancelNetworkRequests();
+        NetworkUtils.cancelRequests(ThreadListRequest.REQUEST_TAG);
+    }
+
+    @Override
     public void onStop() {
-        super.onStop(); if(DEBUG) Log.e(TAG, "Stop");
+        super.onStop();
         closeLoaders();
-    }
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView(); if(DEBUG) Log.e(TAG, "DestroyView");
-    }
-    
-    @Override
-    public void onDetach() {
-        super.onDetach(); if(DEBUG) Log.e(TAG, "Detach");
     }
 
 
@@ -612,7 +599,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 	public void syncForum() {
 		if(getActivity() != null && getForumId() > 0){
-
+            // cancel pending thread list loading requests
+            NetworkUtils.cancelRequests(ThreadListRequest.REQUEST_TAG);
+            // call this with cancelOnDestroy=false to retain the request's specific type tag
             queueRequest(new ThreadListRequest(getActivity(), getForumId(), getPage()).build(this,
                     new AwfulRequest.AwfulResultCallback<Void>() {
                         @Override
@@ -629,6 +618,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                         public void failure(VolleyError error) {
                             if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
                                 Log.e(TAG, "Error: "+error.getMessage());
+                                Log.e(TAG, "!!!Failed to sync thread list - You are now LOGGED OUT");
                                 NetworkUtils.clearLoginCookies(getAwfulActivity());
                                 getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
                             }
@@ -638,7 +628,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                             mListView.setSelectionAfterHeaderView();
                         }
                     }
-            ));
+            ), false);
 
 		}
     }

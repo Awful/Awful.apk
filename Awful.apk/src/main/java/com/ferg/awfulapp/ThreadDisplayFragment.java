@@ -464,19 +464,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mProbationBar.setVisibility(View.VISIBLE);
 		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
 		mProbationButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
+				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
 				startActivity(openThread);
 			}
 		});
 	}
-
-    @Override
-    public void onStart() {
-        super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
-    }
     
 
     @Override
@@ -544,30 +539,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	mThreadView.onPause();
         }
     }
-        
-    @Override
-    public void onStop() {
-        super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-    }
-    
-    @Override
-    public void onDestroyView(){
-    	super.onDestroyView(); if(DEBUG) Log.e(TAG, "onDestroyView");
-    }
+
+	@Override
+	protected void cancelNetworkRequests() {
+		super.cancelNetworkRequests();
+		NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
+	}
+
 
     @Override
     public void onDestroy() {
-        super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
+        super.onDestroy();
         getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
-    }
-
     
-    public void refreshSessionCookie(){
+    public synchronized void refreshSessionCookie(){
         if(mThreadView != null){
         	if(DEBUG) Log.e(TAG,"SETTING COOKIES");
         	CookieSyncManager.createInstance(getActivity());
@@ -833,7 +820,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     
     private void syncThread() {
         if(getActivity() != null){
+			// cancel pending post loading requests
+			NetworkUtils.cancelRequests(PostRequest.REQUEST_TAG);
         	bodyHtml = "";
+			// call this with cancelOnDestroy=false to retain the request's specific type tag
             queueRequest(new PostRequest(getActivity(), getThreadId(), getPage(), mUserId).build(this, new AwfulRequest.AwfulResultCallback<Integer>() {
 				@Override
 				public void success(Integer result) {
@@ -853,6 +843,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				public void failure(VolleyError error) {
 					if (null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")) {
 						Log.e(TAG, "Error: " + error.getMessage());
+						Log.e(TAG, "!!!Failed to sync thread - You are now LOGGED OUT");
 						NetworkUtils.clearLoginCookies(getAwfulActivity());
 						getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
 					}
@@ -862,13 +853,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					mPrevPage.setColorFilter(0);
 					mRefreshBar.setColorFilter(0);
 				}
-			}), true);
-        }
-    }
-
-    private void cancelOldSync(){
-        if(getActivity() != null){
-            cancelNetworkRequests();
+			}), false);
         }
     }
     
@@ -1449,7 +1434,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			if(mThreadView != null){
                 mThreadView.loadUrl("javascript:loadpagehtml()");
 			}
-            cancelOldSync();
 	        syncThread();
 		}
 	}

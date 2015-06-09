@@ -32,6 +32,7 @@ import android.util.Log;
 import com.ferg.awfulapp.constants.Constants;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.regex.Pattern;
@@ -42,31 +43,19 @@ public abstract class AwfulPagedItem {
 	private static final Pattern pageNumber_regex = Pattern.compile("Pages \\((\\d+)\\)");
 	
     public static int parseLastPage(Document pagedItem){
-    	int pagesTop, pagesBottom;
-    	try{
-    		Elements pages = pagedItem.getElementsByClass("pages");
-            pagesTop = Integer.parseInt(pages.first().getElementsByTag("option").last().text());
-       	}catch(NumberFormatException ex){
-       		Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-            pagesTop = 1;
-    	}catch(NullPointerException ex){
-            Log.e(TAG, "NullPointerException thrown while parseLastPage");
-            ex.printStackTrace();
-            pagesTop = 1;
-    	}
-        try{
-            Elements pages = pagedItem.getElementsByClass("pages");
-            pagesBottom = Integer.parseInt(pages.last().getElementsByTag("option").last().text());
-        }catch(NumberFormatException ex){
-            Log.e(TAG, "NumberFormatException thrown while parseLastPage");
-            pagesBottom = 1;
-        }catch(NullPointerException ex){
-            Log.e(TAG, "NullPointerException thrown while parseLastPage");
-            ex.printStackTrace();
-            pagesBottom = 1;
-        }
-        return Math.max(pagesTop, pagesBottom);
+		Elements pages = pagedItem.getElementsByClass("pages");
+        return Math.max(getPageNum(pages.first()), getPageNum(pages.last()));
     }
+
+	private static int getPageNum(Element pageElement) {
+		try {
+			return Integer.parseInt(pageElement.getElementsByTag("option").last().text());
+		} catch (NumberFormatException e) {
+				Log.e(TAG, "NumberFormatException thrown during parseLastPage()");
+				e.printStackTrace();
+		} catch (NullPointerException e) { } // not actually exceptional in 1-page threads!
+		return 1;
+	}
     
 	public static int indexToPage(int index, int perPage){
 		return (index-1)/perPage+1;//easier than using math.ceil.
