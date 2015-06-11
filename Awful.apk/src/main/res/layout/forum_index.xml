@@ -14,8 +14,8 @@
 
     <include
         android:id="@+id/probationbar"
-        layout="@layout/probationbar" 
-        android:layout_height="40dp"/>
+        layout="@layout/probationbar"
+        android:layout_height="40dp" />
     <!--
           <pl.polidea.treeview.TreeViewList 
         android:id="@+id/index_tree_view" 
@@ -26,18 +26,19 @@
 		/>
     -->
     <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/index_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:direction="top">
-    <pl.polidea.treeview.TreeViewList
-        android:id="@+id/index_pull_tree_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:cacheColorHint="@color/background"
-        android:divider="#8c8c8c"
-        android:dividerHeight="1dp"
-        android:drawSelectorOnTop="false" />
-</com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+
+        <ExpandableListView
+            android:id="@+id/index_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:cacheColorHint="@color/background"
+            android:divider="?attr/listDividerColor"
+            android:dividerHeight="1dp"
+            android:groupIndicator="@android:color/transparent"
+            android:drawSelectorOnTop="false" />
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 </LinearLayout>

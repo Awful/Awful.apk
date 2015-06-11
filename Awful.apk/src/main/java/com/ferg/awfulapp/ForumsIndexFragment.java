@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +41,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -48,7 +48,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CursorTreeAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -61,29 +65,30 @@ import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
+import com.ferg.awfulapp.thread.AwfulThread;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-import pl.polidea.treeview.AbstractTreeViewAdapter;
-import pl.polidea.treeview.InMemoryTreeStateManager;
-import pl.polidea.treeview.TreeBuilder;
-import pl.polidea.treeview.TreeNodeInfo;
-import pl.polidea.treeview.TreeStateManager;
-import pl.polidea.treeview.TreeViewList;
-
 public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
-    
+
+
+	private static final int[] EMPTY_STATE_SET = {};
+	private static final int[] GROUP_EXPANDED_STATE_SET =
+			{android.R.attr.state_expanded};
+	private static final int[][] GROUP_STATE_SETS = {
+			EMPTY_STATE_SET, // 0
+			GROUP_EXPANDED_STATE_SET // 1
+	};
+
     private int selectedForum = 0;
     
-    private TreeViewList mForumTree;
+    private ExpandableListView mForumIndex;
     
     private AwfulTreeListAdapter mTreeAdapter;
-	private InMemoryTreeStateManager<ForumEntry> dataManager;
     
 	private View mProbationBar;
 	private TextView mProbationMessage;
@@ -115,9 +120,9 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
         if(DEBUG) Log.e(TAG, "onCreateView");
         View result = inflateView(R.layout.forum_index, aContainer, aInflater);
         
-        mForumTree = (TreeViewList) result.findViewById(R.id.index_pull_tree_view);
-        mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
-        mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
+        mForumIndex = (ExpandableListView) result.findViewById(R.id.index_view);
+        mForumIndex.setBackgroundColor(ColorProvider.getBackgroundColor());
+        mForumIndex.setCacheColorHint(ColorProvider.getBackgroundColor());
 
 		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
@@ -144,11 +149,8 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-
-        dataManager = new InMemoryTreeStateManager<ForumEntry>();
-        dataManager.setVisibleByDefault(false);
-        mTreeAdapter = new AwfulTreeListAdapter(getActivity(), dataManager);
-        mForumTree.setAdapter(mTreeAdapter);
+        mTreeAdapter = new AwfulTreeListAdapter(null, getActivity());
+		mForumIndex.setAdapter(mTreeAdapter);
         syncForums();
     }
     
@@ -202,12 +204,9 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
 		super.onPreferenceChange(mPrefs, key);
-		if(mForumTree != null){
-			mForumTree.setBackgroundColor(ColorProvider.getBackgroundColor());
-			mForumTree.setCacheColorHint(ColorProvider.getBackgroundColor());
-			if(dataManager != null){
-				dataManager.refresh();
-			}
+		if(mForumIndex != null){
+			mForumIndex.setBackgroundColor(ColorProvider.getBackgroundColor());
+			mForumIndex.setCacheColorHint(ColorProvider.getBackgroundColor());
 		}
 	}
 	
@@ -262,25 +261,29 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Load Index Cursor");
-            return new CursorLoader(getActivity(), AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection, null, null, AwfulForum.INDEX);
+            return new CursorLoader(getActivity(),
+					AwfulForum.CONTENT_URI,
+					AwfulProvider.ForumProjection,
+					AwfulProvider.TABLE_FORUM+"."+ AwfulForum.PARENT_ID+"== 0",
+					null,
+					AwfulForum.INDEX);
         }
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
-            	Log.v(TAG,"Index cursor: "+aData.getCount());
+            	Log.v(TAG, "Index cursor: " + aData.getCount());
         		if(aData.getCount() > 10){
         			aData.move(8);
         		}
-        		mTreeAdapter.setCursor(aData);
+				mTreeAdapter.setGroupCursor(aData);
         	}
 			updateProbationBar();
         }
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-			Log.e(TAG,"resetLoader: "+arg0.getId());
-			mTreeAdapter.setCursor(null);
+			Log.e(TAG, "resetLoader: " + arg0.getId());
 		}
     }
 	
@@ -296,131 +299,164 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 		}
 	}
 	
-	public static void updateForumTree(ArrayList<ForumEntry> primaryForums, SparseArray<ForumEntry> forumMap, Cursor data){
-		primaryForums.clear();
-		forumMap.clear();
-		if(data != null && !data.isClosed() && data.moveToFirst()){
-			LinkedList<ForumEntry> tmpSubforums = new LinkedList<ForumEntry>();
-			do{
-				if(data.getInt(data.getColumnIndex(AwfulForum.ID)) <= 0){
-					continue;
-				}
-				ForumEntry forum = new ForumEntry(data.getInt(data.getColumnIndex(AwfulForum.ID)),
-											  data.getInt(data.getColumnIndex(AwfulForum.PARENT_ID)),
-											  data.getString(data.getColumnIndex(AwfulForum.TITLE)),
-											  data.getString(data.getColumnIndex(AwfulForum.SUBTEXT)),
-											  data.getString(data.getColumnIndex(AwfulForum.TAG_URL))
-											  );
-				if(forum.parentId != 0){
-					tmpSubforums.add(forum);
-				}else{
-					primaryForums.add(forum);
-				}
-				forumMap.put(forum.id, forum);
-			}while(data.moveToNext());
-			//do subforums after parent forums, in case we have subforums out of order, which will happen
-			for(ForumEntry sub : tmpSubforums){
-				ForumEntry parent = forumMap.get(sub.parentId);
-				if(parent != null){
-					parent.subforums.add(sub);
-				}
-			}
-			tmpSubforums.clear();
-		}
-	}
-	
-	private class AwfulTreeListAdapter extends AbstractTreeViewAdapter<ForumEntry>{
+	private class AwfulTreeListAdapter extends CursorTreeAdapter {
 		private ArrayList<ForumEntry> parentForums = new ArrayList<ForumEntry>();
 		private SparseArray<ForumEntry> forumsMap = new SparseArray<ForumEntry>();
-		private TreeBuilder<ForumEntry> builder;
 		private LayoutInflater inf;
 		private AQuery rowAq;
+		private Cursor mTLCursor;
 
-		public AwfulTreeListAdapter(Activity activity, TreeStateManager<ForumEntry> stateManager) {
-			super(activity, stateManager, 5);
+		public AwfulTreeListAdapter(Cursor cursor, Activity activity) {
+			super(cursor, activity);
 			rowAq = new AQuery((Context)activity);//don't let aquery think we are using an actual activity, we will recycle in rows as we generate them
 			inf = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			builder = new TreeBuilder<ForumsIndexFragment.ForumEntry>(stateManager);
-		}
-		
-		public void setCursor(Cursor data){
-			updateForumTree(parentForums, forumsMap, data);
-			builder.clear();
-        	for(ForumEntry parent : parentForums){
-        		builder.sequentiallyAddNextNode(parent, 0);
-        		addChildren(builder, parent, 1);
-        	}
-        	if(selectedForum > 0){
-        		ForumEntry forum = forumsMap.get(selectedForum);
-        		//iterate up the tree and show children as we go.
-        		//it's recursive to catch subsubforums in games
-        		while(forum != null && forum.parentId > 0 && forumsMap.get(forum.parentId) != null){
-        			forum = forumsMap.get(forum.parentId);
-        			dataManager.expandDirectChildren(forum);
-        		}
-        	}
-		}
-		
-		private void addChildren(TreeBuilder<ForumEntry> builder, ForumEntry parent, int level){
-			//if(DEBUG) Log.e(TAG, level+" - Adding children for #"+parent.id+" - "+parent.title+" - "+parent.subforums.size());
-    		for(ForumEntry child : parent.subforums){
-        		builder.sequentiallyAddNextNode(child, level);
-        		addChildren(builder, child, level+1);
-            	dataManager.collapseChildren(parent);
-    		}
+			mTLCursor = cursor;
 		}
 
 		@Override
-		public long getItemId(int position) {
-			return getTreeId(position).id;
+		protected Cursor getChildrenCursor(Cursor groupCursor) {
+			CursorLoader cl = new CursorLoader(getActivity(),
+					AwfulForum.CONTENT_URI,
+					AwfulProvider.ForumProjection,
+					AwfulProvider.TABLE_FORUM + "." + AwfulForum.PARENT_ID + "== " + groupCursor.getInt(groupCursor.getColumnIndex(AwfulForum.ID)),
+					null,
+					AwfulForum.INDEX);
+			return cl.loadInBackground();
 		}
 
 		@Override
-		public View getNewChildView(TreeNodeInfo<ForumEntry> treeNodeInfo) {
-			ForumEntry data = treeNodeInfo.getId();
+		protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
+			ForumEntry data = new ForumEntry(cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
+					cursor.getInt(cursor.getColumnIndex(AwfulForum.PARENT_ID)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TITLE)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.SUBTEXT)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL))
+			);
+			View row = inf.inflate(R.layout.forum_item, parent, false);
+			AwfulForum.getExpandableForumView(row,
+					rowAq,
+					mPrefs,
+					data,
+					selectedForum > 0 && selectedForum == data.id,
+					true);
+			getAwfulActivity().setPreferredFont(row);
+			final int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View thread = row.findViewById(R.id.thread_box);
+			if(null != thread){
+				thread.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						selectedForum = id;
+						displayForum(id, 1);
+					}
+				});
+			}
+			return row;
+		}
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+				View v = super.getGroupView( groupPosition, isExpanded, convertView, parent);
+				View ind = v.findViewById( R.id.explist_indicator);
+				if( ind != null ) {
+					ImageView indicator = (ImageView)ind;
+					if( getChildrenCount( groupPosition ) < 1 ) {
+						indicator.setVisibility( View.INVISIBLE );
+					} else {
+						indicator.setVisibility( View.VISIBLE );
+						int stateSetIndex = ( isExpanded ? 1 : 0) ;
+						Drawable drawable = indicator.getDrawable();
+						drawable.setState(GROUP_STATE_SETS[stateSetIndex]);
+					}
+				}
+				return v;
+			}
+
+		@Override
+		protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+			ForumEntry data = new ForumEntry(cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
+					cursor.getInt(cursor.getColumnIndex(AwfulForum.PARENT_ID)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TITLE)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.SUBTEXT)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL))
+			);
+			AwfulForum.getExpandableForumView(view,
+					rowAq,
+					mPrefs,
+					data,
+					selectedForum > 0 && selectedForum == data.id,
+					true);
+			final int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View thread = view.findViewById(R.id.thread_box);
+			if(null != thread){
+				thread.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						selectedForum = id;
+						displayForum(id, 1);
+					}
+				});
+			}
+			getAwfulActivity().setPreferredFont(view);
+		}
+
+		@Override
+		protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
+			ForumEntry data = new ForumEntry(cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
+					cursor.getInt(cursor.getColumnIndex(AwfulForum.PARENT_ID)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TITLE)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.SUBTEXT)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL))
+			);
 			View row = inf.inflate(R.layout.forum_item, null, false);
 			AwfulForum.getExpandableForumView(row,
-							   rowAq,
-							   mPrefs,
-							   data,
-							   selectedForum > 0 && selectedForum == data.id,
-							   false);
+					rowAq,
+					mPrefs,
+					data,
+					selectedForum > 0 && selectedForum == data.id,
+					false);
 			getAwfulActivity().setPreferredFont(row);
-			return row;
-		}
-
-		@Override
-		public View updateView(View row, TreeNodeInfo<ForumEntry> treeNodeInfo) {
-			ForumEntry data = treeNodeInfo.getId();
-			if(row == null){
-				row = inf.inflate(R.layout.forum_item, null, false);
+			final int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View thread = row.findViewById(R.id.thread_box);
+			if(null != thread){
+				thread.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						selectedForum = id;
+						displayForum(id, 1);
+					}
+				});
 			}
-			AwfulForum.getExpandableForumView(row,
-							   rowAq,
-							   mPrefs,
-							   data,
-							   selectedForum > 0 && selectedForum == data.id,
-							   false);
-			getAwfulActivity().setPreferredFont(row);
-			updateProbationBar();
 			return row;
 		}
 
 		@Override
-		public Object getItem(int position) {
-			return getTreeId(position);
-		}
+		protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
+			ForumEntry data = new ForumEntry(cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
+					cursor.getInt(cursor.getColumnIndex(AwfulForum.PARENT_ID)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TITLE)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.SUBTEXT)),
+					cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL))
+			);
+			AwfulForum.getExpandableForumView(view,
+					rowAq,
+					mPrefs,
+					data,
+					selectedForum > 0 && selectedForum == data.id,
+					false);
+			final int id = cursor.getInt(cursor.getColumnIndex(AwfulForum.ID));
+			View thread = view.findViewById(R.id.thread_box);
+			if(null != thread){
+				thread.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						selectedForum = id;
+						displayForum(id, 1);
+					}
+				});
+			}
 
-		@Override
-		public void handleItemClick(View view, Object id) {
-			ForumEntry data = (ForumEntry) id;
-			//dataManager.expandDirectChildren(data);
-			//Log.i(TAG, view+" - Clicked: "+data.id+" - "+data.title);
-			selectedForum = data.id;
-			displayForum(data.id, 1);
-			dataManager.refresh();
+			getAwfulActivity().setPreferredFont(view);
 		}
-		
 	}
 	
 	@Override
@@ -443,12 +479,12 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 	        switch (keyCode) {
 	        case KeyEvent.KEYCODE_VOLUME_UP:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mForumTree.smoothScrollBy(-mForumTree.getHeight()/2, 0);
+	            	mForumIndex.smoothScrollBy(-mForumIndex.getHeight()/2, 0);
 	            }
 	            return true;
 	        case KeyEvent.KEYCODE_VOLUME_DOWN:
 	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mForumTree.smoothScrollBy(mForumTree.getHeight()/2, 0);
+	            	mForumIndex.smoothScrollBy(mForumIndex.getHeight()/2, 0);
 	            }
 	            return true;
 	        default:

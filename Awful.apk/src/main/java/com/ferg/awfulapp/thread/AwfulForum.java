@@ -235,11 +235,11 @@ public class AwfulForum extends AwfulPagedItem {
 		}else{
 			current.setBackgroundResource(0);
 		}
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
+//		if(selected){
+//			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+//		}else{
+//			current.findViewById(R.id.selector).setVisibility(View.GONE);
+//		}
 	}
 
 	public static String parseTitle(Document data) {
@@ -258,8 +258,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param current
 	 * @param aPrefs
 	 * @param data
-	 * @param selected 
-	 * @param mIsSidebar 
+	 * @param selected
 	 */	
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);

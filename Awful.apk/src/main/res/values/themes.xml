@@ -9,6 +9,7 @@
         <item name="colorPrimaryDark">@color/forums_blue_darker</item>
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/background</item>
+        <item name="listDividerColor">@color/alt_background</item>
         <item name="navbarBackground">@color/forums_blue_darker</item>
         <item name="navbarUsernameColor">@color/background</item>
         <item name="justPostButtonColor">@color/forums_blue</item>
@@ -24,7 +25,9 @@
         <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
         <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
         <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
+        <item name="iconMenuExpandLessDark">@drawable/ic_expand_less_grey600_36dp</item>
         <item name="iconMenuExpandMore">@drawable/ic_expand_more_white_36dp</item>
+        <item name="iconMenuExpandMoreDark">@drawable/ic_expand_more_grey600_36dp</item>
         <item name="iconMenuRefresh">@drawable/ic_refresh_white_36dp</item>
         <item name="iconMenuRefreshDark">@drawable/ic_refresh_grey600_36dp</item>
         <item name="iconMenuCreate">@drawable/ic_create_white_36dp</item>
@@ -102,6 +105,7 @@
         <item name="colorPrimaryDark">@color/dark_alt_background</item>
         <item name="colorAccent">@color/holo_blue_light</item>
         <item name="background">@color/dark_alt_background</item>
+        <item name="listDividerColor">@color/dark_header_background</item>
         <item name="navbarBackground">@color/dark_alt_background</item>
         <item name="navbarUsernameColor">@color/background</item>
         <item name="justPostButtonColor">@color/forums_blue_darkest</item>
@@ -116,7 +120,9 @@
         <item name="iconMenuArrowRight">@drawable/ic_arrow_forward_white_36dp</item>
         <item name="iconMenuArrowLeft">@drawable/ic_arrow_back_white_36dp</item>
         <item name="iconMenuExpandLess">@drawable/ic_expand_less_white_36dp</item>
+        <item name="iconMenuExpandLessDark">@drawable/ic_expand_less_white_36dp</item>
         <item name="iconMenuExpandMore">@drawable/ic_expand_more_white_36dp</item>
+        <item name="iconMenuExpandMoreDark">@drawable/ic_expand_more_white_36dp</item>
         <item name="iconMenuRefresh">@drawable/ic_refresh_white_36dp</item>
         <item name="iconMenuRefreshDark">@drawable/ic_refresh_white_36dp</item>
         <item name="iconMenuCreate">@drawable/ic_create_white_36dp</item>
