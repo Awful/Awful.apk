@@ -290,24 +290,19 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 		public String title;
 		public String subtitle;
 		public String tagUrl;
-		public ArrayList<ForumEntry> subforums = new ArrayList<ForumEntry>();
 		public ForumEntry(int aId, int parent, String aTitle, String aSubtitle, String aTagUrl){
 			id = aId; parentId = parent; title = aTitle; subtitle = aSubtitle; tagUrl = aTagUrl;
 		}
 	}
 	
 	private class AwfulTreeListAdapter extends CursorTreeAdapter {
-		private ArrayList<ForumEntry> parentForums = new ArrayList<ForumEntry>();
-		private SparseArray<ForumEntry> forumsMap = new SparseArray<ForumEntry>();
 		private LayoutInflater inf;
 		private AQuery rowAq;
-		private Cursor mTLCursor;
 
 		public AwfulTreeListAdapter(Cursor cursor, Activity activity) {
 			super(cursor, activity);
 			rowAq = new AQuery((Context)activity);//don't let aquery think we are using an actual activity, we will recycle in rows as we generate them
 			inf = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			mTLCursor = cursor;
 		}
 
 		@Override
