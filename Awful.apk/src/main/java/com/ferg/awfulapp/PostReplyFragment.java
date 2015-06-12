@@ -789,6 +789,9 @@ public class PostReplyFragment extends AwfulFragment {
         }
         String content = mMessage.getText().toString().trim();
         if (TextUtils.isEmpty(content)) {
+            if (mDialog != null) {
+                mDialog.dismiss();
+            }
             displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
             return;
         }

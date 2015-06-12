@@ -29,7 +29,7 @@
             android:layout_width="fill_parent"
             android:layout_height="0dip"
             android:cacheColorHint="@color/background"
-            android:divider="@color/alt_background"
+            android:divider="?attr/listDividerColor"
             android:dividerHeight="1dp" />
     </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 

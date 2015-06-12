@@ -45,7 +45,6 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.android.support:design:22.2.0'
-    compile project(':libraries:tree-view-list-android')
     compile 'com.mcxiaoke.volley:library:1.+'
     compile 'com.github.androidquery:androidquery:0.26.8'
     compile 'com.google.code.gson:gson:2.3.1'
