@@ -181,5 +181,7 @@ public class Constants {
     public static final int FORUM_ID_BYOB = 268;
     public static final int FORUM_ID_COOL_CREW = 196;
 
+    public static final int FORUM_ID_GOLDMINE = 21;
+
 
 }

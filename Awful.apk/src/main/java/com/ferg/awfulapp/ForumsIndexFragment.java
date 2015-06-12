@@ -63,6 +63,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.IndexIconRequest;
 import com.ferg.awfulapp.task.IndexRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulThread;
@@ -232,6 +233,15 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
                     restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
                 }
             }), false);
+			queueRequest(new IndexIconRequest(getActivity()).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
+				public void success(Void result) {
+					restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+				}
+
+				public void failure(VolleyError error) {
+					restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+				}
+			}));
         }
     }
 
