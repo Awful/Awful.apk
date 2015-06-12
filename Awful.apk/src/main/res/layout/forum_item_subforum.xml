@@ -10,16 +10,11 @@
     android:paddingLeft="64dp"
     android:paddingEnd="4dip"
     android:paddingRight="4dip"
-    android:paddingTop="8dip">
+    android:paddingTop="8dip" >
 
     <TextView
         android:id="@+id/forum_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:gravity="start"
-        android:alpha="0.75"
-        android:textColor="@color/default_post_font"
-        android:textSize="18sp" />
+        style="@style/ForumListItem.Subforum"/>
 
 </RelativeLayout>
