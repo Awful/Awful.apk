@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/thread_box"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:layout_centerVertical="true"
+    android:paddingBottom="8dip"
+    android:paddingStart="64dp"
+    android:paddingLeft="64dp"
+    android:paddingEnd="4dip"
+    android:paddingRight="4dip"
+    android:paddingTop="8dip">
+
+    <TextView
+        android:id="@+id/forum_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="start"
+        android:alpha="0.75"
+        android:textColor="@color/default_post_font"
+        android:textSize="18sp" />
+
+</RelativeLayout>

@@ -42,7 +42,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +66,6 @@ import com.ferg.awfulapp.thread.AwfulForum;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
@@ -337,7 +335,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
 		@Override
 		protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, parent, false);
+			View row = inf.inflate(R.layout.forum_item_mainforum, parent, false);
 			makeForumEntry(row, cursor, true);
 			return row;
 		}
@@ -349,7 +347,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
 		@Override
 		protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
-			View row = inf.inflate(R.layout.forum_item, null, false);
+			View row = inf.inflate(R.layout.forum_item_subforum, null, false);
 			makeForumEntry(row, cursor, false);
 			return row;
 		}
