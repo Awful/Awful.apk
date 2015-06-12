@@ -5,6 +5,8 @@
     <attr name="justPostButtonColor" format="color" />
     <attr name="justPostButtonColorPressed" format="color" />
     <attr name="listDividerColor" format="color" />
+    <!-- this is a hack because some themes (FYAD) have accent colours that are anything but -->
+    <attr name="colorAccentThemeFix" format="color" />
 
     <attr name="awfulPopUpTheme" format="reference" />
 
