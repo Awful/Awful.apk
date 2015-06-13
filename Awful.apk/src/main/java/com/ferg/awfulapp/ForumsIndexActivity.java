@@ -323,7 +323,15 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (forumItem != null) {
             if (mNavForumId != 0 && mNavForumId != Constants.USERCP_ID) {
                 forumItem.setVisible(true);
-                forumItem.setTitle(StringProvider.getForumName(this, mNavForumId));
+                final MenuItem fI = forumItem;
+                final AwfulActivity that = this;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fI.setTitle(StringProvider.getForumName(that, mNavForumId));
+                    }
+                });
+
             } else {
                 forumItem.setVisible(false);
             }
@@ -333,7 +341,14 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (threadItem != null) {
             if (mNavThreadId != NULL_THREAD_ID) {
                 threadItem.setVisible(true);
-                threadItem.setTitle(StringProvider.getThreadName(this, mNavThreadId));
+                final MenuItem tI = forumItem;
+                final AwfulActivity that = this;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tI.setTitle(StringProvider.getThreadName(that, mNavThreadId));
+                    }
+                });
             } else {
                 threadItem.setVisible(false);
             }
