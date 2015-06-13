@@ -43,7 +43,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
 public class AwfulCursorAdapter extends CursorAdapter {
@@ -97,7 +96,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulThread.getView(row, mPrefs, data, aq, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			row = inf.inflate(R.layout.forum_item, parent, false);
+			row = inf.inflate(R.layout.forum_item_mainforum, parent, false);
 			assert(false);
 //		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
 //			row = inf.inflate(R.layout.post_item, parent, false);

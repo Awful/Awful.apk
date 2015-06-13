@@ -8,6 +8,7 @@
         <item name="colorPrimary">@color/forums_blue</item>
         <item name="colorPrimaryDark">@color/forums_blue_darker</item>
         <item name="colorAccent">@color/holo_blue_light</item>
+        <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="background">@color/background</item>
         <item name="listDividerColor">@color/alt_background</item>
         <item name="navbarBackground">@color/forums_blue_darker</item>
@@ -104,6 +105,7 @@
         <item name="colorPrimary">@color/actionbar_color</item>
         <item name="colorPrimaryDark">@color/dark_alt_background</item>
         <item name="colorAccent">@color/holo_blue_light</item>
+        <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="background">@color/dark_alt_background</item>
         <item name="listDividerColor">@color/dark_header_background</item>
         <item name="navbarBackground">@color/dark_alt_background</item>
@@ -212,6 +214,7 @@
 
     <style name="Theme.AwfulTheme.FYAD" parent="Theme.AwfulTheme">
         <item name="colorAccent">@color/fyad_alt_background</item>
+        <item name="colorAccentThemeFix">@color/forums_blue</item>
         <item name="justPostButtonColor">@color/fyad_background</item>
         <item name="justPostButtonColorPressed">@color/fyad_alt_background</item>
         <item name="background">@color/fyad_alt_background</item>

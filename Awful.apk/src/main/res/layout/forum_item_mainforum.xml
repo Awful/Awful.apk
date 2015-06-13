@@ -8,6 +8,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:padding="8dp"
+        android:tint="?colorAccentThemeFix"
         android:visibility="invisible"/>
 
     <RelativeLayout
@@ -31,14 +32,11 @@
 
         <TextView
             android:id="@+id/forum_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/ForumListItem"
             android:layout_alignWithParentIfMissing="true"
             android:layout_toLeftOf="@+id/unread_count"
             android:layout_toRightOf="@+id/forum_tag"
-            android:gravity="left"
-            android:textColor="@color/default_post_font"
-            android:textSize="18dip" />
+            />
 
     </RelativeLayout>
 
