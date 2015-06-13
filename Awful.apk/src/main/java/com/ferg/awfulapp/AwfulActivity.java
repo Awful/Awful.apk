@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -35,7 +36,7 @@ import java.util.LinkedList;
  * 
  * This class also provides a few helper methods for grabbing preferences and the like.
  */
-public class AwfulActivity extends ActionBarActivity implements AwfulPreferences.AwfulPreferenceUpdate {
+public class AwfulActivity extends AppCompatActivity implements AwfulPreferences.AwfulPreferenceUpdate {
     protected static String TAG = "AwfulActivity";
     protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;

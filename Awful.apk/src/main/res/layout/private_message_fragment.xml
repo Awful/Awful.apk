@@ -42,7 +42,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:backgroundTint="?attr/justPostButtonColor"
             app:backgroundTint="?attr/justPostButtonColor"
             android:layout_margin="16dp"
             app:elevation="4sp"
