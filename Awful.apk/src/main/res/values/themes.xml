@@ -8,7 +8,7 @@
         <item name="colorPrimary">@color/forums_blue</item>
         <item name="colorPrimaryDark">@color/forums_blue_darker</item>
         <item name="colorAccent">@color/holo_blue_light</item>
-        <item name="colorAccentThemeFix">?colorAccent</item>
+        <item name="colorAccentThemeFix">@color/default_post_font</item>
         <item name="background">@color/background</item>
         <item name="listDividerColor">@color/alt_background</item>
         <item name="navbarBackground">@color/forums_blue_darker</item>
@@ -105,7 +105,7 @@
         <item name="colorPrimary">@color/actionbar_color</item>
         <item name="colorPrimaryDark">@color/dark_alt_background</item>
         <item name="colorAccent">@color/holo_blue_light</item>
-        <item name="colorAccentThemeFix">?colorAccent</item>
+        <item name="colorAccentThemeFix">@color/background</item>
         <item name="background">@color/dark_alt_background</item>
         <item name="listDividerColor">@color/dark_header_background</item>
         <item name="navbarBackground">@color/dark_alt_background</item>
@@ -195,18 +195,21 @@
 
     <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.Dark">
         <item name="colorAccent">@color/yospos_default_post_font</item>
+        <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/yospos_default_post_font</item>
         <item name="justPostButtonColorPressed">@color/yospos_secondary_post_font</item>
     </style>
 
     <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.Dark">
         <item name="colorAccent">@color/amberpos_default_post_font</item>
+        <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/amberpos_default_post_font</item>
         <item name="justPostButtonColorPressed">@color/amberpos_secondary_post_font</item>
     </style>
 
     <style name="Theme.AwfulTheme.BYOB" parent="Theme.AwfulTheme">
         <item name="colorAccent">@color/byob_secondary_post_font</item>
+        <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/byob_background</item>
         <item name="justPostButtonColorPressed">@color/byob_alt_background</item>
         <item name="background">@color/byob_alt_background</item>
