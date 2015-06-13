@@ -38,6 +38,11 @@ public abstract class SettingsFragment extends PreferenceFragment {
     protected OnSubmenuSelectedListener submenuSelectedListener;
 
     /*
+        !!!!! DON'T USE STANDARD SWITCH PREFERENCES !!!!!!
+        They're broken, use CustomSwitchPreference instead
+     */
+
+    /*
         CONFIGURATION
 
         The following fields allow you to apply settings and basic

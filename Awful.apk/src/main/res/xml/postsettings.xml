@@ -16,7 +16,7 @@
             android:title="@string/setting_posts_per_page"
             android:defaultValue="40"
             />
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="hide_old_posts"
             android:title="@string/hide_old_posts"
             android:summary="@string/hide_old_posts_summary"
@@ -28,44 +28,45 @@
             android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings">
         </PreferenceScreen>
 
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="inline_youtube"
             android:title="@string/inline_videos"
             android:summary="@string/inline_videos_summary"
             android:defaultValue="true"
             />
         <!-- doesn't work yet
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="inline_tweets"
             android:title="@string/inline_tweets"
             android:summary="@string/inline_tweets_summary"
             android:defaultValue="false"
             />-->
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="inline_webm"
             android:title="@string/inline_webm"
             android:summary="@string/inline_webm_summary"
             android:defaultValue="false"
             />
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="inline_vines"
             android:title="@string/inline_vines"
             android:summary="@string/inline_vines_summary"
             android:defaultValue="false"
             />
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="show_all_spoilers"
             android:title="@string/show_spoilers"
             android:summary="@string/show_spoilers_summary"
             android:defaultValue="false"
             />
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="hide_signatures"
             android:title="@string/hide_signatures"
             android:summary="@string/hide_signatures_summary"
             android:defaultValue="false"
             />
-        <SwitchPreference android:key="always_open_urls"
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            android:key="always_open_urls"
             android:title="@string/always_open_urls"
             android:summary="@string/always_open_urls_summary"
             android:defaultValue="false" />
