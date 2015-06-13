@@ -11,7 +11,7 @@
         android:title="@string/features"
         android:summary="@string/features_summary"
         />
-    <SwitchPreference
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:key="send_username_in_report"
         android:title="@string/send_username_in_report"
         android:summary="@string/send_username_in_report_summary"

@@ -7,7 +7,7 @@
             android:entryValues="@array/schemas_values"
             android:defaultValue="default.css"
             />
-        <SwitchPreference
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="force_forum_themes"
             android:title="@string/force_forum_themes"
             android:summary="@string/force_forum_themes_summary"
