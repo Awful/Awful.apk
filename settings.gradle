@@ -1,1 +1,1 @@
-include ':Awful.apk', ':libraries:tree-view-list-android'
+include ':Awful.apk'

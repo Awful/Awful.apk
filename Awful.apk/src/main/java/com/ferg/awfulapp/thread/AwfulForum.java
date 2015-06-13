@@ -76,43 +76,12 @@ public class AwfulForum extends AwfulPagedItem {
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern forumTitle_regex = Pattern.compile("(.+)-{1}.+$");
 
-	public static void getForumsFromRemote(Document response, ContentResolver contentInterface){
-		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        
-		ContentValues bookmarks = new ContentValues();
-		bookmarks.put(ID, Constants.USERCP_ID);
-		bookmarks.put(TITLE, "Bookmarks");
-		bookmarks.put(PARENT_ID, 0);
-		bookmarks.put(INDEX, 0);
-		bookmarks.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-		result.add(bookmarks);
-		
-		int ix = 1;
-		Elements forumObjects = response.getElementById("forums").getElementsByTag("tr");
-		for (Element node : forumObjects) {
-			try{
-				ContentValues forum = new ContentValues();
-				int forumId = 0;
-	            // First, grab the parent forum
-				Element title = node.getElementsByClass("forum").first();
-	            if (title != null) {
-	            	//the title node also has a forum class, so we want the 2nd node with a forum class
-	            	Element parentForum = title.getElementsByClass("forum").get(1);
-	                forum.put(TITLE,parentForum.text());
-	                forum.put(PARENT_ID, 0);
-	                forum.put(INDEX, ix);
-	                ix++;
-	                // Just nix the part we don't need to get the forum ID
-	                String id = parentForum.attr("href");
-	                forumId=getForumId(id);
-	                forum.put(ID,forumId);
-	                forum.put(SUBTEXT,parentForum.attr("title"));
-	            }
-	            Element tarIcon = node.getElementsByClass("icon").first();
-                if (tarIcon != null) {
-                	Element imgTag = tarIcon.getElementsByTag("img").first();
+	public static void processForumIcons(Document response, ContentResolver contentInterface){
+		Elements forumIcons = response.getElementById("forums").getElementsByClass("icon");
+		for (Element node : forumIcons) {
+                if (node != null) {
+					ContentValues forum = new ContentValues();
+                	Element imgTag = node.getElementsByTag("img").first();
                 	if(imgTag != null && imgTag.hasAttr("src")){
 	                    String url = imgTag.attr("src");
 	                    if(url != null){
@@ -124,33 +93,67 @@ public class AwfulForum extends AwfulPagedItem {
 	        				forum.put(TAG_URL, url);
 	                    }
                 	}
+					int forumId = getForumId(node.getElementsByTag("a").first().attr("href"));
+					contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forum, null, null);
                 }
-                forum.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-	            result.add(forum);
-	
-	            // Now grab the subforums
-	            // we will see if the prior search found more than one link under the forum row, indicating subforums
-	            Element subforumBlock = node.getElementsByClass("subforums").first();
-	            if(subforumBlock != null){
-	            	Elements subforums = subforumBlock.getElementsByTag("a");
-	                for (Element subNode : subforums) {
-	                	ContentValues subforum = new ContentValues();
-	
-	                    String id = subNode.attr("href");
-	
-	                    subforum.put(TITLE,subNode.text());
-	                    subforum.put(ID,getForumId(id));
-	                    subforum.put(PARENT_ID, forumId);
-	                    result.add(subforum);
-	                }
-	            }
-			}catch(Exception e){
-				e.printStackTrace();
-				continue;
-			}
         }
-		Log.i(TAG,"Deleted old forums: "+contentInterface.delete(AwfulForum.CONTENT_URI, AwfulForum.PARENT_ID+"=?", AwfulProvider.int2StrArray(0)));
-        contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+	}
+
+	public static void processForums(Document response, ContentResolver contentInterface){
+
+		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
+
+		String update_time = new Timestamp(System.currentTimeMillis()).toString();
+
+		ContentValues bookmarks = new ContentValues();
+		bookmarks.put(ID, Constants.USERCP_ID);
+		bookmarks.put(TITLE, "Bookmarks");
+		bookmarks.put(PARENT_ID, 0);
+		bookmarks.put(INDEX, 0);
+		bookmarks.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, 0), bookmarks, null, null) < 1){
+			result.add(bookmarks);
+		}
+
+		int ix = 1;
+
+		Elements forums = response.getElementsByClass("forum_jump").first().getElementsByTag("select").first().getElementsByTag("option");
+		if(forums == null){
+			Log.e(TAG,"Error updating Forums, aborting");
+			return;
+		}
+		int currentForum = 0;
+		for (Element option : forums) {
+			if (option.text().contains("-- ")) {
+				ContentValues forum = new ContentValues();
+				int cutAway = 0;
+				if (option.text().startsWith("-- ")) {
+					currentForum = Integer.parseInt(option.val());
+					forum.put(PARENT_ID, 0);
+					cutAway = 3;
+				} else {
+					if (option.text().startsWith("---- ")) {
+						cutAway = 5;
+					} else {
+						cutAway = 7;
+					}
+					forum.put(PARENT_ID, currentForum);
+				}
+				forum.put(TITLE, option.text().substring(cutAway));
+				forum.put(INDEX, ix);
+				forum.put(ID, option.val());
+				forum.put(SUBTEXT, "");
+				forum.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+				ix++;
+
+				if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Long.parseLong(option.val())), forum, null, null) < 1){
+					result.add(forum);
+				}
+			}
+		}
+
+		Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
+		contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 	}
 	
 	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
@@ -235,11 +238,11 @@ public class AwfulForum extends AwfulPagedItem {
 		}else{
 			current.setBackgroundResource(0);
 		}
-		if(selected){
-			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-		}else{
-			current.findViewById(R.id.selector).setVisibility(View.GONE);
-		}
+//		if(selected){
+//			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
+//		}else{
+//			current.findViewById(R.id.selector).setVisibility(View.GONE);
+//		}
 	}
 
 	public static String parseTitle(Document data) {
@@ -258,8 +261,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param current
 	 * @param aPrefs
 	 * @param data
-	 * @param selected 
-	 * @param mIsSidebar 
+	 * @param selected
 	 */	
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);

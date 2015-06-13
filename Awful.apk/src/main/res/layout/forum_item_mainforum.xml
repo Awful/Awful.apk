@@ -3,17 +3,24 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <ImageView android:src="@drawable/expander_group"
+        android:id="@+id/explist_indicator"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="8dp"
+        android:tint="?colorAccentThemeFix"
+        android:visibility="invisible"/>
+
     <RelativeLayout
         android:id="@+id/thread_box"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/selector"
-        android:layout_toRightOf="@+id/icon_box"
         android:paddingBottom="8dip"
         android:paddingLeft="4dip"
         android:paddingRight="4dip"
-        android:paddingTop="8dip" >
+        android:paddingTop="8dip"
+        android:layout_toRightOf="@id/explist_indicator">
 
         <ImageView
             android:id="@+id/forum_tag"
@@ -25,14 +32,11 @@
 
         <TextView
             android:id="@+id/forum_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/ForumListItem"
             android:layout_alignWithParentIfMissing="true"
             android:layout_toLeftOf="@+id/unread_count"
             android:layout_toRightOf="@+id/forum_tag"
-            android:gravity="left"
-            android:textColor="@color/default_post_font"
-            android:textSize="18dip" />
+            />
 
     </RelativeLayout>
 

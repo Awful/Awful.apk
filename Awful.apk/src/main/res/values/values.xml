@@ -4,6 +4,9 @@
     <attr name="navbarUsernameColor" format="color" />
     <attr name="justPostButtonColor" format="color" />
     <attr name="justPostButtonColorPressed" format="color" />
+    <attr name="listDividerColor" format="color" />
+    <!-- this is a hack because some themes (FYAD) have accent colours that are anything but -->
+    <attr name="colorAccentThemeFix" format="color" />
 
     <attr name="awfulPopUpTheme" format="reference" />
 
@@ -14,7 +17,9 @@
     <attr name="iconMenuArrowRight" format="reference" />
     <attr name="iconMenuArrowLeft" format="reference" />
     <attr name="iconMenuExpandLess" format="reference" />
+    <attr name="iconMenuExpandLessDark" format="reference" />
     <attr name="iconMenuExpandMore" format="reference" />
+    <attr name="iconMenuExpandMoreDark" format="reference" />
     <attr name="iconMenuRefresh" format="reference" />
     <attr name="iconMenuRefreshDark" format="reference" />
     <attr name="iconMenuCreate" format="reference" />

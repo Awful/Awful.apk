@@ -31,40 +31,14 @@ public class IndexRequest extends AwfulRequest<Void> {
         return REQUEST_TAG;
     }
 
-
     @Override
     protected String generateUrl(Uri.Builder build) {
-        return Constants.BASE_URL + "/";
+        return Constants.FUNCTION_FORUM + "?" + Constants.PARAM_FORUM_ID + "=" + Constants.FORUM_ID_GOLDMINE;
     }
-
     @Override
     protected Void handleResponse(Document doc) throws AwfulError {
-        AwfulForum.getForumsFromRemote(doc, getContentResolver());
+        AwfulForum.processForums(doc, getContentResolver());
         updateProgress(80);
-
-        //optional section, parses username from PM notification field.
-        Elements pmBlock = doc.getElementsByAttributeValue("id", "pm");
-        try {
-            if (pmBlock.size() > 0) {
-                Elements bolded = pmBlock.first().getElementsByTag("b");
-                if (bolded.size() > 1) {
-                    String name = bolded.first().text().split("'")[0];
-                    String unread = bolded.get(1).text();
-                    Pattern findUnread = Pattern.compile("(\\d+)\\s+unread");
-                    Matcher matchUnread = findUnread.matcher(unread);
-                    int unreadCount = -1;
-                    if (matchUnread.find()) {
-                        unreadCount = Integer.parseInt(matchUnread.group(1));
-                    }
-                    Log.v("IndexRequest", "text: " + name + " - " + unreadCount);
-                    if (name != null && name.length() > 0) {
-                        getPreferences().setStringPreference("username", name);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            //this chunk is optional, no need to fail everything if it doesn't work out.
-        }
         return null;
     }
 
