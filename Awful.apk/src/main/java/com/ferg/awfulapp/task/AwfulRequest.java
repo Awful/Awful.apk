@@ -345,6 +345,9 @@ public abstract class AwfulRequest<T> {
         @Override
         public byte[] getBody() throws AuthFailureError {
             if(attachParams != null){
+                if (httpEntity == null) {
+                    buildFinalRequest();
+                }
                 try{
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     httpEntity.writeTo(bytes);
@@ -359,6 +362,9 @@ public abstract class AwfulRequest<T> {
         @Override
         public String getBodyContentType() {
             if(attachParams != null){
+                if (httpEntity == null) {
+                    buildFinalRequest();
+                }
                 return httpEntity.getContentType().getValue();
             }
             return super.getBodyContentType();
