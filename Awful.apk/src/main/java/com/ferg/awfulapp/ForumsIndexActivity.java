@@ -355,10 +355,16 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         // private messages - show 'em if you got 'em
-        MenuItem pmItem = navMenu.findItem(R.id.sidebar_pm);
+        final MenuItem pmItem = navMenu.findItem(R.id.sidebar_pm);
         if (pmItem != null) {
-            pmItem.setEnabled(mPrefs.hasPlatinum);
-            pmItem.setVisible(mPrefs.hasPlatinum);
+            if (pmItem.isEnabled() != mPrefs.hasPlatinum || pmItem.isVisible() != mPrefs.hasPlatinum) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pmItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+                    }
+                });
+            }
         }
     }
 
