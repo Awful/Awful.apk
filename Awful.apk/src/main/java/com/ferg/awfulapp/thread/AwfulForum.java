@@ -151,9 +151,10 @@ public class AwfulForum extends AwfulPagedItem {
 				}
 			}
 		}
-
-		Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
-		contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+		if(result.size() > 0){
+			Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
+			contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
+		}
 	}
 	
 	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
