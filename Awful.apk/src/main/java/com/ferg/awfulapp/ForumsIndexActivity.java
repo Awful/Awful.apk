@@ -341,7 +341,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (threadItem != null) {
             if (mNavThreadId != NULL_THREAD_ID) {
                 threadItem.setVisible(true);
-                final MenuItem tI = forumItem;
+                final MenuItem tI = threadItem;
                 final AwfulActivity that = this;
                 runOnUiThread(new Runnable() {
                     @Override
