@@ -160,8 +160,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     HashSet<String> longKeys;
 
 
-    public static interface AwfulPreferenceUpdate {
-        public void onPreferenceChange(AwfulPreferences preferences, String key);
+    public interface AwfulPreferenceUpdate {
+        void onPreferenceChange(AwfulPreferences preferences, String key);
     }
 
     /**

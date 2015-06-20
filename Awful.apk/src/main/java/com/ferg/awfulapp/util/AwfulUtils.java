@@ -2,7 +2,6 @@ package com.ferg.awfulapp.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -84,8 +83,7 @@ public class AwfulUtils {
         display.getMetrics(dm);
         double x = Math.pow(size.x / dm.xdpi, 2);
         double y = Math.pow(size.y / dm.ydpi, 2);
-        double screenInches = Math.sqrt(x + y);
-        return screenInches;
+        return Math.sqrt(x + y);
     }
 
     /**

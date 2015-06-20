@@ -7,16 +7,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.util.LRUImageCache;
 
 import android.app.Application;
 import android.graphics.Typeface;
-import android.net.http.HttpResponseCache;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;

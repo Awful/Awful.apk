@@ -33,17 +33,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.HorizontalScrollView;
 
-import com.androidquery.AQuery;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -277,7 +268,7 @@ public class AwfulPost {
         return result;
     }
     
-    private static Document convertVideos(Document contentNode, boolean inline, boolean hasFlash){
+    private static void convertVideos(Document contentNode, boolean inline, boolean hasFlash){
 
 			Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
 		
@@ -399,8 +390,6 @@ public class AwfulPost {
 					continue;//if we fail to convert the video tag, we can still display the rest.
 				}
 			}
-		
-		return contentNode;
 	}
 
 	public String getEdited() {

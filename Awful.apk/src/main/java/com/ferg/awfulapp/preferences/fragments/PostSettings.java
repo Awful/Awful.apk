@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;

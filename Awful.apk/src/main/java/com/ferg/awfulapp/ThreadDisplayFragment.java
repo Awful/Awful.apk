@@ -310,7 +310,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
 		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
@@ -677,17 +677,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 	
 	private String generatePostUrl(String postId){
-    	StringBuilder url = new StringBuilder();
-		url.append(Constants.FUNCTION_THREAD);
-		url.append("?");
-		url.append(Constants.PARAM_GOTO);
-		url.append("=");
-		url.append(Constants.VALUE_POST);
-		url.append("&");
-		url.append(Constants.PARAM_POST_ID);
-		url.append("=");
-		url.append(postId);
-		return url.toString();
+		return Constants.FUNCTION_THREAD + "?" + Constants.PARAM_GOTO + "=" + Constants.VALUE_POST + "&" + Constants.PARAM_POST_ID + "=" + postId;
     }
     
     private Intent createShareIntent(){
@@ -942,7 +932,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 
     private void displayPagePicker() {
-		View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+		View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
 		final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
 		NumberPicker.setMinValue(1);
 		NumberPicker.setMaxValue(getLastPage());
@@ -1348,7 +1338,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			request.setShowRunningNotification(true);
         			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
         			request.allowScanningByMediaScanner();
-        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
+        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
         	        dlMngr.enqueue(request);
         			break;
             	case 1:
@@ -1728,11 +1718,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			return false;
 		}
 	}
-
-	public boolean canScrollX() {
-		return false;
-	}
-
 
 	@Override
 	public String getInternalId() {

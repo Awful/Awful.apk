@@ -74,9 +74,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
     };
 
     public static MessageFragment newInstance(String aUser, int aId) {
-        MessageFragment fragment = new MessageFragment(aUser, aId);
-
-        return fragment;
+		return new MessageFragment(aUser, aId);
     }
 	
 	public MessageFragment() {}
