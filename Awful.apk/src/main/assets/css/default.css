@@ -140,6 +140,11 @@ color: #828282;
 
 section.postcontent .bbc-spoiler{
 background: #555;
+color: #555;
+}
+
+section.postcontent .bbc-spoiler a {
+color: #555;
 }
 
 section.postcontent .bbc-spoiler * {
@@ -148,6 +153,10 @@ visibility: hidden;
 
 section.postcontent .bbc-spoiler.spoiled {
 background: transparent;
+}
+
+section.postcontent .bbc-spoiler.spoiled a {
+color:#00c0f4;
 }
 
 section.postcontent .bbc-spoiler.spoiled * {
