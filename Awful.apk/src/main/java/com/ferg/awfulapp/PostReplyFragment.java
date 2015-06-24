@@ -127,17 +127,26 @@ public class PostReplyFragment extends AwfulFragment {
         final Activity activity = getActivity();
         mContentResolver = activity.getContentResolver();
         Intent intent = activity.getIntent();
+
         mReplyType = intent.getIntExtra(Constants.EDITING, -999);
-        if (mReplyType < 0) {
-            activity.finish();
-        }
         mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
         mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
-        if (mPostId == 0 && mThreadId == 0) {
-            activity.finish();
+
+        boolean badRequest = false;
+        if (mReplyType < 0 || mThreadId == 0) {
+            // we always need a valid type and thread ID
+            badRequest = true;
+        } else if (mPostId == 0 &&
+                (mReplyType == AwfulMessage.TYPE_EDIT || mReplyType == AwfulMessage.TYPE_QUOTE)) {
+            // edits and quotes always need a post ID too
+            badRequest = true;
         }
 
-        loadReply(mReplyType, mThreadId, mPostId);
+        if (badRequest) {
+            activity.finish();
+        } else {
+            loadReply(mReplyType, mThreadId, mPostId);
+        }
     }
 
     private void loadReply(int mReplyType, int mThreadId, int mPostId) {
@@ -782,14 +791,17 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void sendPost() {
-        ContentValues cv;
-        if(replyData != null){
-            cv = new ContentValues(replyData);
-
-        }else{
-            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - shouldn't it just give up here?
-            cv = new ContentValues();
+        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
+            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
+            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
+            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
+            Activity activity = getActivity();
+            if (activity != null) {
+                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
+            }
+            return;
         }
+        ContentValues cv = new ContentValues(replyData);
         String content = mMessage.getText().toString().trim();
         if (TextUtils.isEmpty(content)) {
             if (mDialog != null) {
