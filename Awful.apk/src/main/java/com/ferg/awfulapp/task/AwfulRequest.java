@@ -300,8 +300,11 @@ public abstract class AwfulRequest<T> {
             if (volleyError == null) {
                 errorMessage += "(null VolleyError)";
             } else {
-                Log.w(TAG, volleyError.getMessage());
-                errorMessage += volleyError.getCause().getMessage();
+                Log.w(TAG, ""+volleyError);
+                if (volleyError.getCause() != null) {
+                    String causeMessage = volleyError.getCause().getMessage();
+                    errorMessage += (causeMessage == null) ? "unknown" : causeMessage;
+                }
                 if (volleyError.networkResponse != null) {
                     errorMessage += "\nStatus code: " + volleyError.networkResponse.statusCode;
                 }
