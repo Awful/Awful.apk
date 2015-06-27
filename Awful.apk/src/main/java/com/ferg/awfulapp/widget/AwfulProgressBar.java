@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -81,13 +82,19 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 		}
 	}
 	
-	public void setProgress(int progress){
-		mProgress = progress;
-		if(progress < 100 && progress > 0){
-			setVisibility(View.VISIBLE);
-			invalidate();
-		}else{
-			setVisibility(View.GONE);
+	public void setProgress(final int progress, Activity activity){
+		if (activity != null) {
+			mProgress = progress;
+			activity.runOnUiThread(new Runnable() {
+				public void run() {
+					if (progress < 100 && progress > 0) {
+						setVisibility(View.VISIBLE);
+						invalidate();
+					} else {
+						setVisibility(View.GONE);
+					}
+				}
+			});
 		}
 	}
 	
