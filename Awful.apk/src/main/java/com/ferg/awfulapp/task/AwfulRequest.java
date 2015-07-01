@@ -44,6 +44,7 @@ public abstract class AwfulRequest<T> {
 
     /** Used for identifying request types when cancelling, reassign this in subclasses */
     public static final Object REQUEST_TAG = new Object();
+    public static final String TAG = "AwfulRequest";
 
     private Context cont;
     private String baseUrl;
@@ -257,7 +258,7 @@ public abstract class AwfulRequest<T> {
         private Response.Listener<T> success;
         public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
             super(params != null? Method.POST : Method.GET, url, errorListener);
-            if(Constants.DEBUG) Log.e("AwfulRequest", "Created request: " + url);
+            if(Constants.DEBUG) Log.e(TAG, "Created request: " + url);
             success = successListener;
             setRetryPolicy(lenientRetryPolicy);
         }
@@ -265,7 +266,7 @@ public abstract class AwfulRequest<T> {
         @Override
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try{
-                if(Constants.DEBUG) Log.i("AwfulRequest", "Starting parse: " + getUrl());
+                if(Constants.DEBUG) Log.i(TAG, "Starting parse: " + getUrl());
                 updateProgress(25);
                 Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
                 updateProgress(50);
@@ -279,7 +280,7 @@ public abstract class AwfulRequest<T> {
                 try{
                     T result = handleResponse(doc);
                     updateProgress(100);
-                    if(Constants.DEBUG) Log.i("AwfulRequest", "Successful parse: " + getUrl());
+                    if(Constants.DEBUG) Log.i(TAG, "Successful parse: " + getUrl());
                     return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
                 }catch(AwfulError ae){
                     updateProgress(100);
@@ -287,10 +288,30 @@ public abstract class AwfulRequest<T> {
                 }
             }catch(Exception e){
                 updateProgress(100);
-                if(Constants.DEBUG) Log.i("AwfulRequest", "Failed parse: " + getUrl());
+                if(Constants.DEBUG) Log.i(TAG, "Failed parse: " + getUrl());
                 return Response.error(new ParseError(e));
             }
         }
+
+
+        @Override
+        protected VolleyError parseNetworkError(VolleyError volleyError) {
+            String errorMessage = "Network error: ";
+            if (volleyError == null) {
+                errorMessage += "(null VolleyError)";
+            } else {
+                Log.w(TAG, ""+volleyError);
+                if (volleyError.getCause() != null) {
+                    String causeMessage = volleyError.getCause().getMessage();
+                    errorMessage += (causeMessage == null) ? "unknown" : causeMessage;
+                }
+                if (volleyError.networkResponse != null) {
+                    errorMessage += "\nStatus code: " + volleyError.networkResponse.statusCode;
+                }
+            }
+            return new AwfulError(errorMessage);
+        }
+
 
         @Override
         public Request<?> setRequestQueue(RequestQueue requestQueue) {
@@ -333,7 +354,7 @@ public abstract class AwfulRequest<T> {
                 headers = new HashMap<String, String>();
             }
             NetworkUtils.setCookieHeaders(headers);
-            if(Constants.DEBUG) Log.i("AwfulRequest", "getHeaders: "+headers.toString());
+            if(Constants.DEBUG) Log.i(TAG, "getHeaders: "+headers.toString());
             return headers;
         }
 
@@ -353,7 +374,7 @@ public abstract class AwfulRequest<T> {
                     httpEntity.writeTo(bytes);
                     return bytes.toByteArray();
                 }catch(IOException ioe){
-                    Log.e("AwfulRequest", "Failed to convert body bytestream");
+                    Log.e(TAG, "Failed to convert body bytestream");
                 }
             }
             return super.getBody();
