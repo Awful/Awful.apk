@@ -35,7 +35,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -48,12 +47,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -201,7 +198,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             mSRL.setRefreshing(false);
 		}
 		if(mProgressBar != null){
-			mProgressBar.setProgress(percent);
+			mProgressBar.setProgress(percent, getActivity());
 		}
 	}
 	

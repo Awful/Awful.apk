@@ -156,7 +156,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	protected void setProgress(int percent){
 		currentProgress = percent;
 		if(mProgressBar != null){
-			mProgressBar.setProgress(percent);
+			mProgressBar.setProgress(percent, getActivity());
 		}
 	}
 	

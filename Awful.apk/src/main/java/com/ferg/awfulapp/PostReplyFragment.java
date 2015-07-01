@@ -93,6 +93,8 @@ public class PostReplyFragment extends AwfulFragment {
     public static final int RESULT_EDITED = 8;
     public static final int ADD_ATTACHMENT = 9;
     private static final String TAG = "PostReplyFragment";
+
+    private ContentResolver mContentResolver;
     private EditText mMessage;
     private ProgressDialog mDialog;
     private int mThreadId;
@@ -122,18 +124,29 @@ public class PostReplyFragment extends AwfulFragment {
         setRetainInstance(false);
         mThreadLoaderCallback = new ThreadDataCallback();
 
-        Intent intent = getActivity().getIntent();
+        final Activity activity = getActivity();
+        mContentResolver = activity.getContentResolver();
+        Intent intent = activity.getIntent();
+
         mReplyType = intent.getIntExtra(Constants.EDITING, -999);
-        if (mReplyType < 0) {
-            getActivity().finish();
-        }
         mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
         mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
-        if (mPostId == 0 && mThreadId == 0) {
-            getActivity().finish();
+
+        boolean badRequest = false;
+        if (mReplyType < 0 || mThreadId == 0) {
+            // we always need a valid type and thread ID
+            badRequest = true;
+        } else if (mPostId == 0 &&
+                (mReplyType == AwfulMessage.TYPE_EDIT || mReplyType == AwfulMessage.TYPE_QUOTE)) {
+            // edits and quotes always need a post ID too
+            badRequest = true;
         }
 
-        loadReply(mReplyType, mThreadId, mPostId);
+        if (badRequest) {
+            activity.finish();
+        } else {
+            loadReply(mReplyType, mThreadId, mPostId);
+        }
     }
 
     private void loadReply(int mReplyType, int mThreadId, int mPostId) {
@@ -171,9 +184,7 @@ public class PostReplyFragment extends AwfulFragment {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                if (!TextUtils.isEmpty(draftReplyData)) {
-                    displayDraftAlert();
-                }
+                displayDraftAlert();
             }
 
             @Override
@@ -242,21 +253,22 @@ public class PostReplyFragment extends AwfulFragment {
                 Toast attachmentToast;
                 Uri selectedImageUri = data.getData();
                 String path = getFilePath(selectedImageUri);
+                final Activity activity = this.getActivity();
                 if (path == null) {
-                    attachmentToast = Toast.makeText(this.getActivity(), this.getString(R.string.file_error), Toast.LENGTH_LONG);
+                    attachmentToast = Toast.makeText(activity, this.getString(R.string.file_error), Toast.LENGTH_LONG);
                     mFileAttachment = null;
                 } else {
                     File attachment = new File(path);
                     if (attachment.isFile() && attachment.canRead()) {
                         if (attachment.length() > 1048576) {
-                            attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
                             mFileAttachment = null;
                         } else {
                             mFileAttachment = path;
-                            attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
                         }
                     } else {
-                        attachmentToast = Toast.makeText(this.getActivity(), String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
+                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
                         mFileAttachment = null;
                     }
                 }
@@ -405,12 +417,13 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void leave() {
-        if (getAwfulActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        final AwfulActivity activity = getAwfulActivity();
+        if (activity != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null && getView() != null) {
                 imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
             }
-            getAwfulActivity().finish();
+            activity.finish();
         }
     }
 
@@ -430,7 +443,7 @@ public class PostReplyFragment extends AwfulFragment {
 
     private void autosave() {
         if (!sendSuccessful && mMessage != null) {
-            if (mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").length() < 1 || this.sendSuccessful == true) {
+            if (mMessage.length() < 1 || mMessage.getText().toString().replaceAll("\\s", "").length() < 1 || this.sendSuccessful) {
                 Log.i(TAG, "Message unchanged, discarding.");
                 deleteReply();//if the reply is unchanged, throw it out.
                 mMessage.setText("");
@@ -473,69 +486,67 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void displayDraftAlert() {
-        if (!TextUtils.isEmpty(draftReplyData)) {
-            String title = null;
-            String positiveButton = "Keep";
-            StringBuilder message = new StringBuilder();
-            switch (draftReplyType) {
-                case AwfulMessage.TYPE_NEW_REPLY:
-                    title = "Saved Reply";
-                    message.append("You have a saved reply");
-                    break;
-                case AwfulMessage.TYPE_QUOTE:
-                    title = "Saved Quote";
-                    message.append("You have a saved quote");
-                    break;
-                case AwfulMessage.TYPE_EDIT:
-                    title = "Saved Edit";
-                    message.append("You have a saved edit");
-                    break;
-            }
-            if (mReplyType == AwfulMessage.TYPE_QUOTE) {
-                positiveButton = "Append";
-            }
-            message.append(":<br/><br/><i>");
-            if (draftReplyData.length() > 140) {
-                message.append(draftReplyData.substring(0, 140).replaceAll("\\n", "<br/>"));
-                message.append("...");
-            } else {
-                message.append(draftReplyData.replaceAll("\\n", "<br/>"));
-            }
-            message.append("</i>");
-            if (draftReplyTimestamp > 0) {
-                message.append("<br/><br/>Saved ");
-                message.append(epocToSimpleDate(draftReplyTimestamp));
-                message.append(" ago");
-            }
-            Activity act = this.getActivity();
-            if(act == null) {
-                return;
-            }
-            int[] attrs = { R.attr.iconMenuReplyDark};
-            TypedArray ta = act.getTheme().obtainStyledAttributes(attrs);
-            new AlertDialog.Builder(act)
-                    .setIcon(ta.getDrawable(0))
-                    .setTitle(title)
-                    .setMessage(android.text.Html.fromHtml(message.toString()))
-                    .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (mReplyType == AwfulMessage.TYPE_QUOTE) {
-                                originalReplyData = draftReplyData + "\n" + originalReplyData;
-                            } else if (mReplyType == AwfulMessage.TYPE_NEW_REPLY || mReplyType == AwfulMessage.TYPE_EDIT) {
-                                originalReplyData = draftReplyData + "\n\n";
-                            }
-                            mMessage.setText(originalReplyData);
-                            mMessage.setSelection(originalReplyData.length());
-                        }
-                    })
-                    .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    }).show();
+        Activity activity = getActivity();
+        if (activity == null || TextUtils.isEmpty(draftReplyData)) {
+            return;
         }
+        String title = null;
+        String positiveButton = "Keep";
+        StringBuilder message = new StringBuilder();
+        switch (draftReplyType) {
+            case AwfulMessage.TYPE_NEW_REPLY:
+                title = "Saved Reply";
+                message.append("You have a saved reply");
+                break;
+            case AwfulMessage.TYPE_QUOTE:
+                title = "Saved Quote";
+                message.append("You have a saved quote");
+                break;
+            case AwfulMessage.TYPE_EDIT:
+                title = "Saved Edit";
+                message.append("You have a saved edit");
+                break;
+        }
+        if (mReplyType == AwfulMessage.TYPE_QUOTE) {
+            positiveButton = "Append";
+        }
+        message.append(":<br/><br/><i>");
+        if (draftReplyData.length() > 140) {
+            message.append(draftReplyData.substring(0, 140).replaceAll("\\n", "<br/>"));
+            message.append("...");
+        } else {
+            message.append(draftReplyData.replaceAll("\\n", "<br/>"));
+        }
+        message.append("</i>");
+        if (draftReplyTimestamp > 0) {
+            message.append("<br/><br/>Saved ");
+            message.append(epocToSimpleDate(draftReplyTimestamp));
+            message.append(" ago");
+        }
+        int[] attrs = { R.attr.iconMenuReplyDark};
+        TypedArray ta = activity.getTheme().obtainStyledAttributes(attrs);
+        new AlertDialog.Builder(activity)
+                .setIcon(ta.getDrawable(0))
+                .setTitle(title)
+                .setMessage(android.text.Html.fromHtml(message.toString()))
+                .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mReplyType == AwfulMessage.TYPE_QUOTE) {
+                            originalReplyData = draftReplyData + "\n" + originalReplyData;
+                        } else if (mReplyType == AwfulMessage.TYPE_NEW_REPLY || mReplyType == AwfulMessage.TYPE_EDIT) {
+                            originalReplyData = draftReplyData + "\n\n";
+                        }
+                        mMessage.setText(originalReplyData);
+                        mMessage.setSelection(originalReplyData.length());
+                    }
+                })
+                .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
     }
 
     private String epocToSimpleDate(long epoc) {
@@ -780,13 +791,17 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void sendPost() {
-        ContentValues cv;
-        if(replyData != null){
-            cv = new ContentValues(replyData);
-
-        }else{
-            cv = new ContentValues();
+        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
+            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
+            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
+            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
+            Activity activity = getActivity();
+            if (activity != null) {
+                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
+            }
+            return;
         }
+        ContentValues cv = new ContentValues(replyData);
         String content = mMessage.getText().toString().trim();
         if (TextUtils.isEmpty(content)) {
             if (mDialog != null) {
@@ -815,21 +830,18 @@ public class PostReplyFragment extends AwfulFragment {
                     mDialog = null;
                 }
                 sendSuccessful = true;
-                ContentResolver cr;
-                if (getActivity() != null) {
-                    cr = getActivity().getContentResolver();
-                } else {
-                    cr = getAwfulApplication().getApplicationContext().getContentResolver();
-                }
-                cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
-                Toast.makeText(getActivity(), getActivity().getString(R.string.post_sent), Toast.LENGTH_LONG).show();
-                if (mReplyType == AwfulMessage.TYPE_EDIT) {
-                    getActivity().setResult(mPostId);
-                } else {
-                    getActivity().setResult(RESULT_POSTED);
+                mContentResolver.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
+
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    Toast.makeText(activity, activity.getString(R.string.post_sent), Toast.LENGTH_LONG).show();
+                    if (mReplyType == AwfulMessage.TYPE_EDIT) {
+                        activity.setResult(mPostId);
+                    } else {
+                        activity.setResult(RESULT_POSTED);
+                    }
                 }
                 leave();
-
             }
 
             @Override
@@ -855,9 +867,8 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void deleteReply() {
-        ContentResolver cr = getActivity().getContentResolver();
-        cr.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
-        cr.notifyChange(AwfulThread.CONTENT_URI, null);
+        mContentResolver.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
+        mContentResolver.notifyChange(AwfulThread.CONTENT_URI, null);
         sendSuccessful = true;
     }
 
@@ -866,12 +877,6 @@ public class PostReplyFragment extends AwfulFragment {
             String content = mMessage.getText().toString().trim();
             Log.e(TAG, "Saving reply! " + content);
             if (content.length() > 0) {
-                ContentResolver cr;
-                if (getActivity() != null) {
-                    cr = getActivity().getContentResolver();
-                } else {
-                    cr = getAwfulApplication().getApplicationContext().getContentResolver();
-                }
                 ContentValues post;
                 if(replyData == null){
                     post = new ContentValues();
@@ -885,8 +890,8 @@ public class PostReplyFragment extends AwfulFragment {
                 if (mFileAttachment != null) {
                     post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
                 }
-                if (cr.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null) < 1) {
-                    cr.insert(AwfulMessage.CONTENT_URI_REPLY, post);
+                if (mContentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null) < 1) {
+                    mContentResolver.insert(AwfulMessage.CONTENT_URI_REPLY, post);
                 }
             }
         }

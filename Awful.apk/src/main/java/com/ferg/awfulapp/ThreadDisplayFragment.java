@@ -1401,7 +1401,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(null != getAwfulActivity()){
 		    getAwfulActivity().setPreferredFont(mPageCountText);
         }
-		aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+		if (aq != null) {
+			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
