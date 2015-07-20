@@ -460,8 +460,10 @@ public class AwfulPost {
         convertVideos(aThread, prefs.inlineYoutube, prefs.hasFlash());
         
         Elements posts = aThread.getElementsByClass("post");
+        boolean isIgnoredPost = false;
         for(Element postData : posts){
-        	ContentValues post = new ContentValues();
+            isIgnoredPost = false;
+            ContentValues post = new ContentValues();
         	post.put(THREAD_ID, aThreadId);
         	
         	//post id is formatted "post1234567", so we strip out the "post" prefix.
@@ -476,6 +478,7 @@ public class AwfulPost {
                 post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
             }catch(NumberFormatException nfe){
             	post.put(POST_INDEX, index);
+                isIgnoredPost = true;
             }
             
             //Check for "class=seenX", or just rely on unread index
@@ -554,9 +557,14 @@ public class AwfulPost {
 								if (!dontLink) {
 									String thumb = src;
 									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
-										int lastDot = thumb.lastIndexOf('.');
-										thumb = thumb.substring(0, lastDot) + (prefs.imgurThumbnails.equals("d")?"h":prefs.imgurThumbnails) + thumb.substring(lastDot);
-										img.attr("src", thumb);
+                                        int lastDot = thumb.lastIndexOf('.');
+                                        int lastSlash = thumb.lastIndexOf('/');
+                                        String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
+                                        //check if already thumbnails
+                                        if(ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
+                                            thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
+                                        }
+                                        img.attr("src", thumb);
 									}
                                     if(prefs.disableGifs && thumb.toLowerCase().contains(".gif")){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", "file:///android_res/drawable/gif.png").attr("width","200px")));
@@ -569,104 +577,34 @@ public class AwfulPost {
 						}
 					}
 
-                    post.put(CONTENT, entry.html());
-				}
+                    if(isIgnoredPost){
+                        System.out.println(entry.html());
+                    }
 
-				if (type.equalsIgnoreCase("postdate")) {
+                    post.put(CONTENT, entry.html());
+                }
+
+                if (type.equalsIgnoreCase("postdate")) {
 					post.put(DATE, NetworkUtils.unencodeHtml(entry.text()).replaceAll("[^\\w\\s:,]", "").trim());
 				}
 				
-				if (type.equalsIgnoreCase("profilelinks")) {
-					Elements userlink = entry.getElementsByAttributeValueContaining("href","userid=");
-
-					if (userlink.size() > 0) {
-						Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
-						if(userid.find()){
-							int uid = Integer.parseInt(userid.group(1));
-							post.put(USER_ID, uid);
-                        	post.put(IS_OP, (opId == uid ? 1 : 0));
-						}else{
-							Log.e(TAG, "Failed to parse UID!");
-						}
-					}else{
-						Log.e(TAG, "Failed to parse UID!");
-					}
-				}
-				if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
+				if (type.startsWith("userinfo userid-")) {
+                    int userId = Integer.parseInt(type.substring(16));
+                    post.put(USER_ID, userId);
+                    post.put(IS_OP, (opId == userId ? 1 : 0));
+                }
+                if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
 					post.put(EDITED, "<i>" + entry.children().get(0).text().trim() + "</i>");
-				}
+                }
             	
             }
             post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
-            result.add(post);
+            if(!(isIgnoredPost && prefs.hideIgnoredPosts)) {
+                result.add(post);
+            }
         }
         Log.i(TAG, Integer.toString(posts.size())+" posts found, "+result.size()+" posts parsed.");
     	return result;
     }
-
-	/*public static void getView(View current, AQuery aq, AwfulPreferences mPrefs, final Cursor data, final Messenger buttonCallback) {
-		aq.recycle(current);
-//		aq.find(R.id.post_author).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(USERNAME)))).textColor(current.getResources().getColor(R.color.default_post_font));
-		aq.find(R.id.post_author).visible().text(data.getString(data.getColumnIndex(USERNAME))).textColor(current.getResources().getColor(R.color.default_post_font));
-//		aq.find(R.id.post_date).visible().text(Html.fromHtml(data.getString(data.getColumnIndex(DATE)))).textColor(current.getResources().getColor(R.color.default_post_font));
-		aq.find(R.id.post_date).visible().text(data.getString(data.getColumnIndex(DATE))).textColor(current.getResources().getColor(R.color.default_post_font));
-		int background;
-		if(data.getInt(data.getColumnIndex(PREVIOUSLY_READ)) > 0){
-			background = current.getResources().getColor(R.color.background_read);
-		}else{
-			background = current.getResources().getColor(R.color.background);
-		}
-//		final Drawable frog = current.getContext().getResources().getDrawable(R.drawable.icon);
-//		Spanned postContent = Html.fromHtml(data.getString(data.getColumnIndex(CONTENT)),null,new TagHandler() {
-//			
-//			@Override
-//			public void handleTag(boolean opening, String tag, Editable output,
-//					XMLReader xmlReader) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});
-		HtmlView contentView = (HtmlView) aq.find(R.id.post_content).visible().textColor(current.getResources().getColor(R.color.default_post_font)).backgroundColor(background).getView();
-		contentView.cancelTasks();
-		contentView.setMovementMethod(LinkMovementMethod.getInstance());
-		contentView.setHtml(data.getString(data.getColumnIndex(CONTENT)), true);
-		aq.find(R.id.post_avatar).visible().image(data.getString(data.getColumnIndex(AVATAR)), true, true, 96, 0);
-		aq.find(R.id.post_avatar_text).text(data.getString(data.getColumnIndex(AVATAR_TEXT))).textColor(current.getResources().getColor(R.color.default_post_font)).gone();
-		aq.find(R.id.post_header).backgroundColor(current.getResources().getColor(R.color.forums_blue));
-		OnClickListener buttonClick = new OnClickListener(){
-			private int id = data.getInt(data.getColumnIndex(ID));
-			private Messenger notify = buttonCallback;
-			@Override
-			public void onClick(View v) {
-				try {
-					//Send message for the button press, attach post ID
-					notify.send(Message.obtain(null, v.getId(), id, 0));
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		aq.find(R.id.post_edit_button).clicked(buttonClick).visible();
-		if(data.getInt(data.getColumnIndex(EDITABLE)) < 1){
-			aq.find(R.id.post_edit_button).gone();
-		}
-		aq.find(R.id.post_copyurl_button).clicked(buttonClick);
-		aq.find(R.id.post_pm_button).clicked(buttonClick);
-		aq.find(R.id.post_quote_button).clicked(buttonClick);//TODO hide button if thread locked
-		aq.find(R.id.post_userposts_button).clicked(buttonClick);
-		aq.find(R.id.post_last_read).clicked(buttonClick);
-		aq.find(R.id.post_header).clicked(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				View avatarText = v.findViewById(R.id.post_avatar_text);
-				avatarText.setVisibility(avatarText.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
-				HorizontalScrollView buttonContainer = (HorizontalScrollView) v.findViewById(R.id.post_button_scoller);
-				buttonContainer.setVisibility(buttonContainer.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
-				buttonContainer.scrollTo(buttonContainer.getWidth(), 0);
-			}
-		});
-		aq.find(R.id.post_button_scoller).backgroundColor(current.getResources().getColor(R.color.background)).gone();
-	}*/
 
 }

@@ -44,6 +44,7 @@ import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -98,6 +99,7 @@ import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
+import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -182,6 +184,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
     private String bodyHtml = "";
+	private HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 
     public ThreadDisplayFragment() {
@@ -1220,10 +1223,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	Arrays.sort(scrollCheckBounds);
         }
 
-        @JavascriptInterface
-        public String getBodyHtml(){
-            return bodyHtml;
-        }
+		@JavascriptInterface
+		public String getBodyHtml(){
+			return bodyHtml;
+		}
+
+		@JavascriptInterface
+		public String getIgnorePostHtml(String id){
+			return ignorePostsHtml.get(id);
+		}
 
         @JavascriptInterface
         public String getPostJump(){
@@ -1258,6 +1266,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
             preferences.put("disablePullNext",Boolean.toString(aPrefs.disablePullNext));
         }
+
+		@JavascriptInterface
+		public void loadIgnoredPost(final String ignorePost){
+			if(getActivity() != null){
+				queueRequest(new SinglePostRequest(getActivity(), ignorePost).build(mSelf, new AwfulRequest.AwfulResultCallback<String>() {
+					@Override
+					public void success(String result) {
+						ignorePostsHtml.put(ignorePost,result);
+						mThreadView.loadUrl("javascript:insertIgnoredPost('"+ignorePost+"')");
+					}
+
+					@Override
+					public void failure(VolleyError error) {
+						Log.e(TAG,"Loading Single post #"+ignorePost+" failed");
+					}
+				}));
+			}
+		}
 
 		@JavascriptInterface
 		public String getPreference(String preference) {

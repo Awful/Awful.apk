@@ -185,6 +185,8 @@
     <string name="setting_posts_per_page_summary">Maximum: 40</string>
     <string name="hide_old_posts">Hide old posts</string>
     <string name="hide_old_posts_summary">Hide previously read posts</string>
+    <string name="hide_ignored_posts">Hide ignored posts</string>
+    <string name="hide_ignored_posts_summary">Completely hide posts from posters on your ignore list</string>
     <string name="highlighting_settings_title">Highlighting</string>
     <string name="user_highlight">Your username</string>
     <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
