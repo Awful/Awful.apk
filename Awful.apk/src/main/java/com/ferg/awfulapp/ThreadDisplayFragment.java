@@ -44,6 +44,7 @@ import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -98,6 +99,7 @@ import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
+import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.VoteRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
@@ -182,6 +184,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
     private String bodyHtml = "";
+	private HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 
     public ThreadDisplayFragment() {
@@ -310,7 +313,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
 		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
-		mProbationBar = (View) result.findViewById(R.id.probationbar);
+		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
 		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
@@ -677,17 +680,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 	
 	private String generatePostUrl(String postId){
-    	StringBuilder url = new StringBuilder();
-		url.append(Constants.FUNCTION_THREAD);
-		url.append("?");
-		url.append(Constants.PARAM_GOTO);
-		url.append("=");
-		url.append(Constants.VALUE_POST);
-		url.append("&");
-		url.append(Constants.PARAM_POST_ID);
-		url.append("=");
-		url.append(postId);
-		return url.toString();
+		return Constants.FUNCTION_THREAD + "?" + Constants.PARAM_GOTO + "=" + Constants.VALUE_POST + "&" + Constants.PARAM_POST_ID + "=" + postId;
     }
     
     private Intent createShareIntent(){
@@ -942,7 +935,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 
     private void displayPagePicker() {
-		View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+		View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
 		final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
 		NumberPicker.setMinValue(1);
 		NumberPicker.setMaxValue(getLastPage());
@@ -1230,10 +1223,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	Arrays.sort(scrollCheckBounds);
         }
 
-        @JavascriptInterface
-        public String getBodyHtml(){
-            return bodyHtml;
-        }
+		@JavascriptInterface
+		public String getBodyHtml(){
+			return bodyHtml;
+		}
+
+		@JavascriptInterface
+		public String getIgnorePostHtml(String id){
+			return ignorePostsHtml.get(id);
+		}
 
         @JavascriptInterface
         public String getPostJump(){
@@ -1268,6 +1266,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
             preferences.put("disablePullNext",Boolean.toString(aPrefs.disablePullNext));
         }
+
+		@JavascriptInterface
+		public void loadIgnoredPost(final String ignorePost){
+			if(getActivity() != null){
+				queueRequest(new SinglePostRequest(getActivity(), ignorePost).build(mSelf, new AwfulRequest.AwfulResultCallback<String>() {
+					@Override
+					public void success(String result) {
+						ignorePostsHtml.put(ignorePost,result);
+						mThreadView.loadUrl("javascript:insertIgnoredPost('"+ignorePost+"')");
+					}
+
+					@Override
+					public void failure(VolleyError error) {
+						Log.e(TAG,"Loading Single post #"+ignorePost+" failed");
+					}
+				}));
+			}
+		}
 
 		@JavascriptInterface
 		public String getPreference(String preference) {
@@ -1348,7 +1364,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			request.setShowRunningNotification(true);
         			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
         			request.allowScanningByMediaScanner();
-        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(getAwfulActivity().DOWNLOAD_SERVICE);
+        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
         	        dlMngr.enqueue(request);
         			break;
             	case 1:
@@ -1728,11 +1744,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			return false;
 		}
 	}
-
-	public boolean canScrollX() {
-		return false;
-	}
-
 
 	@Override
 	public String getInternalId() {

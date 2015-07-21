@@ -46,7 +46,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -379,7 +378,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     //TODO: combine with displayPagePicker()
     private void selectPage(final int threadId, final int maxPage) {
-        View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+        View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
         final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
         NumberPicker.setMinValue(1);
         NumberPicker.setMaxValue(maxPage);
@@ -429,23 +428,17 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void copyUrl(int id) {
-		StringBuilder url = new StringBuilder();
-		url.append(Constants.FUNCTION_THREAD);
-		url.append("?");
-		url.append(Constants.PARAM_THREAD_ID);
-		url.append("=");
-		url.append(id);
-		
-		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+
+        ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
 				Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), url.toString());
+		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), Constants.FUNCTION_THREAD + "?" + Constants.PARAM_THREAD_ID + "=" + id);
 		clipboard.setPrimaryClip(clip);
 
 		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
 	}
 
 	private void displayPagePicker() {
-        View NumberPickerView = (View) this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
+        View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
         final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
         NumberPicker.setMinValue(1);
         NumberPicker.setMaxValue(getLastPage());

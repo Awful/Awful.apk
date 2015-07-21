@@ -98,6 +98,15 @@ function pageinit() {
         }
     });
 
+    $('a[href^="showthread.php?action=showpost"]').on('click',function(e){
+            e.preventDefault();
+            var url = $(this).attr('href'),
+                id = url.substring(url.indexOf("#")+1);
+                console.log(url);
+                console.log(id);
+            listener.loadIgnoredPost(id);
+            $(this).replaceWith('<span id="ignorePost-'+id+'">Loading Post, please wait...</span>')
+    });
 
      if(listener.getPreference("hideSignatures") == "true"){
         //$('section.postcontent .signature').hide();
@@ -274,4 +283,8 @@ function freezeGif(i) {
             c.setAttribute(a.name, a.value);
         i.parentNode.replaceChild(c, i);
     }
+}
+
+function insertIgnoredPost(id){
+    $('#ignorePost-'+id).replaceWith(listener.getIgnorePostHtml(id));
 }

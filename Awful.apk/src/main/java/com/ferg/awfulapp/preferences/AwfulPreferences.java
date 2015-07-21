@@ -122,7 +122,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean disableTimgs;
     public boolean volumeScroll;
     public boolean coloredBookmarks;
-    public boolean hideSignatures;
+	public boolean hideSignatures;
+	public boolean hideIgnoredPosts;
     public boolean noFAB;
     /**
      * TO BE REMOVED
@@ -160,8 +161,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     HashSet<String> longKeys;
 
 
-    public static interface AwfulPreferenceUpdate {
-        public void onPreferenceChange(AwfulPreferences preferences, String key);
+    public interface AwfulPreferenceUpdate {
+        void onPreferenceChange(AwfulPreferences preferences, String key);
     }
 
     /**
@@ -288,6 +289,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         hideSignatures  		 = mPrefs.getBoolean("hide_signatures", false);
         transformer  		     = mPrefs.getString("transformer", "Default");
 		amberDefaultPos  		 = mPrefs.getBoolean("amber_default_pos", false);
+		hideIgnoredPosts  		 = mPrefs.getBoolean("hide_ignored_posts", false);
         markedUsers				 = mPrefs.getStringSet("marked_users", new HashSet<String>());
 
         //I have never seen this before oh god

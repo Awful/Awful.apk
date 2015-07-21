@@ -65,14 +65,14 @@ public abstract class AwfulRequest<T> {
          * The return value is optional and will likely be null depending on request type.
          * @param result Response result or null if request does not provide direct result (most requests won't).
          */
-        public void success(T result);
+        void success(T result);
 
         /**
          * Called whenever a network request fails, parsing was not successful, or if a forums issue is detected.
          * If AwfulRequest.build() is provided an AwfulFragment ProgressListener, it will automatically pass the error to the AwfulFragment's displayAlert function.
          * @param error
          */
-        public void failure(VolleyError error);
+        void failure(VolleyError error);
     }
 
 
@@ -397,9 +397,9 @@ public abstract class AwfulRequest<T> {
      * This is for updating the actionbar within AwfulFragment.
      * You shouldn't need to use these, look at the AwfulResultCallback interface for success/failure results.
      */
-    public static interface ProgressListener{
-        public void requestStarted(AwfulRequest req);
-        public void requestUpdate(AwfulRequest req, int percent);
-        public void requestEnded(AwfulRequest req, VolleyError error);
+    public interface ProgressListener{
+        void requestStarted(AwfulRequest req);
+        void requestUpdate(AwfulRequest req, int percent);
+        void requestEnded(AwfulRequest req, VolleyError error);
     }
 }

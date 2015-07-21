@@ -8,7 +8,6 @@ import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -22,7 +21,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -40,7 +38,6 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
     protected static String TAG = "AwfulActivity";
     protected static final boolean DEBUG = Constants.DEBUG;
 	private ActivityConfigurator mConf;
-    private LinkedList<Message> mMessageQueue = new LinkedList<Message>();
     
     private boolean loggedIn = false;
     
