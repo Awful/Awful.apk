@@ -1,73 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <Preference
-            android:key="default_post_font_size_dip"
-            android:title="@string/default_post_font_size"
-            android:defaultValue="16"
-            />
-        <Preference
-            android:key="default_post_fixed_font_size_dip"
-            android:title="@string/default_post_fixed_font_size"
-            android:defaultValue="13"
-            />
-        <Preference
-            android:key="posts_per_page"
-            android:title="@string/setting_posts_per_page"
-            android:defaultValue="40"
-            />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="hide_old_posts"
-            android:title="@string/hide_old_posts"
-            android:summary="@string/hide_old_posts_summary"
-            android:defaultValue="true"
-            />
+    <Preference
+        android:defaultValue="16"
+        android:key="default_post_font_size_dip"
+        android:title="@string/default_post_font_size" />
+    <Preference
+        android:defaultValue="13"
+        android:key="default_post_fixed_font_size_dip"
+        android:title="@string/default_post_fixed_font_size" />
+    <Preference
+        android:defaultValue="40"
+        android:key="posts_per_page"
+        android:title="@string/setting_posts_per_page" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
+        android:key="hide_old_posts"
+        android:summary="@string/hide_old_posts_summary"
+        android:title="@string/hide_old_posts" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="hide_ignored_posts"
+        android:summary="@string/hide_ignored_posts_summary"
+        android:title="@string/hide_ignored_posts" />
 
-        <PreferenceScreen android:title="@string/highlighting_settings_title"
-            android:key="highlighting"
-            android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings">
-        </PreferenceScreen>
+    <PreferenceScreen
+        android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings"
+        android:key="highlighting"
+        android:title="@string/highlighting_settings_title"></PreferenceScreen>
 
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="inline_youtube"
-            android:title="@string/inline_videos"
-            android:summary="@string/inline_videos_summary"
-            android:defaultValue="true"
-            />
-        <!-- doesn't work yet
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="inline_tweets"
-            android:title="@string/inline_tweets"
-            android:summary="@string/inline_tweets_summary"
-            android:defaultValue="false"
-            />-->
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="inline_webm"
-            android:title="@string/inline_webm"
-            android:summary="@string/inline_webm_summary"
-            android:defaultValue="false"
-            />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="inline_vines"
-            android:title="@string/inline_vines"
-            android:summary="@string/inline_vines_summary"
-            android:defaultValue="false"
-            />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="show_all_spoilers"
-            android:title="@string/show_spoilers"
-            android:summary="@string/show_spoilers_summary"
-            android:defaultValue="false"
-            />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="hide_signatures"
-            android:title="@string/hide_signatures"
-            android:summary="@string/hide_signatures_summary"
-            android:defaultValue="false"
-            />
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-            android:key="always_open_urls"
-            android:title="@string/always_open_urls"
-            android:summary="@string/always_open_urls_summary"
-            android:defaultValue="false" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
+        android:key="inline_youtube"
+        android:summary="@string/inline_videos_summary"
+        android:title="@string/inline_videos" />
+    <!-- doesn't work yet
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:key="inline_tweets"
+        android:title="@string/inline_tweets"
+        android:summary="@string/inline_tweets_summary"
+        android:defaultValue="false"
+        />-->
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="inline_webm"
+        android:summary="@string/inline_webm_summary"
+        android:title="@string/inline_webm" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="inline_vines"
+        android:summary="@string/inline_vines_summary"
+        android:title="@string/inline_vines" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="show_all_spoilers"
+        android:summary="@string/show_spoilers_summary"
+        android:title="@string/show_spoilers" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="hide_signatures"
+        android:summary="@string/hide_signatures_summary"
+        android:title="@string/hide_signatures" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="false"
+        android:key="always_open_urls"
+        android:summary="@string/always_open_urls_summary"
+        android:title="@string/always_open_urls" />
 </PreferenceScreen>
