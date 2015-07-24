@@ -63,7 +63,7 @@ public class AwfulPost {
 	private static final Pattern youtubeId_regex = Pattern.compile("/v/([\\w_-]+)&?");
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
-	private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
+    private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
 
     public static final String ID                    = "_id";
     public static final String POST_INDEX            = "post_index";
@@ -460,7 +460,7 @@ public class AwfulPost {
         convertVideos(aThread, prefs.inlineYoutube, prefs.hasFlash());
         
         Elements posts = aThread.getElementsByClass("post");
-        boolean isIgnoredPost = false;
+        boolean isIgnoredPost;
         for(Element postData : posts){
             isIgnoredPost = false;
             ContentValues post = new ContentValues();
@@ -478,6 +478,8 @@ public class AwfulPost {
                 post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
             }catch(NumberFormatException nfe){
             	post.put(POST_INDEX, index);
+            }
+            if(postData.hasClass("ignored")){
                 isIgnoredPost = true;
             }
             
@@ -572,14 +574,10 @@ public class AwfulPost {
                                     if(img.parent() != null && (prefs.disableTimgs || !isTimg)){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
                                     }
-								}
+                                }
 							}
 						}
 					}
-
-                    if(isIgnoredPost){
-                        System.out.println(entry.html());
-                    }
 
                     post.put(CONTENT, entry.html());
                 }
@@ -596,7 +594,23 @@ public class AwfulPost {
                 if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
 					post.put(EDITED, "<i>" + entry.children().get(0).text().trim() + "</i>");
                 }
-            	
+                if (type.equalsIgnoreCase("profilelinks") && !post.containsKey(USER_ID)) {
+                    Elements userlink = entry.getElementsByAttributeValueContaining("href","userid=");
+
+                    if (userlink.size() > 0) {
+                        Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
+                        if(userid.find()){
+                            int uid = Integer.parseInt(userid.group(1));
+                            post.put(USER_ID, uid);
+                            post.put(IS_OP, (opId == uid ? 1 : 0));
+                        }else{
+                            Log.e(TAG, "Failed to parse UID!");
+                        }
+                    }else{
+                        Log.e(TAG, "Failed to parse UID!");
+                    }
+                }
+
             }
             post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
             if(!(isIgnoredPost && prefs.hideIgnoredPosts)) {
