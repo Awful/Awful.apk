@@ -161,6 +161,10 @@ public class NetworkUtils {
     }
 
     public static void setCookieHeaders(Map<String, String> headers) {
+        if(cookie == null){
+            Log.e(TAG,"Cookie was empty for some reason, trying to restore cookie");
+            restoreLoginCookies(AwfulPreferences.getInstance().getContext());
+        }
         if (cookie.length() > 0) {
             headers.put(COOKIE_HEADER, cookie);
         }
