@@ -1,17 +1,25 @@
 package com.ferg.awfulapp.widget;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-public class ToggleViewPager extends ViewPager{
-    private boolean swipeEnabled = true;
-    public ToggleViewPager(Context context) {
+/**
+ * Created by baka kaba on 15/08/2015.
+ *
+ * <p>This is a (hopefully) temporary extension of the SwipyRefreshLayout library,
+ * to catch and swallow an exception that seems to be caused by an
+ * <a href="https://code.google.com/p/android/issues/detail?id=64553">internal bug</a>.</p>
+ *
+ * <p>When/if this is fixed, remove the same code from {@link ToggleViewPager} too thanks!</p>
+ */
+public class SwipyRefreshLayout extends com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout{
+
+    public SwipyRefreshLayout(Context context) {
         super(context);
     }
 
-    public ToggleViewPager(Context context, AttributeSet attrs) {
+    public SwipyRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -29,26 +37,17 @@ public class ToggleViewPager extends ViewPager{
     /**
      * Fix to avoid apparent bug in the support library, with infrequent crashing from an IAE.
      * (See <a href="https://code.google.com/p/android/issues/detail?id=64553">this issue</a>.)
-     * @param ev            Event being passed
+     * @param ev            Motion event being passed
      * @param intercepting  Set true when handling onInterceptTouchEvent
-     * @return              False if swiping is disabled or the exception was thrown,
-     *                      otherwise the result of the superclass call
+     * @return              False if the exception was thrown, otherwise the result of the superclass call
      */
     private boolean antiCrashEventHandler(MotionEvent ev, boolean intercepting) {
-        /*
-            When/if this is fixed, remove the internal SwipyRefreshLayout class and
-            refactor the XML layouts to use the external library version again, thanks!
-         */
         boolean result = false;
         try {
             result = intercepting ? super.onInterceptTouchEvent(ev) : super.onTouchEvent(ev);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        return swipeEnabled && result;
-    }
-
-    public void setSwipeEnabled(boolean swipe){
-        swipeEnabled = swipe;
+        return result;
     }
 }

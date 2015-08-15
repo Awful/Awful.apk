@@ -25,7 +25,7 @@
 		android:smoothScrollbar="true"
 		/>
     -->
-    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+    <com.ferg.awfulapp.widget.SwipyRefreshLayout
         android:id="@+id/index_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,5 +40,5 @@
             android:dividerHeight="1dp"
             android:groupIndicator="@android:color/transparent"
             android:drawSelectorOnTop="false" />
-    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+    </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 </LinearLayout>

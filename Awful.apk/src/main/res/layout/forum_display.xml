@@ -16,7 +16,7 @@
         android:id="@+id/probationbar"
         layout="@layout/probationbar" />
 
-    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+    <com.ferg.awfulapp.widget.SwipyRefreshLayout
         android:id="@+id/forum_swipe"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -31,7 +31,7 @@
             android:cacheColorHint="@color/background"
             android:divider="?attr/listDividerColor"
             android:dividerHeight="1dp" />
-    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+    </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
     <include
         android:id="@+id/pagebar"
