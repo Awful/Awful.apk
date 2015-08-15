@@ -14,8 +14,7 @@
 
     <include
         android:id="@+id/probationbar"
-        layout="@layout/probationbar"
-        android:layout_height="40dp" />
+        layout="@layout/probationbar" />
     <!--
           <pl.polidea.treeview.TreeViewList 
         android:id="@+id/index_tree_view" 
