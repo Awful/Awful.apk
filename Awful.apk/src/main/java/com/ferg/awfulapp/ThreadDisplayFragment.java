@@ -1333,15 +1333,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			"Show Image Inline",
 			"Open URL",
 			"Copy URL",
-			"Share URL",
-			"Always Open URL"
+			"Share URL"
 	};
 	
 	private String[] urlMenuItems = new String[]{
 			"Open URL",
 			"Copy URL",
-			"Share URL",
-			"Always Open URL",
+			"Share URL"
 	};
 	
 	
@@ -1382,10 +1380,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             	case 4:
             		startActivity(createShareIntent(url));
             		break;
-            	case 5:
-        			mPrefs.setBooleanPreference("always_open_urls", true);
-        			startUrlIntent(url);
-        			break;
             	}
             }
         }).show();
