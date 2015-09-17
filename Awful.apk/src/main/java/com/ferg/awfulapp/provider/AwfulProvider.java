@@ -42,6 +42,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -681,10 +682,15 @@ public class AwfulProvider extends ContentProvider {
 				builder.setProjectionMap(sEmoteProjectionMap);
 				break;
         }
-
-        Cursor result = builder.query(db, aProjection, aSelection, 
-            aSelectionArgs, null, null, aSortOrder);
-        result.setNotificationUri(getContext().getContentResolver(), aUri);
+        Cursor result;
+        try {
+            result = builder.query(db, aProjection, aSelection,
+                    aSelectionArgs, null, null, aSortOrder);
+            result.setNotificationUri(getContext().getContentResolver(), aUri);
+        } catch (Exception e) {
+            Crashlytics.log(String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables()));
+            throw e;
+        }
 
         return result;
     }
