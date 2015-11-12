@@ -15,7 +15,8 @@
         android:background="?attr/colorPrimary"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="?attr/awfulPopUpTheme"
-        />
+        app:elevation="4dp"
+        android:elevation="4dp"/>
 
     <include layout="@layout/nav_drawer" />
 
