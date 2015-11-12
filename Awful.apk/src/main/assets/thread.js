@@ -173,13 +173,6 @@ function pageinit() {
     })
 };
 
-function registerPreBlocks(){
-    $('pre').each(function(){
-        var pos = $(this).offset().top;
-        listener.addCodeBounds(pos, pos+$(this).height());
-    });
-}
-
 function scrollPost() {
     var postjump = listener.getPostJump();
     if (postjump != "") {
