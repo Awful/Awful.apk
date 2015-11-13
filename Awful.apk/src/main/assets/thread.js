@@ -27,11 +27,13 @@ function loadpagehtml(){
     window.topScrollItem = null;
     window.topScrollPos = 0;
     window.topScrollCount = 0;
-    changeCSS(listener.getCSS());
     var html = listener.getBodyHtml();
     document.getElementById("container").innerHTML = html;
     pageinit();
     window.topScrollID = window.setTimeout(scrollPost, 1000);
+    $(window).load(function(){
+        changeCSS(listener.getCSS());
+    });
 }
 
 

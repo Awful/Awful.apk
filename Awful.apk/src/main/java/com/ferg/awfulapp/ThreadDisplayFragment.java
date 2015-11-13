@@ -930,10 +930,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }
     }
 
-    private void displayUserCP() {
-    	getAwfulActivity().displayForum(Constants.USERCP_ID, 1);
-    }
-
     private void displayPagePicker() {
 		View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
 		final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
@@ -1563,6 +1559,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
                 threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
+				if(mParentForumId != 0 && mThreadView != null){
+					mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+				}
 //                //Same thread, already done this, don't override the forum name
 //                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
 //                    parent.setNavForumId(mParentForumId);
