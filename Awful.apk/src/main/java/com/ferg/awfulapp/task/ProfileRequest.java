@@ -21,6 +21,10 @@ public class ProfileRequest extends AwfulRequest<Void> {
         this.username = username;
     }
 
+    public ProfileRequest(Context context) {
+        this(context,null);
+    }
+
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
         urlBuilder.appendQueryParameter(Constants.PARAM_ACTION, Constants.ACTION_PROFILE);

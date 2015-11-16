@@ -88,7 +88,7 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
         loggedIn = NetworkUtils.restoreLoginCookies(this.getAwfulApplication());
         if (isLoggedIn()) {
         	if(mPrefs.ignoreFormkey == null || mPrefs.userTitle == null){
-        		 NetworkUtils.queueRequest(new ProfileRequest(this, null).build(null, null));
+        		 NetworkUtils.queueRequest(new ProfileRequest(this).build(null, null));
         	}
             if(mPrefs.ignoreFormkey == null){
                 NetworkUtils.queueRequest(new FeatureRequest(this).build(null, null));

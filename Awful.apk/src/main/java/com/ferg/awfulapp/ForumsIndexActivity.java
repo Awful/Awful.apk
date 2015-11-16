@@ -275,24 +275,29 @@ public class ForumsIndexActivity extends AwfulActivity {
         );
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+        View nav = navigation.getHeaderView(0);
+
         // update the navigation drawer header
-        TextView username = (TextView) findViewById(R.id.sidebar_username);
+        TextView username = (TextView) nav.findViewById(R.id.sidebar_username);
         if (null != username) {
             username.setText(mPrefs.username);
         }
 
-        ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
+        ImageView avatar = (ImageView) nav.findViewById(R.id.sidebar_avatar);
         if (null != avatar) {
             AQuery aq = new AQuery(this);
             if (null != mPrefs.userTitle) {
                 if (!("".equals(mPrefs.userTitle))) {
-                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
+                    aq.id(avatar).image(mPrefs.userTitle);
+                    if (AwfulUtils.isLollipop()) {
+                        avatar.setClipToOutline(true);
+                    }
                 } else {
-                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon).backgroundColorId(R.color.forums_blue);
+                    aq.id(avatar).image(R.drawable.icon).backgroundColorId(R.color.forums_blue);
+                    if (AwfulUtils.isLollipop()) {
+                        avatar.setClipToOutline(false);
+                    }
                 }
-            }
-            if (AwfulUtils.isLollipop()) {
-                avatar.setClipToOutline(true);
             }
         }
 
@@ -841,17 +846,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (mViewPager != null) {
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
-        if (mDrawerLayout != null) {
-            ImageView avatar = (ImageView) findViewById(R.id.sidebar_avatar);
-            if (null != avatar) {
-                AQuery aq = new AQuery(this);
-                if (null != mPrefs.userTitle) {
-                    aq.id(R.id.sidebar_avatar).image(mPrefs.userTitle);
-                } else {
-                    aq.id(R.id.sidebar_avatar).image(R.drawable.icon);
-                }
-            }
-        }
+        setNavigationDrawer();
         if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !prefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }

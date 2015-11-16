@@ -11,6 +11,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.FeatureRequest;
+import com.ferg.awfulapp.task.ProfileRequest;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -47,6 +48,7 @@ public class AccountSettings extends SettingsFragment {
                         public void success(Void result) {
                             dialog.dismiss();
                             setSummaries();
+                            NetworkUtils.queueRequest(new ProfileRequest(getActivity()).build(null, null));
                         }
 
                         @Override
