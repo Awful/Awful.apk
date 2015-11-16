@@ -27,7 +27,7 @@
     <PreferenceScreen
         android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings"
         android:key="highlighting"
-        android:title="@string/highlighting_settings_title"></PreferenceScreen>
+        android:title="@string/highlighting_settings_title"/>
 
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="true"
