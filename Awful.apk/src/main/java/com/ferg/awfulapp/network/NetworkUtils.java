@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.http.HttpResponseCache;
 import android.os.Messenger;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.Cache;
@@ -49,19 +50,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -69,12 +61,27 @@ import org.apache.http.params.HttpParams;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -91,23 +98,20 @@ public class NetworkUtils {
     private static final Pattern unencodeCharactersPattern = Pattern.compile("&#(\\d+);");
     private static final Pattern encodeCharactersPattern = Pattern.compile("([^\\x00-\\x7F])");
 
-    private static DefaultHttpClient sHttpClient;
 
     private static RequestQueue     mNetworkQueue;
     private static LRUImageCache    mImageCache;
     private static ImageLoader      mImageLoader;
+
+    private static CookieManager ckmngr;
 
     private static String cookie = null;
     private static final String COOKIE_HEADER = "Cookie";
 
 
     static {
-        HttpParams httpPar = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpPar, 10000);//10 second timeout when connecting. does not apply to data transfer
-        HttpConnectionParams.setSoTimeout(httpPar, 20000);//timeout to wait if no data transfer occurs //TODO bumped to 20, but we need to monitor cell status now
-        HttpConnectionParams.setSocketBufferSize(httpPar, 65548);
-        HttpClientParams.setRedirecting(httpPar, false);
-        sHttpClient = new DefaultHttpClient(httpPar);
+        ckmngr = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(ckmngr);
     }
 
 
@@ -194,30 +198,31 @@ public class NetworkUtils {
                     Constants.COOKIE_PREF_SESSIONID, sessionidCookieValue,
                     Constants.COOKIE_PREF_SESSIONHASH, sessionhashCookieValue);
 
-            BasicClientCookie useridCookie =
-                    new BasicClientCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
-            BasicClientCookie passwordCookie =
-                    new BasicClientCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
-            BasicClientCookie sessionidCookie =
-                    new BasicClientCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
-            BasicClientCookie sessionhashCookie =
-                    new BasicClientCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
+            HttpCookie useridCookie =
+                    new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
+            HttpCookie passwordCookie =
+                    new HttpCookie(Constants.COOKIE_NAME_PASSWORD, passwordCookieValue);
+            HttpCookie sessionidCookie =
+                    new HttpCookie(Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue);
+            HttpCookie sessionhashCookie =
+                    new HttpCookie(Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
 
             Date expiryDate = new Date(expiry);
-            BasicClientCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
-            for (BasicClientCookie tempCookie : allCookies) {
+            Date now = new Date();
+            HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
+
+            Log.e(TAG,"now.compareTo(expiryDate):"+(expiryDate.getTime() - now.getTime()));
+            for (HttpCookie tempCookie : allCookies) {
                 tempCookie.setDomain(Constants.COOKIE_DOMAIN);
-                tempCookie.setExpiryDate(expiryDate);
+                tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
                 tempCookie.setPath(Constants.COOKIE_PATH);
             }
-
-            CookieStore jar = sHttpClient.getCookieStore();
-            jar.addCookie(useridCookie);
-            jar.addCookie(passwordCookie);
-            sHttpClient.setCookieStore(jar);
+            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
+            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
+            ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
 
             Log.w(TAG, "Cookies restored from prefs");
-            Log.w(TAG, "Cookie dump: " + jar.toString());
+            Log.w(TAG, "Cookie dump: " + TextUtils.join("\n",ckmngr.getCookieStore().getCookies()));
             return true;
         } else {
             String logMsg = "Unable to restore cookies! Reasons:\n";
@@ -247,7 +252,7 @@ public class NetworkUtils {
         prefs.edit().clear().apply();
 
         // Then the memory store
-        sHttpClient.getCookieStore().clear();
+        ckmngr.getCookieStore().removeAll();
     }
 
     /**
@@ -268,8 +273,8 @@ public class NetworkUtils {
         String sessionHash = null;
         Date expires = null;
 
-        List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
-        for (Cookie cookie : cookies) {
+        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
+        for (HttpCookie cookie : cookies) {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
                 final String cookieName = cookie.getName();
                 switch (cookieName) {
@@ -287,7 +292,9 @@ public class NetworkUtils {
                         break;
                 }
                 // keep the soonest valid expiry in case they don't match
-                Date cookieExpiryDate = cookie.getExpiryDate();
+                Calendar c = Calendar.getInstance();
+                c.add(Calendar.SECOND, ((int) cookie.getMaxAge()));
+                Date cookieExpiryDate  = c.getTime();
                 if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
                     expires = cookieExpiryDate;
                 }
@@ -316,8 +323,8 @@ public class NetworkUtils {
     }
 
     public static synchronized String getCookieString(String type) {
-        List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
-        for (Cookie cookie : cookies) {
+        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
+        for (HttpCookie cookie : cookies) {
             if (cookie.getDomain().contains(Constants.COOKIE_DOMAIN)) {
                 if (cookie.getName().contains(type)) {
                     return String.format("%s=%s; domain=%s", type, cookie.getValue(), cookie.getDomain());
@@ -328,48 +335,36 @@ public class NetworkUtils {
         return "";
     }
 
-    public static Document get(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
-        return get(new URI(aUrl.getURL()), statusCallback, midpointPercent);
-    }
-
-    public static Document get(String aUrl, HashMap<String, String> aParams) throws Exception {
-        return get(new URI(aUrl + getQueryStringParameters(aParams)), null, 0);
-    }
-
     public static Document get(String aUrl) throws Exception {
         return get(new URI(aUrl), null, 0);
     }
 
-    public static Document get(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        return get(new URI(aUrl + getQueryStringParameters(aParams)), statusCallback, midpointPercent);
-    }
-
     public static Document get(URI location, Messenger statusCallback, int midpointPercent) throws Exception {
         Document response = null;
+        String responseString = "";
 
         Log.i(TAG, "Fetching " + location);
 
-        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
-        HttpEntity entity = httpResponse.getEntity();
+        HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
+        try {
 
-        if (entity != null) {
-            InputStream entityStream = entity.getContent();
-            response = Jsoup.parse(entityStream, CHARSET, Constants.BASE_URL);
-            entityStream.close();
+            if (urlConnection != null) {
+                response = Jsoup.parse(urlConnection.getInputStream(), CHARSET, Constants.BASE_URL);
+            }
+        }finally {
+            urlConnection.disconnect();
         }
-
         Log.i(TAG, "Fetched " + location);
         return response;
     }
 
-
-    public static void delete(String aUrl) throws Exception {
-        Log.i(TAG, "DELETE: " + aUrl);
-        HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
-        if (hResponse.getStatusLine().getStatusCode() < 400) {
-            throw new Exception("ERROR: " + hResponse.getStatusLine().getStatusCode());
-        }
-    }
+//    public static void delete(String aUrl) throws Exception {
+//        Log.i(TAG, "DELETE: " + aUrl);
+//        HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
+//        if (hResponse.getStatusLine().getStatusCode() < 400) {
+//            throw new Exception("ERROR: " + hResponse.getStatusLine().getStatusCode());
+//        }
+//    }
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
         URI location;
@@ -378,92 +373,21 @@ public class NetworkUtils {
         } else {
             location = new URI(aUrl);
         }
-
-        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
-        Header redirectLocation = httpResponse.getFirstHeader("Location");
+        String redirectLocation;
+        HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
+        try {
+            redirectLocation = urlConnection.getHeaderField("Location");
+//        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
+//        Header redirectLocation = httpResponse.getFirstHeader("Location");
+        } finally {
+            urlConnection.disconnect();
+        }
         if (redirectLocation != null) {
-            return redirectLocation.getValue();
+            return redirectLocation;
         }
         return null;
     }
 
-    public static InputStream getStream(String aUrl) throws Exception {
-        URI location = new URI(aUrl);
-
-        Log.i(TAG, "Fetching " + location);
-
-        HttpResponse httpResponse;
-        httpResponse = sHttpClient.execute(new HttpGet(location));
-        return httpResponse.getEntity().getContent();
-    }
-
-    public static Document post(AwfulURL aUrl, Messenger statusCallback, int midpointPercent) throws Exception {
-        return post(new URI(aUrl.getURL()), null, statusCallback, midpointPercent);
-    }
-
-    public static Document post(String aUrl, HashMap<String, String> aParams) throws Exception {
-        return post(new URI(aUrl), aParams, null, 0);
-    }
-
-
-    public static Document post(String aUrl, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        return post(new URI(aUrl), aParams, statusCallback, midpointPercent);
-    }
-
-    public static Document post(URI location, HashMap<String, String> aParams, Messenger statusCallback, int midpointPercent) throws Exception {
-        Document response = null;
-
-        Log.i(TAG, location.toString());
-
-        HttpPost httpPost = new HttpPost(location);
-        ArrayList<NameValuePair> paramdata = getPostParameters(aParams);
-        if (location.equals(new URI(Constants.FUNCTION_LOGIN_SSL))) {
-            UrlEncodedFormEntity post = new UrlEncodedFormEntity(paramdata, "CP1252");
-            httpPost.setEntity(post);
-        } else {
-            MultipartEntityBuilder post = MultipartEntityBuilder.create();
-            for (NameValuePair data : paramdata) {
-                if ("attachment".equals(data.getName())) {
-                    post.addPart(data.getName(), new FileBody(new File(data.getValue())));
-                } else {
-                    if (data.getValue() != null) {
-                        post.addPart(data.getName(), new StringBody(data.getValue(), ContentType.TEXT_PLAIN));
-                    }
-                }
-            }
-            httpPost.setEntity(post.build());
-        }
-
-        HttpResponse httpResponse = sHttpClient.execute(httpPost);
-        HttpEntity entity = httpResponse.getEntity();
-
-        if (entity != null) {
-            InputStream entityStream = entity.getContent();
-            response = Jsoup.parse(entityStream, CHARSET, Constants.BASE_URL);
-            entityStream.close();
-        }
-
-        return response;
-    }
-
-    /**
-     * POSTs a message to the selected URL, but ignores any response body. Useful for quick-actions that we don't need the body content from.
-     *
-     * @param aUrl
-     * @param aParams
-     * @return HTTP Request status code (200 = success, ect)
-     * @throws Exception
-     */
-    public static int postIgnoreBody(String aUrl, HashMap<String, String> aParams) throws Exception {
-
-        Log.i(TAG, aUrl);
-        HttpPost httpPost = new HttpPost(aUrl);
-        httpPost.setEntity(
-                new UrlEncodedFormEntity(getPostParameters(aParams)));
-
-        HttpResponse httpResponse = sHttpClient.execute(httpPost);
-        return httpResponse.getStatusLine().getStatusCode();
-    }
 
     private static ArrayList<NameValuePair> getPostParameters(HashMap<String, String> aParams) {
         // Append parameters
@@ -507,8 +431,8 @@ public class NetworkUtils {
 
     public static void logCookies() {
         Log.i(TAG, "---BEGIN COOKIE DUMP---");
-        List<Cookie> cookies = sHttpClient.getCookieStore().getCookies();
-        for (Cookie c : cookies) {
+        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
+        for (HttpCookie c : cookies) {
             Log.i(TAG, c.toString());
         }
         Log.i(TAG, "---END COOKIE DUMP---");
