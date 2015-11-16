@@ -31,7 +31,7 @@ function loadpagehtml(){
     document.getElementById("container").innerHTML = html;
     pageinit();
     window.topScrollID = window.setTimeout(scrollPost, 1000);
-    $(window).load(function(){
+    $(window).on('load', function(){
         changeCSS(listener.getCSS());
     });
 }
