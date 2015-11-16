@@ -368,12 +368,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(DEBUG && AwfulUtils.isKitKat()) {
 			WebView.setWebContentsDebuggingEnabled(true);
 		}
-		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
-			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
-		}
-		if ( AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (mPrefs.inlineWebm || mPrefs.inlineVines)) {
-			mThreadView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-		}
+//		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
+//			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
+//		}
+//		if ( AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (mPrefs.inlineWebm || mPrefs.inlineVines)) {
+//			mThreadView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+//		}
 		if (mPrefs.inlineTweets && AwfulUtils.isJellybean()) {
 			mThreadView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 			mThreadView.getSettings().setAllowFileAccessFromFileURLs(true);

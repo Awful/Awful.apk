@@ -230,7 +230,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = mPrefs.getString("username", "Username");
-        userTitle                = mPrefs.getString("user_title",null);
+        userTitle                = mPrefs.getString("user_title", null);
 		hasPlatinum              = mPrefs.getBoolean("has_platinum", false);
 		hasArchives              = mPrefs.getBoolean("has_archives", false);
 		hasNoAds         	     = mPrefs.getBoolean("has_no_ads", false);
@@ -251,9 +251,12 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
         highlightOP				 = mPrefs.getBoolean("op_highlight", true);
 		inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-		inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
-		inlineVines            = mPrefs.getBoolean("inline_vines", false);
-		inlineWebm            = mPrefs.getBoolean("inline_webm", false);
+		//inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
+		//inlineVines            = mPrefs.getBoolean("inline_vines", false);
+		//inlineWebm            = mPrefs.getBoolean("inline_webm", false);
+		inlineTweets            = false;
+		inlineVines            = false;
+		inlineWebm            = false;
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);
