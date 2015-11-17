@@ -213,6 +213,7 @@ public class NetworkUtils {
 
             Log.e(TAG,"now.compareTo(expiryDate):"+(expiryDate.getTime() - now.getTime()));
             for (HttpCookie tempCookie : allCookies) {
+                tempCookie.setVersion(0);
                 tempCookie.setDomain(Constants.COOKIE_DOMAIN);
                 tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
                 tempCookie.setPath(Constants.COOKIE_PATH);
