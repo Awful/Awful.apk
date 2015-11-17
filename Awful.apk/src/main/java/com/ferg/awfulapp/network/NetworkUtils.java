@@ -42,40 +42,19 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.LRUImageCache;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -386,8 +365,10 @@ public class NetworkUtils {
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
         try {
             redirectLocation = urlConnection.getHeaderField("Location");
-//        HttpResponse httpResponse = sHttpClient.execute(new HttpGet(location));
-//        Header redirectLocation = httpResponse.getFirstHeader("Location");
+            if (redirectLocation == null) {
+                // HttpURLConnection redirects internally, so get the end result instead
+                redirectLocation = urlConnection.getURL().toString();
+            }
         } finally {
             urlConnection.disconnect();
         }
