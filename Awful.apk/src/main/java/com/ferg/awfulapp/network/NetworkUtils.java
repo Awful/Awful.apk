@@ -190,13 +190,14 @@ public class NetworkUtils {
         String sessionidCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONID, null);
         String sessionhashCookieValue = prefs.getString(Constants.COOKIE_PREF_SESSIONHASH, null);
         long expiry = prefs.getLong(Constants.COOKIE_PREF_EXPIRY_DATE, -1);
+        int cookieVersion = prefs.getInt(Constants.COOKIE_PREF_VERSION, 0);
 
         if (useridCookieValue != null && passwordCookieValue != null && expiry != -1) {
             cookie = String.format("%s=%s;%s=%s;%s=%s;%s=%s;",
-                    Constants.COOKIE_PREF_USERID, useridCookieValue,
-                    Constants.COOKIE_PREF_PASSWORD, passwordCookieValue,
-                    Constants.COOKIE_PREF_SESSIONID, sessionidCookieValue,
-                    Constants.COOKIE_PREF_SESSIONHASH, sessionhashCookieValue);
+                    Constants.COOKIE_NAME_USERID, useridCookieValue,
+                    Constants.COOKIE_NAME_PASSWORD, passwordCookieValue,
+                    Constants.COOKIE_NAME_SESSIONID, sessionidCookieValue,
+                    Constants.COOKIE_NAME_SESSIONHASH, sessionhashCookieValue);
 
             HttpCookie useridCookie =
                     new HttpCookie(Constants.COOKIE_NAME_USERID, useridCookieValue);
@@ -213,7 +214,7 @@ public class NetworkUtils {
 
             Log.e(TAG,"now.compareTo(expiryDate):"+(expiryDate.getTime() - now.getTime()));
             for (HttpCookie tempCookie : allCookies) {
-                tempCookie.setVersion(0);
+                tempCookie.setVersion(cookieVersion);
                 tempCookie.setDomain(Constants.COOKIE_DOMAIN);
                 tempCookie.setMaxAge(expiryDate.getTime() - now.getTime());
                 tempCookie.setPath(Constants.COOKIE_PATH);
@@ -273,6 +274,7 @@ public class NetworkUtils {
         String sessionId = null;
         String sessionHash = null;
         Date expires = null;
+        Integer version = null;
 
         List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
         for (HttpCookie cookie : cookies) {
@@ -299,6 +301,10 @@ public class NetworkUtils {
                 if (expires == null || (cookieExpiryDate != null && cookieExpiryDate.before(expires))) {
                     expires = cookieExpiryDate;
                 }
+                // fall back to the lowest cookie spec version
+                if (version == null || cookie.getVersion() < version) {
+                    version = cookie.getVersion();
+                }
             }
         }
 
@@ -318,6 +324,7 @@ public class NetworkUtils {
         if (expires != null) {
             edit.putLong(Constants.COOKIE_PREF_EXPIRY_DATE, expires.getTime());
         }
+        edit.putInt(Constants.COOKIE_PREF_VERSION, version);
 
         edit.apply();
         return true;
@@ -348,12 +355,13 @@ public class NetworkUtils {
 
         HttpURLConnection urlConnection = (HttpURLConnection) location.toURL().openConnection();
         try {
-
             if (urlConnection != null) {
                 response = Jsoup.parse(urlConnection.getInputStream(), CHARSET, Constants.BASE_URL);
             }
         }finally {
-            urlConnection.disconnect();
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
         }
         Log.i(TAG, "Fetched " + location);
         return response;
