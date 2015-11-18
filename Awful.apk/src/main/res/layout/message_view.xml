@@ -17,7 +17,7 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dip"
+            android:padding="@dimen/composer_padding"
             android:background="#FF000000"
             >
             <LinearLayout
@@ -88,7 +88,7 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dip"
+            android:padding="@dimen/composer_padding"
             >
             <TextView
                 android:id="@+id/misc_text_subject"
@@ -112,7 +112,7 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dip"
+            android:padding="@dimen/composer_padding"
             >
             <TextView
                 android:id="@+id/misc_text_recipient"
@@ -136,7 +136,7 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dip"
+            android:padding="@dimen/composer_padding"
             >
             <TextView
                 android:id="@+id/misc_text_message"

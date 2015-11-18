@@ -121,6 +121,7 @@ public class Constants {
 	public static final String COOKIE_PREF_SESSIONID    = "sessionid";
 	public static final String COOKIE_PREF_SESSIONHASH    = "sessionhash";
 	public static final String COOKIE_PREF_EXPIRY_DATE = "expiration";
+	public static final String COOKIE_PREF_VERSION     = "version";
 
 	// Content provider
     public static final String AUTHORITY = "com.ferg.awfulapp.provider";

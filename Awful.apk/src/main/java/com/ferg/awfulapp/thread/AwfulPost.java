@@ -374,10 +374,6 @@ public class AwfulPost {
                             nodeContainer.appendChild(img);
                             nodeContainer.appendChild(nodeLink);
                             node.replaceWith(nodeContainer);
-
-						}else if(inline){
-							//do nothing, let JS do that
-						
 						}else{
 							node.empty();
 							Element ln = new Element(Tag.valueOf("a"),"");
