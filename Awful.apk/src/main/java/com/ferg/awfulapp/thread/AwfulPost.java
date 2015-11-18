@@ -429,15 +429,6 @@ public class AwfulPost {
 		mEditable = aEditable;
 	}
 
-    public void markLastRead() {
-        try {
-            if(mLastReadUrl != null){
-            	NetworkUtils.get(Constants.BASE_URL+ mLastReadUrl);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);

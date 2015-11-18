@@ -217,34 +217,6 @@ public class AwfulForum extends AwfulPagedItem {
     	}
         return -1;
     }
-    
-	public static void getView(View current, AwfulPreferences mPrefs, Cursor data, boolean hasSidebar, boolean selected) {
-		TextView title = (TextView) current.findViewById(R.id.title);
-		TextView sub = (TextView) current.findViewById(R.id.subtext);
-		if(mPrefs != null){
-			title.setTextColor(ColorProvider.getTextColor());
-			sub.setTextColor(ColorProvider.getAltTextColor());
-		}
-//		title.setText(Html.fromHtml(data.getString(data.getColumnIndex(TITLE))));
-		title.setText(data.getString(data.getColumnIndex(TITLE)));
-		String subtext = data.getString(data.getColumnIndex(SUBTEXT));
-		if(subtext == null || subtext.length() < 1){
-			sub.setVisibility(View.GONE);
-		}else{
-			sub.setVisibility(View.VISIBLE);
-			sub.setText(subtext);
-		}
-		if(hasSidebar){
-			current.setBackgroundResource(R.drawable.gradient_left);
-		}else{
-			current.setBackgroundResource(0);
-		}
-//		if(selected){
-//			current.findViewById(R.id.selector).setVisibility(View.VISIBLE);
-//		}else{
-//			current.findViewById(R.id.selector).setVisibility(View.GONE);
-//		}
-	}
 
 	public static String parseTitle(Document data) {
 		Elements result = data.getElementsByTag("title");

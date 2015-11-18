@@ -254,9 +254,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
 		inlineVines            = mPrefs.getBoolean("inline_vines", false);
 		inlineWebm            = mPrefs.getBoolean("inline_webm", false);
-//		inlineTweets            = false;
-//		inlineVines            = false;
-//		inlineWebm            = false;
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);

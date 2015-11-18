@@ -249,12 +249,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	    			mToggleSidebar.setVisibility(View.INVISIBLE);//if we are at page 1/1, we already have the refresh button on the other side
 	            }
 			}
-			
-			if(mForumId != 0){
-				aq.find(R.id.move_up).visible();
-			}else{
-				aq.find(R.id.move_up).invisible();
-			}
 		}
 	}
 	
@@ -489,9 +483,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 		public void onClick(View aView) {
             switch (aView.getId()) {
-                case R.id.move_up:
-                	displayForumContents(mParentForumId);
-                    break;
                 case R.id.toggle_sidebar://this switches between being a refresh button and being hidden depending on page number.
                 case R.id.refresh:
                 	syncForum();
@@ -774,12 +765,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             	if(getActivity() != null){
             		getAwfulActivity().setActionbarTitle(mTitle, ForumDisplayFragment.this);
             	}
-    			if(mForumId == 0){
-    				aq.find(R.id.second_titlebar).text(R.string.forums_title);
-    			}else{
-//    				aq.find(R.id.second_titlebar).text(mTitle);
-    				aq.find(R.id.second_titlebar).text(Html.fromHtml(mTitle));
-    			}
         		mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
         	}
 
@@ -866,21 +851,21 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
 	        }
 		}
-		if(aq != null){
-			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
-				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
-				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
-            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
-                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.FYAD));
-                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.FYAD));
-            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
-                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.BYOB));
-                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.BYOB));
-            }else{
-				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
-				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
-			}
-		}
+//		if(aq != null){
+//			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
+//				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
+//				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
+//            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
+//                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.FYAD));
+//                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.FYAD));
+//            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
+//                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.BYOB));
+//                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.BYOB));
+//            }else{
+//				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+//				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
+//			}
+//		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}

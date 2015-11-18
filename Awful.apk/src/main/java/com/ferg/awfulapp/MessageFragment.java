@@ -136,17 +136,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         mUsername.setTextColor(ColorProvider.getTextColor());
         mPostdate.setTextColor(ColorProvider.getTextColor());
         mTitle.setTextColor(ColorProvider.getTextColor());
-		TextView miscSubject = (TextView) v.findViewById(R.id.misc_text_subject);
-        TextView miscRecip = (TextView) v.findViewById(R.id.misc_text_recipient);
-        TextView miscMess = (TextView) v.findViewById(R.id.misc_text_message);
-        View header = v.findViewById(R.id.message_header);
-        header.setBackgroundColor(ColorProvider.getBackgroundColor());
-        miscSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
-        miscRecip.setBackgroundColor(ColorProvider.getBackgroundColor());
-        miscMess.setBackgroundColor(ColorProvider.getBackgroundColor());
-        miscSubject.setTextColor(ColorProvider.getAltTextColor());
-        miscRecip.setTextColor(ColorProvider.getAltTextColor());
-        miscMess.setTextColor(ColorProvider.getAltTextColor());
         v.setBackgroundColor(ColorProvider.getBackgroundColor());
         
 	}

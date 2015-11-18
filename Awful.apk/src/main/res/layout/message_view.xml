@@ -1,167 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
-<ScrollView
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/message_view"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fillViewport="true">
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/message_header"
-            android:orientation="horizontal"
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/composer_padding"
-            android:background="#FF000000"
-            >
-            <LinearLayout
-                android:id="@+id/messagehead"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                >
+            android:background="?attr/background"
+            android:padding="@dimen/login_label_padding">
 
-                <TextView
-                    android:id="@+id/message_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#ffffff"
-                    android:textSize="20dip"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#ffffff"
-                    android:textSize="16dip" />
-
-                <TextView
-                    android:id="@+id/post_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#ffffff"
-                    android:textSize="12sp"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/message_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:orientation="vertical" >
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textColor="#ffffff"
+                android:textSize="20dip"
+                android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/message_reply_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:text="Send" />
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message_title"
+                android:textColor="#ffffff"
+                android:textSize="16dip" />
 
-                <ImageButton
-                    android:id="@+id/hide_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:src="?attr/iconMenuExpandMore" />
-            </LinearLayout>
-        </LinearLayout>
+            <TextView
+                android:id="@+id/post_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/username"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/message_reply_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="Send" />
+
+            <ImageButton
+                android:id="@+id/hide_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/message_reply_button"
+                android:src="?attr/iconMenuExpandMore" />
+        </RelativeLayout>
+
         <WebView
             android:id="@+id/messagebody"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dip"
-            android:focusable="true" android:focusableInTouchMode="true"
-            />
-        <ImageView
-            style="@style/HorizontalSeparator"
-            />
-        <LinearLayout
-            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:padding="8dip" />
+
+        <ImageView style="@style/HorizontalSeparator" />
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/composer_padding"
-            >
-            <TextView
-                android:id="@+id/misc_text_subject"
-                android:text="Subject:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+            android:layout_height="wrap_content">
+
             <EditText
                 android:id="@+id/message_subject"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dip"
-                android:textColor="@color/default_post_font"
+                android:hint="Subject"
                 android:inputType="text|textAutoCorrect|textCapSentences"
-                android:textCursorDrawable="@null"
+                android:padding="8dip"
                 android:singleLine="true"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
+                android:textColor="@color/default_post_font"
+                android:textCursorDrawable="@null" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/message_user"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/composer_padding"
-            >
-            <TextView
-                android:id="@+id/misc_text_recipient"
-                android:text="Recipient:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-            <EditText
-                android:id="@+id/message_user"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dip"
-                android:textColor="@color/default_post_font"
-                android:inputType="text|textAutoCorrect|textCapSentences"
-                android:textCursorDrawable="@null"
-                android:singleLine="true"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
+            android:hint="Recipient"
+            android:inputType="text|textAutoCorrect|textCapSentences"
+            android:padding="8dip"
+            android:singleLine="true"
+            android:textColor="@color/default_post_font"
+            android:textCursorDrawable="@null" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/edit_reply_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/composer_padding"
-            >
-            <TextView
-                android:id="@+id/misc_text_message"
-                android:text="Message:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-            <EditText
-                android:id="@+id/edit_reply_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="vertical"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbarFadeDuration="500"
-                android:scrollbarDefaultDelayBeforeFade="1000"
-                android:scrollbarAlwaysDrawVerticalTrack="true"
-                android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-                android:gravity="top"
-                android:minLines="5"
-                android:paddingLeft="10dip"
-                android:paddingRight="10dip"
-                android:textCursorDrawable="@null"
-                />
-        </LinearLayout>
+            android:gravity="top"
+            android:hint="Message"
+            android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
+            android:minLines="5"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarDefaultDelayBeforeFade="1000"
+            android:scrollbarFadeDuration="500"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical"
+            android:textCursorDrawable="@null" />
+
+        </android.support.design.widget.TextInputLayout>
+
     </LinearLayout>
 </ScrollView>
-</LinearLayout>
