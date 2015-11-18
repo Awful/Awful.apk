@@ -191,7 +191,7 @@ public class NetworkUtils {
             Date now = new Date();
             HttpCookie[] allCookies = {useridCookie, passwordCookie, sessionidCookie, sessionhashCookie};
 
-            Log.e(TAG,"now.compareTo(expiryDate):"+(expiryDate.getTime() - now.getTime()));
+            Log.e(TAG, "now.compareTo(expiryDate):" + (expiryDate.getTime() - now.getTime()));
             for (HttpCookie tempCookie : allCookies) {
                 tempCookie.setVersion(cookieVersion);
                 tempCookie.setDomain(Constants.COOKIE_DOMAIN);
@@ -201,16 +201,17 @@ public class NetworkUtils {
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), useridCookie);
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), passwordCookie);
             ckmngr.getCookieStore().add(URI.create(Constants.COOKIE_DOMAIN), sessionhashCookie);
-
-            Log.w(TAG, "Cookies restored from prefs");
-            Log.w(TAG, "Cookie dump: " + TextUtils.join("\n",ckmngr.getCookieStore().getCookies()));
+            if(Constants.DEBUG) {
+                Log.w(TAG, "Cookies restored from prefs");
+                Log.w(TAG, "Cookie dump: " + TextUtils.join("\n", ckmngr.getCookieStore().getCookies()));
+            }
             return true;
         } else {
             String logMsg = "Unable to restore cookies! Reasons:\n";
             logMsg += (useridCookieValue == null) ? "USER_ID is NULL\n" : "";
             logMsg += (passwordCookieValue == null) ? "PASSWORD is NULL\n" : "";
             logMsg += (expiry == -1) ? "EXPIRY is -1" : "";
-            Log.w(TAG, logMsg);
+            if(Constants.DEBUG) Log.w(TAG, logMsg);
             cookie = "";
         }
 
@@ -420,12 +421,21 @@ public class NetworkUtils {
     }
 
     public static void logCookies() {
-        Log.i(TAG, "---BEGIN COOKIE DUMP---");
-        List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
-        for (HttpCookie c : cookies) {
-            Log.i(TAG, c.toString());
+        if(Constants.DEBUG) {
+            Log.i(TAG, "---BEGIN COOKIE DUMP---");
+            List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
+            for (HttpCookie c : cookies) {
+                Log.i(TAG, c.toString());
+            }
+            Log.i(TAG, "---END COOKIE DUMP---");
         }
-        Log.i(TAG, "---END COOKIE DUMP---");
+            Log.i(TAG, "---BEGIN COOKIE DUMP---");
+            List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
+            for (HttpCookie c : cookies) {
+                Log.i(TAG, c.toString());
+            }
+            Log.i(TAG, "---END COOKIE DUMP---");
+        }
     }
 
     public static String getAsString(Document pc) {
