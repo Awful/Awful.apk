@@ -429,13 +429,6 @@ public class NetworkUtils {
             }
             Log.i(TAG, "---END COOKIE DUMP---");
         }
-            Log.i(TAG, "---BEGIN COOKIE DUMP---");
-            List<HttpCookie> cookies = ckmngr.getCookieStore().getCookies();
-            for (HttpCookie c : cookies) {
-                Log.i(TAG, c.toString());
-            }
-            Log.i(TAG, "---END COOKIE DUMP---");
-        }
     }
 
     public static String getAsString(Document pc) {
