@@ -41,17 +41,17 @@
         android:summary="@string/inline_tweets_summary"
         android:defaultValue="false"
         />
+    -->
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:defaultValue="false"
-        android:key="inline_webm"
-        android:summary="@string/inline_webm_summary"
-        android:title="@string/inline_webm" />
+    android:defaultValue="false"
+    android:key="inline_webm"
+    android:summary="@string/inline_webm_summary"
+    android:title="@string/inline_webm" />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="inline_vines"
         android:summary="@string/inline_vines_summary"
         android:title="@string/inline_vines" />
-        -->
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="show_all_spoilers"
