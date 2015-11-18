@@ -61,62 +61,6 @@ public class Reply {
     private static final String VALUE_POSTID      = "";
     private static final String VALUE_FORM_COOKIE = "formcookie";
 
-    public static final Document edit(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aPostId, String aBookmark, String aAttachment) 
-        throws Exception 
-    {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, VALUE_EDIT);
-        params.put(PARAM_THREADID, aThreadId);
-        params.put(PARAM_POSTID, aPostId);
-        params.put(PARAM_FORMKEY, aFormKey);
-        params.put(PARAM_FORM_COOKIE, aFormCookie);
-        params.put(PARAM_MESSAGE, aMessage);
-        if(aBookmark.equals("checked")){
-            params.put(PARAM_BOOKMARK, Constants.YES);
-        }
-        params.put(Constants.PARAM_PARSEURL, Constants.YES);
-        if(aAttachment != null){
-        	params.put(PARAM_ATTACHMENT, aAttachment);
-        }
-
-        return NetworkUtils.post(Constants.FUNCTION_EDIT_POST, params);
-    }
-
-    public static final Document post(String aMessage, String aFormKey, String aFormCookie, String aThreadId, String aBookmark, String aAttachment) 
-        throws Exception 
-    {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_ACTION, VALUE_ACTION);
-        params.put(PARAM_THREADID, aThreadId);
-        params.put(PARAM_POSTID, VALUE_POSTID);
-        params.put(PARAM_FORMKEY, aFormKey);
-        params.put(PARAM_FORM_COOKIE, aFormCookie);
-        params.put(PARAM_MESSAGE, aMessage);
-        if(aBookmark.equals("checked")){
-            params.put(PARAM_BOOKMARK, Constants.YES);
-        }
-        params.put(Constants.PARAM_PARSEURL, Constants.YES);
-        if(aAttachment != null){
-        	params.put(PARAM_ATTACHMENT, aAttachment);
-        }
-
-        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
-    }
-
-//    public static final TagNode post(String aMessage, String aFormKey, String aFormCookie, String aThreadId,
-//            Bitmap aImage) throws Exception 
-//    {
-//        HashMap<String, String> params = new HashMap<String, String>();
-//        params.put(PARAM_ACTION, VALUE_ACTION);
-//        params.put(PARAM_THREADID, aThreadId);
-//        params.put(PARAM_POSTID, VALUE_POSTID);
-//        params.put(PARAM_FORMKEY, aFormKey);
-//        params.put(PARAM_FORM_COOKIE, aFormCookie);
-//        params.put(PARAM_MESSAGE, aMessage);
-//        params.put(Constants.PARAM_PARSEURL, Constants.YES);
-//
-//        return NetworkUtils.post(Constants.FUNCTION_POST_REPLY, params);
-//    }
 
     public static final ContentValues processReply(Document page, int threadId) throws AwfulError {
         ContentValues newReply = new ContentValues();

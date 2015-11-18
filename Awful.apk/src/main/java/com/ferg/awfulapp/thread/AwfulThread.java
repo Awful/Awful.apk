@@ -122,24 +122,6 @@ public class AwfulThread extends AwfulPagedItem  {
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 
 
-	
-    public static Document getForumThreads(int aForumId, int aPage, Messenger statusCallback) throws Exception {
-        HashMap<String, String> params = new HashMap<>();
-        params.put(Constants.PARAM_FORUM_ID, Integer.toString(aForumId));
-
-		if (aPage != 0) {
-			params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-		}
-
-        return NetworkUtils.get(Constants.FUNCTION_FORUM, params, statusCallback, 50);
-	}
-	
-    public static Document getUserCPThreads(int aPage, Messenger statusCallback) throws Exception {
-    	HashMap<String, String> params = new HashMap<>();
-		params.put(Constants.PARAM_PAGE, Integer.toString(aPage));
-        return NetworkUtils.get(Constants.FUNCTION_BOOKMARK, params, statusCallback, 50);
-	}
-
 	public static ArrayList<ContentValues> parseForumThreads(Document aResponse, int start_index, int forumId) {
         ArrayList<ContentValues> result = new ArrayList<>();
         Element threads = aResponse.getElementById("forum");
