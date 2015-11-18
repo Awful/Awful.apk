@@ -65,6 +65,7 @@ public class MarkLastReadRequest extends AwfulRequest<Void> {
                     AwfulThread.ID + "=?",
                     AwfulProvider.int2StrArray(threadId));
         }
+        threadData.close();
         return null;
     }
 

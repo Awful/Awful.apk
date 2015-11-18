@@ -36,6 +36,7 @@ public class SendPrivateMessageRequest extends AwfulRequest<Void> {
         addPostParam("savecopy", "yes");
         addPostParam("iconid", "0");
         addPostParam(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT))));
+        pmInfo.close();
     }
 
     @Override

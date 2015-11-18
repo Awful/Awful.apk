@@ -151,7 +151,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             boolean fromRootMenu = container != null && container instanceof RootSettings;
             displayFragment(fragment, fromRootMenu);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            Log.e("Unable to create fragment (" + submenuFragment + ")\n", e.getMessage());
+            Log.e(TAG, "Unable to create fragment (" + submenuFragment + ")\n", e);
         }
     }
 
@@ -264,7 +264,9 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
                 int column_index = cursor
                         .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 cursor.moveToFirst();
-                return cursor.getString(column_index);
+                String filePath = cursor.getString(column_index);
+                cursor.close();
+                return filePath;
             }
             else{
                 Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
