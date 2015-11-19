@@ -58,7 +58,7 @@ dependencies {
     compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32'
     //    compile 'com.github.orangegangsters:swipy:1.2.0@aar'
     compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }
 }
