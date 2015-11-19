@@ -46,6 +46,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -53,6 +54,9 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.LoginRequest;
 import com.ferg.awfulapp.task.SendEditRequest;
+
+import org.apache.http.HttpStatus;
+import org.apache.http.protocol.HTTP;
 
 import java.util.HashMap;
 
@@ -148,23 +152,33 @@ public class AwfulLoginActivity extends AwfulActivity {
         NetworkUtils.queueRequest(new LoginRequest(this, username, password).build(null, new AwfulRequest.AwfulResultCallback<Boolean>() {
             @Override
             public void success(Boolean result) {
-                mDialog.dismiss();
-                Toast.makeText(AwfulLoginActivity.this, R.string.login_succeeded, Toast.LENGTH_SHORT).show();
-                setResult(Activity.RESULT_OK);
-                self.finish();
+                onLoginSuccess();
             }
 
             @Override
             public void failure(VolleyError error) {
-                mDialog.dismiss();
-                if (error.networkResponse.statusCode == 302) {
-                    Toast.makeText(AwfulLoginActivity.this, R.string.login_succeeded, Toast.LENGTH_SHORT).show();
-                    setResult(Activity.RESULT_OK);
-                    self.finish();
+                // Volley sometimes generates NetworkErrors with no response set, or wraps them
+                NetworkResponse response = error.networkResponse;
+                if (response == null) {
+                    Throwable cause = error.getCause();
+                    if (cause != null && cause instanceof VolleyError) {
+                        response = ((VolleyError) cause).networkResponse;
+                    }
+                }
+                if (response != null && response.statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    onLoginSuccess();
                 } else {
+                    mDialog.dismiss();
                     Toast.makeText(AwfulLoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
                     setResult(Activity.RESULT_CANCELED);
                 }
+            }
+
+            private void onLoginSuccess() {
+                mDialog.dismiss();
+                Toast.makeText(AwfulLoginActivity.this, R.string.login_succeeded, Toast.LENGTH_SHORT).show();
+                setResult(Activity.RESULT_OK);
+                self.finish();
             }
         }));
     }
