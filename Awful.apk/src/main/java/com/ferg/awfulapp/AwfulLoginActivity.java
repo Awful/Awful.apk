@@ -157,7 +157,7 @@ public class AwfulLoginActivity extends AwfulActivity {
             @Override
             public void failure(VolleyError error) {
                 mDialog.dismiss();
-                if (error.networkResponse.statusCode == 302) {
+                if (error.networkResponse != null && error.networkResponse.statusCode == 302) {
                     Toast.makeText(AwfulLoginActivity.this, R.string.login_succeeded, Toast.LENGTH_SHORT).show();
                     setResult(Activity.RESULT_OK);
                     self.finish();
