@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:padding="10dip"
-    android:paddingBottom="0dip" >
+    android:paddingBottom="0dip">
 
     <ImageView
         android:id="@+id/dealwithit"
@@ -30,25 +30,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/prompt_msg"
-        android:orientation="vertical"
-        android:background="#AAFFFFFF" >
+        android:background="#AAFFFFFF"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/username"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/username"
-            android:inputType="textVisiblePassword|textNoSuggestions" >
+            android:layout_height="wrap_content">
 
-            <requestFocus />
-        </EditText>
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/username"
+                android:inputType="textVisiblePassword|textNoSuggestions">
 
-        <EditText
-            android:id="@+id/password"
+                <requestFocus />
+            </EditText>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/password"
+                android:inputType="textPassword" />
+        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
     <Button
@@ -57,10 +67,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/login_text_container"
+        android:background="#AAFFFFFF"
         android:drawablePadding="15dip"
         android:drawableRight="?attr/iconMenuArrowRight"
         android:padding="15dip"
-        android:text="@string/login"
-        android:background="#AAFFFFFF" />
+        android:text="@string/login" />
 
 </RelativeLayout>

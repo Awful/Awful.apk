@@ -64,7 +64,7 @@
             android:visibility="gone" />
 
         <TextView
-            android:id="@+id/threadinfo"
+            android:id="@+id/thread_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/thread_locked"
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/threadinfo"
+            android:layout_below="@id/thread_info"
             android:maxLines="2"
             android:textColor="@color/default_post_font"
             android:textSize="16sp" />

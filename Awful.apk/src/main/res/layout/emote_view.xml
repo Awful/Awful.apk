@@ -3,28 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EmoteFragment" >
-    <com.ferg.awfulapp.widget.AwfulProgressBar 
+    tools:context=".EmoteFragment" >
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
         android:id="@+id/progress_bar"
 		android:layout_width="fill_parent"
 		android:layout_height="2dp"
 		android:visibility="invisible"
         android:layout_alignParentTop="true"
-       />
-    
-    <EditText
-        android:id="@+id/filter_text"
-        android:layout_width="wrap_content"
+        />
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/delete_button"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/delete_button"
         android:layout_below="@+id/progress_bar"
-        android:ems="10"
-        android:hint="@string/filter_emote_hint" >
+        android:layout_toLeftOf="@+id/delete_button">
 
-        <requestFocus />
-    </EditText>
+        <EditText
+            android:id="@+id/filter_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/filter_emote_hint">
+
+            <requestFocus />
+        </EditText>
+    </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/delete_button"
@@ -34,14 +40,15 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/progress_bar"
         android:text="X" />
-
+
+
     <GridView
         android:id="@+id/emote_grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/filter_text"
+        android:layout_below="@+id/delete_button"
         android:gravity="center"
         android:horizontalSpacing="4dp"
         android:numColumns="3"

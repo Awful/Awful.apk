@@ -1,33 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
     android:orientation="vertical">
 
-    <com.ferg.awfulapp.widget.AwfulProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="4dp"
-        android:visibility="gone" />
-
     <include
         android:id="@+id/probationbar"
-        layout="@layout/probationbar" />
-    <!--
-          <pl.polidea.treeview.TreeViewList 
-        android:id="@+id/index_tree_view" 
+        layout="@layout/probationbar"
+        android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:scrollbars="vertical" 
-		android:smoothScrollbar="true"
-		/>
-    -->
+        android:layout_alignParentTop="true"
+        />
     <com.ferg.awfulapp.widget.SwipyRefreshLayout
         android:id="@+id/index_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/probationbar"
         app:direction="top">
 
         <ExpandableListView
@@ -40,4 +30,11 @@
             android:groupIndicator="@android:color/transparent"
             android:drawSelectorOnTop="false" />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
-</LinearLayout>
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:visibility="gone"
+        android:layout_alignParentTop="true" />
+</RelativeLayout>
