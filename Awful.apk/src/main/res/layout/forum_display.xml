@@ -1,39 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/background"
-    android:orientation="vertical">
-
-    <com.ferg.awfulapp.widget.AwfulProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="4dp"
-        android:visibility="gone" />
+    android:background="@color/background">
 
     <include
         android:id="@+id/probationbar"
-        layout="@layout/probationbar" />
+        layout="@layout/probationbar"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentTop="true"
+        />
 
     <com.ferg.awfulapp.widget.SwipyRefreshLayout
         android:id="@+id/forum_swipe"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_below="@+id/probationbar"
+        android:layout_above="@+id/pagebar"
         android:orientation="vertical"
         app:direction="top">
 
         <ListView
             android:id="@+id/forum_list"
             android:layout_width="fill_parent"
-            android:layout_height="0dip"
+            android:layout_height="match_parent"
             android:cacheColorHint="@color/background"
             android:divider="?attr/listDividerColor"
-            android:dividerHeight="1dp" />
+            android:dividerHeight="1dp"
+            tools:listitem="@layout/nu_thread_item" />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
     <include
         android:id="@+id/pagebar"
-        layout="@layout/pagebar" />
-</LinearLayout>
+        layout="@layout/pagebar"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"/>
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:visibility="gone"
+        android:layout_alignParentTop="true"/>
+</RelativeLayout>

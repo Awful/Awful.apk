@@ -69,7 +69,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 		mProgressColor = new Paint();
 		mProgressColor.setColor(ColorProvider.getProgressbarColor());
 		mClearColor = new Paint();
-		mClearColor.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+		mClearColor.setAlpha(0);
 	}
 
 	@Override

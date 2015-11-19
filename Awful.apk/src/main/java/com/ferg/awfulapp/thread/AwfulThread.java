@@ -39,7 +39,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Messenger;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
@@ -530,7 +529,7 @@ public class AwfulThread extends AwfulPagedItem  {
             }
         }
 
-        TextView info   = (TextView) current.findViewById(R.id.threadinfo);
+        TextView info   = (TextView) current.findViewById(R.id.thread_info);
         TextView title  = (TextView) current.findViewById(R.id.title);
         TextView unread = (TextView) current.findViewById(R.id.unread_count);
         boolean stuck   = data.getInt(data.getColumnIndex(STICKY)) >0;

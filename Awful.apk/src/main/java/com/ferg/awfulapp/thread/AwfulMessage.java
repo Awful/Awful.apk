@@ -95,7 +95,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		if(t != null){
 			title.setText(t);
 		}
-		TextView author = (TextView) current.findViewById(R.id.threadinfo);
+		TextView author = (TextView) current.findViewById(R.id.thread_info);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
 		String date = data.getString(data.getColumnIndex(DATE));
 		if(auth != null && date != null){
