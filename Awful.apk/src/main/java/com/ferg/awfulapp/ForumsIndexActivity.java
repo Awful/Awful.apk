@@ -895,6 +895,8 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     public void reenableSwipe() {
+        this.mViewPager.beginFakeDrag();
+        this.mViewPager.endFakeDrag();
         this.mViewPager.setSwipeEnabled(true);
     }
 
