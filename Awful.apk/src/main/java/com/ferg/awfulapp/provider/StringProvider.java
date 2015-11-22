@@ -2,6 +2,7 @@ package com.ferg.awfulapp.provider;
 
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
 
@@ -19,42 +20,37 @@ public class StringProvider {
     }
 
     public static String getForumName(AwfulActivity context, int forumId){
-        try {
-            CursorLoader cl = new CursorLoader(context,
-                    ContentUris.withAppendedId(AwfulForum.CONTENT_URI, forumId),
-                    AwfulProvider.ForumProjection,
-                    null,
-                    null,
-                    null);
-            Cursor forum = cl.loadInBackground();
-            if (forum != null && !forum.isClosed() && forum.getCount() > 0 && forum.moveToFirst()) {
-                String name = forum.getString(forum.getColumnIndex(AwfulForum.TITLE));
-                forum.close();
-                return name;
-            }
-        }catch(IllegalStateException ise){
-            Log.e("StringProvider", "Error: "+ ise.getMessage());
-        }
-        return "Forum #"+String.valueOf(forumId);
+        return getName(context, forumId, AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection,
+                AwfulForum.TITLE, "Forum #");
     }
 
     public static String getThreadName(AwfulActivity context, int threadId){
+        return getName(context, threadId, AwfulThread.CONTENT_URI, AwfulProvider.ThreadProjection,
+                AwfulThread.TITLE, "Thread #");
+    }
+
+
+    private static String getName(AwfulActivity context, int id, Uri contentUri, String[] projection,
+                           String columnName, String defaultPrefix) {
+        Cursor cursor = null;
         try {
             CursorLoader cl = new CursorLoader(context,
-                    ContentUris.withAppendedId(AwfulThread.CONTENT_URI, threadId),
-                    AwfulProvider.ThreadProjection,
+                    ContentUris.withAppendedId(contentUri, id),
+                    projection,
                     null,
                     null,
                     null);
-            Cursor thread = cl.loadInBackground();
-            if(thread != null && !thread.isClosed() && thread.getCount() >0 && thread.moveToFirst()){
-                String name = thread.getString(thread.getColumnIndex(AwfulThread.TITLE));
-                thread.close();
-                return name;
+            cursor = cl.loadInBackground();
+            if(cursor != null && !cursor.isClosed() && cursor.getCount() > 0 && cursor.moveToFirst()){
+                return cursor.getString(cursor.getColumnIndex(columnName));
             }
-        }catch(IllegalStateException ise){
+        } catch (IllegalStateException ise){
             Log.e("StringProvider", "Error: "+ ise.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return "Thread #"+String.valueOf(threadId);
+        return defaultPrefix + String.valueOf(id);
     }
 }

@@ -276,7 +276,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
 		Cursor threadData = contentResolv.query(ContentUris.withAppendedId(CONTENT_URI, aThreadId), AwfulProvider.ThreadProjection, null, null, null);
     	int totalReplies = 0, unread = 0, opId = 0, bookmarkStatus = 0, hasViewedThread = 0, postcount = 0;
-		if(threadData.moveToFirst()){
+		if(threadData != null && threadData.moveToFirst()){
 			totalReplies    = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
 			unread          = threadData.getInt(threadData.getColumnIndex(UNREADCOUNT));
             postcount       = threadData.getInt(threadData.getColumnIndex(POSTCOUNT));
@@ -328,7 +328,9 @@ public class AwfulThread extends AwfulPagedItem  {
     	thread.put(FORUM_ID, forumId);
     	int lastPage = AwfulPagedItem.parseLastPage(response);
 
-		threadData.close();
+        if (threadData != null) {
+            threadData.close();
+        }
 		int replycount;
 		if(aUserId > 0){
 			replycount = AwfulPagedItem.pageToIndex(lastPage, aPageSize, 0);
