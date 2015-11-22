@@ -254,28 +254,22 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
 
     public String getFilePath(Uri uri) {
-        try{
+        Cursor cursor = null;
+        try {
             String[] projection = { MediaStore.Images.Media.DATA };
-            Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
-            if(cursor!=null)
-            {
-                //HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
-                //THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
-                int column_index = cursor
-                        .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                cursor.moveToFirst();
-                String filePath = cursor.getString(column_index);
-                cursor.close();
-                return filePath;
-            }
-            else{
-                Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
-                return null;
-            }
-        }catch(NullPointerException e){
+            cursor = this.getContentResolver().query(uri, projection, null, null, null);
+            int column_index = cursor
+                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } catch(NullPointerException e) {
             Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
             e.printStackTrace();
             return null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 

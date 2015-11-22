@@ -57,7 +57,7 @@ public class MarkLastReadRequest extends AwfulRequest<Void> {
 
         //update unread count
         Cursor threadData = resolv.query(ContentUris.withAppendedId(AwfulThread.CONTENT_URI, threadId), AwfulProvider.ThreadProjection, null, null, null);
-        if(threadData.getCount()>0 && threadData.moveToFirst()){
+        if(threadData != null && threadData.moveToFirst()){
             ContentValues thread_update = new ContentValues();
             thread_update.put(AwfulThread.UNREADCOUNT, threadData.getInt(threadData.getColumnIndex(AwfulThread.POSTCOUNT)) - postIndex);
             resolv.update(AwfulThread.CONTENT_URI,
@@ -65,7 +65,9 @@ public class MarkLastReadRequest extends AwfulRequest<Void> {
                     AwfulThread.ID + "=?",
                     AwfulProvider.int2StrArray(threadId));
         }
-        threadData.close();
+        if (threadData != null) {
+            threadData.close();
+        }
         return null;
     }
 
