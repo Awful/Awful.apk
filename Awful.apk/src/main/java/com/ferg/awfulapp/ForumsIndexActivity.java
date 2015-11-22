@@ -895,15 +895,15 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
     public void reenableSwipe() {
-        this.runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mViewPager.beginFakeDrag();
-                mViewPager.endFakeDrag();
+                if (mViewPager.beginFakeDrag()) {
+                    mViewPager.endFakeDrag();
+                }
+                mViewPager.setSwipeEnabled(true);
             }
         });
-
-        this.mViewPager.setSwipeEnabled(true);
     }
 
 
