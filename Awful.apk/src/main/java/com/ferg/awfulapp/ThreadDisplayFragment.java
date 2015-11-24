@@ -32,10 +32,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,7 +41,6 @@ import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -692,13 +688,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 
 	private void copyThreadURL(String postId) {
-		String url = generateThreadUrl(postId);
-		ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-				Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText(this.getText(R.string.copy_url).toString() + getPage(), url);
-		clipboard.setPrimaryClip(clip);
-
-		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
+		String clipLabel = this.getText(R.string.copy_url).toString() + getPage();
+		String clipText  = generateThreadUrl(postId);
+		safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
 	}
 
 	private void rateThread() {
@@ -1382,9 +1374,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 	
 	private void copyToClipboard(String text){
-		ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText("Copied URL", text);
-		clipboard.setPrimaryClip(clip);
+		safeCopyToClipboard("Copied URL", text, null);
 	}
 	
 	private void startUrlIntent(String url){

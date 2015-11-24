@@ -29,12 +29,9 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -46,7 +43,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -422,14 +418,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     private void copyUrl(int id) {
-
-        ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
-				Context.CLIPBOARD_SERVICE);
-		ClipData clip = ClipData.newPlainText(String.format("Thread #%d", id), Constants.FUNCTION_THREAD + "?" + Constants.PARAM_THREAD_ID + "=" + id);
-		clipboard.setPrimaryClip(clip);
-
-		displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
-	}
+        String clipLabel = String.format("Thread #%d", id);
+        String clipText  = Constants.FUNCTION_THREAD + "?" + Constants.PARAM_THREAD_ID + "=" + id;
+        safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
+    }
 
 	private void displayPagePicker() {
         View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);

@@ -28,11 +28,16 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.view.ActionMode;
@@ -420,6 +425,39 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
         if(getActivity() != null){
             getLoaderManager().restartLoader(id, data, callback);
+        }
+    }
+
+
+    /**
+     * Utility method to safely handle clipboard copying.
+     * A <a href="https://code.google.com/p/android/issues/detail?id=58043">bug in 4.3</a>
+     * means that clipboard writes can throw runtime exceptions if another app has registered
+     * as a listener. This method catches them and displays an error message for the user.
+     *
+     * @param label             The {@link ClipData}'s label
+     * @param clipText          The {@link ClipData}'s text
+     * @param successMessageId  If supplied, a success message popup will be displayed
+     * @return                  false if the copy failed
+     */
+    protected boolean safeCopyToClipboard(String label,
+                                          String clipText,
+                                          @Nullable @StringRes Integer successMessageId) {
+        ClipboardManager clipboard = (ClipboardManager) this.getActivity().getSystemService(
+                Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(label, clipText);
+        try {
+            clipboard.setPrimaryClip(clip);
+            if (successMessageId != null) {
+                displayAlert(successMessageId, 0, R.attr.iconMenuLink);
+            }
+            return true;
+        } catch (IllegalArgumentException | SecurityException e) {
+            displayAlert("Unable to copy to clipboard!",
+                    "Another app has locked access, you may need to reboot",
+                    R.attr.iconMenuLoadFailed, null);
+            e.printStackTrace();
+            return false;
         }
     }
 }
