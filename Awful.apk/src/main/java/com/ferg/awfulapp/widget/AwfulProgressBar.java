@@ -30,6 +30,7 @@ package com.ferg.awfulapp.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
@@ -43,25 +44,21 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 	private int mProgress = 100;
 	private Paint mProgressColor;
 	private Paint mClearColor;
-	private AwfulPreferences aPrefs;
 	
 
 	public AwfulProgressBar(Context context) {
 		super(context);
-		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 
 	public AwfulProgressBar(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		if (this.isInEditMode()) { return; } // suppress errors during GUI dev
-		aPrefs = AwfulPreferences.getInstance(this.getContext(), this);
 		setPaint(context);
 	}
 	
@@ -69,7 +66,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 		mProgressColor = new Paint();
 		mProgressColor.setColor(ColorProvider.getProgressbarColor());
 		mClearColor = new Paint();
-		mClearColor.setAlpha(0);
+		mClearColor.setColor(Color.TRANSPARENT);
 	}
 
 	@Override

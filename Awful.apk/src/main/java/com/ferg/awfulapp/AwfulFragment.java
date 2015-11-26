@@ -105,9 +105,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
 		onPreferenceChange(mPrefs, null);
-		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
-		}
 	}
 
     @Override
