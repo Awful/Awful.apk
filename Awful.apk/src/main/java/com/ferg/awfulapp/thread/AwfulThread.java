@@ -353,7 +353,10 @@ public class AwfulThread extends AwfulPagedItem  {
             thread.put(AwfulThread.UNREADCOUNT, newUnread);
             Log.i(TAG, aThreadId+" - Old unread: "+unread+" new unread: "+newUnread);
         }
-        
+
+        if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
+            contentResolv.insert(CONTENT_URI, thread);
+        }
         AwfulPost.syncPosts(contentResolv,
                 response,
                 aThreadId,
@@ -361,10 +364,6 @@ public class AwfulThread extends AwfulPagedItem  {
                 opId,
                 aPrefs,
                 AwfulPagedItem.pageToIndex(aPage, aPageSize, 0));
-        
-    	if(contentResolv.update(ContentUris.withAppendedId(CONTENT_URI, aThreadId), thread, null, null) <1){
-    		contentResolv.insert(CONTENT_URI, thread);
-    	}
     }
 
     public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
