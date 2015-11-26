@@ -1,14 +1,19 @@
 package com.ferg.awfulapp.preferences.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.preference.Preference;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.ForumsIndexActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -75,8 +80,16 @@ public class RootSettings extends SettingsFragment {
     private class ExportListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            mPrefs.exportSettings();
-            Toast.makeText(getActivity(), "Settings exported", Toast.LENGTH_LONG).show();
+            if(AwfulUtils.isMarshmallow()){
+                int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE);
+                }else{
+                    mPrefs.exportSettings();
+                }
+            }else{
+                mPrefs.exportSettings();
+            }
             return true;
         }
     }
@@ -87,9 +100,26 @@ public class RootSettings extends SettingsFragment {
         public boolean onPreferenceClick(Preference preference) {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("file/*");
-            startActivityForResult(Intent.createChooser(intent,
+            getActivity().startActivityForResult(Intent.createChooser(intent,
                     "Select Settings File"), SettingsActivity.SETTINGS_FILE);
             return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AwfulPreferences.getInstance().exportSettings();
+                } else {
+                    Toast.makeText(getActivity(), R.string.no_file_permission_settings_export, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

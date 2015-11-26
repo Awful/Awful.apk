@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.preferences;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -21,9 +24,11 @@ import android.widget.Toast;
 
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.fragments.RootSettings;
 import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -80,6 +85,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             R.xml.themesettings,
             R.xml.threadinfosettings
     };
+    private Intent importData;
 
     /** Initialise all preference defaults from the XML hierarchy */
     public static void setDefaultsFromXml(Context context) {
@@ -240,15 +246,28 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SETTINGS_FILE) {
-                Toast.makeText(this, "importing settings", Toast.LENGTH_SHORT).show();
-                Uri selectedSetting = data.getData();
-                String path = getFilePath(selectedSetting);
-                if (path != null) {
-                    File settingsfile = new File(path);
-                    AwfulPreferences.getInstance(this).importSettings(settingsfile);
-                    this.finish();
+                if(AwfulUtils.isMarshmallow()){
+                    int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                        this.importData = data;
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
+                    }else{
+                        importFile(data);
+                    }
+                }else {
+                    importFile(data);
                 }
             }
+        }
+    }
+    protected void importFile(Intent data){
+        Toast.makeText(this, "importing settings", Toast.LENGTH_SHORT).show();
+        Uri selectedSetting = data.getData();
+        String path = getFilePath(selectedSetting);
+        if (path != null) {
+            File settingsfile = new File(path);
+            AwfulPreferences.getInstance(this).importSettings(settingsfile);
+            this.finish();
         }
     }
 
@@ -258,8 +277,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
         try {
             String[] projection = { MediaStore.Images.Media.DATA };
             cursor = this.getContentResolver().query(uri, projection, null, null, null);
-            int column_index = cursor
-                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
             return cursor.getString(column_index);
         } catch(NullPointerException e) {
@@ -304,6 +322,23 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
                         .create();
             default:
                 return super.onCreateDialog(dialogId);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    importFile(importData);
+                } else {
+                    Toast.makeText(this, R.string.no_file_permission_settings_import, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

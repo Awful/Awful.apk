@@ -42,6 +42,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.widget.Toast;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -405,7 +406,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			e.printStackTrace();
 	    } catch (NameNotFoundException e) {
 			e.printStackTrace();
-		} 
+		}
+
+		Toast.makeText(getContext(), "Settings exported", Toast.LENGTH_LONG).show();
 	}
 	
 	public void importSettings(File settingsFile){

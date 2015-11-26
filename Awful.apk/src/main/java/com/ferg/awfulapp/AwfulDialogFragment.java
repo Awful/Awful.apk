@@ -95,9 +95,6 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs, null);
-		if(mProgressBar != null){
-			mProgressBar.setBackgroundColor(ColorProvider.getBackgroundColor());
-		}
 	}
     
     @Override
