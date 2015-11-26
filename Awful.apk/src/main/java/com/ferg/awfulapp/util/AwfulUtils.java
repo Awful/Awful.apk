@@ -42,13 +42,12 @@ public class AwfulUtils {
         return Build.VERSION.SDK_INT >= code;
     }
 
-
     public static boolean isJellybean() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+        return isAtLeast(Build.VERSION_CODES.JELLY_BEAN);
     }
 
     public static boolean isKitKat() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        return isAtLeast(Build.VERSION_CODES.KITKAT);
     }
 
     public static boolean isKitKatOnly() {
@@ -56,7 +55,11 @@ public class AwfulUtils {
     }
 
     public static boolean isLollipop() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return isAtLeast(Build.VERSION_CODES.LOLLIPOP);
+    }
+
+    public static boolean isMarshmallow() {
+        return isAtLeast(Build.VERSION_CODES.M);
     }
 
     public static boolean isTablet(Context cont, boolean forceCheck) {

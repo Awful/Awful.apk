@@ -29,6 +29,7 @@
 
 package com.ferg.awfulapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -38,6 +39,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -48,7 +50,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -79,6 +83,7 @@ import com.ferg.awfulapp.task.SendPostRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
@@ -115,6 +120,7 @@ public class PostReplyFragment extends AwfulFragment {
     private long draftReplyTimestamp;
     private int selectionStart = -1;
     private int selectionEnd = -1;
+    private Intent attachmentData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -250,33 +256,50 @@ public class PostReplyFragment extends AwfulFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ADD_ATTACHMENT) {
-                Toast attachmentToast;
-                Uri selectedImageUri = data.getData();
-                String path = getFilePath(selectedImageUri);
-                final Activity activity = this.getActivity();
-                if (path == null) {
-                    attachmentToast = Toast.makeText(activity, this.getString(R.string.file_error), Toast.LENGTH_LONG);
-                    mFileAttachment = null;
-                } else {
-                    File attachment = new File(path);
-                    if (attachment.isFile() && attachment.canRead()) {
-                        if (attachment.length() > 1048576) {
-                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
-                            mFileAttachment = null;
-                        } else {
-                            mFileAttachment = path;
-                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
-                        }
+                if (AwfulUtils.isMarshmallow()) {
+                    int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+                    if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                        this.attachmentData = data;
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
                     } else {
-                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
-                        mFileAttachment = null;
+                        addAttachment(data);
                     }
+                }else{
+                    addAttachment(data);
                 }
-                attachmentToast.show();
-                invalidateOptionsMenu();
             }
         }
+    }
+    protected void addAttachment() {
+        addAttachment(attachmentData);
+        attachmentData = null;
+    }
 
+    protected void addAttachment(Intent data) {
+        Toast attachmentToast;
+        Uri selectedImageUri = data.getData();
+        String path = getFilePath(selectedImageUri);
+        final Activity activity = this.getActivity();
+        if (path == null) {
+            attachmentToast = Toast.makeText(activity, this.getString(R.string.file_error), Toast.LENGTH_LONG);
+            mFileAttachment = null;
+        } else {
+            File attachment = new File(path);
+            if (attachment.isFile() && attachment.canRead()) {
+                if (attachment.length() > (1024 * 1024)) {
+                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                    mFileAttachment = null;
+                } else {
+                    mFileAttachment = path;
+                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                }
+            } else {
+                attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
+                mFileAttachment = null;
+            }
+        }
+        attachmentToast.show();
+        invalidateOptionsMenu();
     }
 
     public String getFilePath(final Uri uri) {
@@ -880,7 +903,7 @@ public class PostReplyFragment extends AwfulFragment {
                 ContentValues post;
                 if(replyData == null){
                     post = new ContentValues();
-                }else{
+                } else {
                     post = new ContentValues(replyData);
                 }
                 post.put(AwfulMessage.ID, mThreadId);
@@ -1032,6 +1055,24 @@ public class PostReplyFragment extends AwfulFragment {
         public void onChange(boolean selfChange) {
             Log.e(TAG, "Thread Data update.");
             refreshThreadInfo();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Log.e(TAG, "onRequestPermissionsResult: " + requestCode);
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addAttachment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

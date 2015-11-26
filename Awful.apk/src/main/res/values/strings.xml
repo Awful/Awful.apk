@@ -365,4 +365,7 @@
     <string name="debug_mode">Debug mode</string>
     <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
     <string name="post_divider_enabled">Show post divider</string>
+    <string name="no_file_permission_attachment">Well, you didn\'t allow Awful to access files, so it can\'t add the attachment you just selected. Good job.</string>
+    <string name="no_file_permission_settings_import">You know, you didn\'t allow Awful to access files, so it can\'t import the settings file you just selected. Well done.</string>
+    <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
 </resources>
