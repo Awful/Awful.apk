@@ -1,11 +1,16 @@
 package com.ferg.awfulapp.preferences.fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.preference.ListPreference;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -34,10 +39,38 @@ public class ThemeSettings extends SettingsFragment {
     protected void initialiseSettings() {
         super.initialiseSettings();
         Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
+        if(AwfulUtils.isMarshmallow()){
+            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
+            } else {
+                loadExternalOptions();
+            }
+        }else{
+            loadExternalOptions();
+        }
 
+        ListPreference f = (ListPreference) findPreference("preferred_font");
+        String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
+        String[] fontNames = new String[fontList.length];
+        String thisFontName;
+        for (int x = 0; x < fontList.length; x++) {
+            Matcher fontName = fontFilename.matcher(fontList[x]);
+            if (fontName.find()) {
+                thisFontName = fontName.group(1).replaceAll("_", " ");
+            } else {//if the regex fails, try our best to clean up the filename.
+                thisFontName = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
+            }
+            fontNames[x] = WordUtils.capitalize(thisFontName);
+        }
+        f.setEntries(fontNames);
+        f.setEntryValues(fontList);
+
+    }
+
+    private void loadExternalOptions(){
         ListPreference themePref = (ListPreference) findPreference("theme");
         ListPreference layoutPref = (ListPreference) findPreference("layouts");
-
         File[] SDcard = Environment.getExternalStorageDirectory().listFiles();
         if (SDcard != null) {
             for (File folder: SDcard){
@@ -76,22 +109,23 @@ public class ThemeSettings extends SettingsFragment {
                 }
             }
         }
-        else Log.w(TAG, "Unable to access ExternalStorageDirectory - themes and layouts not loaded");
-
-        ListPreference f = (ListPreference) findPreference("preferred_font");
-        String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
-        String[] fontNames = new String[fontList.length];
-        String thisFontName;
-        for(int x=0; x<fontList.length;x++){
-            Matcher fontName = fontFilename.matcher(fontList[x]);
-            if(fontName.find()){
-                thisFontName = fontName.group(1).replaceAll("_", " ");
-            }else{//if the regex fails, try our best to clean up the filename.
-                thisFontName = fontList[x].replaceAll(".ttf.mp3", "").replaceAll("fonts/", "").replaceAll("_", " ");
-            }
-            fontNames[x] = WordUtils.capitalize(thisFontName);
+        else{
+            Log.w(TAG, "Unable to access ExternalStorageDirectory - themes and layouts not loaded");
         }
-        f.setEntries(fontNames);
-        f.setEntryValues(fontList);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loadExternalOptions();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

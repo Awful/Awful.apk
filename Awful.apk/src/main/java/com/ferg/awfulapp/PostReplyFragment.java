@@ -1014,7 +1014,7 @@ public class PostReplyFragment extends AwfulFragment {
                 String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
                 if (!TextUtils.isEmpty(quoteData)) {
                     draftReplyData = NetworkUtils.unencodeHtml(quoteData);
-                    Log.e(TAG, draftReplyType + "Saved reply message: " + draftReplyData);
+                    Log.i(TAG, draftReplyType + "Saved reply message: " + draftReplyData);
                 }
             }
         }
@@ -1053,14 +1053,13 @@ public class PostReplyFragment extends AwfulFragment {
 
         @Override
         public void onChange(boolean selfChange) {
-            Log.e(TAG, "Thread Data update.");
+            if(DEBUG) Log.v(TAG, "Thread Data update.");
             refreshThreadInfo();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Log.e(TAG, "onRequestPermissionsResult: " + requestCode);
         switch (requestCode) {
             case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
