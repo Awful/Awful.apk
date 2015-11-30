@@ -151,7 +151,7 @@ public class AwfulForum extends AwfulPagedItem {
 				}
 			}
 		}
-		if(result.size() > 0){
+		if(result.size() > 1){
 			Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
 			contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 		}
@@ -210,7 +210,7 @@ public class AwfulForum extends AwfulPagedItem {
 		contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
 	}
 
-    private static int getForumId(String aHref) {
+    public static int getForumId(String aHref) {
     	Matcher forumIdMatch = forumId_regex.matcher(aHref);
     	if(forumIdMatch.find()){
     		return Integer.parseInt(forumIdMatch.group(1));

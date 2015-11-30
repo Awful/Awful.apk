@@ -13,6 +13,10 @@
     <group
         android:id="@+id/main_nav_options">
         <item
+            android:id="@+id/sidebar_search"
+            android:icon="?attr/iconMenuBookmarkDark"
+            android:title="@string/search" />
+        <item
             android:id="@+id/sidebar_bookmarks"
             android:icon="?attr/iconMenuBookmarkDark"
             android:title="@string/user_cp" />
