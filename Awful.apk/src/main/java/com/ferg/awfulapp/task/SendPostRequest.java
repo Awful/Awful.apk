@@ -17,10 +17,8 @@ import org.jsoup.nodes.Document;
  * Created by matt on 8/8/13.
  */
 public class SendPostRequest extends AwfulRequest<Void> {
-    private ContentValues replyData;
     public SendPostRequest(Context context, ContentValues reply) {
         super(context, null);
-        replyData = reply;
         addPostParam(Constants.PARAM_ACTION, "postreply");
         addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(reply.getAsInteger(AwfulMessage.ID)));
         addPostParam(Constants.PARAM_FORMKEY, reply.getAsString(AwfulPost.FORM_KEY));

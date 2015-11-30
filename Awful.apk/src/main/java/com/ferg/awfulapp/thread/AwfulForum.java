@@ -214,7 +214,7 @@ public class AwfulForum extends AwfulPagedItem {
 		contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
 	}
 
-    private static int getForumId(String aHref) {
+    public static int getForumId(String aHref) {
     	Matcher forumIdMatch = forumId_regex.matcher(aHref);
     	if(forumIdMatch.find()){
     		return Integer.parseInt(forumIdMatch.group(1));

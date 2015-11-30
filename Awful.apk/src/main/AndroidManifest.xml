@@ -79,6 +79,11 @@
 				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/private.php"/>
         	</intent-filter>
         </activity>
+        <activity
+            android:name="com.ferg.awfulapp.SearchActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            />
 
 		<provider android:name="com.ferg.awfulapp.provider.AwfulProvider"
 				  android:authorities="com.ferg.awfulapp.provider" />
