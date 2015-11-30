@@ -368,4 +368,6 @@
     <string name="no_file_permission_attachment">Well, you didn\'t allow Awful to access files, so it can\'t add the attachment you just selected. Good job.</string>
     <string name="no_file_permission_settings_import">You know, you didn\'t allow Awful to access files, so it can\'t import the settings file you just selected. Well done.</string>
     <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
+    <string name="no_file_permission_download">Awful doesn\'t have permission to store the download. Welp, guess not then.</string>
+    <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
 </resources>

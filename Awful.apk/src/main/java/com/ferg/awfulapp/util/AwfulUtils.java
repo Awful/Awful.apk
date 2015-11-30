@@ -1,14 +1,18 @@
 package com.ferg.awfulapp.util;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.ToxicBakery.viewpager.transforms.ABaseTransformer;
 import com.ToxicBakery.viewpager.transforms.AccordionTransformer;
@@ -24,6 +28,7 @@ import com.ToxicBakery.viewpager.transforms.TabletTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomInTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutTranformer;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -31,6 +36,8 @@ import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -119,18 +126,6 @@ public class AwfulUtils {
         }
     }
 
-    public static String LogE(String tag, String message) {
-        Log.e(tag, message);
-        return message;
-    }
-
-    public static float getPixelsFromDIP(Context context, int dipValue) {
-        if (context != null) {
-            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, context.getResources().getDisplayMetrics());
-        }
-        return dipValue;
-    }
-
     public static void trimDbEntries(ContentResolver cr) {
         int rowCount = 0;
         rowCount += cr.delete(AwfulThread.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
@@ -159,5 +154,59 @@ public class AwfulUtils {
 
 
         return transformerMap.get(AwfulPreferences.getInstance().transformer);
+    }
+
+    public static String determineCSS(int forumId) {
+        AwfulPreferences prefs = AwfulPreferences.getInstance();
+        String userTheme = prefs.theme;
+
+        String[] baseThemes = prefs.getContext().getResources().getStringArray(R.array.schemas_values);
+        int[] specialForums = new int[]{Constants.FORUM_ID_YOSPOS, Constants.FORUM_ID_FYAD, Constants.FORUM_ID_FYAD_SUB, Constants.FORUM_ID_BYOB, Constants.FORUM_ID_COOL_CREW};
+
+        if (!(prefs.forceForumThemes && contains(specialForums, forumId)) && !Arrays.asList(baseThemes).contains(userTheme)) {
+            if (AwfulUtils.isMarshmallow()) {
+                File css = new File(Environment.getExternalStorageDirectory() + "/awful/" + userTheme);
+                int permissionCheck = ContextCompat.checkSelfPermission(prefs.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (permissionCheck != PackageManager.PERMISSION_GRANTED || !(css.exists() && css.isFile() && css.canRead())) {
+                    //We don't have permission to get the custom css, but also no time to wait for the user to press a button, so you're shit outta luck
+                    if (userTheme.contains(".dark")) {
+                        userTheme = "dark.css";
+                    } else {
+                        userTheme = "default.css";
+                    }
+                    Toast.makeText(prefs.getContext(), R.string.no_file_permission_theme, Toast.LENGTH_LONG).show();
+                    return "file:///android_asset/css/" + userTheme;
+                }
+            }
+            return "file:///" + Environment.getExternalStorageDirectory().listFiles() + "/awful/" + userTheme;
+        } else if (prefs.forceForumThemes) {
+            switch (forumId) {
+                case (Constants.FORUM_ID_FYAD):
+                case (Constants.FORUM_ID_FYAD_SUB):
+                    return "file:///android_asset/css/fyad.css";
+                case (Constants.FORUM_ID_BYOB):
+                case (Constants.FORUM_ID_COOL_CREW):
+                    return "file:///android_asset/css/byob.css";
+                case (Constants.FORUM_ID_YOSPOS):
+                    if (prefs.amberDefaultPos) {
+                        return "file:///android_asset/css/amberpos.css";
+                    } else {
+                        return "file:///android_asset/css/yospos.css";
+                    }
+                default:
+                    return "file:///android_asset/css/" + userTheme;
+            }
+        } else {
+            return "file:///android_asset/css/" + userTheme;
+        }
+    }
+
+    public static boolean contains(int[] intArray, int value){
+        for(int cur:intArray){
+            if(cur == value){
+                return true;
+            }
+        }
+        return false;
     }
 }

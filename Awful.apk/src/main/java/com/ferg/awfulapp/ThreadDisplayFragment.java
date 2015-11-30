@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,6 +51,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
@@ -108,8 +110,6 @@ import com.ferg.awfulapp.util.AwfulUtils;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -126,7 +126,6 @@ import java.util.List;
  *  Can also handle an HTTP intent that refers to an SA showthread.php? url.
  */
 public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
-    private static final boolean OUTPUT_HTML = false;
 
     private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
@@ -182,8 +181,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private String bodyHtml = "";
 	private HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
+	private Uri downloadLink;
 
-    public ThreadDisplayFragment() {
+	public ThreadDisplayFragment() {
         super();
         TAG = "ThreadDisplayFragment";
     }
@@ -878,7 +878,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void toggleYospos() {
 		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
 		mPrefs.setBooleanPreference("amber_default_pos", mPrefs.amberDefaultPos);
-		mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+		mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
 	}
     
     private void startPostRedirect(final String postUrl) {
@@ -1048,12 +1048,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         try {
 
             String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
-            if(OUTPUT_HTML && Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
-            	Toast.makeText(getActivity(), "OUTPUTTING DEBUG HTML", Toast.LENGTH_LONG).show();
-            	FileOutputStream out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "awful-thread-"+getThreadId()+"-"+getPage()+".html"));
-            	out.write(html.replaceAll("file:///android_res/", "").replaceAll("file:///android_asset/", "").getBytes());
-            	out.close();
-            }
             refreshSessionCookie();
             bodyHtml = html;
             mThreadView.loadUrl("javascript:loadpagehtml()");
@@ -1228,7 +1222,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public String getCSS(){
-            return determineCSS();
+            return AwfulUtils.determineCSS(mParentForumId);
         }
         
         private void preparePreferences(){
@@ -1346,12 +1340,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             public void onClick(DialogInterface aDialog, int aItem) {
             	switch(aItem+(isImage?0:2)){
             	case 0:
-        			Request request = new Request(link);
-        			request.setShowRunningNotification(true);
-        			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
-        			request.allowScanningByMediaScanner();
-        			DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
-        	        dlMngr.enqueue(request);
+					enqueueDownload(link);
         			break;
             	case 1:
         			if(mThreadView != null){
@@ -1372,7 +1361,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             }
         }).show();
 	}
-	
+
+	private void enqueueDownload(Uri link) {
+		if(AwfulUtils.isMarshmallow()){
+			int permissionCheck = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+				downloadLink = link;
+				requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE);
+				return;
+			}
+		}
+		Request request = new Request(link);
+		request.setShowRunningNotification(true);
+		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
+		request.allowScanningByMediaScanner();
+		DownloadManager dlMngr= (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
+		dlMngr.enqueue(request);
+	}
+
 	private void copyToClipboard(String text){
 		safeCopyToClipboard("Copied URL", text, null);
 	}
@@ -1405,7 +1411,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
-            mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+			//mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
             mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
             mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
@@ -1550,7 +1556,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                 threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
 				if(mParentForumId != 0 && mThreadView != null){
-					mThreadView.loadUrl("javascript:changeCSS('"+determineCSS()+"')");
+					mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
 				}
 //                //Same thread, already done this, don't override the forum name
 //                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
@@ -1630,7 +1636,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     	if(url.isRedirect()){
     		startPostRedirect(url.getURL(mPrefs.postPerPage));
     	}else{
-    		loadThread((int)url.getId(), (int)url.getPage(mPrefs.postPerPage), url.getFragment());
+    		loadThread((int) url.getId(), (int) url.getPage(mPrefs.postPerPage), url.getFragment());
     	}
 	}
 	
@@ -1761,31 +1767,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
 	}
 
-    
-    private String determineCSS(){
-        File css = new File(Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme);
-        if(!(mPrefs.forceForumThemes && (mParentForumId == Constants.FORUM_ID_YOSPOS || mParentForumId == Constants.FORUM_ID_FYAD || mParentForumId == Constants.FORUM_ID_FYAD_SUB || mParentForumId == Constants.FORUM_ID_BYOB || mParentForumId == Constants.FORUM_ID_COOL_CREW) ) && css.exists() && css.isFile() && css.canRead()){
-        	return "file:///"+Environment.getExternalStorageDirectory()+"/awful/"+mPrefs.theme;
-        }else if(mPrefs.forceForumThemes){
-        	switch(mParentForumId){
-    			case(Constants.FORUM_ID_FYAD):
-                case(Constants.FORUM_ID_FYAD_SUB):
-					return "file:///android_asset/css/fyad.css";
-				case(Constants.FORUM_ID_BYOB):
-				case(Constants.FORUM_ID_COOL_CREW):
-        			return "file:///android_asset/css/byob.css";
-        		case(Constants.FORUM_ID_YOSPOS):
-					if(mPrefs.amberDefaultPos){
-						return "file:///android_asset/css/amberpos.css";
-					}else{
-						return "file:///android_asset/css/yospos.css";
-					}
-        		default:
-        			return "file:///android_asset/css/"+mPrefs.theme;
-        	}
-        }else{
-            return "file:///android_asset/css/"+mPrefs.theme;
-        }
-    }
-
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		switch (requestCode) {
+			case Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE: {
+				// If request is cancelled, the result arrays are empty.
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					if(downloadLink != null)
+					enqueueDownload(downloadLink);
+				} else {
+					Toast.makeText(getActivity(), R.string.no_file_permission_download, Toast.LENGTH_LONG).show();
+				}
+				downloadLink = null;
+				break;
+			}
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		}
+	}
 }
