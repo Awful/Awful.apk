@@ -156,6 +156,7 @@ public class SearchFragment extends AwfulFragment {
 
                 final String threadlink = search.getThreadLink();
                 final int forumId = search.getForumId();
+                final ProgressDialog redirectDialog = new ProgressDialog(getContext());
                 final RedirectTask redirect = new RedirectTask(Constants.BASE_URL + threadlink) {
                     @Override
                     protected void onPostExecute(String url) {
@@ -170,6 +171,7 @@ public class SearchFragment extends AwfulFragment {
                                         .putExtra(Constants.FORUM_ID, forumId)
                                         .putExtra(Constants.FORUM_PAGE, 1)
                                         .putExtra(Constants.THREAD_FRAGMENT, result.getFragment().substring(4));
+                                redirectDialog.dismiss();
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
@@ -186,6 +188,11 @@ public class SearchFragment extends AwfulFragment {
                         if (getActivity() != null) {
                             if(redirect.getStatus() == AsyncTask.Status.PENDING){
                                 redirect.execute();
+                                redirectDialog.setMessage("Just a second");
+                                redirectDialog.setTitle("Opening");
+                                redirectDialog.setIndeterminate(true);
+                                redirectDialog.setCancelable(false);
+                                redirectDialog.show();
                             }
                         }
 
@@ -256,7 +263,7 @@ public class SearchFragment extends AwfulFragment {
     }
 
     private void search() {
-        mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, true);
+        mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, false);
         Integer[] searchforums = new Integer[]{};
         int[] searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toArray(searchforums));
         NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
