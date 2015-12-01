@@ -371,6 +371,19 @@ public class ForumsIndexActivity extends AwfulActivity {
                 });
             }
         }
+
+        // private messages - show 'em if you got 'em
+        final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
+        if (searchItem != null) {
+            if (searchItem.isEnabled() != mPrefs.hasPlatinum || searchItem.isVisible() != mPrefs.hasPlatinum) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+                    }
+                });
+            }
+        }
     }
 
 
