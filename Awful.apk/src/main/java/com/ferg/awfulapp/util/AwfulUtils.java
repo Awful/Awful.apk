@@ -178,7 +178,7 @@ public class AwfulUtils {
                     return "file:///android_asset/css/" + userTheme;
                 }
             }
-            return "file:///" + Environment.getExternalStorageDirectory().listFiles() + "/awful/" + userTheme;
+            return "file:///" + Environment.getExternalStorageDirectory() + "/awful/" + userTheme;
         } else if (prefs.forceForumThemes) {
             switch (forumId) {
                 case (Constants.FORUM_ID_FYAD):
