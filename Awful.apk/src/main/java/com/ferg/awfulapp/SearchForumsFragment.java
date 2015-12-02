@@ -87,21 +87,37 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 
 			@Override
 			public void onBindViewHolder(SearchHolder holder, final int position) {
-				holder.forumName.setText(forums.get(position).getForumName());
-				holder.forumCheckbox.setChecked(forums.get(position).isChecked());
-				holder.forumCheckbox.setTag(forums.get(position));
-
+				final AwfulSearchForum searchForum = forums.get(position);
+				holder.forumName.setText(searchForum.getForumName());
+				holder.forumCheckbox.setChecked(searchForum.isChecked());
+				holder.forumCheckbox.setTag(searchForum);
+				final RecyclerView.Adapter<SearchHolder> self = this;
 				holder.forumCheckbox.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						CheckBox cb = (CheckBox) v;
 						AwfulSearchForum forum = (AwfulSearchForum) cb.getTag();
 
 						forum.setChecked(cb.isChecked());
-						forums.get(position).setChecked(cb.isChecked());
+						searchForum.setChecked(cb.isChecked());
 						if(cb.isChecked()){
 							parent.searchForums.add(forum.getForumId());
 						}else{
 							parent.searchForums.remove(forum.getForumId());
+						}
+						if(searchForum.getDepth() <3 ){
+							for (AwfulSearchForum childSearchforum: forums){
+								if(childSearchforum.getDepth()>searchForum.getDepth() || searchForum.getForumId() == -1){
+									if(childSearchforum.getParents().contains("parent"+searchForum.getForumId()) || searchForum.getForumId() == -1){
+										childSearchforum.setChecked(searchForum.isChecked());
+										if(searchForum.isChecked()){
+											parent.searchForums.add(childSearchforum.getForumId());
+										}else{
+											parent.searchForums.remove(childSearchforum.getForumId());
+										}
+									}
+								}
+							}
+							self.notifyDataSetChanged();
 						}
 					}
 				});
@@ -141,7 +157,6 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 				forums = result;
 				for(AwfulSearchForum searchForum: forums){
 						searchForum.setChecked(parent.searchForums.contains(searchForum.getForumId()));
-
 				}
 				mProgress.setVisibility(View.GONE);
 				mSearchForums.setVisibility(View.VISIBLE);
@@ -150,8 +165,7 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 
 			@Override
 			public void failure(VolleyError error) {
-				Log.e(TAG, "erroooor", error);
-				Snackbar.make(getView(), "Searching failed.", Snackbar.LENGTH_LONG)
+				Snackbar.make(getView() != null ? getView() : parent.getView(), "Searching failed.", Snackbar.LENGTH_LONG)
 						.setAction("Retry", new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
