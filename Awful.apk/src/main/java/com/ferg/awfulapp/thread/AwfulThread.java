@@ -118,6 +118,7 @@ public class AwfulThread extends AwfulPagedItem  {
         "fx_methods.js",
         "reorient.js",
         "json2.js",
+        "twitterwidget.js",
         "salr.js",
         "thread.js"
     };

@@ -34,14 +34,13 @@
         android:key="inline_youtube"
         android:summary="@string/inline_videos_summary"
         android:title="@string/inline_videos" />
-    <!-- doesn't work yet
+
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:key="inline_tweets"
         android:title="@string/inline_tweets"
         android:summary="@string/inline_tweets_summary"
         android:defaultValue="false"
         />
-    -->
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
     android:defaultValue="false"
     android:key="inline_webm"
