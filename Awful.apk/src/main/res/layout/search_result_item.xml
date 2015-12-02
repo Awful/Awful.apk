@@ -9,18 +9,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="General Bullshit 2: On The Move"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textIsSelectable="false" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/search_result_hit_info"
-        android:text="Medium Text" />
+        android:text="Medium Text"
+        android:textSize="13sp"
+        android:textIsSelectable="false" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
-        android:id="@+id/search_result_blurb" />
+        android:id="@+id/search_result_blurb"
+        android:textSize="12sp"
+        android:textIsSelectable="false" />
 </LinearLayout>

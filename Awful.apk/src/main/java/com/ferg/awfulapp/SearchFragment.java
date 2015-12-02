@@ -149,7 +149,7 @@ public class SearchFragment extends AwfulFragment {
             public void onBindViewHolder(SearchResultHolder holder, final int position) {
                 AwfulSearch search = mSearchResults.get(position);
                 holder.threadName.setText(search.getThreadTitle());
-                holder.hitInfo.setText(search.getUsername()+" in "+ search.getForumTitle());
+                holder.hitInfo.setText(Html.fromHtml("<b>" + search.getUsername()+"</b> in <b>" + search.getForumTitle()+"</b>"));
                 holder.blurb.setText(Html.fromHtml(search.getBlurb()));
                 holder.threadName.setText(search.getThreadTitle());
 
@@ -189,7 +189,7 @@ public class SearchFragment extends AwfulFragment {
                             if(redirect.getStatus() == AsyncTask.Status.PENDING){
                                 redirect.execute();
                                 redirectDialog.setMessage("Just a second");
-                                redirectDialog.setTitle("Opening");
+                                redirectDialog.setTitle("Loading");
                                 redirectDialog.setIndeterminate(true);
                                 redirectDialog.setCancelable(false);
                                 redirectDialog.show();

@@ -39,7 +39,7 @@ public class AwfulSearch {
             Element threadTitle = searchResult.getElementsByClass("threadlink").first().getElementsByClass("threadtitle").first();
             search.setThreadTitle(threadTitle.text());
             search.setThreadLink(threadTitle.attr("href"));
-            Log.e(TAG, "getThreadLink"+search.getThreadLink().toString());
+
             Element hitInfo = searchResult.getElementsByClass("hit_info").first();
             search.setUsername(hitInfo.getElementsByClass("username").first().text());
             search.setForumTitle(hitInfo.getElementsByClass("forumtitle").first().text());
