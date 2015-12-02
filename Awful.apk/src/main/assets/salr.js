@@ -132,7 +132,7 @@ SALR.prototype.inlineTweets = function() {
                 link = $(link).wrap("<div class='tweet'>").parent();
                 datahtml = data.html.replace("src=\"//platform.twitter.com/widgets.js\"", "src=\"file:///android_asset/twitterwidget.js\"");
                 $(link).html(datahtml);
-                if($('head').children('link').first().attr('href').endsWith('dark.css') || $('head').children('link').first().attr('href').endsWith('pos.css')){
+                if($('head').children('link').first().attr('href').indexOf('dark.css') != -1 || $('head').children('link').first().attr('href').indexOf('pos.css') != -1){
                     $(link).children('blockquote').first().data('theme','dark');
                 }
                 window.twttr.widgets.load();
