@@ -144,8 +144,8 @@ public class AwfulLoginActivity extends AwfulActivity {
     }
 
     private void loginClick() {
-        String username = NetworkUtils.encodeHtml(mUsername.getText().toString());
-        String password = NetworkUtils.encodeHtml(mPassword.getText().toString());
+        final String username = NetworkUtils.encodeHtml(mUsername.getText().toString());
+        final String password = NetworkUtils.encodeHtml(mPassword.getText().toString());
 
         mDialog = ProgressDialog.show(AwfulLoginActivity.this, "Logging In", "Hold on...", true);
         final AwfulLoginActivity self = this;
@@ -166,11 +166,16 @@ public class AwfulLoginActivity extends AwfulActivity {
                     }
                 }
                 if (response != null && response.statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
-                    onLoginSuccess();
+                    Boolean result = NetworkUtils.saveLoginCookies(getApplicationContext());
+                    if(result){
+                        AwfulPreferences prefs = AwfulPreferences.getInstance(getApplicationContext());
+                        prefs.setStringPreference("username", username);
+                        onLoginSuccess();
+                    }else{
+                        onLoginFailed();
+                    }
                 } else {
-                    mDialog.dismiss();
-                    Toast.makeText(AwfulLoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
-                    setResult(Activity.RESULT_CANCELED);
+                    onLoginFailed();
                 }
             }
 
@@ -179,6 +184,11 @@ public class AwfulLoginActivity extends AwfulActivity {
                 Toast.makeText(AwfulLoginActivity.this, R.string.login_succeeded, Toast.LENGTH_SHORT).show();
                 setResult(Activity.RESULT_OK);
                 self.finish();
+            }
+            private  void onLoginFailed(){
+                mDialog.dismiss();
+                Toast.makeText(AwfulLoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
+                setResult(Activity.RESULT_CANCELED);
             }
         }));
     }

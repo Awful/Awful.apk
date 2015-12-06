@@ -1590,7 +1590,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }
         @Override
         public void onChange (boolean selfChange){
-        	if(DEBUG) Log.e(TAG,"Thread Data update.");
+        	if(DEBUG) Log.i(TAG,"Thread Data update.");
         	refreshInfo();
         }
     }

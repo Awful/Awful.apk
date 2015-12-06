@@ -309,7 +309,8 @@ public abstract class AwfulRequest<T> {
                     errorMessage += "\nStatus code: " + volleyError.networkResponse.statusCode;
                 }
             }
-            return new AwfulError(errorMessage);
+            Log.e(TAG, errorMessage);
+            return volleyError;// new AwfulError(errorMessage);
         }
 
 

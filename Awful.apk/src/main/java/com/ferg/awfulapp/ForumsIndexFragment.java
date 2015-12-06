@@ -265,7 +265,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-			Log.i(TAG,"Load Index Cursor");
+			if(DEBUG) Log.i(TAG,"Load Index Cursor");
             return new CursorLoader(getActivity(),
 					AwfulForum.CONTENT_URI,
 					AwfulProvider.ForumProjection,
