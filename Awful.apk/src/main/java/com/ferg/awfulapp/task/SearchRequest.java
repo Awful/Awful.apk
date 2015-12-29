@@ -12,6 +12,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulSearch;
+import com.ferg.awfulapp.thread.AwfulSearchResult;
 import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
@@ -24,7 +25,7 @@ import java.util.List;
 /**
  * Created by matt on 8/8/13.
  */
-public class SearchRequest extends AwfulRequest<ArrayList<AwfulSearch>> {
+public class SearchRequest extends AwfulRequest<AwfulSearchResult> {
     public SearchRequest(Context context, String query, int[] forums) {
         super(context, null);
         addPostParam(Constants.PARAM_ACTION, Constants.ACTION_QUERY);
@@ -43,8 +44,10 @@ public class SearchRequest extends AwfulRequest<ArrayList<AwfulSearch>> {
     }
 
     @Override
-    protected ArrayList<AwfulSearch> handleResponse(Document doc) throws AwfulError {
-        return AwfulSearch.parseSearch(doc);
+    protected AwfulSearchResult handleResponse(Document doc) throws AwfulError {
+        AwfulSearchResult result = AwfulSearchResult.parseSearch(doc);
+                result.setResultList(AwfulSearch.parseSearchResult(doc));
+        return result;
     }
 
     @Override

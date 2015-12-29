@@ -47,7 +47,7 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
-    compile 'com.github.androidquery:androidquery:0.26.8'
+    compile 'com.github.androidquery:androidquery:0.26.9'
     compile 'com.google.code.gson:gson:2.4'
     compile 'org.jsoup:jsoup:1.8.2'
     compile 'joda-time:joda-time:2.7'
