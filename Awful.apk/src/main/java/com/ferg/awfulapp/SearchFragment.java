@@ -29,38 +29,15 @@
 
 package com.ferg.awfulapp;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -69,56 +46,44 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.EditRequest;
-import com.ferg.awfulapp.task.QuoteRequest;
 import com.ferg.awfulapp.task.RedirectTask;
-import com.ferg.awfulapp.task.ReplyRequest;
-import com.ferg.awfulapp.task.SearchForumsRequest;
 import com.ferg.awfulapp.task.SearchRequest;
-import com.ferg.awfulapp.task.SendEditRequest;
-import com.ferg.awfulapp.task.SendPostRequest;
-import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.task.SearchResultRequest;
 import com.ferg.awfulapp.thread.AwfulSearch;
-import com.ferg.awfulapp.thread.AwfulSearchForum;
-import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.AwfulSearchResult;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.widget.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.joda.time.Period;
-import org.joda.time.PeriodType;
-import org.joda.time.format.PeriodFormat;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
-public class SearchFragment extends AwfulFragment {
+public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener{
     private static final String TAG = "SearchFragment";
 
     private EditText mSearchQuery;
+
+    private int mQueryId;
+    private int mMaxPageQueried;
+    private int mQueryPages;
 
     public HashSet<Integer> searchForums = new HashSet<>();
 
     private ProgressDialog mDialog;
     private RecyclerView mSearchResultList;
     private ArrayList<AwfulSearch> mSearchResults;
+    private SwipyRefreshLayout mSRL;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,6 +100,15 @@ public class SearchFragment extends AwfulFragment {
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
         mSearchQuery = (EditText) result.findViewById(R.id.search_query);
+
+        mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
+        mSRL.setOnRefreshListener(this);
+        mSRL.setColorSchemeResources(
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light,
+                android.R.color.holo_blue_bright);
+        mSRL.setEnabled(false);
 
         mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);
         mSearchResultList.setAdapter(new RecyclerView.Adapter<SearchResultHolder>() {
@@ -222,17 +196,6 @@ public class SearchFragment extends AwfulFragment {
 
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
-        inflater.inflate(R.menu.search, menu);
-        MenuItem attach = menu.findItem(R.id.add_attachment);
-        if (attach != null && mPrefs != null) {
-            attach.setEnabled(mPrefs.hasPlatinum);
-            attach.setVisible(mPrefs.hasPlatinum);
-        }
-    }
-
-    @Override
     public void onPreferenceChange(AwfulPreferences prefs, String key) {
         super.onPreferenceChange(prefs, key);
         //refresh the menu to show/hide attach option (plat only)
@@ -244,37 +207,31 @@ public class SearchFragment extends AwfulFragment {
         return getString(R.string.search);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
-        switch (item.getItemId()) {
 
-            case R.id.search_submit:
-                search();
-                break;
-            case R.id.search_forums:
-                new SearchForumsFragment(this).show(getFragmentManager(), "searchforums");
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-        return true;
-    }
 
     private void search() {
         mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, false);
         Integer[] searchforums = new Integer[]{};
         int[] searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toArray(searchforums));
-        NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
+        NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<AwfulSearchResult>() {
             @Override
-            public void success(ArrayList<AwfulSearch> result) {
+            public void success(AwfulSearchResult result) {
                 if (mDialog != null) {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                mSearchResults = result;
-                mSearchResultList.getAdapter().notifyDataSetChanged();
+                if(result.getQueryId() != 0){
+                    mSearchResults = result.getResultList();
+                    mQueryPages = result.getPages();
+                    mQueryId = result.getQueryId();
+                    mSearchResultList.getAdapter().notifyDataSetChanged();
+
+                    mMaxPageQueried = 1;
+                    if(mMaxPageQueried < result.getPages()){
+                        mSRL.setEnabled(true);
+                    }
+                }
+                Log.e(TAG,"mQueryPages: "+mQueryPages+ " mQueryId: "+mQueryId);
             }
 
             @Override
@@ -317,6 +274,82 @@ public class SearchFragment extends AwfulFragment {
         return false;
     }
 
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.search, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        switch (item.getItemId()) {
+
+            case R.id.search_submit:
+                search();
+                break;
+            case R.id.search_forums:
+                new SearchForumsFragment(this).show(getFragmentManager(), "searchforums");
+                break;
+            case R.id.search_threadid:
+                insertSearchTerm(SEARCHTERM.THREADID);
+                break;
+            case R.id.search_intitle:
+                insertSearchTerm(SEARCHTERM.INTITLE);
+                break;
+            case R.id.search_userid:
+                insertSearchTerm(SEARCHTERM.USERID);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+    }
+
+    private void insertSearchTerm(SEARCHTERM term) {
+        int selectionStart = mSearchQuery.getSelectionStart();
+        switch (term) {
+            case INTITLE:
+                mSearchQuery.getEditableText().insert(selectionStart, " intitle:\"\" ");
+                mSearchQuery.setSelection(selectionStart + " intitle:\"".length());
+                break;
+            case THREADID:
+                mSearchQuery.getEditableText().insert(selectionStart, " threadid: ");
+                mSearchQuery.setSelection(selectionStart + " threadid:".length());
+                break;
+            case USERID:
+                mSearchQuery.getEditableText().insert(selectionStart, " userid: ");
+                mSearchQuery.setSelection(selectionStart + " userid:".length());
+                break;
+        }
+    }
+
+    @Override
+    public void onRefresh(SwipyRefreshLayoutDirection direction) {
+        Log.e(TAG,"onRefresh: "+ mMaxPageQueried+ " ");
+        final int preItemCount = mSearchResultList.getAdapter().getItemCount();
+        NetworkUtils.queueRequest(new SearchResultRequest(this.getContext(), mQueryId, (mMaxPageQueried+1)).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
+
+            @Override
+            public void success(ArrayList<AwfulSearch> result) {
+                mSearchResults.addAll(result);
+                mMaxPageQueried++;
+                if(mMaxPageQueried >= mQueryPages){
+                    mSRL.setEnabled(false);
+                }
+                mSearchResultList.getAdapter().notifyDataSetChanged();
+                mSRL.setRefreshing(false);
+                mSearchResultList.smoothScrollToPosition(preItemCount+1);
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                mSRL.setRefreshing(false);
+            }
+        }));
+    }
+
     private class SearchResultHolder extends RecyclerView.ViewHolder {
         final TextView threadName;
         final TextView hitInfo;
@@ -330,4 +363,6 @@ public class SearchFragment extends AwfulFragment {
             blurb = (TextView) itemView.findViewById(R.id.search_result_blurb);
         }
     }
+
+    private enum SEARCHTERM {INTITLE,THREADID,USERID}
 }

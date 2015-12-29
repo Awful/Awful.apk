@@ -24,7 +24,7 @@ public class AwfulSearch {
     private String mBlurb;
 
 
-    public static ArrayList<AwfulSearch> parseSearch(Document aSearchRequest){
+    public static ArrayList<AwfulSearch> parseSearchResult(Document aSearchRequest){
         ArrayList<AwfulSearch> result = new ArrayList<>();
 
         Element searchResultContainer = aSearchRequest.getElementById("search_results");

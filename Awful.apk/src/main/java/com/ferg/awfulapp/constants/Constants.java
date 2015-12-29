@@ -61,6 +61,7 @@ public class Constants {
 	public static final String ACTION_SHOWPOST 			  = "showpost";
     public static final String ACTION_ADDLIST 			  = "addlist";
     public static final String ACTION_QUERY 			  = "query";
+    public static final String ACTION_RESULTS 			  = "results";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";
@@ -83,6 +84,7 @@ public class Constants {
     public static final String PARAM_ATTACHMENT = "attachment";
     public static final String PARAM_FOLDERID 	= "folderid";
     public static final String PARAM_QUERY 	= "q";
+    public static final String PARAM_QID 	= "qid";
     public static final String PARAM_FORUMS 	= "forums[%d]";
 
 	public static final String USERLIST_IGNORE = "ignore";
