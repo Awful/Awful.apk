@@ -288,7 +288,6 @@ function updateMarkedUsers(users){
     $('article.marked').removeClass('marked');
     var userArray = users.split(',');
     $.each(userArray, function(idx, username){
-        console.log(username);
         $('.postinfo-poster:contains('+username+')').parent().parent().parent().addClass('marked');
     });
 }
