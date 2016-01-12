@@ -451,13 +451,17 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	}
 	
 	public void markUser(String username){
-		markedUsers.add(username);
-		setStringSetPreference("marked_users", markedUsers);
+		Set<String> newMarkedUsers = new HashSet<String>(markedUsers);
+		newMarkedUsers.add(username);
+		setStringSetPreference("marked_users", newMarkedUsers);
+		markedUsers = newMarkedUsers;
 	}
 	
 	public void unmarkUser(String username){
-		markedUsers.remove(username);
-		setStringSetPreference("marked_users", markedUsers);
+		Set<String> newMarkedUsers = new HashSet<String>(markedUsers);
+		newMarkedUsers.remove(username);
+		setStringSetPreference("marked_users", newMarkedUsers);
+		markedUsers = newMarkedUsers;
 	}
 
     /**

@@ -283,3 +283,12 @@ function freezeGif(i) {
 function insertIgnoredPost(id){
     $('#ignorePost-'+id).replaceWith(listener.getIgnorePostHtml(id));
 }
+
+function updateMarkedUsers(users){
+    $('article.marked').removeClass('marked');
+    var userArray = users.split(',');
+    $.each(userArray, function(idx, username){
+        console.log(username);
+        $('.postinfo-poster:contains('+username+')').parent().parent().parent().addClass('marked');
+    });
+}
