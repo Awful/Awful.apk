@@ -54,6 +54,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -431,8 +432,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 				setBooleanPreference(key, (Boolean)entry.getValue());
 			}else if("String".equals(classname)){
 				setStringPreference(key, (String)entry.getValue());
-			}else if("Float".equals(classname)){
-				setFloatPreference(key, (Float)entry.getValue());
+			}else if("Float".equals(classname)) {
+				setFloatPreference(key, (Float) entry.getValue());
+			}else if("ArrayList".equals(classname)){
+				setStringSetPreference(key, new HashSet<String>((ArrayList<String>)entry.getValue()));
 			}else{
 				if(longKeys.contains(key)){
 					setLongPreference(key, ((Double)entry.getValue()).longValue());
