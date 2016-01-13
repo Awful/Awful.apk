@@ -1400,6 +1400,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
 		super.onPreferenceChange(mPrefs, key);
+		if(DEBUG) Log.i(TAG,"onPreferenceChange"+((key != null)?":"+key:""));
         if(null != getAwfulActivity()){
 		    getAwfulActivity().setPreferredFont(mPageCountText);
         }
@@ -1415,6 +1416,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
             mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
+
+			if("marked_users".equals(key)){
+				mThreadView.loadUrl("javascript:updateMarkedUsers('"+TextUtils.join(",",mPrefs.markedUsers)+"')");
+			}
 		}
 		if(clickInterface != null){
 			clickInterface.preparePreferences();
@@ -1590,7 +1595,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }
         @Override
         public void onChange (boolean selfChange){
-        	if(DEBUG) Log.e(TAG,"Thread Data update.");
+        	if(DEBUG) Log.i(TAG,"Thread Data update.");
         	refreshInfo();
         }
     }

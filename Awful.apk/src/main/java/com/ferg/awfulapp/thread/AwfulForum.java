@@ -151,7 +151,7 @@ public class AwfulForum extends AwfulPagedItem {
 				}
 			}
 		}
-		if(result.size() > 0){
+		if(result.size() > 1){
 			Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
 			contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
 		}
