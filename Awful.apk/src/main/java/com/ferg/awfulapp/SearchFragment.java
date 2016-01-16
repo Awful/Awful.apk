@@ -213,7 +213,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, false);
         Integer[] searchforums = new Integer[]{};
         int[] searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toArray(searchforums));
-        NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<AwfulSearchResult>() {
+        NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString().toLowerCase(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<AwfulSearchResult>() {
             @Override
             public void success(AwfulSearchResult result) {
                 if (mDialog != null) {
@@ -300,6 +300,12 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
             case R.id.search_userid:
                 insertSearchTerm(SEARCHTERM.USERID);
                 break;
+            case R.id.search_quoting:
+                insertSearchTerm(SEARCHTERM.QUOTING);
+                break;
+            case R.id.search_username:
+                insertSearchTerm(SEARCHTERM.USERNAME);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -321,6 +327,14 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
             case USERID:
                 mSearchQuery.getEditableText().insert(selectionStart, " userid: ");
                 mSearchQuery.setSelection(selectionStart + " userid:".length());
+                break;
+            case USERNAME:
+                mSearchQuery.getEditableText().insert(selectionStart, " username:\"\" ");
+                mSearchQuery.setSelection(selectionStart + " username:\"".length());
+                break;
+            case QUOTING:
+                mSearchQuery.getEditableText().insert(selectionStart, " quoting:\"\" ");
+                mSearchQuery.setSelection(selectionStart + " quoting:\"".length());
                 break;
         }
     }
@@ -364,5 +378,5 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         }
     }
 
-    private enum SEARCHTERM {INTITLE,THREADID,USERID}
+    private enum SEARCHTERM {INTITLE,THREADID,USERID,USERNAME,QUOTING}
 }

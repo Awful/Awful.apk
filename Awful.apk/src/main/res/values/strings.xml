@@ -375,6 +375,8 @@
     <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
     <string name="Search_terms">Search terms</string>
     <string name="search_by_userid">User id</string>
+    <string name="search_by_username">Username</string>
     <string name="search_by_intitle">In title</string>
     <string name="search_by_threadid">Thread id</string>
+    <string name="search_by_quoting">Quoting user</string>
 </resources>
