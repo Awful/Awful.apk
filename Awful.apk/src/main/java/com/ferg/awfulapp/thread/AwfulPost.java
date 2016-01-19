@@ -514,7 +514,7 @@ public class AwfulPost {
 					post.put(AVATAR_TEXT, entry.text().trim());
 				}
 
-				if (type.equalsIgnoreCase("postbody") || type.contains("complete_shit")) {
+				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
 					Elements images = entry.getElementsByTag("img");
 
 					for(Element img : images){
