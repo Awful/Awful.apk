@@ -164,16 +164,25 @@ function pageinit() {
     $.reorient.start();
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
-    $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend',function(){
-        listener.resumeSwipe();
-    }).on('touchleave',function(){
-        listener.resumeSwipe();
-    }).on('touchcancel',function(){
+    $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend touchleave touchcancel',function(){
         listener.resumeSwipe();
     }).on('touchstart',function(){
         listener.haltSwipe();
     })
+    $(window).on('touchend touchleave touchcancel', pauseVideosOutOfView);
+    pauseVideosOutOfView();
 };
+
+function pauseVideosOutOfView(){
+    $('video').each(function(){
+        if ($(this).is(":inviewport")) {
+            $(this)[0].play();
+        } else {
+            $(this)[0].pause();
+        }
+    });
+}
+
 
 function scrollPost() {
     var postjump = listener.getPostJump();
@@ -225,7 +234,14 @@ function scrollUpdate(){
 function showInlineImage(url){
     // listener.debugMessage('showInlineImage');
     imageLink = $('a[href="'+url+'"]');
-    if($('a[href="'+url+'"]').children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
+    firstLink = imageLink.first();
+    if(firstLink.hasClass('playGif')){
+      imageLink.addClass('loading');
+      loadImage(firstLink.attr('href'), function(){
+      showInlineGif(firstLink.attr('href'),true);
+        imageLink.removeClass('playGif').removeClass('loading');
+      });
+    }else if(firstLink.children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
         imageLink.append('<img src="'+url+'" />');
     }else{
     imageLink.each(function(){
@@ -290,4 +306,19 @@ function updateMarkedUsers(users){
     $.each(userArray, function(idx, username){
         $('.postinfo-poster:contains('+username+')').parent().parent().parent().addClass('marked');
     });
+}
+
+function loadImage(url, callback) {
+$('<img src="'+ url +'">').on('load', callback);
+}
+function showInlineGif(url, gifplay){
+    imageLink = $('a[href="'+url+'"]');
+    imageLink.each(function(){
+    image = $(this).children().first();
+                  image.attr('src', url);
+                  image.css({
+                         width: 'auto',
+                         height: 'auto'
+                       });
+    })
 }

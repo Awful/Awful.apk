@@ -361,9 +361,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-        if(DEBUG && AwfulUtils.isKitKat()) {
-			WebView.setWebContentsDebuggingEnabled(true);
+        if(AwfulUtils.isKitKat()) {
+			if(DEBUG){
+				WebView.setWebContentsDebuggingEnabled(true);
+			}
+			mThreadView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		}
+
 		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
 			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
 		}

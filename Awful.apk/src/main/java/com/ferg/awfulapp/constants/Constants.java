@@ -30,7 +30,8 @@ package com.ferg.awfulapp.constants;
 public class Constants {
     public static final boolean DEBUG = false;
 
-    public static final String BASE_URL = "http://forums.somethingawful.com";
+    //public static final String BASE_URL = "http://forums.somethingawful.com";
+    public static final String BASE_URL = "https://forums.somethingawful.com";
 
     public static final String FUNCTION_LOGIN           = BASE_URL + "/account.php";
     public static final String FUNCTION_LOGIN_SSL       = "https://forums.somethingawful.com/account.php";

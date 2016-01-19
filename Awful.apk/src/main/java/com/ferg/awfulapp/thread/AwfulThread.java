@@ -114,6 +114,7 @@ public class AwfulThread extends AwfulPagedItem  {
     private static final String[] JS_FILES = {
         "zepto.min.js",
         "selector.js",
+        "inviewport.js",
         "fx.js",
         "fx_methods.js",
         "reorient.js",
@@ -384,6 +385,7 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<link rel='stylesheet' href='");
         buffer.append(AwfulUtils.determineCSS(forumId));
         buffer.append("'>\n");
+        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
 
 
         if(!aPrefs.preferredFont.contains("default")){

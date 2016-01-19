@@ -165,6 +165,6 @@ SALR.prototype.inlineWebm = function() {
     webms = webms.not('.bbc-spoiler a');
 
     webms.each(function() {
-        $(this).html('<video autoplay loop width="100%" muted="true" controls> <source src="'+$(this).attr('href').substr(0, $(this).attr('href').lastIndexOf('.'))+'.webm" type="video/webm"> </video>');
+        $(this).html('<video loop width="100%" muted="true" controls preload="metadata"> <source src="'+$(this).attr('href').substr(0, $(this).attr('href').lastIndexOf('.'))+'.webm" type="video/webm"> </video>');
     });
 };
