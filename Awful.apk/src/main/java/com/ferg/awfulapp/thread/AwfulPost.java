@@ -545,6 +545,7 @@ public class AwfulPost {
 							} else {
 								if (!dontLink) {
 									String thumb = src;
+                                    boolean thumbnailed = false;
 									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
                                         int lastDot = thumb.lastIndexOf('.');
                                         int lastSlash = thumb.lastIndexOf('/');
@@ -554,9 +555,34 @@ public class AwfulPost {
                                             thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
                                         }
                                         img.attr("src", thumb);
+                                        thumbnailed = true;
 									}
                                     if(prefs.disableGifs && thumb.toLowerCase().contains(".gif")){
-                                        img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", "file:///android_res/drawable/gif.png").attr("width","200px")));
+                                        if(thumb.toLowerCase().contains("imgur.com")){
+                                            if(!thumbnailed) {
+                                                int lastDot = thumb.lastIndexOf('.');
+                                                int lastSlash = thumb.lastIndexOf('/');
+                                                String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
+                                                //check if already thumbnails
+                                                if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
+                                                    thumb = thumb.substring(0, lastDot) + "h" + thumb.substring(lastDot);
+                                                }
+                                            }
+                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
+                                        }else if(thumb.toLowerCase().contains("i.kinja-img.com")){
+                                            thumb = thumb.replace(".gif",".jpg");
+                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
+                                        }else if(thumb.toLowerCase().contains("i.giphy.com")){
+                                            thumb = thumb.replace("://i.giphy.com","s://media.giphy.com/media");
+                                            thumb = thumb.replace(".gif","/200_s.gif");
+                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
+                                        }else if(thumb.toLowerCase().contains("giant.gfycat.com")){
+                                            thumb = thumb.replace("giant.gfycat.com","thumbs.gfycat.com");
+                                            thumb = thumb.replace(".gif","-poster.jpg");
+                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
+                                        }else{
+                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", "file:///android_res/drawable/gif.png").attr("width","200px")));
+                                        }
                                     }
                                     if(img.parent() != null && (prefs.disableTimgs || !isTimg)){
                                         img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));

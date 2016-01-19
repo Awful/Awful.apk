@@ -225,7 +225,14 @@ function scrollUpdate(){
 function showInlineImage(url){
     // listener.debugMessage('showInlineImage');
     imageLink = $('a[href="'+url+'"]');
-    if($('a[href="'+url+'"]').children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
+    firstLink = imageLink.first();
+    if(firstLink.hasClass('playGif')){
+      imageLink.addClass('loading');
+      loadImage(firstLink.attr('href'), function(){
+      showInlineGif(firstLink.attr('href'),true);
+        imageLink.removeClass('playGif').removeClass('loading');
+      });
+    }else if(firstLink.children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
         imageLink.append('<img src="'+url+'" />');
     }else{
     imageLink.each(function(){
@@ -290,4 +297,19 @@ function updateMarkedUsers(users){
     $.each(userArray, function(idx, username){
         $('.postinfo-poster:contains('+username+')').parent().parent().parent().addClass('marked');
     });
+}
+
+function loadImage(url, callback) {
+$('<img src="'+ url +'">').on('load', callback);
+}
+function showInlineGif(url, gifplay){
+    imageLink = $('a[href="'+url+'"]');
+    imageLink.each(function(){
+    image = $(this).children().first();
+                  image.attr('src', url);
+                  image.css({
+                         width: 'auto',
+                         height: 'auto'
+                       });
+    })
 }
