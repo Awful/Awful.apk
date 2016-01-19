@@ -114,6 +114,7 @@ public class AwfulThread extends AwfulPagedItem  {
     private static final String[] JS_FILES = {
         "zepto.min.js",
         "selector.js",
+        "inviewport.js",
         "fx.js",
         "fx_methods.js",
         "reorient.js",

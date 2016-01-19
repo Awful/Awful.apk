@@ -164,16 +164,25 @@ function pageinit() {
     $.reorient.start();
     $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
-    $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend',function(){
-        listener.resumeSwipe();
-    }).on('touchleave',function(){
-        listener.resumeSwipe();
-    }).on('touchcancel',function(){
+    $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend touchleave touchcancel',function(){
         listener.resumeSwipe();
     }).on('touchstart',function(){
         listener.haltSwipe();
     })
+    $(window).on('touchend touchleave touchcancel', pauseVideosOutOfView);
+    pauseVideosOutOfView();
 };
+
+function pauseVideosOutOfView(){
+    $('video').each(function(){
+        if ($(this).is(":inviewport")) {
+            $(this)[0].play();
+        } else {
+            $(this)[0].pause();
+        }
+    });
+}
+
 
 function scrollPost() {
     var postjump = listener.getPostJump();
