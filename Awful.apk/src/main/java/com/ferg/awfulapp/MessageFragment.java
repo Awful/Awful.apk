@@ -133,10 +133,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mDisplayText.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
 		mDisplayText.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
 		mDisplayText.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-		if(AwfulUtils.isKitKat()) {
-			if(DEBUG){
-				WebView.setWebContentsDebuggingEnabled(true);
-			}
+		if(AwfulUtils.isLollipop()) {
 			mDisplayText.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		}
 
