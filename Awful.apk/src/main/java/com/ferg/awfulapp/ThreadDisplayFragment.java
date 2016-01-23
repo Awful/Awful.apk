@@ -1333,7 +1333,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
 				|| link.getLastPathSegment().contains(".jpeg") 
 				|| link.getLastPathSegment().contains(".png") 
-				|| link.getLastPathSegment().contains(".gif")
+				|| (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
