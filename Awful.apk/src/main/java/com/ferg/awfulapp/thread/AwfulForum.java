@@ -85,6 +85,10 @@ public class AwfulForum extends AwfulPagedItem {
                 	if(imgTag != null && imgTag.hasAttr("src")){
 	                    String url = imgTag.attr("src");
 	                    if(url != null){
+							if(url.startsWith("//")){
+								// damn you and you protocol-less image urls, ZDR
+								url = Constants.BASE_URL.substring(0,Constants.BASE_URL.indexOf("//")) + url;
+							}
 	                    	//thread tag stuff
 	        				Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(url);
 	        				if(fileNameMatcher.find()){

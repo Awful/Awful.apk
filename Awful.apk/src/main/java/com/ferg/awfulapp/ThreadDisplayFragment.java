@@ -361,13 +361,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mThreadView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-        if(AwfulUtils.isKitKat()) {
-			if(DEBUG){
-				WebView.setWebContentsDebuggingEnabled(true);
-			}
+        if(DEBUG && AwfulUtils.isKitKat()) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+		if(AwfulUtils.isLollipop()){
 			mThreadView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		}
-
 		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
 			mThreadView.getSettings().setPluginState(PluginState.ON_DEMAND);
 		}
@@ -1334,7 +1333,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
 				|| link.getLastPathSegment().contains(".jpeg") 
 				|| link.getLastPathSegment().contains(".png") 
-				|| link.getLastPathSegment().contains(".gif")
+				|| (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))
 				);
     	new AlertDialog.Builder(getActivity())
         .setTitle(url)
