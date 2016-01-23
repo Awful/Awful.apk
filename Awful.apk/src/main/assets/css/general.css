@@ -3,7 +3,7 @@
     display: inline-block;
 } 
 .playGif.loading:before {
-  background-image: url('file:///android_asset/images/loading.gif') !important;
+  background-image: url('file:///android_asset/images/loading.svg') !important;
 }
 .playGif:before {
   content: '';
