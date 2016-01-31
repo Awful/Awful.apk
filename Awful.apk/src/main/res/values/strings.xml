@@ -202,8 +202,10 @@
     <string name="inline_tweets_summary">May cause scroll lag/graphical glitches</string>
     <string name="inline_vines">Embed vines</string>
     <string name="inline_vines_summary">May cause scroll lag/graphical glitches</string>
-    <string name="inline_webm">Embed webm/gifvs</string>
+    <string name="inline_webm">Embed webm/gifv/mp4</string>
     <string name="inline_webm_summary">May cause scroll lag/graphical glitches</string>
+    <string name="autostart_webm">Autostart embedded videos</string>
+    <string name="autostart_webm_summary">Start inlined videos when scrolled into view</string>
     <string name="show_spoilers">Show all spoilers</string>
     <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>

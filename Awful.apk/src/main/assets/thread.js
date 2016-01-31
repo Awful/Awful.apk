@@ -169,8 +169,11 @@ function pageinit() {
     }).on('touchstart',function(){
         listener.haltSwipe();
     })
-    $(window).on('touchend touchleave touchcancel', pauseVideosOutOfView);
-    pauseVideosOutOfView();
+    if(listener.getPreference("inlineWebm") == "true" && listener.getPreference("autostartWebm")){
+        $(window).scrollEnd(function(){
+            pauseVideosOutOfView();
+        }, 1000);
+    }
 };
 
 function pauseVideosOutOfView(){

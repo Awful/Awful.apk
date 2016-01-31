@@ -157,7 +157,7 @@ SALR.prototype.inlineVines = function() {
 
 SALR.prototype.inlineWebm = function() {
     var that = this;
-    var webms = $('.postcontent a[href$="webm"],.postcontent a[href$="gifv"]');
+    var webms = $('.postcontent a[href$="webm"],.postcontent a[href$="gifv"],.postcontent a[href$="mp4"]');
 
     //webms = webms.not(".postcontent:has(img[title=':nws:']) a").not(".postcontent:has(img[title=':nms:']) a");
 
@@ -165,6 +165,6 @@ SALR.prototype.inlineWebm = function() {
     webms = webms.not('.bbc-spoiler a');
 
     webms.each(function() {
-        $(this).html('<video loop width="100%" muted="true" controls preload="metadata"> <source src="'+$(this).attr('href').substr(0, $(this).attr('href').lastIndexOf('.'))+'.webm" type="video/webm"> </video>');
+        $(this).replaceWith('<video loop width="100%" muted="true" controls preload="metadata"> <source src="'+$(this).attr('href').substr(0, $(this).attr('href').lastIndexOf('.'))+'.webm" type="video/webm"> </video>');
     });
 };
