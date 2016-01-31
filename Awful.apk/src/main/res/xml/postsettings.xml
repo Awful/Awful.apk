@@ -47,6 +47,11 @@
     android:summary="@string/inline_webm_summary"
     android:title="@string/inline_webm" />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
+        android:key="autostart_webm"
+        android:summary="@string/autostart_webm_summary"
+        android:title="@string/autostart_webm" />
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="inline_vines"
         android:summary="@string/inline_vines_summary"

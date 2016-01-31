@@ -145,6 +145,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineTweets;
     public boolean inlineVines;
     public boolean inlineWebm;
+	public boolean autostartWebm;
     public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
@@ -253,9 +254,10 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         highlightSelf			 = mPrefs.getBoolean("self_highlight", true);
         highlightOP				 = mPrefs.getBoolean("op_highlight", true);
 		inlineYoutube            = mPrefs.getBoolean("inline_youtube", false);
-		inlineTweets            = mPrefs.getBoolean("inline_tweets", false);
-		inlineVines            = mPrefs.getBoolean("inline_vines", false);
-		inlineWebm            = mPrefs.getBoolean("inline_webm", false);
+		inlineTweets             = mPrefs.getBoolean("inline_tweets", false);
+		inlineVines            	 = mPrefs.getBoolean("inline_vines", false);
+		inlineWebm            	 = mPrefs.getBoolean("inline_webm", false);
+		autostartWebm            = mPrefs.getBoolean("autostart_webm", true);
         enableHardwareAcceleration = mPrefs.getBoolean("enable_hardware_acceleration", AwfulUtils.isJellybean());
         debugMode            	 = false;//= mPrefs.getBoolean("debug_mode", false);
         wrapThreadTitles		 = mPrefs.getBoolean("wrap_thread_titles", false);
