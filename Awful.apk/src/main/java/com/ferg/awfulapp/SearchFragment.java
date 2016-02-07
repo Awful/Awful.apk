@@ -300,12 +300,15 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
             case R.id.search_userid:
                 insertSearchTerm(SEARCHTERM.USERID);
                 break;
+<<<<<<< HEAD
             case R.id.search_quoting:
                 insertSearchTerm(SEARCHTERM.QUOTING);
                 break;
             case R.id.search_username:
                 insertSearchTerm(SEARCHTERM.USERNAME);
                 break;
+=======
+>>>>>>> origin/search
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -328,6 +331,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 mSearchQuery.getEditableText().insert(selectionStart, " userid: ");
                 mSearchQuery.setSelection(selectionStart + " userid:".length());
                 break;
+<<<<<<< HEAD
             case USERNAME:
                 mSearchQuery.getEditableText().insert(selectionStart, " username:\"\" ");
                 mSearchQuery.setSelection(selectionStart + " username:\"".length());
@@ -336,6 +340,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 mSearchQuery.getEditableText().insert(selectionStart, " quoting:\"\" ");
                 mSearchQuery.setSelection(selectionStart + " quoting:\"".length());
                 break;
+=======
+>>>>>>> origin/search
         }
     }
 
@@ -378,5 +384,9 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         }
     }
 
+<<<<<<< HEAD
     private enum SEARCHTERM {INTITLE,THREADID,USERID,USERNAME,QUOTING}
+=======
+    private enum SEARCHTERM {INTITLE,THREADID,USERID}
+>>>>>>> origin/search
 }
