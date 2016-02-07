@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/search_query"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:hint="Search the forums"
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="text"
+            android:isScrollContainer="true"
+            android:scrollbars="vertical"
+            android:textColor="@color/default_post_font"
+            android:textCursorDrawable="@null" />
+    </android.support.design.widget.TextInputLayout>
+
+    <com.ferg.awfulapp.widget.SwipyRefreshLayout
+        android:id="@+id/search_srl"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:direction="bottom">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/search_results"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal" />
+    </com.ferg.awfulapp.widget.SwipyRefreshLayout>
+
+</LinearLayout>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+    <TextView
+        android:id="@+id/search_result_threadname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="General Bullshit 2: On The Move"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_result_hit_info"
+        android:text="Medium Text"
+        android:textSize="13sp"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Small Text"
+        android:id="@+id/search_result_blurb"
+        android:textSize="12sp"
+        android:textIsSelectable="false" />
+</LinearLayout>
