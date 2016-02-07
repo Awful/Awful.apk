@@ -34,6 +34,7 @@
     <string name="go_to">Go to page</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="settings">Settings</string>
+    <string name="search">Search</string>
 
     <!-- Post view -->
     <string name="post_reply">Post reply</string>
@@ -372,4 +373,10 @@
     <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
     <string name="no_file_permission_download">Awful doesn\'t have permission to store the download. Welp, guess not then.</string>
     <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
+    <string name="Search_terms">Search terms</string>
+    <string name="search_by_userid">User id</string>
+    <string name="search_by_username">Username</string>
+    <string name="search_by_intitle">In title</string>
+    <string name="search_by_threadid">Thread id</string>
+    <string name="search_by_quoting">Quoting user</string>
 </resources>

@@ -86,4 +86,6 @@
     <attr name="iconMenuVideoDark" format="reference" />
     <attr name="iconMenuCode" format="reference" />
     <attr name="iconMenuCodeDark" format="reference" />
+    <attr name="iconMenuSearch" format="reference" />
+    <attr name="iconMenuSearchDark" format="reference" />
 </resources>

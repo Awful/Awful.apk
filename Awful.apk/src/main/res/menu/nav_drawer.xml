@@ -17,6 +17,10 @@
             android:icon="?attr/iconMenuBookmarkDark"
             android:title="@string/user_cp" />
         <item
+            android:id="@+id/sidebar_search"
+            android:icon="?attr/iconMenuSearchDark"
+            android:title="@string/search" />
+        <item
             android:id="@+id/sidebar_pm"
             android:icon="?attr/iconMenuMailDark"
             android:title="@string/private_message" />

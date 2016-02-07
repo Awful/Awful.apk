@@ -118,6 +118,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
+    private String mThreadPost="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -240,6 +241,9 @@ public class ForumsIndexActivity extends AwfulActivity {
                         break;
                     case R.id.sidebar_settings:
                         startActivity(new Intent().setClass(context, SettingsActivity.class));
+                        break;
+                    case R.id.sidebar_search:
+                        startActivity(new Intent().setClass(context, SearchActivity.class));
                         break;
                     case R.id.sidebar_pm:
                         startActivity(new Intent().setClass(context, PrivateMessageActivity.class));
@@ -367,6 +371,19 @@ public class ForumsIndexActivity extends AwfulActivity {
                 });
             }
         }
+
+        // private messages - show 'em if you got 'em
+        final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
+        if (searchItem != null) {
+            if (searchItem.isEnabled() != mPrefs.hasPlatinum || searchItem.isVisible() != mPrefs.hasPlatinum) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+                    }
+                });
+            }
+        }
     }
 
 
@@ -451,7 +468,8 @@ public class ForumsIndexActivity extends AwfulActivity {
             if (url.isThread() || url.isPost()) {
                 mThreadFragment.openThread(url);
             } else if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0) {
-                mThreadFragment.openThread(mThreadId, mThreadPage);
+                if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
+                mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost);
             }
         }
     }
@@ -462,6 +480,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         int forumPage   = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         int threadId    = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
         int threadPage  = getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage);
+        mThreadPost = getIntent().getStringExtra(Constants.THREAD_FRAGMENT);
 
         if (forumId == 2) {//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
             forumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.

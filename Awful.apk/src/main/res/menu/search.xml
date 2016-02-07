@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/search_forums"
+        android:icon="?attr/iconMenuSettings"
+        app:showAsAction="always"
+        android:title="@string/submit"/>
+    <item
+        android:id="@+id/search_terms"
+        android:icon="?attr/iconMenuFindInPage"
+        app:showAsAction="ifRoom"
+        android:title="@string/Search_terms">
+        <menu>
+            <item
+                android:id="@+id/search_threadid"
+                android:title="@string/search_by_threadid"/>
+            <item
+                android:id="@+id/search_intitle"
+                android:title="@string/search_by_intitle"/>
+            <item
+                android:id="@+id/search_userid"
+                android:title="@string/search_by_userid"/>
+            <item
+                android:id="@+id/search_username"
+                android:title="@string/search_by_username"/>
+            <item
+                android:id="@+id/search_quoting"
+                android:title="@string/search_by_quoting"/>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/search_submit"
+        android:icon="?attr/iconMenuSendSmall"
+        app:showAsAction="always"
+        android:title="@string/submit"/>
+
+</menu>
