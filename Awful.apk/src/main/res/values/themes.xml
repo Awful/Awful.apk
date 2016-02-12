@@ -3,6 +3,7 @@
 
     <style name="Theme.AwfulTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
+        <item name="android:windowBackground">@null</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <!-- Set AppCompat’s color theming attrs -->
         <item name="colorPrimary">@color/forums_blue</item>
@@ -102,6 +103,7 @@
 
     <style name="Theme.AwfulTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
+        <item name="android:windowBackground">@null</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <!-- Set AppCompat’s color theming attrs -->
         <item name="colorPrimary">@color/actionbar_color</item>

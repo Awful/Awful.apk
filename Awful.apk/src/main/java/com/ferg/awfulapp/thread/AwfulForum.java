@@ -242,11 +242,6 @@ public class AwfulForum extends AwfulPagedItem {
 	 */	
 	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		aq.recycle(current);
-		if(selected){
-			aq.backgroundColor(ColorProvider.getBackgroundColor());
-		}else{
-			aq.backgroundColor(ColorProvider.getBackgroundColor());
-		}
 		TextView title = (TextView) current.findViewById(R.id.forum_title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");

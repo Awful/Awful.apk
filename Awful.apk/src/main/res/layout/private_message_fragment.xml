@@ -4,7 +4,7 @@
 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/background"
+    android:background="?attr/background"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
@@ -33,7 +33,7 @@
                 android:id="@+id/message_listview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:cacheColorHint="@color/background"
+                android:cacheColorHint="?attr/background"
                 android:divider="#8c8c8c"
                 android:dividerHeight="1px" />
         </android.support.v4.widget.SwipeRefreshLayout>

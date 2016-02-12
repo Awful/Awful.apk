@@ -143,18 +143,12 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setBackgroundColor(ColorProvider.getBackgroundColor());
-        mRecipient.setBackgroundColor(ColorProvider.getBackgroundColor());
-        mSubject.setBackgroundColor(ColorProvider.getBackgroundColor());
-        mDisplayText.setBackgroundColor(ColorProvider.getBackgroundColor());
         mEditReply.setTextColor(ColorProvider.getTextColor());
         mRecipient.setTextColor(ColorProvider.getTextColor());
         mSubject.setTextColor(ColorProvider.getTextColor());
         mUsername.setTextColor(ColorProvider.getTextColor());
         mPostdate.setTextColor(ColorProvider.getTextColor());
         mTitle.setTextColor(ColorProvider.getTextColor());
-        v.setBackgroundColor(ColorProvider.getBackgroundColor());
-        
 	}
 	
 	@Override
