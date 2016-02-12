@@ -106,7 +106,6 @@ public class AwfulMessage extends AwfulPagedItem {
         ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
 
 		unreadPM.setVisibility(View.VISIBLE);
-		Log.e(TAG, author.getText() +" "+ data.getInt(data.getColumnIndex(UNREAD)));
 
 		int[] attrs;
 		switch (data.getInt(data.getColumnIndex(UNREAD))){
