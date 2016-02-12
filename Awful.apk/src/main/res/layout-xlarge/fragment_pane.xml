@@ -5,7 +5,7 @@
   android:orientation="horizontal"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@color/background">
+  android:background="?attr/background">
     <FrameLayout
     android:id="@+id/fragment_pane"
     android:layout_width="0dip"

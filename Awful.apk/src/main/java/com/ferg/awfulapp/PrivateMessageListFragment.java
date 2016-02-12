@@ -140,19 +140,11 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
 
-        mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
 
         mPMList.setOnItemClickListener(onPMSelected);
         
         mCursorAdapter = new AwfulCursorAdapter((AwfulActivity) getActivity(), null, this);
         mPMList.setAdapter(mCursorAdapter);
-    }
-    
-    private void updateColors(AwfulPreferences pref){
-    	if(mPMList != null){
-    		mPMList.setBackgroundColor(ColorProvider.getBackgroundColor());
-    		mPMList.setCacheColorHint(ColorProvider.getBackgroundColor());
-    	}
     }
     
     @Override
@@ -295,7 +287,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
         super.onPreferenceChange(mPrefs, key);
-        updateColors(mPrefs);
         if("no_fab".equals(key)){
             mFAB.setVisibility((mPrefs.noFAB ? View.GONE : View.VISIBLE));
             invalidateOptionsMenu();

@@ -66,6 +66,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
@@ -386,8 +387,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
-			public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-				if(DEBUG) Log.d("Web Console", message + " -- From line " + lineNumber + " of " + sourceID);
+			public boolean onConsoleMessage(ConsoleMessage message) {
+				if(DEBUG) Log.d("Web Console", message.message() + " -- From line " + message.lineNumber() + " of " + message.sourceId());
+				return true;
 			}
 
 			@Override
