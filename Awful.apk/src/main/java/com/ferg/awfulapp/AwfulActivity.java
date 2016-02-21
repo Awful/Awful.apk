@@ -65,6 +65,8 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
             setTheme(R.style.Theme_AwfulTheme_YOSPOS);
         }else if(mPrefs.theme.equals(ColorProvider.AMBERPOS)){
             setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
+        }else if(mPrefs.theme.equals(ColorProvider.OLED)){
+            setTheme(R.style.Theme_AwfulTheme_OLED);
         }else{
             setTheme(R.style.Theme_AwfulTheme_Dark);
         }
@@ -223,6 +225,8 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
                 setTheme(R.style.Theme_AwfulTheme_YOSPOS);
             } else if (mPrefs.theme.equals(ColorProvider.AMBERPOS)) {
                 setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
+            } else if (mPrefs.theme.equals(ColorProvider.OLED)) {
+                setTheme(R.style.Theme_AwfulTheme_OLED);
             } else {
                 setTheme(R.style.Theme_AwfulTheme_Dark);
             }

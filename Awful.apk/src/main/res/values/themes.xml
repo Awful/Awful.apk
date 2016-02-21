@@ -106,15 +106,15 @@
         <item name="android:windowBackground">@null</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
         <!-- Set AppCompat’s color theming attrs -->
-        <item name="colorPrimary">@color/actionbar_color</item>
-        <item name="colorPrimaryDark">@color/dark_alt_background</item>
-        <item name="colorAccent">@color/holo_blue_light</item>
-        <item name="colorAccentThemeFix">@color/background</item>
-        <item name="background">@color/dark_alt_background</item>
+        <item name="colorPrimary">@color/forums_blue_evendarker</item>
+        <item name="colorPrimaryDark">@color/forums_blue_darkest</item>
+        <item name="colorAccent">@color/forums_blue</item>
+        <item name="colorAccentThemeFix">@color/secondary_post_font</item>
+        <item name="background">@color/dark_background</item>
         <item name="listDividerColor">@color/dark_header_background</item>
         <item name="navbarBackground">@color/dark_alt_background</item>
-        <item name="navbarUsernameColor">@color/background</item>
-        <item name="justPostButtonColor">@color/forums_blue_darkest</item>
+        <item name="navbarUsernameColor">@color/secondary_post_font</item>
+        <item name="justPostButtonColor">@color/forums_blue_evendarker</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
@@ -199,14 +199,27 @@
         <item name="iconMenuCodeDark">@drawable/ic_code_white_36dp</item>
     </style>
 
-    <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.Dark">
+    <style name="Theme.AwfulTheme.OLED" parent="Theme.AwfulTheme.Dark">
+        <item name="colorPrimary">@color/oled_background</item>
+        <item name="colorPrimaryDark">@color/oled_background</item>
+        <item name="colorAccent">@color/dark_default_post_font</item>
+        <item name="colorAccentThemeFix">@color/dark_default_post_font</item>
+        <item name="background">@color/oled_background</item>
+        <item name="listDividerColor">@color/dark_header_background</item>
+        <item name="navbarBackground">@color/dark_background</item>
+        <item name="navbarUsernameColor">@color/dark_default_post_font</item>
+        <item name="justPostButtonColor">@color/forums_blue_evendarker</item>
+        <item name="justPostButtonColorPressed">@color/forums_blue_darkest</item>
+    </style>
+
+    <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.OLED">
         <item name="colorAccent">@color/yospos_default_post_font</item>
         <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/yospos_default_post_font</item>
         <item name="justPostButtonColorPressed">@color/yospos_secondary_post_font</item>
     </style>
 
-    <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.Dark">
+    <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.OLED">
         <item name="colorAccent">@color/amberpos_default_post_font</item>
         <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/amberpos_default_post_font</item>

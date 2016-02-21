@@ -41,6 +41,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -355,7 +356,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void initThreadViewProperties() {
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
-		mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
+		//mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 		mThreadView.getSettings().setJavaScriptEnabled(true);
 		mThreadView.getSettings().setRenderPriority(RenderPriority.LOW);
@@ -1410,14 +1411,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(null != getAwfulActivity()){
 		    getAwfulActivity().setPreferredFont(mPageCountText);
         }
-		if (aq != null) {
-			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
-		}
+//		if (aq != null) {
+//			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
+//		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
 		if(mThreadView != null){
-			mThreadView.setBackgroundColor(ColorProvider.getBackgroundColor());
+			mThreadView.setBackgroundColor(Color.TRANSPARENT);
 			//mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
             mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);

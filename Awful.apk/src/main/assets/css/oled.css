@@ -1,5 +1,5 @@
 .passive {
-color:#eae9ea;
+color:#5e5e5e;
 }
 
 a {
@@ -7,7 +7,11 @@ color:#00c0f4;
 }
 
 body {
-font-family:Roboto, userselected, Verdana, Arial, sans-serif;
+margin: 8px 0;
+}
+
+#container {
+    padding-bottom: 55px !important;
 }
 
 div.avatar {
@@ -48,80 +52,54 @@ max-height:100px;
 }
 
 article {
-border-radius:2px;
-background-color:#424242;
-color:#aeaeae;
-box-shadow: 0px 5px 5px 0px rgba(27, 27, 27, 1);
-margin:10px 5px;
+background-color:#000;
+color:#e7e7e7;
 padding:15px;
-transform: none;
--webkit-transform: translate3d(0,0,0) !important;
 }
 
 article.read {
-background-color:#141E33;
-}
-
-article.read div.postcontent {
-color:#aeaeae;
-}
-
-article.marked {
-background-color:#400000;
-}
-
-article.marked section.postcontent .bbc-block {
-border-left:2px solid #e7e7e7 !important;
-}
-
-article.marked header {
-border-bottom:1px solid #e7e7e7 !important;
+background-color:#06080e;
 }
 
 article.op {
-background-color:#4A4D00;
+background-color:#201000;
+}
+
+article.marked {
+background-color:#252500;
 }
 
 article.self {
-background-color:#1A4000;
+background-color:#003000;
 }
 
 article.toggleread, article#taptorefresh {
 text-align: center;
 padding:5px;
+background-color:#111111;
 }
 
 section.postcontent {
-color: #e7e7e7;
 word-wrap: break-word;
 }
 
 section.postcontent .bbc-block {
-border-left:2px solid #e7e7e7;
+border-left:1px solid #e7e7e7;
 margin:5px 0;
 padding:5px 10px 5px 20px;
 }
 
 section.postcontent .self {
-background-color: #1A4000;
+background-color: #303000;
 }
 
 section.postcontent .usernameHighlight {
-color: #00c0f4;
-}
-
-section.postcontent img, section.postcontent iframe{
-max-width: 100% !important;
-}
-
-section.postcontent img.timg{
-border: 2px solid #00c0f4;
-width: 20%;
+color: #e7e7e7;
 }
 
 section.postcontent .bbc-block h4 {
 font-style:italic;
-margin:2px 0 5px;
+margin:1px 0 5px;
 }
 
 section.postcontent blockquote {
@@ -133,19 +111,24 @@ overflow: auto;
 word-wrap: normal;
 }
 
+section.postcontent img, section.postcontent iframe{
+max-width: 100% !important;
+}
+
+section.postcontent img.timg{
+border: 2px solid #e7e7e7;
+width: 20%;
+}
+
 section.postcontent .editedby {
 font-style:italic;
 font-size: 0.7em;
-color: #828282;
 }
 
 section.postcontent .bbc-spoiler{
-background: #e7e7e7;
-color: #e7e7e7;
-}
-
-section.postcontent .bbc-spoiler a {
-color: #e7e7e7;
+background-color: black;
+color: transparent;
+box-shadow: 0px 0px 9px rgb(255, 50, 50);
 }
 
 section.postcontent .bbc-spoiler * {
@@ -153,11 +136,9 @@ visibility: hidden;
 }
 
 section.postcontent .bbc-spoiler.spoiled {
-background: transparent;
-}
-
-section.postcontent .bbc-spoiler.spoiled a {
-color:#00c0f4;
+background-color: transparent;
+color: #e7e7e7;
+box-shadow: none;
 }
 
 section.postcontent .bbc-spoiler.spoiled * {
@@ -165,18 +146,19 @@ visibility: visible;
 }
 
 section.postcontent .signature {
-border-top: 1px solid #eae9ea;
+border-top: 1px solid #e7e7e7;
 padding-top: 10px;
 }
 
 header {
-vertical-align:top;
-clear:left;
-overflow:hidden;
-border:0;
-border-bottom: 1px solid #eae9ea;
-margin:0 0 10px;
-padding:0 0 10px;
+vertical-align: top;
+clear: left;
+overflow: hidden;
+border: 0;
+border-bottom: 1px solid #e7e7e7;
+border-top: 1px solid #e7e7e7;
+margin: 0 0 10px;
+padding: 10px 0 10px;
 }
 
 section.postinfo {
@@ -219,8 +201,8 @@ padding:0 5px 0 0;
 }
 
 ul.postoptions {
-background-color:#828282;
-color:#FFF;
+background-color:#000;
+color:#e7e7e7;
 height:35px;
 display:none;
 padding-left:15px;
@@ -243,7 +225,7 @@ ul.postoptions li.quote {
 background-image:url(file:///android_asset/images/ic_menu_quote.png);
 }
 
-ul.postoptions li{
+ul.postoptions li {
 float:right;
 margin-right:5px;
 height:15px;

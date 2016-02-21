@@ -244,6 +244,7 @@
     <string-array name="theme">
         <item>Default</item>
         <item>Dark</item>
+        <item>OLED</item>
         <item>YOSPOS</item>
         <item>AmberPOS</item>
         <item>FYAD</item>

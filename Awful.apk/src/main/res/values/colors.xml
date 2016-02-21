@@ -2,7 +2,8 @@
 <resources>
     <color name="forums_blue">#006699</color>
     <color name="forums_blue_darker">#00537E</color>
-    <color name="forums_blue_darkest">#00314b</color>
+    <color name="forums_blue_evendarker">#00314b</color>
+    <color name="forums_blue_darkest">#002032</color>
     <color name="forums_gray">#f4f4f4</color>
     <color name="holo_blue_light">#ff33b5e5</color>
     
@@ -26,16 +27,18 @@
     
         
         
-    <color name="dark_default_post_font">#ffffff</color>
+    <color name="dark_default_post_font">#e7e7e7</color>
     <color name="dark_secondary_post_font">#777777</color>
-    <color name="dark_background">#000000</color>
-    <color name="dark_alt_background">#111111</color>
-    <color name="dark_header_background">#222222</color>
+    <color name="dark_background">#212121</color>
+    <color name="dark_alt_background">#333333</color>
+    <color name="dark_header_background">#444444</color>
     <color name="dark_header_font">#ffffff</color>
     <color name="dark_header_divider">#f4f4f4</color>
     <color name="dark_op_post">#003366</color>
     <color name="dark_link_quote">#5463ff</color>
     <color name="dark_blue">#ff33b5e5</color>
+
+    <color name="oled_background">#000000</color>
     
     <color name="yospos_default_post_font">#57FF57</color>
     <color name="yospos_secondary_post_font">#57FF57</color>

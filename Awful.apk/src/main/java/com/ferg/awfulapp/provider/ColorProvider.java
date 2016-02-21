@@ -9,6 +9,7 @@ public class ColorProvider {
 	
 	public static final String DEFAULT 	= "default.css";
 	public static final String DARK 	= "dark.css";
+	public static final String OLED 	= "oled.css";
 	public static final String CLASSIC 	= "classic.css";
 	public static final String YOSPOS 	= "yospos.css";
     public static final String AMBERPOS = "amberpos.css";
@@ -25,6 +26,9 @@ public class ColorProvider {
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
+			return prefs.getResources().getColor(R.color.dark_default_post_font);
+		}
+		if(theme.endsWith(OLED)){
 			return prefs.getResources().getColor(R.color.dark_default_post_font);
 		}
 		if(theme.endsWith(YOSPOS)){
@@ -59,6 +63,9 @@ public class ColorProvider {
 		if(theme.endsWith(DARK)){
 			return prefs.getResources().getColor(R.color.dark_secondary_post_font);
 		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.dark_secondary_post_font);
+		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_secondary_post_font);
 		}
@@ -87,6 +94,9 @@ public class ColorProvider {
 		}
 		if(theme.endsWith(DARK)){
 			return prefs.getResources().getColor(R.color.dark_background);
+		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.oled_background);
 		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_background);
@@ -127,6 +137,9 @@ public class ColorProvider {
 		if(theme.endsWith(DARK)){
 			return prefs.getResources().getColor(R.color.bookmark_default);
 		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.bookmark_default);
+		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
@@ -150,6 +163,9 @@ public class ColorProvider {
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
+			return prefs.getResources().getColor(R.color.bookmark_default_dim);
+		}
+		if(theme.endsWith(OLED)){
 			return prefs.getResources().getColor(R.color.bookmark_default_dim);
 		}
 		if(theme.endsWith(YOSPOS)){
@@ -177,6 +193,9 @@ public class ColorProvider {
 		if(theme.endsWith(DARK)){
 			return prefs.getResources().getColor(R.color.unread_posts_counter);
 		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.unread_posts_counter);
+		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_background);
 		}
@@ -198,7 +217,10 @@ public class ColorProvider {
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.dark_background);
+			return prefs.getResources().getColor(R.color.oled_background);
+		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.oled_background);
 		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_background);
@@ -223,6 +245,9 @@ public class ColorProvider {
 		if(theme.endsWith(DARK)){
 			return prefs.getResources().getColor(R.color.dark_default_post_font);
 		}
+		if(theme.endsWith(OLED)){
+			return prefs.getResources().getColor(R.color.dark_default_post_font);
+		}
 		if(theme.endsWith(YOSPOS)){
 			return prefs.getResources().getColor(R.color.yospos_default_post_font);
 		}
@@ -244,6 +269,9 @@ public class ColorProvider {
 			theme = prefs.theme;
 		}
 		if(theme.endsWith(DARK)){
+			return prefs.getResources().getColor(R.color.holo_blue_light);
+		}
+		if(theme.endsWith(OLED)){
 			return prefs.getResources().getColor(R.color.holo_blue_light);
 		}
 		if(theme.endsWith(YOSPOS)){

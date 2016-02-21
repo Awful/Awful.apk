@@ -33,8 +33,7 @@
         <WebView
             android:id="@+id/thread"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/background" />
+            android:layout_height="fill_parent"/>
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
     <include

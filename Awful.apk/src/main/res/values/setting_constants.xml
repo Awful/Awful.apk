@@ -9,6 +9,7 @@
     <string-array name="schemas_values">
         <item>default.css</item>
         <item>dark.css</item>
+        <item>oled.css</item>
         <item>yospos.css</item>
         <item>amberpos.css</item>
         <item>fyad.css</item>
