@@ -499,6 +499,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	        }else{
 	            mThreadView.onResume();
 	            mThreadView.resumeTimers();
+				mThreadView.loadUrl("javascript:loadpagehtml()");
 	        }
     	}
     }
