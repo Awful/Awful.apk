@@ -54,6 +54,7 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.SearchRequest;
@@ -104,11 +105,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
         mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
         mSRL.setEnabled(false);
 
         mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);

@@ -73,6 +73,7 @@
     <color name="bookmark_red_dim">#7fb4171f</color>
     <color name="bookmark_yellow_dim">#7fdfdd6d</color><!--darker alternative: #bdbc2a-->
 
+    <color name="default_srl_background_color">#FFFAFAFA</color>
 
     <color name="sidebarOverlay">#99CCCCCC</color>
     <color name="sidebarOverlay_dark">#99CCCCCC</color>

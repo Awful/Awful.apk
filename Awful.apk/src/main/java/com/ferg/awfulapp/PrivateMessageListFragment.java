@@ -129,11 +129,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         mSRL = (SwipeRefreshLayout) view.findViewById(R.id.pm_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+        mSRL.setProgressBackgroundColorSchemeResource(ColorProvider.getSRLBackgroundColor());
     }
 
     @Override

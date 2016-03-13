@@ -83,6 +83,7 @@
         <item name="colorAccent">@color/amberpos_default_post_font</item>
         <item name="colorAccentThemeFix">?colorAccent</item>
         <item name="justPostButtonColor">@color/amberpos_default_post_font</item>
+        <item name="justPostButtonFontColor">@color/oled_background</item>
         <item name="justPostButtonColorPressed">@color/amberpos_secondary_post_font</item>
         <item name="iconColor">@color/amberpos_default_post_font</item>
         <item name="iconColorDark">@color/amberpos_default_post_font</item>

@@ -180,11 +180,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
         mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
     }
 
     @Override

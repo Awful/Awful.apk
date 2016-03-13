@@ -329,11 +329,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
         mSRL = (SwipyRefreshLayout) view.findViewById(R.id.thread_swipe);
-        mSRL.setColorSchemeResources(
-				android.R.color.holo_green_light,
-				android.R.color.holo_orange_light,
-				android.R.color.holo_red_light,
-				android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+		mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
 		if(mPrefs.disablePullNext){
 			mSRL.setEnabled(false);
 		}

@@ -1,6 +1,7 @@
 package com.ferg.awfulapp.provider;
 
 import android.graphics.Color;
+import android.support.v4.widget.SwipeRefreshLayout;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -294,6 +295,80 @@ public class ColorProvider {
 	
 	public static int getProgressbarColor(){
 		return getProgressbarColor(null);
+	}
+
+	private static int getSRLBackgroundColor(String theme) {
+
+		if (theme == null) {
+			theme = prefs.theme;
+		}
+		if (theme.endsWith(DARK)) {
+			return R.color.dark_alt_background;
+		}
+		if (theme.endsWith(OLED)) {
+			return R.color.dark_background;
+		}
+		if (theme.endsWith(YOSPOS)) {
+			return R.color.yospos_default_post_font;
+		}
+		if (theme.endsWith(AMBERPOS)) {
+			return R.color.amberpos_default_post_font;
+		}
+		if (theme.endsWith(FYAD)) {
+			return R.color.fyad_alt_background;
+		}
+		if (theme.endsWith(BYOB)) {
+			return R.color.byob_background;
+		}
+		if (theme.endsWith(CLASSIC)) {
+			return R.color.default_srl_background_color;
+		}
+		return R.color.default_srl_background_color;
+	}
+
+	public static int getSRLBackgroundColor() {
+		return getSRLBackgroundColor(null);
+	}
+
+	private static int[] getSRLProgressColor(String theme) {
+
+		if (theme == null) {
+			theme = prefs.theme;
+		}
+		if (theme.endsWith(DARK)) {
+			return new int[]{R.color.forums_blue_darker,R.color.forums_blue_evendarker};
+		}
+		if (theme.endsWith(OLED)) {
+			return new int[]{R.color.dark_default_post_font};
+		}
+		if (theme.endsWith(YOSPOS)) {
+			return new int[]{R.color.amberpos_background};
+		}
+		if (theme.endsWith(AMBERPOS)) {
+			return new int[]{R.color.amberpos_background};
+		}
+		if (theme.endsWith(FYAD)) {
+			return new int[]{R.color.fyad_default_post_font,R.color.fyad_secondary_post_font};
+		}
+		if (theme.endsWith(BYOB)) {
+			return new int[]{R.color.byob_secondary_post_font,R.color.byob_default_post_font};
+		}
+		if (theme.endsWith(CLASSIC)) {
+			return new int[]{
+					android.R.color.holo_green_light,
+					android.R.color.holo_orange_light,
+					android.R.color.holo_red_light,
+					android.R.color.holo_blue_bright};
+		}
+		return new int[]{
+				android.R.color.holo_green_light,
+				android.R.color.holo_orange_light,
+				android.R.color.holo_red_light,
+				android.R.color.holo_blue_bright};
+	}
+
+	public static int[] getSRLProgressColor() {
+		return getSRLProgressColor(null);
 	}
 
 	public static String convertToARGB(int color) {
