@@ -509,6 +509,7 @@ public class AwfulPost {
 					Elements avatar = entry.getElementsByTag("img");
 
 					if (avatar.size() > 0) {
+                        checkHttps(avatar.get(0));
 						post.put(AVATAR, avatar.get(0).attr("src"));
 					}
 					post.put(AVATAR_TEXT, entry.text().trim());
@@ -522,6 +523,7 @@ public class AwfulPost {
 						if((img.hasAttr("class") && img.attr("class").contains("videoPlayButton"))){
 							continue;
 						}
+                        checkHttps(img);
 						boolean dontLink = false;
 						boolean isTimg = img.hasClass("timg");
 						Element parent = img.parent();
@@ -592,6 +594,12 @@ public class AwfulPost {
 						}
 					}
 
+                    Elements links = entry.getElementsByTag("a");
+
+                    for (Element link : links) {
+                        checkHttps(link);
+                    }
+
                     post.put(CONTENT, entry.html());
                 }
 
@@ -608,7 +616,7 @@ public class AwfulPost {
 					post.put(EDITED, "<i>" + entry.children().get(0).text().trim() + "</i>");
                 }
                 if (type.equalsIgnoreCase("profilelinks") && !post.containsKey(USER_ID)) {
-                    Elements userlink = entry.getElementsByAttributeValueContaining("href","userid=");
+                    Elements userlink = entry.getElementsByAttributeValueContaining("href", "userid=");
 
                     if (userlink.size() > 0) {
                         Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
@@ -630,8 +638,24 @@ public class AwfulPost {
                 result.add(post);
             }
         }
-        Log.i(TAG, Integer.toString(posts.size())+" posts found, "+result.size()+" posts parsed.");
+        Log.i(TAG, Integer.toString(posts.size()) + " posts found, " + result.size() + " posts parsed.");
     	return result;
+    }
+
+    private static void checkHttps(Element element){
+        String attr = "";
+        if (element.hasAttr("href")) {
+            attr = "href";
+        }else if (element.hasAttr("src")) {
+            attr = "src";
+        }else {
+            return;
+        }
+        if (element.attr(attr).contains("imgur.com") || element.attr(attr).contains("somethingawful.com") || element.attr(attr).contains("giphy.com")) {
+            if (element.attr(attr).startsWith("http://")) {
+                element.attr(attr, element.attr(attr).replace("http://", "https://"));
+            }
+        }
     }
 
 }

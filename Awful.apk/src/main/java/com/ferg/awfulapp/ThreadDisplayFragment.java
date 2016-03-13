@@ -483,6 +483,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     public void onResume() {
         super.onResume(); if(DEBUG) Log.e(TAG, "Resume");
         resumeWebView();
+		if(mThreadView != null){
+			mThreadView.loadUrl("javascript:loadpagehtml(true)");
+		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
 
@@ -499,7 +502,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	        }else{
 	            mThreadView.onResume();
 	            mThreadView.resumeTimers();
-				mThreadView.loadUrl("javascript:loadpagehtml()");
 	        }
     	}
     }

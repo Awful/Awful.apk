@@ -20,7 +20,10 @@ function changeCSS(file){
     $('head').children('link').first().attr('href',file);
 }
 
-function loadpagehtml(){
+function loadpagehtml(checkFirst){
+    if(checkFirst !== undefined && document.getElementById("container").innerHTML != ""){
+        return
+    }
     if(window.topScrollID){
         window.clearTimeout(window.topScrollID);
     }

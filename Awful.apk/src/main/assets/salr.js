@@ -159,12 +159,17 @@ SALR.prototype.inlineWebm = function() {
     var that = this;
     var webms = $('.postcontent a[href$="webm"],.postcontent a[href$="gifv"],.postcontent a[href$="mp4"]');
 
+
     //webms = webms.not(".postcontent:has(img[title=':nws:']) a").not(".postcontent:has(img[title=':nms:']) a");
 
     // spoiler'd links
     webms = webms.not('.bbc-spoiler a');
 
     webms.each(function() {
-        $(this).replaceWith('<video loop width="100%" muted="true" controls preload="metadata"> <source src="'+$(this).attr('href').substr(0, $(this).attr('href').lastIndexOf('.'))+'.webm" type="video/webm"> </video>');
+        $(this).attr('href',$(this).attr('href').replace('.gifv','.mp4'))
+        if($(this).attr('href').indexOf('imgur.com') !== -1){
+            $(this).attr('href',$(this).attr('href').replace('.webm','.mp4'))
+        }
+        $(this).replaceWith('<video loop width="100%" muted="true" controls preload="metadata"> <source src="'+$(this).attr('href')+'" type="video/'+$(this).attr('href').substring($(this).attr('href').lastIndexOf('.')+1)+'"> </video>');
     });
 };
