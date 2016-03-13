@@ -4,63 +4,63 @@
 
     <item
         android:id="@+id/submit_button"
-        android:icon="?attr/iconMenuSendSmall"
+        android:icon="@drawable/ic_send"
         app:showAsAction="always"
         android:title="@string/submit"/>
     <item
         android:id="@+id/bbcode"
-        android:icon="?attr/iconMenuFormatSmall"
+        android:icon="@drawable/ic_bbcode"
         app:showAsAction="ifRoom"
         android:title="@string/bbcode">
         <menu>
             <item
                 android:id="@+id/emotes"
-                android:icon="?attr/iconMenuEmoteDark"
-                android:title="Emotes"/>
+                android:icon="@drawable/ic_mood_dark"
+                android:title="@string/reply_emotes"/>
             <item
                 android:id="@+id/bbcode_bold"
-                android:icon="?attr/iconMenuBoldDark"
-                android:title="Bold"/>
+                android:icon="@drawable/ic_format_bold_dark"
+                android:title="@string/reply_bold"/>
             <item
                 android:id="@+id/bbcode_italics"
-                android:icon="?attr/iconMenuItalicDark"
-                android:title="Italics"/>
+                android:icon="@drawable/ic_format_italic_dark"
+                android:title="@string/reply_italics"/>
             <item
                 android:id="@+id/bbcode_underline"
-                android:icon="?attr/iconMenuUnderlineDark"
-                android:title="Underline"/>
+                android:icon="@drawable/ic_format_underline_dark"
+                android:title="@string/reply_underline"/>
             <item
                 android:id="@+id/bbcode_strikeout"
-                android:icon="?attr/iconMenuStrikeDark"
-                android:title="Strikeout"/>
+                android:icon="@drawable/ic_format_strikethrough_dark"
+                android:title="@string/reply_strikeout"/>
             <item
                 android:id="@+id/bbcode_image"
-                android:icon="?attr/iconMenuImageDark"
-                android:title="Image Tag"/>
+                android:icon="@drawable/ic_panorama_dark"
+                android:title="@string/reply_img_tag"/>
             <item
                 android:id="@+id/bbcode_thumbnail"
-                android:icon="?attr/iconMenuThumbnailDark"
-                android:title="Thumbnail Tag"/>
+                android:icon="@drawable/ic_photo_dark"
+                android:title="@string/reply_timg_tag"/>
             <item
                 android:id="@+id/bbcode_url"
-                android:icon="?attr/iconMenuLinkDark"
-                android:title="Insert URL"/>
+                android:icon="@drawable/ic_insert_link_dark"
+                android:title="@string/reply_url_tag"/>
             <item
                 android:id="@+id/bbcode_video"
-                android:icon="?attr/iconMenuVideoDark"
-                android:title="Insert Video"/>
+                android:icon="@drawable/ic_movie_dark"
+                android:title="@string/reply_video"/>
             <item
                 android:id="@+id/bbcode_quote"
-                android:icon="?attr/iconMenuQuoteDark"
-                android:title="Quote Block"/>
+                android:icon="@drawable/ic_format_quote_dark"
+                android:title="@string/reply_quote"/>
             <item
                 android:id="@+id/bbcode_spoiler"
-                android:icon="?attr/iconMenuSpoilerDark"
-                android:title="Spoiler Block"/>
+                android:icon="@drawable/ic_dehaze_dark"
+                android:title="@string/reply_spoiler"/>
             <item
                 android:id="@+id/bbcode_code"
-                android:icon="?attr/iconMenuCodeDark"
-                android:title="Code Block"/>
+                android:icon="@drawable/ic_code_dark"
+                android:title="@string/reply_code"/>
         </menu>
     </item>
     <item
@@ -70,7 +70,7 @@
     </item>
     <item
         android:id="@+id/discard"
-        android:icon="?attr/iconMenuLoadFailedDark"
+        android:icon="@drawable/ic_error_dark"
         app:showAsAction="never|withText"
         android:title="@string/menu_discard">
     </item>

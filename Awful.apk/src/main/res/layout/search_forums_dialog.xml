@@ -24,7 +24,7 @@
     android:layout_height="match_parent"/>
 
     <android.support.v7.widget.RecyclerView
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/dialog_size"
         android:layout_height="match_parent"
         android:id="@+id/search_forums"
         android:layout_gravity="center_horizontal"

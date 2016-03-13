@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'io.fabric.tools:gradle:1.20.1'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 apply plugin: 'com.android.application'
@@ -24,6 +24,9 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
+
+        // Stops the Gradle plugin’s automatic rasterization of vectors
+        generatedDensities = []
     }
 
     packagingOptions {
@@ -43,15 +46,20 @@ android {
 
     buildTypes{
         release{
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
+    }
+
+    // Flag to tell aapt to keep the attribute ids around
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.github.androidquery:androidquery:0.26.9'
@@ -62,9 +70,9 @@ dependencies {
     compile 'org.apache.httpcomponents:httpmime:4.3.1'
     compile 'org.apache.httpcomponents:httpcore:4.3.1'
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32'
-    //    compile 'com.github.orangegangsters:swipy:1.2.0@aar'
-    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
+    compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32@aar'
+    compile 'com.github.orangegangsters:swipy:1.2.2@aar'
+//    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }

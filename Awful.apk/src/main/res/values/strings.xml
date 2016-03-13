@@ -29,8 +29,6 @@
     <string name="user_cp">Bookmarks</string>
 
     <string name="forums_title">Forums</string>
-    <string name="back">Previous page</string>
-    <string name="forward">Next page</string>
     <string name="go_to">Go to page</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="settings">Settings</string>
@@ -87,10 +85,20 @@
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
     <string name="post_sent">Hope it didn\'t suck…</string>
+    <string name="reply_emotes">Emotes</string>
+    <string name="reply_bold">Bold</string>
+    <string name="reply_italics">Italics</string>
+    <string name="reply_underline">Underline</string>
+    <string name="reply_strikeout">Strikeout</string>
+    <string name="reply_img_tag">Image Tag</string>
+    <string name="reply_timg_tag">Thumbnail Tag</string>
+    <string name="reply_url_tag">Insert URL</string>
+    <string name="reply_video">Insert Video</string>
+    <string name="reply_quote">Quote Block</string>
+    <string name="reply_spoiler">Spoiler Block</string>
+    <string name="reply_code">Code Block</string>
 
     <!-- other shit -->
-    <string name="press_color_to_apply">Press color to apply</string>
-    <string name="dialog_color_picker">Select color</string>
     <string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
     most devices. \n
     \n
@@ -101,7 +109,11 @@
     <string name="alert_title_1">Please Note: GIFs</string>
     <string name="alert_ok">@android:string/ok</string>
     <string name="alert_settings">Settings</string>
-    <string name="thread_actions">Thread actions</string>
+    <string name="no_file_permission_attachment">Well, you didn\'t allow Awful to access files, so it can\'t add the attachment you just selected. Good job.</string>
+    <string name="no_file_permission_settings_import">You know, you didn\'t allow Awful to access files, so it can\'t import the settings file you just selected. Well done.</string>
+    <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
+    <string name="no_file_permission_download">Awful doesn\'t have permission to store the download. Welp, guess not then.</string>
+    <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
 
     <string name="probation_title">YOU ARE A HORRIBLE MONSTER ON PROBATION!</string>
     <string name="probation_message">You have been put on probation until %s.</string>
@@ -110,6 +122,15 @@
     <string name="not_available_on_your_version">Not available on this version of Android</string>
     <string name="min_button_text">min</string>
     <string name="max_button_text">max</string>
+
+    <!-- search -->
+
+    <string name="Search_terms">Search terms</string>
+    <string name="search_by_userid">User id</string>
+    <string name="search_by_username">Username</string>
+    <string name="search_by_intitle">In title</string>
+    <string name="search_by_threadid">Thread id</string>
+    <string name="search_by_quoting">Quoting user</string>
 
     <!--
         Start of Settings menu strings
@@ -183,7 +204,6 @@
     <string name="default_post_fixed_font_size">Default fixed-width font size</string>
     <string name="default_fixed_font_size_dialog_title">Set fixed-width font size</string>
     <string name="setting_posts_per_page">Posts per page</string>
-    <string name="setting_posts_per_page_summary">Maximum: 40</string>
     <string name="hide_old_posts">Hide old posts</string>
     <string name="hide_old_posts_summary">Hide previously read posts</string>
     <string name="hide_ignored_posts">Hide ignored posts</string>
@@ -226,8 +246,6 @@
     <string name="hide_read_images_summary">Hide images in previously viewed posts</string>
     <string name="show_smilies">Show emotes</string>
     <string name="show_smilies_summary">Uncheck to replace with :text: versions</string>
-    <string name="threadinfo">Thread info</string>
-    <string name="threadinfo_settings">Thread subtext</string>
     <string name="imgur_thumbnails">Imgur thumbnails</string>
     <string-array name="imgur_thumbnails">
         <item>Use original pictures</item>
@@ -244,6 +262,7 @@
     <string-array name="theme">
         <item>Default</item>
         <item>Dark</item>
+        <item>OLED</item>
         <item>YOSPOS</item>
         <item>AmberPOS</item>
         <item>FYAD</item>
@@ -282,8 +301,6 @@
     <string name="immersion_mode">Immersion Mode</string>
     <string name="immersion_mode_summary">Fullscreen mode for KitKat and above</string>
     <string name="misc_category_navigation">Navigation</string>
-    <string name="show_next_page_button_at_top">Top \'next page\' button</string>
-    <string name="show_next_page_button_at_top_summary">Add a button to the top of the screen</string>
     <string name="disable_pull_next">Disable pull-for-next</string>
     <string name="disable_pull_next_summary">Disable pull at bottom of thread navigation</string>
     <string name="pull_to_refresh_distance">Pull-to-refresh distance</string>
@@ -321,62 +338,4 @@
     <!--
         End of Settings menu strings
     -->
-
-    <!-- Old settings xml strings -->
-    <string name="prefs_global">Global settings</string>
-    <string name="prefs_salr">SALR preferences</string>
-
-    <!-- what are you doing here you're not even used -->
-    <string name="prefs_thread_display">Thread display settings</string>
-    <string name="use_large_scrollbar">Use large scrollbar</string>
-    <string name="use_large_scrollbar_summary">The kind you can touch and fling</string>
-    <string name="alternate_backgrounds">Alternate Post BG Colors</string>
-    <string name="default_post_font_color">Default Post Font Color</string>
-    <string name="secondary_post_font_color">Alternative Font Color</string>
-    <string name="default_post_background_color">Default Background Color</string>
-    <string name="alt_post_background_color">Alternative Background Color</string>
-    <string name="read_post_background_color">Read Post BG Color</string>
-    <string name="alt_read_post_background_color">Alt Read Post BG Color</string>
-    <string name="read_post_font_color">Read Post Font Color</string>
-    <string name="actionbar_color">Actionbar Color</string>
-    <string name="actionbar_font_color">Actionbar Font Color</string>
-    <string name="op_post_color">OP Post Color</string>
-    <string name="hyperlink_font_quote_color">Quote / Link Font Color</string>
-    <string name="unread_posts">Unread Counter Color</string>
-    <string name="unread_posts_dim">Unread Counter Dim Color</string>
-    <string name="unread_posts_font_black">Black Unread Counter Font Color</string>
-    <string name="threadinfo_author">Author</string>
-    <string name="threadinfo_killed">Killed by</string>
-    <string name="threadinfo_pages">Number of pages</string>
-    <string name="read_post_background2_color">Read post alternate color</string>
-    <string name="select_forum">Select a forum</string>
-    <string name="send_pm">Send PM</string>
-    <string name="draft_alert_keep">Keep message</string>
-    <string name="draft_alert_discard">Discard message</string>
-    <string name="draft_alert_title">Previous reply found</string>
-    <string name="reply_alert_save_draft">Save draft</string>
-    <string name="draft_discard_only">Discard and cancel</string>
-    <string name="vote_failed_sub">Maybe next time?</string>
-    <string name="home">Home</string>
-    <string name="quote">Quote</string>
-    <string name="edit">Edit</string>
-    <string name="mark_last_read">Mark last read</string>
-    <string name="reply_invalid_title">You can\'t post here</string>
-    <string name="reply_invalid_message">Fly away nerd!</string>
-    <string name="always">Always</string>
-    <string name="threads">Threads</string>
-    <string name="debug_mode">Debug mode</string>
-    <string name="debug_mode_summary">DEBUG: Don\'t Use This!</string>
-    <string name="post_divider_enabled">Show post divider</string>
-    <string name="no_file_permission_attachment">Well, you didn\'t allow Awful to access files, so it can\'t add the attachment you just selected. Good job.</string>
-    <string name="no_file_permission_settings_import">You know, you didn\'t allow Awful to access files, so it can\'t import the settings file you just selected. Well done.</string>
-    <string name="no_file_permission_settings_export">You didn\'t allow Awful to access files, so it can\'t export the settings file. Congratulations.</string>
-    <string name="no_file_permission_download">Awful doesn\'t have permission to store the download. Welp, guess not then.</string>
-    <string name="no_file_permission_theme">Can\'t access custom theme because Awful lacks storage permissions. Reverting to default css.</string>
-    <string name="Search_terms">Search terms</string>
-    <string name="search_by_userid">User id</string>
-    <string name="search_by_username">Username</string>
-    <string name="search_by_intitle">In title</string>
-    <string name="search_by_threadid">Thread id</string>
-    <string name="search_by_quoting">Quoting user</string>
 </resources>

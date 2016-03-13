@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/message_reply_button"
-                android:src="?attr/iconMenuExpandMore" />
+                android:src="@drawable/ic_expand_more" />
         </RelativeLayout>
 
         <WebView

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="@dimen/popup_size"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:background="@drawable/popup_background">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/popup_size"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:background="@drawable/popup_background">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/popup_icon"
-        android:src="?attr/iconMenuLoadFailed"
+        app:srcCompat="@drawable/ic_error"
         android:layout_centerHorizontal="true"
         android:padding="2dp"/>
 

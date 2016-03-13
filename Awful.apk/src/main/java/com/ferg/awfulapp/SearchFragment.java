@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -53,6 +54,7 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.SearchRequest;
@@ -103,11 +105,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
         mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
         mSRL.setEnabled(false);
 
         mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);
@@ -289,7 +288,9 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 search();
                 break;
             case R.id.search_forums:
-                new SearchForumsFragment(this).show(getFragmentManager(), "searchforums");
+                SearchForumsFragment frag = new SearchForumsFragment(this);
+                frag.setStyle(DialogFragment.STYLE_NO_TITLE,0);
+                frag.show(getFragmentManager(), "searchforums");
                 break;
             case R.id.search_threadid:
                 insertSearchTerm(SEARCHTERM.THREADID);

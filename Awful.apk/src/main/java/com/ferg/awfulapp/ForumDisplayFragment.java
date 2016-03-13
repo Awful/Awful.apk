@@ -180,11 +180,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
         mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light,
-                android.R.color.holo_blue_bright);
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
     }
 
     @Override
@@ -620,7 +617,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success, 0, R.attr.iconMenuLoadSuccess);
+                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_check_circle);
                 refreshInfo();
             }
 
@@ -861,6 +858,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
-	}	
+	}
 
 }

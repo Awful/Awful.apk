@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:id="@+id/page_indicator"
@@ -9,7 +10,7 @@
         android:id="@+id/prev_page"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
-        android:src="?attr/iconMenuArrowLeft"
+        app:srcCompat="@drawable/ic_arrow_back"
         android:layout_width="wrap_content"
         android:visibility="invisible"
         android:layout_weight="1"
@@ -23,7 +24,7 @@
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
         android:layout_weight="1"
-        android:src="?attr/iconMenuRefresh" />
+        app:srcCompat="@drawable/ic_refresh" />
 
     <TextView
         android:id="@+id/page_count"
@@ -46,13 +47,13 @@
         android:scaleType="fitCenter"
         android:visibility="invisible"
         android:layout_weight="1"
-        android:src="?attr/iconMenuRefresh" />
+        app:srcCompat="@drawable/ic_refresh"/>
 
     <ImageButton
         android:id="@+id/next_page"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
-        android:src="?attr/iconMenuArrowRight"
+        app:srcCompat="@drawable/ic_arrow_forward"
         android:layout_width="wrap_content"
         android:visibility="invisible"
         android:layout_weight="1"

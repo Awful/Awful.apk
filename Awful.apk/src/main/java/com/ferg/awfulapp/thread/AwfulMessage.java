@@ -41,6 +41,7 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 
@@ -95,37 +96,35 @@ public class AwfulMessage extends AwfulPagedItem {
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
 		if(t != null){
 			title.setText(t);
+			title.setTextColor(ColorProvider.getTextColor());
 		}
 		TextView author = (TextView) current.findViewById(R.id.thread_info);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
 		String date = data.getString(data.getColumnIndex(DATE));
 		if(auth != null && date != null){
 			author.setText(auth +" - "+date);
+			author.setTextColor(ColorProvider.getAltTextColor());
 		}
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
 
 		unreadPM.setVisibility(View.VISIBLE);
 
-		int[] attrs;
 		switch (data.getInt(data.getColumnIndex(UNREAD))){
 			default:
 			case 0:
 				//unread
-				attrs = new int[]{ R.attr.iconMenuMailReadDark };
+				unreadPM.setImageResource(R.drawable.ic_drafts_dark);
 				break;
 			case 1:
 				//read
-				attrs = new int[]{ R.attr.iconMenuMailDark };
+				unreadPM.setImageResource(R.drawable.ic_mail_dark);
 				break;
 			case 2:
 				//replied
-				attrs = new int[]{ R.attr.iconMenuReplyDark };
+				unreadPM.setImageResource(R.drawable.ic_reply_dark);
 				break;
 		}
-		TypedArray ta = current.getContext().getTheme().obtainStyledAttributes(attrs);
-		unreadPM.setImageDrawable(ta.getDrawable(0));
-
 		return current;
 	}
 	

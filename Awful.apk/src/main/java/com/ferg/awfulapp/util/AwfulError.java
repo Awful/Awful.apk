@@ -196,7 +196,7 @@ public class AwfulError extends VolleyError{
     }
 
     public int getIconResource() {
-        return R.attr.iconMenuLoadFailed;
+        return R.drawable.ic_error;
     }
 
     public Animation getIconAnimation() {

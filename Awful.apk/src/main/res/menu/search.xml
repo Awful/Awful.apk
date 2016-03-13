@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/search_forums"
-        android:icon="?attr/iconMenuSettings"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="always"
         android:title="@string/submit"/>
     <item
         android:id="@+id/search_terms"
-        android:icon="?attr/iconMenuFindInPage"
+        android:icon="@drawable/ic_find_in_page"
         app:showAsAction="ifRoom"
         android:title="@string/Search_terms">
         <menu>
@@ -33,7 +33,7 @@
 
     <item
         android:id="@+id/search_submit"
-        android:icon="?attr/iconMenuSendSmall"
+        android:icon="@drawable/ic_send"
         app:showAsAction="always"
         android:title="@string/submit"/>
 
