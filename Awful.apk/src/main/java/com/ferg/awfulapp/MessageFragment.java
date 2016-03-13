@@ -230,7 +230,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                 }
                 if(getActivity() instanceof MessageDisplayActivity){
                     getActivity().finish();
-                    displayAlert("Message Sent!", R.attr.iconMenuLoadSuccess);
+                    displayAlert("Message Sent!", R.drawable.ic_check_circle);
                 }
             }
 

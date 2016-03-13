@@ -601,9 +601,7 @@ public class AwfulThread extends AwfulPagedItem  {
             aq.id(R.id.thread_sticky).visible().image(resources.getDrawable(R.drawable.ic_sticky));
         } else if (data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
-            int[] attrs = { R.attr.iconMenuLockedDark };
-            TypedArray ta = context.getTheme().obtainStyledAttributes(attrs);
-            aq.id(R.id.thread_locked).visible().image(ta.getDrawable(0));
+            aq.id(R.id.thread_locked).visible().image(R.drawable.ic_https_dark);
             current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }
 

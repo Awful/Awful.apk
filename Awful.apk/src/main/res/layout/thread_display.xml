@@ -33,7 +33,7 @@
             android:id="@+id/thread_swipe"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:direction="both">
+            app:srl_direction="both">
 
             <WebView
                 android:id="@+id/thread"
@@ -50,7 +50,8 @@
             android:layout_margin="16dp"
             app:elevation="4sp"
             app:borderWidth="0dp"
-            android:src="?attr/iconMenuCreate">
+            app:srcCompat="@drawable/ic_create"
+            android:tint="?attr/justPostButtonFontColor">
 
         </android.support.design.widget.FloatingActionButton>
     </RelativeLayout>

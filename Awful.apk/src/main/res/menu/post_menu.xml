@@ -4,43 +4,43 @@
     <item
         android:id="@+id/reply"
         android:title="@string/post_reply"
-        android:icon="?attr/iconMenuReplyDark"
+        android:icon="@drawable/ic_reply_dark"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/bookmark"
         android:title="@string/bookmark"
-        android:icon="?attr/iconMenuBookmarkDark"
+        android:icon="@drawable/ic_book_dark"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/rate_thread"
         android:title="@string/rate_thread"
-        android:icon="?attr/iconMenuRateDark"
+        android:icon="@drawable/ic_looks_5_dark"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/copy_url"
-        android:icon="?attr/iconMenuLinkDark"
+        android:icon="@drawable/ic_insert_link_dark"
         android:title="@string/copy_url"
         app:showAsAction="never"
         />
     <item
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
         android:id="@+id/share_thread"
-        android:icon="?attr/iconMenuShareDark"
+        android:icon="@drawable/ic_share_dark"
         android:title="@string/share_thread"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/find"
-        android:icon="?attr/iconMenuFindInPageDark"
+        android:icon="@drawable/ic_find_in_page_dark"
         android:title="@string/find"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/keep_screen_on"
-        android:icon="?attr/iconMenuLastReadDark"
+        android:icon="@drawable/ic_visibility_dark"
         android:title="@string/keep_screen_on"
         android:checkable="true"
         app:showAsAction="never"
@@ -48,7 +48,7 @@
     <item
         android:id="@+id/yospos"
         android:title="@string/yospos"
-        android:icon="?attr/iconMenuYosposDark"
+        android:icon="@drawable/ic_menu_yospos_dark"
         app:showAsAction="never"
         />
 	

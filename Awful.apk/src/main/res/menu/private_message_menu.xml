@@ -3,27 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/toggle_folder"
-        android:icon="?attr/iconMenuOutbox"
+        android:icon="@drawable/ic_drawer_outbox"
         android:title="@string/toggle_folder"
         app:showAsAction="always" />
     <item
         android:id="@+id/new_pm"
-        android:icon="?attr/iconMenuCreate"
+        app:icon="@drawable/ic_create"
         android:title="@string/new_pm"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/refresh"
-        android:icon="?attr/iconMenuRefreshDark"
+        android:icon="@drawable/ic_refresh_dark"
         android:title="@string/refresh"
         app:showAsAction="never" />
     <item
         android:id="@+id/send_pm"
-        android:icon="?attr/iconMenuSendDark"
+        android:icon="@drawable/ic_send_dark"
         android:title="Send PM"
         app:showAsAction="never" />
     <item
         android:id="@+id/settings"
-        android:icon="?attr/iconMenuSettingsDark"
+        android:icon="@drawable/ic_settings_dark"
         android:title="@string/settings"
         app:showAsAction="never" />
 </menu>

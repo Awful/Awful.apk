@@ -28,7 +28,7 @@
 package com.ferg.awfulapp.constants;
 
 public class Constants {
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     //public static final String BASE_URL = "http://forums.somethingawful.com";
     public static final String BASE_URL = "https://forums.somethingawful.com";

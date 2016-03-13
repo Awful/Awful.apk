@@ -620,7 +620,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success, 0, R.attr.iconMenuLoadSuccess);
+                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_check_circle);
                 refreshInfo();
             }
 
@@ -861,6 +861,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
-	}	
+	}
 
 }

@@ -546,10 +546,8 @@ public class PostReplyFragment extends AwfulFragment {
             message.append(epocToSimpleDate(draftReplyTimestamp));
             message.append(" ago");
         }
-        int[] attrs = { R.attr.iconMenuReplyDark};
-        TypedArray ta = activity.getTheme().obtainStyledAttributes(attrs);
         new AlertDialog.Builder(activity)
-                .setIcon(ta.getDrawable(0))
+                .setIcon(R.drawable.ic_reply_dark)
                 .setTitle(title)
                 .setMessage(android.text.Html.fromHtml(message.toString()))
                 .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {

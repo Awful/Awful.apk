@@ -248,12 +248,10 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private void changeIcon(MenuItem item) {
         int[] attrs;
         if(currentFolder == FOLDER_SENT){
-            attrs = new int[]{ R.attr.iconMenuInboxSmall };
+            item.setIcon(R.drawable.ic_inbox);
         }else{
-            attrs = new int[]{ R.attr.iconMenuOutbox };
+            item.setIcon(R.drawable.ic_drawer_outbox);
         }
-        TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
-        item.setIcon(ta.getDrawable(0));
     }
 
     private View.OnClickListener onButtonClick = new View.OnClickListener() {

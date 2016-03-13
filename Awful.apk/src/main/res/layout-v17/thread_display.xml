@@ -28,7 +28,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/pagebar"
         android:layout_below="@+id/thread_userpost_notice"
-        app:direction="both">
+        app:srl_direction="both">
 
         <WebView
             android:id="@+id/thread"
@@ -53,8 +53,9 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="52dp"
         android:layout_marginRight="16dp"
-        android:src="?attr/iconMenuCreate"
         app:backgroundTint="?attr/justPostButtonColor"
+        app:srcCompat="@drawable/ic_create"
+        android:tint="?attr/justPostButtonFontColor"
         app:borderWidth="0dp"
         app:elevation="4sp">
 

@@ -24,6 +24,9 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
+
+        // Stops the Gradle plugin’s automatic rasterization of vectors
+        generatedDensities = []
     }
 
     packagingOptions {
@@ -43,15 +46,20 @@ android {
 
     buildTypes{
         release{
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
+    }
+
+    // Flag to tell aapt to keep the attribute ids around
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.github.androidquery:androidquery:0.26.9'

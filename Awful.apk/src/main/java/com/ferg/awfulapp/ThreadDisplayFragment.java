@@ -434,22 +434,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mRefreshBar.setVisibility(View.VISIBLE);
 		mPrevPage.setVisibility(View.VISIBLE);
 		mNextPage.setVisibility(View.VISIBLE);
-		int [] attrs = { R.attr.iconMenuRefresh, R.attr.iconMenuArrowLeft, R.attr.iconMenuArrowRight};
-		TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
 		if (getPage() <= 1) {
-
-			mPrevPage.setImageDrawable(ta.getDrawable(0));
+			mPrevPage.setImageResource(R.drawable.ic_refresh);
 			mPrevPage.setVisibility(View.VISIBLE);
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
-			mPrevPage.setImageDrawable(ta.getDrawable(1));
+			mPrevPage.setImageResource(R.drawable.ic_arrow_back);
 		}
 
 		if (getPage() == getLastPage()) {
-			mNextPage.setImageDrawable(ta.getDrawable(0));
+			mNextPage.setImageResource(R.drawable.ic_refresh);
 			mRefreshBar.setVisibility(View.INVISIBLE);
 		} else {
-			mNextPage.setImageDrawable(ta.getDrawable(2));
+			mNextPage.setImageResource(R.drawable.ic_arrow_forward);
 		}
 
         if(mThreadView != null){
@@ -713,7 +710,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
 					@Override
 					public void success(Void result) {
-						displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.attr.iconMenuEmote);
+						displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_mood);
 					}
 
 					@Override
@@ -783,12 +780,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		      queueRequest(new ReportRequest(getActivity(), postid, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
                   @Override
                   public void success(String result) {
-                      displayAlert(result, R.attr.iconMenuEmote);
+                      displayAlert(result, R.drawable.ic_mood);
                   }
 
                   @Override
                   public void failure(VolleyError error) {
-                      displayAlert(error.getMessage(), R.attr.iconMenuEmote);
+                      displayAlert(error.getMessage(), R.drawable.ic_mood);
                   }
               }));
 		    }
@@ -852,11 +849,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
     
     private void markLastRead(int index) {
-        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.attr.iconMenuLastRead);
+        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_visibility);
         queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_last_read_success, 0, R.attr.iconMenuLastRead);
+                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_visibility);
                 refreshInfo();
                 refreshPosts();
             }
@@ -1362,7 +1359,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         			break;
             	case 3:
             		copyToClipboard(url);
-        			displayAlert(R.string.copy_url_success, 0, R.attr.iconMenuLink);
+        			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_insert_link);
         			break;
             	case 4:
             		startActivity(createShareIntent(url));

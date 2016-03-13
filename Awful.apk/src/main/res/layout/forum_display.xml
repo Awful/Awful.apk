@@ -20,7 +20,7 @@
         android:layout_below="@+id/probationbar"
         android:layout_above="@+id/pagebar"
         android:orientation="vertical"
-        app:direction="top">
+        app:srl_direction="top">
 
         <ListView
             android:id="@+id/forum_list"

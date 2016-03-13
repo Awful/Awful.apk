@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -289,7 +290,9 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 search();
                 break;
             case R.id.search_forums:
-                new SearchForumsFragment(this).show(getFragmentManager(), "searchforums");
+                SearchForumsFragment frag = new SearchForumsFragment(this);
+                frag.setStyle(DialogFragment.STYLE_NO_TITLE,0);
+                frag.show(getFragmentManager(), "searchforums");
                 break;
             case R.id.search_threadid:
                 insertSearchTerm(SEARCHTERM.THREADID);

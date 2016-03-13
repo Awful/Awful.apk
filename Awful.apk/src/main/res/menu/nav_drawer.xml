@@ -14,23 +14,23 @@
         android:id="@+id/main_nav_options">
         <item
             android:id="@+id/sidebar_bookmarks"
-            android:icon="?attr/iconMenuBookmarkDark"
+            android:icon="@drawable/ic_book"
             android:title="@string/user_cp" />
         <item
             android:id="@+id/sidebar_search"
-            android:icon="?attr/iconMenuSearchDark"
+            android:icon="@drawable/ic_search_dark"
             android:title="@string/search" />
         <item
             android:id="@+id/sidebar_pm"
-            android:icon="?attr/iconMenuMailDark"
+            android:icon="@drawable/ic_mail_dark"
             android:title="@string/private_message" />
         <item
             android:id="@+id/sidebar_settings"
-            android:icon="?attr/iconMenuSettingsDark"
+            android:icon="@drawable/ic_settings_dark"
             android:title="@string/settings" />
         <item
             android:id="@+id/sidebar_logout"
-            android:icon="?attr/iconMenuLogoutDark"
+            android:icon="@drawable/ic_power_settings_dark"
             android:title="@string/logout" />
     </group>
 

@@ -52,6 +52,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -403,13 +404,13 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             aq.find(R.id.popup_subtitle).visible().text(subtext);
         }
         if(iconRes != 0){
-
-            int [] attrs = { iconRes};
-            TypedArray ta = getView().getContext().getTheme().obtainStyledAttributes(attrs);
             if(animate != null){
-                aq.find(R.id.popup_icon).image(ta.getDrawable(0)).animate(animate);
+                ImageView icon = aq.find(R.id.popup_icon).getImageView();
+                icon.setImageResource(iconRes);
+                aq.find(R.id.popup_icon).animate(animate);
             }else{
-                aq.find(R.id.popup_icon).image(ta.getDrawable(0));
+                ImageView icon = aq.find(R.id.popup_icon).getImageView();
+                icon.setImageResource(iconRes);
             }
         }
         Toast toast = new Toast(getAwfulApplication());
@@ -446,13 +447,13 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         try {
             clipboard.setPrimaryClip(clip);
             if (successMessageId != null) {
-                displayAlert(successMessageId, 0, R.attr.iconMenuLink);
+                displayAlert(successMessageId, 0, R.drawable.ic_insert_link_dark);
             }
             return true;
         } catch (IllegalArgumentException | SecurityException e) {
             displayAlert("Unable to copy to clipboard!",
                     "Another app has locked access, you may need to reboot",
-                    R.attr.iconMenuLoadFailed, null);
+                    R.drawable.ic_error, null);
             e.printStackTrace();
             return false;
         }

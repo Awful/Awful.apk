@@ -3,6 +3,7 @@
     <attr name="navbarBackground" format="color" />
     <attr name="navbarUsernameColor" format="color" />
     <attr name="justPostButtonColor" format="color" />
+    <attr name="justPostButtonFontColor" format="color" />
     <attr name="justPostButtonColorPressed" format="color" />
     <attr name="listDividerColor" format="color" />
     <!-- this is a hack because some themes (FYAD) have accent colours that are anything but -->
@@ -11,81 +12,6 @@
     <attr name="awfulPopUpTheme" format="reference" />
 
     <!-- icons -->
-    <attr name="iconMenuLoadFailed" format="reference" />
-    <attr name="iconMenuLoadFailedDark" format="reference" />
-    <attr name="iconMenuLoadSuccess" format="reference" />
-    <attr name="iconMenuArrowRight" format="reference" />
-    <attr name="iconMenuArrowLeft" format="reference" />
-    <attr name="iconMenuExpandLess" format="reference" />
-    <attr name="iconMenuExpandLessDark" format="reference" />
-    <attr name="iconMenuExpandMore" format="reference" />
-    <attr name="iconMenuExpandMoreDark" format="reference" />
-    <attr name="iconMenuRefresh" format="reference" />
-    <attr name="iconMenuRefreshDark" format="reference" />
-    <attr name="iconMenuCreate" format="reference" />
-    <attr name="iconMenuCreateDark" format="reference" />
-    <attr name="iconMenuSend" format="reference" />
-    <attr name="iconMenuSendDark" format="reference" />
-    <attr name="iconMenuSendSmall" format="reference" />
-    <attr name="iconMenuSendDarkSmall" format="reference" />
-    <attr name="iconMenuMail" format="reference" />
-    <attr name="iconMenuMailDark" format="reference" />
-    <attr name="iconMenuMailRead" format="reference" />
-    <attr name="iconMenuMailReadDark" format="reference" />
-    <attr name="iconMenuInbox" format="reference" />
-    <attr name="iconMenuInboxSmall" format="reference" />
-    <attr name="iconMenuOutbox" format="reference" />
-    <attr name="iconMenuReply" format="reference" />
-    <attr name="iconMenuReplyDark" format="reference" />
-    <attr name="iconMenuBookmark" format="reference" />
-    <attr name="iconMenuBookmarkDark" format="reference" />
-    <attr name="iconMenuNewUnread" format="reference" />
-    <attr name="iconMenuLocked" format="reference" />
-    <attr name="iconMenuLockedDark" format="reference" />
-    <attr name="iconMenuLogout" format="reference" />
-    <attr name="iconMenuLogoutDark" format="reference" />
-    <attr name="iconMenuSettings" format="reference" />
-    <attr name="iconMenuSettingsDark" format="reference" />
-    <attr name="iconMenuGoToPage" format="reference" />
-    <attr name="iconMenuGoToPageDark" format="reference" />
-    <attr name="iconMenuRate" format="reference" />
-    <attr name="iconMenuRateDark" format="reference" />
-    <attr name="iconMenuEmote" format="reference" />
-    <attr name="iconMenuEmoteDark" format="reference" />
-    <attr name="iconMenuLastRead" format="reference" />
-    <attr name="iconMenuLastReadDark" format="reference" />
-    <attr name="iconMenuShare" format="reference" />
-    <attr name="iconMenuShareDark" format="reference" />
-    <attr name="iconMenuFindInPage" format="reference" />
-    <attr name="iconMenuFindInPageDark" format="reference" />
-    <attr name="iconMenuLink" format="reference" />
-    <attr name="iconMenuLinkDark" format="reference" />
-    <attr name="iconMenuYospos" format="reference" />
-    <attr name="iconMenuYosposDark" format="reference" />
-    <attr name="iconMenuFormat" format="reference" />
-    <attr name="iconMenuFormatSmall" format="reference" />
-    <attr name="iconMenuFormatDark" format="reference" />
-    <attr name="iconMenuFormatDarkSmall" format="reference" />
-    <attr name="iconMenuUnderline" format="reference" />
-    <attr name="iconMenuUnderlineDark" format="reference" />
-    <attr name="iconMenuBold" format="reference" />
-    <attr name="iconMenuBoldDark" format="reference" />
-    <attr name="iconMenuStrike" format="reference" />
-    <attr name="iconMenuStrikeDark" format="reference" />
-    <attr name="iconMenuItalic" format="reference" />
-    <attr name="iconMenuItalicDark" format="reference" />
-    <attr name="iconMenuQuote" format="reference" />
-    <attr name="iconMenuQuoteDark" format="reference" />
-    <attr name="iconMenuImage" format="reference" />
-    <attr name="iconMenuImageDark" format="reference" />
-    <attr name="iconMenuThumbnail" format="reference" />
-    <attr name="iconMenuThumbnailDark" format="reference" />
-    <attr name="iconMenuSpoiler" format="reference" />
-    <attr name="iconMenuSpoilerDark" format="reference" />
-    <attr name="iconMenuVideo" format="reference" />
-    <attr name="iconMenuVideoDark" format="reference" />
-    <attr name="iconMenuCode" format="reference" />
-    <attr name="iconMenuCodeDark" format="reference" />
-    <attr name="iconMenuSearch" format="reference" />
-    <attr name="iconMenuSearchDark" format="reference" />
+    <attr name="iconColor" format="color" />
+    <attr name="iconColorDark" format="color" />
 </resources>

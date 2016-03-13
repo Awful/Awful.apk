@@ -46,7 +46,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -122,6 +122,7 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         isTablet = AwfulUtils.isTablet(this);
         int initialPage;
@@ -620,7 +621,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     }
 
 
-    public class ForumPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener {
+    public class ForumPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener {
         public ForumPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -874,6 +875,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        Log.e(TAG,"onConfigurationChanged()");
         boolean oldTab = isTablet;
         isTablet = AwfulUtils.isTablet(this);
         if (oldTab != isTablet && mViewPager != null) {
@@ -886,6 +888,9 @@ public class ForumsIndexActivity extends AwfulActivity {
             }
 
             mViewPager.setAdapter(pagerAdapter);
+        }
+        if(mViewPager != null){
+            ((ForumPagerAdapter)mViewPager.getAdapter()).getItem(mViewPager.getCurrentItem()).onConfigurationChanged(newConfig);
         }
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
