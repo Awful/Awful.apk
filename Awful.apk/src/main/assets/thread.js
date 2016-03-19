@@ -4,11 +4,17 @@ function toggleinfo(info){
         $(info).children('.avatar-cell').children('.avatar').removeClass('extended');
         $(info).children('.postinfo-title').removeClass('extended');
         $(info).children('.postinfo-regdate').removeClass('extended');
+        if(listener.getPreference("disableGifs") == "true" && $(info).find('.avatar').children('img').first().is('[src$=".gif"]')){
+            freezeGif($(info).find('.avatar').children('img').first().get(0))
+        }
     }else{
         $(info).children('.avatar-cell').addClass('extended');
         $(info).children('.avatar-cell').children('.avatar').addClass('extended');
         $(info).children('.postinfo-title').addClass('extended');
         $(info).children('.postinfo-regdate').addClass('extended');
+        if($(info).find('canvas').get(0) !== undefined){
+            $(info).find('canvas').first().replaceWith('<img src="'+$(info).find('canvas').first().attr('src')+'" />')
+        }
     }
 }
 
@@ -107,8 +113,6 @@ function pageinit() {
             e.preventDefault();
             var url = $(this).attr('href'),
                 id = url.substring(url.indexOf("#")+1);
-                console.log(url);
-                console.log(id);
             listener.loadIgnoredPost(id);
             $(this).replaceWith('<span id="ignorePost-'+id+'">Loading Post, please wait...</span>')
     });
@@ -181,7 +185,7 @@ function pageinit() {
 
 function pauseVideosOutOfView(){
     $('video').each(function(){
-        if ($(this).is(":inviewport")) {
+        if ($(this).is(":inviewport") && !$(this).parent().is('blockquote')) {
             $(this)[0].play();
         } else {
             $(this)[0].pause();

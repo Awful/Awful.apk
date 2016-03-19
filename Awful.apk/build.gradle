@@ -46,8 +46,8 @@ android {
 
     buildTypes{
         release{
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
 
@@ -63,10 +63,10 @@ dependencies {
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.github.androidquery:androidquery:0.26.9'
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'org.jsoup:jsoup:1.8.2'
-    compile 'joda-time:joda-time:2.7'
-    compile 'com.samskivert:jmustache:1.10'
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'org.jsoup:jsoup:1.8.3'
+    compile 'joda-time:joda-time:2.9.2'
+    compile 'com.samskivert:jmustache:1.12'
     compile 'org.apache.httpcomponents:httpmime:4.3.1'
     compile 'org.apache.httpcomponents:httpcore:4.3.1'
     compile 'org.apache.commons:commons-lang3:3.4'
