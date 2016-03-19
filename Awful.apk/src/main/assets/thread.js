@@ -4,11 +4,17 @@ function toggleinfo(info){
         $(info).children('.avatar-cell').children('.avatar').removeClass('extended');
         $(info).children('.postinfo-title').removeClass('extended');
         $(info).children('.postinfo-regdate').removeClass('extended');
+        if(listener.getPreference("disableGifs") == "true" && $(info).find('.avatar').children('img').first().is('[src$=".gif"]')){
+            freezeGif($(info).find('.avatar').children('img').first().get(0))
+        }
     }else{
         $(info).children('.avatar-cell').addClass('extended');
         $(info).children('.avatar-cell').children('.avatar').addClass('extended');
         $(info).children('.postinfo-title').addClass('extended');
         $(info).children('.postinfo-regdate').addClass('extended');
+        if($(info).find('canvas').get(0) !== undefined){
+            $(info).find('canvas').first().replaceWith('<img src="'+$(info).find('canvas').first().attr('src')+'" />')
+        }
     }
 }
 
