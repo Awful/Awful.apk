@@ -113,8 +113,6 @@ function pageinit() {
             e.preventDefault();
             var url = $(this).attr('href'),
                 id = url.substring(url.indexOf("#")+1);
-                console.log(url);
-                console.log(id);
             listener.loadIgnoredPost(id);
             $(this).replaceWith('<span id="ignorePost-'+id+'">Loading Post, please wait...</span>')
     });
@@ -187,7 +185,7 @@ function pageinit() {
 
 function pauseVideosOutOfView(){
     $('video').each(function(){
-        if ($(this).is(":inviewport")) {
+        if ($(this).is(":inviewport") && !$(this).parent().is('blockquote')) {
             $(this)[0].play();
         } else {
             $(this)[0].pause();
