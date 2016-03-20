@@ -727,11 +727,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 			if(DEBUG) Log.e(TAG,"ForumContentsCallback - onLoaderReset");
 			mCursorAdapter.swapCursor(null);
 		}
-		
-        @Override
-        public void onChange (boolean selfChange){
-        	if(DEBUG) Log.e(TAG,"Thread List update.");
-        }
     }
 	
 	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -767,7 +762,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
         @Override
         public void onChange (boolean selfChange){
-        	if(DEBUG) Log.i(TAG,"Thread Data update.");
+//        	if(DEBUG) Log.i(TAG,"Thread Data update.");
         }
     }
 	

@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 
 import android.app.Application;
 import android.graphics.Typeface;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,20 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         if(mPref.sendUsernameInReport){
 			Crashlytics.setUserName(mPref.username);
         }
+
+		if (Constants.DEBUG) {
+			Log.d("DEBUG!", "*\n*\n*Debug active\n*\n*");
+			/*
+			This checks destroyed cursors aren't left open, and crashes (with a log) if it finds one
+			Really this is here to avoid introducing any more leaks, since there are some issues with
+			too many open cursors
+			*/
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+					.detectLeakedSqlLiteObjects()
+					.penaltyLog()
+					.penaltyDeath()
+					.build());
+		}
     }
 
 	public void setFontFromPreference(TextView textView, int flags){

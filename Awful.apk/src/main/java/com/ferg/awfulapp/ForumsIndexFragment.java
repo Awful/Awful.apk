@@ -242,6 +242,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 		syncForums();
 	}
 
+	// TODO: does this even need to be here? Syncing triggers loader restarts anyway, this spams like crazy
 	private class ForumContentObserver extends ContentObserver{
         public ForumContentObserver(Handler handler) {
             super(handler);
@@ -249,12 +250,12 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 
         @Override
         public void onChange(boolean selfChange) {
-            restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
-        }
+//			restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+		}
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
+//            restartLoader(Constants.FORUM_INDEX_LOADER_ID, null, mForumLoaderCallback);
         }
     }
 	
@@ -286,6 +287,7 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			Log.e(TAG, "resetLoader: " + arg0.getId());
+//			mTreeAdapter.setGroupCursor(null);
 		}
     }
 	

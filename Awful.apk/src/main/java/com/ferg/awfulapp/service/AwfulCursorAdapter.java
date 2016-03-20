@@ -141,10 +141,10 @@ public class AwfulCursorAdapter extends CursorAdapter {
     	Cursor tmpcursor = getCursor();
     	if(tmpcursor != null && tmpcursor.moveToFirst()){
     		do{
-    			if(tmpcursor.getLong(tmpcursor.getColumnIndex(AwfulThread.ID)) == id){//contentprovider id tables are required to be _id
-		    		return tmpcursor;
-    			}
-    		}while(tmpcursor.moveToNext());
+    			if(tmpcursor.getLong(tmpcursor.getColumnIndex(AwfulThread.ID)) == id) {//contentprovider id tables are required to be _id
+					return new UncloseableCursor(tmpcursor);
+				}
+			}while(tmpcursor.moveToNext());
     	}
     	return null;
 	}
