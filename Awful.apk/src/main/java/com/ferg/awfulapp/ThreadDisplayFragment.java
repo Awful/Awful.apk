@@ -1533,7 +1533,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Log.i(TAG,"Load finished, page:"+getPage()+", populating: "+aData.getCount());
-            refreshSessionCookie();
         	setProgress(90);
         	if(aData.isClosed()){
         		return;
