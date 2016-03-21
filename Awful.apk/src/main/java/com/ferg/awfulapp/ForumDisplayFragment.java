@@ -145,7 +145,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG,"onCreate");
-		setRetainInstance(true);
+		setRetainInstance(false);
         setHasOptionsMenu(true);
     }
 	@Override
