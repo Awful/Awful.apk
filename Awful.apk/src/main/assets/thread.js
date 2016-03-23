@@ -176,16 +176,16 @@ function pageinit() {
     }).on('touchstart',function(){
         listener.haltSwipe();
     })
-    if(listener.getPreference("inlineWebm") == "true" && listener.getPreference("autostartWebm")){
+    if(listener.getPreference("inlineWebm") == "true" && listener.getPreference("autostartWebm") == "true"){
         $(window).scrollEnd(function(){
             pauseVideosOutOfView();
-        }, 1000);
+        }, 2000);
     }
 };
 
 function pauseVideosOutOfView(){
     $('video').each(function(){
-        if ($(this).is(":inviewport") && !$(this).parent().is('blockquote')) {
+        if ($(this).is(":inviewport") && !$(this).parent().is('blockquote') && $(this).children('source').first().attr("src").indexOf("webm") == -1) {
             $(this)[0].play();
         } else {
             $(this)[0].pause();

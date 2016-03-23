@@ -281,7 +281,7 @@ public class AwfulPost {
 					String videoId = youtubeMatcher.group(1);
 					String link = "http://www.youtube.com/watch?v=" + videoId;
 					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-                    Log.e(TAG," Build.VERSION:"+  Build.VERSION.RELEASE);
+
                     if(AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")){
                         Element youtubeContainer = new Element(Tag.valueOf("div"),"");
                         youtubeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
@@ -574,9 +574,13 @@ public class AwfulPost {
                                         }else if(thumb.toLowerCase().contains("i.kinja-img.com")){
                                             thumb = thumb.replace(".gif",".jpg");
                                             img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
-                                        }else if(thumb.toLowerCase().contains("i.giphy.com")){
-                                            thumb = thumb.replace("://i.giphy.com","s://media.giphy.com/media");
-                                            thumb = thumb.replace(".gif","/200_s.gif");
+                                        }else if(thumb.toLowerCase().contains("giphy.com")){
+                                            thumb = thumb.replace("://i.giphy.com","://media.giphy.com/media");
+                                            if(thumb.endsWith("giphy.gif")){
+                                                thumb = thumb.replace("giphy.gif","/200_s.gif");
+                                            }else{
+                                                thumb = thumb.replace(".gif","/200_s.gif");
+                                            }
                                             img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
                                         }else if(thumb.toLowerCase().contains("giant.gfycat.com")){
                                             thumb = thumb.replace("giant.gfycat.com","thumbs.gfycat.com");

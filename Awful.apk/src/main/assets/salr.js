@@ -166,12 +166,15 @@ SALR.prototype.inlineWebm = function() {
     webms = webms.not('.bbc-spoiler a');
 
     webms.each(function() {
-    var isImgur = false;
+        var hasThumbnail;
         $(this).attr('href',$(this).attr('href').replace('.gifv','.mp4'))
         if($(this).attr('href').indexOf('imgur.com') !== -1){
-            isImgur = true
+            hasThumbnail = $(this).attr('href').substring(0,$(this).attr('href').lastIndexOf('.'))+"m.jpg";
             $(this).attr('href',$(this).attr('href').replace('.webm','.mp4'))
+        }else if($(this).attr('href').indexOf('gfycat.com') !== -1){
+            hasThumbnail = "https://thumbs"+$(this).attr('href').substring($(this).attr('href').indexOf('.'),$(this).attr('href').lastIndexOf('.'))+"-mobile.jpg";
+            $(this).attr('href',"https://thumbs"+$(this).attr('href').substring($(this).attr('href').indexOf('.'),$(this).attr('href').lastIndexOf('.'))+"-mobile.mp4")
         }
-        $(this).replaceWith('<video loop width="100%" muted="true" controls preload="none" '+(isImgur?'poster="'+$(this).attr('href').substring(0,$(this).attr('href').lastIndexOf('.'))+'m.jpg"':'')+' > <source src="'+$(this).attr('href')+'" type="video/'+$(this).attr('href').substring($(this).attr('href').lastIndexOf('.')+1)+'"> </video>');
+        $(this).replaceWith('<video loop width="100%" muted="true" controls preload="none" '+(hasThumbnail !== undefined ?'poster="'+hasThumbnail+'"':'')+' > <source src="'+$(this).attr('href')+'" type="video/'+$(this).attr('href').substring($(this).attr('href').lastIndexOf('.')+1)+'"> </video>');
     });
 };
