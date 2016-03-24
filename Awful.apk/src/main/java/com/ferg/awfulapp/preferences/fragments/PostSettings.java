@@ -1,5 +1,6 @@
 package com.ferg.awfulapp.preferences.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.Keys;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -23,47 +25,52 @@ public class PostSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.postsettings;
-        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new String[] {
-                "inline_youtube"
+        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new int[] {
+                R.string.pref_key_inline_youtube
         };
 
-        SUBMENU_OPENING_KEYS = new String[] {
-                "highlighting"
+        SUBMENU_OPENING_KEYS = new int[] {
+                R.string.pref_key_highlighting_menu_item
         };
 
-        prefClickListeners.put(new FontSizeListener(), new String[] {
-                "default_post_font_size_dip",
-                "default_post_fixed_font_size_dip"
+        prefClickListeners.put(new FontSizeListener(), new int[] {
+                R.string.pref_key_post_font_size_dip,
+                R.string.pref_key_post_fixed_font_size_dip
         });
 
-        prefClickListeners.put(new PostsPerPageListener(), new String[] {
-                "posts_per_page"
+        prefClickListeners.put(new PostsPerPageListener(), new int[] {
+                R.string.pref_key_post_per_page
         });
     }
 
     @Override
     protected void onSetSummaries() {
-        findPreference("default_post_font_size_dip")
+        findPrefById(R.string.pref_key_post_font_size_dip)
                 .setSummary(String.valueOf(mPrefs.postFontSizeDip));
-        findPreference("default_post_fixed_font_size_dip")
+        findPrefById(R.string.pref_key_post_fixed_font_size_dip)
                 .setSummary(String.valueOf(mPrefs.postFixedFontSizeDip));
-        findPreference("posts_per_page")
+        findPrefById(R.string.pref_key_post_per_page)
                 .setSummary(String.valueOf(mPrefs.postPerPage));
     }
 
-    /** Listener for the default post font size options */
+    /**
+     * Listener for the default post font size options
+     */
     private class FontSizeListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             final String prefKey = preference.getKey();
-            final int minSize = Constants.MINIMUM_FONT_SIZE;
+            final String FONT_SIZE_KEY = getString(R.string.pref_key_post_font_size_dip);
+            final String FIXED_FONT_SIZE_KEY = getString(R.string.pref_key_post_fixed_font_size_dip);
+            final String SIZE_PICKER_FORMAT_STRING = getString(R.string.font_size_picker_format_string);
+            final int    MIN_SIZE = Constants.MINIMUM_FONT_SIZE;
             final Dialog mFontSizeDialog = new Dialog(getActivity());
 
             mFontSizeDialog.setContentView(R.layout.font_size);
-            if (prefKey.equals("default_post_font_size_dip")){
+            if (prefKey.equals(FONT_SIZE_KEY)){
                 mFontSizeDialog.setTitle(getString(R.string.default_font_size_dialog_title));
             }
-            else if (prefKey.equals("default_post_fixed_font_size_dip")) {
+            else if (prefKey.equals(FIXED_FONT_SIZE_KEY)) {
                 mFontSizeDialog.setTitle(getString(R.string.default_fixed_font_size_dialog_title));
             }
             final TextView mFontSizeText = (TextView) mFontSizeDialog.findViewById(R.id.fontSizeText);
@@ -82,7 +89,11 @@ public class PostSettings extends SettingsFragment {
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    mPrefs.setIntegerPreference(prefKey, seekBar.getProgress()+minSize);
+                    if (prefKey.equals(FONT_SIZE_KEY)) {
+                        mPrefs.setPreference(Keys.POST_FONT_SIZE_DIP, seekBar.getProgress() + MIN_SIZE);
+                    } else if (prefKey.equals(FIXED_FONT_SIZE_KEY)) {
+                        mPrefs.setPreference(Keys.POST_FIXED_FONT_SIZE_DIP, seekBar.getProgress() + MIN_SIZE);
+                    }
                 }
 
                 @Override
@@ -91,21 +102,24 @@ public class PostSettings extends SettingsFragment {
 
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    mFontSizeText.setText((progress+minSize)+ "  Get out");
-                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (progress+minSize));
+                    int selectedSize = progress + MIN_SIZE;
+                    mFontSizeText.setText(String.format(SIZE_PICKER_FORMAT_STRING, selectedSize));
+                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, selectedSize);
                 }
             });
-            if (prefKey.equals("default_post_font_size_dip")){
-                bar.setProgress(mPrefs.postFontSizeDip-minSize);
+
+            if (prefKey.equals(FONT_SIZE_KEY)){
+                bar.setProgress(mPrefs.postFontSizeDip - MIN_SIZE);
             }
-            else if (prefKey.equals("default_post_fixed_font_size_dip")) {
-                bar.setProgress(mPrefs.postFixedFontSizeDip-minSize);
+            else if (prefKey.equals(FIXED_FONT_SIZE_KEY)) {
+                bar.setProgress(mPrefs.postFixedFontSizeDip - MIN_SIZE);
                 mFontSizeText.setTypeface(Typeface.MONOSPACE);
             }
             else Log.w(TAG, "Tried to set font size for: " + prefKey + ", not a valid key!");
 
-            mFontSizeText.setText((bar.getProgress()+minSize)+ "  Get out");
-            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (bar.getProgress()+minSize));
+            int selectedSize = bar.getProgress() + MIN_SIZE;
+            mFontSizeText.setText(String.format(SIZE_PICKER_FORMAT_STRING, selectedSize));
+            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, selectedSize);
             mFontSizeDialog.show();
             return true;
         }
@@ -116,6 +130,7 @@ public class PostSettings extends SettingsFragment {
         @Override
         public boolean onPreferenceClick(final Preference preference) {
 
+            @SuppressLint("InflateParams")
             final View pickerView = getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
             final NumberPicker  picker = (NumberPicker) pickerView.findViewById(R.id.pagePicker);
             final Button        minButton = (Button) pickerView.findViewById(R.id.min);
@@ -126,8 +141,8 @@ public class PostSettings extends SettingsFragment {
             picker.setMinValue(minPages);
             picker.setMaxValue(maxPages);
             picker.setValue(mPrefs.postPerPage);
-            minButton.setText(Integer.toString(minPages));
-            maxButton.setText(Integer.toString(maxPages));
+            minButton.setText(String.format("%d", minPages));
+            maxButton.setText(String.format("%d", maxPages));
 
             View.OnClickListener buttonsListener = new View.OnClickListener() {
                 @Override
@@ -143,15 +158,18 @@ public class PostSettings extends SettingsFragment {
             maxButton.setOnClickListener(buttonsListener);
 
             new AlertDialog.Builder(getActivity())
-                    .setTitle("Posts per page")
+                    .setTitle(R.string.setting_posts_per_page)
                     .setView(pickerView)
-                    .setPositiveButton("OK",
+                    .setPositiveButton(R.string.alert_ok,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface aDialog, int aWhich) {
-                                    mPrefs.setIntegerPreference(preference.getKey(), picker.getValue());
+                                    String key = preference.getKey();
+                                    if (key.equals(getString(R.string.pref_key_post_per_page))) {
+                                        mPrefs.setPreference(Keys.POST_PER_PAGE, picker.getValue());
+                                    }
                                 }
                             })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(R.string.cancel, null)
                     .show();
             return true;
         }

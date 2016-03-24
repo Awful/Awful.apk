@@ -38,7 +38,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -90,6 +89,7 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -749,7 +749,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
                 try{
-                    mPrefs.setBooleanPreference("show_ignore_warning", false);
+					mPrefs.setPreference(Keys.SHOW_IGNORE_WARNING, false);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -897,7 +897,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	private void toggleYospos() {
 		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
-		mPrefs.setBooleanPreference("amber_default_pos", mPrefs.amberDefaultPos);
+		mPrefs.setPreference(Keys.AMBER_DEFAULT_POS, mPrefs.amberDefaultPos);
 		mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
 	}
     

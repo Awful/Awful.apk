@@ -20,21 +20,21 @@ public class AccountSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.accountsettings;
-        prefClickListeners.put(new FeaturesListener(), new String[] {
-                "account_features"
+        prefClickListeners.put(new FeaturesListener(), new int[] {
+                R.string.pref_key_account_features_menu_item
         });
     }
 
     @Override
     protected void onSetSummaries() {
-        findPreference("username").setSummary(mPrefs.username);
+        findPrefById(R.string.pref_key_username).setSummary(mPrefs.username);
         //Set summary for the 'Refresh account options' option
         String platinum = "Platinum: " + ((mPrefs.hasPlatinum) ? "Yes" : "No");
         String archives = "Archives: " + ((mPrefs.hasArchives) ? "Yes" : "No");
         String noAds    = "No Ads: " + ((mPrefs.hasNoAds) ? "Yes" : "No");
         String separator = " "+" "+" "+" ";
         String summaryText = TextUtils.join(separator, new String[] {platinum, archives, noAds});
-        findPreference("account_features").setSummary(summaryText);
+        findPrefById(R.string.pref_key_account_features_menu_item).setSummary(summaryText);
     }
 
 

@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
-        android:key="about"
+        android:key="@string/pref_key_about_menu_item"
         android:title="@string/about"
         android:summary="@string/about_summary"
         android:persistent="false" />
-    <Preference
-        android:key="changelog"
-        android:title="Changelog"
+    <Preference        
+        android:key="@string/pref_key_changelog_menu_item"
+        android:title="@string/changelog"
         android:summary="@string/changelog_summary"/>
     <Preference
-        android:key="open_thread"
+        android:key="@string/pref_key_open_thread_menu_item"
         android:title="@string/open_thread"
         android:summary="@string/open_thread_summary" />
     <Preference
-        android:key="account"
+        android:key="@string/pref_key_account_menu_item"
         android:fragment="com.ferg.awfulapp.preferences.fragments.AccountSettings"
         android:title="@string/prefs_account" />
 
     <PreferenceCategory
         android:title="@string/settings_divider_customisation">
         <Preference
-            android:key="theme"
+            android:key="@string/pref_key_theme_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.ThemeSettings"
             android:title="@string/theme_settings" />
         <Preference
-            android:key="thread"
+            android:key="@string/pref_key_thread_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.ThreadSettings"
             android:title="@string/thread_settings" />
         <Preference
-            android:key="posts"
+            android:key="@string/pref_key_posts_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.PostSettings"
             android:title="@string/prefs_post_display" />
         <Preference
-            android:key="images"
+            android:key="@string/pref_key_images_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.ImageSettings"
             android:title="@string/image_settings" />
     </PreferenceCategory>
@@ -41,15 +41,15 @@
     <PreferenceCategory
         android:title="@string/settings_divider_misc">
         <Preference
-            android:key="misc"
+            android:key="@string/pref_key_misc_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.MiscSettings"
             android:title="@string/prefs_misc" />
         <Preference
-            android:key="export_settings"
+            android:key="@string/pref_key_export_settings_menu_item"
             android:title="@string/export_settings"
             android:summary="@string/export_settings_summary"/>
         <Preference
-            android:key="import_settings"
+            android:key="@string/pref_key_import_settings_menu_item"
             android:title="@string/import_settings"
             android:summary="@string/import_settings_summary"/>
     </PreferenceCategory>

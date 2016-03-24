@@ -12,6 +12,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -140,7 +141,7 @@ public class AwfulError extends VolleyError{
             try {
                 Element userlink = probation.getElementsByTag("a").first();
                 int userId = Integer.parseInt(userlink.attr("href").substring(userlink.attr("href").lastIndexOf("=")+1));
-                prefs.setIntegerPreference("user_id", userId);
+                prefs.setPreference(Keys.USER_ID, userId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -160,7 +161,7 @@ public class AwfulError extends VolleyError{
                 long probTimestamp = probDate.getTime();
                 //FUCK PRE ICS
                 try {
-                    prefs.setLongPreference("probation_time", probTimestamp);
+                    prefs.setPreference(Keys.PROBATION_TIME, probTimestamp);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -168,7 +169,7 @@ public class AwfulError extends VolleyError{
         }else{
             if(AwfulPreferences.getInstance().probationTime > 0) {
                 try {
-                    prefs.setLongPreference("probation_time", 0);
+                    prefs.setPreference(Keys.PROBATION_TIME, 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--keys for preferences that store a value in the SharedPreferences -->
+    <string name="pref_key_username">username</string>
+    <string name="pref_key_user_title">user_title</string>
+    <string name="pref_key_theme">theme</string>
+    <string name="pref_key_layout">layouts</string>
+    <string name="pref_key_imgur_thumbnails">imgur_thumbnails</string>
+    <string name="pref_key_preferred_font">preferred_font</string>
+    <string name="pref_key_ignore_formkey">ignore_formkey</string>
+    <string name="pref_key_orientation">orientation</string>
+    <string name="pref_key_page_layout">page_layout</string>
+    <string name="pref_key_transformer">transformer</string>
+    <string name="pref_key_post_font_size_dip">default_post_font_size_dip</string>
+    <string name="pref_key_post_fixed_font_size_dip">default_post_fixed_font_size_dip</string>
+    <string name="pref_key_post_per_page">posts_per_page</string>
+    <string name="pref_key_curr_pref_version">curr_pref_version</string>
+    <string name="pref_key_alert_id_shown">alert_id_shown</string>
+    <string name="pref_key_last_version_seen">last_version_seen</string>
+    <string name="pref_key_user_id">user_id</string>
+    <string name="pref_key_probation_time">probation_time</string>
+    <string name="pref_key_pull_to_refresh_distance">pull_to_refresh_distance</string>
+    <string name="pref_key_has_platinum">has_platinum</string>
+    <string name="pref_key_has_archives">has_archives</string>
+    <string name="pref_key_has_no_ads">has_no_ads</string>
+    <string name="pref_key_images_enabled">images_enabled</string>
+    <string name="pref_key_no_3g_images">no_3g_images</string>
+    <string name="pref_key_avatars_enabled">avatars_enabled</string>
+    <string name="pref_key_hide_old_images">hide_read_images</string>
+    <string name="pref_key_show_smilies">show_smilies</string>
+    <string name="pref_key_alternate_background">alternate_backgrounds</string>
+    <string name="pref_key_highlight_user_quote">user_quotes</string>
+    <string name="pref_key_highlight_username">user_highlight</string>
+    <string name="pref_key_highlight_self">self_highlight</string>
+    <string name="pref_key_highlight_op">op_highlight</string>
+    <string name="pref_key_inline_youtube">inline_youtube</string>
+    <string name="pref_key_inline_tweets">inline_tweets</string>
+    <string name="pref_key_inline_vines">inline_vines</string>
+    <string name="pref_key_inline_webm">inline_webm</string>
+    <string name="pref_key_autostart_webm">autostart_webm</string>
+    <string name="pref_key_enable_hardware_acceleration">enable_hardware_acceleration</string>
+    <string name="pref_key_wrap_thread_titles">wrap_thread_titles</string>
+    <string name="pref_key_show_all_spoilers">show_all_spoilers</string>
+    <string name="pref_key_thread_info_rating">threadinfo_rating</string>
+    <string name="pref_key_thread_info_tag">threadinfo_tag</string>
+    <string name="pref_key_new_threads_first_ucp">new_threads_first_ucp</string>
+    <string name="pref_key_new_threads_first_forum">new_threads_first_forum</string>
+    <string name="pref_key_upper_next_arrow">upper_next_arrow</string>
+    <string name="pref_key_send_username_in_report">send_username_in_report</string>
+    <string name="pref_key_disable_gifs">disable_gifs2</string>
+    <string name="pref_key_hide_old_posts">hide_old_posts</string>
+    <string name="pref_key_always_open_urls">always_open_urls</string>
+    <string name="pref_key_lock_scrolling">lock_scrolling</string>
+    <string name="pref_key_disable_timgs">disable_timgs</string>
+    <string name="pref_key_disable_pull_next">disable_pull_next</string>
+    <string name="pref_key_volume_scroll">volume_scroll</string>
+    <string name="pref_key_force_forum_themes">force_forum_themes</string>
+    <string name="pref_key_no_fab">no_fab</string>
+    <string name="pref_key_show_ignore_warning">show_ignore_warning</string>
+    <string name="pref_key_colored_bookmarks">color_bookmarks</string>
+    <string name="pref_key_hide_signatures">hide_signatures</string>
+    <string name="pref_key_amber_default_pos">amber_default_pos</string>
+    <string name="pref_key_hide_ignored_posts">hide_ignored_posts</string>
+    <string name="pref_key_immersion_mode">immersion_mode</string>
+    <string name="pref_key_marked_users">marked_users</string>
+
+
+    <!--keys for preferences that don't store a value (i.e. settings menu items that act as buttons)-->
+    <string name="pref_key_account_features_menu_item">account features</string>
+    <string name="pref_key_about_menu_item">about</string>
+    <string name="pref_key_changelog_menu_item">changelog</string>
+    <string name="pref_key_open_thread_menu_item">open_thread</string>
+    <string name="pref_key_account_menu_item">account</string>
+    <string name="pref_key_theme_menu_item">theme</string>
+    <string name="pref_key_thread_menu_item">thread</string>
+    <string name="pref_key_posts_menu_item">posts</string>
+    <string name="pref_key_images_menu_item">images</string>
+    <string name="pref_key_misc_menu_item">misc</string>
+    <string name="pref_key_export_settings_menu_item">export_settings</string>
+    <string name="pref_key_import_settings_menu_item">import_settings</string>
+    <string name="pref_key_highlighting_menu_item">highlighting</string>
+</resources>

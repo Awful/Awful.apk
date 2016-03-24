@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.preference.ListPreference;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -28,8 +29,10 @@ public class ThemeSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.themesettings;
-        VALUE_SUMMARY_PREF_KEYS = new String[] {
-                "theme", "layouts", "preferred_font"
+        VALUE_SUMMARY_PREF_KEYS = new int[] {
+                R.string.pref_key_theme,
+                R.string.pref_key_layout,
+                R.string.pref_key_preferred_font
         };
     }
 
@@ -50,7 +53,7 @@ public class ThemeSettings extends SettingsFragment {
             loadExternalOptions();
         }
 
-        ListPreference f = (ListPreference) findPreference("preferred_font");
+        ListPreference f = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
         String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
         String[] fontNames = new String[fontList.length];
         String thisFontName;
@@ -69,8 +72,8 @@ public class ThemeSettings extends SettingsFragment {
     }
 
     private void loadExternalOptions(){
-        ListPreference themePref = (ListPreference) findPreference("theme");
-        ListPreference layoutPref = (ListPreference) findPreference("layouts");
+        ListPreference themePref = (ListPreference) findPrefById(R.string.pref_key_theme);
+        ListPreference layoutPref = (ListPreference) findPrefById(R.string.pref_key_layout);
         File[] SDcard = Environment.getExternalStorageDirectory().listFiles();
         if (SDcard != null) {
             for (File folder: SDcard){
@@ -85,7 +88,7 @@ public class ThemeSettings extends SettingsFragment {
                     layouts.addAll(Arrays.asList(layoutPref.getEntries()));
                     layoutValues.addAll(Arrays.asList(layoutPref.getEntryValues()));
                     for(File folderFile: files){
-                        if(folderFile.canRead() && folderFile.getName() != null){
+                        if(folderFile.canRead()){
                             String[] fileName = folderFile.getName().split("\\.");
                             if("css".equals(fileName[fileName.length-1])){
                                 if(StringUtils.countMatches(folderFile.getName(), ".")>1){
@@ -115,7 +118,7 @@ public class ThemeSettings extends SettingsFragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.

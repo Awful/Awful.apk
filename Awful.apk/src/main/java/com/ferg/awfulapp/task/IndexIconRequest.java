@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.util.AwfulError;
 
@@ -54,7 +55,7 @@ public class IndexIconRequest extends AwfulRequest<Void> {
                     }
                     Log.v("IndexRequest", "text: " + name + " - " + unreadCount);
                     if (name != null && name.length() > 0) {
-                        getPreferences().setStringPreference("username", name);
+                        getPreferences().setPreference(Keys.USERNAME, name);
                     }
                 }
             }
