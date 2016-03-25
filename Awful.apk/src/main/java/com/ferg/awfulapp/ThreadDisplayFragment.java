@@ -51,6 +51,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -101,6 +102,7 @@ import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.VoteRequest;
+import com.ferg.awfulapp.thread.AwfulAction;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulPost;
@@ -686,11 +688,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, mTitle).putExtra(Intent.EXTRA_TEXT, generateThreadUrl(null));
     }
     
-    private Intent createShareIntent(String url){
+    protected Intent createShareIntent(String url){
     	return new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, url);
     }
 
-	private void copyThreadURL(String postId) {
+	protected void copyThreadURL(String postId) {
 		String clipLabel = this.getText(R.string.copy_url).toString() + getPage();
 		String clipText  = generateThreadUrl(postId);
 		safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
@@ -721,7 +723,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 	
-	private void ignoreUser(final String aUserId) {
+	protected void ignoreUser(final String aUserId) {
 		if(mPrefs.ignoreFormkey == null){
             queueRequest(new ProfileRequest(getActivity(), null).build());
 		}
@@ -756,15 +758,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 	}
     
-	private void toggleMarkUser(String username){
+	protected void toggleMarkUser(String username){
         if(mPrefs.markedUsers.contains(username)){
             mPrefs.unmarkUser(username);
         }else{
             mPrefs.markUser(username);
         }
 	}
+
+	protected void toggleUserPosts(String aPostId, String aUserId, String aUsername){
+		if(mUserId >0){
+			deselectUser(aPostId);
+		}else{
+			selectUser(Integer.parseInt(aUserId), aUsername);
+		}
+	}
 	
-	private void reportUser(final String postid){
+	protected void reportUser(final String postid){
 		final EditText reportReason = new EditText(this.getActivity());
 
 		new AlertDialog.Builder(this.getActivity())
@@ -845,7 +855,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }
     }
     
-    private void markLastRead(int index) {
+    protected void markLastRead(int index) {
         displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_visibility);
         queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
@@ -1081,132 +1091,36 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 	private class ClickInterface {
-        public static final int SEND_PM  = 0;
-        public static final int REPORT_POST = 1;
-        public static final int COPY_URL = 2;
-        public static final int USER_POSTS = 3;
-        public static final int MARK_USER = 4;
-        public static final int IGNORE_USER = 5;
 
         public ClickInterface(){
         	this.preparePreferences();
         }
         
         HashMap<String,String> preferences;
-		
-        final CharSequence[] mPostItems = {
-            "Copy Post URL",
-            "Read Posts by this User",
-            "Mark/Unmark this User",
-            "Ignore User"
-        };
-        
-        final CharSequence[] mPlatPostItems = {
-                "Send Private Message",
-                "Report Post",
-                "Copy Post URL",
-                "Read Posts by this User",
-                "Mark/Unmark this User",
-                "Ignore User"
-            };
+
 
         @JavascriptInterface
-        public void onQuoteClick(final String aPostId) {
-        	onQuoteClickInt(Integer.parseInt(aPostId));
-        }
-        
-        //name it differently to avoid ambiguity on the JS interface
-        @JavascriptInterface
-        public void onQuoteClickInt(final int aPostId){
-            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_QUOTE);
-        }
+        public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastreadurl, final boolean editable, final boolean isAdminOrMod) {
+			Log.e(TAG,aPostId+" "+ aUsername+" "+ aUserId+" "+ lastreadurl+" "+ editable +" "+ isAdminOrMod);
+			PostActionsFragment postActions = new PostActionsFragment();
+			postActions.setTitle("Select an Action");
+			postActions.setParent(mSelf);
+			postActions.setPostId(aPostId);
+			postActions.setUsername(aUsername);
+			postActions.setUserId(aUserId);
+			postActions.setThreadId(getThreadId());
+			postActions.setLastReadUrl(lastreadurl);
+			postActions.setActions(AwfulAction.getPostActions(aUsername, editable, isAdminOrMod));
 
-        @JavascriptInterface
-        public void onLastReadClick(final String index) {
-        	markLastRead(Integer.parseInt(index));
-        }
-        
-        //name it differently to avoid ambiguity on the JS interface
-        @JavascriptInterface
-        public void onLastReadClickInt(final int index) {
-        	markLastRead(index);
-        }
-
-        @JavascriptInterface
-        public void onSendPMClick(final String aUsername) {
-        	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
-        }
-
-        // Post ID is the item tapped
-        @JavascriptInterface
-        public void onEditClick(final String aPostId) {
-        	onEditClickInt(Integer.parseInt(aPostId));
-        }
-
-        //name it differently to avoid ambiguity on the JS interface
-        @JavascriptInterface
-        public void onEditClickInt(final int aPostId) {
-            displayPostReplyDialog(getThreadId(), aPostId, AwfulMessage.TYPE_EDIT);
-        }
-
-        @JavascriptInterface
-        public void onMoreClick(final String aPostId, final String aUsername, final String aUserId) {
-        	new AlertDialog.Builder(getActivity())
-            .setTitle("Select an Action")
-            .setItems(mPrefs.hasPlatinum?mPlatPostItems:mPostItems, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface aDialog, int aItem) {
-                    onPostActionItemSelected(mPrefs.hasPlatinum?aItem:aItem+2, aPostId, aUsername, aUserId);
-                }
-            })
-            .show();
-        }
-
-        @JavascriptInterface
-        public void onCopyUrlClick(final String aPostId) {
-        	copyThreadURL(aPostId);
-        }
+			postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+			postActions.show(mSelf.getFragmentManager(), "Post Actions");
+		}
 
         @JavascriptInterface
         public void debugMessage(final String msg) {
         	Log.e(TAG, "Awful DEBUG: " + msg);
         }
 
-        @JavascriptInterface
-        public void onIgnoreUserClick(final String aUserId) {
-            ignoreUser(aUserId);
-        }
-
-        @JavascriptInterface
-        public void onNextPage() {
-            mThreadView.post((new Runnable() {
-				@Override
-				public void run() {
-					nextPageClick();
-				}
-			}));
-        }
-
-        @JavascriptInterface
-        public void addCodeBounds(final String minBound, final String maxBound){
-        	int min = Integer.parseInt(minBound);
-        	int max = Integer.parseInt(maxBound);
-        	if(min < scrollCheckMinBound || scrollCheckMinBound < 0){
-        		scrollCheckMinBound = min;
-        	}
-        	if(max > scrollCheckMaxBound || scrollCheckMaxBound < 0){
-        		scrollCheckMaxBound = max;
-        	}
-        	Log.i(TAG,"Register pre block: "+min+" - "+max+" - new min: "+scrollCheckMinBound+" new max: "+scrollCheckMaxBound);
-        	//this array is going to be accessed very often during touch events, arraylist has too much processing overhead
-        	if(scrollCheckBounds == null){
-        		scrollCheckBounds = new int[2];
-        	}else{
-                scrollCheckBounds = Arrays.copyOf(scrollCheckBounds, scrollCheckBounds.length+2);
-        	}
-        	scrollCheckBounds[scrollCheckBounds.length-2] = min;
-        	scrollCheckBounds[scrollCheckBounds.length-1] = max;
-        	Arrays.sort(scrollCheckBounds);
-        }
 
 		@JavascriptInterface
 		public String getBodyHtml(){
@@ -1285,49 +1199,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 
     }
-    
-	private void onPostActionItemSelected(int aItem, String aPostId, String aUsername, String aUserId) {
-		switch(aItem){
-		case ClickInterface.SEND_PM:
-        	startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, aUsername));
-            //MessageFragment.newInstance(aUsername, 0).show(getFragmentManager(), "new_private_message_dialog");
-			break;
-		case ClickInterface.COPY_URL:
-        	copyThreadURL(aPostId);
-			break;
-		case ClickInterface.USER_POSTS:
-			if(mUserId >0){
-        		deselectUser(aPostId);
-        	}else{
-        		selectUser(Integer.parseInt(aUserId), aUsername);
-        	}
-			break;
-		case ClickInterface.IGNORE_USER:
-        	ignoreUser(aUserId);
-			break;
-		case ClickInterface.MARK_USER:
-	    	toggleMarkUser(aUsername);
-			break;
-		case ClickInterface.REPORT_POST:
-			reportUser(aPostId);
-			break;
-		}
-	}
 
-	private String[] imageUrlMenuItems = new String[]{
-			"Download Image",
-			"Show Image Inline",
-			"Open URL",
-			"Copy URL",
-			"Share URL"
-	};
-	
-	private String[] urlMenuItems = new String[]{
-			"Open URL",
-			"Copy URL",
-			"Share URL"
-	};
-	
 	
 	private void showUrlMenu(final String url){
 		final Uri link = Uri.parse(url);
@@ -1336,37 +1208,24 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				|| link.getLastPathSegment().contains(".png") 
 				|| (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))
 				);
-    	new AlertDialog.Builder(getActivity())
-        .setTitle(url)
-        .setItems((isImage?imageUrlMenuItems:urlMenuItems), new DialogInterface.OnClickListener() {
-        	       	
-        	
-            public void onClick(DialogInterface aDialog, int aItem) {
-            	switch(aItem+(isImage?0:2)){
-            	case 0:
-					enqueueDownload(link);
-        			break;
-            	case 1:
-        			if(mThreadView != null){
-        				mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
-        			}
-        			break;
-            	case 2:
-        			startUrlIntent(url);
-        			break;
-            	case 3:
-            		copyToClipboard(url);
-        			displayAlert(R.string.copy_url_success, 0, R.drawable.ic_insert_link);
-        			break;
-            	case 4:
-            		startActivity(createShareIntent(url));
-            		break;
-            	}
-            }
-        }).show();
+
+		PostActionsFragment postActions = new PostActionsFragment();
+		postActions.setTitle(url);
+		postActions.setParent(mSelf);
+		postActions.setUrl(url);
+		postActions.setActions(AwfulAction.getURLActions(url, isImage, (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))));
+
+		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+		postActions.show(mSelf.getFragmentManager(), "Link Actions");
 	}
 
-	private void enqueueDownload(Uri link) {
+	protected void showImageInline(String url){
+		if(mThreadView != null){
+			mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
+		}
+	}
+
+	protected void enqueueDownload(Uri link) {
 		if(AwfulUtils.isMarshmallow()){
 			int permissionCheck = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -1383,11 +1242,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		dlMngr.enqueue(request);
 	}
 
-	private void copyToClipboard(String text){
+	protected void copyToClipboard(String text){
 		safeCopyToClipboard("Copied URL", text, null);
 	}
-	
-	private void startUrlIntent(String url){
+
+	protected void startUrlIntent(String url){
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 		PackageManager pacman = getActivity().getPackageManager();
 		List<ResolveInfo> res = pacman.queryIntentActivities(browserIntent,

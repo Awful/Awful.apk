@@ -59,7 +59,7 @@ function pageinit() {
     $('.lastread').on('click', function(event) {
         listener.onLastReadClick($(this).attr('lastreadurl'));
     });
-    
+
     $('.bbc-spoiler').removeAttr('onmouseover');
     $('.bbc-spoiler').removeAttr('onmouseout');
     if(listener.getPreference("showSpoilers") == "true"){
@@ -82,7 +82,14 @@ function pageinit() {
         toggleinfo($(this));
     });
     $('.postmenu').on('click',function(){
-        toggleoptions($(this));
+        listener.onMoreClick(
+            $(this).parent().parent().attr('id').replace(/post/,''),
+            $(this).attr('username'),
+            $(this).attr('userid'),
+            $(this).attr('lastreadurl'),
+            $(this)[0].hasAttribute("editable"),
+            ($(this)[0].hasAttribute("isMod") || $(this)[0].hasAttribute("isAdmin"))
+         );
     });
 
     $('.quote_link').each(function(){
