@@ -6,6 +6,10 @@
         android:summary="@string/about_summary"
         android:persistent="false" />
     <Preference
+        android:key="changelog"
+        android:title="Changelog"
+        android:summary="@string/changelog_summary"/>
+    <Preference
         android:key="open_thread"
         android:title="@string/open_thread"
         android:summary="@string/open_thread_summary" />

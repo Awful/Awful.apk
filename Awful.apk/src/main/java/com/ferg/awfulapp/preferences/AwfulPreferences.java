@@ -156,7 +156,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean immersionMode;
     public String transformer;
 
+	// APP VERSION STUFF
     public int alertIDShown;
+	public int lastVersionSeen;
 
     private static final int PREFERENCES_VERSION = 1;
     private int currPrefVersion;
@@ -278,7 +280,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
         currPrefVersion          = mPrefs.getInt("curr_pref_version", 0);
         disablePullNext          = mPrefs.getBoolean("disable_pull_next", false);
         alertIDShown             = mPrefs.getInt("alert_id_shown", 0);
-        volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
+		lastVersionSeen 		 = mPrefs.getInt("last_version_seen", 0);
+		volumeScroll         	 = mPrefs.getBoolean("volume_scroll", false);
 		forceForumThemes		 = mPrefs.getBoolean("force_forum_themes", true);
 		noFAB					 = mPrefs.getBoolean("no_fab", false);
         probationTime			 = mPrefs.getLong("probation_time", 0);

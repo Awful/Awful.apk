@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="changelog">
+        <item>
+            3.2.2.0\n
+            - added Search for plat users ( beta! - I mean OLD!)\n
+            - Load forums via SSL\n
+            - Webm/Gifv Videos out of view are paused, option to not autostart embedded videos in post settings. They\'ll stay unloaded and won\'t display a thumbnail cause Google hates you.\n
+            - Made unloaded GIFs prettier for some hosts\n
+            - Fixed FYAD GIF avatars\n
+            - fixed and improved marking users (including fixing a crash when importing settings with marked users)\n
+            - more thread tags
+        </item>
+
+        <item>
+            Some earlier version
+        </item>
+    </string-array>
+</resources>

@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.ferg.awfulapp.ForumsIndexActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -37,6 +38,9 @@ public class RootSettings extends SettingsFragment {
         prefClickListeners.put(new AboutListener(), new String[] {
                 "about"
         });
+        prefClickListeners.put(new ChangelogListener(), new String[] {
+                "changelog"
+        });
         prefClickListeners.put(new ThreadListener(), new String[] {
                 "open_thread"
         });
@@ -54,6 +58,15 @@ public class RootSettings extends SettingsFragment {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             getActivity().showDialog(SettingsActivity.DIALOG_ABOUT);
+            return true;
+        }
+    }
+
+    private class ChangelogListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            ChangelogDialog.show(getActivity());
             return true;
         }
     }

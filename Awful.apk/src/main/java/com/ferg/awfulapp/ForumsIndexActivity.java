@@ -36,6 +36,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -60,12 +61,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
@@ -74,8 +75,6 @@ import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
-
-import java.lang.reflect.Method;
 
 //import com.ToxicBakery.viewpager.transforms.*;
 
@@ -537,27 +536,38 @@ public class ForumsIndexActivity extends AwfulActivity {
             finish();
             startActivity(intent);
         }
-        switch (mPrefs.alertIDShown + 1) {
-            case 1:
-                new AlertDialog.Builder(this).
-                        setTitle(getString(R.string.alert_title_1))
-                        .setMessage(getString(R.string.alert_message_1))
-                        .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
-                            }
-                        })
-                        .show();
-                mPrefs.setIntegerPreference("alert_id_shown", 1);
-                break;
+
+        int versionCode = 0;
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // check if this is the first run, and if so show the 'welcome' dialog
+        if (mPrefs.alertIDShown == 0) {
+            new AlertDialog.Builder(this).
+                    setTitle(getString(R.string.alert_title_1))
+                    .setMessage(getString(R.string.alert_message_1))
+                    .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
+                        }
+                    })
+                    .show();
+            mPrefs.setIntegerPreference("alert_id_shown", 1);
+        } else if (mPrefs.lastVersionSeen != versionCode) {
+            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode));
+            ChangelogDialog.show(this);
+            mPrefs.setIntegerPreference("last_version_seen", versionCode);
         }
     }
 
