@@ -136,6 +136,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private ImageButton mPrevPage;
     private ImageButton mRefreshBar;
     private TextView mPageCountText;
+	private TextView mUserPostNotice;
     
     private View mProbationBar;
 	private TextView mProbationMessage;
@@ -303,17 +304,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     	
         View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-        
-		mPageCountText = aq.find(R.id.page_count).clicked(onButtonClick).getTextView();
+
+		mPageCountText = (TextView) result.findViewById(R.id.page_count);
+		mPageCountText.setOnClickListener(onButtonClick);
 		getAwfulActivity().setPreferredFont(mPageCountText);
-		mNextPage = (ImageButton) aq.find(R.id.next_page).clicked(onButtonClick).getView();
-		mPrevPage = (ImageButton) aq.find(R.id.prev_page).clicked(onButtonClick).getView();
-        mRefreshBar  = (ImageButton) aq.find(R.id.refresh).clicked(onButtonClick).getView();
+
+		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
+		mNextPage.setOnClickListener(onButtonClick);
+		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
+		mPrevPage.setOnClickListener(onButtonClick);
+        mRefreshBar = (ImageButton) result.findViewById(R.id.refresh);
+		mRefreshBar.setOnClickListener(onButtonClick);
 		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
 		mProbationBar = result.findViewById(R.id.probationbar);
 		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
 		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
 		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
 		mFAB.setOnClickListener(onButtonClick);
 		mFAB.setVisibility(View.GONE);
@@ -1408,9 +1415,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(null != getAwfulActivity()){
 		    getAwfulActivity().setPreferredFont(mPageCountText);
         }
-//		if (aq != null) {
-//			aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
-//		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}
@@ -1499,7 +1503,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-					aq.find(R.id.thread_userpost_notice).gone();
+					mUserPostNotice.setVisibility(View.GONE);
                     mThreadView.loadUrl("javascript:loadpagehtml()");
                 }
             });
@@ -1576,9 +1580,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		updatePageBar();
         		updateProbationBar();
                 if(mUserId > 0 && !TextUtils.isEmpty(mPostByUsername)){
-                    aq.find(R.id.thread_userpost_notice).visible().text("Viewing posts by "+mPostByUsername+" in this thread,\nPress the back button to return.").textColor(ColorProvider.getTextColor()).backgroundColor(ColorProvider.getBackgroundColor());
+
+					mUserPostNotice.setVisibility(View.VISIBLE);
+					mUserPostNotice.setText("Viewing posts by " + mPostByUsername + " in this thread,\nPress the back button to return.");
+					mUserPostNotice.setTextColor(ColorProvider.getTextColor());
+					mUserPostNotice.setBackgroundColor(ColorProvider.getBackgroundColor());
                 }else{
-                    aq.find(R.id.thread_userpost_notice).gone();
+					mUserPostNotice.setVisibility(View.GONE);
                 }
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent());

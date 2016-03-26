@@ -111,6 +111,9 @@ public class NetworkUtils {
         }
     }
 
+    public static ImageLoader getImageLoader() {
+        return mImageLoader;
+    }
 
     public static void clearImageCache() {
         if (mImageCache != null) {

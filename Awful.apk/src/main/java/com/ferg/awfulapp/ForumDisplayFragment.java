@@ -835,21 +835,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	            mListView.setCacheColorHint(ColorProvider.getBackgroundColor());
 	        }
 		}
-//		if(aq != null){
-//			if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
-//				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.YOSPOS));
-//				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.YOSPOS));
-//            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_FYAD || mForumId == Constants.FORUM_ID_FYAD_SUB) ){
-//                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.FYAD));
-//                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.FYAD));
-//            }else if(mPrefs.forceForumThemes && (mForumId == Constants.FORUM_ID_BYOB || mForumId == Constants.FORUM_ID_COOL_CREW) ){
-//                aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor(ColorProvider.BYOB));
-//                aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor(ColorProvider.BYOB));
-//            }else{
-//				aq.find(R.id.pagebar).backgroundColor(ColorProvider.getActionbarColor());
-//				aq.find(R.id.page_indicator).backgroundColor(ColorProvider.getActionbarFontColor());
-//			}
-//		}
 		if(mPageCountText != null){
 			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
 		}

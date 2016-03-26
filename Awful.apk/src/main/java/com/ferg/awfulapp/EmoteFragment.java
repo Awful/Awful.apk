@@ -42,6 +42,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -98,8 +99,11 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 			Bundle savedInstanceState) {
 		View v = inflateView(R.layout.emote_view, container, inflater);
 		adapter = new AwfulCursorAdapter(getAwfulActivity(), null, null);
-		aq.find(R.id.delete_button).clicked(this);
-		filterText = aq.find(R.id.filter_text).textColor(ColorProvider.getTextColor()).getEditText();
+
+		Button deleteButton = (Button) v.findViewById(R.id.delete_button);
+		deleteButton.setOnClickListener(this);
+		filterText = (EditText) v.findViewById(R.id.filter_text);
+		filterText.setTextColor(ColorProvider.getTextColor());
 		filterText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -111,7 +115,11 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 				updateFilter();
 			}
 		});
-		emoteGrid = aq.find(R.id.emote_grid).adapter(adapter).itemClicked(this).backgroundColor(ColorProvider.getBackgroundColor()).getGridView();
+		emoteGrid = (GridView) v.findViewById(R.id.emote_grid);
+		emoteGrid.setAdapter(adapter);
+		emoteGrid.setOnItemClickListener(this);
+		emoteGrid.setBackgroundColor(ColorProvider.getBackgroundColor());
+
 		return v;
 	}
 

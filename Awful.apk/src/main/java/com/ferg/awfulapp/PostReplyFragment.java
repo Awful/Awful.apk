@@ -233,7 +233,7 @@ public class PostReplyFragment extends AwfulFragment {
 
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
 
-        mMessage = aq.find(R.id.post_message).getEditText();
+        mMessage = (EditText) result.findViewById(R.id.post_message);
         mMessage.setText("");
 
         return result;

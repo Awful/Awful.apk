@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -40,8 +39,7 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
 	private ActivityConfigurator mConf;
     
     private boolean loggedIn = false;
-    
-    protected AQuery aq;
+
 
     private TextView mTitleView;
     
@@ -71,7 +69,6 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
             setTheme(R.style.Theme_AwfulTheme_Dark);
         }
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate");
-        aq = new AQuery(this);
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
     }
