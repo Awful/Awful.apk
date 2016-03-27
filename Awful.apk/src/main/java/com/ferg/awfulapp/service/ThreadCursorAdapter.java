@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
@@ -47,27 +46,25 @@ public class ThreadCursorAdapter extends CursorAdapter {
 	private AwfulActivity mParent;
     private AwfulFragment mFragment;
 	private LayoutInflater inf;
-	private AQuery aq;
 
 	public ThreadCursorAdapter(AwfulActivity context, Cursor c, AwfulFragment fragment) {
 		super(context, c, 0);
 		mPrefs = AwfulPreferences.getInstance(context);
 		inf = LayoutInflater.from(context);
 		mParent = context;
-		aq = new AQuery(context);
         mFragment = fragment;
 	}
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
-        AwfulThread.getView(current, mPrefs, data, aq, mFragment);
+        AwfulThread.getView(current, mPrefs, data, mFragment);
 		mParent.setPreferredFont(current);
 	}
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
 		View row = inf.inflate(R.layout.nu_thread_item, parent, false);
-        AwfulThread.getView(row, mPrefs, data, aq, mFragment);
+        AwfulThread.getView(row, mPrefs, data, mFragment);
 		mParent.setPreferredFont(row);
 		return row;
 	}

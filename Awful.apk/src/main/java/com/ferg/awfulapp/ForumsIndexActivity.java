@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,10 +65,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.androidquery.AQuery;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -287,17 +291,26 @@ public class ForumsIndexActivity extends AwfulActivity {
             username.setText(mPrefs.username);
         }
 
-        ImageView avatar = (ImageView) nav.findViewById(R.id.sidebar_avatar);
+        final ImageView avatar = (ImageView) nav.findViewById(R.id.sidebar_avatar);
         if (null != avatar) {
-            AQuery aq = new AQuery(this);
             if (null != mPrefs.userTitle) {
                 if (!("".equals(mPrefs.userTitle))) {
-                    aq.id(avatar).image(mPrefs.userTitle);
+                    NetworkUtils.getImageLoader().get(mPrefs.userTitle, new ImageLoader.ImageListener() {
+                        @Override
+                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                            avatar.setImageBitmap(response.getBitmap());
+                        }
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            avatar.setImageResource(R.drawable.icon);
+                        }
+                    });
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(true);
                     }
                 } else {
-                    aq.id(avatar).image(R.drawable.icon).backgroundColorId(R.color.forums_blue);
+                    avatar.setImageResource(R.drawable.icon);
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(false);
                     }

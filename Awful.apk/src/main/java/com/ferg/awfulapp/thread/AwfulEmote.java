@@ -32,10 +32,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.androidquery.AQuery;
+import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 
@@ -57,15 +60,15 @@ public class AwfulEmote {
 	public static final String SUBTEXT = "emote_subtext";//hover text
 	public static final String URL = "url";
 	public static final String INDEX = "emote_index";
-	public static final String CACHEFILE = "cachefile";//location of cached file or null if not cached yet.
 	
 	public static Pattern fileName_regex = Pattern.compile("/([^/]+)$");
 	
-	public static void getView(View current, AwfulPreferences aPref, Cursor data, AQuery aq) {
-		aq.recycle(current);//I love AQ
-//		aq.find(R.id.emote_text).text(Html.fromHtml(data.getString(data.getColumnIndex(TEXT)))).textColor(current.getResources().getColor(R.color.default_post_font));
-		aq.find(R.id.emote_text).text(data.getString(data.getColumnIndex(TEXT))).textColor(current.getResources().getColor(R.color.default_post_font));
-		aq.find(R.id.emote_icon).image(data.getString(data.getColumnIndex(URL)), true, true);
+	public static void getView(View current, AwfulPreferences aPref, Cursor data) {
+		TextView emoteText = (TextView) current.findViewById(R.id.emote_text);
+		emoteText.setText(data.getString(data.getColumnIndex(TEXT)));
+		emoteText.setTextColor(current.getResources().getColor(R.color.default_post_font));
+		NetworkImageView emoteImage = (NetworkImageView) current.findViewById(R.id.emote_icon);
+		emoteImage.setImageUrl(data.getString(data.getColumnIndex(URL)), NetworkUtils.getImageLoader());
 	}
 
 	

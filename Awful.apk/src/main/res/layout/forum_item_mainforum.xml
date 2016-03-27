@@ -22,7 +22,7 @@
         android:paddingTop="8dip"
         android:layout_toRightOf="@id/explist_indicator">
 
-        <ImageView
+        <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/forum_tag"
             android:layout_width="60dp"
             android:layout_height="15dp"

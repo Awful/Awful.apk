@@ -35,7 +35,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.androidquery.AQuery;
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.R;
@@ -52,7 +51,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
     private AwfulFragment mFragment;
 	private LayoutInflater inf;
 	private int mId;
-	private AQuery aq;
 	private Messenger msgCallback;
 	
 	public AwfulCursorAdapter(AwfulActivity context, Cursor c, AwfulFragment fragment) {
@@ -65,7 +63,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		mParent = context;
 		mId = id;
 		msgCallback = messageCallback;
-		aq = new AQuery(context);
         mFragment = fragment;
 	}
 
@@ -76,15 +73,15 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			AwfulThread.getView(current, mPrefs, data, aq, mFragment);
+			AwfulThread.getView(current, mPrefs, data, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
 //		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-//			AwfulPost.getView(current, aq, mPrefs, data, msgCallback);
+//			AwfulPost.getView(current, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
-			AwfulEmote.getView(current, mPrefs, data, aq);
+			AwfulEmote.getView(current, mPrefs, data);
 		}
 		mParent.setPreferredFont(current);
 	}
@@ -94,19 +91,19 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
-			AwfulThread.getView(row, mPrefs, data, aq, mFragment);
+			AwfulThread.getView(row, mPrefs, data, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			row = inf.inflate(R.layout.forum_item_mainforum, parent, false);
 			assert(false);
 //		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
 //			row = inf.inflate(R.layout.post_item, parent, false);
-//			AwfulPost.getView(row, aq, mPrefs, data, msgCallback);
+//			AwfulPost.getView(row, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
 			row = inf.inflate(R.layout.emote_grid_item, parent, false);
-			AwfulEmote.getView(row, mPrefs, data, aq);
+			AwfulEmote.getView(row, mPrefs, data);
 		}else{
 			row = inf.inflate(R.layout.loading, parent, false);
 		}

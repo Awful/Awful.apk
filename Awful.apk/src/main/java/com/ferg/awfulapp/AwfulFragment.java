@@ -53,11 +53,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -73,7 +73,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     protected static final boolean DEBUG = Constants.DEBUG;
 
 	protected AwfulPreferences mPrefs;
-	protected AQuery aq;
 	protected int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
@@ -98,7 +97,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     	if(progressBar instanceof AwfulProgressBar){
     		mProgressBar = (AwfulProgressBar) progressBar;
     	}
-    	aq = new AQuery(v);
     	return v;
     }
     
@@ -396,21 +394,22 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             return;
         }
         View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
-        AQuery aq = new AQuery(popup);
-        aq.find(R.id.popup_title).text(title);
+        TextView popupTitle = (TextView)popup.findViewById(R.id.popup_title);
+        popupTitle.setText(title);
+        TextView popupSubTitle = (TextView) popup.findViewById(R.id.popup_subtitle);
         if(TextUtils.isEmpty(subtext)){
-            aq.find(R.id.popup_subtitle).gone();
+            popupSubTitle.setVisibility(View.GONE);
         }else{
-            aq.find(R.id.popup_subtitle).visible().text(subtext);
+            popupSubTitle.setVisibility(View.VISIBLE);
+            popupSubTitle.setText(subtext);
         }
         if(iconRes != 0){
+            ImageView popupIcon = (ImageView) popup.findViewById(R.id.popup_icon);
             if(animate != null){
-                ImageView icon = aq.find(R.id.popup_icon).getImageView();
-                icon.setImageResource(iconRes);
-                aq.find(R.id.popup_icon).animate(animate);
+                popupIcon.setImageResource(iconRes);
+                popupIcon.startAnimation(animate);
             }else{
-                ImageView icon = aq.find(R.id.popup_icon).getImageView();
-                icon.setImageResource(iconRes);
+                popupIcon.setImageResource(iconRes);
             }
         }
         Toast toast = new Toast(getAwfulApplication());

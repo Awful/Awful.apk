@@ -54,7 +54,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
-import com.androidquery.AQuery;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -304,11 +303,9 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 	
 	private class AwfulTreeListAdapter extends CursorTreeAdapter {
 		private LayoutInflater inf;
-		private AQuery rowAq;
 
 		public AwfulTreeListAdapter(Cursor cursor, Activity activity) {
 			super(cursor, activity);
-			rowAq = new AQuery((Context)activity);//don't let aquery think we are using an actual activity, we will recycle in rows as we generate them
 			inf = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
@@ -376,7 +373,6 @@ public class ForumsIndexFragment extends AwfulFragment implements SwipyRefreshLa
 			);
 
 			AwfulForum.getExpandableForumView(view,
-					rowAq,
 					mPrefs,
 					data,
 					selectedForum > 0 && selectedForum == data.id,

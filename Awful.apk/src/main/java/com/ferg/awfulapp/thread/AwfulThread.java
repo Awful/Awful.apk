@@ -50,7 +50,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
@@ -504,8 +505,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
 	@SuppressWarnings("deprecation")
-	public static void getView(View current, AwfulPreferences prefs, Cursor data, AQuery aq, AwfulFragment parent) {
-        aq.recycle(current);
+	public static void getView(View current, AwfulPreferences prefs, Cursor data, AwfulFragment parent) {
         Resources resources = current.getResources();
         Context context = current.getContext();
 
@@ -534,7 +534,7 @@ public class AwfulThread extends AwfulPagedItem  {
         int bookmarked  = data.getInt(data.getColumnIndex(BOOKMARKED));
         boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
 
-        ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
+        final ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
         threadTag.setVisibility(View.GONE);
         if (prefs.threadInfo_Tag) {
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
@@ -545,7 +545,17 @@ public class AwfulThread extends AwfulPagedItem  {
 
                 int imageID = resources.getIdentifier(localFileName, null, context.getPackageName());
                 if (imageID == 0) {
-                    aq.id(R.id.thread_tag).image(url);
+                    NetworkUtils.getImageLoader().get(url, new ImageLoader.ImageListener() {
+                        @Override
+                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                            threadTag.setImageBitmap(response.getBitmap());
+                        }
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            threadTag.setImageResource(R.drawable.empty_thread_tag);
+                        }
+                    });
                 } else {
                     threadTag.setImageResource(imageID);
                 }
@@ -556,12 +566,14 @@ public class AwfulThread extends AwfulPagedItem  {
         /*
             Tag overlay (secondary tags etc)
          */
-        aq.id(R.id.thread_tag_overlay).gone();
+        ImageView forumTagOverlay = (ImageView)current.findViewById(R.id.thread_tag_overlay);
+        forumTagOverlay.setVisibility(View.GONE);
         int tagId = data.getInt(data.getColumnIndex(TAG_EXTRA));
         if (ExtraTags.getType(tagId) != ExtraTags.TYPE_NO_TAG) {
             Drawable tagIcon = ExtraTags.getDrawable(tagId, resources);
             if (tagIcon != null) {
-                aq.id(R.id.thread_tag_overlay).visible().image(tagIcon);
+                forumTagOverlay.setVisibility(View.VISIBLE);
+                forumTagOverlay.setImageDrawable(tagIcon);
             }
         }
 
@@ -580,28 +592,35 @@ public class AwfulThread extends AwfulPagedItem  {
         /*
             Ratings
          */
-        aq.id(R.id.thread_rating).gone();
+        ImageView threadRating = (ImageView)current.findViewById(R.id.thread_rating);
+        threadRating.setVisibility(View.GONE);
         if (prefs.threadInfo_Rating) {
             int rating = data.getInt(data.getColumnIndex(RATING));
             Drawable ratingIcon = AwfulRatings.getDrawable(rating, resources);
             if (ratingIcon != null) {
                 // replace thread tag with special rating tag in the Film Dump
                 if (AwfulRatings.getType(rating) == AwfulRatings.TYPE_FILM_DUMP) {
-                    aq.id(R.id.thread_tag).visible().image(ratingIcon);
+                    threadTag.setVisibility(View.VISIBLE);
+                    threadTag.setImageDrawable(ratingIcon);
                 } else {
-                    aq.id(R.id.thread_rating).visible().image(ratingIcon);
+                    threadRating.setVisibility(View.VISIBLE);
+                    threadRating.setImageDrawable(ratingIcon);
                 }
             }
         }
 
 
-        aq.id(R.id.thread_locked).gone();
-        aq.id(R.id.thread_sticky).gone();
+        ImageView threadLocked = (ImageView)current.findViewById(R.id.thread_locked);
+        threadLocked.setVisibility(View.GONE);
+        ImageView threadSticky = (ImageView)current.findViewById(R.id.thread_sticky);
+        threadSticky.setVisibility(View.GONE);
         if (stuck) {
-            aq.id(R.id.thread_sticky).visible().image(resources.getDrawable(R.drawable.ic_sticky));
+            threadSticky.setVisibility(View.VISIBLE);
+            threadSticky.setImageResource(R.drawable.ic_sticky);
         } else if (data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
-            aq.id(R.id.thread_locked).visible().image(R.drawable.ic_https_dark);
+            threadLocked.setVisibility(View.VISIBLE);
+            threadLocked.setImageResource(R.drawable.ic_https_dark);
             current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }
 

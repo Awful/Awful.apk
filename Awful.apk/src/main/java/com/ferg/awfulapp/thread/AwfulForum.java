@@ -32,15 +32,18 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.media.Image;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.androidquery.AQuery;
+import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
@@ -240,18 +243,23 @@ public class AwfulForum extends AwfulPagedItem {
 	 * @param data
 	 * @param selected
 	 */	
-	public static void getExpandableForumView(View current, AQuery aq, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
-		aq.recycle(current);
+	public static void getExpandableForumView(View current, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
 		TextView title = (TextView) current.findViewById(R.id.forum_title);
 		title.setTypeface(null, Typeface.BOLD);
 		String titleText = (data.title != null ? data.title : "");
-//		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor(aPrefs)).text(Html.fromHtml(titleText)).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
-		aq.find(R.id.forum_title).textColor(ColorProvider.getTextColor()).text(titleText).getTextView().setSingleLine(!aPrefs.wrapThreadTitles);
-		
-		if(aPrefs.threadInfo_Tag && data.tagUrl != null){
-			aq.id(R.id.forum_tag).visible().image(data.tagUrl, true, true);
-		}else{
-			aq.id(R.id.forum_tag).gone();
+		TextView forumTitle = (TextView) current.findViewById(R.id.forum_title);
+		forumTitle.setTextColor(ColorProvider.getTextColor());
+		forumTitle.setText(titleText);
+		forumTitle.setSingleLine(!aPrefs.wrapThreadTitles);
+		NetworkImageView forumTag = (NetworkImageView) current.findViewById(R.id.forum_tag);
+
+		if(hasChildren) {
+			if (aPrefs.threadInfo_Tag && data.tagUrl != null) {
+				forumTag.setVisibility(View.VISIBLE);
+				forumTag.setImageUrl(data.tagUrl, NetworkUtils.getImageLoader());
+			} else {
+				forumTag.setVisibility(View.GONE);
+			}
 		}
 	}
 }
