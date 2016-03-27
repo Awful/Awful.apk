@@ -13,26 +13,8 @@
 			{{# regDate }}<time class="postinfo-regdate">Reg Date: {{ regDate }}</time>{{/regDate}}
 			<aside class="postinfo-title">{{{ avatarText }}}</aside>
 		</section >
-		<nav class="postmenu"></nav>
+		<nav class="postmenu" username="{{ username }}" userid="{{ userID }}" lastreadurl="{{ lastReadUrl }}" {{# editable }}editable{{/editable }} {{# mod }}isMod{{/mod }} {{# admin }}isAdmin{{/admin }}"></nav>
 		</header>
-		<ul  class="postoptions">
-			<li class="more" username="{{ username }}" userid="{{ userID }}">
-				more
-			</li>
-			<li class="lastread" lastreadurl="{{ lastReadUrl }}">
-				last read
-			</li>
-			{{# notOnProbation }}
-				{{# editable }}
-					<li class="edit">
-						edit
-					</li>
-	        	{{/editable }}
-				<li class="quote">
-					quote
-				</li>
-			{{/notOnProbation }}
-		</ul >
 	<section  class="postcontent">
 		{{{ postcontent }}}
 	</section >
