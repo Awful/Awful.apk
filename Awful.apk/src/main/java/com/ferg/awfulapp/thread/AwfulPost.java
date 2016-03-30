@@ -444,45 +444,50 @@ public class AwfulPost {
 
 
     public static void syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
+        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
 
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
     
-    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
     	ArrayList<ContentValues> result = new ArrayList<ContentValues>();
     	boolean lastReadFound = false;
 		int index = startIndex;
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        Log.v(TAG,"Update time: "+update_time);
+        Log.v(TAG, "Update time: " + update_time);
                 
         convertVideos(aThread, prefs.inlineYoutube, prefs.hasFlash());
-        
-        Elements posts = aThread.getElementsByClass("post");
+        Elements posts;
+        if(preview){
+            posts = aThread.getElementsByClass("standard");
+        }else{
+            posts = aThread.getElementsByClass("post");
+        }
         boolean isIgnoredPost;
         for(Element postData : posts){
             isIgnoredPost = false;
             ContentValues post = new ContentValues();
         	post.put(THREAD_ID, aThreadId);
-        	
-        	//post id is formatted "post1234567", so we strip out the "post" prefix.
-        	post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
-        	
+        	if(!preview) {
+                //post id is formatted "post1234567", so we strip out the "post" prefix.
+                post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
+            }
         	//timestamp for DB trimming after a week
             post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
             
             //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
             //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-            try{
-                post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
-            }catch(NumberFormatException nfe){
-            	post.put(POST_INDEX, index);
+            if(!preview) {
+                try {
+                    post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
+                } catch (NumberFormatException nfe) {
+                    post.put(POST_INDEX, index);
+                }
             }
-            if(postData.hasClass("ignored")){
+            if (postData.hasClass("ignored")) {
                 isIgnoredPost = true;
             }
-            
             //Check for "class=seenX", or just rely on unread index
             Elements seen = postData.getElementsByClass("seen");
             if(seen.size() < 1 && index > unreadIndex){
@@ -532,7 +537,10 @@ public class AwfulPost {
 					}
 					post.put(AVATAR_TEXT, entry.text().trim());
 				}
-
+                if(type.equalsIgnoreCase("inner postbody")){
+                    entry.removeClass("inner");
+                    type = entry.attr("class");
+                }
 				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
 					Elements images = entry.getElementsByTag("img");
 

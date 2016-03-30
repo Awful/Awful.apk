@@ -91,6 +91,7 @@
     <string name="filter_emote_hint">Filter emotes…</string>
     <string name="bbcode">BBCode</string>
     <string name="submit">Submit</string>
+    <string name="menu_preview">Preview post</string>
     <string name="menu_save_draft">Save draft</string>
     <string name="menu_discard">Discard</string>
     <string name="signature">Show Signature</string>

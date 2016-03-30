@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -49,12 +50,15 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -73,6 +77,8 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.EditRequest;
+import com.ferg.awfulapp.task.PreviewEditRequest;
+import com.ferg.awfulapp.task.PreviewPostRequest;
 import com.ferg.awfulapp.task.QuoteRequest;
 import com.ferg.awfulapp.task.ReplyRequest;
 import com.ferg.awfulapp.task.SendEditRequest;
@@ -624,6 +630,9 @@ public class PostReplyFragment extends AwfulFragment {
             case R.id.submit_button:
                 postReply();
                 break;
+            case R.id.preview:
+                previewPost();
+                break;
             case R.id.discard:
                 deleteReply();
                 getActivity().setResult(RESULT_CANCELLED);
@@ -809,39 +818,10 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private void sendPost() {
-        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
-            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
-            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
-            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
-            Activity activity = getActivity();
-            if (activity != null) {
-                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
-            }
+        ContentValues cv = prepareCV();
+        if(cv == null){
             return;
         }
-        ContentValues cv = new ContentValues(replyData);
-        String content = mMessage.getText().toString().trim();
-        if (TextUtils.isEmpty(content)) {
-            if (mDialog != null) {
-                mDialog.dismiss();
-            }
-            new AlertBuilder().setTitle(R.string.message_empty)
-                    .setSubtitle(R.string.message_empty_subtext)
-                    .show();
-            return;
-        }
-        if (!TextUtils.isEmpty(mFileAttachment)) {
-            cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
-        }
-        if (postSignature) {
-            cv.put(AwfulMessage.REPLY_SIGNATURE, Constants.YES);
-            System.out.println(AwfulMessage.REPLY_SIGNATURE + " " + Constants.YES);
-        }
-        if (disableEmots) {
-            cv.put(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
-            System.out.println(AwfulMessage.REPLY_DISABLE_SMILIES + " " + Constants.YES);
-        }
-        cv.put(AwfulMessage.REPLY_CONTENT, content);
         AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
@@ -917,6 +897,81 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
+    private void previewPost(){
+        ContentValues cv = prepareCV();
+        if(cv == null){
+            return;
+        }
+        final PreviewFragment previewFrag = new PreviewFragment();
+        previewFrag.show(getFragmentManager(),"Post Preview");
+        AwfulRequest.AwfulResultCallback previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
+            @Override
+            public void success(final String result) {
+                getAwfulActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        previewFrag.setContent(result);
+                    }
+                });
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                previewFrag.dismiss();
+                if (getView() != null) {
+                    Snackbar.make(getView(), "Preview failed.", Snackbar.LENGTH_LONG)
+                            .setAction("Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    previewPost();
+                                }
+
+                            }).show();
+                }
+            }
+        };
+        if(mReplyType == AwfulMessage.TYPE_EDIT){
+            queueRequest(new PreviewEditRequest(getActivity(), cv).build(this, previewCallback));
+        }else{
+            queueRequest(new PreviewPostRequest(getActivity(), cv).build(this, previewCallback));
+        }
+    }
+
+    private ContentValues prepareCV(){
+        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
+            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
+            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
+            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
+            Activity activity = getActivity();
+            if (activity != null) {
+                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
+            }
+            return null;
+        }
+        ContentValues cv = new ContentValues(replyData);
+        String content = mMessage.getText().toString().trim();
+        if (TextUtils.isEmpty(content)) {
+            if (mDialog != null) {
+                mDialog.dismiss();
+            }
+            displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
+            return null;
+        }
+        if (!TextUtils.isEmpty(mFileAttachment)) {
+            cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+        }
+        if (postSignature) {
+            cv.put(AwfulMessage.REPLY_SIGNATURE, Constants.YES);
+            System.out.println(AwfulMessage.REPLY_SIGNATURE + " " + Constants.YES);
+        }
+        if (disableEmots) {
+            cv.put(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
+            System.out.println(AwfulMessage.REPLY_DISABLE_SMILIES + " " + Constants.YES);
+        }
+        cv.put(AwfulMessage.REPLY_CONTENT, content);
+        return cv;
+    }
+
     private void refreshLoader() {
         restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
     }
@@ -925,6 +980,10 @@ public class PostReplyFragment extends AwfulFragment {
         restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
     }
 
+    @Override
+    public void onPageVisible() {
+
+    }
 
     @Override
     public void onPageHidden() {
@@ -956,6 +1015,16 @@ public class PostReplyFragment extends AwfulFragment {
         insertEmote(contents);
     }
 
+    @Override
+    public String getInternalId() {
+        return TAG;
+    }
+
+    @Override
+    public boolean volumeScroll(KeyEvent event) {
+        //I don't think that's necessary
+        return false;
+    }
 
     private String getClipboardLink() {
         String link = null;

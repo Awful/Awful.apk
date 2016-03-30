@@ -90,6 +90,9 @@ public class Constants {
     public static final String PARAM_QUERY 	= "q";
     public static final String PARAM_QID 	= "qid";
     public static final String PARAM_FORUMS 	= "forums[%d]";
+    public static final String PARAM_SUBMIT 	= "submit";
+    public static final String PARAM_PREVIEW 	= "preview";
+    public static final String PARAM_PARSEURL = "parseurl";
 
 	public static final String USERLIST_IGNORE = "ignore";
 	public static final String USERLIST_BUDDY  = "buddy";
@@ -165,7 +168,8 @@ public class Constants {
 
 	public static final String EXTRA_BUNDLE = "extras";
 
-	public static final String PARAM_PARSEURL = "parseurl";
+    public static final String SUBMIT_REPLY = "Submit Reply";
+    public static final String PREVIEW_REPLY = "Preview Reply";
 
 	public static final String YES = "yes";//heh
 	

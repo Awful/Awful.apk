@@ -278,7 +278,11 @@ public class AwfulMessage extends AwfulPagedItem {
 	        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
 	        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
 	        buffer.append("<meta name='format-detection' content='address=no' />\n");
-
+			for (String scriptName : AwfulThread.JS_FILES) {
+				buffer.append("<script src='file:///android_asset/")
+						.append(scriptName)
+						.append("' type='text/javascript'></script>\n");
+			}
 	        buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
 
 	        if(!pref.preferredFont.contains("default")){
