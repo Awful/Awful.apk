@@ -27,13 +27,18 @@
 
 package com.ferg.awfulapp;
 
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -43,6 +48,8 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.thread.AwfulMessage;
+import com.ferg.awfulapp.thread.AwfulPost;
+import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.HashMap;
@@ -51,8 +58,9 @@ public class PreviewFragment extends AwfulDialogFragment {
     private final static String TAG = "PreviewFragment";
 
     private WebView postPreView;
-    private ProgressBar previewProgress;
     private View dialogView;
+    private ProgressBar progressBar;
+    protected String nicefiedContent = "";
 
     HashMap<String, String> preferences;
 
@@ -64,25 +72,30 @@ public class PreviewFragment extends AwfulDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         dialogView = inflateView(R.layout.post_preview, container, inflater);
-
+        progressBar = (ProgressBar) dialogView.findViewById(R.id.preview_progress);
         configureWebView();
 
-        previewProgress = (ProgressBar) dialogView.findViewById(R.id.preview_progress);
-
         getDialog().setCanceledOnTouchOutside(true);
+        postPreView.loadDataWithBaseURL(Constants.BASE_URL + "/",getBlankPage(), "text/html", "utf-8",null);
 
         return dialogView;
     }
 
-
-    protected void setContent(String content) {
-        String niceContent = AwfulMessage.getMessageHtml(content, AwfulPreferences.getInstance());
-        preparePreferences();
-        postPreView.loadDataWithBaseURL(Constants.BASE_URL + "/", niceContent, "text/html", "utf-8", null);
-        previewProgress.setVisibility(View.GONE);
-        postPreView.setVisibility(View.VISIBLE);
+    private String getBlankPage(){
+        return AwfulThread.getContainerHtml(mPrefs, 0);
     }
 
+
+    protected void setContent(String content) {
+        preparePreferences();
+
+        nicefiedContent =  "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>"+ content+"</section></article>";
+        progressBar.setVisibility(View.GONE);
+        postPreView.setVisibility(View.VISIBLE);
+
+        postPreView.loadUrl("javascript:loadPageHtml()");
+    }
+    g
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -92,12 +105,14 @@ public class PreviewFragment extends AwfulDialogFragment {
 
     public void configureWebView() {
         postPreView = (WebView) dialogView.findViewById(R.id.post_pre_view);
+        postPreView.setBackgroundColor(Color.TRANSPARENT);
         postPreView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         postPreView.getSettings().setJavaScriptEnabled(true);
         postPreView.getSettings().setRenderPriority(WebSettings.RenderPriority.LOW);
         postPreView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
         postPreView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
         postPreView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
+        postPreView.setWebChromeClient(new WebChromeClient());
         if (Constants.DEBUG && AwfulUtils.isKitKat()) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -107,29 +122,17 @@ public class PreviewFragment extends AwfulDialogFragment {
         if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
             postPreView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
         }
-        if (AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (mPrefs.inlineWebm || mPrefs.inlineVines)) {
-            postPreView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        }
-        if (mPrefs.inlineTweets && AwfulUtils.isJellybean()) {
+        if (AwfulUtils.isJellybean()) {
             postPreView.getSettings().setAllowUniversalAccessFromFileURLs(true);
             postPreView.getSettings().setAllowFileAccessFromFileURLs(true);
             postPreView.getSettings().setAllowFileAccess(true);
             postPreView.getSettings().setAllowContentAccess(true);
         }
 
-        if (!mPrefs.enableHardwareAcceleration) {
-            postPreView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-        }
         postPreView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-
-                postPreView.loadUrl("javascript:pageinit()");
-            }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest wrr ) {
                 return true;
             }
         });
@@ -141,18 +144,26 @@ public class PreviewFragment extends AwfulDialogFragment {
         return preferences.get(preference);
     }
 
+    @JavascriptInterface
+    public void haltSwipe() {
+
+    }
+    @JavascriptInterface
+    public void resumeSwipe() {
+    }
+
+    @JavascriptInterface
+    public String getBodyHtml(){
+        return nicefiedContent;
+    }
+
     private void preparePreferences() {
         AwfulPreferences aPrefs = AwfulPreferences.getInstance();
 
         preferences = new HashMap<String, String>();
         preferences.clear();
         preferences.put("username", aPrefs.username);
-        preferences.put("youtubeHighlight", "#ff00ff");
         preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
-        preferences.put("postFontSize", Integer.toString(aPrefs.postFontSizePx));
-        preferences.put("postcolor", ColorProvider.convertToARGB(ColorProvider.getTextColor()));
-        preferences.put("backgroundcolor", ColorProvider.convertToARGB(ColorProvider.getBackgroundColor()));
-        preferences.put("linkQuoteColor", ColorProvider.convertToARGB(aPrefs.getResources().getColor(R.color.link_quote)));
         preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
         preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
         preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
