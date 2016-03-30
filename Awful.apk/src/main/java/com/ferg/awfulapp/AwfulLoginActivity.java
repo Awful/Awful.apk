@@ -32,7 +32,6 @@ package com.ferg.awfulapp;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,17 +47,13 @@ import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.LoginRequest;
-import com.ferg.awfulapp.task.SendEditRequest;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.protocol.HTTP;
-
-import java.util.HashMap;
 
 public class AwfulLoginActivity extends AwfulActivity {
     private static final String TAG = "LoginActivity";
@@ -169,7 +164,7 @@ public class AwfulLoginActivity extends AwfulActivity {
                     Boolean result = NetworkUtils.saveLoginCookies(getApplicationContext());
                     if(result){
                         AwfulPreferences prefs = AwfulPreferences.getInstance(getApplicationContext());
-                        prefs.setStringPreference("username", username);
+                        prefs.setPreference(Keys.USERNAME, username);
                         onLoginSuccess();
                     }else{
                         onLoginFailed();

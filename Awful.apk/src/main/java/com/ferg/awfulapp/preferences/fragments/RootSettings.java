@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
@@ -26,29 +27,30 @@ public class RootSettings extends SettingsFragment {
     {
         SETTINGS_XML_RES_ID = R.xml.rootsettings;
 
-        SUBMENU_OPENING_KEYS = new String[] {
-                "theme",
-                "thread",
-                "posts",
-                "images",
-                "misc",
-                "account"
+        SUBMENU_OPENING_KEYS = new int[] {
+                R.string.pref_key_theme_menu_item,
+                R.string.pref_key_thread_menu_item,
+                R.string.pref_key_posts_menu_item,
+                R.string.pref_key_images_menu_item,
+                R.string.pref_key_misc_menu_item,
+                R.string.pref_key_account_menu_item
         };
 
-        prefClickListeners.put(new AboutListener(), new String[] {
-                "about"
+        prefClickListeners.put(new AboutListener(), new int[] {
+                R.string.pref_key_about_menu_item
         });
-        prefClickListeners.put(new ChangelogListener(), new String[] {
-                "changelog"
+        prefClickListeners.put(new ThreadListener(), new int[]{
+                R.string.pref_key_open_thread_menu_item
         });
-        prefClickListeners.put(new ThreadListener(), new String[] {
-                "open_thread"
+        // TODO: fix
+        prefClickListeners.put(new ChangelogListener(), new int[] {
+                R.string.pref_key_changelog_menu_item
         });
-        prefClickListeners.put(new ExportListener(), new String[]{
-                "export_settings"
+        prefClickListeners.put(new ExportListener(), new int[]{
+                R.string.pref_key_export_settings_menu_item
         });
-        prefClickListeners.put(new ImportListener(), new String[] {
-                "import_settings"
+        prefClickListeners.put(new ImportListener(), new int[] {
+                R.string.pref_key_import_settings_menu_item
         });
     }
 
@@ -120,7 +122,7 @@ public class RootSettings extends SettingsFragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.AWFUL_PERMISSION_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.

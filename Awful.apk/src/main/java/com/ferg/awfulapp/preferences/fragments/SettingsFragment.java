@@ -6,13 +6,15 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,7 +51,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
         behaviour to the fragment and its Preference elements, and
         should be initialised during construction.
 
-        These generally involve arrays of key names (defined in the XML)
+        These generally involve arrays of String resource IDs, holding the keys
         of the preference elements which will have each behaviour applied.
         So for example, to set a preference to display its value as a
         summary, just add its key to the VALUE_SUMMARY_PREF_KEYS array.
@@ -79,30 +81,30 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
     /**
      * Preferences which should display a submenu fragment when clicked.
-     * Set this to an array of preference key names, and those preferences
+     * Set this to an array of preference key ResIDs, and those preferences
      * will display the fragment defined in their <i>android:fragment</i>
      * tag when clicked.
      */
-    protected String[] SUBMENU_OPENING_KEYS;
+    protected int[] SUBMENU_OPENING_KEYS;
 
     /**
      * Preferences whose summaries should be set to show their value.
-     * Set this to an array of preference key names, and they will
+     * Set this to an array of preference key ResIDs, and they will
      * automatically update and display their current value as a summary.
      */
-    protected String[] VALUE_SUMMARY_PREF_KEYS;
+    protected int[] VALUE_SUMMARY_PREF_KEYS;
 
     /**
      * Preferences whose summaries should reflect their unavailability
      * on the user's version of Android, if applicable.
      */
-    protected String[] VERSION_DEPENDENT_SUMMARY_PREF_KEYS;
+    protected int[] VERSION_DEPENDENT_SUMMARY_PREF_KEYS;
 
     /**
      * Add any custom onClick listeners here, mapping them to an array of
      * preference keys that the listener should be applied to.
      */
-    protected Map<Preference.OnPreferenceClickListener, String[]> prefClickListeners = new HashMap<>();
+    protected Map<Preference.OnPreferenceClickListener, int[]> prefClickListeners = new ArrayMap<>();
 
 
 
@@ -140,20 +142,24 @@ public abstract class SettingsFragment extends PreferenceFragment {
         // viewing preferences for the first time initialises them with their
         // defaults, causing a lot of onPreferenceChanged callbacks that
         // trigger this method call. So check the preferences are ready
-        if (!isInflated) {
+        if (!isInflated || getActivity() == null) {
             return;
         }
+        String keyName;
+
         // handle standard summary setting
         if (VALUE_SUMMARY_PREF_KEYS != null) {
-            for (String prefKey : VALUE_SUMMARY_PREF_KEYS) {
-                ListPreference pl = (ListPreference) findPreference(prefKey);
+            for (int keyResId : VALUE_SUMMARY_PREF_KEYS) {
+                keyName = getString(keyResId);
+                ListPreference pl = (ListPreference) findPreference(keyName);
                 pl.setSummary(pl.getEntry());
             }
         }
 
         if (VERSION_DEPENDENT_SUMMARY_PREF_KEYS != null) {
-            for (String key : VERSION_DEPENDENT_SUMMARY_PREF_KEYS) {
-                Preference p = findPreference(key);
+            for (int keyResId : VERSION_DEPENDENT_SUMMARY_PREF_KEYS) {
+                keyName = getString(keyResId);
+                Preference p = findPreference(keyName);
                 if (!p.isEnabled()) {
                     p.setSummary(getString(R.string.not_available_on_your_version));
                 }
@@ -181,15 +187,18 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
         // attach each listener to its associated preferences
         Preference tempPref;
-        for (Map.Entry<Preference.OnPreferenceClickListener, String[]> entry : prefClickListeners.entrySet()) {
-            String[] prefKeys = entry.getValue();
-            if (prefKeys != null) {
+        String keyName;
+
+        for (Map.Entry<Preference.OnPreferenceClickListener, int[]> entry : prefClickListeners.entrySet()) {
+            int[] prefKeyIds = entry.getValue();
+            if (prefKeyIds != null) {
                 Preference.OnPreferenceClickListener listener = entry.getKey();
-                for (String prefKey : prefKeys) {
-                    if ((tempPref = findPreference(prefKey)) != null) {
+                for (int keyResId : prefKeyIds) {
+                    keyName = getString(keyResId);
+                    if ((tempPref = findPreference(keyName)) != null) {
                         tempPref.setOnPreferenceClickListener(listener);
                     } else {
-                        Log.w(TAG, "Unable to set click listener on missing preference: " + prefKey);
+                        Log.w(TAG, "Unable to set click listener on missing preference: " + keyName);
                     }
                 }
             }
@@ -197,6 +206,10 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
     }
 
+    @NonNull
+    Preference findPrefById(@StringRes int prefKeyResId) {
+        return findPreference(getString(prefKeyResId));
+    }
 
 
     @Override

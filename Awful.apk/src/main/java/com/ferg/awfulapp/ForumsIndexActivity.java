@@ -73,6 +73,7 @@ import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
@@ -576,11 +577,11 @@ public class ForumsIndexActivity extends AwfulActivity {
                         }
                     })
                     .show();
-            mPrefs.setIntegerPreference("alert_id_shown", 1);
+            mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1);
         } else if (mPrefs.lastVersionSeen != versionCode) {
             Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode));
             ChangelogDialog.show(this);
-            mPrefs.setIntegerPreference("last_version_seen", versionCode);
+            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
     }
 

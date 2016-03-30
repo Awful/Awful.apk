@@ -9,8 +9,8 @@ public class ImageSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.imagesettings;
-        VALUE_SUMMARY_PREF_KEYS = new String[] {
-                "imgur_thumbnails"
+        VALUE_SUMMARY_PREF_KEYS = new int[] {
+                R.string.pref_key_imgur_thumbnails
         };
     }
 

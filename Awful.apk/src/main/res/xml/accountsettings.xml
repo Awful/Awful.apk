@@ -2,17 +2,17 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="username"
+        android:key="@string/pref_key_username"
         android:title="@string/username_pref"
         android:defaultValue="Username"
         />
     <Preference
-        android:key="account_features"
+        android:key="@string/pref_key_account_features_menu_item"
         android:title="@string/features"
         android:summary="@string/features_summary"
         />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:key="send_username_in_report"
+        android:key="@string/pref_key_send_username_in_report"
         android:title="@string/send_username_in_report"
         android:summary="@string/send_username_in_report_summary"
         android:defaultValue="true"

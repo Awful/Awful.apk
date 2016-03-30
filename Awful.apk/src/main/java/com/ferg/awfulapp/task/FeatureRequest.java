@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
@@ -38,17 +39,17 @@ public class FeatureRequest extends AwfulRequest<Void> {
                 archives = feature_dts.get(1).hasClass("enabled");
                 noads = feature_dts.get(2).hasClass("enabled");
                 try {
-                    getPreferences().setBooleanPreference("has_platinum", premium);
+                    getPreferences().setPreference(Keys.HAS_PLATINUM, premium);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {
-                    getPreferences().setBooleanPreference("has_archives", archives);
+                    getPreferences().setPreference(Keys.HAS_ARCHIVES, archives);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {
-                    getPreferences().setBooleanPreference("has_no_ads", noads);
+                    getPreferences().setPreference(Keys.HAS_NO_ADS, noads);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 /**
@@ -20,17 +21,17 @@ public class MiscSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.miscsettings;
-        VALUE_SUMMARY_PREF_KEYS = new String[] {
-                "orientation"
+        VALUE_SUMMARY_PREF_KEYS = new int[] {
+                R.string.pref_key_orientation
         };
-        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new String[] {
-                "disable_gifs2",
-                "enable_hardware_acceleration",
-                "immersion_mode",
-                "transformer"
+        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new int[] {
+                R.string.pref_key_disable_gifs,
+                R.string.pref_key_enable_hardware_acceleration,
+                R.string.pref_key_immersion_mode,
+                R.string.pref_key_transformer
         };
-        prefClickListeners.put(new P2RDistanceListener(), new String[] {
-                "pull_to_refresh_distance"
+        prefClickListeners.put(new P2RDistanceListener(), new int[] {
+                R.string.pref_key_pull_to_refresh_distance
         });
     }
 
@@ -38,22 +39,17 @@ public class MiscSettings extends SettingsFragment {
     @Override
     protected void initialiseSettings() {
         super.initialiseSettings();
-        SwitchPreference pref = (SwitchPreference) findPreference("enable_hardware_acceleration");
-        if (pref != null) {
-            pref.setEnabled(true);
-            // Not for you
-            if (!AwfulUtils.isJellybean()) pref.setChecked(false);
-        }
-        pref = (SwitchPreference) findPreference("disable_gifs2");
-        if (pref != null) {
-            pref.setEnabled(true);
-        }
+        Preference pref = findPrefById(R.string.pref_key_enable_hardware_acceleration);
+        pref.setEnabled(true);
+        // Not for you
+        if (!AwfulUtils.isJellybean()) ((SwitchPreference) pref).setChecked(false);
 
-        findPreference("immersion_mode").setEnabled(AwfulUtils.isKitKat());
+        findPrefById(R.string.pref_key_disable_gifs).setEnabled(true);
+        findPrefById(R.string.pref_key_immersion_mode).setEnabled(AwfulUtils.isKitKat());
         boolean tab = AwfulUtils.isTablet(getActivity(), true);
         boolean jellybeanMr1 = AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1);
-        findPreference("page_layout").setEnabled(tab);
-        findPreference("transformer").setEnabled(jellybeanMr1&&!tab);
+        findPrefById(R.string.pref_key_page_layout).setEnabled(tab);
+        findPrefById(R.string.pref_key_transformer).setEnabled(jellybeanMr1 && !tab);
 //        if(!tab){
 //            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
 //        }
@@ -66,14 +62,15 @@ public class MiscSettings extends SettingsFragment {
         String summary = getString(R.string.pull_to_refresh_distance_summary);
         summary += "\n" + String.valueOf(Math.round(mPrefs.p2rDistance * 100.f)) + "%";
         summary += " of the screen's height";
-        findPreference("pull_to_refresh_distance").setSummary(summary);
+        findPrefById(R.string.pref_key_pull_to_refresh_distance).setSummary(summary);
 
         // Thread layout option
-        ListPreference p = (ListPreference) findPreference("page_layout");
+        ListPreference p = (ListPreference) findPrefById(R.string.pref_key_page_layout);
         if (p.isEnabled()) {
             p.setSummary(p.getEntry());
+        } else {
+            p.setSummary(getString(R.string.page_layout_summary_disabled));
         }
-        else p.setSummary(getString(R.string.page_layout_summary_disabled));
     }
 
 
@@ -104,7 +101,7 @@ public class MiscSettings extends SettingsFragment {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     float distanceFloat = seekBar.getProgress();
-                    mPrefs.setFloatPreference("pull_to_refresh_distance", (distanceFloat/100));
+                    mPrefs.setPreference(Keys.P2R_DISTANCE, (distanceFloat / 100));
                 }
 
                 @Override

@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
@@ -37,7 +38,7 @@ public class ProfileRequest extends AwfulRequest<Void> {
         Element formkey = doc.getElementsByAttributeValue("name", "formkey").first();
         if (formkey != null) {
             try {
-                getPreferences().setStringPreference("ignore_formkey", formkey.val());
+                getPreferences().setPreference(Keys.IGNORE_FORMKEY, formkey.val());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -58,7 +59,7 @@ public class ProfileRequest extends AwfulRequest<Void> {
                 }
             }
             try {
-                getPreferences().setStringPreference("user_title", userTitle);
+                getPreferences().setPreference(Keys.USER_TITLE, userTitle);
             } catch (Exception e) {
                 e.printStackTrace();
             }
