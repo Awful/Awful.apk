@@ -124,10 +124,10 @@ public class PostActionsFragment extends AwfulDialogFragment {
 				startActivity(new Intent(getActivity(), MessageDisplayActivity.class).putExtra(Constants.PARAM_USERNAME, username));
 				break;
 			case QUOTE:
-				displayPostReplyDialog(threadId, Integer.parseInt(postId), AwfulMessage.TYPE_QUOTE);
+				parent.displayPostReplyDialog(threadId, Integer.parseInt(postId), AwfulMessage.TYPE_QUOTE);
 				break;
 			case EDIT:
-				displayPostReplyDialog(threadId, Integer.parseInt(postId), AwfulMessage.TYPE_EDIT);
+				parent.displayPostReplyDialog(threadId, Integer.parseInt(postId), AwfulMessage.TYPE_EDIT);
 				break;
 			case MARK_LAST_SEEN:
 				parent.markLastRead(Integer.parseInt(lastReadUrl));
