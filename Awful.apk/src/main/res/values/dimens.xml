@@ -6,5 +6,5 @@
 	<dimen name="app_minimumsize_w">316.0dip</dimen>
 	<dimen name="app_minimumsize_h">299.0dip</dimen>
     <dimen name="popup_size">140dp</dimen>
-    <dimen name="dialog_size">300dp</dimen>
+    <dimen name="dialog_size">280dp</dimen>
 </resources>

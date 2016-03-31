@@ -3,23 +3,26 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:minHeight="64dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+              android:paddingRight="24dp">
 
     <ImageView
         android:id="@+id/actionTag"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="12dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="12dp"/>
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:src="@android:drawable/ic_menu_share"
+        android:padding="12dp"/>
 
     <TextView
         android:id="@+id/actionTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/default_post_font"
-        android:textSize="20sp"
+        android:textSize="@dimen/abc_text_size_medium_material"
         android:maxLines="2"
         android:ellipsize="end"
         android:layout_gravity="center_vertical" />
