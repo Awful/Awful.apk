@@ -34,11 +34,14 @@
             	<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/index.php"/>
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/forumdisplay.php"/>
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/usercp.php"/>
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/bookmarkthreads.php"/>
-				<data android:scheme="http" android:host="forums.somethingawful.com" android:pathPrefix="/showthread.php"/>
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="forums.somethingawful.com" />
+				<data android:pathPrefix="/index.php"/>
+				<data android:pathPrefix="/forumdisplay.php"/>
+				<data android:pathPrefix="/usercp.php"/>
+				<data android:pathPrefix="/bookmarkthreads.php"/>
+				<data android:pathPrefix="/showthread.php"/>
             </intent-filter>
         </activity>
         <activity
