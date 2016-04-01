@@ -39,7 +39,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +66,6 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -501,7 +499,8 @@ public class ForumsIndexActivity extends AwfulActivity {
         }
 
         boolean displayIndex = false;
-        if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
+        String scheme = (getIntent().getData() == null) ? null : getIntent().getData().getScheme();
+        if ("http".equals(scheme) || "https".equals(scheme)) {
             url = AwfulURL.parse(getIntent().getDataString());
             switch (url.getType()) {
                 case FORUM:
