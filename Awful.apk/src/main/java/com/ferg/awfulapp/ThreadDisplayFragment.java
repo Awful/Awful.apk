@@ -1220,7 +1220,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		postActions.setTitle(url);
 		postActions.setParent(mSelf);
 		postActions.setUrl(url);
-		postActions.setActions(AwfulAction.getURLActions(url, isImage, (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))));
+		postActions.setActions(AwfulAction.getURLActions(url, isImage, (link.getLastPathSegment() != null && link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))));
 
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 		postActions.show(mSelf.getFragmentManager(), "Link Actions");
