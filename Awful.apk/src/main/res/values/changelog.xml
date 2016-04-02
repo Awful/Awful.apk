@@ -2,6 +2,30 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.3.0:\n
+            - Now with less action menu crashes.
+            - HTTPS link handling
+        </item>
+        <item>
+            3.2.2.3:\n
+            - This changelog.\n
+            - New action menu for the post menu (Those three dots. No the other ones, the ones on every post). Much more customizable, no more reporting your own posts or marking yourself. Fix that removes the option to send PMs to non-plat users coming soon.\n
+            - Some backend fixes\n
+        </item>
+        <item>
+            3.2.2.2:\n
+            - Made some changes to combat the webm performance issues brought by the webview update: No information is preloaded so they might take a bit longer to start. Imgur webms have a thumbnail to alleviate that. Quoted webms no longer autoplay.\n
+            - Updated some libraries for a tiny bit more performance\n
+            - Fixed search results taking up an entire screen\n
+        </item>
+        <item>
+            3.2.2.1\n
+            - Fix for empty threadview when returning to the app\n
+            - Fix for threadview not responding when viewing thread with many webms\n
+            - Dark theme split into dark and Oled\n
+            - Theming changes here and there \n
+        </item>
+        <item>
             3.2.2.0\n
             - added Search for plat users ( beta! - I mean OLD!)\n
             - Load forums via SSL\n
@@ -10,10 +34,6 @@
             - Fixed FYAD GIF avatars\n
             - fixed and improved marking users (including fixing a crash when importing settings with marked users)\n
             - more thread tags
-        </item>
-
-        <item>
-            Some earlier version
         </item>
     </string-array>
 </resources>
