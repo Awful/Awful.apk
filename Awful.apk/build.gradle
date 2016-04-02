@@ -19,11 +19,12 @@ repositories {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
+        resConfigs "en"
 
         // Stops the Gradle plugin’s automatic rasterization of vectors
         generatedDensities = []
@@ -45,8 +46,16 @@ android {
     }
 
     buildTypes{
+
+        debug{
+            minifyEnabled false
+            shrinkResources true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+        }
+
         release{
             minifyEnabled false
+            shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
