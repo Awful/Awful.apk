@@ -114,8 +114,9 @@ import com.ferg.awfulapp.util.AwfulUtils;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1208,19 +1209,32 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 
 	
-	private void showUrlMenu(final String url){
-		final Uri link = Uri.parse(url);
-		final boolean isImage = link != null && link.getLastPathSegment() != null && (link.getLastPathSegment().contains(".jpg") 
-				|| link.getLastPathSegment().contains(".jpeg") 
-				|| link.getLastPathSegment().contains(".png") 
-				|| (link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))
-				);
+	private void showUrlMenu(final String url) {
+		if (url == null) {
+			Log.w(TAG, "Passed null URL to #showUrlMenu!");
+			return;
+		}
+
+		boolean isImage = false;
+		boolean isGif = false;
+		// TODO: parsing fails on magic webdev urls like http://tpm2016.zoffix.com/#/40
+		// it thinks the # is the start of the ref section of the url, so the Path for that url is '/'
+		String lastSegment = Uri.parse(url).getLastPathSegment();
+		// null-safe path checking (there may be no path segments, e.g. a link to a domain name)
+		if (lastSegment != null) {
+			lastSegment = lastSegment.toLowerCase();
+			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
+			isImage = StringUtils.containsAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif")
+					&& !StringUtils.contains(lastSegment, ".gifv");
+			isGif = StringUtils.contains(lastSegment, ".gif")
+					&& !StringUtils.contains(lastSegment, ".gifv");
+		}
 
 		PostActionsFragment postActions = new PostActionsFragment();
 		postActions.setTitle(url);
 		postActions.setParent(mSelf);
 		postActions.setUrl(url);
-		postActions.setActions(AwfulAction.getURLActions(url, isImage, (link.getLastPathSegment() != null && link.getLastPathSegment().contains(".gif") && !link.getLastPathSegment().contains(".gifv"))));
+		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
 
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 		postActions.show(mSelf.getFragmentManager(), "Link Actions");
