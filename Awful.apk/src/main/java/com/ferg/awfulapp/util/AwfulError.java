@@ -167,9 +167,9 @@ public class AwfulError extends VolleyError{
                 }
             }
         }else{
-            if(AwfulPreferences.getInstance().probationTime > 0) {
+            if(AwfulPreferences.getInstance().probationTime > 0L) {
                 try {
-                    prefs.setPreference(Keys.PROBATION_TIME, 0);
+                    prefs.setPreference(Keys.PROBATION_TIME, 0L);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
