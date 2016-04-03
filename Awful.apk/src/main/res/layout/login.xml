@@ -70,7 +70,6 @@
         android:layout_below="@+id/login_text_container"
         android:background="#AAFFFFFF"
         android:drawablePadding="15dip"
-        android:drawableRight="@drawable/ic_arrow_forward"
         android:padding="15dip"
         android:text="@string/login" />
 
