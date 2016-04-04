@@ -2,6 +2,10 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.3.0c:\n
+            - Now actually including the changes from 3.2.3.0b
+        </item>
+        <item>
             3.2.3.0b:\n
             - Fixed a few crashes on older phones.\n
             - Fixed a bug where the app would crash at the end of the probation period. If it\'s still crashing you\'ll need to clear the app data. Serves you right for posting badly tough :colbert:
