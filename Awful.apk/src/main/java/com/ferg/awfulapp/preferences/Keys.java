@@ -117,7 +117,10 @@ public abstract class Keys {
             HIDE_SIGNATURES,
             AMBER_DEFAULT_POS,
             HIDE_IGNORED_POSTS,
-            IMMERSION_MODE
+            IMMERSION_MODE,
+            FORUM_INDEX_SHOW_SECTIONS,
+            FORUM_INDEX_SHOW_SUBTITLES,
+            FORUM_INDEX_HIDE_SUBFORUMS
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface BooleanPreference{}
@@ -188,6 +191,9 @@ public abstract class Keys {
     public static final int AMBER_DEFAULT_POS = R.string.pref_key_amber_default_pos;
     public static final int HIDE_IGNORED_POSTS = R.string.pref_key_hide_ignored_posts;
     public static final int IMMERSION_MODE = R.string.pref_key_immersion_mode;
+    public static final int FORUM_INDEX_SHOW_SECTIONS = R.string.pref_key_forum_index_show_section_headers;
+    public static final int FORUM_INDEX_SHOW_SUBTITLES = R.string.pref_key_forum_index_show_subtitles;
+    public static final int FORUM_INDEX_HIDE_SUBFORUMS = R.string.pref_key_forum_index_hide_subforums;
 
     public static final int MARKED_USERS = R.string.pref_key_marked_users;
 

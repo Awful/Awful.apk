@@ -14,6 +14,7 @@ import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.sync.SyncManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +69,8 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 					.penaltyDeath()
 					.build());
 		}
+
+		SyncManager.sync(this);
     }
 
 	public void setFontFromPreference(TextView textView, int flags){

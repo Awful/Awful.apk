@@ -25,6 +25,10 @@
             android:fragment="com.ferg.awfulapp.preferences.fragments.ThemeSettings"
             android:title="@string/theme_settings" />
         <Preference
+            android:key="@string/pref_key_forum_index_menu_item"
+            android:fragment="com.ferg.awfulapp.preferences.fragments.ForumIndexSettings"
+            android:title="@string/forum_index_settings" />
+        <Preference
             android:key="@string/pref_key_thread_menu_item"
             android:fragment="com.ferg.awfulapp.preferences.fragments.ThreadSettings"
             android:title="@string/thread_settings" />

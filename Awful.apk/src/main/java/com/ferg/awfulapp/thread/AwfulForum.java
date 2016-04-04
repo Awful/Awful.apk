@@ -30,23 +30,11 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.graphics.Typeface;
-import android.media.Image;
 import android.net.Uri;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.android.volley.toolbox.NetworkImageView;
-import com.ferg.awfulapp.ForumsIndexFragment.ForumEntry;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.provider.ColorProvider;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -106,63 +94,6 @@ public class AwfulForum extends AwfulPagedItem {
         }
 	}
 
-	public static void processForums(Document response, ContentResolver contentInterface){
-
-		ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-
-		String update_time = new Timestamp(System.currentTimeMillis()).toString();
-
-		ContentValues bookmarks = new ContentValues();
-		bookmarks.put(ID, Constants.USERCP_ID);
-		bookmarks.put(TITLE, "Bookmarks");
-		bookmarks.put(PARENT_ID, 0);
-		bookmarks.put(INDEX, 0);
-		bookmarks.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, 0), bookmarks, null, null) < 1){
-			result.add(bookmarks);
-		}
-
-		int ix = 1;
-
-		Elements forums = response.getElementsByClass("forum_jump").first().getElementsByTag("select").first().getElementsByTag("option");
-		if(forums == null){
-			Log.e(TAG,"Error updating Forums, aborting");
-			return;
-		}
-		int currentForum = 0;
-		for (Element option : forums) {
-			if (option.text().contains("-- ")) {
-				ContentValues forum = new ContentValues();
-				int cutAway = 0;
-				if (option.text().startsWith("-- ")) {
-					currentForum = Integer.parseInt(option.val());
-					forum.put(PARENT_ID, 0);
-					cutAway = 3;
-				} else {
-					if (option.text().startsWith("---- ")) {
-						cutAway = 5;
-					} else {
-						cutAway = 7;
-					}
-					forum.put(PARENT_ID, currentForum);
-				}
-				forum.put(TITLE, option.text().substring(cutAway));
-				forum.put(INDEX, ix);
-				forum.put(ID, option.val());
-				forum.put(SUBTEXT, "");
-				forum.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-				ix++;
-
-				if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Long.parseLong(option.val())), forum, null, null) < 1){
-					result.add(forum);
-				}
-			}
-		}
-		if(result.size() > 1){
-			Log.i(TAG, "Deleted old forums: " + contentInterface.delete(AwfulForum.CONTENT_URI, AwfulProvider.UPDATED_TIMESTAMP + "!=?", new String[]{update_time}));
-			contentInterface.bulkInsert(AwfulForum.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
-		}
-	}
 	
 	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
 		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), forumId);
@@ -235,31 +166,4 @@ public class AwfulForum extends AwfulPagedItem {
 		return title;
 	}
 
-	/**
-	 * This function takes a thread list item and reuses it as a subforum item.
-	 * This is a hack to make a single cursor listadapter successfully combine thread and subforum items.
-	 * @param current
-	 * @param aPrefs
-	 * @param data
-	 * @param selected
-	 */	
-	public static void getExpandableForumView(View current, AwfulPreferences aPrefs, ForumEntry data, boolean selected, boolean hasChildren) {
-		TextView title = (TextView) current.findViewById(R.id.forum_title);
-		title.setTypeface(null, Typeface.BOLD);
-		String titleText = (data.title != null ? data.title : "");
-		TextView forumTitle = (TextView) current.findViewById(R.id.forum_title);
-		forumTitle.setTextColor(ColorProvider.getTextColor());
-		forumTitle.setText(titleText);
-		forumTitle.setSingleLine(!aPrefs.wrapThreadTitles);
-		NetworkImageView forumTag = (NetworkImageView) current.findViewById(R.id.forum_tag);
-
-		if(hasChildren) {
-			if (aPrefs.threadInfo_Tag && data.tagUrl != null) {
-				forumTag.setVisibility(View.VISIBLE);
-				forumTag.setImageUrl(data.tagUrl, NetworkUtils.getImageLoader());
-			} else {
-				forumTag.setVisibility(View.GONE);
-			}
-		}
-	}
 }

@@ -110,4 +110,17 @@
         <item name="android:alpha">0.75</item>
     </style>
 
+    <style name="ForumListTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">left</item>
+        <item name="android:textColor">@color/default_post_font</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ForumListTitle.Subtitle">
+        <item name="android:textColor">@color/secondary_post_font</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>

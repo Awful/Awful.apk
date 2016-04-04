@@ -144,6 +144,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean threadInfo_Rating;
     public boolean threadInfo_Tag;
     public boolean wrapThreadTitles;
+	public boolean forumIndexShowSections;
+	public boolean forumIndexShowSubtitles;
+	public boolean forumIndexHideSubforums;
 
     //EXPERIMENTAL STUFF
     public boolean inlineYoutube;
@@ -304,6 +307,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		amberDefaultPos  		 = getPreference(Keys.AMBER_DEFAULT_POS, false);
 		hideIgnoredPosts  		 = getPreference(Keys.HIDE_IGNORED_POSTS, false);
 		markedUsers = getPreference(Keys.MARKED_USERS, new HashSet<String>());
+		forumIndexShowSections = getPreference(Keys.FORUM_INDEX_SHOW_SECTIONS, true);
+		forumIndexShowSubtitles = getPreference(Keys.FORUM_INDEX_SHOW_SUBTITLES, true);
+		forumIndexHideSubforums = getPreference(Keys.FORUM_INDEX_HIDE_SUBFORUMS, true);
 
         //I have never seen this before oh god
     }

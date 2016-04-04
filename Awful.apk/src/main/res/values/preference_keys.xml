@@ -64,6 +64,10 @@
     <string name="pref_key_immersion_mode">immersion_mode</string>
     <string name="pref_key_marked_users">marked_users</string>
 
+    <string name="pref_key_forum_index_show_subtitles">forum_index_show_subtitles</string>
+    <string name="pref_key_forum_index_show_section_headers">forum_index_show_section_headers</string>
+    <string name="pref_key_forum_index_hide_subforums">forum_index_hide_subforums</string>
+
 
     <!--keys for preferences that don't store a value (i.e. settings menu items that act as buttons)-->
     <string name="pref_key_account_features_menu_item">account features</string>
@@ -71,6 +75,7 @@
     <string name="pref_key_changelog_menu_item">changelog</string>
     <string name="pref_key_open_thread_menu_item">open_thread</string>
     <string name="pref_key_account_menu_item">account</string>
+    <string name="pref_key_forum_index_menu_item">forum_index_menu_item</string>
     <string name="pref_key_theme_menu_item">theme</string>
     <string name="pref_key_thread_menu_item">thread</string>
     <string name="pref_key_posts_menu_item">posts</string>
@@ -79,4 +84,5 @@
     <string name="pref_key_export_settings_menu_item">export_settings</string>
     <string name="pref_key_import_settings_menu_item">import_settings</string>
     <string name="pref_key_highlighting_menu_item">highlighting</string>
+    <string name="pref_key_update_forums_menu_item">update_forums</string>
 </resources>

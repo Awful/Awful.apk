@@ -29,6 +29,7 @@ public class RootSettings extends SettingsFragment {
 
         SUBMENU_OPENING_KEYS = new int[] {
                 R.string.pref_key_theme_menu_item,
+                R.string.pref_key_forum_index_menu_item,
                 R.string.pref_key_thread_menu_item,
                 R.string.pref_key_posts_menu_item,
                 R.string.pref_key_images_menu_item,

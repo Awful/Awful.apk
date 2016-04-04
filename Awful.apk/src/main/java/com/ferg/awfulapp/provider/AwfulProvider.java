@@ -61,7 +61,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 31;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -386,7 +386,10 @@ public class AwfulProvider extends ContentProvider {
 				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
 				createPMTable(aDb);
 				createPostTable(aDb);
-                    break;//make sure to keep this break statement on the last case of this switch
+			case 30:
+		    	aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+		    	createForumTable(aDb);
+		    	break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
         	}

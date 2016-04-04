@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+    <include
+        android:id="@+id/probationbar"
+        layout="@layout/probationbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        />
+
+    <ViewSwitcher
+        android:id="@+id/view_switcher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/icon"
+                android:tint="?attr/listDividerColor"/>
+
+            <ProgressBar
+                android:id="@+id/forums_update_progress_bar"
+                style="@style/Base.Widget.AppCompat.ProgressBar"
+                android:indeterminateOnly="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:contentDescription="@string/updating_forums"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/forums_update_progress_bar"
+                android:layout_centerHorizontal="true"
+                android:text="@string/no_forums_data"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+        </RelativeLayout>
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/forum_index_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/probationbar"
+            android:cacheColorHint="@color/background"
+            android:divider="?attr/listDividerColor"
+            android:dividerHeight="1dp"
+            android:drawSelectorOnTop="false"
+            android:groupIndicator="@android:color/transparent"
+            android:visibility="visible"
+            />
+
+    </ViewSwitcher>
+
+    <com.ferg.awfulapp.widget.AwfulProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>
