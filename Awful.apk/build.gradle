@@ -4,7 +4,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.0.0'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -67,8 +67,8 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.6.2'
@@ -81,7 +81,7 @@ dependencies {
     compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32@aar'
     compile 'com.github.orangegangsters:swipy:1.2.2@aar'
 //    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
 }
