@@ -10,10 +10,6 @@ body {
 margin: 8px 0;
 }
 
-#container {
-    padding-bottom: 55px !important;
-}
-
 div.avatar {
 position:relative;
 display: table-cell;
