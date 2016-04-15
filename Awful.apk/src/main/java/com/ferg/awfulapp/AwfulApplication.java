@@ -1,16 +1,8 @@
 package com.ferg.awfulapp;
 
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
-
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
-
 import android.app.Application;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.StrictMode;
 import android.util.Log;
@@ -18,7 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Set;
+
+import io.fabric.sdk.android.Fabric;
 
 public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static final String TAG = "AwfulApplication";
@@ -31,13 +33,26 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     public void onCreate() {
         super.onCreate();
 		NetworkUtils.init(this);
-        Fabric.with(this, new Crashlytics());
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref,null);
 
-        if(mPref.sendUsernameInReport){
-			Crashlytics.setUserName(mPref.username);
-        }
+		// work out how long it's been since the app was updated
+		long hoursSinceInstall = Long.MAX_VALUE;
+		try {
+			PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			long millisSinceInstall = System.currentTimeMillis() - packageInfo.lastUpdateTime;
+			hoursSinceInstall = TimeUnit.HOURS.convert(millisSinceInstall, TimeUnit.MILLISECONDS);
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		Log.i(TAG, String.format("App installed %d hours ago", hoursSinceInstall));
+		// enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
+		if (!Constants.DEBUG || hoursSinceInstall > 4) {
+			Fabric.with(this, new Crashlytics());
+			if(mPref.sendUsernameInReport){
+				Crashlytics.setUserName(mPref.username);
+			}
+		}
 
 		if (Constants.DEBUG) {
 			Log.d("DEBUG!", "*\n*\n*Debug active\n*\n*");

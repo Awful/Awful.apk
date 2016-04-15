@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
-import android.webkit.CookieManager;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulLoginActivity;
 import com.ferg.awfulapp.R;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
@@ -111,10 +109,6 @@ public class AwfulError extends VolleyError{
 
             Log.w(TAG, "HttpClient CookieStore dump:");
             NetworkUtils.logCookies();
-
-            CookieManager ckiemonster = CookieManager.getInstance();
-            String cookie = ckiemonster.getCookie(Constants.COOKIE_DOMAIN);
-            Log.w(TAG, "WebView CookieManager cookie for COOKIE_DOMAIN:" + cookie);
 
             // TODO fix the actual problem, probably repeated network requests in a short space of time
             if (!NetworkUtils.dodgeLogoutBullet()) {
