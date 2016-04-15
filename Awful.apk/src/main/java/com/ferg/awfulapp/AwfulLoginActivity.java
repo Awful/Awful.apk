@@ -73,10 +73,6 @@ public class AwfulLoginActivity extends AwfulActivity {
         NetworkUtils.logCookies();
 
         mLogin = (Button) findViewById(R.id.login);
-        // hack to set 'drawableRight' to a vector drawable, the support library doesn't have a compat attribute in xml yet
-        if (mLogin != null) {
-            mLogin.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_forward, 0);
-        }
         mUsername = (EditText) findViewById(R.id.username);
         mPassword = (EditText) findViewById(R.id.password);
         mPassword.setOnEditorActionListener(new OnEditorActionListener() {
