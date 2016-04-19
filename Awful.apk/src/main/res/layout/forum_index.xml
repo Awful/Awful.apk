@@ -8,10 +8,11 @@
     <include
         android:id="@+id/probationbar"
         layout="@layout/probationbar"
-        android:layout_height="wrap_content"
+        android:layout_height="50dip"
         android:layout_width="fill_parent"
         android:layout_alignParentTop="true"
         />
+
     <com.ferg.awfulapp.widget.SwipyRefreshLayout
         android:id="@+id/index_swipe"
         android:layout_width="match_parent"
