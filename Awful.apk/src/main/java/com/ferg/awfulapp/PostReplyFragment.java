@@ -52,6 +52,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -903,6 +904,7 @@ public class PostReplyFragment extends AwfulFragment {
             return;
         }
         final PreviewFragment previewFrag = new PreviewFragment();
+        previewFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         previewFrag.show(getFragmentManager(),"Post Preview");
         AwfulRequest.AwfulResultCallback previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
             @Override

@@ -24,8 +24,9 @@ import java.util.ArrayList;
 public class PreviewEditRequest extends AwfulRequest<String> {
     public PreviewEditRequest(Context context, ContentValues reply) {
         super(context, null);
-        addPostParam(Constants.PARAM_ACTION, "postreply");
-        addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(reply.getAsInteger(AwfulMessage.ID)));
+        addPostParam(Constants.PARAM_ACTION, "updatepost");
+        addPostParam(Constants.PARAM_POST_ID, Integer.toString(reply.getAsInteger(AwfulPost.EDIT_POST_ID)));
+        Log.e(TAG,Constants.PARAM_POST_ID +": " + Integer.toString(reply.getAsInteger(AwfulPost.EDIT_POST_ID)));
         addPostParam(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(reply.getAsString(AwfulMessage.REPLY_CONTENT)));
         addPostParam(Constants.PARAM_PARSEURL, Constants.YES);
         if(reply.containsKey(AwfulPost.FORM_BOOKMARK) && reply.getAsString(AwfulPost.FORM_BOOKMARK).equalsIgnoreCase("checked")){
@@ -37,10 +38,6 @@ public class PreviewEditRequest extends AwfulRequest<String> {
         if(reply.containsKey(AwfulMessage.REPLY_DISABLE_SMILIES)){
             addPostParam(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
         }
-        if(reply.containsKey(AwfulMessage.REPLY_ATTACHMENT)){
-            Toast.makeText(context, "Attaching: " + reply.getAsString(AwfulMessage.REPLY_ATTACHMENT), Toast.LENGTH_LONG).show();
-            attachFile(Constants.PARAM_ATTACHMENT, reply.getAsString(AwfulMessage.REPLY_ATTACHMENT));
-        }
         addPostParam(Constants.PARAM_SUBMIT, Constants.SUBMIT_REPLY);
         addPostParam(Constants.PARAM_PREVIEW, Constants.PREVIEW_REPLY);
 
@@ -49,7 +46,7 @@ public class PreviewEditRequest extends AwfulRequest<String> {
 
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
-        return Constants.FUNCTION_POST_REPLY;
+        return Constants.FUNCTION_EDIT_POST;
     }
 
     @Override
