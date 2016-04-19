@@ -24,8 +24,6 @@ import java.util.ArrayList;
 public class PreviewEditRequest extends AwfulRequest<String> {
     public PreviewEditRequest(Context context, ContentValues reply) {
         super(context, null);
-        addPostParam(Constants.PARAM_ACTION, "postreply");
-        addPostParam(Constants.PARAM_THREAD_ID, Integer.toString(reply.getAsInteger(AwfulMessage.ID)));
         addPostParam(Constants.PARAM_ACTION, "updatepost");
         addPostParam(Constants.PARAM_POST_ID, Integer.toString(reply.getAsInteger(AwfulPost.EDIT_POST_ID)));
         Log.e(TAG,Constants.PARAM_POST_ID +": " + Integer.toString(reply.getAsInteger(AwfulPost.EDIT_POST_ID)));
