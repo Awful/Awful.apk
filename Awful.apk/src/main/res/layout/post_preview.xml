@@ -12,6 +12,8 @@
             android:id="@+id/post_pre_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:visibility="gone" />
     </android.support.v4.widget.NestedScrollView>
 

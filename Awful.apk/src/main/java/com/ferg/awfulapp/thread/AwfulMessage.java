@@ -29,6 +29,7 @@ package com.ferg.awfulapp.thread;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.GradientDrawable;
@@ -52,7 +53,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 /**
  * SA Private Messages.
@@ -270,8 +275,11 @@ public class AwfulMessage extends AwfulPagedItem {
         }
 		return reply;
 	}
-	
 	public static String getMessageHtml(String content, AwfulPreferences pref){
+		return getMessageHtml(content,pref,false);
+	}
+	
+	public static String getMessageHtml(String content, AwfulPreferences pref, boolean loadInline){
 		if(content!=null){
 			StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
 	        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
@@ -279,12 +287,23 @@ public class AwfulMessage extends AwfulPagedItem {
 	        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
 	        buffer.append("<meta name='format-detection' content='address=no' />\n");
 			for (String scriptName : AwfulThread.JS_FILES) {
-				buffer.append("<script src='file:///android_asset/")
-						.append(scriptName)
-						.append("' type='text/javascript'></script>\n");
+				if(loadInline){
+//					buffer.append("<script type='text/javascript'>\n");
+//					buffer.append(getAsset(scriptName,pref.getContext()));
+//					buffer.append("</script>\n");
+				}else {
+					buffer.append("<script src='file:///android_asset/")
+							.append(scriptName)
+							.append("' type='text/javascript'></script>\n");
+				}
 			}
-	        buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
-
+			if(loadInline) {
+				buffer.append("<style type='text/css'>\n");
+				buffer.append(getAsset(AwfulUtils.determineCSS(0).replace("file:///android_asset/",""),pref.getContext()));
+				buffer.append("</style>\n");
+			}else{
+				buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
+			}
 	        if(!pref.preferredFont.contains("default")){
 	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
 	        }
@@ -298,4 +317,35 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 		return "";
 	}
+
+
+	private static String getAsset(String fileName, Context context) {
+		StringBuilder result = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(
+					new InputStreamReader(context.getAssets().open(fileName), "UTF-8"));
+
+			// do reading, usually loop until end of file reading
+			String mLine;
+			while ((mLine = reader.readLine()) != null) {
+				//process line
+				result.append(mLine);
+				result.append(System.getProperty("line.separator"));
+			}
+		} catch (IOException e) {
+			//log the exception
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					//log the exception
+				}
+			}
+		}
+		return result.toString();
+	}
+
+
 }
