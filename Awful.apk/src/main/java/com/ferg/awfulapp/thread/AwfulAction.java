@@ -34,7 +34,7 @@ public class AwfulAction {
         }else{
             awfulActions.add(new AwfulAction(ActionType.USER_POSTS, R.drawable.ic_user_posts_dark, "Show only your posts"));
         }
-        if (prefs.hasPlatinum && isAdminOrMod && !username.equals(prefs.username)) {
+        if (prefs.hasPlatinum && !isAdminOrMod && !username.equals(prefs.username)) {
             awfulActions.add(new AwfulAction(ActionType.REPORT_POST, R.drawable.ic_error_dark, "Report Post"));
         }
         awfulActions.add(new AwfulAction(ActionType.COPY_URL, R.drawable.ic_share_dark, "Copy URL"));

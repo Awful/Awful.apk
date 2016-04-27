@@ -1109,7 +1109,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastreadurl, final boolean editable, final boolean isAdminOrMod) {
-			Log.e(TAG,aPostId+" "+ aUsername+" "+ aUserId+" "+ lastreadurl+" "+ editable +" "+ isAdminOrMod);
 			PostActionsFragment postActions = new PostActionsFragment();
 			postActions.setTitle("Select an Action");
 			postActions.setParent(mSelf);
