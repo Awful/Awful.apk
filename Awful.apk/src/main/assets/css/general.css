@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'icons';
+    src: url('iconfont.ttf');
+}
+
 .playGif {
   position: relative;
     display: inline-block;
@@ -25,4 +30,11 @@
 .playGif img{
     opacity: 0.5;
     background-color: rgba(180,180,180);
+}
+
+
+aside.postinfo-poster .icon-gren:before {
+    font-family: 'icons' !important;
+    content: "\e900";
+    -webkit-font-smoothing: antialiased;
 }

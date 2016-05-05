@@ -71,7 +71,8 @@ function pageinit() {
             $(this).attr('userid'),
             $(this).attr('lastreadurl'),
             $(this)[0].hasAttribute("editable"),
-            ($(this)[0].hasAttribute("isMod") || $(this)[0].hasAttribute("isAdmin"))
+            ($(this)[0].hasAttribute("isMod") || $(this)[0].hasAttribute("isAdmin")),
+            $(this)[0].hasAttribute("isPlat")
          );
     });
 

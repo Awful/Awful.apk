@@ -488,7 +488,8 @@ public class AwfulThread extends AwfulPagedItem  {
         	postData.put("postDate", post.getDate());
         	postData.put("regDate", post.getRegDate());
         	postData.put("mod", (post.isMod()) ? "mod" : null);
-        	postData.put("admin", (post.isAdmin()) ? "admin" : null);
+            postData.put("admin", (post.isAdmin()) ? "admin" : null);
+            postData.put("plat", (post.isPlat()) ? "plat" : null);
         	postData.put("avatarText", ""+post.getAvatarText());
         	postData.put("lastReadUrl", post.getLastReadUrl());
         	postData.put("notOnProbation",(aPrefs.isOnProbation()) ? null : "notOnProbation");

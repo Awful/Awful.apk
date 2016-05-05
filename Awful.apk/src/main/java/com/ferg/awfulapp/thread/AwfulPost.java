@@ -77,6 +77,7 @@ public class AwfulPost {
     public static final String IS_OP                 = "is_op";
     public static final String IS_ADMIN              = "is_admin";
     public static final String IS_MOD                = "is_mod";
+    public static final String IS_PLAT               = "is_plat";
     public static final String AVATAR                = "avatar";
 	public static final String AVATAR_TEXT 			 = "avatar_text";
     public static final String CONTENT               = "content";
@@ -111,6 +112,7 @@ public class AwfulPost {
     private boolean isOp = false;
     private boolean isAdmin = false;
     private boolean isMod = false;
+    private boolean isPlat = false;
 
 
     public JSONObject toJSON() throws JSONException {
@@ -126,6 +128,7 @@ public class AwfulPost {
         result.put("lastReadUrl", mLastReadUrl);
         result.put("editable", Boolean.toString(mEditable));
         result.put("isOp", Boolean.toString(isOp()));
+        result.put("isPlat", Boolean.toString(isPlat()));
 
         return result;
     }
@@ -141,7 +144,11 @@ public class AwfulPost {
     public boolean isMod() {
     	return isMod;
     }
-    
+
+    public boolean isPlat() {
+        return isPlat;
+    }
+
     public String getId() {
         return mId;
     }
@@ -202,6 +209,10 @@ public class AwfulPost {
         isMod = aIsMod;
     }
 
+    public void setIsPlat(boolean plat) {
+        isPlat = plat;
+    }
+
     public String getAvatar() {
         return mAvatar;
     }
@@ -234,6 +245,7 @@ public class AwfulPost {
             int isOpIndex = aCursor.getColumnIndex(IS_OP);
             int isAdminIndex = aCursor.getColumnIndex(IS_ADMIN);
             int isModIndex = aCursor.getColumnIndex(IS_MOD);
+            int isPlatIndex = aCursor.getColumnIndex(IS_PLAT);
             int avatarIndex = aCursor.getColumnIndex(AVATAR);
             int avatarTextIndex = aCursor.getColumnIndex(AVATAR_TEXT);
             int contentIndex = aCursor.getColumnIndex(CONTENT);
@@ -255,6 +267,7 @@ public class AwfulPost {
                 current.setIsOp(aCursor.getInt(isOpIndex) == 1);
                 current.setIsAdmin(aCursor.getInt(isAdminIndex) > 0);
                 current.setIsMod(aCursor.getInt(isModIndex) > 0);
+                current.setIsPlat(aCursor.getInt(isPlatIndex) > 0);
                 current.setAvatar(aCursor.getString(avatarIndex));
                 current.setAvatarText(aCursor.getString(avatarTextIndex));
                 current.setContent(aCursor.getString(contentIndex));
@@ -483,19 +496,24 @@ public class AwfulPost {
             //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
 			post.put(IS_MOD, 0);
             post.put(IS_ADMIN, 0);
+            post.put(IS_PLAT, 0);
             
             //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
             Elements postClasses = postData.getElementsByAttribute("class");
             for(Element entry: postClasses){
             	String type = entry.attr("class");
-            	
-            	if (type.contains("author")) {
-					post.put(USERNAME, entry.text().trim());
-				}
+
+                if (type.contains("author")) {
+                    post.put(USERNAME, entry.text().trim());
+                }
             	
             	if (type.contains("registered")) {
 					post.put(REGDATE, entry.text().trim());
 				}
+
+                if (type.contains("platinum")) {
+                    post.put(IS_PLAT, 1);
+                }
 
 				if (type.contains("role-mod")) {
 					post.put(IS_MOD, 1);

@@ -8,12 +8,12 @@
      			</div>
      		</div>
  			{{/avatarURL }}
- 			<aside class="postinfo-poster">{{ username }} {{# mod }}<img src="file:///android_res/drawable/ic_star_blue.png" />{{/mod }} {{# admin }}<img src="file:///android_res/drawable/ic_star_red.png" />{{/admin }} </aside>
+ 			<aside class="postinfo-poster"><span>{{ username }} {{# mod }}<img src="file:///android_res/drawable/ic_star_blue.png" />{{/mod }} {{# admin }}<img src="file:///android_res/drawable/ic_star_red.png" />{{/admin }} </span> {{^ admin }}{{^ mod }}{{# plat }}<span class="icon-gren"></span>{{/plat }}{{/mod }}{{/admin }}</aside>
  			<time class="postinfo-postdate">{{ postDate }}</time>
 			{{# regDate }}<time class="postinfo-regdate">Reg Date: {{ regDate }}</time>{{/regDate}}
 			<aside class="postinfo-title">{{{ avatarText }}}</aside>
 		</section >
-		<nav class="postmenu" username="{{ username }}" userid="{{ userID }}" lastreadurl="{{ lastReadUrl }}" {{# editable }}editable{{/editable }} {{# mod }}isMod{{/mod }} {{# admin }}isAdmin{{/admin }} ></nav>
+		<nav class="postmenu" username="{{ username }}" userid="{{ userID }}" lastreadurl="{{ lastReadUrl }}" {{# editable }}editable{{/editable }} {{# mod }}isMod{{/mod }} {{# admin }}isAdmin{{/admin }} {{# plat }}isPlat{{/plat }} ></nav>
 		</header>
 	<section  class="postcontent">
 		{{{ postcontent }}}

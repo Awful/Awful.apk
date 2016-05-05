@@ -73,6 +73,7 @@ public class AwfulMessage extends AwfulPagedItem {
     public static final String DATE 	="message_date";
     public static final String EPOC_TIMESTAMP = "epoc_timestamp";
 	public static final String TYPE = "message_type";
+	public static final String ICON = "icon";
 	public static final String UNREAD = "unread_message";
 	public static final String RECIPIENT = "recipient";
 	public static final String REPLY_CONTENT = "reply_content";
@@ -107,23 +108,40 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 
         ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
+		ImageView overlay = (ImageView) current.findViewById(R.id.thread_tag_overlay);
+		overlay.setVisibility(View.GONE);
 
 		unreadPM.setVisibility(View.VISIBLE);
-
+		int iconResource;
 		switch (data.getInt(data.getColumnIndex(UNREAD))){
 			default:
 			case 0:
 				//unread
-				unreadPM.setImageResource(R.drawable.ic_drafts_dark);
+				iconResource = R.drawable.ic_drafts_dark;
 				break;
 			case 1:
 				//read
-				unreadPM.setImageResource(R.drawable.ic_mail_dark);
+				iconResource = R.drawable.ic_mail_dark;
 				break;
 			case 2:
 				//replied
-				unreadPM.setImageResource(R.drawable.ic_reply_dark);
+				iconResource = R.drawable.ic_reply_dark;
 				break;
+		}
+		String icon = data.getString(data.getColumnIndex(ICON));
+		if(icon != null && !icon.isEmpty()){
+			String localFileName = "@drawable/"+icon.substring(icon.lastIndexOf('/') + 1,icon.lastIndexOf('.')).replace('-','_').toLowerCase();
+			int imageID = current.getResources().getIdentifier(localFileName, null, current.getContext().getPackageName());
+			if(imageID == 0){
+				unreadPM.setImageResource(iconResource);
+			}else{
+				unreadPM.setImageResource(imageID);
+				overlay.setImageResource(iconResource);
+				overlay.setBackgroundResource(R.drawable.overlay_background);
+				overlay.setVisibility(View.VISIBLE);
+			}
+		}else{
+			unreadPM.setImageResource(iconResource);
 		}
 		return current;
 	}
@@ -172,6 +190,12 @@ public class AwfulMessage extends AwfulPagedItem {
 					Element href = row.get(2).getElementsByTag("a").first();
 					pm.put(ID, Integer.parseInt(href.attr("href").replaceAll("\\D", "")));
 					pm.put(TITLE, href.text());
+					Element icon = row.get(1).getElementsByTag("img").first();
+					if(icon == null){
+						pm.put(ICON, "");
+					}else{
+						pm.put(ICON, icon.attr("src"));
+					}
 					pm.put(AUTHOR, row.get(3).text());
 					pm.put(DATE, row.get(4).text());
 					pm.put(CONTENT, " ");
