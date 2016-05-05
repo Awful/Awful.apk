@@ -61,7 +61,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 30;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -158,6 +158,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TITLE,
 		AwfulMessage.CONTENT,
 		AwfulMessage.UNREAD,
+		AwfulMessage.ICON,
 		AwfulMessage.DATE
 	};
 	public static final String[] DraftProjection = new String[]{
@@ -302,9 +303,10 @@ public class AwfulProvider extends ContentProvider {
                 AwfulMessage.TITLE      + " VARCHAR,"   + 
                 AwfulMessage.AUTHOR      + " VARCHAR,"   + 
                 AwfulMessage.CONTENT      + " VARCHAR,"   + 
-                AwfulMessage.UNREAD      + " INTEGER,"   + 
-                AwfulMessage.FOLDER      + " INTEGER,"   + 
-                AwfulMessage.DATE + " VARCHAR," +
+                AwfulMessage.UNREAD      + " INTEGER,"   +
+				AwfulMessage.FOLDER      + " INTEGER,"   +
+				AwfulMessage.ICON      + " VARCHAR,"   +
+				AwfulMessage.DATE + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
         public void createDraftTable(SQLiteDatabase aDb) {
@@ -377,6 +379,9 @@ public class AwfulProvider extends ContentProvider {
                 createPMTable(aDb);
             case 28:
                 aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.TAG_EXTRA + " INTEGER");
+			case 29:
+				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
+				createPMTable(aDb);
                     break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -857,6 +862,7 @@ public class AwfulProvider extends ContentProvider {
 		sPMReplyProjectionMap.put(AwfulMessage.REPLY_TITLE, TABLE_DRAFTS+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.REPLY_TITLE);
 		sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+		sPMReplyProjectionMap.put(AwfulMessage.ICON, AwfulMessage.ICON);
 		sPMReplyProjectionMap.put(AwfulMessage.FOLDER, AwfulMessage.FOLDER);
 		
 		sEmoteProjectionMap.put(AwfulEmote.ID, AwfulEmote.ID);
