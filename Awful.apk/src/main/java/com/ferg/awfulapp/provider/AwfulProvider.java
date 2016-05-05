@@ -145,7 +145,8 @@ public class AwfulProvider extends ContentProvider {
         AwfulPost.EDITABLE,
         AwfulPost.IS_OP,
         AwfulPost.IS_ADMIN,
-        AwfulPost.IS_MOD,
+		AwfulPost.IS_MOD,
+		AwfulPost.IS_PLAT,
         AwfulPost.AVATAR,
         AwfulPost.AVATAR_TEXT,
         AwfulPost.CONTENT,
@@ -279,7 +280,8 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.EDITABLE              + " INTEGER,"        +
                 AwfulPost.IS_OP                 + " INTEGER,"        +
                 AwfulPost.IS_ADMIN              + " INTEGER,"        +
-                AwfulPost.IS_MOD                + " INTEGER,"        +
+				AwfulPost.IS_MOD                + " INTEGER,"        +
+				AwfulPost.IS_PLAT               + " INTEGER,"        +
                 AwfulPost.AVATAR                + " VARCHAR,"        + 
                 AwfulPost.AVATAR_TEXT           + " VARCHAR,"        + 
                 AwfulPost.CONTENT               + " VARCHAR,"        + 
@@ -381,7 +383,9 @@ public class AwfulProvider extends ContentProvider {
                 aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.TAG_EXTRA + " INTEGER");
 			case 29:
 				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
+				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
 				createPMTable(aDb);
+				createPostTable(aDb);
                     break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
@@ -784,6 +788,7 @@ public class AwfulProvider extends ContentProvider {
 		sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
 		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
 		sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
+		sPostProjectionMap.put(AwfulPost.IS_PLAT, AwfulPost.IS_PLAT);
 		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
 		sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);
 		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);

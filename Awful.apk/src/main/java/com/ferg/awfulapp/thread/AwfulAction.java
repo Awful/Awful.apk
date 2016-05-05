@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class AwfulAction {
 
-    public static ArrayList<AwfulAction> getPostActions(String username, boolean editable, boolean isAdminOrMod) {
+    public static ArrayList<AwfulAction> getPostActions(String username, boolean editable, boolean isAdminOrMod, boolean isPlat) {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         ArrayList<AwfulAction> awfulActions = new ArrayList<>();
 
@@ -21,7 +21,7 @@ public class AwfulAction {
             awfulActions.add(new AwfulAction(ActionType.EDIT, R.drawable.ic_create_dark, "Edit Post"));
         }
         awfulActions.add(new AwfulAction(ActionType.MARK_LAST_SEEN, R.drawable.ic_visibility_dark, "Mark post last read"));
-        if (prefs.hasPlatinum && !username.equals(prefs.username)) {
+        if (prefs.hasPlatinum && (isPlat || isAdminOrMod) && !username.equals(prefs.username)) {
             awfulActions.add(new AwfulAction(ActionType.SEND_PM, R.drawable.ic_mail_dark, "PM " + username));
         }
         if(!username.equals(prefs.username)){
