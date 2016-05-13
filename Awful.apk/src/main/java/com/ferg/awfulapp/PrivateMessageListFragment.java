@@ -155,6 +155,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     }
     
     private void syncPMs() {
+        mSRL.setRefreshing(true);
     	if(getActivity() != null){
             queueRequest(new PMListRequest(getActivity(), currentFolder).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
                 @Override
