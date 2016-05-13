@@ -133,7 +133,7 @@ public class Constants {
 	public static final String COOKIE_PREF_VERSION     = "version";
 
 	// Content provider
-    public static final String AUTHORITY = "com.ferg.awfulapp.provider";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".provider";
     
     //default per-page, user configurable
     public static final int ITEMS_PER_PAGE = 40;

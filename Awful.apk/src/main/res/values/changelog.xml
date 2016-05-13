@@ -2,6 +2,19 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.3.2:\n
+            - Fixed bug in the PM view on pre-lollipop devices
+        </item>
+        <item>
+            3.2.3.1:\n
+            - Fixed reporting\n
+            - Fixed PM option on non-plat users\n
+            - Added plat grenades\n
+            - Added tags to PM view\n
+            - Added more thread tags\n
+            - Fixed space on the bottom of threads when using OLED theme
+        </item>
+        <item>
             3.2.3.0c:\n
             - Now actually including the changes from 3.2.3.0b
         </item>

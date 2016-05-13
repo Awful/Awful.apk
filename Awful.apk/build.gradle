@@ -22,6 +22,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
+        applicationId = "com.ferg.awfulapp"
         minSdkVersion 14
         targetSdkVersion 23
         resConfigs "en"
@@ -48,12 +49,17 @@ android {
     buildTypes{
 
         debug{
+
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            resValue "string", "app_name", "Awful (debug)"
             minifyEnabled false
             shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
 
         release{
+            resValue "string", "app_name", "Awful"
             minifyEnabled false
             shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
@@ -67,8 +73,8 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.6.2'
