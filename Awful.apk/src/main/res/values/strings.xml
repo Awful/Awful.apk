@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Awful</string>
     <string name="awful_web_provider">AwfulWebProvider</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>

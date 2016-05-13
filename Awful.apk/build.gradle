@@ -22,6 +22,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
+        applicationId = "com.ferg.awfulapp"
         minSdkVersion 14
         targetSdkVersion 23
         resConfigs "en"
@@ -48,12 +49,17 @@ android {
     buildTypes{
 
         debug{
+
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            resValue "string", "app_name", "Awful (debug)"
             minifyEnabled false
             shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
 
         release{
+            resValue "string", "app_name", "Awful"
             minifyEnabled false
             shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
