@@ -31,6 +31,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -137,7 +138,15 @@ public class AwfulMessage extends AwfulPagedItem {
 			}else{
 				unreadPM.setImageResource(imageID);
 				overlay.setImageResource(iconResource);
-				overlay.setBackgroundResource(R.drawable.overlay_background);
+				if(AwfulUtils.isLollipop()){
+					overlay.setBackgroundResource(R.drawable.overlay_background);
+				}else{
+					// FTGE
+					GradientDrawable background = (GradientDrawable) current.getResources().getDrawable(R.drawable.overlay_background);
+					background.mutate();
+					background.setColor(ColorProvider.getBackgroundColor());
+					overlay.setBackgroundDrawable(background);
+				}
 				overlay.setVisibility(View.VISIBLE);
 			}
 		}else{
