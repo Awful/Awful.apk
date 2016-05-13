@@ -112,7 +112,8 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
         this.getAwfulActivity().setSupportActionBar(mToolbar);
-        this.getAwfulActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        this.getAwfulActivity().setActionBar();
+        setTitle(getTitle());
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
 
