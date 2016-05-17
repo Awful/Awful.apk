@@ -204,6 +204,7 @@
     <string name="forum_index_update_forums">Force a forum update</string>
     <string name="forum_index_update_forums_summary_not_updating">Last checked %1$d %2$s ago</string>
     <string name="forum_index_update_forums_summary_updating">Running update…</string>
+    <string name="forum_index_clear_forums_data">Clear forums data (DEBUG)</string>
 
     <!-- Thread Settings page -->
     <string name="threadinfo_tag">Show tags</string>

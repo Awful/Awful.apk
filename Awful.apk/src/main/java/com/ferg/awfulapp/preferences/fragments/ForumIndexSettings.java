@@ -3,6 +3,7 @@ package com.ferg.awfulapp.preferences.fragments;
 import android.preference.Preference;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.forums.CrawlerTask;
 import com.ferg.awfulapp.forums.ForumRepository;
 
@@ -22,10 +23,30 @@ public class ForumIndexSettings extends SettingsFragment
         prefClickListeners.put(new UpdateForumsListener(), new int[]{
                 R.string.pref_key_update_forums_menu_item
         });
+
+        prefClickListeners.put(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                forumRepo.clearForumData();
+                return true;
+            }
+        }, new int[]{R.string.pref_key_clear_forums_data_menu_item});
     }
 
     private final ForumRepository forumRepo = ForumRepository.getInstance(null);
     private volatile boolean updateRunning = false;
+
+
+    @Override
+    protected void initialiseSettings() {
+        super.initialiseSettings();
+        if (!Constants.DEBUG) {
+            Preference clearPref = findPrefById(R.string.pref_key_clear_forums_data_menu_item);
+            if (clearPref != null) {
+                getPreferenceScreen().removePreference(clearPref);
+            }
+        }
+    }
 
 
     @Override

@@ -43,6 +43,8 @@ public class ForumRepository implements UpdateTask.ResultListener {
 
     // using a COW array to make listener de/registration and iteration ~fairly~ thread-safe
     private final Set<ForumsUpdateListener> listeners = new CopyOnWriteArraySet<>();
+    // cached value to make timestamp queries faster and avoid jank
+    private volatile Long lastSuccessfulUpdate = null;
     private final Context context;
 
     /**
@@ -236,6 +238,10 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * @see System#currentTimeMillis()
      */
     public long getLastUpdateTime() {
+        // check if we have a cached value, otherwise we need to query the DB
+        if (lastSuccessfulUpdate != null) {
+            return lastSuccessfulUpdate;
+        }
         Cursor cursor = getForumsCursor();
         if (cursor == null) {
             return 0;
@@ -268,6 +274,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * Remove all cached forum data from the DB.
      */
     public void clearForumData() {
+        lastSuccessfulUpdate = null;
         ContentResolver contentResolver = context.getContentResolver();
         contentResolver.delete(AwfulForum.CONTENT_URI, null, null);
     }
@@ -337,7 +344,8 @@ public class ForumRepository implements UpdateTask.ResultListener {
      */
     private void storeForumData(@NonNull ForumStructure parsedStructure) {
         ContentResolver contentResolver = context.getContentResolver();
-        String updateTime = new Timestamp(System.currentTimeMillis()).toString();
+        lastSuccessfulUpdate = System.currentTimeMillis();
+        String updateTime = new Timestamp(lastSuccessfulUpdate).toString();
         List<Forum> allForums = new ArrayList<>();
 
         // we're replacing all the forums, so wipe them

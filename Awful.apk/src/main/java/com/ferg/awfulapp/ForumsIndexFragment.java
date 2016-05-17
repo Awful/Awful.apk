@@ -54,6 +54,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -86,10 +87,14 @@ public class ForumsIndexFragment extends AwfulFragment
     @BindView(R.id.view_switcher)
     ViewSwitcher forumsListSwitcher;
     @BindView(R.id.forums_update_progress_bar)
-    ProgressBar updateProgressBar;
+    ProgressBar updatingIndicator;
 
     private ForumListAdapter forumListAdapter;
     private ForumRepository forumRepo;
+    /**
+     * repo timestamp for the currently displayed data, used to check if the repo has since updated
+     */
+    private long lastUpdateTime = -1;
 
 
     @Override
@@ -117,11 +122,9 @@ public class ForumsIndexFragment extends AwfulFragment
         Context context = getActivity();
         forumRepo = ForumRepository.getInstance(context);
 
-        List<Forum> forumList = forumRepo.getForumStructure().getAsList().build();
-        forumListAdapter = ForumListAdapter.getInstance(context, forumList, this, mPrefs);
+        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<Forum>(), this, mPrefs);
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        refreshForumList();
     }
 
 
@@ -129,6 +132,11 @@ public class ForumsIndexFragment extends AwfulFragment
     public void onResume() {
         super.onResume();
         forumRepo.registerListener(this);
+        if (lastUpdateTime != forumRepo.getLastUpdateTime()) {
+            refreshForumList();
+        } else {
+            refreshNoDataView();
+        }
         updateProbationBar();
     }
 
@@ -174,9 +182,7 @@ public class ForumsIndexFragment extends AwfulFragment
      * Set any colours that need to change according to the current theme
      */
     private void updateViewColours() {
-        if (forumRecyclerView != null) {
-            forumRecyclerView.setBackgroundColor(ColorProvider.getBackgroundColor());
-        }
+        forumRecyclerView.setBackgroundColor(ColorProvider.getBackgroundColor());
     }
 
 
@@ -185,7 +191,7 @@ public class ForumsIndexFragment extends AwfulFragment
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateProgressBar.setVisibility(VISIBLE);
+                updatingIndicator.setVisibility(VISIBLE);
             }
         });
     }
@@ -200,7 +206,7 @@ public class ForumsIndexFragment extends AwfulFragment
                     Snackbar.make(forumRecyclerView, "Forums updated", Snackbar.LENGTH_SHORT).show();
                     refreshForumList();
                 }
-                updateProgressBar.setVisibility(INVISIBLE);
+                updatingIndicator.setVisibility(INVISIBLE);
             }
         });
     }
@@ -211,7 +217,7 @@ public class ForumsIndexFragment extends AwfulFragment
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateProgressBar.setVisibility(INVISIBLE);
+                updatingIndicator.setVisibility(INVISIBLE);
             }
         });
     }
@@ -221,6 +227,7 @@ public class ForumsIndexFragment extends AwfulFragment
      * Query the database for the current Forum data, and update the list
      */
     private void refreshForumList() {
+        lastUpdateTime = forumRepo.getLastUpdateTime();
         // get a new data set (possibly empty if there's no data yet) and give it to the adapter
         List<Forum> forumList = forumRepo.getForumStructure()
                 .getAsList()
@@ -228,12 +235,23 @@ public class ForumsIndexFragment extends AwfulFragment
                 .formatAs(mPrefs.forumIndexHideSubforums ? TWO_LEVEL : FLAT)
                 .build();
         forumListAdapter.updateForumList(forumList);
+        refreshNoDataView();
+    }
+
+
+    /**
+     * Show/hide the 'no data' view as appropriate, and show/hide the updating state
+     */
+    private void refreshNoDataView() {
+        boolean noData = forumListAdapter.getParentItemList().isEmpty();
         // work out if we need to switch the empty view to the forum list, or vice versa
-        if (!forumList.isEmpty() && forumsListSwitcher.getNextView() == forumRecyclerView) {
+        if (noData && forumsListSwitcher.getCurrentView() == forumRecyclerView) {
             forumsListSwitcher.showNext();
-        } else if (forumList.isEmpty() && forumsListSwitcher.getCurrentView() == forumRecyclerView) {
+        } else if (!noData && forumsListSwitcher.getNextView() == forumRecyclerView) {
             forumsListSwitcher.showNext();
         }
+        // show the update spinner if an update is going on
+        updatingIndicator.setVisibility(forumRepo.isUpdating() ? VISIBLE : INVISIBLE);
     }
 
 
