@@ -255,6 +255,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
             }
         }
         cursor.close();
+        lastSuccessfulUpdate = lastUpdate;
         return lastUpdate;
     }
 

@@ -5,9 +5,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -28,6 +30,8 @@ public class SquareForumTag extends ImageView {
     // these are both percentages of the view's dimensions
     private static final float DESIRED_TEXT_WIDTH = 0.8f;
     private static final float MAX_TEXT_HEIGHT = 0.3f;
+    // tint adjustment for the provided tag colours
+    private static final float SATURATION_MULTIPLIER = 0.8f;
 
     // used to adjust values based on screen density
     private final float scaler = getResources().getDisplayMetrics().density;
@@ -37,8 +41,8 @@ public class SquareForumTag extends ImageView {
 
     private Paint textPaint;
     private Paint strokePaint;
-    private String tagText = "";
     private final Rect textBounds = new Rect();
+    private String tagText = "";
 
 
     public SquareForumTag(Context context) {
@@ -67,16 +71,6 @@ public class SquareForumTag extends ImageView {
     }
 
 
-    /**
-     * Set the overlaid text for this tag.
-     * <p/>
-     * Use an empty string if you want to display nothing
-     */
-    public void setTagText(@NonNull String text) {
-        tagText = text;
-    }
-
-
     private void init() {
         Drawable counter = ContextCompat.getDrawable(getContext(), R.drawable.forumtagtest);
         setImageDrawable(counter);
@@ -95,22 +89,75 @@ public class SquareForumTag extends ImageView {
 
 
     /**
+     * Set the overlaid text for this tag.
+     * <p/>
+     * Use an empty string if you want to display nothing
+     */
+    public void setTagText(@NonNull String text) {
+        tagText = text;
+    }
+
+
+    /**
+     * Set the tag's main (background) colour
+     *
+     * @param colour An ARGB colour, or null for no colour
+     */
+    public void setMainColour(@ColorInt Integer colour) {
+        if (colour == null) {
+            setBackgroundColor(Color.TRANSPARENT);
+        } else {
+            setBackgroundColor(tweakColour(colour));
+        }
+    }
+
+
+    /**
+     * Set the tag's secondary accent colour
+     *
+     * @param colour An ARGB colour, or null for no colour
+     */
+    public void setAccentColour(@ColorInt Integer colour) {
+        if (colour == null) {
+            setColorFilter(null);
+        } else {
+            setColorFilter(tweakColour(colour), PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+
+    /**
+     * Adjust a colour, used to tweak provided tag colours
+     *
+     * @param colour an ARGB colour
+     * @return the adjusted colour
+     */
+    private int tweakColour(@ColorInt int colour) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(colour, hsv);
+        hsv[1] = hsv[1] * SATURATION_MULTIPLIER;
+        return Color.HSVToColor(Color.alpha(colour), hsv);
+    }
+
+
+    /**
      * Calculate and set the dynamic text size on the paints.
      * <p/>
      * This needs to be called while the view is visible, since it uses the view dimensions.
      */
     private void setTextSize() {
-        // rework the text size so the bounds fit the required width
-        textPaint.getTextBounds(tagText, 0, tagText.length(), textBounds);
+        // get the current bounds of the stroked text (which will be bigger than the normal text)
+        strokePaint.getTextBounds(tagText, 0, tagText.length(), textBounds);
+        // work out the bounds size as a proportion of the actual view
         float currentWidth = textBounds.width() / (float) getWidth();
         float currentHeight = textBounds.height() / (float) getHeight();
         // get multipliers to scale the bounds to hit each required size
         float widthMaximiser = DESIRED_TEXT_WIDTH / currentWidth;
         float heightMaximiser = MAX_TEXT_HEIGHT / currentHeight;
         // the height maximiser is a hard limit, so don't exceed that
-        float newTextSize = Math.min(widthMaximiser, heightMaximiser) * textPaint.getTextSize();
-        textPaint.setTextSize(newTextSize);
+        float newTextSize = Math.min(widthMaximiser, heightMaximiser) * strokePaint.getTextSize();
         strokePaint.setTextSize(newTextSize);
+        textPaint.setTextSize(newTextSize);
     }
 
 
@@ -120,7 +167,6 @@ public class SquareForumTag extends ImageView {
         if (tagText.equals("")) {
             return;
         }
-        // TODO: find out what can be pulled out so it's not called every onDraw()
         // work out the size of the text box and where it should go
         setTextSize();
         textPaint.getTextBounds(tagText, 0, tagText.length(), textBounds);
