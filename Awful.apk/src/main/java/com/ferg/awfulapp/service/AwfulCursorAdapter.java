@@ -92,12 +92,6 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulThread.getView(row, mPrefs, data, mFragment);
-		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
-			row = inf.inflate(R.layout.forum_item_mainforum, parent, false);
-			assert(false);
-//		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-//			row = inf.inflate(R.layout.post_item, parent, false);
-//			AwfulPost.getView(row, mPrefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.nu_thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);

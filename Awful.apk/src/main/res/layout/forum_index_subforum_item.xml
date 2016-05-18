@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/item_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/material_list_item_height">
+
+    <ImageView
+        android:id="@+id/list_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:tint="?attr/listDividerColor"
+        app:srcCompat="@drawable/list_divider"
+        tools:ignore="ContentDescription,MissingPrefix"/>
+
+    <RelativeLayout
+        android:id="@+id/forum_details"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/section_title"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/material_content_left_margin"
+        android:paddingBottom="@dimen/material_list_item_vertical_padding"
+        android:paddingLeft="@dimen/material_screen_edge_margin"
+        android:paddingRight="@dimen/material_screen_edge_margin"
+        android:paddingTop="@dimen/material_list_item_vertical_padding"
+        tools:ignore="RtlHardcoded">
+
+        <TextView
+            android:id="@+id/forum_title"
+            style="@style/ForumListTitle"
+            android:layout_height="wrap_content"
+            android:text="A Title"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:id="@+id/forum_subtitle"
+            style="@style/ForumListTitle.Subtitle"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_below="@+id/forum_title"
+            android:text="A subtitle"
+            tools:ignore="HardcodedText"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

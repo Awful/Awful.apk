@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape = "line">
+
+    <!-- TODO: this needs tinting by theme, can't use ?attr pre-lollipop! -->
+    <stroke
+        android:width="0.5dp"
+        android:color="@color/alt_background" />
+
+    <size
+        android:height="1dp" />
+
+</shape>

@@ -76,6 +76,7 @@ import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.StringProvider;
+import com.ferg.awfulapp.sync.SyncManager;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
@@ -865,15 +866,7 @@ public class ForumsIndexActivity extends AwfulActivity {
         if (DEBUG) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
-            mHandler.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (mIndexFragment != null) {
-                        mIndexFragment.refresh();
-                    }
-                }
-            }, 1000);
+            SyncManager.sync(this);
         }
     }
 

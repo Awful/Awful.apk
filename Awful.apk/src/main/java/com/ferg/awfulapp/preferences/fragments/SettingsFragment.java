@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
@@ -206,7 +206,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
     }
 
-    @NonNull
+    @Nullable
     Preference findPrefById(@StringRes int prefKeyResId) {
         return findPreference(getString(prefKeyResId));
     }
