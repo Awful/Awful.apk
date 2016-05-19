@@ -1631,27 +1631,18 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
-	public boolean volumeScroll(KeyEvent event) {
-	    int action = event.getAction();
-	    int keyCode = event.getKeyCode();    
-	        switch (keyCode) {
-	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	                mThreadView.pageUp(false);   
-	            }
-	            return true;
-	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mThreadView.pageDown(false);
-	            }
-	            return true;
-	        default:
-	            return false;
-	        }
-	} 
-	
-    
-    private void toggleScreenOn() {
+	@Override
+	protected boolean doScroll(boolean down) {
+		if (down) {
+			mThreadView.pageDown(false);
+		} else {
+			mThreadView.pageUp(false);
+		}
+		return true;
+	}
+
+
+	private void toggleScreenOn() {
     	keepScreenOn = !keepScreenOn;
     	mThreadView.setKeepScreenOn(keepScreenOn);
 

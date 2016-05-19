@@ -956,12 +956,6 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
 
-    @Override
-    public boolean volumeScroll(KeyEvent event) {
-        //I don't think that's necessary
-        return false;
-    }
-
     private String getClipboardLink() {
         String link = null;
 

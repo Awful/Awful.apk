@@ -333,12 +333,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 	}
 
 
-    @Override
-	public boolean volumeScroll(KeyEvent event) {
-		// I have no idea where this fragment is coming from, not the FIA anyway
-		return false;
-	}
-
 	@Override
 	public void onRefresh() {
     	syncPMs();

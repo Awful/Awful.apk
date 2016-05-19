@@ -405,25 +405,16 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 
 	@Override
-	public boolean volumeScroll(KeyEvent event) {
-	    int action = event.getAction();
-	    int keyCode = event.getKeyCode();    
-        switch (keyCode) {
-        case KeyEvent.KEYCODE_VOLUME_UP:
-            if (action == KeyEvent.ACTION_DOWN) {
-            	mDisplayText.pageUp(false);   
-            }
-            return true;
-        case KeyEvent.KEYCODE_VOLUME_DOWN:
-            if (action == KeyEvent.ACTION_DOWN) {
-            	mDisplayText.pageDown(false);
-            }
-            return true;
-        default:
-            return false;
-        }
-    }
-	
+	protected boolean doScroll(boolean down) {
+		if (down) {
+			mDisplayText.pageDown(false);
+		} else {
+			mDisplayText.pageUp(false);
+		}
+		return true;
+	}
+
+
 	private String getBlankPage(){
 		return "<html><head></head><body style='{background-color:#"+ColorProvider.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}

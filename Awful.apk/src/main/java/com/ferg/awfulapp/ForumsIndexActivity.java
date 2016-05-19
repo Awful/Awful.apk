@@ -872,7 +872,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)) {
+        AwfulFragment pagerItem = (AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem());
+        if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);

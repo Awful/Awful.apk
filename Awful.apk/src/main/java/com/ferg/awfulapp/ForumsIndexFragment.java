@@ -252,20 +252,10 @@ public class ForumsIndexFragment extends AwfulFragment
 
 
     @Override
-    public boolean volumeScroll(KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
+    protected boolean doScroll(boolean down) {
         int scrollAmount = forumRecyclerView.getHeight() / 2;
-
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (action == KeyEvent.ACTION_DOWN) {
-                boolean down = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN;
-                forumRecyclerView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
-            }
-            return true;
-        }
-
-        return false;
+        forumRecyclerView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
+        return true;
     }
 
 

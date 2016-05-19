@@ -306,7 +306,35 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     public void onPageVisible() {}
     public void onPageHidden() {}
 
-    public abstract boolean volumeScroll(KeyEvent event);
+
+    /**
+     * Try to handle a KeyEvent as a volume scroll action.
+     * @param event The event to handle
+     * @return      true if the event was consumed
+     */
+    public final boolean attemptVolumeScroll(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (action == KeyEvent.ACTION_DOWN) {
+                return doScroll(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN);
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Perform a scroll action, e.g. in response to a volume scroll event.
+     * @param down  true to scroll down, false for up
+     * @return      return true to consume this scroll event
+     */
+    protected boolean doScroll(boolean down) {
+        return false;
+    }
 
 
     protected void displayAlert(int titleRes){

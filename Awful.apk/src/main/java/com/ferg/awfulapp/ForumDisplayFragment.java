@@ -790,27 +790,14 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 
     @Override
-	public boolean volumeScroll(KeyEvent event) {
-		int action = event.getAction();
-	    int keyCode = event.getKeyCode();    
-	        switch (keyCode) {
-	        case KeyEvent.KEYCODE_VOLUME_UP:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mListView.smoothScrollBy(-mListView.getHeight()/2, 0);
-	            }
-	            return true;
-	        case KeyEvent.KEYCODE_VOLUME_DOWN:
-	            if (action == KeyEvent.ACTION_DOWN) {
-	            	mListView.smoothScrollBy(mListView.getHeight()/2, 0);
-	            }
-	            return true;
-	        default:
-	            return false;
-	        }
+    protected boolean doScroll(boolean down) {
+        int scrollAmount = mListView.getHeight() / 2;
+        mListView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
+        return true;
+    }
 
-	}
-	
-	private void updateColors(){
+
+    private void updateColors(){
 		if(mListView != null){
 	        if(mPrefs.forceForumThemes && mForumId == Constants.FORUM_ID_YOSPOS){
 	            mListView.setBackgroundColor(ColorProvider.getBackgroundColor(ColorProvider.YOSPOS));

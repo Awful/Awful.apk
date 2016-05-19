@@ -253,13 +253,6 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
 
     @Override
-    public boolean volumeScroll(KeyEvent event) {
-        //I don't think that's necessary
-        return false;
-    }
-
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.search, menu);
     }
