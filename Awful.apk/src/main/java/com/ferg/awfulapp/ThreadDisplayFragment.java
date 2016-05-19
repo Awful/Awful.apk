@@ -1223,7 +1223,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = StringUtils.containsAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif")
+			isImage = StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
 					&& !StringUtils.contains(lastSegment, ".gifv");
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
