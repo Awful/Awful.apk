@@ -187,12 +187,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
 	}
-	
-	@Override
-    public void onStart() {
-        super.onStart();
-    }
-	
+
+
 	private void syncPM() {
         queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
@@ -403,20 +399,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 
 	@Override
-	public void onPageVisible() {}
-
-	@Override
-	public void onPageHidden() {}
-
-	@Override
 	public String getTitle() {
 		return mTitle.getText().toString();
 	}
 
-	@Override
-	public String getInternalId() {
-		return null;
-	}
 
 	@Override
 	public boolean volumeScroll(KeyEvent event) {

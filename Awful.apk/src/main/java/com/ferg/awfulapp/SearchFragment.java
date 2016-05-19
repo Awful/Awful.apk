@@ -253,21 +253,6 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
 
     @Override
-    public void onPageVisible() {
-
-    }
-
-    @Override
-    public void onPageHidden() {
-    }
-
-    @Override
-    public String getInternalId() {
-        return null;
-    }
-
-
-    @Override
     public boolean volumeScroll(KeyEvent event) {
         //I don't think that's necessary
         return false;

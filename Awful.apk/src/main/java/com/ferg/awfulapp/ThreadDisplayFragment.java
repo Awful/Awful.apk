@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -168,9 +169,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private int scrollCheckMinBound = -1;
     private int scrollCheckMaxBound = -1;
     private int[] scrollCheckBounds = null;
-    
+
     private static final int buttonSelectedColor = 0x8033b5e5;//0xa0ff7f00;
-    
+
     private String mTitle = null;
     
 	private String mPostJump = "";
@@ -352,12 +353,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState); Log.e(TAG, "onActivityCreated");
-        /*
-        if(mSRL != null){
-            mSRL.setPullFromBottom(true);
-            mSRL.setEnabled(true);
-        }
-        */
 		updatePageBar();
 		updateProbationBar();
 	}
@@ -518,9 +513,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
-//        if(mP2RAttacher != null){
-//        	mP2RAttacher.setPullFromBottom(true);
-//        }
         if(parent != null && mParentForumId != 0){
 			parent.setNavIds(mParentForumId, getThreadId());
         }
@@ -532,10 +524,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
         }
-//        if(mP2RAttacher != null){
-//        	mP2RAttacher.setPullFromBottom(false);
-//        	mP2RAttacher.setEnabled(true);
-//        }
 	}
 	
     @Override
@@ -1466,11 +1454,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				if(mParentForumId != 0 && mThreadView != null){
 					mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
 				}
-//                //Same thread, already done this, don't override the forum name
-//                if(null == getTitle() || !getTitle().equals(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)))) {
-//                    parent.setNavForumId(mParentForumId);
-//
-//                }
+
 				parent.setNavIds(mParentForumId, getThreadId());
                 setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
         		updatePageBar();
@@ -1646,11 +1630,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 	}
 
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
-	
+
 	public boolean volumeScroll(KeyEvent event) {
 	    int action = event.getAction();
 	    int keyCode = event.getKeyCode();    

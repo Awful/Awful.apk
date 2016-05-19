@@ -83,6 +83,8 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import java.util.Date;
 
+import static com.ferg.awfulapp.constants.Constants.DEBUG;
+
 /**
  * Uses intent extras:
  *  TYPE - STRING ID - DESCRIPTION
@@ -280,16 +282,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	public void onPageVisible() {
 		updateColors();
 		syncForumsIfStale();
-//		if(mP2RAttacher != null){
-//			mP2RAttacher.setPullFromBottom(false);
-//		}
         refreshInfo();
 	}
 
-	@Override
-	public void onPageHidden() {
-
-	}
 
     @Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -762,7 +757,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
         @Override
         public void onChange (boolean selfChange){
-//        	if(DEBUG) Log.i(TAG,"Thread Data update.");
+
         }
     }
 	
@@ -793,12 +788,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		skipLoad = skip;
 	}
 
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
 
-	@Override
+    @Override
 	public boolean volumeScroll(KeyEvent event) {
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();    

@@ -40,7 +40,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -50,7 +49,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -926,10 +924,6 @@ public class PostReplyFragment extends AwfulFragment {
         restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
     }
 
-    @Override
-    public void onPageVisible() {
-
-    }
 
     @Override
     public void onPageHidden() {
@@ -961,10 +955,6 @@ public class PostReplyFragment extends AwfulFragment {
         insertEmote(contents);
     }
 
-    @Override
-    public String getInternalId() {
-        return TAG;
-    }
 
     @Override
     public boolean volumeScroll(KeyEvent event) {
