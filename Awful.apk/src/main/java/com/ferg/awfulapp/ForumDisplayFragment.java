@@ -267,7 +267,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		updateColors();
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mForumDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mForumLoaderCallback);
-        if(skipLoad || !isFragmentVisible()){
+        if(skipLoad || !isVisible()){
         	skipLoad = false;//only skip the first time
         }else{
         	syncForumsIfStale();

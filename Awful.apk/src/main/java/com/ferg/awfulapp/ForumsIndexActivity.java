@@ -762,7 +762,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void setActionbarTitle(String aTitle, Object requestor) {
         if (requestor != null && mViewPager != null) {
             //This will only honor the request if the requestor is the currently active view.
-            if (requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)) {
+            if (requestor instanceof AwfulFragment && ((AwfulFragment) requestor).isVisible()) {
                 super.setActionbarTitle(aTitle, requestor);
             } else {
                 if (DEBUG)

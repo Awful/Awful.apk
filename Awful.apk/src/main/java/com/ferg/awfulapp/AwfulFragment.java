@@ -40,15 +40,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -65,28 +61,30 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
-public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
+import static com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.BOTH;
+import static com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP;
+
+public abstract class AwfulFragment extends Fragment implements AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
 	protected AwfulPreferences mPrefs;
-	protected int currentProgress = 100;
+	private int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
 
 
-    protected Handler mHandler = new Handler();
+    protected final Handler mHandler = new Handler();
 
     @Override
-    public void onAttach(Activity aActivity) {
-    	super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
-    	if(!(aActivity instanceof AwfulActivity)){
-    		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
+    public void onAttach(Context context) {
+    	super.onAttach(context);
+        if(!(getActivity() instanceof AwfulActivity)){
+    		throw new IllegalStateException("AwfulFragment - parent activity must extend AwfulActivity!");
     	}
     	if(mPrefs == null){
-    		mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+    		mPrefs = AwfulPreferences.getInstance(context, this);
     	}
     }
 
@@ -188,18 +186,12 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 		}
 	}
 
-	protected boolean isFragmentVisible(){
-		if(getActivity()!=null){
-			return getAwfulActivity().isFragmentVisible(this);
-		}
-		return false;
-	}
 
     @Override
     public void requestStarted(AwfulRequest req) {
         if(mSRL != null){
             // P2R Library is ... awful - part 1
-            mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
+            mSRL.setDirection(TOP);
             mSRL.setRefreshing(true);
         }
     }
@@ -214,11 +206,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         if(mSRL != null){
             mSRL.setRefreshing(false);
             // P2R Library is ... awful - part 2
-            if(this instanceof ThreadDisplayFragment){
-                mSRL.setDirection(SwipyRefreshLayoutDirection.BOTH);
-            }else{
-                mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
-            }
+            mSRL.setDirection(this instanceof ThreadDisplayFragment ? BOTH : TOP);
         }
         if(error instanceof AwfulError){
             new AlertBuilder().fromError((AwfulError) error).show();
@@ -242,23 +230,6 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 		return false;
 	}
 
-	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		return false;
-	}
-
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
-	}
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		return false;
-	}
-
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {	}
 
     protected AwfulApplication getAwfulApplication(){
         AwfulActivity act = getAwfulActivity();
@@ -330,6 +301,8 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     /**
      * Perform a scroll action, e.g. in response to a volume scroll event.
+     * </p>
+     * Does nothing by default, override this and return true to handle it.
      * @param down  true to scroll down, false for up
      * @return      return true to consume this scroll event
      */
@@ -341,6 +314,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     /**
      * Builds and displays alert toasts
      */
+    @SuppressWarnings("UnusedReturnValue")
     protected class AlertBuilder {
         @NonNull
         private String title = "";
@@ -415,7 +389,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         if(activity == null){
             return;
         }
-        View popup = LayoutInflater.from(activity).inflate(R.layout.alert_popup, null);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View popup = inflater.inflate(R.layout.alert_popup,
+                (ViewGroup) activity.findViewById(R.id.alert_popup_root));
         TextView popupTitle = (TextView)popup.findViewById(R.id.popup_title);
         popupTitle.setText(title);
         TextView popupSubTitle = (TextView) popup.findViewById(R.id.popup_subtitle);
