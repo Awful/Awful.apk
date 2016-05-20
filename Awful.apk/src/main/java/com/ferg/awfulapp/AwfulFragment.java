@@ -34,7 +34,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
@@ -220,9 +221,9 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             }
         }
         if(error instanceof AwfulError){
-            displayAlert((AwfulError) error);
+            new AlertBuilder().fromError((AwfulError) error).show();
         }else if(error != null){
-            displayAlert(R.string.loading_failed);
+            new AlertBuilder().setTitle(R.string.loading_failed).show();
         }
     }
 
@@ -337,57 +338,84 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     }
 
 
-    protected void displayAlert(int titleRes){
-        if(getActivity() != null){
-            displayAlert(getString(titleRes), null, 0, null);
-        }
-    }
+    /**
+     * Builds and displays alert toasts
+     */
+    protected class AlertBuilder {
+        @NonNull
+        private String title = "";
+        @NonNull
+        private String subtitle = "";
+        @DrawableRes
+        private int iconResId = 0;
+        @Nullable
+        private Animation animation = null;
 
-    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
-        if(getActivity() != null){
-            if(subtitleRes != 0){
-                displayAlert(getString(titleRes), getString(subtitleRes), iconRes, null);
-            }else{
-                displayAlert(getString(titleRes), null, iconRes, null);
+        @NonNull
+        AlertBuilder setTitle(@StringRes int title) {
+            this.title = getString(title);
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setTitle(@Nullable String title) {
+            this.title = (title == null) ? "" : title;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setSubtitle(@StringRes int subtitle) {
+            this.subtitle = getString(subtitle);
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setSubtitle(@Nullable String subtitle) {
+            this.subtitle = (subtitle == null) ? "" : subtitle;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setIcon(@DrawableRes int iconResId) {
+            this.iconResId = iconResId;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setIconAnimation(@Nullable Animation animation) {
+            this.animation = animation;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder fromError(@NonNull AwfulError error) {
+            setTitle(error.getMessage());
+            setSubtitle(error.getSubMessage());
+            setIcon(error.getIconResource());
+            setIconAnimation(error.getIconAnimation());
+            return this;
+        }
+
+        void show() {
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        displayAlertInternal(title, subtitle, iconResId, animation);
+                    }
+                });
             }
         }
     }
 
-    protected void displayAlert(AwfulError error){
-        displayAlert(error.getMessage(), error.getSubMessage(), error.getIconResource(), error.getIconAnimation());
-    }
 
-    protected void displayAlert(String title){
-        displayAlert(title, null, 0, null);
-    }
-
-    protected void displayAlert(String title, int iconRes){
-        displayAlert(title, null, iconRes, null);
-    }
-
-    protected void displayAlert(String title, String subtext){
-        displayAlert(title, subtext, 0, null);
-    }
-
-    private void displayAlert(final String title, final String subtext, final int iconRes, final Animation animate){
-        if(Looper.getMainLooper().equals(Looper.myLooper())){
-            displayAlertInternal(title, subtext, iconRes, animate);
-        }else{
-            //post on main thread, if this is called from a secondary thread.
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    displayAlertInternal(title, subtext, iconRes, animate);
-                }
-            });
-        }
-    }
-
-    private void displayAlertInternal(String title, String subtext, int iconRes, Animation animate){
-        if(getActivity() == null){
+    private void displayAlertInternal(@NonNull String title, @NonNull String subtext, int iconRes, @Nullable Animation animate){
+        Activity activity = getActivity();
+        if(activity == null){
             return;
         }
-        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        View popup = LayoutInflater.from(activity).inflate(R.layout.alert_popup, null);
         TextView popupTitle = (TextView)popup.findViewById(R.id.popup_title);
         popupTitle.setText(title);
         TextView popupSubTitle = (TextView) popup.findViewById(R.id.popup_subtitle);
@@ -440,13 +468,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         try {
             clipboard.setPrimaryClip(clip);
             if (successMessageId != null) {
-                displayAlert(successMessageId, 0, R.drawable.ic_insert_link_dark);
+                new AlertBuilder().setTitle(successMessageId)
+                        .setIcon(R.drawable.ic_insert_link_dark)
+                        .show();
             }
             return true;
         } catch (IllegalArgumentException | SecurityException e) {
-            displayAlert("Unable to copy to clipboard!",
-                    "Another app has locked access, you may need to reboot",
-                    R.drawable.ic_error, null);
+            new AlertBuilder().setTitle("Unable to copy to clipboard!")
+                    .setSubtitle("Another app has locked access, you may need to reboot")
+                    .setIcon(R.drawable.ic_error)
+                    .show();
             e.printStackTrace();
             return false;
         }

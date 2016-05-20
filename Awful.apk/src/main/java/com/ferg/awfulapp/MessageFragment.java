@@ -15,7 +15,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -226,7 +225,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                 }
                 if(getActivity() instanceof MessageDisplayActivity){
                     getActivity().finish();
-                    displayAlert("Message Sent!", R.drawable.ic_check_circle);
+					new AlertBuilder().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
                 }
             }
 
@@ -236,7 +235,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                displayAlert("Failed to send!", "Draft Saved");
+				new AlertBuilder().setTitle("Failed to send!").setSubtitle("Draft Saved").show();
             }
         }));
 	}

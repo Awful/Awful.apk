@@ -40,7 +40,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -148,7 +147,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
-                                displayAlert(new AwfulError());
+                                new AlertBuilder().fromError(new AwfulError()).show();
                             }
                         }
                     }

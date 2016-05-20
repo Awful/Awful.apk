@@ -55,7 +55,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -826,7 +825,9 @@ public class PostReplyFragment extends AwfulFragment {
             if (mDialog != null) {
                 mDialog.dismiss();
             }
-            displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
+            new AlertBuilder().setTitle(R.string.message_empty)
+                    .setSubtitle(R.string.message_empty_subtext)
+                    .show();
             return;
         }
         if (!TextUtils.isEmpty(mFileAttachment)) {

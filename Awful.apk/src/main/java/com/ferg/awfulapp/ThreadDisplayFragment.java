@@ -48,7 +48,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -60,7 +59,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -715,7 +713,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				queueRequest(new VoteRequest(getActivity(), getThreadId(), item).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
 					@Override
 					public void success(Void result) {
-						displayAlert(R.string.vote_succeeded, R.string.vote_succeeded_sub, R.drawable.ic_mood);
+						new AlertBuilder().setTitle(R.string.vote_succeeded)
+								.setSubtitle(R.string.vote_succeeded_sub)
+								.setIcon(R.drawable.ic_mood)
+								.show();
 					}
 
 					@Override
@@ -793,12 +794,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		      queueRequest(new ReportRequest(getActivity(), postid, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
                   @Override
                   public void success(String result) {
-                      displayAlert(result, R.drawable.ic_mood);
+					  new AlertBuilder().setTitle(result).setIcon(R.drawable.ic_mood).show();
                   }
 
                   @Override
                   public void failure(VolleyError error) {
-                      displayAlert(error.getMessage(), R.drawable.ic_mood);
+					  new AlertBuilder().setTitle(error.getMessage()).setIcon(R.drawable.ic_mood).show();
+
                   }
               }));
 		    }
@@ -862,11 +864,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
     
     protected void markLastRead(int index) {
-        displayAlert(R.string.mark_last_read_progress, R.string.please_wait_subtext, R.drawable.ic_visibility);
+		new AlertBuilder().setTitle(R.string.mark_last_read_progress)
+				.setSubtitle(R.string.please_wait_subtext)
+				.setIcon(R.drawable.ic_visibility)
+				.show();
         queueRequest(new MarkLastReadRequest(getActivity(), getThreadId(), index).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_last_read_success, 0, R.drawable.ic_visibility);
+				new AlertBuilder().setTitle(R.string.mark_last_read_success)
+						.setIcon(R.drawable.ic_visibility)
+						.show();
                 refreshInfo();
                 refreshPosts();
             }
@@ -930,7 +937,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 								getAwfulActivity().displayForumIndex();
 							}
                         }else{
-                            displayAlert(new AwfulError());
+							new AlertBuilder().fromError(new AwfulError()).show();
                         }
                         redirect = null;
                         bypassBackStack = false;
@@ -975,7 +982,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                                 goToPage(pageInt);
                             }
                         } catch (NumberFormatException e) {
-                            displayAlert(R.string.invalid_page);
+							new AlertBuilder().setTitle(R.string.invalid_page).show();
                         } catch (Exception e) {
                             Log.d(TAG, e.toString());
                         }
@@ -1287,7 +1294,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			getActivity().startActivity(browserIntent);
 		} else {
 			String[] split = url.split(":");
-			displayAlert("Cannot open link:","No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."));
+			new AlertBuilder().setTitle("Cannot open link:")
+					.setSubtitle("No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."))
+					.show();
 		}
 	}
 	
@@ -1647,7 +1656,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     	mThreadView.setKeepScreenOn(keepScreenOn);
 
         //TODO icon
-		displayAlert( keepScreenOn? "Screen stays on" :"Screen turns itself off");
+		new AlertBuilder().setTitle(keepScreenOn? "Screen stays on" :"Screen turns itself off").show();
 	}
 
 	@Override

@@ -46,7 +46,6 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -82,8 +81,6 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.util.Date;
-
-import static com.ferg.awfulapp.constants.Constants.DEBUG;
 
 /**
  * Uses intent extras:
@@ -612,7 +609,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                displayAlert(R.string.mark_unread_success, 0, R.drawable.ic_check_circle);
+                new AlertBuilder().setTitle(R.string.mark_unread_success)
+                        .setIcon(R.drawable.ic_check_circle)
+                        .show();
                 refreshInfo();
             }
 
