@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/close"
+        android:title="@string/thread_close"
+        android:icon="@drawable/ic_https_dark"
+        app:showAsAction="never"
+        />
+    <item
         android:id="@+id/reply"
         android:title="@string/post_reply"
         android:icon="@drawable/ic_reply_dark"

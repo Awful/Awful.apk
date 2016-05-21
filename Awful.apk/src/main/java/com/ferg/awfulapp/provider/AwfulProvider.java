@@ -61,7 +61,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 32;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -107,6 +107,7 @@ public class AwfulProvider extends ContentProvider {
 		AwfulThread.AUTHOR,
 		AwfulThread.AUTHOR_ID,
 		AwfulThread.LOCKED,
+		AwfulThread.CAN_OPEN_CLOSE,
 		AwfulThread.BOOKMARKED,
 		AwfulThread.STICKY,
 		AwfulThread.CATEGORY,
@@ -246,8 +247,9 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.UNREADCOUNT   + " INTEGER,"   + 
                 AwfulThread.AUTHOR 		 + " VARCHAR,"    + 
                 AwfulThread.AUTHOR_ID 		+ " INTEGER," +
-                AwfulThread.LOCKED   	+ " INTEGER,"     + 
-                AwfulThread.BOOKMARKED 	    + " INTEGER," +
+				AwfulThread.LOCKED   	+ " INTEGER,"     +
+				AwfulThread.CAN_OPEN_CLOSE   	+ " INTEGER,"     +
+				AwfulThread.BOOKMARKED 	    + " INTEGER," +
                 AwfulThread.STICKY   		+ " INTEGER," +
                 AwfulThread.CATEGORY   		+ " INTEGER," +
                 AwfulThread.LASTPOSTER   	+ " VARCHAR," +
@@ -387,9 +389,12 @@ public class AwfulProvider extends ContentProvider {
 				createPMTable(aDb);
 				createPostTable(aDb);
 			case 30:
-		    	aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
-		    	createForumTable(aDb);
-		    	break;//make sure to keep this break statement on the last case of this switch
+				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+				createForumTable(aDb);
+			case 31:
+				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
+				createThreadTable(aDb);
+				break;//make sure to keep this break statement on the last case of this switch
     		default:
             	wipeRecreateTables(aDb);
         	}
@@ -700,7 +705,9 @@ public class AwfulProvider extends ContentProvider {
                     aSelectionArgs, null, null, aSortOrder);
             result.setNotificationUri(getContext().getContentResolver(), aUri);
         } catch (Exception e) {
-            Crashlytics.log(String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables()));
+			if (!Constants.DEBUG){
+				Crashlytics.log(String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables()));
+			}
             throw e;
         }
 
@@ -806,6 +813,7 @@ public class AwfulProvider extends ContentProvider {
 		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
 		sThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
 		sThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+		sThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
 		sThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
 		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
@@ -832,6 +840,7 @@ public class AwfulProvider extends ContentProvider {
 		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
 		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
 		sUCPThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+		sUCPThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
 		sUCPThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
 		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
 		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
