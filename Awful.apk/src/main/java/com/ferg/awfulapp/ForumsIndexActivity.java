@@ -834,7 +834,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 if (!forceReload && getThreadId() == id && getThreadPage() == page) {
                     setNavIds(mThreadFragment.getParentForumId(), mNavThreadId);
                 } else {
-                    mThreadFragment.openThread(id, page);
+                    mThreadFragment.openThread(id, page, null);
                     mViewPager.getAdapter().notifyDataSetChanged();
                 }
             } else {

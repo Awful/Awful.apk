@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -180,9 +181,16 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
 		return currentProgress;
 	}
 
-	protected void setTitle(String title){
-		if(getActivity()!=null){
-			getAwfulActivity().setActionbarTitle(title, this);
+
+    /**
+     * Set the actionbar's title.
+     * @param title The text to set as the title
+     */
+    @CallSuper
+	protected void setTitle(@NonNull String title){
+        AwfulActivity activity = getAwfulActivity();
+		if (activity != null) {
+            activity.setActionbarTitle(title, this);
 		}
 	}
 
