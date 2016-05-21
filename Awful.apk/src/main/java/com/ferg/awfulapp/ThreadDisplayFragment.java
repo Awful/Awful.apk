@@ -94,6 +94,7 @@ import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
+import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
@@ -155,7 +156,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private int mParentForumId = 0;
     private boolean threadClosed = false;
     private boolean threadBookmarked = false;
-    private boolean threadArchived = false;
+	private boolean threadArchived = false;
+	private boolean threadOpenClose = false;
     
     private boolean keepScreenOn = false;
     
@@ -601,6 +603,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         if(menu == null || getActivity() == null){
             return;
         }
+		MenuItem openClose = menu.findItem(R.id.close);
+		if(openClose != null){
+			openClose.setVisible(threadOpenClose);
+			openClose.setTitle((threadClosed?getString(R.string.thread_open):getString(R.string.thread_close)));
+		}
 		MenuItem find = menu.findItem(R.id.find);
 		if(find != null){
 			find.setVisible(true);
@@ -633,6 +640,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     public boolean onOptionsItemSelected(MenuItem item) {
     	if(DEBUG) Log.e(TAG, "onOptionsItemSelected");
         switch(item.getItemId()) {
+			case R.id.close:
+				toggleCloseThread();
+				break;
 			case R.id.reply:
 				displayPostReplyDialog();
 				break;
@@ -1060,6 +1070,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     public void displayPostReplyDialog() {
         displayPostReplyDialog(getThreadId(), -1, AwfulMessage.TYPE_NEW_REPLY);
     }
+	protected void toggleCloseThread(){
+		queueRequest(new CloseOpenRequest(getActivity(), getThreadId()).build(mSelf, new AwfulRequest.AwfulResultCallback<Void>() {
+			@Override
+			public void success(Void result) {
+				threadClosed = !threadClosed;
+			}
+
+			@Override
+			public void failure(VolleyError error) {
+				Log.e(TAG, (threadClosed?"Thread closing":"Thread reopening")+" failed");
+			}
+		}));
+	}
 
     @SuppressWarnings("unused")
 	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
@@ -1435,7 +1458,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         	Log.v(TAG,"Thread title finished, populating.");
         	if(aData.getCount() >0 && aData.moveToFirst()){
         		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)),mPrefs.postPerPage);
-        		threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
+				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
                 threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));

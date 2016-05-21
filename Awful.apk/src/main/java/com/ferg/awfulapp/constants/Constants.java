@@ -50,7 +50,8 @@ public class Constants {
     public static final String FUNCTION_BANLIST         = BASE_URL + "/banlist.php";
     public static final String FUNCTION_RATE_THREAD     = BASE_URL + "/threadrate.php";
 	public static final String FUNCTION_MISC 			= BASE_URL + "/misc.php";
-	public static final String FUNCTION_REPORT 			= BASE_URL + "/modalert.php";
+    public static final String FUNCTION_REPORT 			= BASE_URL + "/modalert.php";
+    public static final String FUNCTION_POSTINGS 		= BASE_URL + "/postings.php";
 
 	public static final String PATH_FORUM 				= "forumdisplay.php";
     public static final String PATH_THREAD          	= "showthread.php";
@@ -64,6 +65,7 @@ public class Constants {
     public static final String ACTION_ADDLIST 			  = "addlist";
     public static final String ACTION_QUERY 			  = "query";
     public static final String ACTION_RESULTS 			  = "results";
+    public static final String ACTION_OPEN_CLOSE_THREAD   = "openclosethread";
     
     public static final String PARAM_USER_ID   = "userid";
     public static final String PARAM_USERNAME  = "username";

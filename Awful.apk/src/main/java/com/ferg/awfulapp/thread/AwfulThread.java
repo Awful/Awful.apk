@@ -97,7 +97,8 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String UNREADCOUNT          = "unread_count";
     public static final String AUTHOR 		        = "author";
     public static final String AUTHOR_ID 	        = "author_id";
-	public static final String LOCKED               = "locked";
+    public static final String LOCKED               = "locked";
+    public static final String CAN_OPEN_CLOSE       = "can_open_close";
 	public static final String BOOKMARKED           = "bookmarked";
 	public static final String STICKY               = "sticky";
 	public static final String CATEGORY             = "category";
@@ -217,6 +218,12 @@ public class AwfulThread extends AwfulPagedItem  {
                     thread.put(AUTHOR_ID,tarUser.first().getElementsByAttribute("href").first().attr("href").substring(tarUser.first().getElementsByAttribute("href").first().attr("href").indexOf("userid=")+7));
                 }
 
+                if(thread.containsKey(AUTHOR)&& thread.getAsString(AUTHOR).equals(AwfulPreferences.getInstance().username)){
+                    thread.put(CAN_OPEN_CLOSE,1);
+                }else{
+                    thread.put(CAN_OPEN_CLOSE,0);
+                }
+
                 Elements tarCount = node.getElementsByClass("count");
                 if (tarCount.size() > 0 && tarCount.first().getAllElements().size() > 0) {
                     thread.put(UNREADCOUNT, Integer.parseInt(tarCount.first().getAllElements().first().text().trim()));
@@ -308,6 +315,13 @@ public class AwfulThread extends AwfulPagedItem  {
         	thread.put(LOCKED, 1);
         }else{
         	thread.put(LOCKED, 0);
+        }
+
+        Elements openClose = response.getElementsByAttributeValue("alt", "Close thread");
+        if(openClose.isEmpty()){
+            thread.put(CAN_OPEN_CLOSE, 0);
+        }else{
+            thread.put(CAN_OPEN_CLOSE, 1);
         }
 
         Elements bkButtons = response.getElementsByClass("thread_bookmark");
