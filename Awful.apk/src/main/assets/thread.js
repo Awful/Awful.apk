@@ -1,4 +1,4 @@
-function toggleinfo(info){
+function toggleInfo(info){
     if($(info).children('.postinfo-title').hasClass('extended')){
         $(info).children('.avatar-cell').removeClass('extended');
         $(info).children('.avatar-cell').children('.avatar').removeClass('extended');
@@ -22,7 +22,7 @@ function changeCSS(file){
     $('head').children('link').first().attr('href',file);
 }
 
-function loadpagehtml(checkFirst){
+function loadPageHtml(checkFirst){
     if(checkFirst !== undefined && document.getElementById("container").innerHTML != ""){
         return
     }
@@ -34,7 +34,7 @@ function loadpagehtml(checkFirst){
     window.topScrollCount = 0;
     var html = listener.getBodyHtml();
     document.getElementById("container").innerHTML = html;
-    pageinit();
+    pageInit();
     window.topScrollID = window.setTimeout(scrollPost, 1000);
     $(window).on('load', function(){
         changeCSS(listener.getCSS());
@@ -42,7 +42,7 @@ function loadpagehtml(checkFirst){
 }
 
 
-function pageinit() {
+function pageInit() {
     $('.bbc-spoiler').removeAttr('onmouseover');
     $('.bbc-spoiler').removeAttr('onmouseout');
     if(listener.getPreference("showSpoilers") == "true"){
@@ -62,7 +62,7 @@ function pageinit() {
     });
     
     $('.postinfo').on('click',function(){
-        toggleinfo($(this));
+        toggleInfo($(this));
     });
     $('.postmenu').on('click',function(){
         listener.onMoreClick(
@@ -109,7 +109,6 @@ function pageinit() {
     });
 
      if(listener.getPreference("hideSignatures") == "true"){
-        //$('section.postcontent .signature').hide();
         $('section.postcontent .signature').parent().children().each(function() {
 
            var sig = $(this).parent().find('.signature').index();
