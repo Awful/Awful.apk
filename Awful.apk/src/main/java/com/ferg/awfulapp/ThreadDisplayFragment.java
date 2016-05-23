@@ -79,10 +79,8 @@ import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -113,6 +111,8 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.widget.MinMaxNumberPicker;
+import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -124,7 +124,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -1016,51 +1015,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if (activity == null) {
 			return;
 		}
-		LayoutInflater inflater = activity.getLayoutInflater();
-		View pickerView = inflater.inflate(R.layout.number_picker,
-				(ViewGroup) activity.findViewById(R.id.number_picker_root));
-		final NumberPicker picker = (NumberPicker) pickerView.findViewById(R.id.pagePicker);
-		final Button minButton = (Button) pickerView.findViewById(R.id.min);
-		final Button maxButton = (Button) pickerView.findViewById(R.id.max);
 
-		final int MIN_PAGE = FIRST_PAGE;
-		final int lastPage = getLastPage();
-		OnClickListener minMaxClickListener = new OnClickListener() {
+		new PagePicker(activity, getLastPage(), getPage(), new MinMaxNumberPicker.ResultListener() {
 			@Override
-			public void onClick(View v) {
-				picker.setValue(v == minButton ? MIN_PAGE : lastPage);
+			public void onButtonPressed(int button, int resultValue) {
+				if (button == DialogInterface.BUTTON_POSITIVE) {
+					goToPage(resultValue);
+				}
 			}
-		};
-
-		picker.setMinValue(MIN_PAGE);
-		picker.setMaxValue(lastPage);
-		picker.setValue(getPage());
-		minButton.setOnClickListener(minMaxClickListener);
-		maxButton.setOnClickListener(minMaxClickListener);
-		minButton.setText(String.format(Locale.getDefault(), "%d", MIN_PAGE));
-		maxButton.setText(String.format(Locale.getDefault(), "%d", lastPage));
-
-		new AlertDialog.Builder(activity)
-				.setTitle("Jump to Page")
-				.setView(pickerView)
-				.setPositiveButton("OK",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface aDialog, int aWhich) {
-								try {
-									int pageInt = picker.getValue();
-									if (pageInt > 0 && pageInt <= lastPage) {
-										goToPage(pageInt);
-									}
-								} catch (NumberFormatException e) {
-									new AlertBuilder().setTitle(R.string.invalid_page).show();
-								} catch (Exception e) {
-									// TODO: why does this need to catch Exception?
-									Log.w(TAG, e.toString());
-								}
-							}
-						})
-				.setNegativeButton("Cancel", null)
-				.show();
+		}).show();
 	}
 
 

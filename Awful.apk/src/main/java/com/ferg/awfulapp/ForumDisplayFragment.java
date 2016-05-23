@@ -28,7 +28,6 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -53,12 +52,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
@@ -77,6 +73,8 @@ import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.widget.MinMaxNumberPicker;
+import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -336,7 +334,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 return true;
             case R.id.go_to_page:
                 int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
-                selectPage((int) info.id, maxPage);
+                selectThreadPage((int) info.id, maxPage);
                 return true;
             case R.id.mark_thread_unread:
             	markUnread((int) info.id);
@@ -355,51 +353,26 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         return false;
     }
 
-    //TODO: combine with displayPagePicker()
-    private void selectPage(final int threadId, final int maxPage) {
-        View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
-        final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
-        NumberPicker.setMinValue(1);
-        NumberPicker.setMaxValue(maxPage);
-        NumberPicker.setValue(maxPage);
-        Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
-        NumberPickerMin.setText(Integer.toString(1));
-        NumberPickerMin.setOnClickListener(new OnClickListener() {
+    private void selectThreadPage(final int threadId, final int maxPage) {
+        new PagePicker(getActivity(), maxPage, maxPage, new MinMaxNumberPicker.ResultListener() {
             @Override
-            public void onClick(View v) {
-                NumberPicker.setValue(1);
+            public void onButtonPressed(int button, int resultValue) {
+                if (button == DialogInterface.BUTTON_POSITIVE) {
+                    viewThread(threadId, resultValue);
+                }
             }
-        });
-        Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
-        NumberPickerMax.setOnClickListener(new OnClickListener() {
+        }).show();
+    }
+
+    private void selectForumPage() {
+        new PagePicker(getActivity(), getLastPage(), getPage(), new MinMaxNumberPicker.ResultListener() {
             @Override
-            public void onClick(View v) {
-                NumberPicker.setValue(maxPage);
+            public void onButtonPressed(int button, int resultValue) {
+                if (button == DialogInterface.BUTTON_POSITIVE) {
+                    goToPage(resultValue);
+                }
             }
-        });
-        NumberPickerMax.setText(Integer.toString(maxPage));
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Jump to Page")
-                .setView(NumberPickerView)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface aDialog, int aWhich) {
-                                try {
-                                    int pageInt = NumberPicker.getValue();
-                                    if (pageInt > 0 && pageInt <= maxPage) {
-                                        viewThread(threadId, pageInt);
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.e(TAG, "Not a valid number: " + e.toString());
-                                    Toast.makeText(getActivity(),
-                                            R.string.invalid_page, Toast.LENGTH_SHORT).show();
-                                } catch (Exception e) {
-                                    Log.e(TAG, e.toString());
-                                }
-                            }
-                        })
-                .setNegativeButton("Cancel", null)
-                .show();
+        }).show();
     }
 
     private void viewThread(int id, int page){
@@ -410,52 +383,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         String clipLabel = String.format("Thread #%d", id);
         String clipText  = Constants.FUNCTION_THREAD + "?" + Constants.PARAM_THREAD_ID + "=" + id;
         safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
-    }
-
-	private void displayPagePicker() {
-        View NumberPickerView = this.getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
-        final NumberPicker NumberPicker = (NumberPicker) NumberPickerView.findViewById(R.id.pagePicker);
-        NumberPicker.setMinValue(1);
-        NumberPicker.setMaxValue(getLastPage());
-        NumberPicker.setValue(getPage());
-        Button NumberPickerMin = (Button) NumberPickerView.findViewById(R.id.min);
-        NumberPickerMin.setText(Integer.toString(1));
-        NumberPickerMin.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NumberPicker.setValue(1);
-            }
-        });
-        Button NumberPickerMax = (Button) NumberPickerView.findViewById(R.id.max);
-        NumberPickerMax.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NumberPicker.setValue(getLastPage());
-            }
-        });
-        NumberPickerMax.setText(Integer.toString(getLastPage()));
-        new AlertDialog.Builder(getActivity())
-            .setTitle("Jump to Page")
-            .setView(NumberPickerView)
-            .setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface aDialog, int aWhich) {
-                        try {
-                            int pageInt = NumberPicker.getValue();
-                            if (pageInt > 0 && pageInt <= getLastPage()) {
-                                goToPage(pageInt);
-                            }
-                        } catch (NumberFormatException e) {
-                            Log.e(TAG, "Not a valid number: " + e.toString());
-                            Toast.makeText(getActivity(),
-                                R.string.invalid_page, Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            Log.e(TAG, e.toString());
-                        }
-                    }
-                })
-            .setNegativeButton("Cancel", null)
-            .show();
     }
 
 
@@ -475,7 +402,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 	goToPage(getPage()-1);
                     break;
                 case R.id.page_count:
-                	displayPagePicker();
+                	selectForumPage();
                 	break;
             }
         }
