@@ -691,7 +691,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                     return mIndexFragment;
                 case 1:
                     if (mForumFragment == null) {
-                        mForumFragment = new ForumDisplayFragment(mForumId, mForumPage, skipLoad);
+                        mForumFragment = ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
                     }
                     return mForumFragment;
                 case 2:
