@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2012, Matthew Shepard
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,23 +32,20 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.support.annotation.CallSuper;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -61,36 +58,37 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
-public abstract class AwfulFragment extends Fragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
+import static com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.BOTH;
+import static com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP;
+
+public abstract class AwfulFragment extends Fragment implements AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected String TAG = "AwfulFragment";
     protected static final boolean DEBUG = Constants.DEBUG;
 
 	protected AwfulPreferences mPrefs;
-	protected int currentProgress = 100;
+	private int currentProgress = 100;
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
-	
 
-    protected Handler mHandler = new Handler();
+
+    protected final Handler mHandler = new Handler();
 
     @Override
-    public void onAttach(Activity aActivity) {
-    	super.onAttach(aActivity); if(DEBUG) Log.e(TAG, "onAttach");
-    	if(!(aActivity instanceof AwfulActivity)){
-    		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
+    public void onAttach(Context context) {
+    	super.onAttach(context);
+        if(!(getActivity() instanceof AwfulActivity)){
+    		throw new IllegalStateException("AwfulFragment - parent activity must extend AwfulActivity!");
     	}
     	if(mPrefs == null){
-    		mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+    		mPrefs = AwfulPreferences.getInstance(context, this);
     	}
     }
-    
+
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
     	View v = inflater.inflate(resId, container, false);
     	View progressBar = v.findViewById(R.id.progress_bar);
@@ -99,41 +97,17 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
     	}
     	return v;
     }
-    
+
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
-		super.onActivityCreated(aSavedState); if(DEBUG) Log.e(TAG, "onActivityCreated");
+		super.onActivityCreated(aSavedState);
 		onPreferenceChange(mPrefs, null);
 	}
 
-    @Override
-    public void onStart() {
-        super.onStart(); if(DEBUG) Log.e(TAG, "onStart");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume(); if(DEBUG) Log.e(TAG, "onResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause(); if(DEBUG) Log.e(TAG, "onPause");
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState); if(DEBUG) Log.e(TAG,"onSaveInstanceState");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop(); if(DEBUG) Log.e(TAG, "onStop");
-    }
 
     @Override
     public void onDestroy() {
-    	super.onDestroy(); if(DEBUG) Log.e(TAG, "onDestroy");
+    	super.onDestroy();
         this.cancelNetworkRequests();
         mHandler.removeCallbacksAndMessages(null);
         mPrefs.unregisterCallback(this);
@@ -141,40 +115,40 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 
     @Override
     public void onDetach() {
-        super.onDetach(); if(DEBUG) Log.e(TAG, "onDetach");
+        super.onDetach();
         this.cancelNetworkRequests();
         mHandler.removeCallbacksAndMessages(null);
     }
-    
+
     protected void displayForumIndex(){
     	if(getActivity() != null){
     		getAwfulActivity().displayForumIndex();
     	}
     }
-    
+
     protected void displayForumContents(int aId) {
     	if(getActivity() != null){
     		getAwfulActivity().displayForum(aId, 1);
     	}
     }
-    
+
     protected void displayThread(int aId, int aPage, int forumId, int forumPage, boolean forceReload) {
     	if(getActivity() != null){
     		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage, forceReload);
     	}
     }
-	
-	
+
+
 	public AwfulActivity getAwfulActivity(){
 		return (AwfulActivity) getActivity();
 	}
-	
+
 	protected void displayForum(long forumId, long page){
 		if(getAwfulActivity() != null){
 			getAwfulActivity().displayForum((int) forumId, (int) page);
 		}
 	}
-	
+
     public void displayPostReplyDialog(final int threadId, final int postId, final int type) {
 		if(getAwfulActivity() != null){
 			getAwfulActivity().runOnUiThread(new Runnable() {
@@ -192,7 +166,7 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
             });
 		}
     }
-	
+
 	protected void setProgress(int percent){
 		currentProgress = percent;
 		if(currentProgress > 0 && mSRL != null){
@@ -202,35 +176,30 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 			mProgressBar.setProgress(percent, getActivity());
 		}
 	}
-	
+
 	public int getProgressPercent(){
 		return currentProgress;
 	}
-	
-	protected void setTitle(String title){
-		if(getActivity()!=null){
-			getAwfulActivity().setActionbarTitle(title, this);
+
+
+    /**
+     * Set the actionbar's title.
+     * @param title The text to set as the title
+     */
+    @CallSuper
+	protected void setTitle(@NonNull String title){
+        AwfulActivity activity = getAwfulActivity();
+		if (activity != null) {
+            activity.setActionbarTitle(title, this);
 		}
 	}
-	
-	protected boolean isFragmentVisible(){
-		if(getActivity()!=null){
-			return getAwfulActivity().isFragmentVisible(this);
-		}
-		return false;
-	}
-	
-	protected void startActionMode(){
-		if(getAwfulActivity() != null){
-			getAwfulActivity().startSupportActionMode(this);
-		}
-	}
+
 
     @Override
     public void requestStarted(AwfulRequest req) {
         if(mSRL != null){
             // P2R Library is ... awful - part 1
-            mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
+            mSRL.setDirection(TOP);
             mSRL.setRefreshing(true);
         }
     }
@@ -245,16 +214,12 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         if(mSRL != null){
             mSRL.setRefreshing(false);
             // P2R Library is ... awful - part 2
-            if(this instanceof ThreadDisplayFragment){
-                mSRL.setDirection(SwipyRefreshLayoutDirection.BOTH);
-            }else{
-                mSRL.setDirection(SwipyRefreshLayoutDirection.TOP);
-            }
+            mSRL.setDirection(this instanceof ThreadDisplayFragment ? BOTH : TOP);
         }
         if(error instanceof AwfulError){
-            displayAlert((AwfulError) error);
+            new AlertBuilder().fromError((AwfulError) error).show();
         }else if(error != null){
-            displayAlert(R.string.loading_failed);
+            new AlertBuilder().setTitle(R.string.loading_failed).show();
         }
     }
 
@@ -268,31 +233,11 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
 		}
 	}
 
-	protected boolean isLoggedIn(){
-		return getAwfulActivity().isLoggedIn();
-	}
-	
-	public boolean onBackPressed() {
+
+    public boolean onBackPressed() {
 		return false;
 	}
 
-	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		return false;
-	}
-
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		return false;
-	}
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		return false;
-	}
-
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {	}
 
     protected AwfulApplication getAwfulApplication(){
         AwfulActivity act = getAwfulActivity();
@@ -336,64 +281,125 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         }
     }
 
+    /** Get this fragment's display title */
     public abstract String getTitle();
-    public abstract void onPageVisible();
-    public abstract void onPageHidden();
-    public abstract String getInternalId();
-    public abstract boolean volumeScroll(KeyEvent event);
+    public void onPageVisible() {}
+    public void onPageHidden() {}
 
 
-    protected void displayAlert(int titleRes){
-        if(getActivity() != null){
-            displayAlert(getString(titleRes), null, 0, null);
+    /**
+     * Try to handle a KeyEvent as a volume scroll action.
+     * @param event The event to handle
+     * @return      true if the event was consumed
+     */
+    public final boolean attemptVolumeScroll(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (action == KeyEvent.ACTION_DOWN) {
+                return doScroll(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN);
+            } else {
+                return true;
+            }
         }
+        return false;
     }
 
-    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
-        if(getActivity() != null){
-            if(subtitleRes != 0){
-                displayAlert(getString(titleRes), getString(subtitleRes), iconRes, null);
-            }else{
-                displayAlert(getString(titleRes), null, iconRes, null);
+
+    /**
+     * Perform a scroll action, e.g. in response to a volume scroll event.
+     * </p>
+     * Does nothing by default, override this and return true to handle it.
+     * @param down  true to scroll down, false for up
+     * @return      return true to consume this scroll event
+     */
+    protected boolean doScroll(boolean down) {
+        return false;
+    }
+
+
+    /**
+     * Builds and displays alert toasts
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    protected class AlertBuilder {
+        @NonNull
+        private String title = "";
+        @NonNull
+        private String subtitle = "";
+        @DrawableRes
+        private int iconResId = 0;
+        @Nullable
+        private Animation animation = null;
+
+        @NonNull
+        AlertBuilder setTitle(@StringRes int title) {
+            this.title = getString(title);
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setTitle(@Nullable String title) {
+            this.title = (title == null) ? "" : title;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setSubtitle(@StringRes int subtitle) {
+            this.subtitle = getString(subtitle);
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setSubtitle(@Nullable String subtitle) {
+            this.subtitle = (subtitle == null) ? "" : subtitle;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setIcon(@DrawableRes int iconResId) {
+            this.iconResId = iconResId;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder setIconAnimation(@Nullable Animation animation) {
+            this.animation = animation;
+            return this;
+        }
+
+        @NonNull
+        AlertBuilder fromError(@NonNull AwfulError error) {
+            setTitle(error.getMessage());
+            setSubtitle(error.getSubMessage());
+            setIcon(error.getIconResource());
+            setIconAnimation(error.getIconAnimation());
+            return this;
+        }
+
+        void show() {
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        displayAlertInternal(title, subtitle, iconResId, animation);
+                    }
+                });
             }
         }
     }
 
-    protected void displayAlert(AwfulError error){
-        displayAlert(error.getMessage(), error.getSubMessage(), error.getIconResource(), error.getIconAnimation());
-    }
 
-    protected void displayAlert(String title){
-        displayAlert(title, null, 0, null);
-    }
-
-    protected void displayAlert(String title, int iconRes){
-        displayAlert(title, null, iconRes, null);
-    }
-
-    protected void displayAlert(String title, String subtext){
-        displayAlert(title, subtext, 0, null);
-    }
-
-    private void displayAlert(final String title, final String subtext, final int iconRes, final Animation animate){
-        if(Looper.getMainLooper().equals(Looper.myLooper())){
-            displayAlertInternal(title, subtext, iconRes, animate);
-        }else{
-            //post on main thread, if this is called from a secondary thread.
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    displayAlertInternal(title, subtext, iconRes, animate);
-                }
-            });
-        }
-    }
-
-    private void displayAlertInternal(String title, String subtext, int iconRes, Animation animate){
-        if(getActivity() == null){
+    private void displayAlertInternal(@NonNull String title, @NonNull String subtext, int iconRes, @Nullable Animation animate){
+        Activity activity = getActivity();
+        if(activity == null){
             return;
         }
-        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View popup = inflater.inflate(R.layout.alert_popup,
+                (ViewGroup) activity.findViewById(R.id.alert_popup_root));
         TextView popupTitle = (TextView)popup.findViewById(R.id.popup_title);
         popupTitle.setText(title);
         TextView popupSubTitle = (TextView) popup.findViewById(R.id.popup_subtitle);
@@ -446,13 +452,16 @@ public abstract class AwfulFragment extends Fragment implements ActionMode.Callb
         try {
             clipboard.setPrimaryClip(clip);
             if (successMessageId != null) {
-                displayAlert(successMessageId, 0, R.drawable.ic_insert_link_dark);
+                new AlertBuilder().setTitle(successMessageId)
+                        .setIcon(R.drawable.ic_insert_link_dark)
+                        .show();
             }
             return true;
         } catch (IllegalArgumentException | SecurityException e) {
-            displayAlert("Unable to copy to clipboard!",
-                    "Another app has locked access, you may need to reboot",
-                    R.drawable.ic_error, null);
+            new AlertBuilder().setTitle("Unable to copy to clipboard!")
+                    .setSubtitle("Another app has locked access, you may need to reboot")
+                    .setIcon(R.drawable.ic_error)
+                    .show();
             e.printStackTrace();
             return false;
         }

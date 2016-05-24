@@ -30,7 +30,6 @@ package com.ferg.awfulapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -320,13 +319,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, this);
         }
     }
-	@Override
-	public void onPageVisible() {
-	}
 
-	@Override
-	public void onPageHidden() {
-	}
 
 	@Override
 	public String getTitle() {
@@ -338,17 +331,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         }
 		return "Private Messages";
 	}
-	
-	@Override
-	public String getInternalId() {
-		return TAG;
-	}
 
-	@Override
-	public boolean volumeScroll(KeyEvent event) {
-		// I have no idea where this fragment is coming from, not the FIA anyway
-		return false;
-	}
 
 	@Override
 	public void onRefresh() {

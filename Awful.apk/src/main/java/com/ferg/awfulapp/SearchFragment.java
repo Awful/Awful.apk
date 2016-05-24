@@ -40,7 +40,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -148,7 +147,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
-                                displayAlert(new AwfulError());
+                                new AlertBuilder().fromError(new AwfulError()).show();
                             }
                         }
                     }
@@ -249,28 +248,6 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         }).show();
             }
         }));
-    }
-
-
-    @Override
-    public void onPageVisible() {
-
-    }
-
-    @Override
-    public void onPageHidden() {
-    }
-
-    @Override
-    public String getInternalId() {
-        return null;
-    }
-
-
-    @Override
-    public boolean volumeScroll(KeyEvent event) {
-        //I don't think that's necessary
-        return false;
     }
 
 

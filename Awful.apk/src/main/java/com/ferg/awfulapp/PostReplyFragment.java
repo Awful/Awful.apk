@@ -40,7 +40,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -50,14 +49,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -828,7 +825,9 @@ public class PostReplyFragment extends AwfulFragment {
             if (mDialog != null) {
                 mDialog.dismiss();
             }
-            displayAlert(R.string.message_empty, R.string.message_empty_subtext, 0);
+            new AlertBuilder().setTitle(R.string.message_empty)
+                    .setSubtitle(R.string.message_empty_subtext)
+                    .show();
             return;
         }
         if (!TextUtils.isEmpty(mFileAttachment)) {
@@ -926,10 +925,6 @@ public class PostReplyFragment extends AwfulFragment {
         restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
     }
 
-    @Override
-    public void onPageVisible() {
-
-    }
 
     @Override
     public void onPageHidden() {
@@ -961,16 +956,6 @@ public class PostReplyFragment extends AwfulFragment {
         insertEmote(contents);
     }
 
-    @Override
-    public String getInternalId() {
-        return TAG;
-    }
-
-    @Override
-    public boolean volumeScroll(KeyEvent event) {
-        //I don't think that's necessary
-        return false;
-    }
 
     private String getClipboardLink() {
         String link = null;

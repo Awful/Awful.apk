@@ -1,7 +1,5 @@
 package com.ferg.awfulapp.preferences.fragments;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -10,13 +8,13 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
-import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.Keys;
+import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 
 /**
  * Created by baka kaba on 04/05/2015.
@@ -129,48 +127,22 @@ public class PostSettings extends SettingsFragment {
 
         @Override
         public boolean onPreferenceClick(final Preference preference) {
-
-            @SuppressLint("InflateParams")
-            final View pickerView = getActivity().getLayoutInflater().inflate(R.layout.number_picker, null);
-            final NumberPicker  picker = (NumberPicker) pickerView.findViewById(R.id.pagePicker);
-            final Button        minButton = (Button) pickerView.findViewById(R.id.min);
-            final Button        maxButton = (Button) pickerView.findViewById(R.id.max);
             final int minPages = 1;
             final int maxPages = Constants.ITEMS_PER_PAGE;
 
-            picker.setMinValue(minPages);
-            picker.setMaxValue(maxPages);
-            picker.setValue(mPrefs.postPerPage);
-            minButton.setText(String.format("%d", minPages));
-            maxButton.setText(String.format("%d", maxPages));
-
-            View.OnClickListener buttonsListener = new View.OnClickListener() {
+            new MinMaxNumberPicker(getActivity(), minPages, maxPages, mPrefs.postPerPage,
+                    getString(R.string.setting_posts_per_page), new MinMaxNumberPicker.ResultListener() {
                 @Override
-                public void onClick(View v) {
-                    if (v == minButton) {
-                        picker.setValue(minPages);
-                    } else if (v == maxButton) {
-                        picker.setValue(maxPages);
+                public void onButtonPressed(int button, int resultValue) {
+                    if (button == DialogInterface.BUTTON_POSITIVE) {
+                        String key = preference.getKey();
+                        if (key.equals(getString(R.string.pref_key_post_per_page))) {
+                            mPrefs.setPreference(Keys.POST_PER_PAGE, resultValue);
+                        }
                     }
                 }
-            };
-            minButton.setOnClickListener(buttonsListener);
-            maxButton.setOnClickListener(buttonsListener);
+            }).show();
 
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.setting_posts_per_page)
-                    .setView(pickerView)
-                    .setPositiveButton(R.string.alert_ok,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface aDialog, int aWhich) {
-                                    String key = preference.getKey();
-                                    if (key.equals(getString(R.string.pref_key_post_per_page))) {
-                                        mPrefs.setPreference(Keys.POST_PER_PAGE, picker.getValue());
-                                    }
-                                }
-                            })
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
             return true;
         }
     }

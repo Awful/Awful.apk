@@ -762,7 +762,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void setActionbarTitle(String aTitle, Object requestor) {
         if (requestor != null && mViewPager != null) {
             //This will only honor the request if the requestor is the currently active view.
-            if (requestor instanceof AwfulFragment && isFragmentVisible((AwfulFragment) requestor)) {
+            if (requestor instanceof AwfulFragment && ((AwfulFragment) requestor).isVisible()) {
                 super.setActionbarTitle(aTitle, requestor);
             } else {
                 if (DEBUG)
@@ -834,7 +834,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 if (!forceReload && getThreadId() == id && getThreadPage() == page) {
                     setNavIds(mThreadFragment.getParentForumId(), mNavThreadId);
                 } else {
-                    mThreadFragment.openThread(id, page);
+                    mThreadFragment.openThread(id, page, null);
                     mViewPager.getAdapter().notifyDataSetChanged();
                 }
             } else {
@@ -872,7 +872,8 @@ public class ForumsIndexActivity extends AwfulActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (mPrefs.volumeScroll && pagerAdapter.getItem(mViewPager.getCurrentItem()) != null && ((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).volumeScroll(event)) {
+        AwfulFragment pagerItem = (AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem());
+        if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);

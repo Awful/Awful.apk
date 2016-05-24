@@ -36,7 +36,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,8 +70,6 @@ import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 public class ForumsIndexFragment extends AwfulFragment
         implements ForumRepository.ForumsUpdateListener, ForumListAdapter.EventListener {
 
-
-    private static final String TAG = "ForumsIndexFragment";
 
     @BindView(R.id.probationbar)
     View mProbationBar;
@@ -145,26 +142,6 @@ public class ForumsIndexFragment extends AwfulFragment
     public void onPause() {
         forumRepo.unregisterListener(this);
         super.onPause();
-    }
-
-    // TODO: do these visibility things need to be here?
-
-
-    @Override
-    public void onPageVisible() {
-        if (DEBUG) Log.d(TAG, "onPageVisible");
-    }
-
-
-    @Override
-    public void onPageHidden() {
-        if (DEBUG) Log.d(TAG, "onPageHidden");
-    }
-
-
-    @Override
-    public String getInternalId() {
-        return TAG;
     }
 
 
@@ -275,20 +252,10 @@ public class ForumsIndexFragment extends AwfulFragment
 
 
     @Override
-    public boolean volumeScroll(KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
+    protected boolean doScroll(boolean down) {
         int scrollAmount = forumRecyclerView.getHeight() / 2;
-
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (action == KeyEvent.ACTION_DOWN) {
-                boolean down = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN;
-                forumRecyclerView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
-            }
-            return true;
-        }
-
-        return false;
+        forumRecyclerView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
+        return true;
     }
 
 

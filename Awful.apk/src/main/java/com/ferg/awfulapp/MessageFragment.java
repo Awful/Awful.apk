@@ -15,7 +15,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -187,12 +186,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
 	}
-	
-	@Override
-    public void onStart() {
-        super.onStart();
-    }
-	
+
+
 	private void syncPM() {
         queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
@@ -230,7 +225,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                 }
                 if(getActivity() instanceof MessageDisplayActivity){
                     getActivity().finish();
-                    displayAlert("Message Sent!", R.drawable.ic_check_circle);
+					new AlertBuilder().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
                 }
             }
 
@@ -240,7 +235,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                displayAlert("Failed to send!", "Draft Saved");
+				new AlertBuilder().setTitle("Failed to send!").setSubtitle("Draft Saved").show();
             }
         }));
 	}
@@ -403,41 +398,22 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 
 	@Override
-	public void onPageVisible() {}
-
-	@Override
-	public void onPageHidden() {}
-
-	@Override
 	public String getTitle() {
 		return mTitle.getText().toString();
 	}
 
-	@Override
-	public String getInternalId() {
-		return null;
-	}
 
 	@Override
-	public boolean volumeScroll(KeyEvent event) {
-	    int action = event.getAction();
-	    int keyCode = event.getKeyCode();    
-        switch (keyCode) {
-        case KeyEvent.KEYCODE_VOLUME_UP:
-            if (action == KeyEvent.ACTION_DOWN) {
-            	mDisplayText.pageUp(false);   
-            }
-            return true;
-        case KeyEvent.KEYCODE_VOLUME_DOWN:
-            if (action == KeyEvent.ACTION_DOWN) {
-            	mDisplayText.pageDown(false);
-            }
-            return true;
-        default:
-            return false;
-        }
-    }
-	
+	protected boolean doScroll(boolean down) {
+		if (down) {
+			mDisplayText.pageDown(false);
+		} else {
+			mDisplayText.pageUp(false);
+		}
+		return true;
+	}
+
+
 	private String getBlankPage(){
 		return "<html><head></head><body style='{background-color:#"+ColorProvider.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
 	}
