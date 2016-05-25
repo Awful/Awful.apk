@@ -73,6 +73,7 @@ import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
+import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
@@ -98,12 +99,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     public static final String ARG_KEY_SKIP_LOAD = "skip load";
     public static final int FIRST_PAGE = 1;
     private ListView mListView;
-    private ImageButton mRefreshBar;
-    private ImageButton mNextPage;
-    private ImageButton mPrevPage;
-    private TextView mPageCountText;
-	private ImageButton mToggleSidebar;
 
+    private PageBar mPageBar;
 	private View mProbationBar;
 	private TextView mProbationMessage;
 	private ImageButton mProbationButton;
@@ -159,18 +156,25 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     	mListView = (ListView) result.findViewById(R.id.forum_list);
 
         // page bar
-        mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		getAwfulActivity().setPreferredFont(mPageCountText);
-		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
-		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
-		mRefreshBar  = (ImageButton) result.findViewById(R.id.refresh);
-		mToggleSidebar = (ImageButton) result.findViewById(R.id.toggle_sidebar);
-		mToggleSidebar.setOnClickListener(onButtonClick);
-		mNextPage.setOnClickListener(onButtonClick);
-		mPrevPage.setOnClickListener(onButtonClick);
-		mRefreshBar.setOnClickListener(onButtonClick);
-		mPageCountText.setOnClickListener(onButtonClick);
-		updatePageBar();
+        mPageBar = (PageBar) result.findViewById(R.id.page_bar);
+        mPageBar.setListener(new PageBar.PageBarCallbacks() {
+            @Override
+            public void onPageNavigation(boolean nextPage) {
+                goToPage(getPage() + (nextPage ? 1 : -1));
+            }
+
+            @Override
+            public void onRefreshClicked() {
+                syncForum();
+            }
+
+            @Override
+            public void onPageNumberClicked() {
+                selectForumPage();
+            }
+        });
+        getAwfulActivity().setPreferredFont(mPageBar.getTextView());
+        updatePageBar();
 
         // probation bar
 		mProbationBar = result.findViewById(R.id.probationbar);
@@ -265,26 +269,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     // TODO: pull this out as a shared method/widget in AwfulFragment
 	public void updatePageBar(){
-		if(mPageCountText != null){
-			mPageCountText.setText("Page " + getPage() + "/" + (getLastPage()>0?getLastPage():"?"));
-    		mRefreshBar.setVisibility(View.VISIBLE);
-            mNextPage.setVisibility(View.VISIBLE);
-			mPrevPage.setVisibility(View.VISIBLE);
-			mToggleSidebar.setVisibility(View.INVISIBLE);
-			if (getPage() <= 1) {
-				mPrevPage.setVisibility(View.GONE);
-				mToggleSidebar.setVisibility(View.GONE);
-			}
-			if (getPage() == getLastPage()) {
-	            mNextPage.setVisibility(View.GONE);
-	            if(getPage() != 1){
-		    		mRefreshBar.setVisibility(View.GONE);
-					mToggleSidebar.setVisibility(View.VISIBLE);//this is acting as a refresh button
-	            }else{
-	    			mToggleSidebar.setVisibility(View.INVISIBLE);//if we are at page 1/1, we already have the refresh button on the other side
-	            }
-			}
-		}
+        mPageBar.updatePagePosition(getPage(), getLastPage());
 	}
 
 
@@ -444,29 +429,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
 
-    // TODO: this is the page nav bar - move it to AwfulFragment
-	private View.OnClickListener onButtonClick = new View.OnClickListener() {
-
-		public void onClick(View aView) {
-            switch (aView.getId()) {
-                case R.id.toggle_sidebar://this switches between being a refresh button and being hidden depending on page number.
-                case R.id.refresh:
-                	syncForum();
-                    break;
-                case R.id.next_page:
-                	goToPage(getPage()+1);
-                    break;
-                case R.id.prev_page:
-                	goToPage(getPage()-1);
-                    break;
-                case R.id.page_count:
-                	selectForumPage();
-                	break;
-            }
-        }
-    };
-
-
     private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
         	Cursor row = mCursorAdapter.getRow(aId);
@@ -486,7 +448,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		super.onPreferenceChange(mPrefs, key);
-		getAwfulActivity().setPreferredFont(mPageCountText);
+		getAwfulActivity().setPreferredFont(mPageBar.getTextView());
 		updateColors();
         if(null != mListView) {
             mListView.invalidate();
@@ -569,8 +531,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                         @Override
                         public void success(Void result) {
                             lastRefresh = System.currentTimeMillis();
-                            mRefreshBar.setColorFilter(0);
-                            mToggleSidebar.setColorFilter(0);
+                            // TODO: what does this even do
+//                            mRefreshBar.setColorFilter(0);
+//                            mToggleSidebar.setColorFilter(0);
                             loadFailed = false;
                             refreshInfo();
                             mListView.setSelectionAfterHeaderView();
@@ -794,9 +757,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     // TODO: maybe refactor ColorProvider so it does the forum ID -> provider constant translation itself
     private void updateColors() {
-        if (mPageCountText != null) {
-            mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
-        }
+        mPageBar.setTextColour(ColorProvider.getActionbarFontColor());
+        // TODO: is this ever null in normal use?
         if (mListView == null) {
             return;
         }

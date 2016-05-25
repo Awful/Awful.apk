@@ -55,8 +55,11 @@
 
         </android.support.design.widget.FloatingActionButton>
     </RelativeLayout>
-    <include
-        android:id="@+id/pagebar"
-        layout="@layout/pagebar" />
+
+    <com.ferg.awfulapp.widget.PageBar
+        android:id="@+id/page_bar"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        />
 
 </LinearLayout>

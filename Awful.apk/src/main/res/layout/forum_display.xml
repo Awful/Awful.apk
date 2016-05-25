@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/probationbar"
-        android:layout_above="@+id/pagebar"
+        android:layout_above="@+id/page_bar"
         android:orientation="vertical"
         app:srl_direction="top">
 
@@ -32,9 +32,8 @@
             tools:listitem="@layout/nu_thread_item" />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
-    <include
-        android:id="@+id/pagebar"
-        layout="@layout/pagebar"
+    <com.ferg.awfulapp.widget.PageBar
+        android:id="@+id/page_bar"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:layout_alignParentBottom="true"/>

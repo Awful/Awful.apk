@@ -1,62 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/page_indicator"
-    android:background="#000000">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/page_indicator"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="#000000">
 
-    <ImageButton
-        android:id="@+id/prev_page"
+    <LinearLayout
+        android:layout_width="0px"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_arrow_back"
-        android:layout_width="wrap_content"
-        android:visibility="invisible"
-        android:layout_weight="1"
-        style="@style/ActionBarButton" />
+        android:layout_weight="1">
+        <ImageButton
+            android:id="@+id/prev_page"
+            style="@style/ActionBarButton"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_arrow_back"
+            android:contentDescription="@string/page_bar_prev_page_description"/>
 
 
-    <ImageButton
-        android:id="@+id/refresh"
-        style="@style/ActionBarButton"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:layout_weight="1"
-        app:srcCompat="@drawable/ic_refresh" />
+        <ImageButton
+            android:id="@+id/refresh"
+            style="@style/ActionBarButton"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_refresh"
+            android:contentDescription="@string/page_bar_refresh_page_description"/>
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/page_count"
+        android:id="@+id/page_count_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
+
+        android:clickable="true"
         android:gravity="center"
         android:textColor="#CCFFFFFF"
         android:textSize="@dimen/abc_text_size_title_material_toolbar"
-        android:layout_weight="1"
-        android:clickable="true" />
+        tools:text="Page 9999/9999"
+        android:visibility="visible"
+        android:padding="6dp"/>
 
-    <ImageButton
-        android:id="@+id/toggle_sidebar"
-        style="@style/ActionBarButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0px"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        android:layout_weight="1"
-        app:srcCompat="@drawable/ic_refresh"/>
+        android:layout_weight="1">
+        <ImageButton
+            android:id="@+id/refresh_alt"
+            style="@style/ActionBarButton"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_refresh"
+            android:contentDescription="@string/page_bar_refresh_page_description"/>
 
-    <ImageButton
-        android:id="@+id/next_page"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_arrow_forward"
-        android:layout_width="wrap_content"
-        android:visibility="invisible"
-        android:layout_weight="1"
-        style="@style/ActionBarButton" />
+        <ImageButton
+            android:id="@+id/next_page"
+            style="@style/ActionBarButton"
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_arrow_forward"
+            android:contentDescription="@string/page_bar_next_page_description"/>
+    </LinearLayout>
 
 </LinearLayout>

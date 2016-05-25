@@ -32,7 +32,12 @@
     <string name="invalid_page">Enter a real number</string>
     <string name="settings">Settings</string>
     <string name="search">Search</string>
+
+    <!-- Page (navigation) bar -->
     <string name="page_bar_text">Page %1$d/%2$s</string>
+    <string name="page_bar_next_page_description">Next page</string>
+    <string name="page_bar_prev_page_description">Previous page</string>
+    <string name="page_bar_refresh_page_description">Refresh page</string>
 
     <!-- Forum index -->
     <string name="show_and_hide_subforums">Show and hide subforums</string>
