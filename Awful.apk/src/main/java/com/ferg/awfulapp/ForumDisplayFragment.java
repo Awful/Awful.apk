@@ -689,6 +689,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		}
     }
 
+    // TODO: fix race condition, see AwfulFragment#setTitle
+
 	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public ForumDataCallback(Handler handler) {

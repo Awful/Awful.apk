@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -85,33 +86,34 @@ import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static final String TAG = "ForumsIndexActivity";
-
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     private static final int DEFAULT_HIDE_DELAY = 300;
+
     private static final int MESSAGE_HIDING = 0;
     private static final int MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1;
-
     private ForumsIndexFragment mIndexFragment = null;
+
     private ForumDisplayFragment mForumFragment = null;
     private ThreadDisplayFragment mThreadFragment = null;
     private boolean skipLoad = false;
     private boolean isTablet;
     private AwfulURL url = new AwfulURL();
-
     private Handler mHandler = new Handler();
 
     private ToggleViewPager mViewPager;
+
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
-
     private Toolbar mToolbar;
 
     private DrawerLayout mDrawerLayout;
+
     private ActionBarDrawerToggle mDrawerToggle;
 
+    public static final int NULL_FORUM_ID = 0;
     private static final int NULL_THREAD_ID = 0;
     private static final int NULL_PAGE_ID = -1;
 
@@ -340,68 +342,74 @@ public class ForumsIndexActivity extends AwfulActivity {
             return;
         }
         Menu navMenu = navView.getMenu();
+        final MenuItem forumItem = navMenu.findItem(R.id.sidebar_forum);
+        final MenuItem threadItem = navMenu.findItem(R.id.sidebar_thread);
 
         // display the current forum title (or not)
-        MenuItem forumItem = navMenu.findItem(R.id.sidebar_forum);
+        boolean showForumName = mNavForumId != NULL_FORUM_ID && mNavForumId != Constants.USERCP_ID;
         if (forumItem != null) {
-            if (mNavForumId != 0 && mNavForumId != Constants.USERCP_ID) {
-                forumItem.setVisible(true);
-                final MenuItem fI = forumItem;
-                final AwfulActivity that = this;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        fI.setTitle(StringProvider.getForumName(that, mNavForumId));
-                    }
-                });
-
-            } else {
-                forumItem.setVisible(false);
-            }
+            forumItem.setVisible(showForumName);
         }
 
-        MenuItem threadItem = navMenu.findItem(R.id.sidebar_thread);
+        boolean showThreadName = mNavThreadId != NULL_THREAD_ID;
         if (threadItem != null) {
-            if (mNavThreadId != NULL_THREAD_ID) {
-                threadItem.setVisible(true);
-                final MenuItem tI = threadItem;
-                final AwfulActivity that = this;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tI.setTitle(StringProvider.getThreadName(that, mNavThreadId));
-                    }
-                });
-            } else {
-                threadItem.setVisible(false);
-            }
+            threadItem.setVisible(showThreadName);
         }
+
+        // update the forum and thread titles in the background, to avoid hitting the DB on the UI thread
+        // to keep things simple, it sets the text on anything we just hid, which will be placeholder text if the IDs are invalid
+        updateNavMenuText(mNavForumId, mNavThreadId, forumItem, threadItem);
 
         // private messages - show 'em if you got 'em
         final MenuItem pmItem = navMenu.findItem(R.id.sidebar_pm);
         if (pmItem != null) {
-            if (pmItem.isEnabled() != mPrefs.hasPlatinum || pmItem.isVisible() != mPrefs.hasPlatinum) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pmItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
-                    }
-                });
-            }
+            pmItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
         }
 
         // private messages - show 'em if you got 'em
         final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
         if (searchItem != null) {
-            if (searchItem.isEnabled() != mPrefs.hasPlatinum || searchItem.isVisible() != mPrefs.hasPlatinum) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
-                    }
-                });
-            }
+            searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
         }
+    }
+
+
+    /**
+     * Update the nav menu's forum and thread titles in the background.
+     *
+     * This does some DB lookups and hurts the UI thread a lot, so let's async it for now
+     * @param forumId       The ID of the forum to lookup
+     * @param threadId      The ID of the thread to lookup
+     * @param forumItem     An optional menu item to update with the forum name
+     * @param threadItem    An optional menu item to update with the thread name
+     */
+    private void updateNavMenuText(final int forumId,
+                                   final int threadId,
+                                   @Nullable final MenuItem forumItem,
+                                   @Nullable final MenuItem threadItem) {
+        final AwfulActivity context = this;
+        new AsyncTask<Void, Void, Void>() {
+
+            private String forumName;
+            private String threadName;
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                threadName = StringProvider.getThreadName(context, threadId);
+                forumName = StringProvider.getForumName(context, forumId);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                if (forumItem != null) {
+                    forumItem.setTitle(forumName);
+                }
+                if (threadItem != null) {
+                    threadItem.setTitle(threadName);
+                }
+            }
+        }.execute();
     }
 
 

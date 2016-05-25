@@ -1480,6 +1480,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         public void onLoaderReset(Loader<Cursor> aLoader) {
         }
     }
+
+	// TODO: fix race condition, see AwfulFragment#setTitle
     
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 

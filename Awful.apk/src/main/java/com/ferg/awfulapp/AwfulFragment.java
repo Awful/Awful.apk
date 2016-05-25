@@ -43,6 +43,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -188,8 +189,11 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
      */
     @CallSuper
 	protected void setTitle(@NonNull String title){
+        // TODO: fix race condition in ForumDisplayFragment and ThreadDisplayFragment - both restart their loaders in onResume,
+        // both of those set the actionbar title - even in phone mode where only one is visible. Whichever loads last sets the actionbar text
         AwfulActivity activity = getAwfulActivity();
 		if (activity != null) {
+            Log.d(TAG, "setTitle: setting for " + this.getClass().getSimpleName());
             activity.setActionbarTitle(title, this);
 		}
 	}
