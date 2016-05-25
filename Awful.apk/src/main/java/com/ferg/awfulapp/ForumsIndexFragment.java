@@ -29,38 +29,30 @@ package com.ferg.awfulapp;
 
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.forums.Forum;
 import com.ferg.awfulapp.forums.ForumListAdapter;
 import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.ColorProvider;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -71,12 +63,6 @@ public class ForumsIndexFragment extends AwfulFragment
         implements ForumRepository.ForumsUpdateListener, ForumListAdapter.EventListener {
 
 
-    @BindView(R.id.probationbar)
-    View mProbationBar;
-    @BindView(R.id.probation_message)
-    TextView mProbationMessageView;
-    @BindString(R.string.probation_message)
-    String probationMessage;
     @BindView(R.id.forum_index_list)
     RecyclerView forumRecyclerView;
     @BindString(R.string.forums_title)
@@ -107,7 +93,7 @@ public class ForumsIndexFragment extends AwfulFragment
         View view = inflateView(R.layout.forum_index_fragment, aContainer, aInflater);
         ButterKnife.bind(this, view);
         updateViewColours();
-        updateProbationBar();
+        refreshProbationBar();
         forumsListSwitcher.setInAnimation(AnimationUtils.makeInAnimation(getContext(), true));
         return view;
     }
@@ -134,7 +120,7 @@ public class ForumsIndexFragment extends AwfulFragment
         } else {
             refreshNoDataView();
         }
-        updateProbationBar();
+        refreshProbationBar();
     }
 
 
@@ -238,13 +224,6 @@ public class ForumsIndexFragment extends AwfulFragment
     }
 
 
-    @OnClick(R.id.go_to_LC)
-    public void onProbationButtonClicked() {
-        Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
-        startActivity(openThread);
-    }
-
-
     @Override
     public String getTitle() {
         return forumsTitle;
@@ -257,16 +236,4 @@ public class ForumsIndexFragment extends AwfulFragment
         forumRecyclerView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
         return true;
     }
-
-
-    private void updateProbationBar() {
-        if (!mPrefs.isOnProbation()) {
-            mProbationBar.setVisibility(View.GONE);
-            return;
-        }
-        mProbationBar.setVisibility(VISIBLE);
-        String probeEnd = DateFormat.getDateTimeInstance().format(new Date(mPrefs.probationTime));
-        mProbationMessageView.setText(String.format(probationMessage, probeEnd));
-    }
-
 }

@@ -67,7 +67,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
@@ -80,7 +79,6 @@ import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,9 +117,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,10 +140,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	private PageBar pageBar = null;
 	private TextView mUserPostNotice;
-    
-    private View mProbationBar;
-	private TextView mProbationMessage;
-	private ImageButton mProbationButton;
 
 	private FloatingActionButton mFAB;
 
@@ -321,12 +313,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
 
-		// probation bar
-		mProbationBar = result.findViewById(R.id.probationbar);
-		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
 		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
-		updateProbationBar();
+		refreshProbationBar();
 
 		// FAB
 		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
@@ -439,25 +427,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 	}
 
-	// TODO: move this into AwfulFragment - use the version in ForumsIndexFragment
-	private void updateProbationBar(){
-		if(!mPrefs.isOnProbation()){
-			mProbationBar.setVisibility(View.GONE);
-			return;
-		}
-		mProbationBar.setVisibility(View.VISIBLE);
-		String probeDate = DateFormat.getDateInstance().format(new Date(mPrefs.probationTime));
-		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(), probeDate));
-		mProbationButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
-				startActivity(openThread);
-			}
-		});
-	}
-    
 
     @Override
     public void onResume() {
@@ -1345,7 +1314,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void updateUiElements() {
 		// TODO: probably more things can be put in here, there's a lot to unravel
 		updatePageBar();
-		updateProbationBar();
+		refreshProbationBar();
 	}
 
 

@@ -32,6 +32,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.CallSuper;
@@ -62,6 +63,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
+import com.ferg.awfulapp.widget.ProbationBar;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 
 import static com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.BOTH;
@@ -76,6 +78,8 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
 	private AwfulProgressBar mProgressBar;
 	protected SwipyRefreshLayout mSRL;
 
+    @Nullable
+    private ProbationBar probationBar = null;
 
     protected final Handler mHandler = new Handler();
 
@@ -92,11 +96,22 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
 
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
     	View v = inflater.inflate(resId, container, false);
-    	View progressBar = v.findViewById(R.id.progress_bar);
-    	if(progressBar instanceof AwfulProgressBar){
-    		mProgressBar = (AwfulProgressBar) progressBar;
-    	}
-    	return v;
+        View progressBar = v.findViewById(R.id.progress_bar);
+        if(progressBar instanceof AwfulProgressBar){
+            mProgressBar = (AwfulProgressBar) progressBar;
+        }
+
+        // set up the probation bar, if we have one - use this ID when adding to a layout!
+        probationBar = (ProbationBar) v.findViewById(R.id.probation_bar);
+        if (probationBar != null) {
+            probationBar.setListener(new ProbationBar.Callbacks() {
+                @Override
+                public void onProbationButtonClicked() {
+                    goToLeperColony();
+                }
+            });
+        }
+        return v;
     }
 
 	@Override
@@ -197,6 +212,35 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
             activity.setActionbarTitle(title, this);
 		}
 	}
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Probation bar
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Refresh the probation bar's visual state
+     */
+    protected final void refreshProbationBar() {
+        if (probationBar != null) {
+            probationBar.setProbation(mPrefs.isOnProbation() ? mPrefs.probationTime : null);
+        }
+    }
+
+
+    /**
+     * Open the Leper Colony page - call this when the user clicks the probation button
+     */
+    private void goToLeperColony() {
+        Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
+        startActivity(openThread);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Reacting to request progress
+    ///////////////////////////////////////////////////////////////////////////
 
 
     @Override

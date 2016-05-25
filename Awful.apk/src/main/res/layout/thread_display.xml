@@ -11,9 +11,10 @@
         android:layout_height="4dp"
         android:visibility="gone" />
 
-    <include
-        android:id="@+id/probationbar"
-        layout="@layout/probationbar" />
+    <com.ferg.awfulapp.widget.ProbationBar
+        android:id="@+id/probation_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/thread_userpost_notice"

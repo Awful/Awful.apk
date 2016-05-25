@@ -47,13 +47,10 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
@@ -79,7 +76,6 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 
 import static com.ferg.awfulapp.constants.Constants.USERCP_ID;
@@ -101,9 +97,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     private ListView mListView;
 
     private PageBar mPageBar;
-	private View mProbationBar;
-	private TextView mProbationMessage;
-	private ImageButton mProbationButton;
 
     private int mForumId;
     private int mPage = 1;
@@ -176,11 +169,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         getAwfulActivity().setPreferredFont(mPageBar.getTextView());
         updatePageBar();
 
-        // probation bar
-		mProbationBar = result.findViewById(R.id.probationbar);
-		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
-		updateProbationBar();
+		refreshProbationBar();
 
         return result;
     }
@@ -270,25 +259,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     // TODO: pull this out as a shared method/widget in AwfulFragment
 	public void updatePageBar(){
         mPageBar.updatePagePosition(getPage(), getLastPage());
-	}
-
-
-    // TODO: move the probation bar into AwfulFragment as an optional view/widget, put updateProbeBar in there too
-	public void updateProbationBar(){
-		if(!mPrefs.isOnProbation()){
-			mProbationBar.setVisibility(View.GONE);
-			return;
-		}
-		mProbationBar.setVisibility(View.VISIBLE);
-		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(),new Date(mPrefs.probationTime).toLocaleString()));
-		mProbationButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST+'?'+Constants.PARAM_USER_ID+"="+mPrefs.userId));
-				startActivity(openThread);
-			}
-		});
 	}
 
     @Override
@@ -482,7 +452,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	private void goToPage(int pageNumber) {
         setPage(pageNumber);
         updatePageBar();
-        updateProbationBar();
+        refreshProbationBar();
         // interrupt any scrolling animation and jump to the top of the page
         mListView.smoothScrollBy(0,0);
         mListView.setSelection(0);
@@ -712,7 +682,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         	}
 
 			updatePageBar();
-			updateProbationBar();
+			refreshProbationBar();
         }
 
         @Override
