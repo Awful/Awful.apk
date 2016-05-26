@@ -1,10 +1,9 @@
 package com.ferg.awfulapp.provider;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.content.CursorLoader;
-import android.util.Log;
 
 import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -31,26 +30,22 @@ public class StringProvider {
 
 
     private static String getName(AwfulActivity context, int id, Uri contentUri, String[] projection,
-                           String columnName, String defaultPrefix) {
-        Cursor cursor = null;
-        try {
-            CursorLoader cl = new CursorLoader(context,
-                    ContentUris.withAppendedId(contentUri, id),
-                    projection,
-                    null,
-                    null,
-                    null);
-            cursor = cl.loadInBackground();
-            if(cursor != null && !cursor.isClosed() && cursor.getCount() > 0 && cursor.moveToFirst()){
-                return cursor.getString(cursor.getColumnIndex(columnName));
-            }
-        } catch (IllegalStateException ise){
-            Log.e("StringProvider", "Error: "+ ise.getMessage());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+                                  String columnName, String defaultPrefix) {
+        String result;
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor cursor = contentResolver.query(ContentUris.withAppendedId(contentUri, id),
+                projection,
+                null,
+                null,
+                null);
+        if (cursor != null && cursor.moveToFirst()) {
+            result = cursor.getString(cursor.getColumnIndex(columnName));
+        } else {
+            result = defaultPrefix + String.valueOf(id);
         }
-        return defaultPrefix + String.valueOf(id);
+        if (cursor != null) {
+            cursor.close();
+        }
+        return result;
     }
 }

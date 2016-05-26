@@ -5,9 +5,8 @@
     android:layout_height="fill_parent">
 
 
-    <include
-        android:id="@+id/probationbar"
-        layout="@layout/probationbar"
+    <com.ferg.awfulapp.widget.ProbationBar
+        android:id="@+id/probation_bar"
         android:layout_width="fill_parent"
         android:layout_height="50dip"
         android:layout_alignParentTop="true" />
@@ -16,7 +15,7 @@
         android:id="@+id/thread_userpost_notice"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/probationbar"
+        android:layout_below="@+id/probation_bar"
         android:padding="2dp"
         android:paddingLeft="6dp"
         android:visibility="gone" />
@@ -26,7 +25,7 @@
         android:id="@+id/thread_swipe"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/pagebar"
+        android:layout_above="@+id/page_bar"
         android:layout_below="@+id/thread_userpost_notice"
         app:srl_direction="both">
 
@@ -36,12 +35,11 @@
             android:layout_height="fill_parent"/>
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
-    <include
-        android:id="@+id/pagebar"
-        layout="@layout/pagebar"
-        android:layout_width="fill_parent"
+    <com.ferg.awfulapp.widget.PageBar
+        android:id="@+id/page_bar"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"/>
 
 
     <android.support.design.widget.FloatingActionButton

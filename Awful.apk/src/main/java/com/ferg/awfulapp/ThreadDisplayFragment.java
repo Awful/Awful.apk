@@ -67,7 +67,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
@@ -80,7 +79,6 @@ import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -112,15 +110,14 @@ import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
+import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -140,16 +137,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private static final String SCROLL_POSITION_KEY = "scroll_position";
 	private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
-    
-    private ImageButton mNextPage;
-    private ImageButton mPrevPage;
-    private ImageButton mRefreshBar;
-    private TextView mPageCountText;
+
+	private PageBar pageBar = null;
 	private TextView mUserPostNotice;
-    
-    private View mProbationBar;
-	private TextView mProbationMessage;
-	private ImageButton mProbationButton;
 
 	private FloatingActionButton mFAB;
 
@@ -301,26 +291,35 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.thread_display, aContainer, aInflater);
 
-		mPageCountText = (TextView) result.findViewById(R.id.page_count);
-		mPageCountText.setOnClickListener(onButtonClick);
-		getAwfulActivity().setPreferredFont(mPageCountText);
+		pageBar = (PageBar) result.findViewById(R.id.page_bar);
+		pageBar.setListener(new PageBar.PageBarCallbacks() {
+			@Override
+			public void onPageNavigation(boolean nextPage) {
+				turnPage(nextPage);
+			}
 
-		mNextPage = (ImageButton) result.findViewById(R.id.next_page);
-		mNextPage.setOnClickListener(onButtonClick);
-		mPrevPage = (ImageButton) result.findViewById(R.id.prev_page);
-		mPrevPage.setOnClickListener(onButtonClick);
-        mRefreshBar = (ImageButton) result.findViewById(R.id.refresh);
-		mRefreshBar.setOnClickListener(onButtonClick);
+			@Override
+			public void onRefreshClicked() {
+				refresh();
+			}
+
+			@Override
+			public void onPageNumberClicked() {
+				displayPagePicker();
+			}
+		});
+		getAwfulActivity().setPreferredFont(pageBar.getTextView());
+
 		mThreadView = (WebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
-		mProbationBar = result.findViewById(R.id.probationbar);
-		mProbationMessage = (TextView) result.findViewById(R.id.probation_message);
-		mProbationButton  = (ImageButton) result.findViewById(R.id.go_to_LC);
+
 		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
+		refreshProbationBar();
+
+		// FAB
 		mFAB  = (FloatingActionButton) result.findViewById(R.id.just_post);
 		mFAB.setOnClickListener(onButtonClick);
 		mFAB.setVisibility(View.GONE);
-		updateProbationBar();
 
 		return result;
 	}
@@ -417,49 +416,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         refreshSessionCookie();
         mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
 	}
-	
-	private void updatePageBar(){
-		int lastPage = getLastPage();
-		int thisPage = getPage();
-		boolean isFirstPage = thisPage <= 1;
-		boolean isLastPage = thisPage == lastPage;
 
-		mPageCountText.setText(String.format(parentActivity.getString(R.string.page_bar_text), thisPage, lastPage > 0 ? lastPage : "?"));
-		if(getActivity() != null){
+	private void updatePageBar() {
+		pageBar.updatePagePosition(getPage(), getLastPage());
+		if (getActivity() != null) {
 			invalidateOptionsMenu();
 		}
-
-		mPrevPage.setVisibility(View.VISIBLE);
-		mNextPage.setVisibility(View.VISIBLE);
-		mRefreshBar.setVisibility(isFirstPage || isLastPage ? View.INVISIBLE : View.VISIBLE);
-
-		mPrevPage.setImageResource(isFirstPage ? R.drawable.ic_refresh : R.drawable.ic_arrow_back);
-		mNextPage.setImageResource(isLastPage ? R.drawable.ic_refresh : R.drawable.ic_arrow_forward);
-
-        if(mThreadView != null){
+		if (mThreadView != null) {
 			mSRL.setOnRefreshListener(mPrefs.disablePullNext ? null : this);
-        }
-	}
-
-	// TODO: move this into AwfulFragment - use the version in ForumsIndexFragment
-	private void updateProbationBar(){
-		if(!mPrefs.isOnProbation()){
-			mProbationBar.setVisibility(View.GONE);
-			return;
 		}
-		mProbationBar.setVisibility(View.VISIBLE);
-		String probeDate = DateFormat.getDateInstance().format(new Date(mPrefs.probationTime));
-		mProbationMessage.setText(String.format(this.getResources().getText(R.string.probation_message).toString(), probeDate));
-		mProbationButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent openThread = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId));
-				startActivity(openThread);
-			}
-		});
 	}
-    
+
 
     @Override
     public void onResume() {
@@ -1076,19 +1043,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private final View.OnClickListener onButtonClick = new View.OnClickListener() {
         public void onClick(View aView) {
             switch (aView.getId()) {
-				case R.id.next_page:
-                case R.id.toggle_sidebar:
-					turnPage(true);
-					break;
-                case R.id.prev_page:
-                	turnPage(false);
-                    break;
-                case R.id.refresh:
-                	refresh();
-                    break;
-				case R.id.page_count:
-					displayPagePicker();
-					break;
 				case R.id.just_post:
 					displayPostReplyDialog();
 					break;
@@ -1332,11 +1286,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		super.onPreferenceChange(mPrefs, key);
 		if(DEBUG) Log.i(TAG,"onPreferenceChange"+((key != null)?":"+key:""));
         if(null != getAwfulActivity()){
-		    getAwfulActivity().setPreferredFont(mPageCountText);
+		    getAwfulActivity().setPreferredFont(pageBar.getTextView());
         }
-		if(mPageCountText != null){
-			mPageCountText.setTextColor(ColorProvider.getActionbarFontColor());
-		}
+		pageBar.setTextColour(ColorProvider.getActionbarFontColor());
+
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(Color.TRANSPARENT);
 			//mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
@@ -1361,7 +1314,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void updateUiElements() {
 		// TODO: probably more things can be put in here, there's a lot to unravel
 		updatePageBar();
-		updateProbationBar();
+		refreshProbationBar();
 	}
 
 
@@ -1496,6 +1449,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         public void onLoaderReset(Loader<Cursor> aLoader) {
         }
     }
+
+	// TODO: fix race condition, see AwfulFragment#setTitle
     
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 

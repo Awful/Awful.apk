@@ -252,6 +252,8 @@ public class ForumRepository implements UpdateTask.ResultListener {
             String timestamp = cursor.getString(cursor.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
             if (timestamp != null) {
                 lastUpdate = Timestamp.valueOf(timestamp).getTime();
+            } else {
+                Log.w(TAG, "getLastUpdateTime: NULL timestamp even though we have data!");
             }
         }
         cursor.close();

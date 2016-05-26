@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/probation_indicator"
-    android:layout_width="match_parent"
-    android:layout_height="50dip"
-    android:layout_centerVertical="true"
-    android:background="@drawable/probation_background"
-    android:paddingBottom="6dip"
-    android:paddingLeft="4dip"
-    android:paddingRight="4dip"
-    android:paddingTop="6dip"
-    android:visibility="gone">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="50dip"
+                android:layout_centerVertical="true"
+                android:background="@drawable/probation_background"
+                android:paddingBottom="6dip"
+                android:paddingLeft="4dip"
+                android:paddingRight="4dip"
+                android:paddingTop="6dip">
 
     <ImageView
         android:id="@+id/probation_icon"
@@ -26,11 +24,11 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/probation_icon"
         android:gravity="left"
-        android:textStyle="bold"
+        android:text="@string/probation_title"
         android:textColor="#ff000000"
         android:textIsSelectable="false"
-        android:text="@string/probation_title"
         android:textSize="12dip"
+        android:textStyle="bold"
         android:visibility="visible"/>
 
     <TextView
@@ -39,20 +37,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/probation_title"
         android:gravity="left"
+        android:singleLine="true"
+        android:text="@string/probation_message"
         android:textColor="#ff000000"
         android:textIsSelectable="false"
-        android:text="@string/probation_message"
         android:textSize="11dip"
-        android:singleLine="true"
         android:visibility="visible"/>
 
     <ImageButton
         android:id="@+id/go_to_LC"
         style="@style/ActionBarButton"
-        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_arrow_forward" />
+        app:srcCompat="@drawable/ic_arrow_forward"/>
 
 </RelativeLayout>
