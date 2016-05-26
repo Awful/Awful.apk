@@ -72,7 +72,7 @@ public class SquareForumTag extends ImageView {
 
 
     private void init() {
-        Drawable counter = ContextCompat.getDrawable(getContext(), R.drawable.forumtagtest);
+        Drawable counter = ContextCompat.getDrawable(getContext(), R.drawable.forumtag_template);
         setImageDrawable(counter);
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.WHITE);
