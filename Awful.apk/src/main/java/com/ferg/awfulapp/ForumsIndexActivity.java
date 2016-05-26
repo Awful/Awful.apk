@@ -86,9 +86,6 @@ import com.ferg.awfulapp.widget.ToggleViewPager;
 
 public class ForumsIndexActivity extends AwfulActivity {
     protected static final String TAG = "ForumsIndexActivity";
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     private static final int DEFAULT_HIDE_DELAY = 300;
 
