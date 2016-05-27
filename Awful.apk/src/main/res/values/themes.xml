@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="Theme.AwfulTheme.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
     <style name="Theme.AwfulTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
         <item name="android:windowBackground">@null</item>

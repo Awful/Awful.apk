@@ -729,8 +729,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     // TODO: maybe refactor ColorProvider so it does the forum ID -> provider constant translation itself
     private void updateColors() {
-        mPageBar.setTextColour(ColorProvider.getActionbarFontColor());
-        // TODO: is this ever null in normal use?
+        if (mPageBar != null) {
+            mPageBar.setTextColour(ColorProvider.getActionbarFontColor());
+        }
         if (mListView == null) {
             return;
         }

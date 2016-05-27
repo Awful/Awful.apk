@@ -17,12 +17,17 @@
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <application 
 		android:label="@string/app_name" 
-		android:icon="@drawable/icon" 
+		android:icon="@drawable/icon"
 		android:name="com.ferg.awfulapp.AwfulApplication"
         android:allowBackup="true"
 		android:backupAgent=".backup.PreferencesBackupAgent"
         android:hardwareAccelerated="true"
-        android:theme="@style/Theme.AwfulTheme">
+        android:theme="@style/Theme.AwfulTheme.Launcher">
+        <!--
+        This theme is reset to the normal app theme in AwfulActivity's #onCreate, before the super call and #setContentView
+        Make sure any new entry point Activities (with intent filters) subclass AwfulActivity, or reset the theme themselves!
+        -->
+
         <activity android:name="com.ferg.awfulapp.ForumsIndexActivity"
                   android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask">
             <intent-filter>
@@ -58,7 +63,7 @@
             />
         <activity 
             android:name="com.ferg.awfulapp.UserCPShortcutActivity"
-            android:icon="@drawable/icon" 
+            android:icon="@drawable/icon"
             android:label="@string/usercp"
             >
             <intent-filter>
