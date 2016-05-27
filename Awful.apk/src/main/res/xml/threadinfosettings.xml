@@ -6,12 +6,6 @@
 			android:summary="@string/threadinfo_tag_summary"
 			android:defaultValue="true"
 			/>
-        <com.ferg.awfulapp.preferences.CustomSwitchPreference
-          android:key="@string/pref_key_wrap_thread_titles"
-          android:title="@string/wrap_titles"
-          android:summary="@string/wrap_titles_summary"
-          android:defaultValue="false"
-          />
 		<com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:key="@string/pref_key_colored_bookmarks"
 			android:title="@string/color_bookmarks"

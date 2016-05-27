@@ -271,7 +271,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, true);
         enableHardwareAcceleration = getPreference(Keys.ENABLE_HARDWARE_ACCELERATION, AwfulUtils.isJellybean());
         debugMode            	 = false;//= getPreference("debug_mode", false);
-        wrapThreadTitles		 = getPreference(Keys.WRAP_THREAD_TITLES, false);
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);
