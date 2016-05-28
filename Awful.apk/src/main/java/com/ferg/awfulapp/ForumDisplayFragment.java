@@ -278,6 +278,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	@Override
 	public void onPageVisible() {
         // TODO: find out how this relates to onResume / onStart , it's the same code
+        // TODO: this can be called before the fragment's views have been inflated, e.g. bookmark widget -> viewpager#onPageSelected -> (create fragment) -> onPageVisible
 		updateColors();
 		syncForumsIfStale();
         refreshInfo();
