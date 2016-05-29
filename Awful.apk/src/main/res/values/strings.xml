@@ -45,6 +45,13 @@
     <string name="forums_update_failure_message">Couldn\'t get forums data.\nCheck your connection and restart.</string>
     <string name="updating_forums">Updating forums…</string>
 
+    <!-- Thread list -->
+    <string name="thread_tag_description">Thread tag</string>
+    <string name="thread_secondary_tag_description">Thread type</string>
+    <string name="thread_rating_description">Thread rating</string>
+    <string name="thread_sticky_description">This thread is a sticky</string>
+    <string name="thread_locked_description">This thread is locked</string>
+
     <!-- Post view -->
     <string name="post_reply">Post reply</string>
     <string name="bookmark">Bookmark</string>

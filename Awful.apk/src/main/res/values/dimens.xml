@@ -14,4 +14,15 @@
     <dimen name="material_screen_edge_margin">16dp</dimen>
     <dimen name="material_list_item_vertical_padding">16dp</dimen>
     <dimen name="material_list_subtitle_height">48dp</dimen>
+
+    <!-- thread item -->
+    <dimen name="thread_item_sticky_locked_icon_size">15dp</dimen>
+
+    <!-- thread item attributes that need to vary by version -->
+    <dimen name="thread_item_tag_layout_height">56dp</dimen>
+    <dimen name="thread_item_tag_layout_padding_bottom">16dp</dimen>
+    <dimen name="thread_item_rating_layout_height">31dp</dimen>
+    <dimen name="thread_item_rating_layout_margin_top">-32dp</dimen>
+    <dimen name="thread_item_rating_layout_padding_bottom">16dp</dimen>
+
 </resources>
