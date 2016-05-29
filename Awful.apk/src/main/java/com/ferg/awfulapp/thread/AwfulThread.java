@@ -34,16 +34,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.text.TextUtils.TruncateAt;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -631,11 +628,9 @@ public class AwfulThread extends AwfulPagedItem  {
         threadSticky.setVisibility(View.GONE);
         if (stuck) {
             threadSticky.setVisibility(View.VISIBLE);
-            threadSticky.setImageResource(R.drawable.ic_sticky);
         } else if (data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
             threadLocked.setVisibility(View.VISIBLE);
-            threadLocked.setImageResource(R.drawable.ic_https_dark);
             current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
         }
 
@@ -652,14 +647,12 @@ public class AwfulThread extends AwfulPagedItem  {
             }
         }
 
-		title.setTypeface(null, Typeface.NORMAL);
         String titleText = data.getString(data.getColumnIndex(TITLE));
         if(titleText != null){
 			title.setText(titleText);
 		}
         title.setTextColor(ColorProvider.getTextColor(ForumName));
         info.setTextColor(ColorProvider.getAltTextColor(ForumName));
-        title.setEllipsize(TruncateAt.END);
 	}
 
 }

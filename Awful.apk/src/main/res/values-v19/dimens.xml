@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- thread item attributes that need to vary by version -->
+    <dimen name="thread_item_tag_layout_height">40dp</dimen>
+    <dimen name="thread_item_tag_layout_padding_bottom">0dp</dimen>
+    <dimen name="thread_item_rating_layout_height">15dp</dimen>
+    <dimen name="thread_item_rating_layout_margin_top">-16dp</dimen>
+    <dimen name="thread_item_rating_layout_padding_bottom">0dp</dimen>
+</resources>
