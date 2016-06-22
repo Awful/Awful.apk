@@ -1466,14 +1466,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
 				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
-                threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
+				threadArchived = aData.getInt(aData.getColumnIndex(AwfulThread.ARCHIVED))>0;
+				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
 				if(mParentForumId != 0 && mThreadView != null){
 					mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
 				}
 
 				parentActivity.setNavIds(mParentForumId, getThreadId());
-                setTitle(aData.getString(aData.getColumnIndex(AwfulThread.TITLE)));
+				setTitle(mTitle);
+
 				updateUiElements();
                 if(postFilterUserId != null){
 					mUserPostNotice.setVisibility(View.VISIBLE);
