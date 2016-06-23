@@ -818,7 +818,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
             }
         }
-        return true;
+        return false;
     }
 
     @Override
