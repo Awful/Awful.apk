@@ -207,7 +207,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
         // TODO: fix race condition in ForumDisplayFragment and ThreadDisplayFragment - both restart their loaders in onResume,
         // both of those set the actionbar title - even in phone mode where only one is visible. Whichever loads last sets the actionbar text
         AwfulActivity activity = getAwfulActivity();
-		if (activity != null && activity.isFragmentVisible(this)) {
+		if (activity != null) {
             Log.d(TAG, "setTitle: setting for " + this.getClass().getSimpleName());
             activity.setActionbarTitle(title, this);
 		}
