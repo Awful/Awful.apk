@@ -767,7 +767,7 @@ public class ForumsIndexActivity extends AwfulActivity {
     public void setActionbarTitle(String aTitle, Object requestor) {
         if (requestor != null && mViewPager != null) {
             //This will only honor the request if the requestor is the currently active view.
-            if (requestor instanceof AwfulFragment && ((AwfulFragment) requestor).isVisible()) {
+            if (requestor instanceof AwfulFragment &&  isFragmentVisible((AwfulFragment)requestor)) {
                 super.setActionbarTitle(aTitle, requestor);
             } else {
                 if (DEBUG)
@@ -818,7 +818,7 @@ public class ForumsIndexActivity extends AwfulActivity {
                 return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
             }
         }
-        return true;
+        return false;
     }
 
     @Override
