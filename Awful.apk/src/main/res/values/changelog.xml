@@ -2,6 +2,15 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.4.0:\n
+            - New transition screen (that giant frog you just saw)\n
+            - Reworked forum index, you can customise it in settings. Forums are now synced once a day\n
+            - Added new thread tag (guess which one)\n
+            - Ability to close and reopen threads\n
+            - Fixed crash on Xiaomi devices (cause by them overriding one of our libraries with a version from 2008 :argh:)\n
+            - Lots of work under the hood.
+        </item>
+        <item>
             3.2.3.2:\n
             - Fixed bug in the PM view on pre-lollipop devices
         </item>
