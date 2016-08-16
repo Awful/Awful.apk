@@ -30,10 +30,12 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.provider.AwfulProvider;
 
 import org.jsoup.nodes.Document;

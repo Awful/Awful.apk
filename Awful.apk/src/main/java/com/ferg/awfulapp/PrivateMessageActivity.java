@@ -28,6 +28,7 @@
 package com.ferg.awfulapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
@@ -53,8 +54,9 @@ public class PrivateMessageActivity extends AwfulActivity {
         setContentView(R.layout.fragment_pane);
         mPrefs = AwfulPreferences.getInstance(this, this);
 
-        if (getIntent().getData() != null && getIntent().getData().getScheme().equals("http")) {
-        	pmIntentID = getIntent().getData().getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
+		Uri data = getIntent().getData();
+		if (data != null) {
+        	pmIntentID = data.getQueryParameter(Constants.PARAM_PRIVATE_MESSAGE_ID);
         }
 
         pane_two = findViewById(R.id.fragment_pane_two);

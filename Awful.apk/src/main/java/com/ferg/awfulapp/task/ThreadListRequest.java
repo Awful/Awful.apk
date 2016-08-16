@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.util.AwfulError;
 
@@ -18,7 +19,7 @@ public class ThreadListRequest extends AwfulRequest<Void> {
 
     private int forumId, page;
     public ThreadListRequest(Context context, int forumId, int page) {
-        super(context, forumId == Constants.USERCP_ID ? Constants.FUNCTION_BOOKMARK : Constants.FUNCTION_FORUM);
+        super(context, forumId == Constants.USERCP_ID ? Constants.FUNCTION_USERCP : Constants.FUNCTION_FORUM);
         this.forumId = forumId;
         this.page = page;
     }
@@ -44,6 +45,7 @@ public class ThreadListRequest extends AwfulRequest<Void> {
         try {
             if(forumId == Constants.USERCP_ID){
                 AwfulForum.parseUCPThreads(doc, page, getContentResolver());
+                PmManager.parseUcpPage(doc);
             }else{
                 AwfulForum.parseThreads(doc, forumId, page, getContentResolver());
             }

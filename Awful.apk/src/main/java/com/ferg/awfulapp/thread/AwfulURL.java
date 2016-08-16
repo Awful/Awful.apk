@@ -146,7 +146,7 @@ public class AwfulURL {
 		switch(type){
 		case FORUM:
 			if(id == Constants.USERCP_ID){
-				url = Uri.parse(Constants.FUNCTION_BOOKMARK).buildUpon();
+				url = Uri.parse(Constants.FUNCTION_USERCP).buildUpon();
 			}else{
 				url = Uri.parse(Constants.FUNCTION_FORUM).buildUpon();
 			}
