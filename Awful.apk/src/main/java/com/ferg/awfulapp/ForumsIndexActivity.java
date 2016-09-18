@@ -39,13 +39,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -71,6 +74,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
+import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
@@ -82,9 +86,11 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
+import java.util.Locale;
+
 //import com.ToxicBakery.viewpager.transforms.*;
 
-public class ForumsIndexActivity extends AwfulActivity {
+public class ForumsIndexActivity extends AwfulActivity implements PmManager.Listener {
     protected static final String TAG = "ForumsIndexActivity";
 
     private static final int DEFAULT_HIDE_DELAY = 300;
@@ -173,8 +179,34 @@ public class ForumsIndexActivity extends AwfulActivity {
         setActionBar();
         checkIntentExtras();
         setupImmersion();
+
+        PmManager.registerListener(this);
     }
 
+    @Override
+    public void onNewPm(@NonNull String messageUrl, @NonNull final String sender, final int unreadCount) {
+        // TODO: 16/08/2016 probably best to put this in a method that the menu option calls too
+        final Intent pmIntent = new Intent().setClass(this, PrivateMessageActivity.class);
+        Uri uri = Uri.parse(messageUrl);
+        if (uri != null) {
+            pmIntent.setData(uri);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String message = "Private message from %s\n(%d unread)";
+                Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
+                        .setDuration(3000)
+                        .setAction("View", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startActivity(pmIntent);
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
