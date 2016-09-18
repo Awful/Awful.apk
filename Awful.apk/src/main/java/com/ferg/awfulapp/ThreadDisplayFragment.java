@@ -875,11 +875,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				.build(null, new AwfulRequest.AwfulResultCallback<Void>() {
 			@Override
 			public void success(Void result) {
-				new AlertBuilder().setTitle(R.string.mark_last_read_success)
-						.setIcon(R.drawable.ic_visibility)
-						.show();
-				refreshInfo();
-				refreshPosts();
+				if(getActivity() != null){
+					new AlertBuilder().setTitle(R.string.mark_last_read_success)
+							.setIcon(R.drawable.ic_visibility)
+							.show();
+					refreshInfo();
+					refreshPosts();
+				}
 			}
 
 
@@ -1154,12 +1156,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             preferences = new ArrayMap<>();
             preferences.clear();
             preferences.put("username", aPrefs.username);
-			preferences.put("youtubeHighlight", "#ff00ff");
 			preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
-			preferences.put("postFontSize", Integer.toString(aPrefs.postFontSizePx));
-			preferences.put("postcolor", ColorProvider.convertToARGB(ColorProvider.getTextColor()));
-			preferences.put("backgroundcolor", ColorProvider.convertToARGB(ColorProvider.getBackgroundColor()));
-			preferences.put("linkQuoteColor", ColorProvider.convertToARGB(ContextCompat.getColor(aPrefs.getContext(), R.color.link_quote)));
 			preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
 			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
 			preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
@@ -1285,7 +1282,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
 		super.onPreferenceChange(mPrefs, key);
 		if(DEBUG) Log.i(TAG,"onPreferenceChange"+((key != null)?":"+key:""));
-        if(null != getAwfulActivity()){
+        if(null != getAwfulActivity() && pageBar != null){
 		    getAwfulActivity().setPreferredFont(pageBar.getTextView());
         }
 		pageBar.setTextColour(ColorProvider.getActionbarFontColor());
@@ -1353,7 +1350,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 	
 	private int getPage() {
-        return parentActivity.getThreadPage();
+		if(parentActivity != null){
+			return parentActivity.getThreadPage();
+		}
+        return 0;
 	}
 	private void setPage(int aPage){
 		parentActivity.setThread(null, aPage);
@@ -1599,14 +1599,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @param postJump	An optional URL fragment representing the post ID to jump to
      */
 	private void loadThread(int id, int page, @Nullable String postJump, boolean fullSync) {
-        setPage(page);
-    	setThreadId(id);
 		setPostFiltering(null, null);
     	mLastPage = FIRST_PAGE;
 		mPostJump = postJump != null ? postJump : "";
 		updateUiElements();
 		showBlankPage();
     	if(getActivity() != null){
+			setPage(page);
+			setThreadId(id);
 			getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
 			getLoaderManager().destroyLoader(Constants.POST_LOADER_ID);
 			refreshInfo();

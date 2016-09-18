@@ -419,7 +419,9 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
 		super.onPreferenceChange(mPrefs, key);
-		getAwfulActivity().setPreferredFont(mPageBar.getTextView());
+        if(mPageBar != null) {
+            getAwfulActivity().setPreferredFont(mPageBar.getTextView());
+        }
 		updateColors();
         if(null != mListView) {
             mListView.invalidate();
