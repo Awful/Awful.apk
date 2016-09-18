@@ -8,9 +8,11 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -33,6 +35,11 @@ public class SquareForumTag extends ImageView {
     // tint adjustment for the provided tag colours
     private static final float SATURATION_MULTIPLIER = 0.8f;
 
+    // reusable objects, to reduce allocations while scrolling and recycling the views
+    float[] hsv = new float[3];
+    // TODO: the colour-setting methods create new ColorFilters each time, might be able to work that in here
+
+
     // used to adjust values based on screen density
     private final float scaler = getResources().getDisplayMetrics().density;
     // density-adjusted padding between the text and the top of the view
@@ -43,6 +50,9 @@ public class SquareForumTag extends ImageView {
     private Paint strokePaint;
     private final Rect textBounds = new Rect();
     private String tagText = "";
+
+    Drawable tagBackground;
+    Drawable tagFrog;
 
 
     public SquareForumTag(Context context) {
@@ -72,7 +82,9 @@ public class SquareForumTag extends ImageView {
 
 
     private void init() {
-        Drawable counter = ContextCompat.getDrawable(getContext(), R.drawable.forumtag_template);
+        LayerDrawable counter = (LayerDrawable) ContextCompat.getDrawable(getContext(), R.drawable.forum_tag_frog);
+        tagBackground = counter.findDrawableByLayerId(R.id.square_forum_tag_background);
+        tagFrog = counter.findDrawableByLayerId(R.id.square_forum_tag_frog);
         setImageDrawable(counter);
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.WHITE);
@@ -103,11 +115,11 @@ public class SquareForumTag extends ImageView {
      *
      * @param colour An ARGB colour, or null for no colour
      */
-    public void setMainColour(@ColorInt Integer colour) {
+    public void setMainColour(@Nullable @ColorInt Integer colour) {
         if (colour == null) {
-            setBackgroundColor(Color.TRANSPARENT);
+            tagBackground.setColorFilter(null);
         } else {
-            setBackgroundColor(tweakColour(colour));
+            tagBackground.setColorFilter(tweakColour(colour), PorterDuff.Mode.SRC);
         }
     }
 
@@ -117,11 +129,11 @@ public class SquareForumTag extends ImageView {
      *
      * @param colour An ARGB colour, or null for no colour
      */
-    public void setAccentColour(@ColorInt Integer colour) {
+    public void setAccentColour(@Nullable @ColorInt Integer colour) {
         if (colour == null) {
-            setColorFilter(null);
+            tagFrog.setColorFilter(null);
         } else {
-            setColorFilter(tweakColour(colour), PorterDuff.Mode.MULTIPLY);
+            tagFrog.setColorFilter(tweakColour(colour), PorterDuff.Mode.SRC_IN);
         }
     }
 
@@ -133,7 +145,6 @@ public class SquareForumTag extends ImageView {
      * @return the adjusted colour
      */
     private int tweakColour(@ColorInt int colour) {
-        float[] hsv = new float[3];
         Color.colorToHSV(colour, hsv);
         hsv[1] = hsv[1] * SATURATION_MULTIPLIER;
         return Color.HSVToColor(Color.alpha(colour), hsv);
@@ -171,7 +182,7 @@ public class SquareForumTag extends ImageView {
         setTextSize();
         textPaint.getTextBounds(tagText, 0, tagText.length(), textBounds);
         int x = (getWidth() - textBounds.width()) / 2;
-        int y = (textBounds.height() + textTopOffset);
+        int y = (getHeight() + textBounds.height()) / 2;
 
         canvas.drawText(tagText, x, y, strokePaint);
         canvas.drawText(tagText, x, y, textPaint);

@@ -383,7 +383,9 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
 
         @NonNull
         AlertBuilder setTitle(@StringRes int title) {
-            this.title = getString(title);
+            if(getActivity() != null) {
+                this.title = getString(title);
+            }
             return this;
         }
 

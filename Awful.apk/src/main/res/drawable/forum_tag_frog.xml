@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/square_forum_tag_background">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp"/>
+            <size
+                android:width="48dp"
+                android:height="48dp"/>
+            <solid android:color="#DD7700"/>
+        </shape>
+    </item>
+    <item android:id="@+id/square_forum_tag_frog">
+        <bitmap android:src="@drawable/frog_silhouette_48dp"/>
+    </item>
+</layer-list>

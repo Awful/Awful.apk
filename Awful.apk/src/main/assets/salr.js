@@ -150,7 +150,7 @@ SALR.prototype.inlineVines = function() {
     // spoiler'd links
     vines = vines.not('.bbc-spoiler a');
     vines.each(function() {
-        $(this).html('<iframe class="vine-embed" src="'+$(this).attr('href')+'/embed/simple" width="600" height="600" frameborder="0"></iframe>'+
+        $(this).html('<iframe class="vine-embed" src="'+$(this).attr('href')+'/embed/simple" frameborder="0"></iframe>'+
                           '<script async src="http://platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>');
     });
 };

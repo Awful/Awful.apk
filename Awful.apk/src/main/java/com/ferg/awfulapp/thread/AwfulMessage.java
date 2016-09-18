@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2012, Matthew Shepard
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,12 +29,9 @@ package com.ferg.awfulapp.thread;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,32 +44,30 @@ import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
 import java.util.ArrayList;
 /**
  * SA Private Messages.
  * @author Geekner
  */
 public class AwfulMessage extends AwfulPagedItem {
-	
+
 	private static final String TAG = "AwfulMessage";
-	
-    public static final String PATH     = "/privatemessages";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
-    public static final String PATH_REPLY     = "/draftreplies";
-    public static final Uri CONTENT_URI_REPLY = Uri.parse("content://" + Constants.AUTHORITY + PATH_REPLY);
-	
+
+	public static final String PATH     = "/privatemessages";
+	public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
+	public static final String PATH_REPLY     = "/draftreplies";
+	public static final Uri CONTENT_URI_REPLY = Uri.parse("content://" + Constants.AUTHORITY + PATH_REPLY);
+
 	public static final String ID = "_id";
-    public static final String TITLE 		="title";
-    public static final String AUTHOR 		="author";
-    public static final String CONTENT 	="content";
-    public static final String DATE 	="message_date";
-    public static final String EPOC_TIMESTAMP = "epoc_timestamp";
+	public static final String TITLE 		="title";
+	public static final String AUTHOR 		="author";
+	public static final String CONTENT 	="content";
+	public static final String DATE 	="message_date";
+	public static final String EPOC_TIMESTAMP = "epoc_timestamp";
 	public static final String TYPE = "message_type";
 	public static final String ICON = "icon";
 	public static final String UNREAD = "unread_message";
@@ -80,8 +75,8 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String REPLY_CONTENT = "reply_content";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
-    public static final String REPLY_SIGNATURE = "signature";
-    public static final String REPLY_DISABLE_SMILIES = "disablesmilies";
+	public static final String REPLY_SIGNATURE = "signature";
+	public static final String REPLY_DISABLE_SMILIES = "disablesmilies";
 	public static final String FOLDER = "folder";
 
 	public static final int TYPE_PM = 1;
@@ -108,7 +103,7 @@ public class AwfulMessage extends AwfulPagedItem {
 			author.setTextColor(ColorProvider.getAltTextColor());
 		}
 
-        ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
+		ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
 		ImageView overlay = (ImageView) current.findViewById(R.id.thread_tag_overlay);
 		overlay.setVisibility(View.GONE);
 
@@ -154,10 +149,10 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 		return current;
 	}
-	
+
 	public static void processMessageList(ContentResolver contentInterface, Document data, int folder) throws AwfulError {
 		ArrayList<ContentValues> msgList = new ArrayList<ContentValues>();
-		
+
 		/**METHOD One: Parse PM links. Easy, but only contains id+title.**/
 		/*TagNode[] messagesParent = data.getElementsByAttValue("name", "form", true, true);
 		if(messagesParent.length > 0){
@@ -175,7 +170,7 @@ public class AwfulMessage extends AwfulPagedItem {
 			Log.e("AwfulMessage","Failed to parse message parent");
 			return null;//we'll use this to show that the load failed. i am still lazy.
 		}*/
-		
+
 		/**METHOD Two: Parse table structure, hard and quick to break.**/
 		Elements messagesParent = data.getElementsByAttributeValue("name", "form");
 		if(messagesParent.size() > 0){
@@ -224,7 +219,7 @@ public class AwfulMessage extends AwfulPagedItem {
 		}
 		contentInterface.bulkInsert(CONTENT_URI, msgList.toArray(new ContentValues[msgList.size()]));
 	}
-	
+
 	public static ContentValues processMessage(Document data, int id) throws AwfulError{
 		ContentValues message = new ContentValues();
 		message.put(ID, id);
@@ -263,29 +258,34 @@ public class AwfulMessage extends AwfulPagedItem {
 			String quoteTitle = StringEscapeUtils.unescapeHtml4(title.first().attr("value"));
 			reply.put(TITLE, quoteTitle);
 		}
-        Elements recipient = pmReplyData.getElementsByAttributeValue("name", "touser");
-        if(title.size() >0){
-            String recip = StringEscapeUtils.unescapeHtml4(recipient.first().attr("value"));
-            reply.put(RECIPIENT, recip);
-        }
+		Elements recipient = pmReplyData.getElementsByAttributeValue("name", "touser");
+		if(title.size() >0){
+			String recip = StringEscapeUtils.unescapeHtml4(recipient.first().attr("value"));
+			reply.put(RECIPIENT, recip);
+		}
 		return reply;
 	}
-	
+
 	public static String getMessageHtml(String content, AwfulPreferences pref){
 		if(content!=null){
 			StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
-	        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
-	        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
-	        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
-	        buffer.append("<meta name='format-detection' content='address=no' />\n");
+			buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
+			buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
+			buffer.append("<meta name='format-detection' content='telephone=no' />\n");
+			buffer.append("<meta name='format-detection' content='address=no' />\n");
+			for (String scriptName : AwfulThread.JS_FILES) {
+				buffer.append("<script src='file:///android_asset/")
+						.append(scriptName)
+						.append("' type='text/javascript'></script>\n");
+			}
 
-	        buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
+			buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
 
-	        if(!pref.preferredFont.contains("default")){
-	        	buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
-	        }
-	        buffer.append("</head><body>");
-	        buffer.append("<article><section class='postcontent'>");
+			if(!pref.preferredFont.contains("default")){
+				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");
+			}
+			buffer.append("</head><body>");
+			buffer.append("<article><section class='postcontent'>");
 			buffer.append(content);//babbys first CSS hack
 			buffer.append("</section></article>");
 			buffer.append("</body></html>");

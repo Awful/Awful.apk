@@ -110,7 +110,7 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_EXTRA            = "tag_extra";
 
     /** All the scripts used in generating HTML */
-    private static final String[] JS_FILES = {
+    protected static final String[] JS_FILES = {
         "zepto.min.js",
         "selector.js",
         "scrollend.js",
