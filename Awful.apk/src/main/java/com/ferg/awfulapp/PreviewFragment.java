@@ -95,7 +95,7 @@ public class PreviewFragment extends AwfulDialogFragment {
 
         postPreView.loadUrl("javascript:loadPageHtml()");
     }
-    g
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
