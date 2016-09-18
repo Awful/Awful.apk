@@ -109,19 +109,21 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_CACHEFILE 	    = "tag_cachefile";
     public static final String TAG_EXTRA            = "tag_extra";
 
-    /** All the scripts used in generating HTML */
+    /**
+     * All the scripts used in generating HTML
+     */
     protected static final String[] JS_FILES = {
-        "zepto.min.js",
-        "selector.js",
-        "scrollend.js",
-        "inviewport.js",
-        "fx.js",
-        "fx_methods.js",
-        "reorient.js",
-        "json2.js",
-        "twitterwidget.js",
-        "salr.js",
-        "thread.js"
+            "zepto.min.js",
+            "zepto.selector.min.js",
+            "zepto.fx.min.js",
+            "zepto.fx_methods.min.js",
+            "scrollend.js",
+            "inviewport.js",
+            "reorient.js",
+            "json2.js",
+            "twitterwidget.js",
+            "salr.js",
+            "thread.js"
     };
 
     private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
