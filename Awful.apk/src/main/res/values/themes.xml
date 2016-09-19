@@ -38,7 +38,7 @@
         <!-- Set AppCompat’s color theming attrs -->
         <item name="colorPrimary">@color/forums_blue_evendarker</item>
         <item name="colorPrimaryDark">@color/forums_blue_darkest</item>
-        <item name="colorAccent">@color/forums_blue</item>
+        <item name="colorAccent">@color/dark_default_post_font</item>
         <item name="colorAccentThemeFix">@color/secondary_post_font</item>
         <item name="background">@color/dark_background</item>
         <item name="listDividerColor">@color/dark_header_background</item>
@@ -53,22 +53,8 @@
         <!-- icons -->
         <item name="iconColor">@color/dark_default_post_font</item>
         <item name="iconColorDark">@color/dark_default_post_font</item>
-        <!-- fix for dark dialog buttons -->
-        <item name="android:alertDialogTheme">@style/DarkAlertDialog</item>
     </style>
 
-    <style name="DarkAlertDialog" parent="Theme.AppCompat.Dialog">
-        <item name="android:buttonBarButtonStyle">@style/DarkDialogButton</item>
-        <item name="android:textColor">@color/dark_default_post_font</item>
-        <item name="android:textColorPrimary">@color/dark_default_post_font</item>
-        <item name="android:textColorTertiary">@color/dark_default_post_font</item>
-        <item name="android:background">@color/dark_background</item>
-    </style>
-
-    <style name="DarkDialogButton" parent="TextAppearance.AppCompat.Button">
-        <item name="android:textColor">@color/dark_default_post_font</item>
-        <item name="android:background">@android:color/transparent</item>
-    </style>
 
     <style name="Theme.AwfulTheme.OLED" parent="Theme.AwfulTheme.Dark">
         <item name="colorPrimary">@color/oled_background</item>

@@ -2,12 +2,34 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.5.0:\n
+            - Added \"Display Image\" options to the image action menus (the stuff that pops up when you tap on images). Zoom away!\n
+            - Added basic PM notifications. \n
+            - Rearranged image action menu in the process because I kept downloading images. Also replaced icon for \"Show inline image\"\n
+            - If you have disabled gifs (as you should) tapping emoticons will now resume / pause their animation.\n
+            - Enhanced the post preview so more things work. Should now mostly behave like the app except for videos and youtube. But you hopefully won\'t want to watch them in a post preview. Right?\n
+            - Copied another thread tag from the iOS guys. If you see a thread tag that has not been remade yet you should visit their thread and tell them about it. If you post a proposal image, even better.\n
+            - Prevent attaching images with unsupported resolution or filetype
+            - Fixed a few bugs that made you crash.\n
+            - App is now water-resistent.
+        </item>
+        <item>
+            3.2.4.2:\n
+            - Crash fix for pre-lollipop devices
+        </item>
+        <item>
+            3.2.4.1:\n
+            - New design for forum index icon. Please tell us in one of the threads (preferably the beta one in the project.log forum) whether or not you like it\n
+            - Post preview. Due to some very weird bug it only previews what the forums return, no stuff that needs javascript like webms and twitter embeds. Sorry.\n
+            - Bugfixes
+        </item>
+        <item>
             3.2.4.0:\n
             - New transition screen (that giant frog you just saw)\n
             - Reworked forum index, you can customise it in settings. Forums are now synced once a day\n
             - Added new thread tag (guess which one)\n
             - Ability to close and reopen threads\n
-            - Fixed crash on Xiaomi devices (cause by them overriding one of our libraries with a version from 2008 :argh:)\n
+            - Fixed crash on Xiaomi devices (caused by them overriding one of our libraries with a version from 2008 :argh:)\n
             - Lots of work under the hood.
         </item>
         <item>
