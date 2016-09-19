@@ -87,6 +87,7 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
@@ -288,12 +289,17 @@ public class PostReplyFragment extends AwfulFragment {
         } else {
             File attachment = new File(path);
             if (attachment.isFile() && attachment.canRead()) {
-                if (attachment.length() > (1024 * 1024)) {
-                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                if(StringUtils.indexOfAny(attachment.getName().toLowerCase(), ".jpg", ".jpeg", ".png", ".gif") != -1) {
+                    if (attachment.length() > (1024 * 1024)) {
+                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
+                        mFileAttachment = null;
+                    } else {
+                        mFileAttachment = path;
+                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                    }
+                }else{
+                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_wrong_filetype), attachment.getName()), Toast.LENGTH_LONG);
                     mFileAttachment = null;
-                } else {
-                    mFileAttachment = path;
-                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
                 }
             } else {
                 attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
