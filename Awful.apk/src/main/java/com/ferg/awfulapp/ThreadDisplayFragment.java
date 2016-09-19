@@ -1277,6 +1277,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					.show();
 		}
 	}
+
+	protected void displayImage(String text){
+		Intent intent = new Intent(this.getContext(),ImageViewActivity.class);
+		intent.putExtra(Constants.ZOOM_URL, text);
+		startActivity(intent);
+
+	}
 	
 	@Override
 	public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
