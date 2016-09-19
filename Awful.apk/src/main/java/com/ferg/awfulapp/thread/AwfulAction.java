@@ -48,12 +48,13 @@ public class AwfulAction {
         ArrayList<AwfulAction> awfulActions = new ArrayList<>();
 
         if(isImage){
-            awfulActions.add(new AwfulAction(ActionType.DOWNLOAD_IMAGE, R.drawable.ic_file_download_dark, "Download Image"));
+            awfulActions.add(new AwfulAction(ActionType.DISPLAY_IMAGE, R.drawable.ic_photo_dark, "Display Image"));
             if(isGif){
                 awfulActions.add(new AwfulAction(ActionType.SHOW_INLINE, R.drawable.ic_movie_dark, "Play .gif" ));
             }else{
-                awfulActions.add(new AwfulAction(ActionType.SHOW_INLINE, R.drawable.ic_photo_dark, "Show Image inline"));
+                awfulActions.add(new AwfulAction(ActionType.SHOW_INLINE, R.drawable.ic_area_close_dark, "Show Image inline"));
             }
+            awfulActions.add(new AwfulAction(ActionType.DOWNLOAD_IMAGE, R.drawable.ic_file_download_dark, "Download Image"));
         }
 
         awfulActions.add(new AwfulAction(ActionType.OPEN_URL, R.drawable.ic_open_in_app_dark, "Open URL"));
@@ -98,6 +99,6 @@ public class AwfulAction {
     }
 
     public enum ActionType {
-        QUOTE, EDIT, MARK_LAST_SEEN, SEND_PM, COPY_URL, USER_POSTS, IGNORE_USER, MARK_USER, REPORT_POST, DOWNLOAD_IMAGE, SHOW_INLINE, OPEN_URL, COPY_LINK_URL, SHARE_URL
+        QUOTE, EDIT, MARK_LAST_SEEN, SEND_PM, COPY_URL, USER_POSTS, IGNORE_USER, MARK_USER, REPORT_POST, DOWNLOAD_IMAGE, SHOW_INLINE, OPEN_URL, COPY_LINK_URL, SHARE_URL, DISPLAY_IMAGE
     }
 }

@@ -163,6 +163,9 @@ public class PostActionsFragment extends AwfulDialogFragment {
 			case SHARE_URL:
 				startActivity(parent.createShareIntent(url));
 				break;
+			case DISPLAY_IMAGE:
+				parent.displayImage(url);
+				break;
 		}
 		this.dismiss();
 	}
