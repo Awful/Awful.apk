@@ -19,7 +19,11 @@ public class ThreadListRequest extends AwfulRequest<Void> {
 
     private int forumId, page;
     public ThreadListRequest(Context context, int forumId, int page) {
-        super(context, forumId == Constants.USERCP_ID ? Constants.FUNCTION_USERCP : Constants.FUNCTION_FORUM);
+        // TODO: 19/09/2016 decide whether to handle all USERCP requests as bookmark urls (and do the PmManager calls a different way)
+        // I'm so sorry, thanks for forcing me to do this JAVA
+        super(context, forumId != Constants.USERCP_ID ? Constants.FUNCTION_FORUM
+                : page == 1 ? Constants.FUNCTION_USERCP
+                : Constants.FUNCTION_BOOKMARK);
         this.forumId = forumId;
         this.page = page;
     }
