@@ -148,8 +148,14 @@ function pageInit() {
     });
 
     if(listener.getPreference("disableGifs") == "true"){
-        $('[title][src$=".gif"]').on('load', function (){
+        $('img[title][src$=".gif"]').on('load', function (){
             freezeGif($(this).get(0));
+        });
+         $('.postcontent').on('click','img[title][src$=".gif"]', function (){
+            freezeGif($(this).get(0));
+        });
+        $('.postcontent').on('click','canvas[title][src$=".gif"]', function (){
+            $(this).replaceWith('<img src="'+$(this).attr('src')+'" title="'+$(this).attr('title')+'" />')
         });
     }
 
