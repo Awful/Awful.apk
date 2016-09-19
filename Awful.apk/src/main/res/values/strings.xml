@@ -100,6 +100,7 @@
     <string name="remove_attachment">Remove file attachment</string>
     <string name="file_attached">Set file %s as attachment</string>
     <string name="file_too_big">%s exceeds the allowed 1 MB attachment size and has not been attached</string>
+    <string name="file_resolution_too_big">%1$s  exceeds the allowed 1280x1024 resolution (%2$dx%3$d) and has not been attached</string>
     <string name="file_wrong_filetype">%s is not a .gif, .jpg or .png</string>
     <string name="file_unreadable">File %s could not be accessed</string>
     <string name="file_error">Error accessing file. Your file explorer sent incompatible data, please try a different way or app.</string>

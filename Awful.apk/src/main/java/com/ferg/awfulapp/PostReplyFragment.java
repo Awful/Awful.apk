@@ -42,6 +42,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -294,8 +296,15 @@ public class PostReplyFragment extends AwfulFragment {
                         attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
                         mFileAttachment = null;
                     } else {
-                        mFileAttachment = path;
-                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                        Bitmap bitmap = BitmapFactory.decodeFile(path);
+                        if(Math.max(bitmap.getHeight(),bitmap.getWidth()) <= 1280 && bitmap.getHeight()*bitmap.getWidth() <= 1280*1024){
+                            mFileAttachment = path;
+                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
+                        }else{
+                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_resolution_too_big), attachment.getName(),bitmap.getWidth(),bitmap.getHeight()), Toast.LENGTH_LONG);
+                            mFileAttachment = null;
+                        }
+                        bitmap.recycle();
                     }
                 }else{
                     attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_wrong_filetype), attachment.getName()), Toast.LENGTH_LONG);
