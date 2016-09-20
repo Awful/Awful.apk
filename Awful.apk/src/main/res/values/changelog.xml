@@ -9,7 +9,8 @@
             - If you have disabled gifs (as you should) tapping emoticons will now resume / pause their animation.\n
             - Enhanced the post preview so more things work. Should now mostly behave like the app except for videos and youtube. But you hopefully won\'t want to watch them in a post preview. Right?\n
             - Copied another thread tag from the iOS guys. If you see a thread tag that has not been remade yet you should visit their thread and tell them about it. If you post a proposal image, even better.\n
-            - Prevent attaching images with unsupported resolution or filetype
+            - Prevent attaching images with unsupported resolution or filetype.\n
+            - Attachments are now treated as images instead of links.\n
             - Fixed a few bugs that made you crash.\n
             - App is now water-resistent.
         </item>
