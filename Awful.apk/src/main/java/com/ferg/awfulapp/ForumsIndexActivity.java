@@ -425,7 +425,9 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
             @Override
             protected Void doInBackground(Void... params) {
                 threadName = StringProvider.getThreadName(context, threadId);
-                forumName = StringProvider.getForumName(context, forumId);
+                if(forumId >= 0){
+                    forumName = StringProvider.getForumName(context, forumId);
+                }
                 return null;
             }
 

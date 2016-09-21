@@ -9,6 +9,7 @@ import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * Created by matt on 8/7/13.
@@ -45,6 +46,13 @@ public class PostRequest extends AwfulRequest<Integer> {
 
     @Override
     protected Integer handleResponse(Document doc) throws AwfulError {
+        if(doc.getElementsByTag("body").hasClass("standarderror")) {
+            Element standard = doc.getElementsByClass("standard").first();
+            if(standard != null && standard.hasText()){
+                throw new AwfulError(AwfulError.ERROR_ACCESS_DENIED, standard.text().replace("Special Message From Senor Lowtax", ""));
+            }
+        }
+
         AwfulUtils.trimDbEntries(getContentResolver());
         AwfulThread.getThreadPosts(getContentResolver(), doc, threadId, page, getPreferences().postPerPage, getPreferences(), userId);
         return page;

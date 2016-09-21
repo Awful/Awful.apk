@@ -68,6 +68,8 @@ public class AwfulError extends VolleyError{
                 return "You are under probation.";
             case ERROR_GENERIC_FAILURE:
                 return "Failed to load!";
+            case ERROR_ACCESS_DENIED:
+                return "Access denied.";
         }
         return null;
     }
@@ -176,7 +178,7 @@ public class AwfulError extends VolleyError{
     public static final int ERROR_FORUM_CLOSED = 0x00000002;
     public static final int ERROR_PROBATION = 0x00000004;
     public static final int ERROR_GENERIC_FAILURE = 0x00000008;
-    //public static final int ERROR_ = 0x00000010;
+    public static final int ERROR_ACCESS_DENIED = 0x00000010;
 
     public String getSubMessage() {
         switch (errorCode){
