@@ -2,6 +2,10 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.5.0b:\n
+            - Fix for crash when trying to view threads you have no permission to (e.g. accessing threads via bookmarks that are in the currently hidden GBS)
+        </item>
+        <item>
             3.2.5.0:\n
             - Added \"Display Image\" options to the image action menus (the stuff that pops up when you tap on images). Zoom away!\n
             - Added basic PM notifications. \n
@@ -12,7 +16,7 @@
             - Prevent attaching images with unsupported resolution or filetype.\n
             - Attachments are now treated as images instead of links.\n
             - Fixed a few bugs that made you crash.\n
-            - App is now water-resistent.
+            - App is now water-resistant.
         </item>
         <item>
             3.2.4.2:\n
