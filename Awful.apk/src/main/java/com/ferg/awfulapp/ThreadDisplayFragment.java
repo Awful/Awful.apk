@@ -418,7 +418,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 	private void updatePageBar() {
-		pageBar.updatePagePosition(getPage(), getLastPage());
+		if(pageBar != null){
+			pageBar.updatePagePosition(getPage(), getLastPage());
+		}
 		if (getActivity() != null) {
 			invalidateOptionsMenu();
 		}
@@ -1214,13 +1216,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		boolean isGif = false;
 		// TODO: parsing fails on magic webdev urls like http://tpm2016.zoffix.com/#/40
 		// it thinks the # is the start of the ref section of the url, so the Path for that url is '/'
-		String lastSegment = Uri.parse(url).getLastPathSegment();
+		Uri path = Uri.parse(url);
+		String lastSegment = path.getLastPathSegment();
 		// null-safe path checking (there may be no path segments, e.g. a link to a domain name)
 		if (lastSegment != null) {
 			lastSegment = lastSegment.toLowerCase();
 			// using 'contains' instead of 'ends with' in case of any url suffix shenanigans, like twitter's ".jpg:large"
-			isImage = StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
-					&& !StringUtils.contains(lastSegment, ".gifv");
+			isImage = (StringUtils.indexOfAny(lastSegment, ".jpg", ".jpeg", ".png", ".gif") != -1
+					&& !StringUtils.contains(lastSegment, ".gifv"))
+					|| (lastSegment.equals("attachment.php") && path.getHost().equals("forums.somethingawful.com"));
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
