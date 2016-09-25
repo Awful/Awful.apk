@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              style="@style/ReplyInsertDialog">
+    <Spinner
+        android:id="@+id/list_type_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:entries="@array/list_block_types"
+        android:minHeight="@dimen/material_dialog_min_item_height"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/list_type_spinner"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@id/list_type_spinner"
+        android:layout_toStartOf="@id/list_type_spinner"
+        android:text="@string/insert_list_style_label"/>
+
+    <EditText
+        android:id="@+id/list_items_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_type_spinner"
+        android:ems="10"
+        android:hint="@string/insert_list_text_field_hint"
+        android:imeActionLabel="New item"
+        android:inputType="textMultiLine"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:selectAllOnFocus="false"
+        tools:text="thing one\nthing two"/>
+</RelativeLayout>

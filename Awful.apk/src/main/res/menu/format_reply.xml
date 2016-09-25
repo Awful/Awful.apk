@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bbcode_bold"
+        android:icon="@drawable/ic_format_bold_dark"
+        android:title="@string/reply_bold"/>
+    <item
+        android:id="@+id/bbcode_italics"
+        android:icon="@drawable/ic_format_italic_dark"
+        android:title="@string/reply_italics"/>
+    <item
+        android:id="@+id/bbcode_underline"
+        android:icon="@drawable/ic_format_underline_dark"
+        android:title="@string/reply_underline"/>
+    <item
+        android:id="@+id/bbcode_strikeout"
+        android:icon="@drawable/ic_format_strikethrough_dark"
+        android:title="@string/reply_strikeout"/>
+    <item
+        android:id="@+id/bbcode_spoiler"
+        android:icon="@drawable/ic_dehaze_dark"
+        android:title="@string/reply_spoiler"/>
+    <item
+        android:id="@+id/bbcode_superscript"
+        android:icon="@drawable/ic_format_size_dark"
+        android:title="@string/reply_superscript"/>
+    <item
+        android:id="@+id/bbcode_subscript"
+        android:icon="@drawable/ic_text_fields_dark"
+        android:title="@string/reply_subscript"/>
+    <item
+        android:id="@+id/bbcode_fixed_width"
+        android:icon="@drawable/ic_space_bar_dark"
+        android:title="@string/reply_fixed_width"/>
+</menu>

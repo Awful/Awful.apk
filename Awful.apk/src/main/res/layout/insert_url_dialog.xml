@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/ReplyInsertDialog"
+              android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/url_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/insert_link_url_field_hint"
+        android:inputType="textUri|textPersonName"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"/>
+
+    <EditText
+        android:id="@+id/text_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/insert_link_text_field_hint"
+        android:inputType="textMultiLine"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"/>
+</LinearLayout>

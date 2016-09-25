@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    >
-	<EditText
-		android:id="@+id/post_message"
-		android:layout_width="fill_parent"
-		android:layout_height="0dp"
-		android:singleLine="false"
-        android:gravity="top"
-        android:scrollbars="vertical"
-        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-        android:textColor="@color/default_post_font"
-        android:textCursorDrawable="@null"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_weight="1"
-        android:isScrollContainer="true"
-		/>
-</LinearLayout>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/post_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="80dp"
+            android:gravity="top"
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
+            android:isScrollContainer="true"
+            android:scrollbars="vertical"
+            android:singleLine="false"
+            android:textColor="@color/default_post_font"
+            android:textCursorDrawable="@null"
+            />
+
+</RelativeLayout>
