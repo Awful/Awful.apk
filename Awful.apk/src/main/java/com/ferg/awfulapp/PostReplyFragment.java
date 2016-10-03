@@ -51,12 +51,15 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.view.SupportMenuInflater;
+import android.support.v7.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -96,6 +99,9 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.github.rubensousa.bottomsheetbuilder.BottomSheetBuilder;
+import com.github.rubensousa.bottomsheetbuilder.BottomSheetMenuDialog;
+import com.github.rubensousa.bottomsheetbuilder.adapter.BottomSheetItemClickListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
@@ -103,6 +109,9 @@ import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
 
 import java.io.File;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static com.ferg.awfulapp.R.id.bbcode_bold;
 import static com.ferg.awfulapp.R.id.bbcode_spoiler;
@@ -140,7 +149,9 @@ public class PostReplyFragment extends AwfulFragment {
     private int selectionEnd = -1;
     private Intent attachmentData;
 
-    private TextView threadTitleView = null;
+    @BindView(R.id.thread_title)
+    TextView threadTitleView = null;
+    private BottomSheetMenuDialog bottomSheetMenuDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -250,9 +261,7 @@ public class PostReplyFragment extends AwfulFragment {
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         if (DEBUG) Log.e(TAG, "onCreateView");
-
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
-
         mMessage = (EditText) result.findViewById(R.id.post_message);
 
         return result;
@@ -262,16 +271,16 @@ public class PostReplyFragment extends AwfulFragment {
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         if (DEBUG) Log.e(TAG, "onActivityCreated");
-
         Activity activity = getActivity();
+        ButterKnife.bind(this, activity);
+
         mMessage.setBackgroundColor(ColorProvider.getBackgroundColor());
         mMessage.setTextColor(ColorProvider.getTextColor());
-        threadTitleView = (TextView) activity.findViewById(R.id.thread_title);
         setTitle(getTitle());
+
         activity.getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
         refreshThreadInfo();
-
     }
 
 
@@ -292,6 +301,55 @@ public class PostReplyFragment extends AwfulFragment {
                 }
             }
         }
+    }
+
+
+    /**
+     * Display or hide the bottom sheet as appropriate
+     */
+    private void toggleBottomSheet() {
+        // if we already have a sheet, get rid of it
+        if (bottomSheetMenuDialog != null) {
+            bottomSheetMenuDialog.dismissWithAnimation();
+            bottomSheetMenuDialog = null;
+            return;
+        }
+
+        // build a full menu to populate the sheet with
+        Activity activity = getActivity();
+        Menu sheetMenu = new MenuBuilder(activity);
+        SupportMenuInflater inflater = new SupportMenuInflater(activity);
+        inflater.inflate(R.menu.insert_into_reply, sheetMenu);
+        inflater.inflate(R.menu.format_reply, sheetMenu);
+
+        bottomSheetMenuDialog = new BottomSheetBuilder(activity)
+                .setMode(BottomSheetBuilder.MODE_GRID)
+                .setMenu(sheetMenu)
+                .setItemClickListener(new BottomSheetItemClickListener() {
+                    @Override
+                    public void onBottomSheetItemClick(MenuItem item) {
+                        onOptionsItemSelected(item);
+                    }
+                })
+                .createDialog();
+
+        // drop the reference to an existing sheet when it goes away
+        bottomSheetMenuDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                bottomSheetMenuDialog = null;
+            }
+        });
+        bottomSheetMenuDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                bottomSheetMenuDialog = null;
+            }
+        });
+
+        bottomSheetMenuDialog.show();
+        // force the dialog to expand since peek/collapsed has some measurement issue in landscape
+        bottomSheetMenuDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
 
@@ -528,9 +586,6 @@ public class PostReplyFragment extends AwfulFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);
-        inflater.inflate(R.menu.format_reply, menu);
-        inflater.inflate(R.menu.insert_into_reply, menu);
-
 
         MenuItem attach = menu.findItem(R.id.add_attachment);
         if (attach != null && mPrefs != null) {
@@ -643,6 +698,11 @@ public class PostReplyFragment extends AwfulFragment {
         if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
         Activity activity = getActivity();
         switch (item.getItemId()) {
+            // open formatting/insert menu
+            case R.id.show_bbcode_menu:
+                toggleBottomSheet();
+                break;
+
             // formatting menu (stuff you mainly select and format)
             case bbcode_bold:
                 BasicTextInserter.insert(mMessage, BbCodeTag.BOLD, activity);
@@ -775,6 +835,9 @@ public class PostReplyFragment extends AwfulFragment {
     private void cleanupTasks() {
         if (mDialog != null) {
             mDialog.dismiss();
+        }
+        if (bottomSheetMenuDialog != null) {
+            bottomSheetMenuDialog.dismiss();
         }
     }
 
