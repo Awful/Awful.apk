@@ -16,6 +16,7 @@
     <dimen name="material_list_subtitle_height">48dp</dimen>
     <dimen name="material_dialog_horizontal_padding">24dp</dimen>
     <dimen name="material_dialog_min_item_height">48dp</dimen>
+    <dimen name="material_text_field_top_bottom_padding">20dp</dimen>
 
     <!-- thread item -->
     <dimen name="thread_item_sticky_locked_icon_size">15dp</dimen>

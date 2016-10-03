@@ -67,6 +67,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -138,6 +139,8 @@ public class PostReplyFragment extends AwfulFragment {
     private int selectionStart = -1;
     private int selectionEnd = -1;
     private Intent attachmentData;
+
+    private TextView threadTitleView = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -251,7 +254,6 @@ public class PostReplyFragment extends AwfulFragment {
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-        mMessage.setText("");
 
         return result;
     }
@@ -261,13 +263,17 @@ public class PostReplyFragment extends AwfulFragment {
         super.onActivityCreated(aSavedState);
         if (DEBUG) Log.e(TAG, "onActivityCreated");
 
+        Activity activity = getActivity();
         mMessage.setBackgroundColor(ColorProvider.getBackgroundColor());
         mMessage.setTextColor(ColorProvider.getTextColor());
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        threadTitleView = (TextView) activity.findViewById(R.id.thread_title);
+        setTitle(getTitle());
+        activity.getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
         refreshThreadInfo();
 
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -285,6 +291,16 @@ public class PostReplyFragment extends AwfulFragment {
                     addAttachment(data);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Update the title view to show the current thread title, if we have it
+     */
+    private void updateThreadTitle() {
+        if (threadTitleView != null) {
+            threadTitleView.setText(mThreadTitle == null ? "" : mThreadTitle);
         }
     }
 
@@ -466,6 +482,7 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public void onResume() {
         super.onResume();
+        updateThreadTitle();
         if (DEBUG) Log.e(TAG, "onResume");
     }
 
@@ -959,23 +976,36 @@ public class PostReplyFragment extends AwfulFragment {
 
     @Override
     public String getTitle() {
-        String title = "";
-        if (mThreadTitle != null && mThreadTitle.length() > 0) {
-            title = " - " + mThreadTitle;
-        }
         switch (mReplyType) {
             case AwfulMessage.TYPE_EDIT:
-                return "Editing" + title;
-            case AwfulMessage.TYPE_NEW_REPLY:
-                return "Reply" + title;
+                return "Editing";
             case AwfulMessage.TYPE_QUOTE:
-                return "Quote" + title;
+                return "Quote";
+            case AwfulMessage.TYPE_NEW_REPLY:
+            default:
+                return "Reply";
         }
-        return "Loading";
     }
 
     public void selectEmote(String contents) {
         insertEmote(contents);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addAttachment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -1027,7 +1057,7 @@ public class PostReplyFragment extends AwfulFragment {
             if (aData.getCount() > 0 && aData.moveToFirst()) {
                 //threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
                 mThreadTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
-                setTitle(getTitle());
+                updateThreadTitle();
             }
         }
 
@@ -1045,23 +1075,6 @@ public class PostReplyFragment extends AwfulFragment {
         public void onChange(boolean selfChange) {
             if (DEBUG) Log.v(TAG, "Thread Data update.");
             refreshThreadInfo();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    addAttachment();
-                } else {
-                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
