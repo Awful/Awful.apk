@@ -84,7 +84,7 @@ public class SquareForumTag extends ImageView {
     private void init() {
         LayerDrawable counter = (LayerDrawable) ContextCompat.getDrawable(getContext(), R.drawable.forum_tag_frog);
         tagBackground = counter.findDrawableByLayerId(R.id.square_forum_tag_background);
-        tagFrog = counter.findDrawableByLayerId(R.id.square_forum_tag_frog);
+        tagFrog = counter.findDrawableByLayerId(R.id.square_forum_tag_frog).mutate();
         setImageDrawable(counter);
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.WHITE);

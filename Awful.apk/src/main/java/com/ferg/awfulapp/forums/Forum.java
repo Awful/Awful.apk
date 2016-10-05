@@ -128,6 +128,7 @@ public class Forum {
         forumAbbreviations.append(26, "FYAD");
         forumAbbreviations.append(268, "BYOB");
         forumAbbreviations.append(272, "RSF");
+        forumAbbreviations.append(242, "P/C");
 
         forumAbbreviations.append(44, "GAMES");
         forumAbbreviations.append(46, "D&D");

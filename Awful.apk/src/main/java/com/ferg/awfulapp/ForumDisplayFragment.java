@@ -725,7 +725,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
     protected boolean doScroll(boolean down) {
         int scrollAmount = mListView.getHeight() / 2;
-        mListView.smoothScrollBy(0, down ? scrollAmount : -scrollAmount);
+        mListView.smoothScrollBy((down ? scrollAmount : -scrollAmount), 400 );
         return true;
     }
 

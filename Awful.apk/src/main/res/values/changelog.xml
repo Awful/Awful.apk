@@ -2,6 +2,10 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.5.0c:\n
+            - Fast fix for flickering frogs
+        </item>
+        <item>
             3.2.5.0b:\n
             - Fix for crash when trying to view threads you have no permission to (e.g. accessing threads via bookmarks that are in the currently hidden GBS)
         </item>
