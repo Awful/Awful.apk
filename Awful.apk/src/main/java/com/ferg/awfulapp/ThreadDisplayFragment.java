@@ -1256,7 +1256,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		Request request = new Request(link);
 		request.setNotificationVisibility(Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
+		if(link.getLastPathSegment().equals("attachment.php") && link.getHost().equals("forums.somethingawful.com")){
+			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "attachment.png");
+			request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(Constants.COOKIE_DOMAIN));
+		}else{
+			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, link.getLastPathSegment());
+		}
 		request.allowScanningByMediaScanner();
 		DownloadManager dlManager = (DownloadManager) getAwfulActivity().getSystemService(AwfulActivity.DOWNLOAD_SERVICE);
 		dlManager.enqueue(request);
