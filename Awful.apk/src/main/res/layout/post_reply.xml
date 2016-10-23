@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    >
-	<EditText
-		android:id="@+id/post_message"
-		android:layout_width="fill_parent"
-		android:layout_height="0dp"
-		android:singleLine="false"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/post_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="top"
-        android:scrollbars="vertical"
-        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-        android:textColor="@color/default_post_font"
-        android:textCursorDrawable="@null"
+        android:hint="Just post..."
         android:imeOptions="flagNoExtractUi"
-        android:layout_weight="1"
+        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
         android:isScrollContainer="true"
-		/>
-</LinearLayout>
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="@dimen/material_text_field_top_bottom_padding"
+        android:scrollbars="vertical"
+        android:textColor="@color/default_post_font"
+        android:textSize="16sp"
+        />
+</FrameLayout>

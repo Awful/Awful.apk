@@ -123,4 +123,13 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <!-- Reply -->
+    <style name="ReplyInsertDialog">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">@dimen/material_dialog_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/material_dialog_horizontal_padding</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
 </resources>

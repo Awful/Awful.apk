@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                style="@style/ReplyInsertDialog">
+
+    <TextView
+        android:id="@+id/syntax_highlighting_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/language_spinner"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@id/language_spinner"
+        android:layout_toStartOf="@id/language_spinner"
+        android:text="@string/insert_code_highlighting_label"/>
+
+    <Spinner
+        android:id="@id/language_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:entries="@array/code_block_languages_array"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/material_dialog_min_item_height"
+        />
+
+    <EditText
+        android:id="@+id/text_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/language_spinner"
+        android:ems="10"
+        android:fontFamily="monospace"
+        android:hint="@string/insert_code_text_field_hint"
+        android:inputType="textMultiLine|textFilter|textNoSuggestions"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:selectAllOnFocus="true"
+        tools:ignore="UnusedAttribute"/>
+</RelativeLayout>

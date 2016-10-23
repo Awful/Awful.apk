@@ -108,18 +108,57 @@
     <string name="message_empty">Message Empty!</string>
     <string name="message_empty_subtext">type something, fuck</string>
     <string name="post_sent">Hope it didn\'t suck…</string>
-    <string name="reply_emotes">Emotes</string>
+
+    <!-- Reply basic formatting -->
     <string name="reply_bold">Bold</string>
     <string name="reply_italics">Italics</string>
     <string name="reply_underline">Underline</string>
     <string name="reply_strikeout">Strikeout</string>
-    <string name="reply_img_tag">Image Tag</string>
-    <string name="reply_timg_tag">Thumbnail Tag</string>
+    <string name="reply_superscript">Superscript</string>
+    <string name="reply_subscript">Subscript</string>
+    <string name="reply_fixed_width">Fixed Width</string>
+    <string name="reply_spoiler">Spoiler Text</string>
+
+    <!-- Reply inserted / block elements -->
+    <string name="reply_emotes">Emotes</string>
+    <string name="reply_img_tag">Insert Image</string>
     <string name="reply_url_tag">Insert URL</string>
     <string name="reply_video">Insert Video</string>
     <string name="reply_quote">Quote Block</string>
-    <string name="reply_spoiler">Spoiler Block</string>
     <string name="reply_code">Code Block</string>
+    <string name="reply_list">List</string>
+    <string name="reply_pre">Preserve Space</string>
+
+    <!-- Reply formatting and insertion dialogs -->
+    <string-array name="code_block_languages_array">
+        <!-- the first item should always be the 'no highlighting' option! -->
+        <item>None</item>
+        <item>Java</item>
+        <item>PHP</item>
+        <item>Python</item>
+        <item>C#</item>
+        <item>JavaScript</item>
+    </string-array>
+
+    <string-array name="list_block_types">
+        <!-- this ordering needs to be maintained, so the option can be identified by position -->
+        <item>Unordered</item>
+        <item>Numbered</item>
+        <item>Alphabetical</item>
+    </string-array>
+
+    <string name="insert_list_style_label">List style</string>
+    <string name="insert_list_text_field_hint">List items (one per added line)</string>
+    <string name="insert_code_text_field_hint">Code</string>
+    <string name="insert_code_highlighting_label">Syntax highlighting</string>
+    <string name="insert_image_url_field_hint">Image URL</string>
+    <string name="insert_image_thumbnail_label">Thumbnail</string>
+    <string name="insert_quote_source_field_hint">Source</string>
+    <string name="insert_quote_text_field_hint">Quote</string>
+    <string name="insert_text_text_field_hint">Text</string>
+    <string name="insert_link_url_field_hint">Link URL</string>
+    <string name="insert_link_text_field_hint">Optional link text</string>
+    <string name="insert_video_url_field_hint">Video URL</string>
 
     <!-- other shit -->
     <string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on

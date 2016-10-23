@@ -3,66 +3,15 @@
       xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/show_bbcode_menu"
+        android:icon="@drawable/ic_bb"
+        app:showAsAction="always"
+        android:title="@string/bbcode"/>
+    <item
         android:id="@+id/submit_button"
         android:icon="@drawable/ic_send"
         app:showAsAction="always"
         android:title="@string/submit"/>
-    <item
-        android:id="@+id/bbcode"
-        android:icon="@drawable/ic_bbcode"
-        app:showAsAction="ifRoom"
-        android:title="@string/bbcode">
-        <menu>
-            <item
-                android:id="@+id/emotes"
-                android:icon="@drawable/ic_mood_dark"
-                android:title="@string/reply_emotes"/>
-            <item
-                android:id="@+id/bbcode_bold"
-                android:icon="@drawable/ic_format_bold_dark"
-                android:title="@string/reply_bold"/>
-            <item
-                android:id="@+id/bbcode_italics"
-                android:icon="@drawable/ic_format_italic_dark"
-                android:title="@string/reply_italics"/>
-            <item
-                android:id="@+id/bbcode_underline"
-                android:icon="@drawable/ic_format_underline_dark"
-                android:title="@string/reply_underline"/>
-            <item
-                android:id="@+id/bbcode_strikeout"
-                android:icon="@drawable/ic_format_strikethrough_dark"
-                android:title="@string/reply_strikeout"/>
-            <item
-                android:id="@+id/bbcode_image"
-                android:icon="@drawable/ic_panorama_dark"
-                android:title="@string/reply_img_tag"/>
-            <item
-                android:id="@+id/bbcode_thumbnail"
-                android:icon="@drawable/ic_photo_dark"
-                android:title="@string/reply_timg_tag"/>
-            <item
-                android:id="@+id/bbcode_url"
-                android:icon="@drawable/ic_insert_link_dark"
-                android:title="@string/reply_url_tag"/>
-            <item
-                android:id="@+id/bbcode_video"
-                android:icon="@drawable/ic_movie_dark"
-                android:title="@string/reply_video"/>
-            <item
-                android:id="@+id/bbcode_quote"
-                android:icon="@drawable/ic_format_quote_dark"
-                android:title="@string/reply_quote"/>
-            <item
-                android:id="@+id/bbcode_spoiler"
-                android:icon="@drawable/ic_dehaze_dark"
-                android:title="@string/reply_spoiler"/>
-            <item
-                android:id="@+id/bbcode_code"
-                android:icon="@drawable/ic_code_dark"
-                android:title="@string/reply_code"/>
-        </menu>
-    </item>
     <item
         android:id="@+id/save_draft"
         app:showAsAction="never|withText"

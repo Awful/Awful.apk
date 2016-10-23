@@ -51,15 +51,19 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.view.SupportMenuInflater;
+import android.support.v7.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -68,6 +72,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -76,6 +81,14 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.reply.BasicTextInserter;
+import com.ferg.awfulapp.reply.BasicTextInserter.BbCodeTag;
+import com.ferg.awfulapp.reply.CodeInserter;
+import com.ferg.awfulapp.reply.ImageInserter;
+import com.ferg.awfulapp.reply.ListInserter;
+import com.ferg.awfulapp.reply.QuoteInserter;
+import com.ferg.awfulapp.reply.UrlInserter;
+import com.ferg.awfulapp.reply.VideoInserter;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.EditRequest;
 import com.ferg.awfulapp.task.PreviewEditRequest;
@@ -88,6 +101,9 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.github.rubensousa.bottomsheetbuilder.BottomSheetBuilder;
+import com.github.rubensousa.bottomsheetbuilder.BottomSheetMenuDialog;
+import com.github.rubensousa.bottomsheetbuilder.adapter.BottomSheetItemClickListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
@@ -95,6 +111,14 @@ import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormat;
 
 import java.io.File;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+import static com.ferg.awfulapp.R.id.bbcode_bold;
+import static com.ferg.awfulapp.R.id.bbcode_spoiler;
+import static com.ferg.awfulapp.R.id.bbcode_underline;
+import static com.ferg.awfulapp.R.id.emotes;
 
 public class PostReplyFragment extends AwfulFragment {
     public static final int REQUEST_POST = 5;
@@ -126,6 +150,10 @@ public class PostReplyFragment extends AwfulFragment {
     private int selectionStart = -1;
     private int selectionEnd = -1;
     private Intent attachmentData;
+
+    @BindView(R.id.thread_title)
+    TextView threadTitleView = null;
+    private BottomSheetMenuDialog bottomSheetMenuDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -235,27 +263,77 @@ public class PostReplyFragment extends AwfulFragment {
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         if (DEBUG) Log.e(TAG, "onCreateView");
-
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
 
         mMessage = (EditText) result.findViewById(R.id.post_message);
-        mMessage.setText("");
-
+        addBbcodeToSelectionMenu(mMessage);
         return result;
+    }
+
+
+    /**
+     * Adds the BBcode option to the text selection action menu.
+     * <p>
+     * This is mainly to fix the issue with the action menu replacing the action bar on earlier
+     * versions of Android, meaning the BBcode option can't be pressed (and work on selected text).
+     *
+     * @param editText the textview to add the selection option to
+     */
+    private void addBbcodeToSelectionMenu(@NonNull final EditText editText) {
+        ActionMode.Callback callback = new ActionMode.Callback() {
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, R.string.bbcode)
+                        .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                        .setIcon(R.drawable.ic_bb);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.show_bbcode_menu) {
+                    toggleBottomSheet();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        };
+        editText.setCustomSelectionActionModeCallback(callback);
+        // add it to the insert menu too for consistency, why not
+        if (AwfulUtils.isMarshmallow()) {
+            // noinspection AndroidLintNewApi
+            editText.setCustomInsertionActionModeCallback(callback);
+        }
+
     }
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
         if (DEBUG) Log.e(TAG, "onActivityCreated");
+        Activity activity = getActivity();
+        ButterKnife.bind(this, activity);
 
         mMessage.setBackgroundColor(ColorProvider.getBackgroundColor());
         mMessage.setTextColor(ColorProvider.getTextColor());
-        getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        setTitle(getTitle());
+
+        activity.getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshLoader();
         refreshThreadInfo();
-
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -269,12 +347,83 @@ public class PostReplyFragment extends AwfulFragment {
                     } else {
                         addAttachment(data);
                     }
-                }else{
+                } else {
                     addAttachment(data);
                 }
             }
         }
     }
+
+
+    /**
+     * Display or hide the bottom sheet as appropriate.
+     */
+    private void toggleBottomSheet() {
+        // if we already have a sheet, get rid of it
+        if (bottomSheetMenuDialog != null) {
+            bottomSheetMenuDialog.dismissWithAnimation();
+            bottomSheetMenuDialog = null;
+            return;
+        }
+
+        // Stupid hack to ensure the text selected when the options are shown is still selected
+        // when an option is chosen. This is all because older versions use a Contextual Action Bar
+        // for text selection, which a) deselects the text when you pick an option from it,
+        // and b) covers the action bar so you can't use the menu item there that works fine
+        final int[] selectionRange = !mMessage.hasSelection() ? null :
+                new int[]{mMessage.getSelectionStart(), mMessage.getSelectionEnd()};
+
+        // build a full menu to populate the sheet with
+        Activity activity = getActivity();
+        Menu sheetMenu = new MenuBuilder(activity);
+        SupportMenuInflater inflater = new SupportMenuInflater(activity);
+        inflater.inflate(R.menu.insert_into_reply, sheetMenu);
+        inflater.inflate(R.menu.format_reply, sheetMenu);
+
+        bottomSheetMenuDialog = new BottomSheetBuilder(activity)
+                .setMode(BottomSheetBuilder.MODE_GRID)
+                .setMenu(sheetMenu)
+                .setItemClickListener(new BottomSheetItemClickListener() {
+                    @Override
+                    public void onBottomSheetItemClick(MenuItem item) {
+                        // restore any selection in the EditText before invoking the format/insert options
+                        if (selectionRange != null) {
+                            mMessage.setSelection(selectionRange[0], selectionRange[1]);
+                        }
+                        onOptionsItemSelected(item);
+                    }
+                })
+                .createDialog();
+
+        // drop the reference to an existing sheet when it goes away
+        bottomSheetMenuDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                bottomSheetMenuDialog = null;
+            }
+        });
+        bottomSheetMenuDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                bottomSheetMenuDialog = null;
+            }
+        });
+
+        bottomSheetMenuDialog.show();
+        // force the dialog to expand since peek/collapsed has some measurement issue in landscape
+        bottomSheetMenuDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+
+    /**
+     * Update the title view to show the current thread title, if we have it
+     */
+    private void updateThreadTitle() {
+        if (threadTitleView != null) {
+            threadTitleView.setText(mThreadTitle == null ? "" : mThreadTitle);
+        }
+    }
+
     protected void addAttachment() {
         addAttachment(attachmentData);
         attachmentData = null;
@@ -291,22 +440,22 @@ public class PostReplyFragment extends AwfulFragment {
         } else {
             File attachment = new File(path);
             if (attachment.isFile() && attachment.canRead()) {
-                if(StringUtils.indexOfAny(attachment.getName().toLowerCase(), ".jpg", ".jpeg", ".png", ".gif") != -1) {
+                if (StringUtils.indexOfAny(attachment.getName().toLowerCase(), ".jpg", ".jpeg", ".png", ".gif") != -1) {
                     if (attachment.length() > (1024 * 1024)) {
                         attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
                         mFileAttachment = null;
                     } else {
                         Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        if(Math.max(bitmap.getHeight(),bitmap.getWidth()) <= 1280 && bitmap.getHeight()*bitmap.getWidth() <= 1280*1024){
+                        if (Math.max(bitmap.getHeight(), bitmap.getWidth()) <= 1280 && bitmap.getHeight() * bitmap.getWidth() <= 1280 * 1024) {
                             mFileAttachment = path;
                             attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
-                        }else{
-                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_resolution_too_big), attachment.getName(),bitmap.getWidth(),bitmap.getHeight()), Toast.LENGTH_LONG);
+                        } else {
+                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_resolution_too_big), attachment.getName(), bitmap.getWidth(), bitmap.getHeight()), Toast.LENGTH_LONG);
                             mFileAttachment = null;
                         }
                         bitmap.recycle();
                     }
-                }else{
+                } else {
                     attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_wrong_filetype), attachment.getName()), Toast.LENGTH_LONG);
                     mFileAttachment = null;
                 }
@@ -389,8 +538,8 @@ public class PostReplyFragment extends AwfulFragment {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
@@ -453,6 +602,7 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public void onResume() {
         super.onResume();
+        updateThreadTitle();
         if (DEBUG) Log.e(TAG, "onResume");
     }
 
@@ -498,6 +648,7 @@ public class PostReplyFragment extends AwfulFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);
+
         MenuItem attach = menu.findItem(R.id.add_attachment);
         if (attach != null && mPrefs != null) {
             attach.setEnabled(mPrefs.hasPlatinum);
@@ -607,40 +758,67 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        Activity activity = getActivity();
         switch (item.getItemId()) {
-            case R.id.bbcode_bold:
-                insertBBCode(BBCODE.BOLD);
+            // open formatting/insert menu
+            case R.id.show_bbcode_menu:
+                toggleBottomSheet();
+                break;
+
+            // formatting menu (stuff you mainly select and format)
+            case bbcode_bold:
+                BasicTextInserter.insert(mMessage, BbCodeTag.BOLD, activity);
                 break;
             case R.id.bbcode_italics:
-                insertBBCode(BBCODE.ITALICS);
+                BasicTextInserter.insert(mMessage, BbCodeTag.ITALICS, activity);
                 break;
-            case R.id.bbcode_underline:
-                insertBBCode(BBCODE.UNDERLINE);
+            case bbcode_underline:
+                BasicTextInserter.insert(mMessage, BbCodeTag.UNDERLINE, activity);
                 break;
             case R.id.bbcode_strikeout:
-                insertBBCode(BBCODE.STRIKEOUT);
+                BasicTextInserter.insert(mMessage, BbCodeTag.STRIKEOUT, activity);
                 break;
-            case R.id.bbcode_url:
-                insertBBCode(BBCODE.URL);
+            case bbcode_spoiler:
+                BasicTextInserter.insert(mMessage, BbCodeTag.SPOILER, activity);
                 break;
-            case R.id.bbcode_video:
-                insertBBCode(BBCODE.VIDEO);
+            case R.id.bbcode_superscript:
+                BasicTextInserter.insert(mMessage, BbCodeTag.SUPERSCRIPT, activity);
+                break;
+            case R.id.bbcode_subscript:
+                BasicTextInserter.insert(mMessage, BbCodeTag.SUBSCRIPT, activity);
+                break;
+            case R.id.bbcode_fixed_width:
+                BasicTextInserter.insert(mMessage, BbCodeTag.FIXED, activity);
+                break;
+
+            // insert menu (emotes, images, block formatting, parameterised tags etc)
+            case emotes:
+                selectionStart = mMessage.getSelectionStart();
+                new EmoteFragment(this).show(getFragmentManager(), "emotes");
                 break;
             case R.id.bbcode_image:
-                insertBBCode(BBCODE.IMAGE);
+                ImageInserter.insert(mMessage, activity);
                 break;
-            case R.id.bbcode_thumbnail:
-                insertBBCode(BBCODE.THUMBNAIL);
+            case R.id.bbcode_video:
+                VideoInserter.insert(mMessage, activity);
+                break;
+            case R.id.bbcode_url:
+                UrlInserter.insert(mMessage, activity);
                 break;
             case R.id.bbcode_quote:
-                insertBBCode(BBCODE.QUOTE);
+                QuoteInserter.insert(mMessage, activity);
                 break;
-            case R.id.bbcode_spoiler:
-                insertBBCode(BBCODE.SPOILER);
+            case R.id.bbcode_list:
+                ListInserter.insert(mMessage, activity);
                 break;
             case R.id.bbcode_code:
-                insertBBCode(BBCODE.CODE);
+                CodeInserter.insert(mMessage, activity);
                 break;
+            case R.id.bbcode_pre:
+                BasicTextInserter.insert(mMessage, BbCodeTag.PRE, activity);
+                break;
+
+            // other options
             case R.id.submit_button:
                 postReply();
                 break;
@@ -649,24 +827,19 @@ public class PostReplyFragment extends AwfulFragment {
                 break;
             case R.id.discard:
                 deleteReply();
-                getActivity().setResult(RESULT_CANCELLED);
+                activity.setResult(RESULT_CANCELLED);
                 leave();
                 break;
             case R.id.save_draft:
                 saveReply();
-                getActivity().setResult(RESULT_CANCELLED);
+                activity.setResult(RESULT_CANCELLED);
                 leave();
-                break;
-            case R.id.emotes:
-                selectionStart = mMessage.getSelectionStart();
-                new EmoteFragment(this).show(getFragmentManager(), "emotes");
                 break;
             case R.id.add_attachment:
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(Intent.createChooser(intent,
                         "Select Picture"), ADD_ATTACHMENT);
-
                 break;
             case R.id.remove_attachment:
                 this.mFileAttachment = null;
@@ -687,90 +860,6 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         return true;
-    }
-
-    public void insertBBCode(BBCODE code) {
-        if (selectionStart < 0) {//we might be getting this from an earlier point
-            selectionStart = mMessage.getSelectionStart();
-            selectionEnd = mMessage.getSelectionEnd();
-        }
-        boolean highlighted = selectionStart != selectionEnd;
-        String startTag = null;
-        String endTag = null;
-        switch (code) {
-            case BOLD:
-                startTag = "[b]";
-                endTag = "[/b]";
-                break;
-            case ITALICS:
-                startTag = "[i]";
-                endTag = "[/i]";
-                break;
-            case UNDERLINE:
-                startTag = "[u]";
-                endTag = "[/u]";
-                break;
-            case STRIKEOUT:
-                startTag = "[s]";
-                endTag = "[/s]";
-                break;
-            case URL:
-                String link = this.getClipboardLink();
-                if (link != null) {
-                    startTag = "[url=" + link + "]";
-                } else {
-                    startTag = "[url]";
-                }
-                //startTag = "[url]";
-                endTag = "[/url]";
-                break;
-            case QUOTE:
-                startTag = "[quote]";
-                endTag = "[/quote]";
-                break;
-            case IMAGE:
-                String imageLink = this.getClipboardLink();
-                if (imageLink != null) {
-                    startTag = "[img]" + imageLink;
-                } else {
-                    startTag = "[img]";
-                }
-                endTag = "[/img]";
-                break;
-            case THUMBNAIL:
-                String timageLink = this.getClipboardLink();
-                if (timageLink != null) {
-                    startTag = "[timg]" + timageLink;
-                } else {
-                    startTag = "[timg]";
-                }
-                endTag = "[/timg]";
-                break;
-            case VIDEO:
-                startTag = "[video]";
-                endTag = "[/video]";
-                break;
-            case SPOILER:
-                startTag = "[spoiler]";
-                endTag = "[/spoiler]";
-                break;
-            case CODE:
-                startTag = "[code]";
-                endTag = "[/code]";
-                break;
-        }
-        if (startTag != null && endTag != null) {
-            if (highlighted) {
-                mMessage.getEditableText().insert(selectionStart, startTag);
-                mMessage.getEditableText().insert(selectionEnd + startTag.length(), endTag);
-                mMessage.setSelection(selectionStart + startTag.length());
-            } else {
-                mMessage.getEditableText().insert(selectionStart, startTag + endTag);
-                mMessage.setSelection(selectionStart + startTag.length());
-            }
-        }
-        selectionStart = -1;//reset them for next time
-        selectionEnd = -1;
     }
 
     private void insertEmote(String emote) {
@@ -809,6 +898,9 @@ public class PostReplyFragment extends AwfulFragment {
         if (mDialog != null) {
             mDialog.dismiss();
         }
+        if (bottomSheetMenuDialog != null) {
+            bottomSheetMenuDialog.dismiss();
+        }
     }
 
     private void postReply() {
@@ -833,7 +925,7 @@ public class PostReplyFragment extends AwfulFragment {
 
     private void sendPost() {
         ContentValues cv = prepareCV();
-        if(cv == null){
+        if (cv == null) {
             return;
         }
         AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
@@ -892,7 +984,7 @@ public class PostReplyFragment extends AwfulFragment {
             Log.e(TAG, "Saving reply! " + content);
             if (content.length() > 0) {
                 ContentValues post;
-                if(replyData == null){
+                if (replyData == null) {
                     post = new ContentValues();
                 } else {
                     post = new ContentValues(replyData);
@@ -911,14 +1003,14 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
-    private void previewPost(){
+    private void previewPost() {
         ContentValues cv = prepareCV();
-        if(cv == null){
+        if (cv == null) {
             return;
         }
         final PreviewFragment previewFrag = new PreviewFragment();
         previewFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        previewFrag.show(getFragmentManager(),"Post Preview");
+        previewFrag.show(getFragmentManager(), "Post Preview");
         AwfulRequest.AwfulResultCallback previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
             @Override
             public void success(final String result) {
@@ -945,14 +1037,14 @@ public class PostReplyFragment extends AwfulFragment {
                 }
             }
         };
-        if(mReplyType == AwfulMessage.TYPE_EDIT){
+        if (mReplyType == AwfulMessage.TYPE_EDIT) {
             queueRequest(new PreviewEditRequest(getActivity(), cv).build(this, previewCallback));
-        }else{
+        } else {
             queueRequest(new PreviewPostRequest(getActivity(), cv).build(this, previewCallback));
         }
     }
 
-    private ContentValues prepareCV(){
+    private ContentValues prepareCV() {
         if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
             // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
             // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
@@ -1009,38 +1101,37 @@ public class PostReplyFragment extends AwfulFragment {
 
     @Override
     public String getTitle() {
-        String title = "";
-        if (mThreadTitle != null && mThreadTitle.length() > 0) {
-            title = " - " + mThreadTitle;
-        }
         switch (mReplyType) {
             case AwfulMessage.TYPE_EDIT:
-                return "Editing" + title;
-            case AwfulMessage.TYPE_NEW_REPLY:
-                return "Reply" + title;
+                return "Editing";
             case AwfulMessage.TYPE_QUOTE:
-                return "Quote" + title;
+                return "Quote";
+            case AwfulMessage.TYPE_NEW_REPLY:
+            default:
+                return "Reply";
         }
-        return "Loading";
     }
 
     public void selectEmote(String contents) {
         insertEmote(contents);
     }
 
-    private String getClipboardLink() {
-        String link = null;
-
-        android.content.ClipboardManager cb = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-        String copy = String.valueOf(cb.getText());
-        if (copy.startsWith("http://") || copy.startsWith("https://")) {
-            link = copy;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addAttachment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-
-        return link;
     }
-
-    private enum BBCODE {BOLD, ITALICS, UNDERLINE, STRIKEOUT, URL, VIDEO, IMAGE, QUOTE, SPOILER, CODE, THUMBNAIL}
 
     private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -1091,7 +1182,7 @@ public class PostReplyFragment extends AwfulFragment {
             if (aData.getCount() > 0 && aData.moveToFirst()) {
                 //threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
                 mThreadTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
-                setTitle(getTitle());
+                updateThreadTitle();
             }
         }
 
@@ -1107,25 +1198,8 @@ public class PostReplyFragment extends AwfulFragment {
 
         @Override
         public void onChange(boolean selfChange) {
-            if(DEBUG) Log.v(TAG, "Thread Data update.");
+            if (DEBUG) Log.v(TAG, "Thread Data update.");
             refreshThreadInfo();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    addAttachment();
-                } else {
-                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/emotes"
+        android:icon="@drawable/ic_mood_dark"
+        android:title="@string/reply_emotes"/>
+    <item
+        android:id="@+id/bbcode_image"
+        android:icon="@drawable/ic_panorama_dark"
+        android:title="@string/reply_img_tag"/>
+    <item
+        android:id="@+id/bbcode_video"
+        android:icon="@drawable/ic_movie_dark"
+        android:title="@string/reply_video"/>
+    <item
+        android:id="@+id/bbcode_url"
+        android:icon="@drawable/ic_insert_link_dark"
+        android:title="@string/reply_url_tag"/>
+    <item
+        android:id="@+id/bbcode_quote"
+        android:icon="@drawable/ic_format_quote_dark"
+        android:title="@string/reply_quote"/>
+    <item
+        android:id="@+id/bbcode_list"
+        android:icon="@drawable/ic_format_list_bulleted_dark"
+        android:title="@string/reply_list"/>
+    <item
+        android:id="@+id/bbcode_code"
+        android:icon="@drawable/ic_code_dark"
+        android:title="@string/reply_code"/>
+    <item
+        android:id="@+id/bbcode_pre"
+        android:icon="@drawable/ic_format_align_right_dark"
+        android:title="@string/reply_pre"/>
+</menu>

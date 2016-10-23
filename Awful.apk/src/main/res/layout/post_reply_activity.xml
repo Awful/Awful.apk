@@ -1,35 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/replycontent"
-    android:background="?attr/background"
+    android:id="@+id/reply_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/background"
     android:orientation="vertical">
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/awful_toolbar_reply"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:minHeight="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:theme="@style/ToolBarStyle"
-        app:popupTheme="?attr/awfulPopUpTheme"
-        app:elevation="4dp"
         android:elevation="4dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ToolBarStyle"
+        app:elevation="4dp"
+        app:popupTheme="?attr/awfulPopUpTheme"
         />
-    <FrameLayout
+
+    <TextView
+        android:id="@+id/thread_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/material_list_subtitle_height"
+        android:paddingLeft="@dimen/material_screen_edge_margin"
+        android:paddingRight="@dimen/material_screen_edge_margin"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        tools:text="Thread title"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/list_divider"
+        tools:ignore="ContentDescription"/>
+
+    <fragment
+        android:id="@+id/reply_fragment"
+        android:name="com.ferg.awfulapp.PostReplyFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/material_screen_edge_margin"
+        android:layout_marginRight="@dimen/material_screen_edge_margin"
         android:layout_weight="1"
-        android:padding="@dimen/material_screen_edge_margin"
-        android:focusable="true">
-        <fragment
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:name="com.ferg.awfulapp.PostReplyFragment"
-            android:id="@+id/replyfragment"
-            tools:layout="@layout/post_reply"/>
-    </FrameLayout>
+        tools:layout="@layout/post_reply"/>
+
 </LinearLayout>

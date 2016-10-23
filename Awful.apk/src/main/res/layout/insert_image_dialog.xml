@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              style="@style/ReplyInsertDialog">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textUri"
+        android:ems="10"
+        android:id="@+id/url_field"
+        android:hint="@string/insert_image_url_field_hint"
+        android:singleLine="true"
+        android:selectAllOnFocus="true"/>
+
+    <CheckBox
+        android:text="@string/insert_image_thumbnail_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/use_thumbnail"/>
+</LinearLayout>
