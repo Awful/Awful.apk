@@ -51,6 +51,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
@@ -62,6 +63,7 @@ import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -262,9 +264,58 @@ public class PostReplyFragment extends AwfulFragment {
         super.onCreateView(aInflater, aContainer, aSavedState);
         if (DEBUG) Log.e(TAG, "onCreateView");
         View result = inflateView(R.layout.post_reply, aContainer, aInflater);
-        mMessage = (EditText) result.findViewById(R.id.post_message);
 
+        mMessage = (EditText) result.findViewById(R.id.post_message);
+        addBbcodeToSelectionMenu(mMessage);
         return result;
+    }
+
+
+    /**
+     * Adds the BBcode option to the text selection action menu.
+     * <p>
+     * This is mainly to fix the issue with the action menu replacing the action bar on earlier
+     * versions of Android, meaning the BBcode option can't be pressed (and work on selected text).
+     *
+     * @param editText the textview to add the selection option to
+     */
+    private void addBbcodeToSelectionMenu(@NonNull final EditText editText) {
+        ActionMode.Callback callback = new ActionMode.Callback() {
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.add(Menu.NONE, R.id.show_bbcode_menu, Menu.NONE, R.string.bbcode)
+                        .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                        .setIcon(R.drawable.ic_bb);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.show_bbcode_menu) {
+                    toggleBottomSheet();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        };
+        editText.setCustomSelectionActionModeCallback(callback);
+        // add it to the insert menu too for consistency, why not
+        if (AwfulUtils.isMarshmallow()) {
+            // noinspection AndroidLintNewApi
+            editText.setCustomInsertionActionModeCallback(callback);
+        }
+
     }
 
     @Override
@@ -305,7 +356,7 @@ public class PostReplyFragment extends AwfulFragment {
 
 
     /**
-     * Display or hide the bottom sheet as appropriate
+     * Display or hide the bottom sheet as appropriate.
      */
     private void toggleBottomSheet() {
         // if we already have a sheet, get rid of it
@@ -314,6 +365,13 @@ public class PostReplyFragment extends AwfulFragment {
             bottomSheetMenuDialog = null;
             return;
         }
+
+        // Stupid hack to ensure the text selected when the options are shown is still selected
+        // when an option is chosen. This is all because older versions use a Contextual Action Bar
+        // for text selection, which a) deselects the text when you pick an option from it,
+        // and b) covers the action bar so you can't use the menu item there that works fine
+        final int[] selectionRange = !mMessage.hasSelection() ? null :
+                new int[]{mMessage.getSelectionStart(), mMessage.getSelectionEnd()};
 
         // build a full menu to populate the sheet with
         Activity activity = getActivity();
@@ -328,6 +386,10 @@ public class PostReplyFragment extends AwfulFragment {
                 .setItemClickListener(new BottomSheetItemClickListener() {
                     @Override
                     public void onBottomSheetItemClick(MenuItem item) {
+                        // restore any selection in the EditText before invoking the format/insert options
+                        if (selectionRange != null) {
+                            mMessage.setSelection(selectionRange[0], selectionRange[1]);
+                        }
                         onOptionsItemSelected(item);
                     }
                 })

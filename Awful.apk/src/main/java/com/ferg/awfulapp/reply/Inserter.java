@@ -115,6 +115,8 @@ abstract class Inserter {
             end = start;
         }
         replyMessage.getText().replace(start, end, textToInsert);
+        // deselect and position the cursor after what we just added (newer APIs do this automatically)
+        replyMessage.setSelection(start + textToInsert.length());
     }
 
 
