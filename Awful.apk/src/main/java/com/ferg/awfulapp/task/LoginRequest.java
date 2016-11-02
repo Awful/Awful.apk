@@ -41,7 +41,7 @@ public class LoginRequest extends AwfulRequest<Boolean> {
 
     @Override
     protected boolean handleError(AwfulError error, Document doc) {
-        if(error.networkResponse.statusCode == 302){
+        if(error.networkResponse != null && error.networkResponse.statusCode == 302){
             Boolean result = NetworkUtils.saveLoginCookies(getContext());
             if(result){
                 AwfulPreferences prefs = AwfulPreferences.getInstance(getContext());
@@ -49,7 +49,7 @@ public class LoginRequest extends AwfulRequest<Boolean> {
             }
             return result;
         }else{
-            return error.getErrorCode() == AwfulError.ERROR_PROBATION || error.isCritical();//Don't allow probation to pass
+            return error.isCritical();
         }
     }
 }
