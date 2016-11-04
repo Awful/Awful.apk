@@ -124,7 +124,7 @@ public class Forum {
     private static final SparseArray<String> forumAbbreviations = new SparseArray<>();
 
     static {
-        forumAbbreviations.append(1, "GBS");
+        forumAbbreviations.append(273, "GBS");
         forumAbbreviations.append(26, "FYAD");
         forumAbbreviations.append(268, "BYOB");
         forumAbbreviations.append(272, "RSF");
@@ -140,6 +140,7 @@ public class Forum {
         forumAbbreviations.append(179, "YLLS");
         forumAbbreviations.append(161, "GWS");
         forumAbbreviations.append(91, "AI");
+        forumAbbreviations.append(210, "DIY");
         forumAbbreviations.append(124, "PI");
         forumAbbreviations.append(132, "TFR");
         forumAbbreviations.append(90, "TCC");
@@ -162,5 +163,6 @@ public class Forum {
 
         forumAbbreviations.append(21, "55555");
         forumAbbreviations.append(25, "11111");
+        forumAbbreviations.append(1, "RIP");
     }
 }
