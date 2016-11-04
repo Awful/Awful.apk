@@ -6,12 +6,10 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.2'
         classpath 'io.fabric.tools:gradle:1.+'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
     mavenCentral()
@@ -25,9 +23,13 @@ android {
 
     defaultConfig {
         applicationId = "com.ferg.awfulapp"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 25
         resConfigs "en"
+
+        jackOptions {
+            enabled true
+        }
 
         // Stops the Gradle plugin’s automatic rasterization of vectors
         vectorDrawables.useSupportLibrary = true
@@ -74,6 +76,11 @@ android {
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -83,7 +90,7 @@ dependencies {
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'org.jsoup:jsoup:1.10.1'
-    compile 'joda-time:joda-time:2.9.5'
+    compile 'com.jakewharton.threetenabp:threetenabp:1.0.4'
     compile 'com.samskivert:jmustache:1.13'
     compile 'org.apache.httpcomponents:httpmime:4.3.1'
     compile 'org.apache.httpcomponents:httpcore:4.3.1'
@@ -94,7 +101,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.github.chrisbanes:PhotoView:1.3.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 //    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;

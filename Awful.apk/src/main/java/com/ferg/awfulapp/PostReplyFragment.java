@@ -106,9 +106,8 @@ import com.github.rubensousa.bottomsheetbuilder.BottomSheetMenuDialog;
 import com.github.rubensousa.bottomsheetbuilder.adapter.BottomSheetItemClickListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.Period;
-import org.joda.time.PeriodType;
-import org.joda.time.format.PeriodFormat;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import java.io.File;
 
@@ -739,20 +738,23 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     private String epocToSimpleDate(long epoc) {
-        Period diff = new Period(epoc, System.currentTimeMillis(), PeriodType.standard());
-        PeriodType type;
-        if (diff.getMonths() > 0) {
-            type = PeriodType.yearMonthDay();
-        } else if (diff.getWeeks() > 0) {
-            type = PeriodType.yearWeekDay();
-        } else if (diff.getDays() > 0) {
-            type = PeriodType.dayTime().withSecondsRemoved().withMillisRemoved().withMinutesRemoved();
-        } else if (diff.getMinutes() > 0) {
-            type = PeriodType.time().withMillisRemoved().withSecondsRemoved();
-        } else {
-            type = PeriodType.time().withMillisRemoved();
+        Duration diff = Duration.between(Instant.ofEpochSecond( (epoc/1000) ),Instant.now()).abs();
+        String time = "";
+        if (diff.toDays() > 0) {
+            time+=" "+ diff.toDays()+"d";
+            diff = diff.minusDays(diff.toDays());
         }
-        return PeriodFormat.getDefault().print(new Period(epoc, System.currentTimeMillis(), type));
+        if (diff.toHours() > 0) {
+            time+=" "+ diff.toHours()+"h";
+            diff = diff.minusHours(diff.toHours());
+        }
+        if (diff.toMinutes() > 0) {
+            time+=" "+ diff.toMinutes()+"m";
+            diff = diff.minusMinutes(diff.toMinutes());
+        }
+
+        time+=" "+ diff.getSeconds()+"s";
+        return time;
     }
 
     @Override
