@@ -22,10 +22,8 @@
     <dimen name="thread_item_sticky_locked_icon_size">15dp</dimen>
 
     <!-- thread item attributes that need to vary by version -->
-    <dimen name="thread_item_tag_layout_height">56dp</dimen>
-    <dimen name="thread_item_tag_layout_padding_bottom">16dp</dimen>
-    <dimen name="thread_item_rating_layout_height">31dp</dimen>
-    <dimen name="thread_item_rating_layout_margin_top">-32dp</dimen>
-    <dimen name="thread_item_rating_layout_padding_bottom">16dp</dimen>
+    <dimen name="thread_item_tag_layout_size">40dp</dimen>
+    <dimen name="thread_item_tag_layout_padding_bottom">0dp</dimen>
+    <dimen name="thread_item_rating_layout_height">15dp</dimen>
 
 </resources>

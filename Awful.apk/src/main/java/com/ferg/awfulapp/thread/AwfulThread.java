@@ -580,17 +580,23 @@ public class AwfulThread extends AwfulPagedItem  {
         /*
             Tag overlay (secondary tags etc)
          */
-        ImageView forumTagOverlay = (ImageView)current.findViewById(R.id.thread_tag_overlay);
-        forumTagOverlay.setVisibility(View.GONE);
         int tagId = data.getInt(data.getColumnIndex(TAG_EXTRA));
+        ImageView forumTagOverlay = (ImageView) current.findViewById(R.id.thread_tag_overlay);
+        ImageView forumTagOverlayOpt = (ImageView) current.findViewById(R.id.thread_tag_overlay_optional);
+        forumTagOverlay.setVisibility(View.GONE);
+        forumTagOverlayOpt.setVisibility(View.GONE);
         if (ExtraTags.getType(tagId) != ExtraTags.TYPE_NO_TAG) {
             Drawable tagIcon = ExtraTags.getDrawable(tagId, resources);
             if (tagIcon != null) {
-                forumTagOverlay.setVisibility(View.VISIBLE);
-                forumTagOverlay.setImageDrawable(tagIcon);
+                if(prefs.threadInfo_Tag) {
+                    forumTagOverlay.setVisibility(View.VISIBLE);
+                    forumTagOverlay.setImageDrawable(tagIcon);
+                }else {
+                    forumTagOverlayOpt.setVisibility(View.VISIBLE);
+                    forumTagOverlayOpt.setImageDrawable(tagIcon);
+                }
             }
         }
-
 
         info.setVisibility(View.VISIBLE);
         StringBuilder tmp = new StringBuilder();
@@ -607,7 +613,9 @@ public class AwfulThread extends AwfulPagedItem  {
             Ratings
          */
         ImageView threadRating = (ImageView)current.findViewById(R.id.thread_rating);
+        ImageView threadRatingOpt = (ImageView)current.findViewById(R.id.thread_rating_optional);
         threadRating.setVisibility(View.GONE);
+        threadRatingOpt.setVisibility(View.GONE);
         if (prefs.threadInfo_Rating) {
             int rating = data.getInt(data.getColumnIndex(RATING));
             Drawable ratingIcon = AwfulRatings.getDrawable(rating, resources);
@@ -617,8 +625,13 @@ public class AwfulThread extends AwfulPagedItem  {
                     threadTag.setVisibility(View.VISIBLE);
                     threadTag.setImageDrawable(ratingIcon);
                 } else {
-                    threadRating.setVisibility(View.VISIBLE);
-                    threadRating.setImageDrawable(ratingIcon);
+                    if(prefs.threadInfo_Tag){
+                        threadRating.setVisibility(View.VISIBLE);
+                        threadRating.setImageDrawable(ratingIcon);
+                    }else{
+                        threadRatingOpt.setVisibility(View.VISIBLE);
+                        threadRatingOpt.setImageDrawable(ratingIcon);
+                    }
                 }
             }
         }
