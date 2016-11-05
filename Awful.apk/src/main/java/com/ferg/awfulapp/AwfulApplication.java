@@ -15,6 +15,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.sync.SyncManager;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     public void onCreate() {
         super.onCreate();
 		NetworkUtils.init(this);
+		AndroidThreeTen.init(this);
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref,null);
 

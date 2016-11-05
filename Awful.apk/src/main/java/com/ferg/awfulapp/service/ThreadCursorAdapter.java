@@ -63,7 +63,7 @@ public class ThreadCursorAdapter extends CursorAdapter {
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
-		View row = inf.inflate(R.layout.nu_thread_item, parent, false);
+		View row = inf.inflate(R.layout.thread_item, parent, false);
         AwfulThread.getView(row, mPrefs, data, mFragment);
 		mParent.setPreferredFont(row);
 		return row;

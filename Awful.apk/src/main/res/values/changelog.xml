@@ -2,6 +2,14 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.5.1:\n
+            - Fully overhauled reply window. It\'s so new and shiny.\n
+            - Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n
+            - Fixed attachment downloads.\n
+            - Fixed volume-button scrolling.\n
+            - Fixed log-in during probations. Probably. Maybe. Did not test.
+        </item>
+        <item>
             3.2.5.0c:\n
             - Fast fix for flickering frogs
         </item>

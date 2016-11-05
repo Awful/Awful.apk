@@ -28,7 +28,7 @@
             android:cacheColorHint="@color/background"
             android:divider="?attr/listDividerColor"
             android:dividerHeight="1dp"
-            tools:listitem="@layout/nu_thread_item" />
+            tools:listitem="@layout/thread_item" />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
 
     <com.ferg.awfulapp.widget.PageBar

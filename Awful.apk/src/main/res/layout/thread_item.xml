@@ -9,58 +9,61 @@
     android:minHeight="@dimen/material_list_item_height"
     android:paddingBottom="4dp"
     android:paddingRight="4dp"
+    android:paddingLeft="16dp"
     android:paddingTop="@dimen/material_list_item_vertical_padding"
     tools:background="@color/background"
     tools:ignore="RtlHardcoded,RtlSymmetry">
 
     <!-- TODO: add better content descriptions in code, e.g. rating number -->
-
-    <ImageView
-        android:id="@+id/thread_tag"
-        android:layout_width="40dp"
-        android:layout_height="@dimen/thread_item_tag_layout_height"
+    <LinearLayout
+        android:layout_centerInParent="true"
+        android:id="@+id/thread_tag_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="@dimen/material_list_item_vertical_padding"
-        android:layout_marginLeft="@dimen/material_screen_edge_margin"
-        android:contentDescription="@string/thread_tag_description"
-        android:paddingBottom="@dimen/thread_item_tag_layout_padding_bottom"
-        tools:src="@drawable/pi_birds"
-        tools:visibility="visible"/>
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/thread_item_tag_layout_padding_bottom">
+
+        <ImageView
+            android:id="@+id/thread_tag"
+            android:layout_width="@dimen/thread_item_tag_layout_size"
+            android:layout_height="@dimen/thread_item_tag_layout_size"
+            android:layout_marginRight="16dp"
+            android:contentDescription="@string/thread_tag_description"
+            tools:src="@drawable/pi_birds"
+            android:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/thread_rating"
+            android:layout_width="@dimen/thread_item_tag_layout_size"
+            android:layout_marginRight="16dp"
+            android:layout_height="@dimen/thread_item_rating_layout_height"
+            android:contentDescription="@string/thread_rating_description"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            tools:src="@drawable/rating_4stars"
+            tools:visibility="visible"/>
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/thread_tag_overlay"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:layout_alignRight="@+id/thread_tag"
-        android:layout_alignTop="@+id/thread_tag"
-        android:layout_marginRight="-4dp"
+        android:layout_alignRight="@+id/thread_tag_container"
+        android:layout_alignTop="@+id/thread_tag_container"
+        android:layout_marginRight="12dp"
         android:layout_marginTop="-4dp"
         android:contentDescription="@string/thread_secondary_tag_description"
         android:scaleType="fitXY"
         tools:src="@drawable/icon_37_selling"
         tools:visibility="visible"/>
 
-    <ImageView
-        android:id="@+id/thread_rating"
-        android:layout_width="40dp"
-        android:layout_height="@dimen/thread_item_rating_layout_height"
-        android:layout_below="@id/thread_tag"
-        android:layout_marginBottom="@dimen/material_list_item_vertical_padding"
-        android:layout_marginLeft="@dimen/material_screen_edge_margin"
-        android:layout_marginTop="@dimen/thread_item_rating_layout_margin_top"
-        android:contentDescription="@string/thread_rating_description"
-        android:paddingBottom="@dimen/thread_item_rating_layout_padding_bottom"
-        android:scaleType="fitXY"
-        android:visibility="gone"
-        tools:src="@drawable/rating_4stars"
-        tools:visibility="visible"/>
-
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@id/thread_tag_container"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/material_content_left_margin"
         android:layout_toLeftOf="@+id/unread_count">
 
         <ImageView
@@ -85,14 +88,39 @@
             app:srcCompat="@drawable/ic_https"
             tools:visibility="visible"/>
 
+
+
+        <ImageView
+            android:id="@+id/thread_rating_optional"
+            android:layout_width="40dp"
+            android:layout_height="@dimen/thread_item_rating_layout_height"
+            android:layout_marginRight="4dp"
+            android:contentDescription="@string/thread_rating_description"
+            android:layout_toRightOf="@+id/thread_locked"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            tools:src="@drawable/rating_4stars"
+            tools:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/thread_tag_overlay_optional"
+            android:layout_width="@dimen/thread_item_sticky_locked_icon_size"
+            android:layout_height="@dimen/thread_item_sticky_locked_icon_size"
+            android:layout_marginRight="4dp"
+            android:layout_toRightOf="@+id/thread_rating_optional"
+            android:contentDescription="@string/thread_secondary_tag_description"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            tools:src="@drawable/icon_37_selling"
+            tools:visibility="visible"/>
+
         <TextView
             android:id="@+id/thread_info"
             style="@style/ForumListTitle.Subtitle"
-            android:layout_toRightOf="@+id/thread_locked"
+            android:layout_toRightOf="@+id/thread_tag_overlay_optional"
             android:includeFontPadding="false"
-            android:singleLine="true"
             tools:text="Cool thread details"
-            />
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/title"
