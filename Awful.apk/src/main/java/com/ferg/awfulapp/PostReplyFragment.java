@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -379,7 +380,17 @@ public class PostReplyFragment extends AwfulFragment {
         inflater.inflate(R.menu.insert_into_reply, sheetMenu);
         inflater.inflate(R.menu.format_reply, sheetMenu);
 
+        // need to apply themed background and text colours programmatically it seems
+        TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] {
+                R.attr.bottomSheetBackgroundColor,
+                R.attr.bottomSheetItemTextColor});
+        int backgroundColour = a.getResourceId(0, 0);
+        int itemTextColour = a.getResourceId(1, 0);
+        a.recycle();
+
         bottomSheetMenuDialog = new BottomSheetBuilder(activity)
+                .setBackgroundColor(backgroundColour)
+                .setItemTextColor(itemTextColour)
                 .setMode(BottomSheetBuilder.MODE_GRID)
                 .setMenu(sheetMenu)
                 .setItemClickListener(new BottomSheetItemClickListener() {
