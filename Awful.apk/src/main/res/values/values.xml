@@ -14,4 +14,8 @@
     <!-- icons -->
     <attr name="iconColor" format="color" />
     <attr name="iconColorDark" format="color" />
+
+    <!-- bottom sheet -->
+    <attr name="bottomSheetBackgroundColor" format="color" />
+    <attr name="bottomSheetItemTextColor" format="color" />
 </resources>

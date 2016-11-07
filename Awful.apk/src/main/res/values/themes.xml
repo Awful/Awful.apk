@@ -29,6 +29,10 @@
         <item name="iconColor">@color/background</item>
         <item name="iconColorDark">@color/secondary_post_font</item>
 
+        <!-- bottom sheet -->
+        <item name="bottomSheetBackgroundColor">?background</item>
+        <item name="bottomSheetItemTextColor">?android:textColorPrimary</item>
+
     </style>
 
     <style name="Theme.AwfulTheme.Dark" parent="Theme.AppCompat.NoActionBar">
@@ -53,6 +57,10 @@
         <!-- icons -->
         <item name="iconColor">@color/dark_default_post_font</item>
         <item name="iconColorDark">@color/dark_default_post_font</item>
+
+        <!-- bottom sheet -->
+        <item name="bottomSheetBackgroundColor">?background</item>
+        <item name="bottomSheetItemTextColor">?android:textColorPrimary</item>
     </style>
 
 
