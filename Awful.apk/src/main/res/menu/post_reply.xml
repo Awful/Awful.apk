@@ -3,53 +3,49 @@
       xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/show_bbcode_menu"
-        android:icon="@drawable/ic_bb"
-        app:showAsAction="always"
-        android:title="@string/bbcode"/>
-    <item
         android:id="@+id/submit_button"
         android:icon="@drawable/ic_send"
-        app:showAsAction="always"
-        android:title="@string/submit"/>
+        android:title="@string/submit"
+        android:orderInCategory="99999"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/save_draft"
-        app:showAsAction="never|withText"
-        android:title="@string/menu_save_draft">
+        android:title="@string/menu_save_draft"
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/discard"
         android:icon="@drawable/ic_error_dark"
-        app:showAsAction="never|withText"
-        android:title="@string/menu_discard">
+        android:title="@string/menu_discard"
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/preview"
         android:icon="@drawable/ic_preview"
-        app:showAsAction="never|withText"
-        android:title="@string/menu_preview">
+        android:title="@string/menu_preview"
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/signature"
-        app:showAsAction="never|withText"
+        android:checkable="true"
         android:title="@string/signature"
-        android:checkable="true">
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/disableEmots"
-        app:showAsAction="never|withText"
+        android:checkable="true"
         android:title="@string/disableEmots"
-        android:checkable="true">
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/add_attachment"
-        app:showAsAction="never|withText"
-        android:title="@string/add_attachment">
+        android:title="@string/add_attachment"
+        app:showAsAction="never|withText">
     </item>
     <item
         android:id="@+id/remove_attachment"
-        app:showAsAction="never|withText"
         android:title="@string/remove_attachment"
-        android:visible="false">
+        android:visible="false"
+        app:showAsAction="never|withText">
     </item>
 </menu>

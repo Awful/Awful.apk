@@ -53,6 +53,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.reply.MessageComposer;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.EmoteRequest;
@@ -65,12 +66,12 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 	private AwfulCursorAdapter adapter;
 	private EmoteDataCallback emoteLoader = new EmoteDataCallback();
 
-    private PostReplyFragment parent;
+	private MessageComposer parent;
 	
 	private boolean loadFailed = false;
 
-    public EmoteFragment(PostReplyFragment parent) {
-        super();
+	public EmoteFragment(MessageComposer parent) {
+		super();
         this.parent = parent;
     }
 
@@ -177,16 +178,29 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
             }));
 		}
     }
-	
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View v, int arg2, long arg3) {
+		TextView tv = (TextView) v.findViewById(R.id.emote_text);
+		Toast.makeText(getAwfulActivity(), tv.getText().toString().trim(), Toast.LENGTH_SHORT).show();
+		parent.insertEmote(tv.getText().toString().trim());
+		dismiss();
+	}
+
+	@Override
+	public boolean volumeScroll(KeyEvent event) {
+		return false;
+	}
+
 	private class EmoteDataCallback implements LoaderManager.LoaderCallbacks<Cursor>{
 		private String filter;
 		@Override
 		public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
         	Log.v(TAG,"Creating emote cursor");
-            return new CursorLoader(getActivity(), 
-            						AwfulEmote.CONTENT_URI, 
-            						AwfulProvider.EmoteProjection, 
-            						(filter!=null && filter.length() > 0? AwfulEmote.TEXT+" LIKE '%' || ? || '%'" : null),
+			return new CursorLoader(getActivity(),
+					AwfulEmote.CONTENT_URI,
+					AwfulProvider.EmoteProjection,
+					(filter!=null && filter.length() > 0? AwfulEmote.TEXT+" LIKE '%' || ? || '%'" : null),
             						(filter!=null && filter.length() > 0? new String[]{filter} : null),
             						AwfulEmote.INDEX);
 		}
@@ -203,22 +217,9 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		public void onLoaderReset(Loader<Cursor> arg0) {
 			adapter.swapCursor(null);
 		}
-		
+
 		public void setFilterText(String text){
 			filter = text;
 		}
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View v, int arg2, long arg3) {
-		TextView tv = (TextView) v.findViewById(R.id.emote_text);
-		Toast.makeText(getAwfulActivity(), tv.getText().toString().trim(), Toast.LENGTH_SHORT).show();
-        parent.selectEmote(tv.getText().toString().trim());
-		dismiss();
-	}
-
-	@Override
-	public boolean volumeScroll(KeyEvent event) {
-		return false;
 	}
 }

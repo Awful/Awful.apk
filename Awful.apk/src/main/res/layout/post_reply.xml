@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/post_message"
+    <fragment
+        android:id="@+id/message_composer_fragment"
+        android:name="com.ferg.awfulapp.reply.MessageComposer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="top"
-        android:hint="Just post..."
-        android:imeOptions="flagNoExtractUi"
-        android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|textImeMultiLine"
-        android:isScrollContainer="true"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
-        android:paddingTop="@dimen/material_text_field_top_bottom_padding"
-        android:scrollbars="vertical"
-        android:textColor="@color/default_post_font"
-        android:textSize="16sp"
-        />
+        tools:layout="@layout/message_composer"/>
 </FrameLayout>

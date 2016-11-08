@@ -47,6 +47,6 @@
         android:layout_marginLeft="@dimen/material_screen_edge_margin"
         android:layout_marginRight="@dimen/material_screen_edge_margin"
         android:layout_weight="1"
-        tools:layout="@layout/post_reply"/>
+        tools:layout="@layout/message_composer"/>
 
 </LinearLayout>
