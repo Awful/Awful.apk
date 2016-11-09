@@ -35,6 +35,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.reply.MessageComposer;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
@@ -50,7 +51,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private String recipient;
 	
 	private WebView mDisplayText;
-	private EditText mEditReply;
+	private MessageComposer messageComposer;
 	private Button mReplyButton;
 	private ImageButton mHideButton;
 	private TextView mUsername;
@@ -102,20 +103,22 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         
         setRetainInstance(true);
         
-        View result = aInflater.inflate(R.layout.message_view, aContainer, false);
+        View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
         
         mDisplayText = (WebView) result.findViewById(R.id.messagebody);
-        mEditReply = (EditText) result.findViewById(R.id.edit_reply_text);
         mReplyButton = (Button) result.findViewById(R.id.message_reply_button);
-        mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
-        mReplyButton.setOnClickListener(this);
-        mHideButton.setOnClickListener(this);
-        mRecipient = (EditText) result.findViewById(R.id.message_user);
-        mSubject = (EditText) result.findViewById(R.id.message_subject);
-        mUsername = (TextView) result.findViewById(R.id.username);
-        mPostdate = (TextView) result.findViewById(R.id.post_date);
-        mTitle = (TextView) result.findViewById(R.id.message_title);
-        mBackground = result;
+		mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
+		mReplyButton.setOnClickListener(this);
+		mHideButton.setOnClickListener(this);
+		mRecipient = (EditText) result.findViewById(R.id.message_user);
+		mSubject = (EditText) result.findViewById(R.id.message_subject);
+		mUsername = (TextView) result.findViewById(R.id.username);
+		mPostdate = (TextView) result.findViewById(R.id.post_date);
+		mTitle = (TextView) result.findViewById(R.id.message_title);
+
+		messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
+
+		mBackground = result;
         updateColors(result, mPrefs);
 		initThreadViewProperties();
 
@@ -142,7 +145,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        mEditReply.setTextColor(ColorProvider.getTextColor());
+        messageComposer.setTextColor(ColorProvider.getTextColor());
         mRecipient.setTextColor(ColorProvider.getTextColor());
         mSubject.setTextColor(ColorProvider.getTextColor());
         mUsername.setTextColor(ColorProvider.getTextColor());
@@ -247,7 +250,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		values.put(AwfulMessage.TITLE, mSubject.getText().toString());
 		values.put(AwfulMessage.TYPE, AwfulMessage.TYPE_PM);
 		values.put(AwfulMessage.RECIPIENT, mRecipient.getText().toString());
-		values.put(AwfulMessage.REPLY_CONTENT, mEditReply.getText().toString());
+		values.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText().toString());
 		if(content.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY,pmId), values, null, null)<1){
 			content.insert(AwfulMessage.CONTENT_URI_REPLY, values);
 		}
@@ -290,11 +293,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		getLoaderManager().destroyLoader(pmId);
 		pmId = -1;//TODO getNextId();
 		recipient = null;
-		mEditReply.setText("");
+		messageComposer.setText(null, false);
 		mUsername.setText("");
 		mRecipient.setText("");
 		mPostdate.setText("");
-		mEditReply.setText("");
 		mDisplayText.loadData("", "text/html", "utf-8");
 		mTitle.setText("New Message");
 		mSubject.setText("");
@@ -359,9 +361,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
         		if(replyContent != null){
-            		mEditReply.setText(replyContent);
+            		messageComposer.setText(replyContent, false);
         		}else{
-        			mEditReply.setText("");
+        			messageComposer.setText(null, false);
         		}
         		if(replyTitle != null){
         			mSubject.setText(replyTitle);

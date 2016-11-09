@@ -2,24 +2,31 @@ package com.ferg.awfulapp;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.Toolbar;
 
 import com.ferg.awfulapp.constants.Constants;
 
 public class MessageDisplayActivity extends AwfulActivity {
+
+    Toolbar mToolbar;
+
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.user_cp_activity);
+        setContentView(R.layout.private_message_activity);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        setActionBar();
         setContentPane();
     }
 
     public void setContentPane() {
-    	if (getSupportFragmentManager().findFragmentById(R.id.ucpcontent) == null) {
+    	if (getSupportFragmentManager().findFragmentById(R.id.fragment_pane) == null) {
 	        MessageFragment fragment = new MessageFragment(getIntent().getStringExtra(Constants.PARAM_USERNAME),getIntent().getIntExtra(Constants.PARAM_PRIVATE_MESSAGE_ID, 0));
 	
 	        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-	        transaction.replace(R.id.ucpcontent, fragment);
+	        transaction.replace(R.id.fragment_pane, fragment);
 	        transaction.commit();
     	}
     }

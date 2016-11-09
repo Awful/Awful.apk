@@ -32,16 +32,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-
-import java.lang.reflect.Method;
 
 public class PrivateMessageActivity extends AwfulActivity {
 	private View pane_two;
@@ -51,8 +46,12 @@ public class PrivateMessageActivity extends AwfulActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_pane);
+        setContentView(R.layout.private_message_activity);
         mPrefs = AwfulPreferences.getInstance(this, this);
+
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		setActionBar();
 
 		Uri data = getIntent().getData();
 		if (data != null) {

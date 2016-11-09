@@ -42,7 +42,7 @@ public class PostReplyActivity extends AwfulActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply_activity);
 
-        mToolbar = (Toolbar) findViewById(R.id.awful_toolbar_reply);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         setActionBar();
     }
