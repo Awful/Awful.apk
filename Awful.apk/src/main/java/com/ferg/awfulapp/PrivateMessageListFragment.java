@@ -197,7 +197,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(menu.size() == 0){
-            inflater.inflate(R.menu.private_message_menu, menu);
+            inflater.inflate(R.menu.private_message_list, menu);
         }
 
         MenuItem newPM = menu.findItem(R.id.new_pm);
@@ -216,11 +216,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         case R.id.new_pm:
         	if(getActivity() instanceof PrivateMessageActivity){
                 ((PrivateMessageActivity) getActivity()).showMessage(null, 0);
-        	}
-        	break;
-        case R.id.send_pm:
-        	if(getActivity() instanceof PrivateMessageActivity){
-                ((PrivateMessageActivity) getActivity()).sendMessage();
         	}
         	break;
         case R.id.refresh:
@@ -323,11 +318,11 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 	public String getTitle() {
         switch (currentFolder){
             case FOLDER_INBOX:
-                return "PM - Inbox";
+                return "Inbox";
             case FOLDER_SENT:
-                return "PM - Sent";
+                return "Sent";
         }
-		return "Private Messages";
+		return "Messages";
 	}
 
 

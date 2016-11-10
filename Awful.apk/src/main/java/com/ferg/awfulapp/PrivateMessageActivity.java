@@ -30,6 +30,8 @@ package com.ferg.awfulapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -38,10 +40,14 @@ import android.view.View;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-public class PrivateMessageActivity extends AwfulActivity {
+public class PrivateMessageActivity extends AwfulActivity implements MessageFragment.PrivateMessageCallbacks {
+
+	private static final String MESSAGE_FRAGMENT_TAG = "message fragment";
+
 	private View pane_two;
     private String pmIntentID;
     private Toolbar mToolbar;
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +91,7 @@ public class PrivateMessageActivity extends AwfulActivity {
     public void showMessage(String name, int id){
     	if(pane_two != null){
     		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-	        transaction.replace(R.id.fragment_pane_two, new MessageFragment(name,id));
+	        transaction.replace(R.id.fragment_pane_two, new MessageFragment(name,id), MESSAGE_FRAGMENT_TAG);
     		transaction.commit();
     	}else{
     		if(name != null){
@@ -96,19 +102,24 @@ public class PrivateMessageActivity extends AwfulActivity {
     	}
     }
 
-	public void sendMessage() {
-		MessageFragment mf = (MessageFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_pane_two);
-		if(mf != null){
-			mf.sendPM();
+
+	@Override
+	public void onMessageClosed() {
+		// remove the message fragment, if it exists
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		Fragment messageFragment = fragmentManager.findFragmentByTag(MESSAGE_FRAGMENT_TAG);
+		if (messageFragment != null) {
+			fragmentManager.beginTransaction().remove(messageFragment).commit();
 		}
 	}
 
-    @Override
+
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 returnHome();
-                break;
+				return true;
         }
 
         return super.onOptionsItemSelected(item);

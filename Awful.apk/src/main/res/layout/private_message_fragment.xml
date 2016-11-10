@@ -16,9 +16,9 @@
         tools:ignore="ScrollViewSize">
 
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/login_label_padding">
+            android:padding="@dimen/edit_text_alignment_padding">
 
             <TextView
                 android:id="@+id/message_title"
@@ -26,83 +26,84 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:textColor="#ffffff"
                 android:textSize="20dip"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Message title"
+                />
 
             <TextView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/message_title"
-                android:textColor="#ffffff"
-                android:textSize="16dip" />
+                android:textSize="16dip"
+                tools:text="Username"
+                />
 
             <TextView
                 android:id="@+id/post_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/username"
-                android:textColor="#ffffff"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/message_reply_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:text="Send" />
+                android:textSize="12sp"
+                tools:text="Post date"
+                />
 
             <ImageButton
                 android:id="@+id/hide_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/message_reply_button"
+                android:layout_alignParentTop="true"
                 app:srcCompat="@drawable/ic_expand_more"
                 tools:ignore="MissingPrefix"/>
         </RelativeLayout>
 
         <WebView
             android:id="@+id/messagebody"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:padding="8dip" />
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
 
         <ImageView style="@style/HorizontalSeparator" />
+        
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/material_space_between_content_areas"/>
 
         <android.support.design.widget.TextInputLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="@integer/max_private_message_title_length"
+            >
 
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/message_subject"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Subject"
                 android:inputType="text|textAutoCorrect|textCapSentences"
-                android:padding="8dip"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:textColor="@color/default_post_font"
                 android:textCursorDrawable="@null" />
         </android.support.design.widget.TextInputLayout>
 
 
         <android.support.design.widget.TextInputLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/message_user"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Recipient"
             android:inputType="text|textAutoCorrect|textCapSentences"
-            android:padding="8dip"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/default_post_font"
             android:textCursorDrawable="@null" />
 
@@ -111,8 +112,10 @@
         <fragment
             android:id="@+id/message_composer_fragment"
             android:name="com.ferg.awfulapp.reply.MessageComposer"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/edit_text_alignment_padding"
+            android:layout_marginRight="@dimen/edit_text_alignment_padding"
             tools:layout="@layout/message_composer"/>
 
     </LinearLayout>

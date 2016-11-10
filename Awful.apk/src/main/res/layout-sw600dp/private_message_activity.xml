@@ -1,6 +1,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reply_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,7 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/background"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <FrameLayout
             android:id="@+id/fragment_pane"
@@ -32,15 +34,30 @@
             android:layout_height="match_parent"
             android:layout_weight="1"/>
 
-        <RelativeLayout
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="2">
 
+            <ImageView
+                style="@style/VerticalGradientRight"/>
+
             <RelativeLayout
                 android:id="@+id/fragment_pane_two"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/material_screen_edge_margin"
+                android:layout_marginRight="@dimen/material_screen_edge_margin"
+                >
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerInParent="true"
+                    app:srcCompat="@drawable/frog_silhouette"
+                    android:tint="?attr/listDividerColor"
+                    tools:ignore="ContentDescription"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -51,9 +68,7 @@
                     android:textStyle="bold"/>
             </RelativeLayout>
 
-            <ImageView
-                style="@style/VerticalGradientRight"/>
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

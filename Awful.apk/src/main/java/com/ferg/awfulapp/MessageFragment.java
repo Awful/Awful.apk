@@ -24,7 +24,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -43,6 +42,9 @@ import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 
     private static final String TAG = "MessageFragment";
@@ -52,7 +54,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	
 	private WebView mDisplayText;
 	private MessageComposer messageComposer;
-	private Button mReplyButton;
 	private ImageButton mHideButton;
 	private TextView mUsername;
 	private TextView mPostdate;
@@ -74,6 +75,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             restartLoader(pmId, null, mPMDataCallback);
         }
     };
+
+	interface PrivateMessageCallbacks {
+		void onMessageClosed();
+	}
 
     public static MessageFragment newInstance(String aUser, int aId) {
 		return new MessageFragment(aUser, aId);
@@ -106,9 +111,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
         
         mDisplayText = (WebView) result.findViewById(R.id.messagebody);
-        mReplyButton = (Button) result.findViewById(R.id.message_reply_button);
 		mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
-		mReplyButton.setOnClickListener(this);
 		mHideButton.setOnClickListener(this);
 		mRecipient = (EditText) result.findViewById(R.id.message_user);
 		mSubject = (EditText) result.findViewById(R.id.message_subject);
@@ -123,7 +126,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		initThreadViewProperties();
 
         if(pmId <=0){
-        	mDisplayText.setVisibility(View.GONE);
+        	mDisplayText.setVisibility(GONE);
         }else{
             syncPM();
         }
@@ -155,24 +158,20 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(menu.size() == 0){
-            inflater.inflate(R.menu.private_message_menu, menu);
-        }
+		inflater.inflate(R.menu.private_message_writing, menu);
     }
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+			case android.R.id.home:
+				closeMessage();
+				return true;
             case R.id.send_pm:
                 sendPM();
                 return true;
             case R.id.new_pm:
             	newMessage();
-            	return true;
-            case R.id.refresh:
-            	if(pmId >0){
-            		syncPM();
-            	}
             	return true;
             case R.id.settings:
             	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
@@ -226,10 +225,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                if(getActivity() instanceof MessageDisplayActivity){
-                    getActivity().finish();
-					new AlertBuilder().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
-                }
+				new AlertBuilder().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
+				closeMessage();
             }
 
             @Override
@@ -242,7 +239,17 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             }
         }));
 	}
-	
+
+
+	/**
+	 * Close this message, letting the activity handle it
+	 */
+	private void closeMessage() {
+		PrivateMessageCallbacks activity = (PrivateMessageCallbacks) getActivity();
+		activity.onMessageClosed();
+	}
+
+
 	public void saveReply(){
 		ContentResolver content = getActivity().getContentResolver();
 		ContentValues values = new ContentValues();
@@ -250,7 +257,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		values.put(AwfulMessage.TITLE, mSubject.getText().toString());
 		values.put(AwfulMessage.TYPE, AwfulMessage.TYPE_PM);
 		values.put(AwfulMessage.RECIPIENT, mRecipient.getText().toString());
-		values.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText().toString());
+		values.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText());
 		if(content.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY,pmId), values, null, null)<1){
 			content.insert(AwfulMessage.CONTENT_URI_REPLY, values);
 		}
@@ -304,17 +311,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		switch(v.getId()){
-		case R.id.hide_message:
-			if(mDisplayText.getVisibility() == View.VISIBLE){
-				mDisplayText.setVisibility(View.GONE);
-			}else{
-				mDisplayText.setVisibility(View.VISIBLE);
-			}
-			break;
-		case R.id.message_reply_button:
-			sendPM();
-			break;
+		switch (v.getId()) {
+			case R.id.hide_message:
+				mDisplayText.setVisibility(mDisplayText.getVisibility() == VISIBLE ? GONE : VISIBLE);
+				break;
 		}
 	}
 

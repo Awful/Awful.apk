@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.ferg.awfulapp.constants.Constants;
 
-public class MessageDisplayActivity extends AwfulActivity {
+public class MessageDisplayActivity extends AwfulActivity implements MessageFragment.PrivateMessageCallbacks {
 
     Toolbar mToolbar;
 
@@ -18,6 +18,7 @@ public class MessageDisplayActivity extends AwfulActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         setActionBar();
+        setActionbarTitle("Message", null);
         setContentPane();
     }
 
@@ -31,4 +32,9 @@ public class MessageDisplayActivity extends AwfulActivity {
     	}
     }
 
+
+    @Override
+    public void onMessageClosed() {
+        finish();
+    }
 }
