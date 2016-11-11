@@ -1,55 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/message_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="?attr/background"
-    android:orientation="vertical">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/awful_toolbar_pm"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        app:popupTheme="?attr/awfulPopUpTheme"
-        android:theme="@style/ToolBarStyle"
-        app:elevation="4dp"
-        android:elevation="4dp"/>
+        android:layout_height="match_parent"
+        android:background="?attr/background"
+        android:orientation="vertical"
+        tools:ignore="ScrollViewSize">
 
-    <RelativeLayout
-        android:id="@+id/thread_container"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/pm_swipe"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ListView
-                android:id="@+id/message_listview"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:cacheColorHint="?attr/background"
-                android:divider="#8c8c8c"
-                android:dividerHeight="1px" />
-        </android.support.v4.widget.SwipeRefreshLayout>
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/just_pm"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            app:backgroundTint="?attr/justPostButtonColor"
-            android:layout_margin="16dp"
-            app:elevation="4sp"
-            app:borderWidth="0dp"
-            app:srcCompat="@drawable/ic_create"
-            android:tint="?attr/justPostButtonFontColor">
+            android:padding="@dimen/edit_text_alignment_padding">
 
-        </android.support.design.widget.FloatingActionButton>
-    </RelativeLayout>
-</LinearLayout>
+            <TextView
+                android:id="@+id/message_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="20dip"
+                android:textStyle="bold"
+                tools:text="Message title"
+                />
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/message_title"
+                android:textSize="16dip"
+                tools:text="Username"
+                />
+
+            <TextView
+                android:id="@+id/post_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/username"
+                android:textSize="12sp"
+                tools:text="Post date"
+                />
+
+            <ImageButton
+                android:id="@+id/hide_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                app:srcCompat="@drawable/ic_expand_more"
+                tools:ignore="MissingPrefix"/>
+        </RelativeLayout>
+
+        <WebView
+            android:id="@+id/messagebody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+
+        <ImageView style="@style/HorizontalSeparator" />
+        
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/material_space_between_content_areas"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="@integer/max_private_message_title_length"
+            >
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/message_subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subject"
+                android:inputType="text|textAutoCorrect|textCapSentences"
+                android:maxLines="1"
+                android:textColor="@color/default_post_font"
+                android:textCursorDrawable="@null" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/message_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Recipient"
+            android:inputType="text|textAutoCorrect|textCapSentences"
+            android:maxLines="1"
+            android:textColor="@color/default_post_font"
+            android:textCursorDrawable="@null" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <fragment
+            android:id="@+id/message_composer_fragment"
+            android:name="com.ferg.awfulapp.reply.MessageComposer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/edit_text_alignment_padding"
+            android:layout_marginRight="@dimen/edit_text_alignment_padding"
+            tools:layout="@layout/message_composer"/>
+
+    </LinearLayout>
+</ScrollView>

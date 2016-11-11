@@ -22,6 +22,13 @@ import com.ferg.awfulapp.R;
 abstract class Inserter {
 
     /**
+     * Functional interface for the various untagged inserters
+     */
+    interface Untagged {
+        void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity);
+    }
+
+    /**
      * Inflate a layout for use in a dialog.
      * <p>
      * The layout does not have its root parameters set, and is meant to be passed into

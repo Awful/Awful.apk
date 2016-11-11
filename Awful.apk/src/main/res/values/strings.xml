@@ -16,7 +16,7 @@
     <string name="private_message">Private messages</string>
     <string name="new_pm">New private message</string>
     <string name="toggle_folder">Toggle mail folder</string>
-    <string name="select_message">Select a message on the left or click the new message icon at the top of the screen</string>
+    <string name="select_message">Open a message or create a new one</string>
 
     <!-- Sidebar-->
     <string name="drawer_open">Open</string>

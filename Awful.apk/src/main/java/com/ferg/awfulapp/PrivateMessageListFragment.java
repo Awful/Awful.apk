@@ -35,13 +35,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,7 +63,6 @@ import com.ferg.awfulapp.task.PMListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.util.AwfulUtils;
-import android.support.design.widget.FloatingActionButton;
 
 public class PrivateMessageListFragment extends AwfulFragment implements SwipeRefreshLayout.OnRefreshListener {
 	
@@ -78,7 +76,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
     private SwipeRefreshLayout mSRL;
 
-    private Toolbar mToolbar;
+//    private Toolbar mToolbar;
 
     private FloatingActionButton mFAB;
     
@@ -105,14 +103,14 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         mPrefs = AwfulPreferences.getInstance(this.getActivity());
         
-        View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
+        View result = aInflater.inflate(R.layout.private_message_list_fragment, aContainer, false);
 
 
 
-        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
-        this.getAwfulActivity().setSupportActionBar(mToolbar);
-        this.getAwfulActivity().setActionBar();
-        setTitle(getTitle());
+//        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
+//        this.getAwfulActivity().setSupportActionBar(mToolbar);
+//        this.getAwfulActivity().setActionBar();
+//        setTitle(getTitle());
         mPMList = (ListView) result.findViewById(R.id.message_listview);
 
 
@@ -199,7 +197,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(menu.size() == 0){
-            inflater.inflate(R.menu.private_message_menu, menu);
+            inflater.inflate(R.menu.private_message_list, menu);
         }
 
         MenuItem newPM = menu.findItem(R.id.new_pm);
@@ -218,11 +216,6 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         case R.id.new_pm:
         	if(getActivity() instanceof PrivateMessageActivity){
                 ((PrivateMessageActivity) getActivity()).showMessage(null, 0);
-        	}
-        	break;
-        case R.id.send_pm:
-        	if(getActivity() instanceof PrivateMessageActivity){
-                ((PrivateMessageActivity) getActivity()).sendMessage();
         	}
         	break;
         case R.id.refresh:
@@ -325,11 +318,11 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 	public String getTitle() {
         switch (currentFolder){
             case FOLDER_INBOX:
-                return "PM - Inbox";
+                return "Inbox";
             case FOLDER_SENT:
-                return "PM - Sent";
+                return "Sent";
         }
-		return "Private Messages";
+		return "Messages";
 	}
 
 

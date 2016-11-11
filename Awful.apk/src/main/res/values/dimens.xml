@@ -8,6 +8,9 @@
     <dimen name="popup_size">140dp</dimen>
     <dimen name="dialog_size">280dp</dimen>
 
+    <!-- this is to compensate for the EditText padding that throws other text out of alignment-->
+    <dimen name="edit_text_alignment_padding">4dp</dimen>
+
     <!-- material specs for layouts -->
     <dimen name="material_list_item_height">72dp</dimen>
     <dimen name="material_content_left_margin">72dp</dimen>
@@ -17,6 +20,7 @@
     <dimen name="material_dialog_horizontal_padding">24dp</dimen>
     <dimen name="material_dialog_min_item_height">48dp</dimen>
     <dimen name="material_text_field_top_bottom_padding">20dp</dimen>
+    <dimen name="material_space_between_content_areas">8dp</dimen>
 
     <!-- thread item -->
     <dimen name="thread_item_sticky_locked_icon_size">15dp</dimen>
@@ -25,5 +29,9 @@
     <dimen name="thread_item_tag_layout_size">40dp</dimen>
     <dimen name="thread_item_tag_layout_padding_bottom">0dp</dimen>
     <dimen name="thread_item_rating_layout_height">15dp</dimen>
+
+
+    <!-- Forum-related values -->
+    <integer name="max_private_message_title_length">85</integer>
 
 </resources>
