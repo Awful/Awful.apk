@@ -11,7 +11,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:elevation="4dp"
-        android:src="@drawable/icon"
+        android:src="@mipmap/ic_launcher"
         android:background="@drawable/avatar_clipping_circle"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="16dp"

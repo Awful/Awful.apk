@@ -339,14 +339,14 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            avatar.setImageResource(R.drawable.icon);
+                            avatar.setImageResource(R.mipmap.ic_launcher);
                         }
                     });
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(true);
                     }
                 } else {
-                    avatar.setImageResource(R.drawable.icon);
+                    avatar.setImageResource(R.mipmap.ic_launcher);
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(false);
                     }
