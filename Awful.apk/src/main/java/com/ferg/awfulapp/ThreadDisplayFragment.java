@@ -62,6 +62,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -138,12 +139,17 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private PostLoaderManager mPostLoaderCallback;
     private ThreadDataCallback mThreadLoaderCallback;
 
+	/*
+		Potentially null views, if layout inflation failed (i.e. the WebView package is updating)
+	 */
+	@Nullable
 	private PageBar pageBar = null;
+	@Nullable
 	private TextView mUserPostNotice;
-
-	private FloatingActionButton mFAB;
-
-    private WebView mThreadView;
+	@Nullable
+	private FloatingActionButton mFAB = null;
+	@Nullable
+    private WebView mThreadView = null;
 
 	/** An optional ID to only display posts by a specific user */
     private Integer postFilterUserId = null;
@@ -200,7 +206,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			setProgress(100);
-            if(bodyHtml != null && bodyHtml.length() > 0){
+            if(mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()){
                 mThreadView.loadUrl("javascript:loadPageHtml()");
             }
 		}
@@ -289,7 +295,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 //--------------------------------
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
-        View result = inflateView(R.layout.thread_display, aContainer, aInflater);
+		View result;
+		try {
+			result = inflateView(R.layout.thread_display, aContainer, aInflater);
+		} catch (InflateException e) {
+			if (webViewIsMissing(e)) {
+				return null;
+			} else {
+				throw e;
+			}
+		}
 
 		pageBar = (PageBar) result.findViewById(R.id.page_bar);
 		pageBar.setListener(new PageBar.PageBarCallbacks() {
@@ -343,7 +358,37 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		updateUiElements();
 	}
 
+
+	/**
+	 * Check if an InflateException is caused by a missing WebView.
+	 * <p>
+	 * Also displays a message for the user.
+	 *
+	 * @param e the exception thrown when inflating the layout
+	 * @return true if the WebView is missing
+	 */
+	private boolean webViewIsMissing(InflateException e) {
+		String message = e.getMessage();
+		//noinspection SpellCheckingInspection
+		if (message == null || !message.toLowerCase().contains("webview")) {
+			return false;
+		}
+		Log.w(TAG, "Can't inflate thread view, WebView package is updating?:\n");
+		e.printStackTrace();
+		new AlertBuilder()
+				.setIcon(R.drawable.ic_error)
+				.setTitle(R.string.web_view_missing_alert_title)
+				.setSubtitle(R.string.web_view_missing_alert_message)
+				.show();
+		return true;
+	}
+
+
 	private void initThreadViewProperties() {
+		if (mThreadView == null) {
+			Log.w(TAG, "initThreadViewProperties called for null WebView");
+			return;
+		}
 		mThreadView.resumeTimers();
 		mThreadView.setWebViewClient(callback);
 		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -581,8 +626,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     			copyThreadURL(null);
     			break;
     		case R.id.find:
-    			this.mThreadView.showFindDialog(null, true);
-    			break;
+				if (mThreadView != null) {
+					this.mThreadView.showFindDialog(null, true);
+				}
+				break;
     		case R.id.keep_screen_on:
     			this.toggleScreenOn();
                 item.setChecked(!item.isChecked());
@@ -923,7 +970,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void toggleYospos() {
 		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
 		mPrefs.setPreference(Keys.AMBER_DEFAULT_POS, mPrefs.amberDefaultPos);
-		mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
+		if (mThreadView != null) {
+			mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
+		}
 	}
 
 
@@ -1072,6 +1121,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 	private void populateThreadView(ArrayList<AwfulPost> aPosts) {
+		if (mThreadView == null) {
+			Log.w(TAG, "populateThreadView called with null WebView");
+			return;
+		}
 		updateUiElements();
 
         try {
@@ -1179,7 +1232,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					@Override
 					public void success(String result) {
 						ignorePostsHtml.put(ignorePost,result);
-						mThreadView.loadUrl("javascript:insertIgnoredPost('"+ignorePost+"')");
+						if (mThreadView != null) {
+							mThreadView.loadUrl("javascript:insertIgnoredPost('"+ignorePost+"')");
+						}
 					}
 
 					@Override
@@ -1300,8 +1355,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if(DEBUG) Log.i(TAG,"onPreferenceChange"+((key != null)?":"+key:""));
         if(null != getAwfulActivity() && pageBar != null){
 		    getAwfulActivity().setPreferredFont(pageBar.getTextView());
-        }
-		pageBar.setTextColour(ColorProvider.getActionbarFontColor());
+			pageBar.setTextColour(ColorProvider.getActionbarFontColor());
+		}
 
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(Color.TRANSPARENT);
@@ -1493,19 +1548,23 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				setTitle(mTitle);
 
 				updateUiElements();
-                if(postFilterUserId != null){
-					mUserPostNotice.setVisibility(View.VISIBLE);
-					mUserPostNotice.setText(String.format("Viewing posts by %s in this thread,\nPress the back button to return.", postFilterUsername));
-					mUserPostNotice.setTextColor(ColorProvider.getTextColor());
-					mUserPostNotice.setBackgroundColor(ColorProvider.getBackgroundColor());
-                }else{
-					mUserPostNotice.setVisibility(View.GONE);
-                }
+				if (mUserPostNotice != null) {
+					if (postFilterUserId != null) {
+						mUserPostNotice.setVisibility(View.VISIBLE);
+						mUserPostNotice.setText(String.format("Viewing posts by %s in this thread,\nPress the back button to return.", postFilterUsername));
+						mUserPostNotice.setTextColor(ColorProvider.getTextColor());
+						mUserPostNotice.setBackgroundColor(ColorProvider.getBackgroundColor());
+					} else {
+						mUserPostNotice.setVisibility(View.GONE);
+					}
+				}
         		if(shareProvider != null){
         			shareProvider.setShareIntent(createShareIntent(null));
         		}
                 invalidateOptionsMenu();
-				mFAB.setVisibility((mPrefs.noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+				if (mFAB != null) {
+					mFAB.setVisibility((mPrefs.noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+				}
         	}
         }
         
@@ -1679,7 +1738,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	@Override
 	protected boolean doScroll(boolean down) {
-		if (down) {
+		if (mThreadView == null) {
+			return false;
+		} else if (down) {
 			mThreadView.pageDown(false);
 		} else {
 			mThreadView.pageUp(false);
@@ -1690,9 +1751,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	private void toggleScreenOn() {
     	keepScreenOn = !keepScreenOn;
-    	mThreadView.setKeepScreenOn(keepScreenOn);
+		if (mThreadView != null) {
+			mThreadView.setKeepScreenOn(keepScreenOn);
+		}
 
-        //TODO icon
+		//TODO icon
 		new AlertBuilder().setTitle(keepScreenOn? "Screen stays on" :"Screen turns itself off").show();
 	}
 
