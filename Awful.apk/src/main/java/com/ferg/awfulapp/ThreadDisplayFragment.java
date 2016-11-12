@@ -53,6 +53,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -1266,6 +1267,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Log.w(TAG, "Passed null URL to #showUrlMenu!");
 			return;
 		}
+		FragmentManager fragmentManager = getFragmentManager();
+		if (fragmentManager == null) {
+			Log.w(TAG, "showUrlMenu called but can't get FragmentManager!");
+			return;
+		}
 
 		boolean isImage = false;
 		boolean isGif = false;
@@ -1291,7 +1297,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
 
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-		postActions.show(mSelf.getFragmentManager(), "Link Actions");
+		postActions.show(fragmentManager, "Link Actions");
 	}
 
 	protected void showImageInline(String url){
