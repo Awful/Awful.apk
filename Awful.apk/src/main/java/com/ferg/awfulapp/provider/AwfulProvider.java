@@ -337,68 +337,38 @@ public class AwfulProvider extends ContentProvider {
         
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
-        	switch(aOldVersion){//this switch intentionally falls through!
-        	case 16:
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
-            	createPostTable(aDb);
-        	case 17:
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
-            	createForumTable(aDb);
-        	case 18:
-        		aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
-        		createEmoteTable(aDb);
-        		//fixing my stupid mistake hard-coding the bookmark ID at 2
-        		ContentValues forumFix = new ContentValues();
-        		forumFix.put(AwfulForum.ID, Constants.USERCP_ID);
-        		aDb.update(TABLE_FORUM, forumFix,AwfulForum.ID+"=?", int2StrArray(2));
-        		
-        		//clear out secondary forum pages to implement forum variable perPage sizes
-        		aDb.delete(TABLE_THREADS, AwfulThread.INDEX+">?", int2StrArray(30));
-        	case 19:
-        		//added regdate to post table
-        		//post table is just cache, we can just wipe it
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
-                createPostTable(aDb);
-                
-                //added attachment to draft table
-                aDb.execSQL("ALTER TABLE " + TABLE_DRAFTS + " ADD COLUMN " + AwfulMessage.REPLY_ATTACHMENT + " VARCHAR");
-        	case 20:
-        		// Update the threads table
-        		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.HAS_VIEWED_THREAD + " INTEGER");
-        	case 21:
-            	wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
-        	case 23:
-        		//added bookmark setting to draft table
-                aDb.execSQL("ALTER TABLE "+TABLE_DRAFTS+" ADD COLUMN "+AwfulPost.FORM_BOOKMARK + " VARCHAR");
-        	case 24:
-        		aDb.execSQL("ALTER TABLE " + TABLE_THREADS + " ADD COLUMN " + AwfulThread.RATING + " INTEGER");
-        	case 25:
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
-                createThreadTable(aDb);
-            case 26:
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
-                createDraftTable(aDb);
-            case 27:
-                aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-                createPMTable(aDb);
-            case 28:
-                aDb.execSQL("ALTER TABLE "+TABLE_THREADS+" ADD COLUMN "+AwfulThread.TAG_EXTRA + " INTEGER");
-			case 29:
-				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
-				createPMTable(aDb);
-				createPostTable(aDb);
-			case 30:
-				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
-				createForumTable(aDb);
-			case 31:
-				aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
-				createThreadTable(aDb);
-				break;//make sure to keep this break statement on the last case of this switch
-    		default:
-            	wipeRecreateTables(aDb);
-        	}
-        }
+			switch (aOldVersion) {//this switch intentionally falls through!
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+					wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
+				case 23:
+				case 24:
+				case 25:
+				case 26:
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
+					createDraftTable(aDb);
+				case 27:
+				case 28:
+				case 29:
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+					createPMTable(aDb);
+					createPostTable(aDb);
+				case 30:
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+					createForumTable(aDb);
+				case 31:
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
+					createThreadTable(aDb);
+					break;//make sure to keep this break statement on the last case of this switch
+				default:
+					wipeRecreateTables(aDb);
+			}
+		}
         
         @Override
 		public void onDowngrade(SQLiteDatabase aDb, int oldVersion,	int newVersion) {
