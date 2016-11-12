@@ -6,7 +6,6 @@ import android.net.Uri;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.util.AwfulError;
-import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -53,7 +52,6 @@ public class PostRequest extends AwfulRequest<Integer> {
             }
         }
 
-        AwfulUtils.trimDbEntries(getContentResolver());
         AwfulThread.getThreadPosts(getContentResolver(), doc, threadId, page, getPreferences().postPerPage, getPreferences(), userId);
         return page;
     }

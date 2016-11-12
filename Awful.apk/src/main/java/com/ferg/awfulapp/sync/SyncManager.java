@@ -14,6 +14,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
+import com.ferg.awfulapp.util.AwfulUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +38,7 @@ public class SyncManager {
         updateProfile(appContext);
         updateAccountFeatures(appContext);
         updateForums(context);
+        trimDatabase(context);
     }
 
 
@@ -47,6 +49,11 @@ public class SyncManager {
 
     private static void updateProfile(@NonNull Context context) {
         NetworkUtils.queueRequest(new ProfileRequest(context).build(null, null));
+    }
+
+
+    private static void trimDatabase(@NonNull Context context) {
+        AwfulUtils.trimDbEntries(context.getContentResolver());
     }
 
 
