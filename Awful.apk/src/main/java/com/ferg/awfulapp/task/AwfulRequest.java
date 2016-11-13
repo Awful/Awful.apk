@@ -17,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -286,6 +287,12 @@ public abstract class AwfulRequest<T> {
                     updateProgress(100);
                     return Response.error(ae);
                 }
+            } catch (OutOfMemoryError e) {
+                if (!Constants.DEBUG) {
+                    Crashlytics.setString("URL", getUrl());
+                    Crashlytics.setLong("Response data size", response.data.length);
+                }
+                throw e;
             }catch(Exception e){
                 updateProgress(100);
                 if(Constants.DEBUG) Log.i(TAG, "Failed parse: " + getUrl());

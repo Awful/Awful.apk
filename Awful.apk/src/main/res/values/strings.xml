@@ -79,6 +79,10 @@
     <string name="ignore_message">Warning: Ignoring a user can currently not be undone within Awful</string>
     <string name="dont_show_again">Don\'t show again</string>
 
+    <!-- Oh no the WebView has been stolen -->
+    <string name="web_view_missing_alert_title">Can\'t start thread view</string>
+    <string name="web_view_missing_alert_message">WebView may be updating, please restart the app</string>
+
     <!-- Thread view long-press menu -->
     <string name="goto_firstpage">First page</string>
     <string name="goto_lastpage">Last page</string>
