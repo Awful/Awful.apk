@@ -507,7 +507,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
                         .show();
             }
             return true;
-        } catch (IllegalArgumentException | SecurityException e) {
+        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
             new AlertBuilder().setTitle("Unable to copy to clipboard!")
                     .setSubtitle("Another app has locked access, you may need to reboot")
                     .setIcon(R.drawable.ic_error)
