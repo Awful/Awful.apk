@@ -6,7 +6,7 @@
             <size
                 android:width="48dp"
                 android:height="48dp"/>
-            <solid android:color="#DD7700" />
+            <solid android:color="@android:color/transparent" />
         </shape>
     </item>
     <item android:id="@+id/square_forum_tag_frog"
