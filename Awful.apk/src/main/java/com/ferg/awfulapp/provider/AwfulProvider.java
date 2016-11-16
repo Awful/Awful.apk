@@ -61,7 +61,7 @@ public class AwfulProvider extends ContentProvider {
      */
 
     private static final String DATABASE_NAME = "awful.db";
-    private static final int DATABASE_VERSION = 32;
+    private static final int DATABASE_VERSION = 33;
 
     public static final String TABLE_FORUM    = "forum";
     public static final String TABLE_THREADS    = "threads";
@@ -168,7 +168,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TYPE,
 		AwfulMessage.RECIPIENT,
 		AwfulMessage.TITLE,
-		AwfulMessage.REPLY_CONTENT
+		AwfulMessage.REPLY_CONTENT,
+		AwfulMessage.REPLY_ICON
 	};
 	
 	public static final String[] DraftPostProjection = new String[]{
@@ -196,7 +197,8 @@ public class AwfulProvider extends ContentProvider {
 		AwfulMessage.TYPE,
 		AwfulMessage.RECIPIENT,
 		AwfulMessage.REPLY_TITLE,
-		AwfulMessage.REPLY_CONTENT
+		AwfulMessage.REPLY_CONTENT,
+		AwfulMessage.REPLY_ICON
 	};
 	
 	public static final String[] EmoteProjection = new String[]{
@@ -323,8 +325,9 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.FORM_KEY      + " VARCHAR,"   + 
                 AwfulPost.FORM_COOKIE      + " VARCHAR,"   + 
                 AwfulPost.EDIT_POST_ID      + " INTEGER,"   + 
-                AwfulMessage.RECIPIENT      + " VARCHAR,"   + 
-                AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
+                AwfulMessage.RECIPIENT      + " VARCHAR,"   +
+				AwfulMessage.REPLY_CONTENT      + " VARCHAR," +
+				AwfulMessage.REPLY_ICON      + " VARCHAR," +
                 AwfulPost.REPLY_ORIGINAL_CONTENT      + " VARCHAR," +
                 AwfulPost.FORM_BOOKMARK        + " VARCHAR,"  +
                 AwfulMessage.REPLY_ATTACHMENT      + " VARCHAR," +
@@ -364,6 +367,9 @@ public class AwfulProvider extends ContentProvider {
 				case 31:
 					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
 					createThreadTable(aDb);
+				case 32:
+					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
+					createDraftTable(aDb);
 					break;//make sure to keep this break statement on the last case of this switch
 				default:
 					wipeRecreateTables(aDb);
@@ -830,6 +836,7 @@ public class AwfulProvider extends ContentProvider {
 		sDraftProjectionMap.put(AwfulPost.FORM_COOKIE, AwfulPost.FORM_COOKIE);
 		sDraftProjectionMap.put(AwfulPost.FORM_KEY, AwfulPost.FORM_KEY);
 		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
+		sDraftProjectionMap.put(AwfulMessage.REPLY_ICON, AwfulMessage.REPLY_ICON);
 		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
 		sDraftProjectionMap.put(AwfulPost.EDIT_POST_ID, AwfulPost.EDIT_POST_ID);
@@ -850,6 +857,7 @@ public class AwfulProvider extends ContentProvider {
 		sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
 		sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
 		sPMReplyProjectionMap.put(AwfulMessage.ICON, AwfulMessage.ICON);
+		sPMReplyProjectionMap.put(AwfulMessage.REPLY_ICON, AwfulMessage.REPLY_ICON);
 		sPMReplyProjectionMap.put(AwfulMessage.FOLDER, AwfulMessage.FOLDER);
 		
 		sEmoteProjectionMap.put(AwfulEmote.ID, AwfulEmote.ID);

@@ -73,6 +73,7 @@ public class AwfulMessage extends AwfulPagedItem {
 	public static final String UNREAD = "unread_message";
 	public static final String RECIPIENT = "recipient";
 	public static final String REPLY_CONTENT = "reply_content";
+	public static final String REPLY_ICON = "reply_icon";
 	public static final String REPLY_TITLE = "reply_title";
 	public static final String REPLY_ATTACHMENT = "attachment";
 	public static final String REPLY_SIGNATURE = "signature";

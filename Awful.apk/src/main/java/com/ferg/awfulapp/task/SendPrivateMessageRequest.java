@@ -35,7 +35,7 @@ public class SendPrivateMessageRequest extends AwfulRequest<Void> {
             }
             addPostParam(Constants.PARAM_PARSEURL, Constants.YES);
             addPostParam("savecopy", "yes");
-            addPostParam("iconid", "0");
+            addPostParam("iconid", pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_ICON)));
             addPostParam(Constants.PARAM_MESSAGE, NetworkUtils.encodeHtml(pmInfo.getString(pmInfo.getColumnIndex(AwfulMessage.REPLY_CONTENT))));
         } else {
             Toast.makeText(context, "Unable to send private message!", Toast.LENGTH_LONG).show();
