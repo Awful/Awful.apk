@@ -1,13 +1,10 @@
 package com.ferg.awfulapp.reply;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
@@ -25,8 +22,7 @@ import com.ferg.awfulapp.EmoteFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.reply.BasicTextInserter.BbCodeTag;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.github.rubensousa.bottomsheetbuilder.BottomSheetBuilder;
-import com.github.rubensousa.bottomsheetbuilder.BottomSheetMenuDialog;
+import com.ferg.awfulapp.widget.ThemedBottomSheetDialog;
 
 import static com.ferg.awfulapp.R.id.bbcode_bold;
 import static com.ferg.awfulapp.R.id.bbcode_spoiler;
@@ -47,13 +43,14 @@ import static com.ferg.awfulapp.R.id.emotes;
 public class MessageComposer extends Fragment {
 
     private EditText messageBox;
-    private BottomSheetMenuDialog bottomSheetMenuDialog;
+    private ThemedBottomSheetDialog bottomSheet;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        bottomSheet = new ThemedBottomSheetDialog(generateBottomSheetMenu(getContext()));
     }
 
     @Nullable
@@ -69,8 +66,8 @@ public class MessageComposer extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (bottomSheetMenuDialog != null) {
-            bottomSheetMenuDialog.dismiss();
+        if (bottomSheet != null) {
+            bottomSheet.dismiss();
         }
     }
 
@@ -280,15 +277,21 @@ public class MessageComposer extends Fragment {
 
 
     /**
+     * Build the BBcode menu to populate the sheet with
+     */
+    private Menu generateBottomSheetMenu(@NonNull Context context) {
+        Menu sheetMenu = new MenuBuilder(context);
+        SupportMenuInflater inflater = new SupportMenuInflater(context);
+        inflater.inflate(R.menu.insert_into_message, sheetMenu);
+        inflater.inflate(R.menu.format_message, sheetMenu);
+        return sheetMenu;
+    }
+
+
+    /**
      * Display or hide the bottom sheet as appropriate.
      */
     private void toggleBottomSheet() {
-        // if we already have a sheet, get rid of it
-        if (bottomSheetMenuDialog != null) {
-            bottomSheetMenuDialog.dismissWithAnimation();
-            bottomSheetMenuDialog = null;
-            return;
-        }
 
         // Stupid hack to ensure the text selected when the options are shown is still selected
         // when an option is chosen. This is all because older versions use a Contextual Action Bar
@@ -297,41 +300,15 @@ public class MessageComposer extends Fragment {
         final int[] selectionRange = !messageBox.hasSelection() ? null :
                 new int[]{messageBox.getSelectionStart(), messageBox.getSelectionEnd()};
 
-        // build a full menu to populate the sheet with
-        Activity activity = getActivity();
-        Menu sheetMenu = new MenuBuilder(activity);
-        SupportMenuInflater inflater = new SupportMenuInflater(activity);
-        inflater.inflate(R.menu.insert_into_message, sheetMenu);
-        inflater.inflate(R.menu.format_message, sheetMenu);
-
-        // need to apply themed background and text colours programmatically it seems
-        TypedArray a = activity.getTheme().obtainStyledAttributes(new int[]{
-                R.attr.bottomSheetBackgroundColor,
-                R.attr.bottomSheetItemTextColor});
-        int backgroundColour = a.getResourceId(0, 0);
-        int itemTextColour = a.getResourceId(1, 0);
-        a.recycle();
-
-        bottomSheetMenuDialog = new BottomSheetBuilder(activity)
-                .setBackgroundColor(backgroundColour)
-                .setItemTextColor(itemTextColour)
-                .setMode(BottomSheetBuilder.MODE_GRID)
-                .setMenu(sheetMenu)
-                .setItemClickListener(item -> {
+        bottomSheet.setClickListeners(item -> {
                     // restore any selection in the EditText before invoking the format/insert options
                     if (selectionRange != null) {
                         messageBox.setSelection(selectionRange[0], selectionRange[1]);
                     }
                     onOptionsItemSelected(item);
-                })
-                .createDialog();
+                },
+                null, null);
 
-        // drop the reference to an existing sheet when it goes away
-        bottomSheetMenuDialog.setOnCancelListener(dialog -> bottomSheetMenuDialog = null);
-        bottomSheetMenuDialog.setOnDismissListener(dialog -> bottomSheetMenuDialog = null);
-
-        bottomSheetMenuDialog.show();
-        // force the dialog to expand since peek/collapsed has some measurement issue in landscape
-        bottomSheetMenuDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        bottomSheet.toggleVisible(getActivity());
     }
 }

@@ -5,13 +5,14 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Messenger;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -46,10 +47,10 @@ import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPostIcon;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.github.rubensousa.bottomsheetbuilder.BottomSheetBuilder;
-import com.github.rubensousa.bottomsheetbuilder.BottomSheetMenuDialog;
+import com.ferg.awfulapp.widget.ThemedBottomSheetDialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -57,6 +58,7 @@ import static android.view.View.VISIBLE;
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 
     private static final String TAG = "MessageFragment";
+	private static final int BLANK_REPLY_ICON = 0;
     
 	private int pmId = -1;
 	private String recipient;
@@ -64,20 +66,18 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private WebView mDisplayText;
 	private MessageComposer messageComposer;
 	private ImageButton mHideButton;
-	private int mReplyIcon = 0;
+	private int mReplyIcon = BLANK_REPLY_ICON;
 	private TextView mUsername;
 	private TextView mPostdate;
 	private TextView mTitle;
 	private EditText mRecipient;
 	private EditText mSubject;
 	private View mBackground;
-	private BottomSheetMenuDialog bottomSheetIconMenuDialog;
+	private ThemedBottomSheetDialog bottomSheet = null;
 
 	private AwfulPreferences mPrefs;
 	
 	private ProgressDialog mDialog;
-
-	private ArrayList<AwfulPostIcon> posticons;
 
     private Messenger mMessenger = new Messenger(mHandler);
     private PMCallback mPMDataCallback = new PMCallback(mHandler);
@@ -455,19 +455,19 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
     }
 
 
-	public void showIconBottomSheet(){
-
-		if (bottomSheetIconMenuDialog != null) {
-			bottomSheetIconMenuDialog.dismissWithAnimation();
-			bottomSheetIconMenuDialog = null;
-			return;
-		}
-
-		if(this.posticons == null){
-			queueRequest(new PostIconRequest(getActivity(), Constants.POSTICON_REQUEST_TYPES.PM,0).build(this, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulPostIcon>>() {
+	public void showIconBottomSheet() {
+		if(bottomSheet == null){
+			queueRequest(new PostIconRequest(getActivity(), Constants.POSTICON_REQUEST_TYPES.PM,0)
+					.build(this, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulPostIcon>>() {
 				@Override
 				public void success(ArrayList<AwfulPostIcon> result) {
-					posticons = result;
+					// create and display a bottom sheet with the retrieved icons
+					bottomSheet = new ThemedBottomSheetDialog(generatePostIconMenu(result));
+					bottomSheet.setClickListeners(
+							item -> {
+								mReplyIcon = item.getItemId();
+								sendPM();
+							}, null, null);
 					showIconBottomSheet();
 				}
 
@@ -479,42 +479,26 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			return;
 		}
 
-		Menu fakeMenu = new MenuBuilder(getContext());
-		SupportMenuInflater inflater = new SupportMenuInflater(getContext());
-		inflater.inflate(R.menu.posticons, fakeMenu);
+		bottomSheet.toggleVisible(getActivity());
+	}
+
+
+	@NonNull
+	private Menu generatePostIconMenu(@NonNull List<AwfulPostIcon> postIcons) {
+		Context context = getContext();
+		Menu menu = new MenuBuilder(context);
+		SupportMenuInflater inflater = new SupportMenuInflater(context);
+		inflater.inflate(R.menu.post_icons, menu);
 		int id = 0;
-		for (AwfulPostIcon icon: posticons) {
+		for (AwfulPostIcon icon: postIcons) {
 			String localFileName = "@drawable/"+icon.iconUrl.substring(icon.iconUrl.lastIndexOf('/') + 1,icon.iconUrl.lastIndexOf('.')).replace('-','_').toLowerCase();
 
-			int imageID = getResources().getIdentifier(localFileName, null, getContext().getPackageName());
+			int imageID = getResources().getIdentifier(localFileName, null, context.getPackageName());
 			if (imageID == 0) {
 				imageID = R.drawable.empty_thread_tag;
 			}
-			fakeMenu.add(0, Integer.parseInt(icon.iconId), id++, "").setIcon(imageID);
+			menu.add(Menu.NONE, Integer.parseInt(icon.iconId), id++, "").setIcon(imageID);
 		}
-// need to apply themed background and text colours programmatically it seems
-		TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{
-				R.attr.bottomSheetBackgroundColor,
-				R.attr.bottomSheetItemTextColor});
-		int backgroundColour = a.getResourceId(0, 0);
-		int itemTextColour = a.getResourceId(1, 0);
-		a.recycle();
-
-		bottomSheetIconMenuDialog = new BottomSheetBuilder(getContext())
-				.setBackgroundColor(backgroundColour)
-				.setItemTextColor(itemTextColour)
-				.setMode(BottomSheetBuilder.MODE_GRID)
-				.setTitleTextColor(itemTextColour)
-				.setMenu(fakeMenu)
-				.setItemClickListener(item -> {
-					// restore any selection in the EditText before invoking the format/insert options
-					mReplyIcon = item.getItemId();
-					sendPM();
-				})
-				.createDialog();
-		bottomSheetIconMenuDialog.setOnCancelListener(dialog -> bottomSheetIconMenuDialog = null);
-		bottomSheetIconMenuDialog.setOnDismissListener(dialog -> bottomSheetIconMenuDialog = null);
-
-		bottomSheetIconMenuDialog.show();
+		return menu;
 	}
 }
