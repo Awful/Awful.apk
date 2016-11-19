@@ -19,16 +19,21 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.forums.Forum;
+import com.ferg.awfulapp.forums.ForumRepository;
+import com.ferg.awfulapp.forums.ForumStructure;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PostIconRequest;
 import com.ferg.awfulapp.thread.AwfulPostIcon;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 
 import static com.ferg.awfulapp.constants.Constants.POST_ICON_REQUEST_TYPES.FORUM_POST;
 import static com.ferg.awfulapp.constants.Constants.POST_ICON_REQUEST_TYPES.PM;
@@ -203,6 +208,26 @@ public class ThreadIconPicker extends Fragment {
                     .setTitle(icon == BLANK_ICON ? "No icon" : "");
         }
         return menu;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Secret test stuff
+    ///////////////////////////////////////////////////////////////////////////
+
+    Iterator<Forum> allTheForums = null;
+
+    @OnLongClick(R.id.selected_icon)
+    public boolean secretForumCycler() {
+        if (allTheForums == null || !allTheForums.hasNext()) {
+            ForumRepository repo = ForumRepository.getInstance(getContext());
+            allTheForums = repo.getForumStructure().getAsList().formatAs(ForumStructure.FLAT).includeSections(false).build().iterator();
+        }
+        if (allTheForums.hasNext()) {
+            Forum forum = allTheForums.next();
+            useForumIcons(forum.id);
+            Toast.makeText(getContext(), "Icons from\n" + forum.title, Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
 }
