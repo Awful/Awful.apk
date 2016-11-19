@@ -5,19 +5,15 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Messenger;
-import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.view.SupportMenuInflater;
-import android.support.v7.view.menu.MenuBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,15 +38,10 @@ import com.ferg.awfulapp.reply.MessageComposer;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
-import com.ferg.awfulapp.task.PostIconRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulPostIcon;
 import com.ferg.awfulapp.util.AwfulUtils;
-import com.ferg.awfulapp.widget.ThemedBottomSheetDialog;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.ferg.awfulapp.widget.ThreadIconPicker;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -58,7 +49,6 @@ import static android.view.View.VISIBLE;
 public class MessageFragment extends AwfulFragment implements OnClickListener {
 
     private static final String TAG = "MessageFragment";
-	private static final int BLANK_REPLY_ICON = 0;
     
 	private int pmId = -1;
 	private String recipient;
@@ -66,14 +56,13 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private WebView mDisplayText;
 	private MessageComposer messageComposer;
 	private ImageButton mHideButton;
-	private int mReplyIcon = BLANK_REPLY_ICON;
 	private TextView mUsername;
 	private TextView mPostdate;
 	private TextView mTitle;
 	private EditText mRecipient;
 	private EditText mSubject;
 	private View mBackground;
-	private ThemedBottomSheetDialog bottomSheet = null;
+	private ThreadIconPicker threadIconPicker;
 
 	private AwfulPreferences mPrefs;
 	
@@ -89,14 +78,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         }
     };
 
-	interface PrivateMessageCallbacks {
-		void onMessageClosed();
-	}
-
-    public static MessageFragment newInstance(String aUser, int aId) {
-		return new MessageFragment(aUser, aId);
-    }
-	
 	public MessageFragment() {}
 
 	/**
@@ -109,20 +90,24 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		recipient = user;
 	}
 
+	public static MessageFragment newInstance(String aUser, int aId) {
+		return new MessageFragment(aUser, aId);
+	}
+
 	@Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-	
+
 	public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
         mPrefs = AwfulPreferences.getInstance(getActivity());
-        
+
         setRetainInstance(true);
-        
+
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
-        
+
         mDisplayText = (WebView) result.findViewById(R.id.messagebody);
 		mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
 		mHideButton.setOnClickListener(this);
@@ -133,6 +118,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mTitle = (TextView) result.findViewById(R.id.message_title);
 
 		messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
+		threadIconPicker = (ThreadIconPicker) getChildFragmentManager().findFragmentById(R.id.thread_icon_picker);
+		threadIconPicker.usePrivateMessageIcons();
 
 		mBackground = result;
         updateColors(result, mPrefs);
@@ -159,7 +146,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			mDisplayText.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
-	
+
 	private void updateColors(View v, AwfulPreferences prefs){
         messageComposer.setTextColor(ColorProvider.getTextColor());
         mRecipient.setTextColor(ColorProvider.getTextColor());
@@ -181,8 +168,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 				closeMessage();
 				return true;
             case R.id.send_pm:
-				showIconBottomSheet();
-                return true;
+				sendPM();
+				return true;
             case R.id.new_pm:
             	newMessage();
             	return true;
@@ -201,7 +188,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI, true, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulMessage.CONTENT_URI_REPLY, true, pmReplyObserver);
 	}
-
 
 	private void syncPM() {
         queueRequest(new PMRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
@@ -227,7 +213,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             }
         }));
 	}
-	
+
 	public void sendPM() {
 		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
 		saveReply();
@@ -253,7 +239,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         }));
 	}
 
-
 	/**
 	 * Close this message, letting the activity handle it
 	 */
@@ -261,7 +246,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		PrivateMessageCallbacks activity = (PrivateMessageCallbacks) getActivity();
 		activity.onMessageClosed();
 	}
-
 
 	public void saveReply(){
 		ContentResolver content = getActivity().getContentResolver();
@@ -271,7 +255,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		values.put(AwfulMessage.TYPE, AwfulMessage.TYPE_PM);
 		values.put(AwfulMessage.RECIPIENT, mRecipient.getText().toString());
 		values.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText());
-		values.put(AwfulMessage.REPLY_ICON, String.valueOf(mReplyIcon));
+		values.put(AwfulMessage.REPLY_ICON, threadIconPicker.getIcon().iconId);
 		if(content.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY,pmId), values, null, null)<1){
 			content.insert(AwfulMessage.CONTENT_URI_REPLY, values);
 		}
@@ -283,7 +267,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		resumeWebView();
 
 	}
-	
+
 	@Override
 	public void onPause(){
 		super.onPause();
@@ -309,7 +293,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			mDialog = null;
 		}
 	}
-	
+
 	private void newMessage(){
 		getLoaderManager().destroyLoader(pmId);
 		pmId = -1;//TODO getNextId();
@@ -343,8 +327,50 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 			}
 		}
 	}
-	
-	
+
+	@Override
+	public String getTitle() {
+		return mTitle.getText().toString();
+	}
+
+	@Override
+	protected boolean doScroll(boolean down) {
+		if (down) {
+			mDisplayText.pageDown(false);
+		} else {
+			mDisplayText.pageUp(false);
+		}
+		return true;
+	}
+
+	private String getBlankPage() {
+		return "<html><head></head><body style='{background-color:#" + ColorProvider.convertToARGB(ColorProvider.getBackgroundColor()) + ";'></body></html>";
+	}
+
+	@SuppressLint("NewApi")
+	private void pauseWebView() {
+		if (mDisplayText != null) {
+			mDisplayText.pauseTimers();
+			mDisplayText.onPause();
+		}
+	}
+
+	@SuppressLint("NewApi")
+	public void resumeWebView() {
+		if (getActivity() != null) {
+			if (mDisplayText == null) {
+				//recreateWebview();
+			} else {
+				mDisplayText.onResume();
+				mDisplayText.resumeTimers();
+			}
+		}
+	}
+
+	interface PrivateMessageCallbacks {
+		void onMessageClosed();
+	}
+
 	private class PMCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
 		public PMCallback(Handler handler) {
@@ -353,10 +379,10 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
 			Log.i(TAG,"Create PM Cursor:"+pmId);
-            return new CursorLoader(getActivity(), 
-            						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI, pmId), 
-            						AwfulProvider.PMReplyProjection, 
-            						null,
+			return new CursorLoader(getActivity(),
+					ContentUris.withAppendedId(AwfulMessage.CONTENT_URI, pmId),
+					AwfulProvider.PMReplyProjection,
+					null,
             						null,
             						null);
         }
@@ -399,106 +425,16 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         	}
         	aData.close();
         }
-        
-        @Override
+
+		@Override
         public void onLoaderReset(Loader<Cursor> aLoader) {
-        	
-        }
-        
-        @Override
+
+		}
+
+		@Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");
         	restartLoader(pmId, null, this);
         }
     }
-
-
-	@Override
-	public String getTitle() {
-		return mTitle.getText().toString();
-	}
-
-
-	@Override
-	protected boolean doScroll(boolean down) {
-		if (down) {
-			mDisplayText.pageDown(false);
-		} else {
-			mDisplayText.pageUp(false);
-		}
-		return true;
-	}
-
-
-	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorProvider.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
-	}
-	
-    @SuppressLint("NewApi")
-    private void pauseWebView(){
-        if (mDisplayText != null) {
-        	mDisplayText.pauseTimers();
-        	mDisplayText.onPause();
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public void resumeWebView(){
-    	if(getActivity() != null){
-	        if (mDisplayText == null) {
-	            //recreateWebview();
-	        }else{
-	        	mDisplayText.onResume();
-	        	mDisplayText.resumeTimers();
-	        }
-    	}
-    }
-
-
-	public void showIconBottomSheet() {
-		if(bottomSheet == null){
-			queueRequest(new PostIconRequest(getActivity(), Constants.POSTICON_REQUEST_TYPES.PM,0)
-					.build(this, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulPostIcon>>() {
-				@Override
-				public void success(ArrayList<AwfulPostIcon> result) {
-					// create and display a bottom sheet with the retrieved icons
-					bottomSheet = new ThemedBottomSheetDialog(generatePostIconMenu(result));
-					bottomSheet.setClickListeners(
-							item -> {
-								mReplyIcon = item.getItemId();
-								sendPM();
-							}, null, null);
-					showIconBottomSheet();
-				}
-
-				@Override
-				public void failure(VolleyError error) {
-					new AlertBuilder().setTitle("Failed to retrieve posticons!").setSubtitle("Draft Saved").show();
-				}
-			}));
-			return;
-		}
-
-		bottomSheet.toggleVisible(getActivity());
-	}
-
-
-	@NonNull
-	private Menu generatePostIconMenu(@NonNull List<AwfulPostIcon> postIcons) {
-		Context context = getContext();
-		Menu menu = new MenuBuilder(context);
-		SupportMenuInflater inflater = new SupportMenuInflater(context);
-		inflater.inflate(R.menu.post_icons, menu);
-		int id = 0;
-		for (AwfulPostIcon icon: postIcons) {
-			String localFileName = "@drawable/"+icon.iconUrl.substring(icon.iconUrl.lastIndexOf('/') + 1,icon.iconUrl.lastIndexOf('.')).replace('-','_').toLowerCase();
-
-			int imageID = getResources().getIdentifier(localFileName, null, context.getPackageName());
-			if (imageID == 0) {
-				imageID = R.drawable.empty_thread_tag;
-			}
-			menu.add(Menu.NONE, Integer.parseInt(icon.iconId), id++, "").setIcon(imageID);
-		}
-		return menu;
-	}
 }

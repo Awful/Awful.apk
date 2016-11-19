@@ -66,8 +66,8 @@
             android:layout_height="wrap_content"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"/>
 
         <ImageView style="@style/HorizontalSeparator" />
         
@@ -75,23 +75,38 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/material_space_between_content_areas"/>
 
-        <android.support.design.widget.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:counterEnabled="true"
-            app:counterMaxLength="@integer/max_private_message_title_length"
-            >
+            android:orientation="horizontal">
 
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/message_subject"
+            <fragment
+                android:id="@+id/thread_icon_picker"
+                android:name="com.ferg.awfulapp.widget.ThreadIconPicker"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                tools:layout="@layout/icon_picker"/>
+
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Subject"
-                android:inputType="text|textAutoCorrect|textCapSentences"
-                android:maxLines="1"
-                android:textColor="@color/default_post_font"
-                android:textCursorDrawable="@null" />
-        </android.support.design.widget.TextInputLayout>
+                app:counterEnabled="true"
+                app:counterMaxLength="@integer/max_private_message_title_length"
+                >
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/message_subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Subject"
+                    android:inputType="text|textAutoCorrect|textCapSentences"
+                    android:maxLines="1"
+                    android:textColor="@color/default_post_font"
+                    android:textCursorDrawable="@null"/>
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
 
 
         <android.support.design.widget.TextInputLayout
