@@ -50,10 +50,16 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
     private final Interpolator interpolator;
 
 
-    public interface EventListener {
-        void onForumClicked(@NonNull Forum forum);
+    private ForumListAdapter(@NonNull Context context,
+                             @NonNull List<TopLevelForum> topLevelForums,
+                             @NonNull EventListener listener,
+                             @Nullable AwfulPreferences awfulPreferences) {
+        super(topLevelForums);
+        eventListener = listener;
+        awfulPrefs = awfulPreferences;
+        inflater = LayoutInflater.from(context);
+        interpolator = new FastOutSlowInInterpolator();
     }
-
 
     /**
      * Returns a configured adapter.
@@ -84,19 +90,6 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         return adapter;
     }
 
-
-    private ForumListAdapter(@NonNull Context context,
-                             @NonNull List<TopLevelForum> topLevelForums,
-                             @NonNull EventListener listener,
-                             @Nullable AwfulPreferences awfulPreferences) {
-        super(topLevelForums);
-        eventListener = listener;
-        awfulPrefs = awfulPreferences;
-        inflater = LayoutInflater.from(context);
-        interpolator = new FastOutSlowInInterpolator();
-    }
-
-
     /**
      * Create TopLevelForums from a list of Forums, adding them to a supplied list.
      *
@@ -109,7 +102,6 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             topLevelForums.add(new TopLevelForum(forum));
         }
     }
-
 
     /**
      * Update the contents of the data set with a new list of forums.
@@ -134,15 +126,113 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         }
     }
 
+    private void setText(@NonNull Forum forum,
+                         @NonNull TextView title,
+                         @NonNull TextView subtitle,
+                         @Nullable TextView sectionTitle) {
+        title.setText(forum.title);
+        subtitle.setText(forum.subtitle);
+        if (sectionTitle != null) {
+            sectionTitle.setText(forum.title);
+        }
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////
     // List items!
     ///////////////////////////////////////////////////////////////////////////
 
+    private void handleSubtitles(@NonNull Forum forum, @NonNull TextView subtitleView) {
+        // we remove the subtitle if it's not there (or it's disabled) so that the title gets vertically centred
+        boolean subtitlesEnabled = false;
+        if (awfulPrefs != null) {
+            subtitlesEnabled = awfulPrefs.forumIndexShowSubtitles;
+        }
+        subtitleView.setVisibility(!forum.subtitle.isEmpty() && subtitlesEnabled ? VISIBLE : GONE);
+    }
+
+    /**
+     * Rotate the dropdown button to the up or down position.
+     *
+     * @param dropdown  The view to rotate
+     * @param down      True to rotate to the down state (default rotation)
+     * @param immediate Set rotation immediately, false will animate
+     */
+    private void rotateDropdown(@NonNull ImageView dropdown, boolean down, boolean immediate) {
+        final int DOWN_ROTATION = 0;
+        final int UP_ROTATION = -540;
+        dropdown.animate()
+                .setDuration(immediate ? 0 : 400)
+                .rotation(down ? DOWN_ROTATION : UP_ROTATION)
+                .setInterpolator(interpolator);
+    }
+
+    /**
+     * Apply colour theming
+     *
+     * @param mainView The main item layout, has its background set
+     */
+    private void setThemeColours(View mainView, TextView title, TextView subtitle) {
+        mainView.setBackgroundColor(ColorProvider.getBackgroundColor());
+        title.setTextColor(ColorProvider.getTextColor());
+        subtitle.setTextColor(ColorProvider.getAltTextColor());
+    }
+
+    @Override
+    public TopLevelForumHolder onCreateParentViewHolder(ViewGroup parentViewGroup) {
+        View view = inflater.inflate(R.layout.forum_index_item, parentViewGroup, false);
+        return new TopLevelForumHolder(view);
+    }
+
+    @Override
+    public SubforumHolder onCreateChildViewHolder(ViewGroup childViewGroup) {
+        View view = inflater.inflate(R.layout.forum_index_subforum_item, childViewGroup, false);
+        return new SubforumHolder(view);
+    }
+
+    @Override
+    public void onBindParentViewHolder(TopLevelForumHolder parentViewHolder, int position, ParentListItem parentListItem) {
+        parentViewHolder.bind((TopLevelForum) parentListItem);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Internal adapter wiring
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void onBindChildViewHolder(SubforumHolder childViewHolder, int position, Object childListItem) {
+        childViewHolder.bind((Forum) childListItem);
+    }
+
+
+    public interface EventListener {
+        void onForumClicked(@NonNull Forum forum);
+    }
+
+    private static class TopLevelForum implements ParentListItem {
+
+        final Forum forum;
+
+
+        TopLevelForum(Forum forum) {
+            this.forum = forum;
+        }
+
+
+        @Override
+        public List<?> getChildItemList() {
+            return forum.subforums;
+        }
+
+
+        @Override
+        public boolean isInitiallyExpanded() {
+            return false;
+        }
+    }
 
     class TopLevelForumHolder extends ParentViewHolder {
-
-        private Forum forum;
 
         // list item sections - overall view, left column (tags etc), right column (details)
         private final View itemView;
@@ -167,18 +257,21 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         @BindView(R.id.list_divider)
         View listDivider;
 
+        private Forum forum;
+        private boolean hasSubforums;
 
-        public TopLevelForumHolder(View itemView) {
+
+        TopLevelForumHolder(View itemView) {
             super(itemView);
             this.itemView = itemView;
             ButterKnife.bind(this, itemView);
         }
 
 
-        public void bind(final TopLevelForum forumItem) {
+        void bind(final TopLevelForum forumItem) {
             forum = forumItem.forum;
+            hasSubforums = !forumItem.getChildItemList().isEmpty();
 
-            // TODO: pull out a general dimension for forum/thread list heights
             /* section items hide everything but the section title,
                other forum types hide the section title and show the other components.
                Think of of them as two alternative layouts in the same Layout file */
@@ -208,7 +301,6 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             }
 
             // if this item has subforums, show the dropdown and make it work, otherwise remove it
-            boolean hasSubforums = !forumItem.getChildItemList().isEmpty();
             if (hasSubforums) {
                 rotateDropdown(dropdownButton, !isExpanded(), true);
                 dropdownButton.setVisibility(VISIBLE);
@@ -219,13 +311,15 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
 
 
         @OnClick(R.id.tag_and_dropdown_arrow)
-        public void toggleExpanded() {
-            onClick(null);
+        void toggleExpanded() {
+            if (hasSubforums) {
+                onClick(null);
+            }
         }
 
 
         @OnClick(R.id.forum_details)
-        public void selectForum() {
+        void selectForum() {
             eventListener.onForumClicked(forum);
         }
 
@@ -244,7 +338,6 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         }
     }
 
-
     class SubforumHolder extends ChildViewHolder {
 
         Forum forum;
@@ -257,13 +350,13 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         View itemLayout;
 
 
-        public SubforumHolder(View itemView) {
+        SubforumHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
 
-        public void bind(final Forum forumItem) {
+        void bind(final Forum forumItem) {
             forum = forumItem;
             setText(forum, title, subtitle, null);
             setThemeColours(itemLayout, title, subtitle);
@@ -272,113 +365,8 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
 
 
         @OnClick(R.id.forum_details)
-        public void selectForum() {
+        void selectForum() {
             eventListener.onForumClicked(forum);
-        }
-    }
-
-
-    private void setText(@NonNull Forum forum,
-                         @NonNull TextView title,
-                         @NonNull TextView subtitle,
-                         @Nullable TextView sectionTitle) {
-        title.setText(forum.title);
-        subtitle.setText(forum.subtitle);
-        if (sectionTitle != null) {
-            sectionTitle.setText(forum.title);
-        }
-    }
-
-
-    private void handleSubtitles(@NonNull Forum forum, @NonNull TextView subtitleView) {
-        // we remove the subtitle if it's not there (or it's disabled) so that the title gets vertically centred
-        boolean subtitlesEnabled = false;
-        if (awfulPrefs != null) {
-            subtitlesEnabled = awfulPrefs.forumIndexShowSubtitles;
-        }
-        subtitleView.setVisibility(!forum.subtitle.isEmpty() && subtitlesEnabled ? VISIBLE : GONE);
-    }
-
-
-    /**
-     * Rotate the dropdown button to the up or down position.
-     *
-     * @param dropdown  The view to rotate
-     * @param down      True to rotate to the down state (default rotation)
-     * @param immediate Set rotation immediately, false will animate
-     */
-    private void rotateDropdown(@NonNull ImageView dropdown, boolean down, boolean immediate) {
-        final int DOWN_ROTATION = 0;
-        final int UP_ROTATION = -540;
-        dropdown.animate()
-                .setDuration(immediate ? 0 : 400)
-                .rotation(down ? DOWN_ROTATION : UP_ROTATION)
-                .setInterpolator(interpolator);
-    }
-
-
-    /**
-     * Apply colour theming
-     *
-     * @param mainView The main item layout, has its background set
-     */
-    private void setThemeColours(View mainView, TextView title, TextView subtitle) {
-        mainView.setBackgroundColor(ColorProvider.getBackgroundColor());
-        title.setTextColor(ColorProvider.getTextColor());
-        subtitle.setTextColor(ColorProvider.getAltTextColor());
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Internal adapter wiring
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    @Override
-    public TopLevelForumHolder onCreateParentViewHolder(ViewGroup parentViewGroup) {
-        View view = inflater.inflate(R.layout.forum_index_item, parentViewGroup, false);
-        return new TopLevelForumHolder(view);
-    }
-
-
-    @Override
-    public SubforumHolder onCreateChildViewHolder(ViewGroup childViewGroup) {
-        View view = inflater.inflate(R.layout.forum_index_subforum_item, childViewGroup, false);
-        return new SubforumHolder(view);
-    }
-
-
-    @Override
-    public void onBindParentViewHolder(TopLevelForumHolder parentViewHolder, int position, ParentListItem parentListItem) {
-        parentViewHolder.bind((TopLevelForum) parentListItem);
-    }
-
-
-    @Override
-    public void onBindChildViewHolder(SubforumHolder childViewHolder, int position, Object childListItem) {
-        childViewHolder.bind((Forum) childListItem);
-    }
-
-
-    private class TopLevelForum implements ParentListItem {
-
-        final Forum forum;
-
-
-        TopLevelForum(Forum forum) {
-            this.forum = forum;
-        }
-
-
-        @Override
-        public List<?> getChildItemList() {
-            return forum.subforums;
-        }
-
-
-        @Override
-        public boolean isInitiallyExpanded() {
-            return false;
         }
     }
 

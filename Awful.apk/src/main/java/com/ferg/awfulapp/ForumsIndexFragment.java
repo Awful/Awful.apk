@@ -105,7 +105,7 @@ public class ForumsIndexFragment extends AwfulFragment
         Context context = getActivity();
         forumRepo = ForumRepository.getInstance(context);
 
-        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<Forum>(), this, mPrefs);
+        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, mPrefs);
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
     }
@@ -145,44 +145,33 @@ public class ForumsIndexFragment extends AwfulFragment
      * Set any colours that need to change according to the current theme
      */
     private void updateViewColours() {
-        forumRecyclerView.setBackgroundColor(ColorProvider.getBackgroundColor());
+        if (forumRecyclerView != null) {
+            forumRecyclerView.setBackgroundColor(ColorProvider.getBackgroundColor());
+        }
     }
 
 
     @Override
     public void onForumsUpdateStarted() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updatingIndicator.setVisibility(VISIBLE);
-            }
-        });
+        getActivity().runOnUiThread(() -> updatingIndicator.setVisibility(VISIBLE));
     }
 
 
     @Override
     public void onForumsUpdateCompleted(final boolean success) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (success) {
-                    Snackbar.make(forumRecyclerView, "Forums updated", Snackbar.LENGTH_SHORT).show();
-                    refreshForumList();
-                }
-                updatingIndicator.setVisibility(INVISIBLE);
+        getActivity().runOnUiThread(() -> {
+            if (success) {
+                Snackbar.make(forumRecyclerView, "Forums updated", Snackbar.LENGTH_SHORT).show();
+                refreshForumList();
             }
+            updatingIndicator.setVisibility(INVISIBLE);
         });
     }
 
 
     @Override
     public void onForumsUpdateCancelled() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updatingIndicator.setVisibility(INVISIBLE);
-            }
-        });
+        getActivity().runOnUiThread(() -> updatingIndicator.setVisibility(INVISIBLE));
     }
 
 
