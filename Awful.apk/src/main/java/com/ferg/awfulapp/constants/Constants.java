@@ -144,7 +144,12 @@ public class Constants {
     public static final int ITEMS_PER_PAGE = 40;
     //we can have up to 80 threads per forum page (SAMart)
     public static final int THREADS_PER_PAGE = 80;
-    
+
+    // attachments
+    public static final int ATTACHMENT_MAX_BYTES = 1024 * 1024;
+    public static final int ATTACHMENT_MAX_WIDTH = 1280;
+    public static final int ATTACHMENT_MAX_HEIGHT = 1024;
+
     //asynctasks are managed by ID number, but PM page has no id
 	public static final int PRIVATE_MESSAGE_THREAD = 998;//can't use negative numbers anymore.
 	public static final int USERCP_ID = 999;//can't use negative numbers anymore.

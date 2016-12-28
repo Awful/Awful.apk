@@ -42,7 +42,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
@@ -51,6 +50,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -97,6 +98,10 @@ import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_BYTES;
+import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_HEIGHT;
+import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_WIDTH;
 
 public class PostReplyFragment extends AwfulFragment {
     public static final int REQUEST_POST = 5;
@@ -292,43 +297,47 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
     protected void addAttachment(Intent data) {
-        Toast attachmentToast;
         Uri selectedImageUri = data.getData();
         String path = getFilePath(selectedImageUri);
-        final Activity activity = this.getActivity();
         if (path == null) {
-            attachmentToast = Toast.makeText(activity, this.getString(R.string.file_error), Toast.LENGTH_LONG);
-            mFileAttachment = null;
-        } else {
-            File attachment = new File(path);
-            if (attachment.isFile() && attachment.canRead()) {
-                if (StringUtils.indexOfAny(attachment.getName().toLowerCase(), ".jpg", ".jpeg", ".png", ".gif") != -1) {
-                    if (attachment.length() > (1024 * 1024)) {
-                        attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_too_big), attachment.getName()), Toast.LENGTH_LONG);
-                        mFileAttachment = null;
-                    } else {
-                        Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        if (Math.max(bitmap.getHeight(), bitmap.getWidth()) <= 1280 && bitmap.getHeight() * bitmap.getWidth() <= 1280 * 1024) {
-                            mFileAttachment = path;
-                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_attached), attachment.getName()), Toast.LENGTH_LONG);
-                        } else {
-                            attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_resolution_too_big), attachment.getName(), bitmap.getWidth(), bitmap.getHeight()), Toast.LENGTH_LONG);
-                            mFileAttachment = null;
-                        }
-                        bitmap.recycle();
-                    }
-                } else {
-                    attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_wrong_filetype), attachment.getName()), Toast.LENGTH_LONG);
-                    mFileAttachment = null;
-                }
-            } else {
-                attachmentToast = Toast.makeText(activity, String.format(this.getString(R.string.file_unreadable), attachment.getName()), Toast.LENGTH_LONG);
-                mFileAttachment = null;
-            }
+            setAttachment(null, getString(R.string.file_error));
+            return;
         }
-        attachmentToast.show();
+
+        File attachment = new File(path);
+        String filename = attachment.getName();
+        if (!attachment.isFile() || !attachment.canRead()) {
+            setAttachment(null, String.format(getString(R.string.file_unreadable), filename));
+            return;
+        } else if (!StringUtils.endsWithAny(filename.toLowerCase(), ".jpg", ".jpeg", ".png", ".gif")) {
+            setAttachment(null, String.format(getString(R.string.file_wrong_filetype), filename));
+            return;
+        } else if (attachment.length() > ATTACHMENT_MAX_BYTES) {
+            setAttachment(null, String.format(getString(R.string.file_too_big), filename));
+            return;
+        }
+
+        // check the image size without creating a bitmap
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        int height = options.outHeight;
+        int width = options.outWidth;
+        if (width > ATTACHMENT_MAX_WIDTH || height > ATTACHMENT_MAX_HEIGHT) {
+            setAttachment(null, String.format(getString(R.string.file_resolution_too_big), filename, width, height));
+            return;
+        }
+
+        setAttachment(path, String.format(getString(R.string.file_attached), filename));
+    }
+
+
+    private void setAttachment(@Nullable String attachment, @NonNull String toastMessage) {
+        mFileAttachment = attachment;
+        Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_LONG).show();
         invalidateOptionsMenu();
     }
+
 
     public String getFilePath(final Uri uri) {
 
