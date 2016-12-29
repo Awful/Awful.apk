@@ -1,394 +1,187 @@
 package com.ferg.awfulapp.provider;
 
-import android.graphics.Color;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.support.annotation.ArrayRes;
+import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.TypedValue;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
-public class ColorProvider {
-	
-	public static final String DEFAULT 	= "default.css";
-	public static final String DARK 	= "dark.css";
-	public static final String OLED 	= "oled.css";
-	public static final String CLASSIC 	= "classic.css";
-	public static final String YOSPOS 	= "yospos.css";
-    public static final String AMBERPOS = "amberpos.css";
-	public static final String FYAD     = "fyad.css";
-	public static final String BYOB     = "byob.css";
 
-    public static final int[] BOOKMARK_COLORS = {R.color.bookmark_default, R.color.bookmark_orange, R.color.bookmark_red, R.color.bookmark_yellow};
-    public static final int[] BOOKMARK_COLORS_DIM = {R.color.bookmark_default_dim, R.color.bookmark_orange_dim, R.color.bookmark_red_dim, R.color.bookmark_yellow_dim};
-	
-	private static AwfulPreferences prefs = AwfulPreferences.getInstance();
+/**
+ * Created by baka kaba on 02/01/2017.
+ * <p>
+ * Access to themed colour attributes used by the app.
+ * <p>
+ * This class handles resolving attributes to colours specified in a particular theme,
+ * according to the current app theme, any special themes for a current forum, and
+ * whether the user has chosen to force those forum themes. It also provides a few
+ * helper functions, including the available bookmark group colours.
+ */
 
-	public static int getTextColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.dark_default_post_font);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.dark_default_post_font);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_default_post_font);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_default_post_font);
+public enum ColorProvider {
+
+    PRIMARY_TEXT(R.attr.primaryPostFontColor),
+    ALT_TEXT(R.attr.secondaryPostFontColor),
+    BACKGROUND(R.attr.background),
+    UNREAD_BACKGROUND(R.attr.unreadColor),
+    UNREAD_BACKGROUND_DIM(R.attr.unreadColorDim),
+    UNREAD_TEXT(R.attr.unreadFontColor),
+    ACTION_BAR(R.attr.actionBarColor),
+    ACTION_BAR_TEXT(R.attr.actionBarFontColor),
+    PROGRESS_BAR(R.attr.progressBarColor);
+
+    private static final int[] BOOKMARK_COLORS = getColorResIds(R.array.bookmarkColors);
+    private static final int[] BOOKMARK_COLORS_DIM = getColorResIds(R.array.bookmarkDimColors);
+
+    private final int colorAttr;
+
+    ColorProvider(@AttrRes int colorAttr) {
+        this.colorAttr = colorAttr;
+    }
+
+
+    /**
+     * Convert an RGB packed int to its hex representation.
+     * <p>
+     * Does not pad with leading zeroes.
+     */
+    @NonNull
+    public static String convertToRGB(@ColorInt int color) {
+        return "#" + Integer.toHexString(color & 0x00FFFFFF);
+    }
+
+
+    /**
+     * Get one of the standard bookmark colours.
+     *
+     * @param bookmarkGroup passed by the forum, used to colour the bookmarks
+     * @param dimmed        if true the dimmed version will be returned
+     * @return the bookmark group's colour, or the default for invalid group IDs
+     */
+    @SuppressWarnings("deprecation")
+    @ColorInt
+    public static int getBookmarkColor(int bookmarkGroup, boolean dimmed) {
+        if (bookmarkGroup < 0 || bookmarkGroup >= BOOKMARK_COLORS.length) {
+            bookmarkGroup = 0;
         }
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_default_post_font);
+        int colorId = dimmed ? BOOKMARK_COLORS_DIM[bookmarkGroup] : BOOKMARK_COLORS[bookmarkGroup];
+        return AwfulPreferences.getInstance().getResources().getColor(colorId);
+    }
+
+
+    /**
+     * Get the SRL background colour resource for a given forum.
+     * <p>
+     * This method returns a <b>resource ID</b>, not a resolved colour
+     *
+     * @return the ID for the appropriate colour resource
+     */
+    @ColorRes
+    public static int getSRLBackgroundColor(@Nullable Integer forumId) {
+        return getThemeColorResId(R.attr.srlBackgroundColor, forumId, AwfulPreferences.getInstance());
+    }
+
+
+    /**
+     * Get the SRL progress colour resources according to the current theme, forum and user settings.
+     * <p>
+     * This method returns a set of <b>resource IDs</b>, not resolved colour ints
+     *
+     * @return the forum's themed colour resources (if any), otherwise the default set
+     */
+    @NonNull
+    public static int[] getSRLProgressColors(@Nullable Integer forumId) {
+        AwfulPreferences prefs = AwfulPreferences.getInstance();
+        TypedValue colorsRef = new TypedValue();
+        boolean foundThemedColors = AwfulTheme
+                .forForum(forumId)
+                .getTheme(prefs)
+                .resolveAttribute(R.attr.srlProgressColors, colorsRef, true);
+
+        @ArrayRes
+        int colorArrayResId = foundThemedColors ? colorsRef.data : R.array.defaultSrlProgressColors;
+        return getColorResIds(colorArrayResId);
+    }
+
+
+    /**
+     * Helper function to get an int array from Resources
+     */
+    private static int[] getColorResIds(@ArrayRes int colorArrayResId) {
+        Resources resources = AwfulPreferences.getInstance().getResources();
+        TypedArray ta = resources.obtainTypedArray(colorArrayResId);
+        int[] resIds = new int[ta.length()];
+        for (int i = 0; i < ta.length(); i++) {
+            resIds[i] = ta.getResourceId(i, -1);
         }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_default_post_font);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_default_post_font);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.default_post_font);
-		}
-		return prefs.getResources().getColor(R.color.default_post_font);
-	}
-	
-	public static int getTextColor(){
-		return getTextColor(null);
-	}
-	
-	public static int getAltTextColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.dark_secondary_post_font);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.dark_secondary_post_font);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_secondary_post_font);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_secondary_post_font);
-        }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_secondary_post_font);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.secondary_post_font);
-		}
-		return prefs.getResources().getColor(R.color.secondary_post_font);
-	}
-	
-	public static int getAltTextColor(){
-		return getAltTextColor(null);
-	}
-	
-	public static int getBackgroundColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.dark_background);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.oled_background);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_background);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_background);
-        }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_background);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_background);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.background);
-		}
-		return prefs.getResources().getColor(R.color.background);
-	}
-	
-	public static int getBackgroundColor(){
-		return getBackgroundColor(null);
-	}
+        ta.recycle();
+        return resIds;
+    }
 
-	public static int getUnreadColor(String theme, boolean dim, int bookmarked){
-        if(prefs.coloredBookmarks && bookmarked > 0 && bookmarked < BOOKMARK_COLORS.length){
-            if(dim){
-                return prefs.getResources().getColor(BOOKMARK_COLORS_DIM[bookmarked]);
-            }else{
-                return prefs.getResources().getColor(BOOKMARK_COLORS[bookmarked]);
-            }
-        }
-        if(dim){
-            return getUnreadColorDim(theme);
-        }
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.bookmark_default);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.bookmark_default);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_default_post_font);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_default_post_font);
-        }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_default_post_font);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_default_post_font);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.bookmark_default);
-		}
-		return prefs.getResources().getColor(R.color.bookmark_default);
-	}
 
-	public static int getUnreadColorDim(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.bookmark_default_dim);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.bookmark_default_dim);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_default_post_font);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_default_post_font);
-        }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_secondary_post_font);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_secondary_post_font);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.bookmark_default_dim);
-		}
-		return prefs.getResources().getColor(R.color.bookmark_default_dim);
-	}
-	
-	public static int getUnreadColorFont(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.unread_posts_counter);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.unread_posts_counter);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_background);
-		}
-		if(theme.endsWith(AMBERPOS)){
-			return prefs.getResources().getColor(R.color.amberpos_background);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.unread_posts_counter);
-		}
-		return prefs.getResources().getColor(R.color.unread_posts_counter);
-	}
-	
-	public static int getUnreadColorFont(){
-		return getUnreadColorFont(null);
-	}
-	
-	public static int getActionbarColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.oled_background);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.oled_background);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_background);
-		}
-		if(theme.endsWith(AMBERPOS)){
-			return prefs.getResources().getColor(R.color.amberpos_background);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.actionbar_color);
-		}
-		return prefs.getResources().getColor(R.color.actionbar_color);
-	}
-	
-	public static int getActionbarColor(){
-		return getActionbarColor(null);
-	}
-	
-	public static int getActionbarFontColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.dark_default_post_font);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.dark_default_post_font);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_default_post_font);
-		}
-		if(theme.endsWith(AMBERPOS)){
-			return prefs.getResources().getColor(R.color.amberpos_default_post_font);
-		}
-		if(theme.endsWith(CLASSIC)){
-			return prefs.getResources().getColor(R.color.actionbar_font_color);
-		}
-		return prefs.getResources().getColor(R.color.actionbar_font_color);
-	}
-	
-	public static int getActionbarFontColor(){
-		return getActionbarFontColor(null);
-	}
-	
-	public static int getProgressbarColor(String theme){
-		if(theme == null){
-			theme = prefs.theme;
-		}
-		if(theme.endsWith(DARK)){
-			return prefs.getResources().getColor(R.color.holo_blue_light);
-		}
-		if(theme.endsWith(OLED)){
-			return prefs.getResources().getColor(R.color.holo_blue_light);
-		}
-		if(theme.endsWith(YOSPOS)){
-			return prefs.getResources().getColor(R.color.yospos_default_post_font);
-		}
-        if(theme.endsWith(AMBERPOS)){
-            return prefs.getResources().getColor(R.color.amberpos_default_post_font);
-        }
-		if(theme.endsWith(FYAD)){
-			return prefs.getResources().getColor(R.color.fyad_alt_background);
-		}
-		if(theme.endsWith(BYOB)){
-			return prefs.getResources().getColor(R.color.byob_alt_background);
-		}
-        if(theme.endsWith(CLASSIC)){
-            return prefs.getResources().getColor(R.color.holo_blue_light);
-        }
-		return prefs.getResources().getColor(R.color.holo_blue_light);
-	}
-	
-	public static int getProgressbarColor(){
-		return getProgressbarColor(null);
-	}
+    /**
+     * Resolves a colour attr to a colour according to the current theme, forum and user settings.
+     *
+     * @param colourAttr One of the app's colour attrs
+     * @param forumId    An optional forum to check for its theme
+     * @param prefs      User preferences
+     * @return The resolved colour
+     * @see ColorProvider#getThemeColorResId(int, Integer, AwfulPreferences)
+     */
+    @SuppressWarnings("deprecation")
+    @ColorInt
+    private static int getThemeColour(@AttrRes int colourAttr, @Nullable Integer forumId, @NonNull AwfulPreferences prefs) {
+        int resId = getThemeColorResId(colourAttr, forumId, prefs);
+        return prefs.getResources().getColor(resId);
+    }
 
-	private static int getSRLBackgroundColor(String theme) {
 
-		if (theme == null) {
-			theme = prefs.theme;
-		}
-		if (theme.endsWith(DARK)) {
-			return R.color.dark_alt_background;
-		}
-		if (theme.endsWith(OLED)) {
-			return R.color.dark_background;
-		}
-		if (theme.endsWith(YOSPOS)) {
-			return R.color.yospos_default_post_font;
-		}
-		if (theme.endsWith(AMBERPOS)) {
-			return R.color.amberpos_default_post_font;
-		}
-		if (theme.endsWith(FYAD)) {
-			return R.color.fyad_alt_background;
-		}
-		if (theme.endsWith(BYOB)) {
-			return R.color.byob_background;
-		}
-		if (theme.endsWith(CLASSIC)) {
-			return R.color.default_srl_background_color;
-		}
-		return R.color.default_srl_background_color;
-	}
+    /**
+     * Resolves a colour attr to a resource ID according to the current theme.
+     * <p>
+     * If a forum has its own theme, and the user has per-forum themes selected, this will retrieve
+     * the colour from that forum's theme, otherwise the current app theme will be used.
+     *
+     * @param colourAttr One of the app's colour attrs
+     * @param forumId    An optional forum to check for its theme
+     * @param prefs      User preferences
+     * @return The resolved resource ID
+     */
+    @ColorRes
+    private static int getThemeColorResId(@AttrRes int colourAttr, @Nullable Integer forumId, @NonNull AwfulPreferences prefs) {
+        TypedValue colourValue = new TypedValue();
+        AwfulTheme
+                .forForum(forumId)
+                .getTheme(prefs)
+                .resolveAttribute(colourAttr, colourValue, true);
 
-	public static int getSRLBackgroundColor() {
-		return getSRLBackgroundColor(null);
-	}
+        return colourValue.resourceId;
+    }
 
-	private static int[] getSRLProgressColor(String theme) {
 
-		if (theme == null) {
-			theme = prefs.theme;
-		}
-		if (theme.endsWith(DARK)) {
-			return new int[]{R.color.forums_blue_darker,R.color.forums_blue_evendarker};
-		}
-		if (theme.endsWith(OLED)) {
-			return new int[]{R.color.dark_default_post_font};
-		}
-		if (theme.endsWith(YOSPOS)) {
-			return new int[]{R.color.amberpos_background};
-		}
-		if (theme.endsWith(AMBERPOS)) {
-			return new int[]{R.color.amberpos_background};
-		}
-		if (theme.endsWith(FYAD)) {
-			return new int[]{R.color.fyad_default_post_font,R.color.fyad_secondary_post_font};
-		}
-		if (theme.endsWith(BYOB)) {
-			return new int[]{R.color.byob_secondary_post_font,R.color.byob_default_post_font};
-		}
-		if (theme.endsWith(CLASSIC)) {
-			return new int[]{
-					android.R.color.holo_green_light,
-					android.R.color.holo_orange_light,
-					android.R.color.holo_red_light,
-					android.R.color.holo_blue_bright};
-		}
-		return new int[]{
-				android.R.color.holo_green_light,
-				android.R.color.holo_orange_light,
-				android.R.color.holo_red_light,
-				android.R.color.holo_blue_bright};
-	}
+    /**
+     * Get the value for this colour from the current app theme.
+     */
+    @ColorInt
+    public int getColor() {
+        return getColor(null);
+    }
 
-	public static int[] getSRLProgressColor() {
-		return getSRLProgressColor(null);
-	}
-
-	public static String convertToARGB(int color) {
-		String red = Integer.toHexString(Color.red(color));
-		String green = Integer.toHexString(Color.green(color));
-		String blue = Integer.toHexString(Color.blue(color));
-
-		if (red.length() == 1) {
-			red = "0" + red;
-		}
-
-		if (green.length() == 1) {
-			green = "0" + green;
-		}
-
-		if (blue.length() == 1) {
-			blue = "0" + blue;
-		}
-
-		return "#" + red + green + blue;
-	}
+    /**
+     * Get the value for this colour, resolving for a specific forum.
+     * <p>
+     * This will check for a forum-specific theme and the user's per-forum preferences,
+     * and return the appropriate colour.
+     */
+    @ColorInt
+    public int getColor(@Nullable Integer forumId) {
+        return getThemeColour(colorAttr, forumId, AwfulPreferences.getInstance());
+    }
 }
-

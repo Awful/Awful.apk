@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -17,12 +16,12 @@ import android.widget.TextView;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.FeatureRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
 
 import java.io.File;
-import java.util.LinkedList;
 
 /**
  * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
@@ -53,21 +52,7 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mPrefs = AwfulPreferences.getInstance(this,this);
-        if(mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)){
-            setTheme(R.style.Theme_AwfulTheme);
-        }else if(mPrefs.theme.equals(ColorProvider.FYAD)){
-            setTheme(R.style.Theme_AwfulTheme_FYAD);
-        }else if(mPrefs.theme.equals(ColorProvider.BYOB)){
-            setTheme(R.style.Theme_AwfulTheme_BYOB);
-        }else if(mPrefs.theme.equals(ColorProvider.YOSPOS)){
-            setTheme(R.style.Theme_AwfulTheme_YOSPOS);
-        }else if(mPrefs.theme.equals(ColorProvider.AMBERPOS)){
-            setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
-        }else if(mPrefs.theme.equals(ColorProvider.OLED)){
-            setTheme(R.style.Theme_AwfulTheme_OLED);
-        }else{
-            setTheme(R.style.Theme_AwfulTheme_Dark);
-        }
+        setCurrentTheme();
         super.onCreate(savedInstanceState); if(DEBUG) Log.e(TAG, "onCreate");
         mConf = new ActivityConfigurator(this);
         mConf.onCreate();
@@ -150,7 +135,7 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
         ActionBar action = getSupportActionBar();
         if(action != null && mTitleView != null){
 	        //action.setBackgroundDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
-	        mTitleView.setTextColor(ColorProvider.getActionbarFontColor());
+	        mTitleView.setTextColor(ColorProvider.ACTION_BAR_TEXT.getColor());
 	        setPreferredFont(mTitleView, Typeface.NORMAL);
         }
     }
@@ -212,21 +197,7 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
         Log.d(TAG, "Key changed: "+key);
         if("theme".equals(key) || "page_layout".equals(key)) {
-            if (mPrefs.theme.equals(ColorProvider.DEFAULT) || mPrefs.theme.equals(ColorProvider.CLASSIC)) {
-                setTheme(R.style.Theme_AwfulTheme);
-            } else if (mPrefs.theme.equals(ColorProvider.FYAD)) {
-                setTheme(R.style.Theme_AwfulTheme_FYAD);
-            } else if (mPrefs.theme.equals(ColorProvider.BYOB)) {
-                setTheme(R.style.Theme_AwfulTheme_BYOB);
-            } else if (mPrefs.theme.equals(ColorProvider.YOSPOS)) {
-                setTheme(R.style.Theme_AwfulTheme_YOSPOS);
-            } else if (mPrefs.theme.equals(ColorProvider.AMBERPOS)) {
-                setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
-            } else if (mPrefs.theme.equals(ColorProvider.OLED)) {
-                setTheme(R.style.Theme_AwfulTheme_OLED);
-            } else {
-                setTheme(R.style.Theme_AwfulTheme_Dark);
-            }
+            setCurrentTheme();
             afterThemeChange();
         }
 		updateActionbarTheme();
@@ -243,6 +214,10 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
 		return true;
 	}
 
+
+    protected void setCurrentTheme() {
+        setTheme(AwfulTheme.forForum(null).themeResId);
+    }
 
 	
     public void afterThemeChange() {

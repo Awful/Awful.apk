@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:tint="?attr/listDividerColor"
+        android:tint="?android:listDivider"
         app:srcCompat="@drawable/list_divider"
         tools:ignore="ContentDescription,MissingPrefix"/>
 

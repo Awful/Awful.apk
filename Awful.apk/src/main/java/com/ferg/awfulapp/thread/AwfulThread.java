@@ -56,6 +56,7 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.samskivert.mustache.Mustache;
@@ -398,7 +399,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
         // build the link tag, using the custom css path if necessary
         buffer.append("<link rel='stylesheet' href='");
-        buffer.append(AwfulUtils.determineCSS(forumId));
+        buffer.append(AwfulTheme.forForum(forumId).getCssPath());
         buffer.append("'>\n");
         buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
 
@@ -523,21 +524,9 @@ public class AwfulThread extends AwfulPagedItem  {
         Resources resources = current.getResources();
         Context context = current.getContext();
 
-        String ForumName = null;
-        if (prefs.forceForumThemes && ForumDisplayFragment.class.isInstance(parent)) {
-            switch (((ForumDisplayFragment) parent).getForumId()) {
-                case Constants.FORUM_ID_YOSPOS:
-                    ForumName = prefs.amberDefaultPos ? ColorProvider.AMBERPOS : ColorProvider.YOSPOS;
-                    break;
-                case Constants.FORUM_ID_FYAD:
-                case Constants.FORUM_ID_FYAD_SUB:
-                    ForumName = ColorProvider.FYAD;
-                    break;
-                case Constants.FORUM_ID_BYOB:
-                case Constants.FORUM_ID_COOL_CREW:
-                    ForumName = ColorProvider.BYOB;
-                    break;
-            }
+        Integer forumId = null;
+        if (ForumDisplayFragment.class.isInstance(parent)) {
+            forumId = ((ForumDisplayFragment) parent).getForumId();
         }
 
         TextView info   = (TextView) current.findViewById(R.id.thread_info);
@@ -646,18 +635,24 @@ public class AwfulThread extends AwfulPagedItem  {
         } else if (data.getInt(data.getColumnIndex(LOCKED)) > 0){
             //don't show lock if sticky, aka: every rules thread
             threadLocked.setVisibility(View.VISIBLE);
-            current.setBackgroundColor(ColorProvider.getBackgroundColor(ForumName));
+            current.setBackgroundColor(ColorProvider.BACKGROUND.getColor(forumId));
         }
 
         unread.setVisibility(View.GONE);
         if(hasViewedThread) {
             unread.setVisibility(View.VISIBLE);
-            unread.setTextColor(ColorProvider.getUnreadColorFont(ForumName));
+            unread.setTextColor(ColorProvider.UNREAD_TEXT.getColor(forumId));
             unread.setText(Integer.toString(unreadCount));
             GradientDrawable counter = (GradientDrawable) resources.getDrawable(R.drawable.unread_counter);
             if (counter != null) {
                 counter.mutate();
-                counter.setColor(ColorProvider.getUnreadColor(ForumName, unreadCount < 1, bookmarked));
+                boolean dim = unreadCount < 1;
+                if (bookmarked > 0 && prefs.coloredBookmarks) {
+                    counter.setColor(ColorProvider.getBookmarkColor(bookmarked, dim));
+                } else {
+                    ColorProvider colorAttr = dim ? ColorProvider.UNREAD_BACKGROUND_DIM : ColorProvider.UNREAD_BACKGROUND;
+                    counter.setColor(colorAttr.getColor(forumId));
+                }
                 unread.setBackgroundDrawable(counter);
             }
         }
@@ -666,8 +661,8 @@ public class AwfulThread extends AwfulPagedItem  {
         if(titleText != null){
 			title.setText(titleText);
 		}
-        title.setTextColor(ColorProvider.getTextColor(ForumName));
-        info.setTextColor(ColorProvider.getAltTextColor(ForumName));
+        title.setTextColor(ColorProvider.PRIMARY_TEXT.getColor(forumId));
+        info.setTextColor(ColorProvider.ALT_TEXT.getColor(forumId));
 	}
 
 }

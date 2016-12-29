@@ -181,8 +181,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         // TODO: move P2R stuff into AwfulFragment
         mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
-        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
     }
 
     @Override
@@ -730,32 +730,14 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
 
-    // TODO: maybe refactor ColorProvider so it does the forum ID -> provider constant translation itself
     private void updateColors() {
         if (mPageBar != null) {
-            mPageBar.setTextColour(ColorProvider.getActionbarFontColor());
+            mPageBar.setTextColour(ColorProvider.ACTION_BAR_TEXT.getColor());
         }
         if (mListView == null) {
             return;
         }
-        String colorProvider = null;
-        // if we're forcing forum themes, see if we need a specific color provider
-        if (mPrefs.forceForumThemes) {
-            switch (mForumId) {
-                case Constants.FORUM_ID_YOSPOS:
-                    colorProvider = ColorProvider.YOSPOS;
-                    break;
-                case Constants.FORUM_ID_FYAD:
-                case Constants.FORUM_ID_FYAD_SUB:
-                    colorProvider = ColorProvider.FYAD;
-                    break;
-                case Constants.FORUM_ID_BYOB:
-                case Constants.FORUM_ID_COOL_CREW:
-                    colorProvider = ColorProvider.BYOB;
-                    break;
-            }
-        }
-        int backgroundColor = ColorProvider.getBackgroundColor(colorProvider);
+        int backgroundColor = ColorProvider.BACKGROUND.getColor(mForumId);
         mListView.setBackgroundColor(backgroundColor);
         mListView.setCacheColorHint(backgroundColor);
     }

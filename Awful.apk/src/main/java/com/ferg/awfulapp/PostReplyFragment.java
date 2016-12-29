@@ -252,8 +252,8 @@ public class PostReplyFragment extends AwfulFragment {
         ButterKnife.bind(this, activity);
 
         messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
-        messageComposer.setBackgroundColor(ColorProvider.getBackgroundColor());
-        messageComposer.setTextColor(ColorProvider.getTextColor());
+        messageComposer.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
+        messageComposer.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
         setTitle(getTitle());
 
         activity.getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);

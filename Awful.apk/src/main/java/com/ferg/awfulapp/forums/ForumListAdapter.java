@@ -173,9 +173,9 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
      * @param mainView The main item layout, has its background set
      */
     private void setThemeColours(View mainView, TextView title, TextView subtitle) {
-        mainView.setBackgroundColor(ColorProvider.getBackgroundColor());
-        title.setTextColor(ColorProvider.getTextColor());
-        subtitle.setTextColor(ColorProvider.getAltTextColor());
+        mainView.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
+        title.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
+        subtitle.setTextColor(ColorProvider.ALT_TEXT.getColor());
     }
 
     @Override

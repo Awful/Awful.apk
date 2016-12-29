@@ -32,8 +32,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -64,7 +62,7 @@ public class AwfulProgressBar extends View implements AwfulPreferences.AwfulPref
 	
 	private void setPaint(Context context){
 		mProgressColor = new Paint();
-		mProgressColor.setColor(ColorProvider.getProgressbarColor());
+		mProgressColor.setColor(ColorProvider.PROGRESS_BAR.getColor());
 		mClearColor = new Paint();
 		mClearColor.setColor(Color.TRANSPARENT);
 	}

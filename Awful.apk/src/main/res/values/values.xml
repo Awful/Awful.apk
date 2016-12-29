@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="navbarBackground" format="color" />
+    <!-- The main text colour for a theme -->
+    <attr name="primaryPostFontColor" format="color"/>
+    <!-- The secondary text colour for a theme -->
+    <attr name="secondaryPostFontColor" format="color"/>
+    <!-- The secondary background colour for a theme -->
+    <attr name="altBackground" format="color"/>
+    <!-- The Navigation Drawer's main background colour -->
+    <attr name="navbarMainBackground" format="color" />
+    <!-- The Navigation Drawer's header background colour -->
+    <attr name="navbarHeaderBackground" format="color" />
+    <!-- The username text colour in the Navigation Drawer's header -->
     <attr name="navbarUsernameColor" format="color" />
+    <!-- Main colour for the Floating Action Button -->
     <attr name="justPostButtonColor" format="color" />
-    <attr name="justPostButtonFontColor" format="color" />
+    <!-- Colour for the Floating Action Button in the 'pressed' state -->
     <attr name="justPostButtonColorPressed" format="color" />
-    <attr name="listDividerColor" format="color" />
-    <!-- this is a hack because some themes (FYAD) have accent colours that are anything but -->
-    <attr name="colorAccentThemeFix" format="color" />
-
+    <!-- The colour of the icon in the Floating Action Button -->
+    <attr name="justPostButtonFontColor" format="color" />
+    <!-- Reference for the app:popupTheme set on Toolbars -->
     <attr name="awfulPopUpTheme" format="reference" />
 
-    <!-- icons -->
+    <!-- The colour tint used for light icons (e.g. for contrast with dark backgrounds) -->
     <attr name="iconColor" format="color" />
+    <!-- The colour tint used for dark icons (e.g. for contrast with light backgrounds) -->
     <attr name="iconColorDark" format="color" />
 
-    <!-- bottom sheet -->
+    <!-- The background colour of bottom sheets -->
     <attr name="bottomSheetBackgroundColor" format="color" />
+    <!-- The text colour used for text labels in bottom sheets -->
     <attr name="bottomSheetItemTextColor" format="color" />
+
+    <!-- Background colour for an unread counter icon -->
+    <attr name="unreadColor" format="color"/>
+    <!-- Dimmed background colour for an unread counter icon, e.g. for zero unread items -->
+    <attr name="unreadColorDim" format="color"/>
+    <!-- Text colour for unread counter numbers -->
+    <attr name="unreadFontColor" format="color"/>
+    <!-- Background colour for the action bar -->
+    <attr name="actionBarColor" format="color"/>
+    <!-- Text colour for the action bar -->
+    <attr name="actionBarFontColor" format="color"/>
+    <!-- Colour for the basic progress bar -->
+    <attr name="progressBarColor" format="color"/>
+    <!-- Background colour for the spinning loading icon -->
+    <attr name="srlBackgroundColor" format="color"/>
+    <!-- Foreground colour for the spinning loading icon. This should point to an array of colour references -->
+    <attr name="srlProgressColors" format="reference" />
 </resources>

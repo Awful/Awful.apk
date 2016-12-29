@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 app:srcCompat="@drawable/frog_silhouette"
-                android:tint="?attr/listDividerColor"
+                android:tint="?attr/secondaryPostFontColor"
                 tools:ignore="ContentDescription"/>
 
             <ProgressBar
@@ -57,8 +57,7 @@
             android:id="@+id/forum_index_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:cacheColorHint="@color/background"
-            android:divider="?attr/listDividerColor"
+            android:cacheColorHint="@android:color/white"
             android:dividerHeight="1dp"
             android:drawSelectorOnTop="false"
             android:groupIndicator="@android:color/transparent"

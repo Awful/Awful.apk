@@ -39,6 +39,7 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -93,14 +94,14 @@ public class AwfulMessage extends AwfulPagedItem {
 		current.findViewById(R.id.unread_count).setVisibility(View.GONE);
 		if(t != null){
 			title.setText(t);
-			title.setTextColor(ColorProvider.getTextColor());
+			title.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
 		}
 		TextView author = (TextView) current.findViewById(R.id.thread_info);
 		String auth = data.getString(data.getColumnIndex(AUTHOR));
 		String date = data.getString(data.getColumnIndex(DATE));
 		if(auth != null && date != null){
 			author.setText(auth +" - "+date);
-			author.setTextColor(ColorProvider.getAltTextColor());
+			author.setTextColor(ColorProvider.ALT_TEXT.getColor());
 		}
 
 		ImageView unreadPM = (ImageView) current.findViewById(R.id.thread_tag);
@@ -139,7 +140,7 @@ public class AwfulMessage extends AwfulPagedItem {
 					// FTGE
 					GradientDrawable background = (GradientDrawable) current.getResources().getDrawable(R.drawable.overlay_background);
 					background.mutate();
-					background.setColor(ColorProvider.getBackgroundColor());
+					background.setColor(ColorProvider.BACKGROUND.getColor());
 					overlay.setBackgroundDrawable(background);
 				}
 				overlay.setVisibility(View.VISIBLE);
@@ -279,7 +280,7 @@ public class AwfulMessage extends AwfulPagedItem {
 						.append("' type='text/javascript'></script>\n");
 			}
 
-			buffer.append("<link rel='stylesheet' href='").append(AwfulUtils.determineCSS(0)).append("'>");
+			buffer.append("<link rel='stylesheet' href='").append(AwfulTheme.forForum(null).getCssPath()).append("'>");
 
 			if(!pref.preferredFont.contains("default")){
 				buffer.append("<style type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(pref.preferredFont).append("'); }</style>\n");

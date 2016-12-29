@@ -5,6 +5,16 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
+    <!--
+    base themes
+
+    Some of these use references to other attributes in the theme, they're intended
+    to cascade to child themes and refer to *their* attributes, so they don't need
+    to be redefined
+    e.g. the Navigation Drawer background uses the theme's alt background, whatever that is,
+    and dark themes set icon colours to the theme's accent colour
+    -->
+
     <style name="Theme.AwfulTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
         <item name="android:windowBackground">@null</item>
@@ -13,27 +23,51 @@
         <item name="colorPrimary">@color/forums_blue</item>
         <item name="colorPrimaryDark">@color/forums_blue_darker</item>
         <item name="colorAccent">@color/holo_blue_light</item>
-        <item name="colorAccentThemeFix">@color/default_post_font</item>
-        <item name="background">@color/background</item>
-        <item name="listDividerColor">@color/alt_background</item>
-        <item name="navbarBackground">@color/forums_blue_darker</item>
-        <item name="navbarUsernameColor">@color/background</item>
+
+        <!-- Main/alternative background and text colours -->
+        <item name="background">@android:color/white</item>
+        <item name="altBackground">?background</item>
+        <item name="primaryPostFontColor">@color/default_post_font</item>
+        <item name="secondaryPostFontColor">@color/secondary_post_font</item>
+
+        <!-- Unread post counters -->
+        <item name="unreadColor">@color/bookmark_default</item>
+        <item name="unreadColorDim">@color/bookmark_default_dim</item>
+        <item name="unreadFontColor">@android:color/white</item>
+
+        <!-- Navigation drawer -->
+        <item name="navbarMainBackground">?altBackground</item>
+        <item name="navbarHeaderBackground">@color/forums_blue_darker</item>
+        <item name="navbarUsernameColor">@android:color/white</item>
+
+        <!-- FAB -->
+        <item name="justPostButtonFontColor">@android:color/white</item>
         <item name="justPostButtonColor">@color/forums_blue</item>
-        <item name="justPostButtonFontColor">@color/background</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
-        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="windowActionModeOverlay">true</item>
+
         <!-- icons -->
-        <item name="iconColor">@color/background</item>
+        <item name="iconColor">@android:color/white</item>
         <item name="iconColorDark">@color/secondary_post_font</item>
 
         <!-- bottom sheet -->
         <item name="bottomSheetBackgroundColor">?background</item>
         <item name="bottomSheetItemTextColor">?android:textColorPrimary</item>
 
+        <!-- other stuff -->
+        <item name="actionBarColor">@android:color/black</item>
+        <item name="actionBarFontColor">@android:color/white</item>
+        <item name="progressBarColor">@color/holo_blue_light</item>
+        <item name="srlBackgroundColor">@color/default_srl_background_color</item>
+        <item name="srlProgressColors">@array/defaultSrlProgressColors</item>
+        <item name="android:listDivider">@color/alt_background</item>
+
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="android:actionOverflowButtonStyle">@style/Base.Widget.AppCompat.ActionButton.Overflow</item>
+        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="windowActionModeOverlay">true</item>
+
     </style>
+
 
     <style name="Theme.AwfulTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <!-- Set AppCompat’s actionBarStyle -->
@@ -42,85 +76,135 @@
         <!-- Set AppCompat’s color theming attrs -->
         <item name="colorPrimary">@color/forums_blue_evendarker</item>
         <item name="colorPrimaryDark">@color/forums_blue_darkest</item>
-        <item name="colorAccent">@color/dark_default_post_font</item>
-        <item name="colorAccentThemeFix">@color/secondary_post_font</item>
+        <item name="colorAccent">?primaryPostFontColor</item>
+
+        <!-- Main/alternative background and text colours -->
         <item name="background">@color/dark_background</item>
-        <item name="listDividerColor">@color/dark_header_background</item>
-        <item name="navbarBackground">@color/dark_alt_background</item>
-        <item name="navbarUsernameColor">@color/secondary_post_font</item>
-        <item name="justPostButtonColor">@color/forums_blue_evendarker</item>
-        <item name="justPostButtonFontColor">@color/dark_default_post_font</item>
+        <item name="altBackground">?background</item>
+        <item name="primaryPostFontColor">@color/dark_default_post_font</item>
+        <item name="secondaryPostFontColor">@color/dark_secondary_post_font</item>
+
+        <!-- Unread post counters -->
+        <item name="unreadColor">@color/bookmark_default</item>
+        <item name="unreadColorDim">@color/bookmark_default_dim</item>
+        <item name="unreadFontColor">@android:color/white</item>
+
+        <!-- Navigation drawer -->
+        <item name="navbarMainBackground">?altBackground</item>
+        <item name="navbarHeaderBackground">@color/dark_alt_background</item>
+        <item name="navbarUsernameColor">?primaryPostFontColor</item>
+
+        <!-- FAB -->
+        <item name="justPostButtonFontColor">?primaryPostFontColor</item>
+        <item name="justPostButtonColor">?colorPrimary</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darker</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
-        <item name="windowActionModeOverlay">true</item>
+
         <!-- icons -->
-        <item name="iconColor">@color/dark_default_post_font</item>
-        <item name="iconColorDark">@color/dark_default_post_font</item>
+        <item name="iconColor">?colorAccent</item>
+        <item name="iconColorDark">?colorAccent</item>
 
         <!-- bottom sheet -->
         <item name="bottomSheetBackgroundColor">?background</item>
         <item name="bottomSheetItemTextColor">?android:textColorPrimary</item>
+
+        <!-- other stuff -->
+        <item name="actionBarColor">@android:color/black</item>
+        <item name="actionBarFontColor">?primaryPostFontColor</item>
+        <item name="progressBarColor">@color/holo_blue_light</item>
+        <item name="srlBackgroundColor">@color/dark_alt_background</item>
+        <item name="srlProgressColors">@array/darkSrlProgressColors</item>
+        <item name="android:listDivider">@color/dark_header_background</item>
+
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="awfulPopUpTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="windowActionModeOverlay">true</item>
+
     </style>
 
+    <!-- OLED-type themes -->
 
     <style name="Theme.AwfulTheme.OLED" parent="Theme.AwfulTheme.Dark">
-        <item name="colorPrimary">@color/oled_background</item>
-        <item name="colorPrimaryDark">@color/oled_background</item>
-        <item name="colorAccent">@color/dark_default_post_font</item>
-        <item name="colorAccentThemeFix">@color/dark_default_post_font</item>
-        <item name="background">@color/oled_background</item>
-        <item name="listDividerColor">@color/dark_header_background</item>
-        <item name="navbarBackground">@color/dark_background</item>
-        <item name="navbarUsernameColor">@color/dark_default_post_font</item>
+        <item name="background">@android:color/black</item>
+
+        <item name="colorPrimary">?background</item>
+        <item name="colorPrimaryDark">?background</item>
+
+        <item name="navbarHeaderBackground">@color/dark_background</item>
+        <item name="srlBackgroundColor">?attr/navbarHeaderBackground</item>
+        <item name="srlProgressColors">@array/oledSrlProgressColors</item>
         <item name="justPostButtonColor">@color/forums_blue_evendarker</item>
-        <item name="justPostButtonFontColor">@color/dark_default_post_font</item>
         <item name="justPostButtonColorPressed">@color/forums_blue_darkest</item>
     </style>
 
+
     <style name="Theme.AwfulTheme.YOSPOS" parent="Theme.AwfulTheme.OLED">
-        <item name="colorAccent">@color/yospos_default_post_font</item>
-        <item name="colorAccentThemeFix">?colorAccent</item>
-        <item name="justPostButtonColor">@color/yospos_default_post_font</item>
-        <item name="justPostButtonFontColor">@color/oled_background</item>
-        <item name="justPostButtonColorPressed">@color/yospos_secondary_post_font</item>
-        <item name="iconColor">@color/yospos_default_post_font</item>
-        <item name="iconColorDark">@color/yospos_default_post_font</item>
-        <item name="android:textColorSecondary">@color/yospos_default_post_font</item>
-        <item name="android:textColorPrimary">@color/yospos_default_post_font</item>
-        <item name="colorControlNormal">@color/yospos_default_post_font</item>
-        <item name="navbarUsernameColor">@color/yospos_default_post_font</item>
+        <item name="primaryPostFontColor">@color/yospos_default_post_font</item>
+        <item name="secondaryPostFontColor">@color/yospos_secondary_post_font</item>
+        <item name="altBackground">@color/yospos_alt_background</item>
+
+        <item name="colorControlNormal">?colorAccent</item>
+
+        <item name="unreadColor">?primaryPostFontColor</item>
+        <item name="unreadColorDim">?secondaryPostFontColor</item>
+        <item name="unreadFontColor">?background</item>
+
+        <item name="actionBarColor">?background</item>
+        <item name="progressBarColor">?primaryPostFontColor</item>
+        <item name="srlBackgroundColor">?primaryPostFontColor</item>
+        <item name="srlProgressColors">@array/yosposSrlProgressColors</item>
+
+        <item name="justPostButtonColor">?colorAccent</item>
+        <item name="justPostButtonFontColor">?background</item>
+        <item name="justPostButtonColorPressed">?secondaryPostFontColor</item>
+
+        <item name="navbarHeaderBackground">?background</item>
+        <item name="android:listDivider">?secondaryPostFontColor</item>
+        <item name="android:textColorSecondary">?primaryPostFontColor</item>
+        <item name="android:textColorPrimary">?primaryPostFontColor</item>
     </style>
 
-    <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.OLED">
-        <item name="colorAccent">@color/amberpos_default_post_font</item>
-        <item name="colorAccentThemeFix">?colorAccent</item>
-        <item name="justPostButtonColor">@color/amberpos_default_post_font</item>
-        <item name="justPostButtonFontColor">@color/oled_background</item>
-        <item name="justPostButtonColorPressed">@color/amberpos_secondary_post_font</item>
-        <item name="iconColor">@color/amberpos_default_post_font</item>
-        <item name="iconColorDark">@color/amberpos_default_post_font</item>
-        <item name="android:textColorSecondary">@color/amberpos_default_post_font</item>
-        <item name="android:textColorPrimary">@color/amberpos_default_post_font</item>
-        <item name="colorControlNormal">@color/amberpos_default_post_font</item>
-        <item name="navbarUsernameColor">@color/amberpos_default_post_font</item>
+
+    <style name="Theme.AwfulTheme.AMBERPOS" parent="Theme.AwfulTheme.YOSPOS">
+        <item name="primaryPostFontColor">@color/amberpos_default_post_font</item>
+        <item name="secondaryPostFontColor">@color/amberpos_secondary_post_font</item>
+        <item name="altBackground">@color/amberpos_alt_background</item>
     </style>
 
-    <style name="Theme.AwfulTheme.BYOB" parent="Theme.AwfulTheme">
+    <!-- Wow pastels -->
+
+    <!-- Base references for the BYOB and FYAD themes-->
+    <style name="Theme.AwfulTheme.Wacky" parent="Theme.AwfulTheme">
+        <item name="unreadColor">?primaryPostFontColor</item>
+        <item name="unreadColorDim">?secondaryPostFontColor</item>
+        <item name="progressBarColor">?background</item>
+        <item name="srlBackgroundColor">?background</item>
+
+        <item name="justPostButtonColor">?background</item>
+        <item name="justPostButtonColorPressed">?altBackground</item>
+        <item name="android:listDivider">?colorAccent</item>
+    </style>
+
+    <style name="Theme.AwfulTheme.BYOB" parent="Theme.AwfulTheme.Wacky">
+        <item name="primaryPostFontColor">@color/byob_default_post_font</item>
+        <item name="secondaryPostFontColor">@color/byob_secondary_post_font</item>
+        <item name="background">@color/byob_background</item>
+        <item name="altBackground">@color/byob_alt_background</item>
+
         <item name="colorAccent">@color/byob_secondary_post_font</item>
-        <item name="colorAccentThemeFix">?colorAccent</item>
-        <item name="justPostButtonColor">@color/byob_background</item>
-        <item name="justPostButtonColorPressed">@color/byob_alt_background</item>
-        <item name="background">@color/byob_alt_background</item>
+        <item name="srlProgressColors">@array/byobSrlProgressColors</item>
     </style>
 
-    <style name="Theme.AwfulTheme.FYAD" parent="Theme.AwfulTheme">
-        <item name="colorAccent">@color/fyad_alt_background</item>
-        <item name="colorAccentThemeFix">@color/forums_blue</item>
-        <item name="justPostButtonColor">@color/fyad_background</item>
-        <item name="justPostButtonColorPressed">@color/fyad_alt_background</item>
-        <item name="background">@color/fyad_alt_background</item>
+
+    <style name="Theme.AwfulTheme.FYAD" parent="Theme.AwfulTheme.Wacky">
+        <item name="primaryPostFontColor">@color/fyad_default_post_font</item>
+        <item name="secondaryPostFontColor">@color/fyad_secondary_post_font</item>
+        <item name="background">@color/fyad_background</item>
+        <item name="altBackground">@color/fyad_alt_background</item>
+
+        <item name="colorAccent">@color/fyad_hot_pink</item>
+        <item name="srlProgressColors">@array/fyadSrlProgressColors</item>
     </style>
+
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>

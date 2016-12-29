@@ -56,7 +56,7 @@
                     android:layout_height="48dp"
                     android:layout_centerInParent="true"
                     app:srcCompat="@drawable/frog_silhouette"
-                    android:tint="?attr/listDividerColor"
+                    android:tint="?android:listDivider"
                     tools:ignore="ContentDescription"/>
 
                 <TextView

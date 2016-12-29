@@ -148,12 +148,13 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 	
 	private void updateColors(View v, AwfulPreferences prefs){
-        messageComposer.setTextColor(ColorProvider.getTextColor());
-        mRecipient.setTextColor(ColorProvider.getTextColor());
-        mSubject.setTextColor(ColorProvider.getTextColor());
-        mUsername.setTextColor(ColorProvider.getTextColor());
-        mPostdate.setTextColor(ColorProvider.getTextColor());
-        mTitle.setTextColor(ColorProvider.getTextColor());
+		int color = ColorProvider.PRIMARY_TEXT.getColor();
+		messageComposer.setTextColor(color);
+		mRecipient.setTextColor(color);
+		mSubject.setTextColor(color);
+		mUsername.setTextColor(color);
+		mPostdate.setTextColor(color);
+		mTitle.setTextColor(color);
 	}
 	
 	@Override
@@ -417,7 +418,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 
 	private String getBlankPage(){
-		return "<html><head></head><body style='{background-color:#"+ColorProvider.convertToARGB(ColorProvider.getBackgroundColor())+";'></body></html>";
+		return "<html><head></head><body style='{background-color:#"+ ColorProvider.convertToRGB(ColorProvider.BACKGROUND.getColor()) +";'></body></html>";
 	}
 	
     @SuppressLint("NewApi")
