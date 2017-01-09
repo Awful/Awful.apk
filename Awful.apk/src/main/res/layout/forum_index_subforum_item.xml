@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/item_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_container"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/material_list_item_height">
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/section_title"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/material_content_left_margin"
+        android:layout_marginLeft="40dp"
         android:paddingBottom="@dimen/material_list_item_vertical_padding"
         android:paddingLeft="@dimen/material_screen_edge_margin"
         android:paddingRight="@dimen/material_screen_edge_margin"
