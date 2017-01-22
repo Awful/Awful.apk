@@ -27,7 +27,6 @@
 
 package com.ferg.awfulapp;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,27 +35,32 @@ import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.webview.AwfulWebView;
+import com.ferg.awfulapp.webview.WebViewConfig;
+import com.ferg.awfulapp.webview.WebViewJsInterface;
 
 import java.util.HashMap;
 
 public class PreviewFragment extends AwfulDialogFragment {
     private final static String TAG = "PreviewFragment";
 
-    private WebView postPreView;
-    private View dialogView;
+    private AwfulWebView postPreView;
     private ProgressBar progressBar;
     protected String nicefiedContent = "";
 
     HashMap<String, String> preferences;
+    WebViewJsInterface jsInterface = new WebViewJsInterface() {
+        @JavascriptInterface
+        public String getBodyHtml() {
+            return nicefiedContent;
+        }
+    };
 
     @Override
     public void onActivityCreated(Bundle aSavedState) {
@@ -65,29 +69,29 @@ public class PreviewFragment extends AwfulDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        dialogView = inflateView(R.layout.post_preview, container, inflater);
+        View dialogView = inflateView(R.layout.post_preview, container, inflater);
         progressBar = (ProgressBar) dialogView.findViewById(R.id.preview_progress);
+        postPreView = (AwfulWebView) dialogView.findViewById(R.id.post_pre_view);
         configureWebView();
 
         getDialog().setCanceledOnTouchOutside(true);
-        postPreView.loadDataWithBaseURL(Constants.BASE_URL + "/",getBlankPage(), "text/html", "utf-8",null);
+        postPreView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
 
         return dialogView;
     }
 
-    private String getBlankPage(){
+    private String getBlankPage() {
         return AwfulThread.getContainerHtml(mPrefs, 0);
     }
 
 
     protected void setContent(String content) {
-        preparePreferences();
+        jsInterface.updatePreferences();
 
-        nicefiedContent =  "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>"+ content+"</section></article>";
+        nicefiedContent = "<style>iframe{height: auto !important;} </style><article><section class='postcontent'>" + content + "</section></article>";
         progressBar.setVisibility(View.GONE);
         postPreView.setVisibility(View.VISIBLE);
-
-        postPreView.loadUrl("javascript:loadPageHtml()");
+        postPreView.refreshPageContents(true);
     }
 
     @Override
@@ -98,76 +102,17 @@ public class PreviewFragment extends AwfulDialogFragment {
     }
 
     public void configureWebView() {
-        postPreView = (WebView) dialogView.findViewById(R.id.post_pre_view);
-        postPreView.setBackgroundColor(Color.TRANSPARENT);
-        postPreView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        postPreView.getSettings().setJavaScriptEnabled(true);
-        postPreView.getSettings().setRenderPriority(WebSettings.RenderPriority.LOW);
-        postPreView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        postPreView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
-        postPreView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-        postPreView.setWebChromeClient(new WebChromeClient());
-        if (Constants.DEBUG && AwfulUtils.isKitKat()) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
-        if (AwfulUtils.isLollipop()) {
-            postPreView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
-        if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
-            postPreView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
-        }
-        if (AwfulUtils.isJellybean()) {
-            postPreView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-            postPreView.getSettings().setAllowFileAccessFromFileURLs(true);
-            postPreView.getSettings().setAllowFileAccess(true);
-            postPreView.getSettings().setAllowContentAccess(true);
-        }
-
+        WebViewConfig.configureForThread(postPreView);
         postPreView.setWebViewClient(new WebViewClient() {
-
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest wrr ) {
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest wrr) {
                 return true;
             }
         });
-        postPreView.addJavascriptInterface(this, "listener");
+        postPreView.setWebChromeClient(new WebChromeClient());
+        postPreView.setJavascriptHandler(jsInterface);
     }
 
-    @JavascriptInterface
-    public String getPreference(String preference) {
-        return preferences.get(preference);
-    }
-
-    @JavascriptInterface
-    public void haltSwipe() {
-
-    }
-    @JavascriptInterface
-    public void resumeSwipe() {
-    }
-
-    @JavascriptInterface
-    public String getBodyHtml(){
-        return nicefiedContent;
-    }
-
-    private void preparePreferences() {
-        AwfulPreferences aPrefs = AwfulPreferences.getInstance();
-
-        preferences = new HashMap<String, String>();
-        preferences.clear();
-        preferences.put("username", aPrefs.username);
-        preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
-        preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
-        preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
-        preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
-        preferences.put("inlineWebm", Boolean.toString(aPrefs.inlineWebm));
-        preferences.put("autostartWebm", Boolean.toString(aPrefs.autostartWebm));
-        preferences.put("inlineVines", Boolean.toString(aPrefs.inlineVines));
-        preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
-        preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
-        preferences.put("disablePullNext", Boolean.toString(aPrefs.disablePullNext));
-    }
 
     @Override
     public String getTitle() {

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <WebView
+        <com.ferg.awfulapp.webview.AwfulWebView
             android:id="@+id/post_pre_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
