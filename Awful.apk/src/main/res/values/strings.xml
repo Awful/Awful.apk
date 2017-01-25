@@ -18,11 +18,22 @@
     <string name="toggle_folder">Toggle mail folder</string>
     <string name="select_message">Open a message or create a new one</string>
 
+    <plurals name="numberOfNewAnnouncements">
+        <item quantity="one">%d new announcement</item>
+        <item quantity="other">%d new announcements</item>
+    </plurals>
+
+    <plurals name="numberOfOldUnreadAnnouncements">
+        <item quantity="one">%d unread announcement</item>
+        <item quantity="other">%d unread announcements</item>
+    </plurals>
+
+
     <!-- Sidebar-->
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
-
     <string name="drawer_title">The SA Forums</string>
+    <string name="announcements">Announcements</string>
     <!-- sort THIS out -->
     <string name="usercp">Bookmarks</string>
     <string name="user_cp">Bookmarks</string>

@@ -25,6 +25,10 @@
             android:icon="@drawable/ic_mail_dark"
             android:title="@string/private_message" />
         <item
+            android:id="@+id/sidebar_announcements"
+            android:icon="@drawable/ic_error"
+            android:title="@string/announcements" />
+        <item
             android:id="@+id/sidebar_settings"
             android:icon="@drawable/ic_settings_dark"
             android:title="@string/settings" />

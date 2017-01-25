@@ -38,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -70,6 +71,7 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
@@ -89,7 +91,8 @@ import java.util.Locale;
 
 //import com.ToxicBakery.viewpager.transforms.*;
 
-public class ForumsIndexActivity extends AwfulActivity implements PmManager.Listener {
+public class ForumsIndexActivity extends AwfulActivity
+        implements PmManager.Listener, AnnouncementsManager.AnnouncementListener {
     protected static final String TAG = "ForumsIndexActivity";
 
     private static final int DEFAULT_HIDE_DELAY = 300;
@@ -177,6 +180,7 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
         setupImmersion();
 
         PmManager.registerListener(this);
+        AnnouncementsManager.getInstance().registerListener(this);
     }
 
     @Override
@@ -202,6 +206,30 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
                         .show();
             }
         });
+    }
+
+    @Override
+    public void onAnnouncementsUpdated(int newCount, int oldUnread, int oldRead, boolean isFirstUpdate) {
+        // update the nav drawer, in case it needs to reflect the new announcements
+        // TODO: 27/01/2017 maybe the nav drawer should register itself as a listener, if it needs updates
+        if (isFirstUpdate || newCount > 0) {
+            Resources res = getResources();
+            // only show one of 'new announcements' or 'unread announcements', ignoring read ones
+            // (only notify about unread for the first update after opening the app, to remind the user)
+            if (newCount > 0) {
+                showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfNewAnnouncements, newCount, newCount));
+            } else if (oldUnread > 0) {
+                showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread));
+            }
+        }
+        updateNavigationMenu();
+    }
+
+    private void showAnnouncementSnackbar(String message) {
+        Snackbar.make(mToolbar, message, Snackbar.LENGTH_LONG)
+                .setDuration(3000)
+                .setAction("View", click -> AnnouncementsManager.getInstance().showAnnouncements(this))
+                .show();
     }
 
     @Override
@@ -283,6 +311,9 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
                         break;
                     case R.id.sidebar_pm:
                         startActivity(new Intent().setClass(context, PrivateMessageActivity.class));
+                        break;
+                    case R.id.sidebar_announcements:
+                        AnnouncementsManager.getInstance().showAnnouncements(ForumsIndexActivity.this);
                         break;
                     case R.id.sidebar_logout:
                         new LogOutDialog(context).show();
@@ -382,7 +413,7 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
         }
 
         // update the forum and thread titles in the background, to avoid hitting the DB on the UI thread
-        // to keep things simple, it sets the text on anything we just hid, which will be placeholder text if the IDs are invalid
+        // to keep things simple, it also sets the text on anything we just hid, which will be placeholder text if the IDs are invalid
         updateNavMenuText(mNavForumId, mNavThreadId, forumItem, threadItem);
 
         // private messages - show 'em if you got 'em
@@ -395,6 +426,13 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
         final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
         if (searchItem != null) {
             searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+        }
+
+        // show the unread announcement count
+        final MenuItem announcements = navMenu.findItem(R.id.sidebar_announcements);
+        if (announcements != null) {
+            int unread = AnnouncementsManager.getInstance().getUnreadCount();
+            announcements.setTitle(getString(R.string.announcements) + (unread == 0 ? "" : " (" + unread + ")"));
         }
     }
 
