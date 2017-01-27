@@ -30,7 +30,6 @@ package com.ferg.awfulapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
@@ -38,20 +37,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.task.AwfulRequest;
-import com.ferg.awfulapp.task.SearchForumsRequest;
 import com.ferg.awfulapp.thread.AwfulAction;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.thread.AwfulSearchForum;
 
 import java.util.ArrayList;
 
@@ -94,7 +86,7 @@ public class PostActionsFragment extends AwfulDialogFragment {
 			public void onBindViewHolder(ActionHolder holder, final int position) {
 				final AwfulAction action = actions.get(position);
 				holder.actionText.setText(action.getActionTitle());
-				holder.actionText.setTextColor(ColorProvider.getTextColor());
+				holder.actionText.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
 				holder.actionTag.setImageResource(action.getActionIcon());
 				holder.actionView.setOnClickListener(new View.OnClickListener() {
 					@Override

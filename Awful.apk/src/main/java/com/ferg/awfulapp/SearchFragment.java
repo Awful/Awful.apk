@@ -104,8 +104,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
         mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
         mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
-        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
+        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
         mSRL.setEnabled(false);
 
         mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);

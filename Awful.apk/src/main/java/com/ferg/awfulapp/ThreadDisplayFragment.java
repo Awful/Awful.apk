@@ -90,6 +90,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
@@ -347,8 +348,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
         mSRL = (SwipyRefreshLayout) view.findViewById(R.id.thread_swipe);
-        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColor());
-		mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor());
+		mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+		mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
 		mSRL.setEnabled(!mPrefs.disablePullNext);
     }
 
@@ -972,7 +973,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
 		mPrefs.setPreference(Keys.AMBER_DEFAULT_POS, mPrefs.amberDefaultPos);
 		if (mThreadView != null) {
-			mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
+			mThreadView.loadUrl(String.format("javascript:changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 		}
 	}
 
@@ -1202,7 +1203,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public String getCSS(){
-            return AwfulUtils.determineCSS(mParentForumId);
+            return AwfulTheme.forForum(mParentForumId).getCssPath();
         }
         
         @SuppressWarnings("SpellCheckingInspection")
@@ -1361,7 +1362,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if(DEBUG) Log.i(TAG,"onPreferenceChange"+((key != null)?":"+key:""));
         if(null != getAwfulActivity() && pageBar != null){
 		    getAwfulActivity().setPreferredFont(pageBar.getTextView());
-			pageBar.setTextColour(ColorProvider.getActionbarFontColor());
+			pageBar.setTextColour(ColorProvider.ACTION_BAR_TEXT.getColor());
 		}
 
 		if(mThreadView != null){
@@ -1547,7 +1548,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
 				if(mParentForumId != 0 && mThreadView != null){
-					mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
+					mThreadView.loadUrl(String.format("javascript:changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 				}
 
 				parentActivity.setNavIds(mParentForumId, getThreadId());
@@ -1558,8 +1559,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					if (postFilterUserId != null) {
 						mUserPostNotice.setVisibility(View.VISIBLE);
 						mUserPostNotice.setText(String.format("Viewing posts by %s in this thread,\nPress the back button to return.", postFilterUsername));
-						mUserPostNotice.setTextColor(ColorProvider.getTextColor());
-						mUserPostNotice.setBackgroundColor(ColorProvider.getBackgroundColor());
+						mUserPostNotice.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
+						mUserPostNotice.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
 					} else {
 						mUserPostNotice.setVisibility(View.GONE);
 					}

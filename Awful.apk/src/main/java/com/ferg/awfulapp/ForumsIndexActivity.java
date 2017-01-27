@@ -55,7 +55,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -104,7 +103,6 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
     private boolean skipLoad = false;
     private boolean isTablet;
     private AwfulURL url = new AwfulURL();
-    private Handler mHandler = new Handler();
 
     private ToggleViewPager mViewPager;
 
@@ -126,8 +124,6 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
     private volatile int mForumPage     = 1;
     private volatile int mThreadId      = NULL_THREAD_ID;
     private volatile int mThreadPage    = 1;
-
-    private boolean mPrimeRecreate = false;
 
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
@@ -164,7 +160,7 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
         if (isTablet) {
             mViewPager.setPageMargin(1);
             //TODO what color should it use here?
-            mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+            mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.ACTION_BAR.getColor()));
         }
         pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
@@ -588,13 +584,6 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
     protected void onResume() {
         super.onResume();
 
-        if (mPrimeRecreate) {
-            mPrimeRecreate = false;
-            Intent intent = getIntent();
-            finish();
-            startActivity(intent);
-        }
-
         int versionCode = 0;
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
@@ -943,7 +932,7 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
             if (isTablet) {
                 mViewPager.setPageMargin(1);
                 //TODO what color should it use here?
-                mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.getActionbarColor()));
+                mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.ACTION_BAR.getColor()));
             } else {
                 mViewPager.setPageMargin(0);
             }
@@ -968,11 +957,6 @@ public class ForumsIndexActivity extends AwfulActivity implements PmManager.List
         mNavForumId = forumId;
         mNavThreadId = threadId != null ? threadId : NULL_THREAD_ID;
         updateNavigationMenu();
-    }
-
-    @Override
-    public void afterThemeChange() {
-        this.mPrimeRecreate = true;
     }
 
     public void preventSwipe() {

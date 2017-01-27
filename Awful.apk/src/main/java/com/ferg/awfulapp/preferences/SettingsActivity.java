@@ -27,7 +27,6 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.fragments.RootSettings;
 import com.ferg.awfulapp.preferences.fragments.SettingsFragment;
-import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -208,34 +207,12 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             }
         }
 
-        if(!prefs.theme.equals(this.currentThemeName)) {
-            this.currentThemeName = prefs.theme;
+        if(!mPrefs.theme.equals(this.currentThemeName)) {
+            this.currentThemeName = mPrefs.theme;
             setCurrentTheme();
             recreate();
         }
     }
-
-
-    private void setCurrentTheme() {
-        // TODO: this is yoinked out of AwfulActivity and could really do with being centralised
-        if(prefs.theme.equals(ColorProvider.DEFAULT) || prefs.theme.equals(ColorProvider.CLASSIC)){
-            setTheme(R.style.Theme_AwfulTheme);
-        }else if(prefs.theme.equals(ColorProvider.FYAD)){
-            setTheme(R.style.Theme_AwfulTheme_FYAD);
-        }else if(prefs.theme.equals(ColorProvider.BYOB)){
-            setTheme(R.style.Theme_AwfulTheme_BYOB);
-        }else if(prefs.theme.equals(ColorProvider.YOSPOS)){
-            setTheme(R.style.Theme_AwfulTheme_YOSPOS);
-        }else if(prefs.theme.equals(ColorProvider.AMBERPOS)){
-            setTheme(R.style.Theme_AwfulTheme_AMBERPOS);
-        }else if(prefs.theme.equals(ColorProvider.OLED)) {
-            setTheme(R.style.Theme_AwfulTheme_OLED);
-        }else{
-            setTheme(R.style.Theme_AwfulTheme_Dark);
-        }
-    }
-
-
 
 
     /*

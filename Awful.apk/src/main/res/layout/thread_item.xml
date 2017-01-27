@@ -11,7 +11,7 @@
     android:paddingRight="4dp"
     android:paddingLeft="16dp"
     android:paddingTop="@dimen/material_list_item_vertical_padding"
-    tools:background="@color/background"
+    tools:background="@android:color/white"
     tools:ignore="RtlHardcoded,RtlSymmetry">
 
     <!-- TODO: add better content descriptions in code, e.g. rating number -->

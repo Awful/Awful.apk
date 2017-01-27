@@ -104,7 +104,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		Button deleteButton = (Button) v.findViewById(R.id.delete_button);
 		deleteButton.setOnClickListener(this);
 		filterText = (EditText) v.findViewById(R.id.filter_text);
-		filterText.setTextColor(ColorProvider.getTextColor());
+		filterText.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
 		filterText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -119,7 +119,7 @@ public class EmoteFragment extends AwfulDialogFragment implements OnClickListene
 		emoteGrid = (GridView) v.findViewById(R.id.emote_grid);
 		emoteGrid.setAdapter(adapter);
 		emoteGrid.setOnItemClickListener(this);
-		emoteGrid.setBackgroundColor(ColorProvider.getBackgroundColor());
+		emoteGrid.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
 
 		return v;
 	}

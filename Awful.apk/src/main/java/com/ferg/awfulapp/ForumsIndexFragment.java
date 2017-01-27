@@ -146,7 +146,7 @@ public class ForumsIndexFragment extends AwfulFragment
      */
     private void updateViewColours() {
         if (forumRecyclerView != null) {
-            forumRecyclerView.setBackgroundColor(ColorProvider.getBackgroundColor());
+            forumRecyclerView.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
         }
     }
 

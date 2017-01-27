@@ -4,64 +4,36 @@
     <color name="forums_blue_darker">#00537E</color>
     <color name="forums_blue_evendarker">#00314b</color>
     <color name="forums_blue_darkest">#002032</color>
-    <color name="forums_gray">#f4f4f4</color>
     <color name="holo_blue_light">#ff33b5e5</color>
-    
-    <color name="default_post_font">#555555</color>    
-    <color name="forum_title">#484848</color>
+
+    <color name="default_post_font">#555555</color>
     <color name="secondary_post_font">#989898</color>
-    <color name="background">#ffffff</color>
     <color name="alt_background">#dfdfdf</color>
-    <color name="background_read">#ddeeff</color>
-    <color name="font_read">#777777</color>
-    <color name="alt_background_read">#c0e0ff</color>
-    
-    <color name="link_quote">#00c0f4</color>
-    
-    <color name="actionbar_color">#000000</color>
-    <color name="actionbar_font_color">#ffffff</color>
-    
-    <color name="unread_posts">#00659a</color>
-    <color name="unread_posts_dim">#88aabb</color>
-    <color name="unread_posts_counter">#ffffff</color>
-    
-        
-        
+
     <color name="dark_default_post_font">#e7e7e7</color>
     <color name="dark_secondary_post_font">#777777</color>
     <color name="dark_background">#212121</color>
     <color name="dark_alt_background">#333333</color>
     <color name="dark_header_background">#444444</color>
-    <color name="dark_header_font">#ffffff</color>
-    <color name="dark_header_divider">#f4f4f4</color>
-    <color name="dark_op_post">#003366</color>
-    <color name="dark_link_quote">#5463ff</color>
-    <color name="dark_blue">#ff33b5e5</color>
 
-    <color name="oled_background">#000000</color>
-    
     <color name="yospos_default_post_font">#57FF57</color>
-    <color name="yospos_secondary_post_font">#57FF57</color>
-    <color name="yospos_background">#000000</color>
-    <color name="yospos_alt_background">#111111</color>
+    <color name="yospos_secondary_post_font">#008200</color>
+    <color name="yospos_alt_background">#002800</color>
 
     <color name="amberpos_default_post_font">#eacf4c</color>
-    <color name="amberpos_secondary_post_font">#6C6F22</color>
-    <color name="amberpos_background">#000000</color>
-    <color name="amberpos_alt_background">#111111</color>
+    <color name="amberpos_secondary_post_font">#726300</color>
+    <color name="amberpos_alt_background">#2c0f00</color>
 
     <color name="fyad_default_post_font">#006666</color>
     <color name="fyad_secondary_post_font">#999999</color>
     <color name="fyad_background">#FFCCFF</color>
     <color name="fyad_alt_background">#FFCCCC</color>
+    <color name="fyad_hot_pink">#FF80FF</color>
 
     <color name="byob_default_post_font">#006666</color>
     <color name="byob_secondary_post_font">#CCFFFF</color>
     <color name="byob_background">#9999FF</color>
     <color name="byob_alt_background">#CCFFFF</color>
-    
-    <color name="profile_column">#e7eff5</color>
-    <color name="selected_item">#33eeeeee</color>
 
     <color name="bookmark_default">#356693</color>
     <color name="bookmark_orange">#e28d00</color>
@@ -75,6 +47,53 @@
 
     <color name="default_srl_background_color">#FFFAFAFA</color>
 
-    <color name="sidebarOverlay">#99CCCCCC</color>
-    <color name="sidebarOverlay_dark">#99CCCCCC</color>
+
+    <!-- Bookmark colours for stars/unread counters -->
+    <integer-array name="bookmarkColors">
+        <item>@color/bookmark_default</item>
+        <item>@color/bookmark_orange</item>
+        <item>@color/bookmark_red</item>
+        <item>@color/bookmark_yellow</item>
+    </integer-array>
+
+    <integer-array name="bookmarkDimColors">
+        <item>@color/bookmark_default_dim</item>
+        <item>@color/bookmark_orange_dim</item>
+        <item>@color/bookmark_red_dim</item>
+        <item>@color/bookmark_yellow_dim</item>
+    </integer-array>
+
+
+    <!-- Arrays for the spinny progress wheel colours -->
+
+    <integer-array name="defaultSrlProgressColors">
+        <item>@android:color/holo_green_light</item>
+        <item>@android:color/holo_orange_light</item>
+        <item>@android:color/holo_red_light</item>
+        <item>@android:color/holo_blue_bright</item>
+    </integer-array>
+
+    <integer-array name="darkSrlProgressColors">
+        <item>@color/forums_blue_darker</item>
+        <item>@color/forums_blue_evendarker</item>
+    </integer-array>
+
+    <integer-array name="oledSrlProgressColors">
+        <item>@color/dark_default_post_font</item>
+    </integer-array>
+
+    <integer-array name="yosposSrlProgressColors">
+        <item>@android:color/black</item>
+    </integer-array>
+
+    <integer-array name="fyadSrlProgressColors">
+        <item>@color/fyad_default_post_font</item>
+        <item>@color/fyad_secondary_post_font</item>
+    </integer-array>
+
+    <integer-array name="byobSrlProgressColors">
+        <item>@color/byob_secondary_post_font</item>
+        <item>@color/byob_default_post_font</item>
+    </integer-array>
+
 </resources>

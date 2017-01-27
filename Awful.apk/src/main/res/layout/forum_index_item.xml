@@ -41,7 +41,7 @@
             android:layout_height="20dp"
             android:layout_gravity="center"
             android:contentDescription="@string/show_and_hide_subforums"
-            android:tint="?colorAccentThemeFix"
+            android:tint="?primaryPostFontColor"
             android:visibility="visible"
             app:srcCompat="@drawable/ic_expand_more"
             tools:ignore="MissingPrefix"/>
@@ -101,7 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@id/section_title"
-        android:tint="?attr/listDividerColor"
+        android:tint="?android:listDivider"
         app:srcCompat="@drawable/list_divider"
         tools:ignore="ContentDescription,MissingPrefix"/>
 

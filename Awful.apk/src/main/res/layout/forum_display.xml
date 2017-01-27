@@ -25,8 +25,7 @@
             android:id="@+id/forum_list"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:cacheColorHint="@color/background"
-            android:divider="?attr/listDividerColor"
+            android:cacheColorHint="@android:color/white"
             android:dividerHeight="1dp"
             tools:listitem="@layout/thread_item" />
     </com.ferg.awfulapp.widget.SwipyRefreshLayout>
