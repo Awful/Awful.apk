@@ -603,7 +603,7 @@ public class AwfulPost {
                                         }else if(thumb.toLowerCase().contains("giphy.com")){
                                             thumb = thumb.replace("://i.giphy.com","://media.giphy.com/media");
                                             if(thumb.endsWith("giphy.gif")){
-                                                thumb = thumb.replace("giphy.gif","/200_s.gif");
+                                                thumb = thumb.replace("giphy.gif","200_s.gif");
                                             }else{
                                                 thumb = thumb.replace(".gif","/200_s.gif");
                                             }
