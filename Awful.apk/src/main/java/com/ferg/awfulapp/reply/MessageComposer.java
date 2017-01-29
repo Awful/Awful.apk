@@ -313,8 +313,8 @@ public class MessageComposer extends Fragment {
         a.recycle();
 
         bottomSheetMenuDialog = new BottomSheetBuilder(activity)
-                .setBackgroundColor(backgroundColour)
-                .setItemTextColor(itemTextColour)
+                .setBackgroundColorResource(backgroundColour)
+                .setItemTextColorResource(itemTextColour)
                 .setMode(BottomSheetBuilder.MODE_GRID)
                 .setMenu(sheetMenu)
                 .setItemClickListener(item -> {
