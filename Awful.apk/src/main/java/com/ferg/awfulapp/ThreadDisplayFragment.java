@@ -420,10 +420,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			webSettings.setAllowContentAccess(true);
 		}
 
-		if (!mPrefs.enableHardwareAcceleration) {
-			mThreadView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-		}
-
 
 		mThreadView.setWebChromeClient(new WebChromeClient() {
 			public boolean onConsoleMessage(ConsoleMessage message) {

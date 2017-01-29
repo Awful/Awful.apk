@@ -141,10 +141,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		if(AwfulUtils.isLollipop()) {
 			mDisplayText.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 		}
-
-		if (!mPrefs.enableHardwareAcceleration) {
-			mDisplayText.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-		}
 	}
 	
 	private void updateColors(View v, AwfulPreferences prefs){
