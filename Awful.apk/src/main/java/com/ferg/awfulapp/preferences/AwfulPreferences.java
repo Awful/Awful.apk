@@ -269,7 +269,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		inlineVines            	 = getPreference(Keys.INLINE_VINES, false);
 		inlineWebm            	 = getPreference(Keys.INLINE_WEBM, false);
 		autostartWebm            = getPreference(Keys.AUTOSTART_WEBM, true);
-        debugMode            	 = false;//= getPreference("debug_mode", false);
         showAllSpoilers			 = getPreference(Keys.SHOW_ALL_SPOILERS, false);
         threadInfo_Rating		 = getPreference(Keys.THREAD_INFO_RATING, true);
         threadInfo_Tag		 	 = getPreference(Keys.THREAD_INFO_TAG, true);
