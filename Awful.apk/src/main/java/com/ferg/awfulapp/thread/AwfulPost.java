@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the software nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -95,19 +95,19 @@ public class AwfulPost {
 
 
 
-	private int mThreadId;
-    private String mId;
-    private String mDate;
-    private String mRegDate;
-    private String mUserId;
-    private String mUsername;
-    private String mAvatar;
-    private String mAvatarText;
-    private String mContent;
-    private String mEdited;
-    
+	private int mThreadId = -1;
+    private String mId = "";
+    private String mDate = "";
+    private String mRegDate = "";
+    private String mUserId = "";
+    private String mUsername = "";
+    private String mAvatar = "";
+    private String mAvatarText = "";
+    private String mContent = "";
+    private String mEdited = "";
+
 	private boolean mPreviouslyRead = false;
-    private String mLastReadUrl;
+    private String mLastReadUrl = "";
     private boolean mEditable;
     private boolean isOp = false;
     private boolean isAdmin = false;
@@ -136,11 +136,11 @@ public class AwfulPost {
     public boolean isOp() {
     	return isOp;
     }
-    
+
     public boolean isAdmin() {
     	return isAdmin;
     }
-    
+
     public boolean isMod() {
     	return isMod;
     }
@@ -176,11 +176,11 @@ public class AwfulPost {
     public String getUserId() {
     	return mUserId;
     }
-    
+
     public void setUserId(String aUserId) {
     	mUserId = aUserId;
     }
-    
+
     public String getUsername() {
         return mUsername;
     }
@@ -280,11 +280,21 @@ public class AwfulPost {
         }
         return result;
     }
-    
-    private static void convertVideos(Document contentNode, boolean inline, boolean hasFlash){
+
+
+    /**
+     * Process any videos found within an Element's hierarchy.
+     *
+     * This will look for appropriate video elements, and rewrite or replace them as necessary so
+     * the app can display them according to the user's preferences.
+     * This mutates the supplied Element's structure.
+     * @param contentNode       the Element to search and edit
+     * @param inlineYouTubes    whether YouTube videos should be displayed inline, or replaced with a link
+     */
+    public static void convertVideos(Element contentNode, boolean inlineYouTubes){
 
 			Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
-		
+
 			for(Element youTube : youtubeNodes){
 				String src = youTube.attr("src");
 				//int height = Integer.parseInt(youTube.attr("height"));
@@ -308,7 +318,7 @@ public class AwfulPost {
                         youtubeContainer.appendChild(img);
                         youtubeContainer.appendChild(youtubeLink);
 						youTube.replaceWith(youtubeContainer);
-					}else if(!inline){
+					}else if(!inlineYouTubes){
 						Element youtubeLink = new Element(Tag.valueOf("a"),"");
 						youtubeLink.text(link);
 						youtubeLink.attr("href", link);
@@ -323,7 +333,7 @@ public class AwfulPost {
 				}
 			}
 //		if(!inline || !hasFlash){
-			
+
 			Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
 			for(Element node : videoNodes){
 				try{
@@ -374,7 +384,7 @@ public class AwfulPost {
 							continue;
 						}
 
-						if(inline && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))){
+						if(inlineYouTubes && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))){
                             Element nodeContainer = new Element(Tag.valueOf("div"),"");
                             nodeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
                             Element nodeLink = new Element(Tag.valueOf("a"),"");
@@ -425,7 +435,7 @@ public class AwfulPost {
     public void setLastReadUrl(String aLastReadUrl) {
         mLastReadUrl = aLastReadUrl;
     }
-	
+
 	public boolean isPreviouslyRead() {
 		return mPreviouslyRead;
 	}
@@ -433,11 +443,11 @@ public class AwfulPost {
 	public void setPreviouslyRead(boolean aPreviouslyRead) {
 		mPreviouslyRead = aPreviouslyRead;
 	}
-	
+
 	public boolean isEditable() {
 		return mEditable;
 	}
-	
+
 	public void setEditable(boolean aEditable) {
 		mEditable = aEditable;
 	}
@@ -449,15 +459,14 @@ public class AwfulPost {
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
     }
-    
+
     public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
     	ArrayList<ContentValues> result = new ArrayList<ContentValues>();
     	boolean lastReadFound = false;
 		int index = startIndex;
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
         Log.v(TAG, "Update time: " + update_time);
-                
-        convertVideos(aThread, prefs.inlineYoutube, prefs.hasFlash());
+
         Elements posts;
         if(preview){
             posts = aThread.getElementsByClass("standard");
@@ -475,7 +484,7 @@ public class AwfulPost {
             }
         	//timestamp for DB trimming after a week
             post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-            
+
             //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
             //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
             if(!preview) {
@@ -497,12 +506,12 @@ public class AwfulPost {
             	post.put(PREVIOUSLY_READ, 1);
             }
             index++;
-            
+
             //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
 			post.put(IS_MOD, 0);
             post.put(IS_ADMIN, 0);
             post.put(IS_PLAT, 0);
-            
+
             //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
             Elements postClasses = postData.getElementsByAttribute("class");
             for(Element entry: postClasses){
@@ -511,7 +520,7 @@ public class AwfulPost {
                 if (type.contains("author")) {
                     post.put(USERNAME, entry.text().trim());
                 }
-            	
+
             	if (type.contains("registered")) {
 					post.put(REGDATE, entry.text().trim());
 				}
@@ -532,7 +541,7 @@ public class AwfulPost {
 					Elements avatar = entry.getElementsByTag("img");
 
 					if (avatar.size() > 0) {
-                        checkHttps(avatar.get(0));
+                        tryConvertToHttps(avatar.get(0));
 						post.put(AVATAR, avatar.get(0).attr("src"));
 					}
 					post.put(AVATAR_TEXT, entry.text().trim());
@@ -542,92 +551,14 @@ public class AwfulPost {
                     type = entry.attr("class");
                 }
 				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
-					Elements images = entry.getElementsByTag("img");
 
-					for(Element img : images){
-						//don't alter video mock buttons
-						if((img.hasAttr("class") && img.attr("class").contains("videoPlayButton"))){
-							continue;
-						}
-                        checkHttps(img);
-						boolean dontLink = false;
-						boolean isTimg = img.hasClass("timg");
-						Element parent = img.parent();
-						String src = img.attr("src");
+                    convertVideos(entry, prefs.inlineYoutube);
 
-						if ((parent != null && parent.tagName().equalsIgnoreCase("a")) || (img.hasAttr("class") && img.attr("class").contains("nolink"))) { //image is linked, don't override
-							dontLink = true;
-						}
-						if (img.hasAttr("title")) {
-							if (!prefs.showSmilies && !img.attr("title").endsWith("avatar") ) { //kill all emotes
-								String name = img.attr("title");
-								img.replaceWith(new Element(Tag.valueOf("p"),"").text(name));
-							}
-						} else {
-							if (!lastReadFound && prefs.hideOldImages || !prefs.canLoadImages()) {
-								if (!dontLink) {
-									img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).text(src));
-								} else {
-									img.replaceWith(new Element(Tag.valueOf("p"),"").text(src));
-								}
-							} else {
-								if (!dontLink) {
-									String thumb = src;
-                                    boolean thumbnailed = false;
-									if(!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")){
-                                        int lastDot = thumb.lastIndexOf('.');
-                                        int lastSlash = thumb.lastIndexOf('/');
-                                        String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
-                                        //check if already thumbnails
-                                        if(ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
-                                            thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
-                                        }
-                                        img.attr("src", thumb);
-                                        thumbnailed = true;
-									}
-                                    if(prefs.disableGifs && thumb.toLowerCase().contains(".gif")){
-                                        if(thumb.toLowerCase().contains("imgur.com")){
-                                            if(!thumbnailed) {
-                                                int lastDot = thumb.lastIndexOf('.');
-                                                int lastSlash = thumb.lastIndexOf('/');
-                                                String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
-                                                //check if already thumbnails
-                                                if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
-                                                    thumb = thumb.substring(0, lastDot) + "h" + thumb.substring(lastDot);
-                                                }
-                                            }
-                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
-                                        }else if(thumb.toLowerCase().contains("i.kinja-img.com")){
-                                            thumb = thumb.replace(".gif",".jpg");
-                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
-                                        }else if(thumb.toLowerCase().contains("giphy.com")){
-                                            thumb = thumb.replace("://i.giphy.com","://media.giphy.com/media");
-                                            if(thumb.endsWith("giphy.gif")){
-                                                thumb = thumb.replace("giphy.gif","200_s.gif");
-                                            }else{
-                                                thumb = thumb.replace(".gif","/200_s.gif");
-                                            }
-                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
-                                        }else if(thumb.toLowerCase().contains("giant.gfycat.com")){
-                                            thumb = thumb.replace("giant.gfycat.com","thumbs.gfycat.com");
-                                            thumb = thumb.replace(".gif","-poster.jpg");
-                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)).attr("class", "playGif"));
-                                        }else{
-                                            img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", "file:///android_res/drawable/gif.png").attr("width","200px")));
-                                        }
-                                    }
-                                    if(img.parent() != null && (prefs.disableTimgs || !isTimg)){
-                                        img.replaceWith(new Element(Tag.valueOf("a"),"").attr("href", src).appendChild(new Element(Tag.valueOf("img"),"").attr("src", thumb)));
-                                    }
-                                }
-							}
-						}
-					}
-
-                    Elements links = entry.getElementsByTag("a");
-
-                    for (Element link : links) {
-                        checkHttps(link);
+                    for(Element img : entry.getElementsByTag("img")) {
+                        processPostImage(img, lastReadFound, prefs);
+                    }
+                    for (Element link : entry.getElementsByTag("a")) {
+                        tryConvertToHttps(link);
                     }
 
                     post.put(CONTENT, entry.html());
@@ -636,7 +567,7 @@ public class AwfulPost {
                 if (type.equalsIgnoreCase("postdate")) {
 					post.put(DATE, NetworkUtils.unencodeHtml(entry.text()).replaceAll("[^\\w\\s:,]", "").trim());
 				}
-				
+
 				if (type.startsWith("userinfo userid-")) {
                     int userId = Integer.parseInt(type.substring(16));
                     post.put(USER_ID, userId);
@@ -672,8 +603,107 @@ public class AwfulPost {
     	return result;
     }
 
-    private static void checkHttps(Element element){
-        String attr = "";
+
+    /**
+     * Process an img element from a post, to make it display correctly in the app.
+     *
+     * This performs any necessary conversion, referring to user preferences to determine if e.g.
+     * images should be loaded or converted to a link. This mutates the supplied Element.
+     * @param img           an Element represented by an img tag
+     * @param isOldImage    whether this is an old image (from a previously seen post), may be hidden
+     * @param prefs         preferences used to make decisions
+     */
+    public static void processPostImage(Element img, boolean isOldImage, AwfulPreferences prefs) {
+        //don't alter video mock buttons
+        if ((img.hasAttr("class") && img.attr("class").contains("videoPlayButton"))) {
+            return;
+        }
+        tryConvertToHttps(img);
+        boolean dontLink = false;
+        boolean isTimg = img.hasClass("timg");
+        Element parent = img.parent();
+        String src = img.attr("src");
+
+        if ((parent != null && parent.tagName().equalsIgnoreCase("a")) || (img.hasAttr("class") && img.attr("class").contains("nolink"))) { //image is linked, don't override
+            dontLink = true;
+        }
+        if (img.hasAttr("title")) {
+            if (!prefs.showSmilies && !img.attr("title").endsWith("avatar")) { //kill all emotes
+                String name = img.attr("title");
+                img.replaceWith(new Element(Tag.valueOf("p"), "").text(name));
+            }
+        } else {
+            if (!isOldImage && prefs.hideOldImages || !prefs.canLoadImages()) {
+                if (!dontLink) {
+                    img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).text(src));
+                } else {
+                    img.replaceWith(new Element(Tag.valueOf("p"), "").text(src));
+                }
+            } else {
+                if (!dontLink) {
+                    String thumb = src;
+                    boolean thumbnailed = false;
+
+                    if (!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")) {
+                        int lastDot = thumb.lastIndexOf('.');
+                        int lastSlash = thumb.lastIndexOf('/');
+                        String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
+                        //check if already thumbnails
+                        if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
+                            thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
+                        }
+                        img.attr("src", thumb);
+                        thumbnailed = true;
+                    }
+
+                    if (prefs.disableGifs && thumb.toLowerCase().contains(".gif")) {
+                        if (thumb.toLowerCase().contains("imgur.com")) {
+                            if (!thumbnailed) {
+                                int lastDot = thumb.lastIndexOf('.');
+                                int lastSlash = thumb.lastIndexOf('/');
+                                String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
+                                //check if already thumbnails
+                                if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
+                                    thumb = thumb.substring(0, lastDot) + "h" + thumb.substring(lastDot);
+                                }
+                            }
+                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
+                        } else if (thumb.toLowerCase().contains("i.kinja-img.com")) {
+                            thumb = thumb.replace(".gif", ".jpg");
+                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
+                        } else if (thumb.toLowerCase().contains("giphy.com")) {
+                            thumb = thumb.replace("://i.giphy.com", "://media.giphy.com/media");
+                            if (thumb.endsWith("giphy.gif")) {
+                                thumb = thumb.replace("giphy.gif", "200_s.gif");
+                            } else {
+                                thumb = thumb.replace(".gif", "/200_s.gif");
+                            }
+                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
+                        } else if (thumb.toLowerCase().contains("giant.gfycat.com")) {
+                            thumb = thumb.replace("giant.gfycat.com", "thumbs.gfycat.com");
+                            thumb = thumb.replace(".gif", "-poster.jpg");
+                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
+                        } else {
+                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", "file:///android_res/drawable/gif.png").attr("width", "200px")));
+                        }
+                    }
+
+                    if (img.parent() != null && (prefs.disableTimgs || !isTimg)) {
+                        img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)));
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Converts URLs to https versions, where appropriate.
+     *
+     * This mutates the element directly.
+     */
+    public static void tryConvertToHttps(Element element){
+        String attr;
         if (element.hasAttr("href")) {
             attr = "href";
         }else if (element.hasAttr("src")) {

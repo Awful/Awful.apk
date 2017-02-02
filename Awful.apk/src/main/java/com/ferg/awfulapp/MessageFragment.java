@@ -1,6 +1,5 @@
 package com.ferg.awfulapp;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -22,8 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -40,7 +37,9 @@ import com.ferg.awfulapp.task.PMReplyRequest;
 import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
-import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.webview.AwfulWebView;
+import com.ferg.awfulapp.webview.WebViewConfig;
+import com.ferg.awfulapp.webview.WebViewJsInterface;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -52,7 +51,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private int pmId = -1;
 	private String recipient;
 	
-	private WebView mDisplayText;
+	private AwfulWebView messageWebView;
 	private MessageComposer messageComposer;
 	private ImageButton mHideButton;
 	private TextView mUsername;
@@ -110,7 +109,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         
         View result = aInflater.inflate(R.layout.private_message_fragment, aContainer, false);
         
-        mDisplayText = (WebView) result.findViewById(R.id.messagebody);
+        messageWebView = (AwfulWebView) result.findViewById(R.id.messagebody);
 		mHideButton = (ImageButton) result.findViewById(R.id.hide_message);
 		mHideButton.setOnClickListener(this);
 		mRecipient = (EditText) result.findViewById(R.id.message_user);
@@ -126,7 +125,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		initThreadViewProperties();
 
         if(pmId <=0){
-        	mDisplayText.setVisibility(GONE);
+        	messageWebView.setVisibility(GONE);
         }else{
             syncPM();
         }
@@ -134,13 +133,8 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
     }
 
 	private void initThreadViewProperties(){
-		mDisplayText.getSettings().setRenderPriority(WebSettings.RenderPriority.LOW);
-		mDisplayText.getSettings().setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-		mDisplayText.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
-		mDisplayText.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-		if(AwfulUtils.isLollipop()) {
-			mDisplayText.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-		}
+		WebViewConfig.configureForThread(messageWebView);
+		messageWebView.setJavascriptHandler(new WebViewJsInterface());
 	}
 	
 	private void updateColors(View v, AwfulPreferences prefs){
@@ -261,10 +255,11 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	}
 
 	@Override
-	public void onResume(){
+	public void onResume() {
 		super.onResume();
-		resumeWebView();
-
+		if (messageWebView != null) {
+			messageWebView.onResume();
+		}
 	}
 	
 	@Override
@@ -273,7 +268,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		if(pmId>0){
 			saveReply();
 		}
-        pauseWebView();
+		if (messageWebView != null) {
+            messageWebView.onPause();
+        }
 	}
 
 	@Override
@@ -301,7 +298,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mUsername.setText("");
 		mRecipient.setText("");
 		mPostdate.setText("");
-		mDisplayText.loadData("", "text/html", "utf-8");
+		messageWebView.loadData("", "text/html", "utf-8");
 		mTitle.setText("New Message");
 		mSubject.setText("");
 	}
@@ -310,7 +307,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.hide_message:
-				mDisplayText.setVisibility(mDisplayText.getVisibility() == VISIBLE ? GONE : VISIBLE);
+				messageWebView.setVisibility(messageWebView.getVisibility() == VISIBLE ? GONE : VISIBLE);
 				break;
 		}
 	}
@@ -348,12 +345,12 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
-    			if(mDisplayText != null){
-    				mDisplayText.loadData(getBlankPage(), "text/html", "utf-8");
+    			if(messageWebView != null){
+    				messageWebView.loadData(getBlankPage(), "text/html", "utf-8");
     			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
         		mTitle.setText(title);
-        		mDisplayText.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
+        		messageWebView.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
 				mPostdate.setText(aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
@@ -405,9 +402,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	@Override
 	protected boolean doScroll(boolean down) {
 		if (down) {
-			mDisplayText.pageDown(false);
+			messageWebView.pageDown(false);
 		} else {
-			mDisplayText.pageUp(false);
+			messageWebView.pageUp(false);
 		}
 		return true;
 	}
@@ -416,24 +413,5 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	private String getBlankPage(){
 		return "<html><head></head><body style='{background-color:#"+ ColorProvider.convertToRGB(ColorProvider.BACKGROUND.getColor()) +";'></body></html>";
 	}
-	
-    @SuppressLint("NewApi")
-    private void pauseWebView(){
-        if (mDisplayText != null) {
-        	mDisplayText.pauseTimers();
-        	mDisplayText.onPause();
-        }
-    }
 
-    @SuppressLint("NewApi")
-    public void resumeWebView(){
-    	if(getActivity() != null){
-	        if (mDisplayText == null) {
-	            //recreateWebview();
-	        }else{
-	        	mDisplayText.onResume();
-	        	mDisplayText.resumeTimers();
-	        }
-    	}
-    }
 }

@@ -60,7 +60,7 @@
                 tools:ignore="MissingPrefix"/>
         </RelativeLayout>
 
-        <WebView
+        <com.ferg.awfulapp.webview.AwfulWebView
             android:id="@+id/messagebody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

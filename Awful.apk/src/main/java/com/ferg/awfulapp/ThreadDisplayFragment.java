@@ -28,7 +28,6 @@
 package com.ferg.awfulapp;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -44,11 +43,9 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -58,7 +55,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.util.ArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
@@ -70,14 +67,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebSettings.PluginState;
-import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -112,6 +104,10 @@ import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
+import com.ferg.awfulapp.webview.AwfulWebView;
+import com.ferg.awfulapp.webview.LoggingWebChromeClient;
+import com.ferg.awfulapp.webview.WebViewConfig;
+import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
@@ -124,7 +120,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Uses intent extras:
@@ -151,7 +146,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	@Nullable
 	private FloatingActionButton mFAB = null;
 	@Nullable
-    private WebView mThreadView = null;
+    private AwfulWebView mThreadView = null;
 
 	/** An optional ID to only display posts by a specific user */
     private Integer postFilterUserId = null;
@@ -202,51 +197,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     }
 
 
-
-	private final WebViewClient callback = new WebViewClient(){
-
-		@Override
-		public void onPageFinished(WebView view, String url) {
-			setProgress(100);
-            if(mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()){
-                mThreadView.loadUrl("javascript:loadPageHtml()");
-            }
-		}
-
-
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
-			AwfulURL aLink = AwfulURL.parse(aUrl);
-			switch(aLink.getType()){
-			case FORUM:
-				displayForum(aLink.getId(), aLink.getPage());
-				break;
-			case THREAD:
-				if(aLink.isRedirect()){
-					startPostRedirect(aLink.getURL(mPrefs.postPerPage));
-				}else{
-					pushThread((int)aLink.getId(),(int)aLink.getPage(),aLink.getFragment().replaceAll("\\D", ""));
-				}
-				break;
-			case POST:
-				startPostRedirect(aLink.getURL(mPrefs.postPerPage));
-				break;
-			case EXTERNAL:
-				if(mPrefs.alwaysOpenUrls){
-					startUrlIntent(aUrl);
-				}else{
-					showUrlMenu(aUrl);
-				}
-				break;
-			case INDEX:
-				displayForumIndex();
-				break;
-			}
-			return true;
-		}
-	};
-
-    @Override
+	@Override
     public void onAttach(Context context) {
         super.onAttach(context);
         parentActivity = (ForumsIndexActivity) context;
@@ -327,7 +278,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		});
 		getAwfulActivity().setPreferredFont(pageBar.getTextView());
 
-		mThreadView = (WebView) result.findViewById(R.id.thread);
+		mThreadView = (AwfulWebView) result.findViewById(R.id.thread);
         initThreadViewProperties();
 
 		mUserPostNotice = (TextView) result.findViewById(R.id.thread_userpost_notice);
@@ -386,75 +337,65 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
+
+	private WebViewClient threadWebViewClient = new WebViewClient() {
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			setProgress(100);
+			if (mThreadView != null && bodyHtml != null && !bodyHtml.isEmpty()) {
+				mThreadView.refreshPageContents(true);
+			}
+		}
+
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView aView, String aUrl) {
+			AwfulURL aLink = AwfulURL.parse(aUrl);
+			switch (aLink.getType()) {
+				case FORUM:
+					displayForum(aLink.getId(), aLink.getPage());
+					break;
+				case THREAD:
+					if (aLink.isRedirect()) {
+						startPostRedirect(aLink.getURL(mPrefs.postPerPage));
+					} else {
+						pushThread((int) aLink.getId(), (int) aLink.getPage(), aLink.getFragment().replaceAll("\\D", ""));
+					}
+					break;
+				case POST:
+					startPostRedirect(aLink.getURL(mPrefs.postPerPage));
+					break;
+				case EXTERNAL:
+					if (mPrefs.alwaysOpenUrls) {
+						startUrlIntent(aUrl);
+					} else {
+						showUrlMenu(aUrl);
+					}
+					break;
+				case INDEX:
+					displayForumIndex();
+					break;
+			}
+			return true;
+		}
+	};
+
+
 	private void initThreadViewProperties() {
 		if (mThreadView == null) {
 			Log.w(TAG, "initThreadViewProperties called for null WebView");
 			return;
 		}
-		mThreadView.resumeTimers();
-		mThreadView.setWebViewClient(callback);
-		mThreadView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-		WebSettings webSettings = mThreadView.getSettings();
-		webSettings.setJavaScriptEnabled(true);
-		webSettings.setRenderPriority(RenderPriority.LOW);
-        webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        webSettings.setDefaultFontSize(mPrefs.postFontSizeDip);
-        webSettings.setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
-		// TODO: fix deprecated warnings
-		// TODO: see if we can get the linter to recognise the AwfulUtils version checks as API guards
-        if(DEBUG && AwfulUtils.isKitKat()) {
-			WebView.setWebContentsDebuggingEnabled(true);
-		}
-		if(AwfulUtils.isLollipop()){
-			webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-		}
-		if (mPrefs.inlineYoutube || mPrefs.inlineWebm || mPrefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
-			webSettings.setPluginState(PluginState.ON_DEMAND);
-		}
-		if ( AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (mPrefs.inlineWebm || mPrefs.inlineVines)) {
-			webSettings.setMediaPlaybackRequiresUserGesture(false);
-		}
-		if (mPrefs.inlineTweets && AwfulUtils.isJellybean()) {
-			webSettings.setAllowUniversalAccessFromFileURLs(true);
-			webSettings.setAllowFileAccessFromFileURLs(true);
-			webSettings.setAllowFileAccess(true);
-			webSettings.setAllowContentAccess(true);
-		}
-
-
-		mThreadView.setWebChromeClient(new WebChromeClient() {
-			public boolean onConsoleMessage(ConsoleMessage message) {
-				if(DEBUG) Log.d("Web Console", message.message() + " -- From line " + message.lineNumber() + " of " + message.sourceId());
-				return true;
-			}
-
-			@Override
-			public void onCloseWindow(WebView window) {
-				super.onCloseWindow(window);
-				if(DEBUG) Log.d(TAG,"onCloseWindow");
-			}
-
-			@Override
-			public boolean onCreateWindow(WebView view, boolean isDialog,
-					boolean isUserGesture, Message resultMsg) {
-				if(DEBUG) Log.d(TAG,"onCreateWindow"+(isDialog?" isDialog":"")+(isUserGesture?" isUserGesture":""));
-				return super.onCreateWindow(view, isDialog, isUserGesture, resultMsg);
-			}
-
-			@Override
-			public boolean onJsTimeout() {
-				if(DEBUG) Log.d(TAG,"onJsTimeout");
-				return super.onJsTimeout();
-			}
-
-			@Override
-			public void onProgressChanged(WebView view, int newProgress) {
-				super.onProgressChanged(view, newProgress);
-				setProgress(newProgress/2+50);//second half of progress bar
-			}
-		});
-
-        mThreadView.addJavascriptInterface(clickInterface, "listener");
+		WebViewConfig.configureForThread(mThreadView);
+		mThreadView.setWebViewClient(threadWebViewClient);
+		mThreadView.setWebChromeClient(new LoggingWebChromeClient() {
+                @Override
+                public void onProgressChanged(WebView view, int newProgress) {
+                    super.onProgressChanged(view, newProgress);
+                    setProgress(newProgress / 2 + 50);//second half of progress bar
+                }
+        });
+        mThreadView.setJavascriptHandler(clickInterface);
 
         refreshSessionCookie();
         mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
@@ -476,26 +417,19 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     @Override
     public void onResume() {
         super.onResume();
-        resumeWebView();
 		if(mThreadView != null){
-			mThreadView.loadUrl("javascript:loadPageHtml(true)");
+			mThreadView.onResume();
+			mThreadView.refreshPageContents(false);
 		}
         getActivity().getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         refreshInfo();
     }
 
-    @SuppressLint("NewApi")
-	private void resumeWebView(){
-		if (getActivity() != null && mThreadView != null) {
-			mThreadView.onResume();
-			mThreadView.resumeTimers();
-		}
-    }
     
 	@Override
 	public void onPageVisible() {
-        resumeWebView();
         if(mThreadView != null){
+			mThreadView.onResume();
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
         if(parentActivity != null && mParentForumId != 0){
@@ -505,10 +439,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	@Override
 	public void onPageHidden() {
-        pauseWebView();
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
-        }
+			mThreadView.onPause();
+		}
 	}
 	
     @Override
@@ -516,16 +450,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         super.onPause();
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
         getLoaderManager().destroyLoader(Constants.THREAD_INFO_LOADER_ID);
-        pauseWebView();
-    }
-
-    @SuppressLint("NewApi")
-    private void pauseWebView(){
-        if (mThreadView != null) {
-        	mThreadView.pauseTimers();
-        	mThreadView.onPause();
-        }
-    }
+		if (mThreadView != null) {
+			mThreadView.onPause();
+		}
+	}
 
 	@Override
 	protected void cancelNetworkRequests() {
@@ -1130,7 +1058,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
             refreshSessionCookie();
             bodyHtml = html;
-            mThreadView.loadUrl("javascript:loadPageHtml()");
+			mThreadView.refreshPageContents(true);
             setProgress(100);
         } catch (Exception e) {
         	e.printStackTrace();
@@ -1151,14 +1079,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	private final ClickInterface clickInterface = new ClickInterface();
 
-	private class ClickInterface {
-
-        public ClickInterface(){
-        	this.preparePreferences();
-        }
-        
-        Map<String,String> preferences;
-
+	private class ClickInterface extends WebViewJsInterface {
 
         @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastReadUrl, final boolean editable, final boolean isAdminOrMod, final boolean isPlat) {
@@ -1176,11 +1097,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			postActions.show(mSelf.getFragmentManager(), "Post Actions");
 		}
 
-        @JavascriptInterface
-        public void debugMessage(final String msg) {
-        	Log.d(TAG, "Awful DEBUG: " + msg);
-        }
 
+		@Override
+		protected void setCustomPreferences(SimpleArrayMap<String, String> preferences) {
+			// TODO: 23/01/2017 add methods so you can't mess with the map directly
+			preferences.put("postjumpid", mPostJump);
+			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
+		}
 
 		@JavascriptInterface
 		public String getBodyHtml(){
@@ -1201,27 +1124,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         public String getCSS(){
             return AwfulTheme.forForum(mParentForumId).getCssPath();
         }
-        
-        @SuppressWarnings("SpellCheckingInspection")
-		private void preparePreferences(){
-        	AwfulPreferences aPrefs = AwfulPreferences.getInstance();
-        	
-            preferences = new ArrayMap<>();
-            preferences.clear();
-            preferences.put("username", aPrefs.username);
-			preferences.put("showSpoilers", Boolean.toString(aPrefs.showAllSpoilers));
-			preferences.put("highlightUserQuote", Boolean.toString(aPrefs.highlightUserQuote));
-			preferences.put("highlightUsername", Boolean.toString(aPrefs.highlightUsername));
-			preferences.put("inlineTweets", Boolean.toString(aPrefs.inlineTweets));
-			preferences.put("inlineWebm", Boolean.toString(aPrefs.inlineWebm));
-			preferences.put("autostartWebm", Boolean.toString(aPrefs.autostartWebm));
-			preferences.put("inlineVines", Boolean.toString(aPrefs.inlineVines));
-			preferences.put("postjumpid", mPostJump);
-			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
-            preferences.put("disableGifs", Boolean.toString(aPrefs.disableGifs));
-            preferences.put("hideSignatures", Boolean.toString(aPrefs.hideSignatures));
-            preferences.put("disablePullNext",Boolean.toString(aPrefs.disablePullNext));
-        }
+
 
 		@JavascriptInterface
 		public void loadIgnoredPost(final String ignorePost){
@@ -1243,10 +1146,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			}
 		}
 
-		@JavascriptInterface
-		public String getPreference(String preference) {
-			return preferences.get(preference);
-		}
 		@JavascriptInterface
 		public void haltSwipe() {
 			((ForumsIndexActivity)mSelf.getAwfulActivity()).preventSwipe();
@@ -1372,7 +1271,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				mThreadView.loadUrl("javascript:updateMarkedUsers('"+TextUtils.join(",",mPrefs.markedUsers)+"')");
 			}
 		}
-		clickInterface.preparePreferences();
+		clickInterface.updatePreferences();
 		if(mFAB != null) {
 			mFAB.setVisibility((mPrefs.noFAB?View.GONE:View.VISIBLE));
 		}
@@ -1488,7 +1387,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void showBlankPage() {
 		bodyHtml = "";
 		if(mThreadView != null){
-			mThreadView.loadUrl("javascript:loadPageHtml()");
+			mThreadView.refreshPageContents(true);
 		}
 	}
 

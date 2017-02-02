@@ -36,7 +36,7 @@
             android:layout_height="match_parent"
             app:srl_direction="both">
 
-            <WebView
+            <com.ferg.awfulapp.webview.AwfulWebView
                 android:id="@+id/thread"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent" />
