@@ -33,7 +33,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -42,7 +41,6 @@ import android.widget.ProgressBar;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.webview.AwfulWebView;
-import com.ferg.awfulapp.webview.WebViewConfig;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 
 import java.util.HashMap;
@@ -75,8 +73,8 @@ public class PreviewFragment extends AwfulDialogFragment {
         configureWebView();
 
         getDialog().setCanceledOnTouchOutside(true);
-        postPreView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
 
+        postPreView.setContent(getBlankPage());
         return dialogView;
     }
 
@@ -102,14 +100,12 @@ public class PreviewFragment extends AwfulDialogFragment {
     }
 
     public void configureWebView() {
-        WebViewConfig.configureForThread(postPreView);
         postPreView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest wrr) {
                 return true;
             }
         });
-        postPreView.setWebChromeClient(new WebChromeClient());
         postPreView.setJavascriptHandler(jsInterface);
     }
 

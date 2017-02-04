@@ -38,7 +38,6 @@ import com.ferg.awfulapp.task.PMRequest;
 import com.ferg.awfulapp.task.SendPrivateMessageRequest;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.webview.AwfulWebView;
-import com.ferg.awfulapp.webview.WebViewConfig;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 
 import static android.view.View.GONE;
@@ -122,9 +121,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 
 		mBackground = result;
         updateColors(result, mPrefs);
-		initThreadViewProperties();
+		messageWebView.setJavascriptHandler(new WebViewJsInterface());
 
-        if(pmId <=0){
+		if(pmId <=0){
         	messageWebView.setVisibility(GONE);
         }else{
             syncPM();
@@ -132,11 +131,6 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         return result;
     }
 
-	private void initThreadViewProperties(){
-		WebViewConfig.configureForThread(messageWebView);
-		messageWebView.setJavascriptHandler(new WebViewJsInterface());
-	}
-	
 	private void updateColors(View v, AwfulPreferences prefs){
 		int color = ColorProvider.PRIMARY_TEXT.getColor();
 		messageComposer.setTextColor(color);
@@ -298,7 +292,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		mUsername.setText("");
 		mRecipient.setText("");
 		mPostdate.setText("");
-		messageWebView.loadData("", "text/html", "utf-8");
+		messageWebView.setContent(null);
 		mTitle.setText("New Message");
 		mSubject.setText("");
 	}
@@ -346,11 +340,11 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         	//TODO retain info if entered into reply window
         	if(aData.moveToFirst() && pmId >0){
     			if(messageWebView != null){
-    				messageWebView.loadData(getBlankPage(), "text/html", "utf-8");
+					messageWebView.setContent(null);
     			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
         		mTitle.setText(title);
-        		messageWebView.loadDataWithBaseURL(Constants.BASE_URL + "/",AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs),"text/html", "utf-8", null);
+				messageWebView.setContent(AwfulMessage.getMessageHtml(aData.getString(aData.getColumnIndex(AwfulMessage.CONTENT)),mPrefs));
 				mPostdate.setText(aData.getString(aData.getColumnIndex(AwfulMessage.DATE)));
         		String replyTitle = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_TITLE));
         		String replyContent = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));

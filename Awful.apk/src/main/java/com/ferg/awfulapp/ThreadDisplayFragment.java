@@ -106,7 +106,6 @@ import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.LoggingWebChromeClient;
-import com.ferg.awfulapp.webview.WebViewConfig;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
@@ -386,7 +385,6 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Log.w(TAG, "initThreadViewProperties called for null WebView");
 			return;
 		}
-		WebViewConfig.configureForThread(mThreadView);
 		mThreadView.setWebViewClient(threadWebViewClient);
 		mThreadView.setWebChromeClient(new LoggingWebChromeClient() {
                 @Override
@@ -398,7 +396,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         mThreadView.setJavascriptHandler(clickInterface);
 
         refreshSessionCookie();
-        mThreadView.loadDataWithBaseURL(Constants.BASE_URL + "/", getBlankPage(), "text/html", "utf-8", null);
+		mThreadView.setContent(getBlankPage());
 	}
 
 	private void updatePageBar() {
@@ -897,7 +895,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		mPrefs.amberDefaultPos = !mPrefs.amberDefaultPos;
 		mPrefs.setPreference(Keys.AMBER_DEFAULT_POS, mPrefs.amberDefaultPos);
 		if (mThreadView != null) {
-			mThreadView.loadUrl(String.format("javascript:changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
+			mThreadView.runJavascript(String.format("changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 		}
 	}
 
@@ -1134,7 +1132,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					public void success(String result) {
 						ignorePostsHtml.put(ignorePost,result);
 						if (mThreadView != null) {
-							mThreadView.loadUrl("javascript:insertIgnoredPost('"+ignorePost+"')");
+							mThreadView.runJavascript(String.format("insertIgnoredPost('%s')", ignorePost));
 						}
 					}
 
@@ -1198,7 +1196,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	protected void showImageInline(String url){
 		if(mThreadView != null){
-			mThreadView.loadUrl("javascript:showInlineImage('"+url+"')");
+			mThreadView.runJavascript(String.format("showInlineImage('%s')", url));
 		}
 	}
 
@@ -1262,13 +1260,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(Color.TRANSPARENT);
-			//mThreadView.loadUrl("javascript:changeCSS('"+AwfulUtils.determineCSS(mParentForumId)+"')");
-            mThreadView.loadUrl("javascript:changeFontFace('"+mPrefs.preferredFont+"')");
+            mThreadView.runJavascript(String.format("changeFontFace('%s')", mPrefs.preferredFont));
             mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
             mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
 
 			if("marked_users".equals(key)){
-				mThreadView.loadUrl("javascript:updateMarkedUsers('"+TextUtils.join(",",mPrefs.markedUsers)+"')");
+				mThreadView.runJavascript(String.format("updateMarkedUsers('%s')", TextUtils.join(",", mPrefs.markedUsers)));
 			}
 		}
 		clickInterface.updatePreferences();
@@ -1443,7 +1440,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				mTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
         		mParentForumId = aData.getInt(aData.getColumnIndex(AwfulThread.FORUM_ID));
 				if(mParentForumId != 0 && mThreadView != null){
-					mThreadView.loadUrl(String.format("javascript:changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
+					mThreadView.runJavascript(String.format("changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 				}
 
 				parentActivity.setNavIds(mParentForumId, getThreadId());
