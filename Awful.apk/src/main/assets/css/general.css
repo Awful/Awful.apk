@@ -38,3 +38,19 @@ aside.postinfo-poster .icon-gren:before {
     content: "\e900";
     -webkit-font-smoothing: antialiased;
 }
+
+.videoWrapper {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	padding-top: 25px;
+	height: 0;
+}
+.videoWrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+    max-height: 720px;
+    max-width: 1280px;
+}

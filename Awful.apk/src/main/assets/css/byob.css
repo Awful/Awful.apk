@@ -225,8 +225,13 @@ font-weight:bolder;
 font-size:1.5em;
 width:10px;
 height:30px;
-background-repeat:no-repeat;
-background-size:15px 30px;
-background-image:url(file:///android_asset/images/ic_menu_overflow.png);
 padding:0 5px 0 0;
+}
+
+nav.postmenu:after {
+    content: "\2807";
+    display: inline-block;
+    -webkit-user-select: none;
+    user-select: none;
+}
 }

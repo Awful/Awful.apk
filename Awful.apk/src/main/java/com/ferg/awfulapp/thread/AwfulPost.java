@@ -295,121 +295,127 @@ public class AwfulPost {
 
 			Elements youtubeNodes = contentNode.getElementsByClass("youtube-player");
 
-			for(Element youTube : youtubeNodes){
-				String src = youTube.attr("src");
-				//int height = Integer.parseInt(youTube.attr("height"));
-				//int width = Integer.parseInt(youTube.attr("width"));
-				Matcher youtubeMatcher = youtubeHDId_regex.matcher(src);
-				if(youtubeMatcher.find()){
-					String videoId = youtubeMatcher.group(1);
-					String link = "http://www.youtube.com/watch?v=" + videoId;
-					String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+        for (Element youTube : youtubeNodes) {
+            try {
+                String src = youTube.attr("src");
+                //int height = Integer.parseInt(youTube.attr("height"));
+                //int width = Integer.parseInt(youTube.attr("width"));
+                Matcher youtubeMatcher = youtubeHDId_regex.matcher(src);
+                if (youtubeMatcher.find()) {
+                    String videoId = youtubeMatcher.group(1);
+                    String link = "http://www.youtube.com/watch?v=" + videoId;
+                    String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
 
-                    if(AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")){
-                        Element youtubeContainer = new Element(Tag.valueOf("div"),"");
-                        youtubeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
-						Element youtubeLink = new Element(Tag.valueOf("a"),"");
-						youtubeLink.attr("href", link);
-						youtubeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                        Element img = new Element(Tag.valueOf("img"),"");
-						img.attr("class", "nolink videoPlayButton");
-						img.attr("src", image);
-						img.attr("style", "max-width: 100%;");
+                    if (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")) {
+                        Element youtubeContainer = new Element(Tag.valueOf("div"), "");
+                        youtubeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
+                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
+                        youtubeLink.attr("href", link);
+                        youtubeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
+                        Element img = new Element(Tag.valueOf("img"), "");
+                        img.attr("class", "nolink videoPlayButton");
+                        img.attr("src", image);
+                        img.attr("style", "max-width: 100%;");
                         youtubeContainer.appendChild(img);
                         youtubeContainer.appendChild(youtubeLink);
-						youTube.replaceWith(youtubeContainer);
-					}else if(!inlineYouTubes){
-						Element youtubeLink = new Element(Tag.valueOf("a"),"");
-						youtubeLink.text(link);
-						youtubeLink.attr("href", link);
-						youTube.replaceWith(youtubeLink);
-					}else{
-						Element youtubeLink = new Element(Tag.valueOf("a"),"");
-						youtubeLink.text(link);
-						youtubeLink.attr("href", link);
-						youTube.after(youtubeLink);
-						youtubeLink.before(new Element(Tag.valueOf("br"),""));
-					}
-				}
-			}
-//		if(!inline || !hasFlash){
+                        youTube.replaceWith(youtubeContainer);
+                    } else if (!inlineYouTubes) {
+                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
+                        youtubeLink.text(link);
+                        youtubeLink.attr("href", link);
+                        youTube.replaceWith(youtubeLink);
+                    } else {
+                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
+                        youtubeLink.text(link);
+                        youtubeLink.attr("href", link);
+                        youTube.after(youtubeLink);
+                        youtubeLink.before(new Element(Tag.valueOf("br"), ""));
 
-			Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
-			for(Element node : videoNodes){
-				try{
-					String src = null;
-					int height = 0;
-					int width = 0;
-					Elements object = node.getElementsByTag("object");
-					if(object.size() > 0){
-						height = Integer.parseInt(object.get(0).attr("height"));
-						width = Integer.parseInt(object.get(0).attr("width"));
-						Elements emb = object.get(0).getElementsByTag("embed");
-						if(emb.size() >0){
-							src = emb.get(0).attr("src");
-						}
-					}
-					if(src != null && height != 0 && width != 0){
-						String link = null, image = null;
-						Matcher youtube = youtubeId_regex.matcher(src);
-						Matcher vimeo = vimeoId_regex.matcher(src);
-						//we'll leave in the old youtube code in case something gets reverted
-//						if(youtube.find()){
-//							String videoId = youtube.group(1);
-//							link = "http://www.youtube.com/watch?v=" + videoId;
-//							image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
-//						}else
-						if(vimeo.find()){
-							String videoId = vimeo.group(1);
-							Element vimeoXML;
-							try {
-								vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/"+videoId+".xml");
-							} catch (Exception e) {
-								e.printStackTrace();
-								continue;
-							}
-							if(vimeoXML.getElementsByTag("mobile_url").first() != null){
-								link = vimeoXML.getElementsByTag("mobile_url").first().text();
-							}else{
-								link = vimeoXML.getElementsByTag("url").first().text();
-							}
-							image = vimeoXML.getElementsByTag("thumbnail_large").first().text();
-							src = link;
-						}else{
-							node.empty();
-							Element ln = new Element(Tag.valueOf("a"),"");
-							ln.attr("href", src);
-							ln.text(src);
-							node.replaceWith(ln);
-							continue;
-						}
+                        Element youtubeContainer = new Element(Tag.valueOf("div"), "");
+                        youtubeContainer.addClass("videoWrapper");
+                        youTube.before(youtubeContainer);
+                        youtubeContainer.appendChild(youTube);
+                    }
+                }
 
-						if(inlineYouTubes && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))){
-                            Element nodeContainer = new Element(Tag.valueOf("div"),"");
-                            nodeContainer.attr("style","position: relative;text-align: center;background-color: transparent;");
-                            Element nodeLink = new Element(Tag.valueOf("a"),"");
-                            nodeLink.attr("href", link);
-                            nodeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                            Element img = new Element(Tag.valueOf("img"),"");
-                            img.attr("class", "nolink videoPlayButton");
-                            img.attr("src", image);
-                            img.attr("style", "max-width: 100%;");
-                            nodeContainer.appendChild(img);
-                            nodeContainer.appendChild(nodeLink);
-                            node.replaceWith(nodeContainer);
-						}else{
-							node.empty();
-							Element ln = new Element(Tag.valueOf("a"),"");
-							ln.attr("href", link);
-							ln.text(link);
-							node.replaceWith(ln);
-						}
-					}
-				}catch(Exception e){
-					continue;//if we fail to convert the video tag, we can still display the rest.
-				}
-			}
-	}
+            } catch (Exception e) {
+                Log.e(TAG, "Failed youtube convertion:", e);
+                continue; //if we fail to convert the video tag, we can still display the rest.
+            }
+        }
+
+        Elements videoNodes = contentNode.getElementsByClass("bbcode_video");
+        for (Element node : videoNodes) {
+            try {
+                String src = null;
+                int height = 0;
+                int width = 0;
+                Elements object = node.getElementsByTag("object");
+                if (object.size() > 0) {
+                    height = Integer.parseInt(object.get(0).attr("height"));
+                    width = Integer.parseInt(object.get(0).attr("width"));
+                    Elements emb = object.get(0).getElementsByTag("embed");
+                    if (emb.size() > 0) {
+                        src = emb.get(0).attr("src");
+                    }
+                }
+                if (src != null && height != 0 && width != 0) {
+                    String link = null, image = null;
+                    Matcher youtube = youtubeId_regex.matcher(src);
+                    Matcher vimeo = vimeoId_regex.matcher(src);
+                    if (vimeo.find()) {
+                        String videoId = vimeo.group(1);
+                        Element vimeoXML;
+                        try {
+                            vimeoXML = NetworkUtils.get("http://vimeo.com/api/v2/video/" + videoId + ".xml");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                        if (vimeoXML.getElementsByTag("mobile_url").first() != null) {
+                            link = vimeoXML.getElementsByTag("mobile_url").first().text();
+                        } else {
+                            link = vimeoXML.getElementsByTag("url").first().text();
+                        }
+                        image = vimeoXML.getElementsByTag("thumbnail_large").first().text();
+                        src = link;
+                    } else {
+                        node.empty();
+                        Element ln = new Element(Tag.valueOf("a"), "");
+                        ln.attr("href", src);
+                        ln.text(src);
+                        node.replaceWith(ln);
+                        continue;
+                    }
+
+                    if (inlineYouTubes && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))) {
+                        Element nodeContainer = new Element(Tag.valueOf("div"), "");
+                        nodeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
+                        Element nodeLink = new Element(Tag.valueOf("a"), "");
+                        nodeLink.attr("href", link);
+                        nodeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
+                        Element img = new Element(Tag.valueOf("img"), "");
+                        img.attr("class", "nolink videoPlayButton");
+                        img.attr("src", image);
+                        img.attr("style", "max-width: 100%;");
+                        nodeContainer.appendChild(img);
+                        nodeContainer.appendChild(nodeLink);
+                        node.replaceWith(nodeContainer);
+                    } else {
+                        node.empty();
+                        Element ln = new Element(Tag.valueOf("a"), "");
+                        ln.attr("href", link);
+                        ln.text(link);
+                        node.replaceWith(ln);
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed video convertion:", e);
+                continue;//if we fail to convert the video tag, we can still display the rest.
+            }
+        }
+    }
 
 	public String getEdited() {
         return mEdited;

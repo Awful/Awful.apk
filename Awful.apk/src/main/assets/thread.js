@@ -126,7 +126,7 @@ function pageInit() {
         if (videoID === null) return
         videoID = videoID[1]
         var object = $(this).closest('object')
-        $(this).closest('div.bbcode_video').replaceWith($('<iframe/>', {
+        $(this).closest('div.bbcode_video').replaceWith('<div class="videoWrapper"></div>').append($('<iframe/>', {
           src: "http://player.vimeo.com/video/" + videoID + "?byline=0&portrait=0",
           width: object.attr('width'),
           height: object.attr('height'),
@@ -159,13 +159,6 @@ function pageInit() {
         });
     }
 
-    $(window).bind('reorient', function() {
-        $('iframe').each(function() {
-            $(this).height($(this).width()/16*9);
-        });
-    });
-    $.reorient.start();
-    $('iframe').each(function(){$(this).height($(this).width()/16*9)});
 
     $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend touchleave touchcancel',function(){
         listener.resumeSwipe();
