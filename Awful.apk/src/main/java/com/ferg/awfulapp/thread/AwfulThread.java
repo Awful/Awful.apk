@@ -120,7 +120,6 @@ public class AwfulThread extends AwfulPagedItem  {
             "zepto.fx_methods.min.js",
             "scrollend.js",
             "inviewport.js",
-            "reorient.js",
             "json2.js",
             "twitterwidget.js",
             "salr.js",
