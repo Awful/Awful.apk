@@ -75,6 +75,7 @@ import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -418,7 +419,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public static String getHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
+    public static String getHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
         StringBuilder buffer = new StringBuilder(1024);
         buffer.append("<div class='content'>\n");
 
@@ -450,7 +451,7 @@ public class AwfulThread extends AwfulPagedItem  {
         return buffer.toString();
     }
 
-    public static String getPostsHtml(ArrayList<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
+    public static String getPostsHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
         StringBuilder buffer = new StringBuilder();
         Template postTemplate;
 

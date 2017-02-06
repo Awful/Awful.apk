@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -37,6 +38,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
         super.onCreate();
 		NetworkUtils.init(this);
 		AndroidThreeTen.init(this);
+		AnnouncementsManager.init(this);
         mPref = AwfulPreferences.getInstance(this, this);
         onPreferenceChange(mPref,null);
 

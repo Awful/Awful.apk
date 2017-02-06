@@ -3,6 +3,7 @@ package com.ferg.awfulapp.task;
 import android.content.Context;
 import android.net.Uri;
 
+import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -52,6 +53,7 @@ public class ThreadListRequest extends AwfulRequest<Void> {
                 PmManager.parseUcpPage(doc);
             }else{
                 AwfulForum.parseThreads(doc, forumId, page, getContentResolver());
+                AnnouncementsManager.getInstance().parseForumPage(doc);
             }
         } catch (Exception e) {
             e.printStackTrace();
