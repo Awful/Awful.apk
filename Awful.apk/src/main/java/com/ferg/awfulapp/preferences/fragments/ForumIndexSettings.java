@@ -95,7 +95,7 @@ public class ForumIndexSettings extends SettingsFragment
             } else {
                 String lastUpdateMessage = getActivity().getResources().getString(R.string.forum_index_update_forums_summary_not_updating);
                 TimeUnit timeUnit = TimeUnit.HOURS;
-                long lastUpdate = System.currentTimeMillis() - forumRepo.getLastUpdateTime();
+                long lastUpdate = System.currentTimeMillis() - forumRepo.getLastRefreshTime();
                 long when = timeUnit.convert(lastUpdate, TimeUnit.MILLISECONDS);
                 updatePref.setSummary(String.format(lastUpdateMessage, when, timeUnit.toString().toLowerCase()));
             }

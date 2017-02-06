@@ -63,7 +63,7 @@ public class SyncManager {
         forumRepo.cancelUpdate();
 
         boolean hasForumData = forumRepo.hasForumData();
-        long lastSuccessfulUpdate = forumRepo.getLastUpdateTime();
+        long lastSuccessfulUpdate = forumRepo.getLastRefreshTime();
         long timeSinceUpdate = FORUM_UPDATE_FREQUENCY_UNITS.convert(System.currentTimeMillis() - lastSuccessfulUpdate, TimeUnit.MILLISECONDS);
         String timeUnits = FORUM_UPDATE_FREQUENCY_UNITS.toString().toLowerCase();
         // TODO: add better data limiting, maybe as a separate settings category / general 'restrict data' option

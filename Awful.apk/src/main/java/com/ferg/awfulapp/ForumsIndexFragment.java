@@ -115,7 +115,7 @@ public class ForumsIndexFragment extends AwfulFragment
     public void onResume() {
         super.onResume();
         forumRepo.registerListener(this);
-        if (lastUpdateTime != forumRepo.getLastUpdateTime()) {
+        if (lastUpdateTime != forumRepo.getLastRefreshTime()) {
             refreshForumList();
         } else {
             refreshNoDataView();
@@ -179,7 +179,7 @@ public class ForumsIndexFragment extends AwfulFragment
      * Query the database for the current Forum data, and update the list
      */
     private void refreshForumList() {
-        lastUpdateTime = forumRepo.getLastUpdateTime();
+        lastUpdateTime = forumRepo.getLastRefreshTime();
         // get a new data set (possibly empty if there's no data yet) and give it to the adapter
         List<Forum> forumList = forumRepo.getForumStructure()
                 .getAsList()

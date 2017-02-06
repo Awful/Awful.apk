@@ -3,14 +3,18 @@ package com.ferg.awfulapp.forums;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexIconRequest;
@@ -21,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 import static com.ferg.awfulapp.forums.Forum.BOOKMARKS;
 import static com.ferg.awfulapp.forums.Forum.SECTION;
@@ -39,14 +44,13 @@ public class ForumRepository implements UpdateTask.ResultListener {
      */
     static final int TOP_LEVEL_PARENT_ID = 0;
 
-    private static ForumRepository mThis = null;
+    private static final String PREF_KEY_FORUM_REFRESH_TIMESTAMP = "LAST_FORUM_REFRESH_TIME";
 
+    private static ForumRepository mThis = null;
     // using a COW array to make listener de/registration and iteration ~fairly~ thread-safe
     private final Set<ForumsUpdateListener> listeners = new CopyOnWriteArraySet<>();
-    // cached value to make timestamp queries faster and avoid jank
-    private volatile Long lastSuccessfulUpdate = null;
-    private final Context context;
 
+    private final Context context;
     /**
      * The current update task, if any
      */
@@ -230,35 +234,32 @@ public class ForumRepository implements UpdateTask.ResultListener {
 
 
     /**
-     * Get the timestamp of the last forum update.
-     * Since data is only stored when an update is successful, this won't reflect any
-     * unsuccessful attempts since then.
+     * Get the timestamp of the last successful full update.
      *
      * @return the timestamp in milliseconds, or 0 if there is no forum data
      * @see System#currentTimeMillis()
      */
-    public long getLastUpdateTime() {
-        // check if we have a cached value, otherwise we need to query the DB
-        if (lastSuccessfulUpdate != null) {
-            return lastSuccessfulUpdate;
-        }
-        Cursor cursor = getForumsCursor();
-        if (cursor == null) {
-            return 0;
-        }
-        long lastUpdate = 0;
-        // since all the data is replaced on update, everything has the same timestamp
-        if (cursor.moveToFirst()) {
-            String timestamp = cursor.getString(cursor.getColumnIndex(AwfulProvider.UPDATED_TIMESTAMP));
-            if (timestamp != null) {
-                lastUpdate = Timestamp.valueOf(timestamp).getTime();
-            } else {
-                Log.w(TAG, "getLastUpdateTime: NULL timestamp even though we have data!");
-            }
-        }
-        cursor.close();
-        lastSuccessfulUpdate = lastUpdate;
+    public long getLastRefreshTime() {
+        // forum data may be updated (with timestamps) after a full refresh, so we need to keep a separate timestamp
+        Context context = AwfulPreferences.getInstance().getContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        // TODO: 06/02/2017 remove all this and just return the pref value
+        long lastUpdate = prefs.getLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, 0);
+        long now = System.currentTimeMillis();
+        Toast.makeText(context, "Last forum refresh: " + TimeUnit.MILLISECONDS.toHours(now - lastUpdate) + "hrs ago", Toast.LENGTH_LONG).show();
         return lastUpdate;
+    }
+
+
+    /**
+     * Store the last time the forums were fully refreshed
+     * @param timestamp the time to set in millis
+     */
+    private void setLastRefreshTime(long timestamp) {
+        timestamp = (timestamp < 0) ? 0 : timestamp;
+        Context context = AwfulPreferences.getInstance().getContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().putLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, timestamp).apply();
     }
 
 
@@ -277,7 +278,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * Remove all cached forum data from the DB.
      */
     public void clearForumData() {
-        lastSuccessfulUpdate = null;
+        setLastRefreshTime(0);
         ContentResolver contentResolver = context.getContentResolver();
         contentResolver.delete(AwfulForum.CONTENT_URI, null, null);
     }
@@ -346,13 +347,12 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * @param parsedStructure The forum hierarchy
      */
     private void storeForumData(@NonNull ForumStructure parsedStructure) {
-        ContentResolver contentResolver = context.getContentResolver();
-        lastSuccessfulUpdate = System.currentTimeMillis();
-        String updateTime = new Timestamp(lastSuccessfulUpdate).toString();
-        List<Forum> allForums = new ArrayList<>();
-
         // we're replacing all the forums, so wipe them
         clearForumData();
+        long timestamp = System.currentTimeMillis();
+        setLastRefreshTime(timestamp);
+        String updateTime = new Timestamp(timestamp).toString();
+        List<Forum> allForums = new ArrayList<>();
 
         // add any special forums not on the main hierarchy
         Forum bookmarks = new Forum(Constants.USERCP_ID, TOP_LEVEL_PARENT_ID, "Bookmarks", "");
@@ -361,8 +361,11 @@ public class ForumRepository implements UpdateTask.ResultListener {
         // get all the parsed forums in an ordered list, so we can store them in this order using the INDEX field
         allForums.addAll(parsedStructure.getAsList().includeSections(true).formatAs(FLAT).build());
 
+        ContentResolver contentResolver = context.getContentResolver();
         contentResolver.bulkInsert(AwfulForum.CONTENT_URI, getAsContentValues(allForums, updateTime));
     }
+
+    // TODO: 06/02/2017 a way to push a forum in (for updates, esp page counts - aren't implemented in Forum yet) also indexes will get messed up, use standard DB index and just insert?
 
 
     /**
