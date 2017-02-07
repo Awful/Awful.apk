@@ -28,7 +28,7 @@ import static com.ferg.awfulapp.constants.Constants.DEBUG;
 public class SyncManager {
 
     private static final String TAG = "SyncManager";
-    private static final int FORUM_UPDATE_FREQUENCY = 7;
+    private static final int FORUM_UPDATE_FREQUENCY = 1;
     private static final TimeUnit FORUM_UPDATE_FREQUENCY_UNITS = TimeUnit.DAYS;
 
 

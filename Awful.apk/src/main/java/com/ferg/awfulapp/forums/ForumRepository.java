@@ -1,10 +1,12 @@
 package com.ferg.awfulapp.forums;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,28 +40,29 @@ import static com.ferg.awfulapp.forums.ForumStructure.FLAT;
  */
 public class ForumRepository implements UpdateTask.ResultListener {
 
-    private static final String TAG = "ForumRepo";
     /**
      * The ID of the 'root' of the forums hierarchy - anything with this parent ID will be top-level
      */
     static final int TOP_LEVEL_PARENT_ID = 0;
-
+    private static final String TAG = "ForumRepo";
     private static final String PREF_KEY_FORUM_REFRESH_TIMESTAMP = "LAST_FORUM_REFRESH_TIME";
-
-    private static ForumRepository mThis = null;
-    // using a COW array to make listener de/registration and iteration ~fairly~ thread-safe
-    private final Set<ForumsUpdateListener> listeners = new CopyOnWriteArraySet<>();
-
-    private final Context context;
-    /**
-     * The current update task, if any
-     */
-    private static volatile UpdateTask currentUpdateTask = null;
     /**
      * Synchronization lock for accessing currentUpdateTask
      */
     private static final Object updateLock = new Object();
+    private static ForumRepository mThis = null;
+    /**
+     * The current update task, if any
+     */
+    private static volatile UpdateTask currentUpdateTask = null;
+    // using a COW array to make listener de/registration and iteration ~fairly~ thread-safe
+    private final Set<ForumsUpdateListener> listeners = new CopyOnWriteArraySet<>();
+    private final Context context;
 
+
+    private ForumRepository(@NonNull Context context) {
+        this.context = context.getApplicationContext();
+    }
 
     /**
      * Get an instance of ForumsRepository.
@@ -78,12 +81,6 @@ public class ForumRepository implements UpdateTask.ResultListener {
         }
         return mThis;
     }
-
-
-    private ForumRepository(@NonNull Context context) {
-        this.context = context.getApplicationContext();
-    }
-
 
     public void registerListener(@NonNull ForumsUpdateListener listener) {
         listeners.add(listener);
@@ -243,11 +240,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
         // forum data may be updated (with timestamps) after a full refresh, so we need to keep a separate timestamp
         Context context = AwfulPreferences.getInstance().getContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        // TODO: 06/02/2017 remove all this and just return the pref value
-        long lastUpdate = prefs.getLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, 0);
-        long now = System.currentTimeMillis();
-        Toast.makeText(context, "Last forum refresh: " + TimeUnit.MILLISECONDS.toHours(now - lastUpdate) + "hrs ago", Toast.LENGTH_LONG).show();
-        return lastUpdate;
+        return prefs.getLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, 0);
     }
 
 
@@ -296,6 +289,24 @@ public class ForumRepository implements UpdateTask.ResultListener {
                 null,
                 null,
                 AwfulForum.INDEX);
+    }
+
+
+    /**
+     * Store the current page count for a forum
+     */
+    public void setPageCount(int forumId, int pageCount) {
+        // TODO: 08/02/2017 need a more general way to update various bit of data, maybe passing a Forum object
+        pageCount = (pageCount < 1) ? 1 : pageCount;
+        ContentValues forumData = new ContentValues(2);
+        forumData.put(AwfulForum.PAGE_COUNT, pageCount);
+        forumData.put(AwfulProvider.UPDATED_TIMESTAMP, getTimestamp());
+
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = ContentUris.withAppendedId(AwfulForum.CONTENT_URI, forumId);
+        if (contentResolver.update(uri, forumData, null, null) < 1) {
+            Log.w(TAG, "Unknown forum ID " + forumId + " while trying to update page count");
+        }
     }
 
 
@@ -365,7 +376,10 @@ public class ForumRepository implements UpdateTask.ResultListener {
         contentResolver.bulkInsert(AwfulForum.CONTENT_URI, getAsContentValues(allForums, updateTime));
     }
 
-    // TODO: 06/02/2017 a way to push a forum in (for updates, esp page counts - aren't implemented in Forum yet) also indexes will get messed up, use standard DB index and just insert?
+    // TODO: 06/02/2017 a way to push a forum in (for updates, esp page counts - aren't implemented in Forum yet)
+    // indexes are a problem - they're used to order forums (keeping subforums with their parents, e.g. in a flat list)
+    // but inserting a new forum means rewriting all the indices - basically rebuilding the forum
+    // might be better to just ignore new forums and only catch them on refreshes
 
 
     /**
@@ -393,6 +407,14 @@ public class ForumRepository implements UpdateTask.ResultListener {
         }
 
         return allContentValues.toArray(new ContentValues[allContentValues.size()]);
+    }
+
+    /**
+     * The current time as an SQL timestamp
+     */
+    @NonNull
+    private String getTimestamp() {
+        return new Timestamp(System.currentTimeMillis()).toString();
     }
 
 

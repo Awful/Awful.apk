@@ -30,12 +30,12 @@ package com.ferg.awfulapp.thread;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.messages.PmManager;
+import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.provider.AwfulProvider;
 
 import org.jsoup.nodes.Document;
@@ -48,11 +48,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AwfulForum extends AwfulPagedItem {
-    private static final String TAG = "AwfulForum";
-
     public static final String PATH     = "/forum";
     public static final Uri CONTENT_URI = Uri.parse("content://" + Constants.AUTHORITY + PATH);
-
 	public static final String ID      = "_id";
 	public static final String PARENT_ID      = "parent_forum_id";
 	public static final String INDEX = "forum_index";//for ordering by
@@ -61,13 +58,8 @@ public class AwfulForum extends AwfulPagedItem {
 	public static final String PAGE_COUNT = "page_count";
     public static final String TAG_URL 		="tag_url";
     public static final String TAG_CACHEFILE 	="tag_cachefile";
-
-	//private static final String FORUM_ROW   = "//table[@id='forums']//tr";
-	//private static final String FORUM_TITLE = "//a[@class='forum']";
-    //private static final String SUBFORUM    = "//div[@class='subforums']//a";
-
+	private static final String TAG = "AwfulForum";
 	private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
-	private static final Pattern forumTitle_regex = Pattern.compile("(.+)-{1}.+$");
 
 	public static void processForumIcons(Document response, ContentResolver contentInterface){
 		Elements forumIcons = response.getElementById("forums").getElementsByClass("icon");
@@ -96,76 +88,95 @@ public class AwfulForum extends AwfulPagedItem {
         }
 	}
 
-	
-	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) throws Exception{
-		ArrayList<ContentValues> result = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), forumId);
-		ContentValues forumData = new ContentValues();
-    	forumData.put(ID, forumId);
-    	forumData.put(TITLE, AwfulForum.parseTitle(page));
-		ArrayList<ContentValues> newSubforums = AwfulThread.parseSubforums(page, forumId);
-		contentInterface.delete(AwfulForum.CONTENT_URI, PARENT_ID+"=?", AwfulProvider.int2StrArray(forumId));
-		contentInterface.bulkInsert(AwfulForum.CONTENT_URI, newSubforums.toArray(new ContentValues[newSubforums.size()]));
-        int lastPage = AwfulPagedItem.parseLastPage(page);
-        Log.i(TAG, "Last Page: " +lastPage);
-    	forumData.put(PAGE_COUNT, lastPage);
-    	contentInterface.delete(AwfulThread.CONTENT_URI, 
-    							AwfulThread.FORUM_ID+"= ? AND "+AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-    							AwfulProvider.int2StrArray(forumId, AwfulPagedItem.forumPageToIndex(pageNumber), AwfulPagedItem.forumPageToIndex(pageNumber+1)));
-		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, forumId), forumData, null, null) <1){
-        	contentInterface.insert(CONTENT_URI, forumData);
-		}
-        contentInterface.bulkInsert(AwfulThread.CONTENT_URI, result.toArray(new ContentValues[result.size()]));
-	}
-	
-	public static void parseUCPThreads(Document page, int pageNumber, ContentResolver contentInterface) throws Exception{
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, AwfulPagedItem.forumPageToIndex(pageNumber), Constants.USERCP_ID);
-		ArrayList<ContentValues> ucp_ids = new ArrayList<ContentValues>();
-		int start_index = AwfulPagedItem.forumPageToIndex(pageNumber);
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
-		for(ContentValues thread : threads){
-			ContentValues ucp_entry = new ContentValues();
-			ucp_entry.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
-			ucp_entry.put(AwfulThread.INDEX, start_index);
-			ucp_entry.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-			start_index++;
-			ucp_ids.add(ucp_entry);
-		}
-		Log.i(TAG,"Parsed UCP entries:"+ucp_ids.size());
-		ContentValues forumData = new ContentValues();
-    	forumData.put(ID, Constants.USERCP_ID);
-    	forumData.put(TITLE, "Bookmarks");
-    	forumData.put(PARENT_ID, 0);
-    	forumData.put(INDEX, 0);
-    	forumData.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-        int lastPage = AwfulPagedItem.parseLastPage(page);
-        Log.i(TAG, "Last Page: " +lastPage);
-    	forumData.put(PAGE_COUNT, lastPage);
-    	contentInterface.delete(AwfulThread.CONTENT_URI_UCP, 
-				AwfulThread.INDEX+">=? AND "+AwfulThread.INDEX+"<?", 
-				AwfulProvider.int2StrArray(AwfulPagedItem.forumPageToIndex(pageNumber), AwfulPagedItem.forumPageToIndex(pageNumber+1)));
-		if(contentInterface.update(ContentUris.withAppendedId(CONTENT_URI, Constants.USERCP_ID), forumData, null, null) <1){
-        	contentInterface.insert(CONTENT_URI, forumData);
-		}
-		contentInterface.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
-		contentInterface.bulkInsert(AwfulThread.CONTENT_URI_UCP, ucp_ids.toArray(new ContentValues[ucp_ids.size()]));
+
+	/**
+	 * Parse a forum page, storing the thread list and updating the threads in the database.
+	 *
+	 * @param page             a forum page containing a list of threads
+	 * @param forumId          the ID of the forum being parsed
+	 * @param pageNumber       the number of the page being parsed, e.g. page 2 of GBS
+	 * @param contentInterface used for database access
+	 */
+	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) {
+		// get the threads on a (normal) forum page, index them and store
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), forumId);
+		deletePageOfThreads(forumId, pageNumber, contentInterface);
+		insertThreads(threads, contentInterface);
+
+		// update page count for forum
+		int lastPage = parseLastPage(page);
+		ForumRepository.getInstance(null).setPageCount(forumId, lastPage);
 	}
 
-    public static int getForumId(String aHref) {
-    	Matcher forumIdMatch = forumId_regex.matcher(aHref);
+
+	/**
+	 * Parse a Bookmarks page, storing the thread list and updating the threads in the database.
+	 *
+	 * @param page             a page containing the user's bookmarks
+	 * @param pageNumber       the number of the page being parsed, e.g. page 2 of the bookmarks
+	 * @param contentInterface used for database access
+	 */
+	public static void parseUCPThreads(@NonNull Document page, int pageNumber, @NonNull ContentResolver contentInterface) {
+		// get all the threads on the bookmarks page, with their INDEXes set appropriately, and store them
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), Constants.USERCP_ID);
+		insertThreads(threads, contentInterface);
+
+		// for each thread on the page, create a bookmark (with the thread's ID) in the same position (same index)
+		String update_time = new Timestamp(System.currentTimeMillis()).toString();
+		ArrayList<ContentValues> bookmarks = new ArrayList<>();
+
+		int start_index = forumPageToIndex(pageNumber);
+		for (ContentValues thread : threads) {
+			ContentValues bookmark = new ContentValues();
+			bookmark.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
+			bookmark.put(AwfulThread.INDEX, start_index);
+			bookmark.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+			start_index++;
+			bookmarks.add(bookmark);
+		}
+		Log.i(TAG, "Parsed UCP entries: " + bookmarks.size());
+
+		// delete all the bookmarked threads for this page, re-add the new ones in the same place (thanks to the matching indices)
+		deletePageOfBookmarks(pageNumber, contentInterface);
+		insertBookmarks(bookmarks, contentInterface);
+		// update bookmarks forum
+		ForumRepository.getInstance(null).setPageCount(Constants.USERCP_ID, parseLastPage(page));
+	}
+
+
+	private static void insertThreads(@NonNull ArrayList<ContentValues> threads, @NonNull ContentResolver resolver) {
+		resolver.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
+	}
+
+
+	private static void insertBookmarks(@NonNull ArrayList<ContentValues> bookmarks, @NonNull ContentResolver resolver) {
+		resolver.bulkInsert(AwfulThread.CONTENT_URI_UCP, bookmarks.toArray(new ContentValues[bookmarks.size()]));
+
+	}
+
+
+	private static void deletePageOfThreads(int forumId, int pageNum, @NonNull ContentResolver resolver) {
+		if (forumId == Constants.USERCP_ID) {
+			throw new RuntimeException("This method deletes threads from forums, not the bookmarks table!");
+		}
+		resolver.delete(AwfulThread.CONTENT_URI,
+				String.format("%s=? AND %s>=? AND %s<?", AwfulThread.FORUM_ID, AwfulThread.INDEX, AwfulThread.INDEX),
+				AwfulProvider.int2StrArray(forumId, forumPageToIndex(pageNum), forumPageToIndex(pageNum + 1)));
+	}
+
+
+	private static void deletePageOfBookmarks(int pageNum, @NonNull ContentResolver resolver) {
+		resolver.delete(AwfulThread.CONTENT_URI_UCP, String.format("%s>=? AND %s<?", AwfulThread.INDEX, AwfulThread.INDEX),
+				AwfulProvider.int2StrArray(forumPageToIndex(pageNum), forumPageToIndex(pageNum + 1)));
+	}
+
+
+	public static int getForumId(String aHref) {
+		Matcher forumIdMatch = forumId_regex.matcher(aHref);
     	if(forumIdMatch.find()){
     		return Integer.parseInt(forumIdMatch.group(1));
     	}
         return -1;
     }
-
-	public static String parseTitle(Document data) {
-		Elements result = data.getElementsByTag("title");
-		String title = result.first().text();
-		Matcher m = forumTitle_regex.matcher(title);
-		if(m.find()){
-			return m.group(1).trim();
-		}
-		return title;
-	}
 
 }
