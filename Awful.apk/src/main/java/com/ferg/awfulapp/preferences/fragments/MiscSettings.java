@@ -39,10 +39,6 @@ public class MiscSettings extends SettingsFragment {
     @Override
     protected void initialiseSettings() {
         super.initialiseSettings();
-        Preference pref = findPrefById(R.string.pref_key_enable_hardware_acceleration);
-        pref.setEnabled(true);
-        // Not for you
-        if (!AwfulUtils.isJellybean()) ((SwitchPreference) pref).setChecked(false);
 
         findPrefById(R.string.pref_key_disable_gifs).setEnabled(true);
         findPrefById(R.string.pref_key_immersion_mode).setEnabled(AwfulUtils.isKitKat());
