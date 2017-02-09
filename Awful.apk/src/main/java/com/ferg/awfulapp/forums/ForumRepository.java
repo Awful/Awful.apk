@@ -7,16 +7,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
+import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexIconRequest;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
 
 import static com.ferg.awfulapp.forums.Forum.BOOKMARKS;
 import static com.ferg.awfulapp.forums.Forum.SECTION;
@@ -49,12 +46,12 @@ public class ForumRepository implements UpdateTask.ResultListener {
     /**
      * Synchronization lock for accessing currentUpdateTask
      */
-    private static final Object updateLock = new Object();
+    private final Object updateLock = new Object();
     private static ForumRepository mThis = null;
     /**
      * The current update task, if any
      */
-    private static volatile UpdateTask currentUpdateTask = null;
+    private volatile UpdateTask currentUpdateTask = null;
     // using a COW array to make listener de/registration and iteration ~fairly~ thread-safe
     private final Set<ForumsUpdateListener> listeners = new CopyOnWriteArraySet<>();
     private final Context context;
@@ -238,20 +235,19 @@ public class ForumRepository implements UpdateTask.ResultListener {
      */
     public long getLastRefreshTime() {
         // forum data may be updated (with timestamps) after a full refresh, so we need to keep a separate timestamp
-        Context context = AwfulPreferences.getInstance().getContext();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = AwfulApplication.getAppStatePrefs();
         return prefs.getLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, 0);
     }
 
 
     /**
      * Store the last time the forums were fully refreshed
+     *
      * @param timestamp the time to set in millis
      */
     private void setLastRefreshTime(long timestamp) {
         timestamp = (timestamp < 0) ? 0 : timestamp;
-        Context context = AwfulPreferences.getInstance().getContext();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = AwfulApplication.getAppStatePrefs();
         prefs.edit().putLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, timestamp).apply();
     }
 
@@ -271,9 +267,9 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * Remove all cached forum data from the DB.
      */
     public void clearForumData() {
-        setLastRefreshTime(0);
         ContentResolver contentResolver = context.getContentResolver();
         contentResolver.delete(AwfulForum.CONTENT_URI, null, null);
+        setLastRefreshTime(0);
     }
 
 

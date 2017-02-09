@@ -1,6 +1,7 @@
 package com.ferg.awfulapp;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -28,7 +29,12 @@ import io.fabric.sdk.android.Fabric;
 
 public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static final String TAG = "AwfulApplication";
-	
+	private static final String APP_STATE_PREFERENCES = "app_state_prefs";
+	/**
+	 * Used for storing misc app data, separate from user preferences, so onPreferenceChange callbacks aren't triggered
+	 */
+	private static SharedPreferences appStatePrefs;
+
 	private AwfulPreferences mPref;
 	private final HashMap<String, Typeface> fonts = new HashMap<>();
 	private Typeface currentFont;
@@ -36,10 +42,13 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
     @Override
     public void onCreate() {
         super.onCreate();
+		// initialise the AwfulPreferences singleton first since a lot of things rely on it for a Context
+		mPref = AwfulPreferences.getInstance(this, this);
+		appStatePrefs = this.getSharedPreferences(APP_STATE_PREFERENCES, MODE_PRIVATE);
+
 		NetworkUtils.init(this);
 		AndroidThreeTen.init(this);
-		AnnouncementsManager.init(this);
-        mPref = AwfulPreferences.getInstance(this, this);
+		AnnouncementsManager.init();
         onPreferenceChange(mPref,null);
 
 		// work out how long it's been since the app was updated
@@ -76,6 +85,19 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 
 		SyncManager.sync(this);
     }
+
+
+	/**
+	 * Get the SharedPreferences used for storing basic app state.
+	 * <p>
+	 * These are separate from the default shared preferences, and won't trigger onPreferenceChange callbacks.
+	 *
+	 * @see AwfulPreferences.AwfulPreferenceUpdate#onPreferenceChange(AwfulPreferences, String)
+	 */
+	public static SharedPreferences getAppStatePrefs() {
+		return appStatePrefs;
+	}
+
 
 	public void setFontFromPreference(TextView textView, int flags){
 		if(flags < 0 && textView.getTypeface() != null){
