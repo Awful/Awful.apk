@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v4.content.ContextCompat;
+import android.util.TypedValue;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
@@ -69,6 +70,7 @@ public enum AwfulTheme {
     public static final List<AwfulTheme> APP_THEMES;
 
     static {
+        // divide all the enum values into the custom and standard app themes
         CUSTOM_THEMES = Collections.unmodifiableList(Arrays.asList(CUSTOM, CUSTOM_DARK));
         List<AwfulTheme> allThemes = new ArrayList<>(Arrays.asList(AwfulTheme.values()));
         allThemes.removeAll(CUSTOM_THEMES);
@@ -90,6 +92,11 @@ public enum AwfulTheme {
      */
     @NonNull
     public final String cssFilename;
+    /**
+     * Cached after the first check, to keep things speedy
+     */
+    @Nullable
+    private Boolean isDark = null;
 
     /**
      * Represents an app theme.
@@ -175,6 +182,27 @@ public enum AwfulTheme {
         }
         // not an app theme, treat it as a user theme
         return themeName.contains(".dark") ? CUSTOM_DARK : CUSTOM;
+    }
+
+
+    /**
+     * True if this is a dark app or custom theme
+     */
+    public boolean isDark() {
+        if (isDark != null) {
+            return isDark;
+        }
+        // initialise the dark theme flag - we're storing this per enum value, so we can avoid heavy processing
+        if (CUSTOM_THEMES.contains(this)) {
+            isDark = (this == CUSTOM_DARK);
+        } else {
+            TypedValue isLight = new TypedValue();
+            // this should pull the correct attribute from the thene - it's specified in the base platform themes
+            getTheme(AwfulPreferences.getInstance()).resolveAttribute(R.attr.isLightTheme, isLight, true);
+            int FALSE = 0;
+            isDark = (isLight.data == FALSE);
+        }
+        return isDark;
     }
 
 

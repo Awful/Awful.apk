@@ -44,7 +44,7 @@ public class Forum {
 
 
     Forum(int id, int parentId, String title, String subtitle) {
-        this(id, parentId, title, subtitle, new ArrayList<Forum>());
+        this(id, parentId, title, subtitle, new ArrayList<>());
     }
 
 
@@ -100,11 +100,30 @@ public class Forum {
     /**
      * Get this forum's abbreviated name, as overlaid on its tag on the website.
      *
-     * @return its tag text, or an empty string
+     * @return its tag text, or a generated abbreviation
      */
     @NonNull
     public String getAbbreviation() {
-        return forumAbbreviations.get(id, "");
+        return forumAbbreviations.get(id, abbreviateTitle());
+    }
+
+
+    /**
+     * Generate an abbreviated version of this forum's title.
+     *
+     * @return the result, or an empty string if it couldn't be abbreviated
+     */
+    private String abbreviateTitle() {
+        // really basic version - just split on spaces and use the first char,
+        // works with punctuation like in 'Debate & Discussion'
+        String[] words = title.split(" ");
+        StringBuilder sb = new StringBuilder("");
+        for (String word : words) {
+            if (word.length() > 0) {
+                sb.append(word.charAt(0));
+            }
+        }
+        return sb.toString();
     }
 
 
