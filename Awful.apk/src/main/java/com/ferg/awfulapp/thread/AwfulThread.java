@@ -397,10 +397,10 @@ public class AwfulThread extends AwfulPagedItem  {
         buffer.append("<meta name='format-detection' content='address=no' />\n");
 
 
-        // build the link tag, using the custom css path if necessary
-        buffer.append("<link rel='stylesheet' href='");
-        buffer.append(AwfulTheme.forForum(forumId).getCssPath());
-        buffer.append("'>\n");
+        // build the theme css tag, using the appropriate css path
+        // the dark-theme attribute can be used to e.g. embed a dark or light widget
+        AwfulTheme theme = AwfulTheme.forForum(forumId);
+        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
         buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
 
 

@@ -113,18 +113,21 @@ SALR.prototype.inlineTweets = function() {
 
     var that = this;
     var tweets = $('.postcontent a[href*="twitter.com"]');
-    //NWS/NMS links
+    // matches any number of subdomains, in case they add more than www and mobile
+    var twitterRegex = new RegExp('https?://(?:[\\w\\.]*\\.)?twitter.com/[\\w_]+/status(?:es)?/([\\d]+)');
 
+    //NWS/NMS links
     //tweets = tweets.not(".postcontent:has(img[title=':nws:']) a").not(".postcontent:has(img[title=':nms:']) a");
 
     // spoiler'd links
     tweets = tweets.not('.bbc-spoiler a');
     tweets.each(function() {
-        var match = $(this).attr('href').match(/(https|http):\/\/twitter.com\/[0-9a-zA-Z_]+\/(status|statuses)\/([0-9]+)/);
+
+        var match = $(this).attr('href').match(twitterRegex);
         if (match == null) {
             return;
         }
-        var tweetId = match[3];
+        var tweetId = match[1];
         var link = $(this);
         $.ajax({url:"https://api.twitter.com/1/statuses/oembed.json?id="+tweetId,
             dataType: 'jsonp',
@@ -132,10 +135,10 @@ SALR.prototype.inlineTweets = function() {
                 link = $(link).wrap("<div class='tweet'>").parent();
                 datahtml = data.html.replace("src=\"//platform.twitter.com/widgets.js\"", "src=\"file:///android_asset/twitterwidget.js\"");
                 $(link).html(datahtml);
-                if($('head').children('link').first().attr('href').indexOf('dark.css') != -1 || $('head').children('link').first().attr('href').indexOf('pos.css') != -1){
+                if($("#theme-css").data('dark-theme')) {
                     $(link).children('blockquote').first().data('theme','dark');
                 }
-                window.twttr.widgets.load();
+                window.twttr.widgets.load(link);
             }
         });
     });
