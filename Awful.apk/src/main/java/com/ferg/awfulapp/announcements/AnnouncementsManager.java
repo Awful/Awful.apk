@@ -1,16 +1,14 @@
 package com.ferg.awfulapp.announcements;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 
-import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.AwfulApplication;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -78,15 +76,15 @@ public class AnnouncementsManager {
     /**
      * Initialise the AnnouncementsManager singleton, restoring state etc.
      */
-    public static void init(@NonNull Context context) {
+    public static void init() {
         if (manager == null) {
             manager = new AnnouncementsManager();
-            manager.restoreState(context);
+            manager.restoreState();
         }
     }
 
     /**
-     * Get the AnnouncementsManager singleton instance. You must call {@link #init(Context)} first!
+     * Get the AnnouncementsManager singleton instance. You must call {@link #init()} first!
      */
     public static AnnouncementsManager getInstance() {
         if (manager == null) {
@@ -228,8 +226,7 @@ public class AnnouncementsManager {
      * Persist the current announcement data, so it can be restored on app reload.
      */
     private void saveState() {
-        Context context = AwfulPreferences.getInstance().getContext();
-        SharedPreferences.Editor appState = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        SharedPreferences.Editor appState = AwfulApplication.getAppStatePrefs().edit();
         synchronized (stateLock) {
             appState.putStringSet(PREF_KEY_CURRENT_ANNOUNCEMENTS, currentAnnouncements)
                     .putStringSet(PREF_KEY_READ_ANNOUNCEMENTS, readAnnouncements);
@@ -244,8 +241,8 @@ public class AnnouncementsManager {
      * This loads the persisted state written by {@link #saveState()}, and should be called as early
      * as possible to retain the last-known state and update on top of that.
      */
-    private void restoreState(@NonNull Context context) {
-        SharedPreferences appState = PreferenceManager.getDefaultSharedPreferences(context);
+    private void restoreState() {
+        SharedPreferences appState = AwfulApplication.getAppStatePrefs();
         synchronized (stateLock) {
             // can't just use the returned sets apparently!
             currentAnnouncements.clear();
