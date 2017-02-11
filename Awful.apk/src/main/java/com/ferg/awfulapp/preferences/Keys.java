@@ -94,7 +94,6 @@ public abstract class Keys {
             INLINE_VINES,
             INLINE_WEBM,
             AUTOSTART_WEBM,
-            ENABLE_HARDWARE_ACCELERATION,
             SHOW_ALL_SPOILERS,
             THREAD_INFO_RATING,
             THREAD_INFO_TAG,
@@ -166,7 +165,6 @@ public abstract class Keys {
     public static final int INLINE_VINES = R.string.pref_key_inline_vines;
     public static final int INLINE_WEBM = R.string.pref_key_inline_webm;
     public static final int AUTOSTART_WEBM = R.string.pref_key_autostart_webm;
-    public static final int ENABLE_HARDWARE_ACCELERATION = R.string.pref_key_enable_hardware_acceleration;
     public static final int SHOW_ALL_SPOILERS = R.string.pref_key_show_all_spoilers;
     public static final int THREAD_INFO_RATING = R.string.pref_key_thread_info_rating;
     public static final int THREAD_INFO_TAG = R.string.pref_key_thread_info_tag;

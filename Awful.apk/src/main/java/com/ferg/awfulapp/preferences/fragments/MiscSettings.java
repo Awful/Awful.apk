@@ -26,7 +26,6 @@ public class MiscSettings extends SettingsFragment {
         };
         VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new int[] {
                 R.string.pref_key_disable_gifs,
-                R.string.pref_key_enable_hardware_acceleration,
                 R.string.pref_key_immersion_mode,
                 R.string.pref_key_transformer
         };
