@@ -374,8 +374,6 @@
 
     <!-- Misc Settings page -->
     <string name="misc_category_performance">Performance tweaks</string>
-    <string name="enable_hardware_acceleration">Hardware acceleration</string>
-    <string name="enable_hardware_acceleration_summary">May solve/cause lag and graphical glitches</string>
     <string name="disable_gifs">Disable GIF animation</string>
     <string name="disable_gifs_summary">Extends battery life significantly</string>
     <string name="misc_category_display">Display</string>

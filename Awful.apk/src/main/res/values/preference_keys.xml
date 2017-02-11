@@ -38,7 +38,6 @@
     <string name="pref_key_inline_vines">inline_vines</string>
     <string name="pref_key_inline_webm">inline_webm</string>
     <string name="pref_key_autostart_webm">autostart_webm</string>
-    <string name="pref_key_enable_hardware_acceleration">enable_hardware_acceleration</string>
     <string name="pref_key_show_all_spoilers">show_all_spoilers</string>
     <string name="pref_key_thread_info_rating">threadinfo_rating</string>
     <string name="pref_key_thread_info_tag">threadinfo_tag</string>
