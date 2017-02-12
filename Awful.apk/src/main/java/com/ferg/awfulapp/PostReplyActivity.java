@@ -1,18 +1,18 @@
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * 
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the software nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the software nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,23 +28,31 @@
 package com.ferg.awfulapp;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class PostReplyActivity extends AwfulActivity {
 
-    private Toolbar mToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    PostReplyFragment replyFragment;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reply_activity);
+        ButterKnife.bind(this);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         setActionBar();
+
+        FragmentManager fm = getSupportFragmentManager();
+        replyFragment = (PostReplyFragment) fm.findFragmentById(R.id.reply_fragment);
     }
 
     @Override
@@ -56,11 +64,18 @@ public class PostReplyActivity extends AwfulActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                onLeaveActivity();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
-	
+
+    @Override
+    public void onBackPressed() {
+        onLeaveActivity();
+    }
+
+    private void onLeaveActivity() {
+        replyFragment.onNavigateBack();
+    }
 }
