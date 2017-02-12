@@ -70,35 +70,32 @@ public class AwfulWebView extends WebView {
     private void init() {
         AwfulPreferences prefs = AwfulPreferences.getInstance();
         WebSettings webSettings = getSettings();
-        webSettings.setRenderPriority(WebSettings.RenderPriority.LOW);
-        webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
-        webSettings.setDefaultFontSize(prefs.postFontSizeDip);
-        webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeDip);
-        if (AwfulUtils.isLollipop()) {
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
-
-        if (DEBUG && AwfulUtils.isKitKat()) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
+        setWebChromeClient(new LoggingWebChromeClient());
 
         setBackgroundColor(Color.TRANSPARENT);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webSettings.setJavaScriptEnabled(true);
-        setWebChromeClient(new LoggingWebChromeClient());
+        webSettings.setDefaultFontSize(prefs.postFontSizeDip);
+        webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeDip);
 
-        // TODO: fix deprecated warnings
-        // TODO: see if we can get the linter to recognise the AwfulUtils version checks as API guards
-
-        if (prefs.inlineYoutube || prefs.inlineWebm || prefs.inlineVines) {//YOUTUBE SUPPORT BLOWS
-            webSettings.setPluginState(WebSettings.PluginState.ON_DEMAND);
+        if (AwfulUtils.isLollipop()) {
+            //noinspection AndroidLintNewApi, AndroidLintInlinedApi
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         }
+
+        if (DEBUG && AwfulUtils.isKitKat()) {
+            //noinspection AndroidLintNewApi
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
+
         if (AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (prefs.inlineWebm || prefs.inlineVines)) {
+            //noinspection AndroidLintNewApi
             webSettings.setMediaPlaybackRequiresUserGesture(false);
         }
+
         if (prefs.inlineTweets && AwfulUtils.isJellybean()) {
+            //noinspection AndroidLintNewApi
             webSettings.setAllowUniversalAccessFromFileURLs(true);
-            webSettings.setAllowFileAccessFromFileURLs(true);
             webSettings.setAllowFileAccess(true);
             webSettings.setAllowContentAccess(true);
         }
