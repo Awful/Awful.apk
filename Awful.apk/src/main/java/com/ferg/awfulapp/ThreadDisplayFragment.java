@@ -55,7 +55,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
@@ -119,6 +118,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Uses intent extras:
@@ -1097,7 +1097,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 		@Override
-		protected void setCustomPreferences(SimpleArrayMap<String, String> preferences) {
+		protected void setCustomPreferences(Map<String, String> preferences) {
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
 			preferences.put("postjumpid", mPostJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));

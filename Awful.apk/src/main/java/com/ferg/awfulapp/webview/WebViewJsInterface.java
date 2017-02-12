@@ -1,10 +1,13 @@
 package com.ferg.awfulapp.webview;
 
-import android.support.v4.util.SimpleArrayMap;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by baka kaba on 23/01/2017.
@@ -14,12 +17,13 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
  * Subclass this to add handler methods specific to a particular context, e.g. when the WebView will
  * be used in a {@link com.ferg.awfulapp.ThreadDisplayFragment} and needs to react to other UI clicks.
  */
-
+// TODO: 12/02/2017 JS interface methods are called on a separate thread apparently - none of our implementations are thread-safe at all
+@WorkerThread
 public class WebViewJsInterface {
 
     private static final String TAG = "WebViewJsInterface";
 
-    private final SimpleArrayMap<String, String> preferences = new SimpleArrayMap<>();
+    private final Map<String, String> preferences = new ConcurrentHashMap<>();
 
     public WebViewJsInterface() {
         updatePreferences();
@@ -54,7 +58,7 @@ public class WebViewJsInterface {
      *
      * @param preferences the preference store to add to
      */
-    protected void setCustomPreferences(SimpleArrayMap<String, String> preferences) {
+    protected void setCustomPreferences(Map<String, String> preferences) {
     }
 
 
