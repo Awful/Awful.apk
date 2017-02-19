@@ -2,6 +2,17 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.2.5.2:\n
+            - New Frog. Still doesn\'t spin.\n
+            - Announcement parsing: Always be informed of new Kickparpers and other forum drama.\n
+            - BBCode selection interface can now be used when creating private messages.\n
+            - Slightly improved attachment handling.\n
+            - Fixed giphy gif preview.\n
+            - You can no longer disable hardware acceleration.\n
+            - A few things you probably won\'t even notice.\n
+            - A couple of crash fixes and lots and lots of backend stuff.
+        </item>
+        <item>
             3.2.5.1:\n
             - Fully overhauled reply window. It\'s so new and shiny.\n
             - Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n
