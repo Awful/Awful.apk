@@ -51,11 +51,28 @@ public enum AwfulTheme {
     BYOB("BYOB", "byob.css", R.style.Theme_AwfulTheme_BYOB),
     CLASSIC("Classic", "classic.css", R.style.Theme_AwfulTheme),
 
+    // TODO: I don't like having these hardcoded copies of the app themes, it's kinda stupid
+    /*
+        you could just have the base app themes and use the css filename in prefs.theme to check if
+        it's an app theme (matches the theme's css filename exactly) or a custom theme based on
+        an app theme (ends with the theme's css filename). The problem is, say the user's custom css
+        is based on the GREENPOS theme - if they visit that forum, the app will get the appropriate
+        theme, which depends on whether 'force forum-specific themes' is active. In both cases they'll
+        get the GREENPOS theme enum back - there's no way to know whether that should provide the theme's
+        CSS or the user's, without passing that information in, which kinda defeats the point of having
+        a black box 'get theme for forum X -> get CSS from theme' system where those details are internal
+     */
+
     // These represent the basic variations for user themes, and are handled specially in the code.
     // The CSS is the fallback file to use if there's a problem, the resource file is the actual app theme
     // (users can't customise those... yet...)
-    CUSTOM("Custom", "default.css", R.style.Theme_AwfulTheme),
-    CUSTOM_DARK("Custom dark", "dark.css", R.style.Theme_AwfulTheme_Dark);
+    CUSTOM_DEFAULT("Custom default", "default.css", R.style.Theme_AwfulTheme),
+    CUSTOM_DARK("Custom dark", "dark.css", R.style.Theme_AwfulTheme_Dark),
+    CUSTOM_OLED("Custom OLED", "oled.css", R.style.Theme_AwfulTheme_OLED),
+    CUSTOM_GREENPOS("Custom YOSPOS", "yospos.css", R.style.Theme_AwfulTheme_YOSPOS),
+    CUSTOM_AMBERPOS("Custom AMBERPOS", "amberpos.css", R.style.Theme_AwfulTheme_AMBERPOS),
+    CUSTOM_FYAD("Custom FYAD", "fyad.css", R.style.Theme_AwfulTheme_FYAD),
+    CUSTOM_BYOB("Custom BYOB", "byob.css", R.style.Theme_AwfulTheme_BYOB);
 
     private static final String APP_CSS_PATH = "file:///android_asset/css/";
     private static final String CUSTOM_THEME_PATH = Environment.getExternalStorageDirectory() + "/awful/";
@@ -71,7 +88,7 @@ public enum AwfulTheme {
 
     static {
         // divide all the enum values into the custom and standard app themes
-        CUSTOM_THEMES = Collections.unmodifiableList(Arrays.asList(CUSTOM, CUSTOM_DARK));
+        CUSTOM_THEMES = Collections.unmodifiableList(Arrays.asList(CUSTOM_DEFAULT, CUSTOM_DARK, CUSTOM_OLED, CUSTOM_GREENPOS, CUSTOM_AMBERPOS, CUSTOM_FYAD, CUSTOM_BYOB));
         List<AwfulTheme> allThemes = new ArrayList<>(Arrays.asList(AwfulTheme.values()));
         allThemes.removeAll(CUSTOM_THEMES);
         APP_THEMES = Collections.unmodifiableList(allThemes);
@@ -181,7 +198,13 @@ public enum AwfulTheme {
             }
         }
         // not an app theme, treat it as a user theme
-        return themeName.contains(".dark") ? CUSTOM_DARK : CUSTOM;
+        for (AwfulTheme customTheme : CUSTOM_THEMES) {
+            if (StringUtils.endsWithIgnoreCase(themeName, customTheme.cssFilename)) {
+                return customTheme;
+            }
+        }
+        // couldn't match the custom css filename with any of the app themes, so use the default
+        return CUSTOM_DEFAULT;
     }
 
 
@@ -189,13 +212,8 @@ public enum AwfulTheme {
      * True if this is a dark app or custom theme
      */
     public boolean isDark() {
-        if (isDark != null) {
-            return isDark;
-        }
-        // initialise the dark theme flag - we're storing this per enum value, so we can avoid heavy processing
-        if (CUSTOM_THEMES.contains(this)) {
-            isDark = (this == CUSTOM_DARK);
-        } else {
+        if (isDark == null) {
+            // initialise the dark theme flag - we're storing this per enum value, so we can avoid heavy processing
             TypedValue isLight = new TypedValue();
             // this should pull the correct attribute from the thene - it's specified in the base platform themes
             getTheme(AwfulPreferences.getInstance()).resolveAttribute(R.attr.isLightTheme, isLight, true);
@@ -215,7 +233,7 @@ public enum AwfulTheme {
     @NonNull
     public String getCssPath() {
         // non-custom themes just need the local css file
-        if (this != CUSTOM && this != CUSTOM_DARK) {
+        if (!CUSTOM_THEMES.contains(this)) {
             return APP_CSS_PATH + cssFilename;
         }
 
