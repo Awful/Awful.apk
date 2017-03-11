@@ -80,7 +80,7 @@ public class AwfulWebView extends WebView {
 
         if (AwfulUtils.isLollipop()) {
             //noinspection AndroidLintNewApi, AndroidLintInlinedApi
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
         if (DEBUG && AwfulUtils.isKitKat()) {
