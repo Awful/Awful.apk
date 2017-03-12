@@ -53,6 +53,7 @@ import com.ferg.awfulapp.AwfulFragment;
 import com.ferg.awfulapp.ForumDisplayFragment;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.forums.ClassicThreadTag;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -548,7 +549,7 @@ public class AwfulThread extends AwfulPagedItem  {
         int bookmarked  = data.getInt(data.getColumnIndex(BOOKMARKED));
         boolean hasViewedThread = data.getInt(data.getColumnIndex(HAS_VIEWED_THREAD)) == 1;
 
-        final ImageView threadTag = (ImageView) current.findViewById(R.id.thread_tag);
+        final ClassicThreadTag threadTag = (ClassicThreadTag) current.findViewById(R.id.thread_tag);
         threadTag.setVisibility(View.GONE);
         if (prefs.threadInfo_Tag) {
 			String tagFile = data.getString(data.getColumnIndex(TAG_CACHEFILE));
@@ -563,6 +564,7 @@ public class AwfulThread extends AwfulPagedItem  {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             threadTag.setImageBitmap(response.getBitmap());
+                            threadTag.applyBackground();
                         }
 
                         @Override
