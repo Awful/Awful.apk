@@ -564,7 +564,6 @@ public class AwfulThread extends AwfulPagedItem  {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             threadTag.setImageBitmap(response.getBitmap());
-                            threadTag.applyBackground();
                         }
 
                         @Override
