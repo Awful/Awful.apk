@@ -68,6 +68,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -397,6 +398,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         refreshSessionCookie();
 		mThreadView.setContent(getBlankPage());
+
+		mThreadView.setDownloadListener(new DownloadListener() {
+			@Override
+			public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength)  {
+				enqueueDownload(Uri.parse(url));
+			}
+		});
 	}
 
 	private void updatePageBar() {
