@@ -1,14 +1,22 @@
 package com.ferg.awfulapp.announcements;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.task.AwfulRequest;
+import com.ferg.awfulapp.task.ThreadListRequest;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -262,6 +270,29 @@ public class AnnouncementsManager {
             readAnnouncements.clear();
             saveState();
         }
+    }
+
+
+    /**
+     * Check the site to update the current Announcement status
+     */
+    public static void updateAnnouncements(@NonNull Context context) {
+        // loading any forum will trigger an announcement parse - SH/SC is *probably* a stable ID, unlike say GBS
+        NetworkUtils.queueRequest(new ThreadListRequest(context, Constants.FORUM_ID_SHSC, 1).build(null, new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                String message = "Couldn't update announcements:\n" + error.getMessage();
+                if (Constants.DEBUG) {
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                }
+                Log.w(AnnouncementsManager.class.getSimpleName(), message);
+            }
+        }));
     }
 
 

@@ -2,14 +2,17 @@ package com.ferg.awfulapp.sync;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.forums.CrawlerTask;
 import com.ferg.awfulapp.forums.DropdownParserTask;
 import com.ferg.awfulapp.forums.ForumRepository;
+import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.FeatureRequest;
@@ -37,13 +40,27 @@ public class SyncManager {
         Log.i(TAG, "------ syncing profile and forum details");
         updateProfile(appContext);
         updateAccountFeatures(appContext);
-        updateForums(context);
-        trimDatabase(context);
+        updatePms(appContext);
+        updateAnnouncements(appContext);
+        updateForums(appContext);
+        trimDatabase(appContext);
     }
 
 
     private static void updateAccountFeatures(@NonNull Context context) {
         NetworkUtils.queueRequest(new FeatureRequest(context).build(null, null));
+    }
+
+
+    private static void updatePms(@NonNull Context context) {
+        PmManager.updatePms(context);
+    }
+
+
+    private static void updateAnnouncements(@NonNull Context context) {
+        // rubbish hack to avoid the Announcements and PM snackbars from appearing simultaneously and cancelling each other
+        new Handler(Looper.getMainLooper())
+                .postDelayed(() -> AnnouncementsManager.updateAnnouncements(context), 10_000L);
     }
 
 
@@ -103,7 +120,7 @@ public class SyncManager {
         volatile boolean parsedDropdown;
 
 
-        public UpdateResultHandler(ForumRepository forumRepo, Context context) {
+        UpdateResultHandler(ForumRepository forumRepo, Context context) {
             this.forumRepo = forumRepo;
             this.context = context;
             parsedDropdown = false;
@@ -132,12 +149,7 @@ public class SyncManager {
             } else {
                 if (noForumData) {
                     Handler handler = new Handler(context.getMainLooper());
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, R.string.forums_update_failure_message, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    handler.post(() -> Toast.makeText(context, R.string.forums_update_failure_message, Toast.LENGTH_LONG).show());
                 }
                 forumRepo.unregisterListener(this);
             }

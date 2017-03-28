@@ -1,8 +1,13 @@
 package com.ferg.awfulapp.messages;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.ferg.awfulapp.constants.Constants;
+import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.task.ThreadListRequest;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -66,6 +71,15 @@ public class PmManager {
      */
     public static void registerListener(@NonNull Listener listener) {
         callbacks.put(listener, new Object());
+    }
+
+
+    /**
+     * Check the site to update the current PM status
+     */
+    public static void updatePms(@NonNull Context context) {
+        // just need to load the user's bookmarks page to trigger a parse
+        NetworkUtils.queueRequest(new ThreadListRequest(context, Constants.USERCP_ID, 1).build());
     }
 
 
