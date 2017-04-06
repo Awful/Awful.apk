@@ -130,11 +130,11 @@ public class PostReplyFragment extends AwfulFragment {
     private boolean disableEmots = false;
     private boolean postSignature = false;
     private ContentValues replyData = null;
-    private ReplyCallback mReplyDataCallback = new ReplyCallback();
-    private ThreadDataCallback mThreadLoaderCallback;
+    private DraftReplyLoaderCallback draftLoaderCallback = new DraftReplyLoaderCallback();
+    private ThreadInfoCallback threadInfoCallback = new ThreadInfoCallback();
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
     private int draftReplyType;
-    private String draftReplyData;
+    private String draftReplyData = "";
     private long draftReplyTimestamp;
     private Intent attachmentData;
     private MessageComposer messageComposer;
@@ -145,31 +145,6 @@ public class PostReplyFragment extends AwfulFragment {
         if (DEBUG) Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
-        mThreadLoaderCallback = new ThreadDataCallback();
-
-        final Activity activity = getActivity();
-        mContentResolver = activity.getContentResolver();
-        Intent intent = activity.getIntent();
-
-        mReplyType = intent.getIntExtra(Constants.EDITING, -999);
-        mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
-        mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
-
-        boolean badRequest = false;
-        if (mReplyType < 0 || mThreadId == 0) {
-            // we always need a valid type and thread ID
-            badRequest = true;
-        } else if (mPostId == 0 &&
-                (mReplyType == TYPE_EDIT || mReplyType == TYPE_QUOTE)) {
-            // edits and quotes always need a post ID too
-            badRequest = true;
-        }
-
-        if (badRequest) {
-            activity.finish();
-        } else {
-            loadReply(mReplyType, mThreadId, mPostId);
-        }
     }
 
 
@@ -272,11 +247,36 @@ public class PostReplyFragment extends AwfulFragment {
         messageComposer = (MessageComposer) getChildFragmentManager().findFragmentById(R.id.message_composer_fragment);
         messageComposer.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
         messageComposer.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
+
+        // grab all the important reply params
+        Intent intent = activity.getIntent();
+        mReplyType = intent.getIntExtra(Constants.EDITING, -999);
+        mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0);
+        mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0);
         setTitle(getTitle());
 
-        activity.getContentResolver().registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
-        refreshLoader();
+        // perform some sanity checking
+        boolean badRequest = false;
+        if (mReplyType < 0 || mThreadId == 0) {
+            // we always need a valid type and thread ID
+            badRequest = true;
+        } else if (mPostId == 0 &&
+                (mReplyType == TYPE_EDIT || mReplyType == TYPE_QUOTE)) {
+            // edits and quotes always need a post ID too
+            badRequest = true;
+        }
+        if (badRequest) {
+            // TODO: 06/04/2017 give some sort of error feedback, e.g. a toast or logging
+            activity.finish();
+        }
+
+        mContentResolver = activity.getContentResolver();
+        mContentResolver.registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
+        // load any related stored draft before starting the reply request
+        // TODO: 06/04/2017 it would be better to handle this as two separate, completable requests - handle combining reply and draft data when they're both finished
+        getStoredDraft();
         refreshThreadInfo();
+        loadReply(mReplyType, mThreadId, mPostId);
     }
 
 
@@ -495,6 +495,9 @@ public class PostReplyFragment extends AwfulFragment {
         if (DEBUG) Log.e(TAG, "onResume");
     }
 
+    /**
+     * Finish the reply activity, performing cleanup and returning a result code to the activity that created it.
+     */
     private void leave(int activityResult) {
         final AwfulActivity activity = getAwfulActivity();
         if (activity != null) {
@@ -710,7 +713,6 @@ public class PostReplyFragment extends AwfulFragment {
         getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
         getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
-        messageComposer = null;
     }
 
     /**
@@ -873,12 +875,12 @@ public class PostReplyFragment extends AwfulFragment {
         return cv;
     }
 
-    private void refreshLoader() {
-        restartLoader(Constants.REPLY_LOADER_ID, null, mReplyDataCallback);
+    private void getStoredDraft() {
+        restartLoader(Constants.REPLY_LOADER_ID, null, draftLoaderCallback);
     }
 
     private void refreshThreadInfo() {
-        restartLoader(Constants.MISC_LOADER_ID, null, mThreadLoaderCallback);
+        restartLoader(Constants.MISC_LOADER_ID, null, threadInfoCallback);
     }
 
     @Override
@@ -912,7 +914,7 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
-    private class ReplyCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+    private class DraftReplyLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
             Log.i(TAG, "Create Reply Cursor: " + mThreadId);
@@ -925,22 +927,25 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-            Log.e(TAG, "Reply load finished, populating: " + aData.getCount());
-            if (!aData.isClosed() && aData.moveToFirst()) {
-                draftReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
-                int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
-                if ((draftReplyType == TYPE_EDIT && postId != mPostId) || draftReplyType != TYPE_EDIT && mReplyType == TYPE_EDIT) {
-                    //if the saved draft message is an edit, but not for this post, ignore it.
-                    draftReplyType = 0;
-                    return;
-                }
-                draftReplyTimestamp = aData.getLong(aData.getColumnIndex(AwfulMessage.EPOC_TIMESTAMP));
-                String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
-                if (!TextUtils.isEmpty(quoteData)) {
-                    draftReplyData = NetworkUtils.unencodeHtml(quoteData);
-                    Log.i(TAG, draftReplyType + "Saved reply message: " + draftReplyData);
-                }
+            if (aData.isClosed() || !aData.moveToFirst()) {
+                // no draft saved for this thread
+                return;
             }
+
+            draftReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+            int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
+            // TODO: 06/04/2017 sort out what's happening with these different draft types and how they're stored/overwritten
+            if ((draftReplyType == TYPE_EDIT && postId != mPostId)
+                    || draftReplyType != TYPE_EDIT && mReplyType == TYPE_EDIT) {
+                //if the saved draft message is an edit, but not for this post, ignore it.
+                draftReplyType = 0;
+                return;
+            }
+
+            draftReplyTimestamp = aData.getLong(aData.getColumnIndex(AwfulMessage.EPOC_TIMESTAMP));
+            String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+            draftReplyData = TextUtils.isEmpty(quoteData) ? "" : NetworkUtils.unencodeHtml(quoteData);
+            Log.i(TAG, draftReplyType + "Saved reply message: " + draftReplyData);
         }
 
         @Override
@@ -949,7 +954,7 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
-    private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+    private class ThreadInfoCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
             return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulThread.CONTENT_URI, mThreadId),
@@ -958,7 +963,7 @@ public class PostReplyFragment extends AwfulFragment {
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
             Log.v(TAG, "Thread title finished, populating.");
-            if (aData.getCount() > 0 && aData.moveToFirst()) {
+            if (aData.moveToFirst()) {
                 //threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
                 mThreadTitle = aData.getString(aData.getColumnIndex(AwfulThread.TITLE));
                 updateThreadTitle();
