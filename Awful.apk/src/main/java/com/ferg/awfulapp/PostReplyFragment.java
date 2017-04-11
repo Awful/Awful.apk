@@ -125,6 +125,10 @@ public class PostReplyFragment extends AwfulFragment {
     private int mPostId;
     private int mReplyType;
     private String mThreadTitle;
+
+    @Nullable
+    private SavedDraft savedDraft = null;
+
     private boolean saveRequired = true;
     private String mFileAttachment;
     private boolean disableEmots = false;
@@ -133,9 +137,6 @@ public class PostReplyFragment extends AwfulFragment {
     private DraftReplyLoaderCallback draftLoaderCallback = new DraftReplyLoaderCallback();
     private ThreadInfoCallback threadInfoCallback = new ThreadInfoCallback();
     private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
-    private int draftReplyType;
-    private String draftReplyData = "";
-    private long draftReplyTimestamp;
     private Intent attachmentData;
     private MessageComposer messageComposer;
 
@@ -180,7 +181,7 @@ public class PostReplyFragment extends AwfulFragment {
                     invalidateOptionsMenu();
                 }
                 dismissProgressDialog();
-                displayDraftAlert();
+                handleDraft();
             }
 
             @Override
@@ -266,7 +267,9 @@ public class PostReplyFragment extends AwfulFragment {
             badRequest = true;
         }
         if (badRequest) {
-            // TODO: 06/04/2017 give some sort of error feedback, e.g. a toast or logging
+            Toast.makeText(activity, "Can't create reply! Bad parameters", Toast.LENGTH_LONG).show();
+            String template = "Failed to init reply activity%nReply type: %d, Thread ID: %d, Post ID: %d";
+            Log.w(TAG, String.format(template, mReplyType, mThreadId, mPostId));
             activity.finish();
         }
 
@@ -599,9 +602,43 @@ public class PostReplyFragment extends AwfulFragment {
         invalidateOptionsMenu();
     }
 
-    private void displayDraftAlert() {
+
+    /**
+     * Take care of any saved draft, allowing the user to use it if appropriate.
+     */
+    private void handleDraft() {
+        // this implicitly relies on the Draft Reply Loader having already finished, assigning to savedDraft if it found any draft data
+        if (savedDraft == null) {
+            return;
+        }
+        /*
+           This is where we decide whether to load an existing draft, or ignore it.
+           The saved draft will end up getting replaced/deleted anyway (when the post is either posted or saved),
+           this just decides whether it's relevant to the current context, and the user needs to know about it.
+
+           We basically ignore a draft if:
+           - we're currently editing a post, and the draft isn't an edit
+           - the draft is an edit, but not for this post
+           in both cases we need to avoid replacing the original post (that we're trying to edit) with some other post's draft
+        */
+        // TODO: 11/04/2017 might be better to treat edits and posts/quotes as two separate things, so you can have 1 post and 1 edit saved per thread without them deleting each other
+        if ((savedDraft.type == TYPE_EDIT && savedDraft.postId != mPostId)
+                || savedDraft.type != TYPE_EDIT && mReplyType == TYPE_EDIT) {
+            return;
+        }
+        // got a useful draft, let the user decide what to do with it
+        displayDraftAlert(savedDraft);
+    }
+
+
+    /**
+     * Display a dialog allowing the user to use or discard an existing draft.
+     *
+     * @param draft a draft message relevant to this post
+     */
+    private void displayDraftAlert(@NonNull SavedDraft draft) {
         Activity activity = getActivity();
-        if (activity == null || TextUtils.isEmpty(draftReplyData)) {
+        if (activity == null) {
             return;
         }
 
@@ -612,7 +649,7 @@ public class PostReplyFragment extends AwfulFragment {
                 "Saved %s ago";
 
         String type;
-        switch (draftReplyType) {
+        switch (draft.type) {
             case TYPE_EDIT:
                 type = "Saved Edit";
                 break;
@@ -626,19 +663,19 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         final int MAX_PREVIEW_LENGTH = 140;
-        String previewText = StringUtils.substring(draftReplyData, 0, MAX_PREVIEW_LENGTH).replaceAll("\\n", "<br/>");
-        if (draftReplyData.length() > MAX_PREVIEW_LENGTH) {
+        String previewText = StringUtils.substring(draft.content, 0, MAX_PREVIEW_LENGTH).replaceAll("\\n", "<br/>");
+        if (draft.content.length() > MAX_PREVIEW_LENGTH) {
             previewText += "...";
         }
 
-        String message = String.format(template, type.toLowerCase(), previewText, epocToSimpleDate(draftReplyTimestamp));
+        String message = String.format(template, type.toLowerCase(), previewText, epocToSimpleDate(draft.timestamp));
         String positiveLabel = (mReplyType == TYPE_QUOTE) ? "Append" : "Use";
         new AlertDialog.Builder(activity)
                 .setIcon(R.drawable.ic_reply_dark)
                 .setTitle(type)
                 .setMessage(Html.fromHtml(message))
                 .setPositiveButton(positiveLabel, (dialog, which) -> {
-                    String newContent = draftReplyData;
+                    String newContent = draft.content;
                     // If we're quoting something, stick it after the draft reply (and add some whitespace too)
                     if (mReplyType == TYPE_QUOTE) {
                         newContent += "\n\n" + messageComposer.getText();
@@ -931,21 +968,20 @@ public class PostReplyFragment extends AwfulFragment {
                 // no draft saved for this thread
                 return;
             }
-
-            draftReplyType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
-            int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
-            // TODO: 06/04/2017 sort out what's happening with these different draft types and how they're stored/overwritten
-            if ((draftReplyType == TYPE_EDIT && postId != mPostId)
-                    || draftReplyType != TYPE_EDIT && mReplyType == TYPE_EDIT) {
-                //if the saved draft message is an edit, but not for this post, ignore it.
-                draftReplyType = 0;
+            // if there's some quote data, deserialise it into a SavedDraft
+            String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
+            if (TextUtils.isEmpty(quoteData)) {
                 return;
             }
+            int draftType = aData.getInt(aData.getColumnIndex(AwfulMessage.TYPE));
+            int postId = aData.getInt(aData.getColumnIndex(AwfulPost.EDIT_POST_ID));
+            long draftTimestamp = aData.getLong(aData.getColumnIndex(AwfulMessage.EPOC_TIMESTAMP));
+            String draftReply = NetworkUtils.unencodeHtml(quoteData);
 
-            draftReplyTimestamp = aData.getLong(aData.getColumnIndex(AwfulMessage.EPOC_TIMESTAMP));
-            String quoteData = aData.getString(aData.getColumnIndex(AwfulMessage.REPLY_CONTENT));
-            draftReplyData = TextUtils.isEmpty(quoteData) ? "" : NetworkUtils.unencodeHtml(quoteData);
-            Log.i(TAG, draftReplyType + "Saved reply message: " + draftReplyData);
+            savedDraft = new SavedDraft(draftType, draftReply, postId, draftTimestamp);
+            if (Constants.DEBUG) {
+                Log.i(TAG, draftType + "Saved reply message: " + draftReply);
+            }
         }
 
         @Override
@@ -984,6 +1020,21 @@ public class PostReplyFragment extends AwfulFragment {
         public void onChange(boolean selfChange) {
             if (DEBUG) Log.v(TAG, "Thread Data update.");
             refreshThreadInfo();
+        }
+    }
+
+    private static class SavedDraft {
+        private final int type;
+        @NonNull
+        private final String content;
+        private final int postId;
+        private final long timestamp;
+
+        SavedDraft(int type, @NonNull String content, int postId, long timestamp) {
+            this.type = type;
+            this.content = content;
+            this.postId = postId;
+            this.timestamp = timestamp;
         }
     }
 }
