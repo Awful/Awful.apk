@@ -109,36 +109,57 @@ import static com.ferg.awfulapp.thread.AwfulMessage.TYPE_NEW_REPLY;
 import static com.ferg.awfulapp.thread.AwfulMessage.TYPE_QUOTE;
 
 public class PostReplyFragment extends AwfulFragment {
+
     public static final int REQUEST_POST = 5;
     public static final int RESULT_POSTED = 6;
     public static final int RESULT_CANCELLED = 7;
     public static final int RESULT_EDITED = 8;
     public static final int ADD_ATTACHMENT = 9;
     private static final String TAG = "PostReplyFragment";
+
+    // UI components
     @BindView(R.id.thread_title)
     TextView threadTitleView = null;
-    private ContentResolver mContentResolver;
+    private MessageComposer messageComposer;
     @Nullable
     private ProgressDialog progressDialog;
 
+    // internal state
+    @Nullable
+    private SavedDraft savedDraft = null;
+    @Nullable
+    private ContentValues replyData = null;
+    private boolean saveRequired = true;
+    @Nullable
+    private Intent attachmentData;
+
+    // async stuff
+    private ContentResolver mContentResolver;
+    @NonNull
+    private final DraftReplyLoaderCallback draftLoaderCallback = new DraftReplyLoaderCallback();
+    @NonNull
+    private final ThreadInfoCallback threadInfoCallback = new ThreadInfoCallback();
+    @NonNull
+    private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
+
+    // thread/reply metadata
     private int mThreadId;
     private int mPostId;
     private int mReplyType;
+    @Nullable
     private String mThreadTitle;
 
+    // User's reply data
     @Nullable
-    private SavedDraft savedDraft = null;
-
-    private boolean saveRequired = true;
     private String mFileAttachment;
-    private boolean disableEmots = false;
+    private boolean disableEmotes = false;
     private boolean postSignature = false;
-    private ContentValues replyData = null;
-    private DraftReplyLoaderCallback draftLoaderCallback = new DraftReplyLoaderCallback();
-    private ThreadInfoCallback threadInfoCallback = new ThreadInfoCallback();
-    private ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
-    private Intent attachmentData;
-    private MessageComposer messageComposer;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Activity and fragment initialisation
+    ///////////////////////////////////////////////////////////////////////////
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -148,87 +169,6 @@ public class PostReplyFragment extends AwfulFragment {
         setRetainInstance(false);
     }
 
-
-    /**
-     * Initiate a new reply/edit by passing a request to the site and handling its response.
-     *
-     * @param mReplyType    The type of request we're making (reply/quote/edit)
-     * @param mThreadId     The ID of the thread
-     * @param mPostId       The ID of the post being edited/quoted, if applicable
-     */
-    private void loadReply(int mReplyType, int mThreadId, int mPostId) {
-        progressDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
-
-        // create a callback to handle the reply data from the site
-        AwfulRequest.AwfulResultCallback<ContentValues> loadCallback = new AwfulRequest.AwfulResultCallback<ContentValues>() {
-            @Override
-            public void success(ContentValues result) {
-                replyData = result;
-                if (result.containsKey(AwfulMessage.REPLY_CONTENT)) {
-                    // update the message composer with the provided reply data
-                    String replyData = NetworkUtils.unencodeHtml(result.getAsString(AwfulMessage.REPLY_CONTENT));
-                    if (!TextUtils.isEmpty(replyData)) {
-                        if (replyData.endsWith("[/quote]")) {
-                            replyData = replyData + "\n\n";
-                        }
-                        messageComposer.setText(replyData, true);
-                    } else {
-                        messageComposer.setText(null, false);
-                    }
-                    // set any options and update the menu
-                    postSignature = getCheckedAndRemove(REPLY_SIGNATURE, result);
-                    disableEmots = getCheckedAndRemove(REPLY_DISABLE_SMILIES, result);
-                    invalidateOptionsMenu();
-                }
-                dismissProgressDialog();
-                handleDraft();
-            }
-
-            @Override
-            public void failure(VolleyError error) {
-                dismissProgressDialog();
-                //allow time for the error to display, then close the window
-                mHandler.postDelayed(() -> leave(RESULT_CANCELLED), 3000);
-            }
-        };
-        switch (mReplyType) {
-            case TYPE_NEW_REPLY:
-                queueRequest(new ReplyRequest(getActivity(), mThreadId).build(this, loadCallback));
-                break;
-            case TYPE_QUOTE:
-                queueRequest(new QuoteRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
-                break;
-            case TYPE_EDIT:
-                queueRequest(new EditRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
-                break;
-            default:
-                Toast.makeText(getActivity(), "Unknown reply type: " + mReplyType, Toast.LENGTH_LONG).show();
-                leave(RESULT_CANCELLED);
-        }
-    }
-
-    /**
-     * Removes a key from a ContentValues, returning true if it was set to "checked"
-     */
-    private boolean getCheckedAndRemove(@NonNull String key, @NonNull ContentValues values) {
-        if (!values.containsKey(key)) {
-            return false;
-        }
-        boolean checked = "checked".equals(values.getAsString(key));
-        values.remove(key);
-        return checked;
-    }
-
-
-    /**
-     * Dismiss the progress dialog and set it to null, if it isn't already.
-     */
-    private void dismissProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
@@ -276,7 +216,7 @@ public class PostReplyFragment extends AwfulFragment {
         mContentResolver = activity.getContentResolver();
         mContentResolver.registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         // load any related stored draft before starting the reply request
-        // TODO: 06/04/2017 it would be better to handle this as two separate, completable requests - handle combining reply and draft data when they're both finished
+        // TODO: 06/04/2017 probably better to handle this as two separate, completable requests - combine reply and draft data when they're both finished, instead of assuming the draft loader finishes first
         getStoredDraft();
         refreshThreadInfo();
         loadReply(mReplyType, mThreadId, mPostId);
@@ -303,21 +243,569 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
 
-    /**
-     * Update the title view to show the current thread title, if we have it
-     */
-    private void updateThreadTitle() {
-        if (threadTitleView != null) {
-            threadTitleView.setText(mThreadTitle == null ? "" : mThreadTitle);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addAttachment();
+                } else {
+                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
-    protected void addAttachment() {
+
+    private void getStoredDraft() {
+        restartLoader(Constants.REPLY_LOADER_ID, null, draftLoaderCallback);
+    }
+
+    private void refreshThreadInfo() {
+        restartLoader(Constants.MISC_LOADER_ID, null, threadInfoCallback);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Fetching data/drafts and populating editor
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Initiate a new reply/edit by passing a request to the site and handling its response.
+     *
+     * @param mReplyType The type of request we're making (reply/quote/edit)
+     * @param mThreadId  The ID of the thread
+     * @param mPostId    The ID of the post being edited/quoted, if applicable
+     */
+    private void loadReply(int mReplyType, int mThreadId, int mPostId) {
+        progressDialog = ProgressDialog.show(getActivity(), "Loading", "Fetching Message...", true, true);
+
+        // create a callback to handle the reply data from the site
+        AwfulRequest.AwfulResultCallback<ContentValues> loadCallback = new AwfulRequest.AwfulResultCallback<ContentValues>() {
+            @Override
+            public void success(ContentValues result) {
+                replyData = result;
+                if (result.containsKey(AwfulMessage.REPLY_CONTENT)) {
+                    // update the message composer with the provided reply data
+                    String replyData = NetworkUtils.unencodeHtml(result.getAsString(AwfulMessage.REPLY_CONTENT));
+                    if (!TextUtils.isEmpty(replyData)) {
+                        if (replyData.endsWith("[/quote]")) {
+                            replyData = replyData + "\n\n";
+                        }
+                        messageComposer.setText(replyData, true);
+                    } else {
+                        messageComposer.setText(null, false);
+                    }
+                    // set any options and update the menu
+                    postSignature = getCheckedAndRemove(REPLY_SIGNATURE, result);
+                    disableEmotes = getCheckedAndRemove(REPLY_DISABLE_SMILIES, result);
+                    invalidateOptionsMenu();
+                }
+                dismissProgressDialog();
+                handleDraft();
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                dismissProgressDialog();
+                //allow time for the error to display, then close the window
+                mHandler.postDelayed(() -> leave(RESULT_CANCELLED), 3000);
+            }
+        };
+        switch (mReplyType) {
+            case TYPE_NEW_REPLY:
+                queueRequest(new ReplyRequest(getActivity(), mThreadId).build(this, loadCallback));
+                break;
+            case TYPE_QUOTE:
+                queueRequest(new QuoteRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
+                break;
+            case TYPE_EDIT:
+                queueRequest(new EditRequest(getActivity(), mThreadId, mPostId).build(this, loadCallback));
+                break;
+            default:
+                // TODO: 13/04/2017 make an enum/intdef for reply types and just fail early if necessary, shouldn't need to keep checking for bad values everywhere
+                Toast.makeText(getActivity(), "Unknown reply type: " + mReplyType, Toast.LENGTH_LONG).show();
+                leave(RESULT_CANCELLED);
+        }
+    }
+
+    /**
+     * Removes a key from a ContentValues, returning true if it was set to "checked"
+     */
+    private boolean getCheckedAndRemove(@NonNull String key, @NonNull ContentValues values) {
+        if (!values.containsKey(key)) {
+            return false;
+        }
+        boolean checked = "checked".equals(values.getAsString(key));
+        values.remove(key);
+        return checked;
+    }
+
+
+    /**
+     * Take care of any saved draft, allowing the user to use it if appropriate.
+     */
+    private void handleDraft() {
+        // this implicitly relies on the Draft Reply Loader having already finished, assigning to savedDraft if it found any draft data
+        if (savedDraft == null) {
+            return;
+        }
+        /*
+           This is where we decide whether to load an existing draft, or ignore it.
+           The saved draft will end up getting replaced/deleted anyway (when the post is either posted or saved),
+           this just decides whether it's relevant to the current context, and the user needs to know about it.
+
+           We basically ignore a draft if:
+           - we're currently editing a post, and the draft isn't an edit
+           - the draft is an edit, but not for this post
+           in both cases we need to avoid replacing the original post (that we're trying to edit) with some other post's draft
+        */
+        // TODO: 11/04/2017 might be better to treat edits and posts/quotes as two separate things, so you can have 1 post and 1 edit saved per thread without them deleting each other
+        if ((savedDraft.type == TYPE_EDIT && savedDraft.postId != mPostId)
+                || savedDraft.type != TYPE_EDIT && mReplyType == TYPE_EDIT) {
+            return;
+        }
+        // got a useful draft, let the user decide what to do with it
+        displayDraftAlert(savedDraft);
+    }
+
+
+    /**
+     * Display a dialog allowing the user to use or discard an existing draft.
+     *
+     * @param draft a draft message relevant to this post
+     */
+    private void displayDraftAlert(@NonNull SavedDraft draft) {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        String template = "You have a %s:" +
+                "<br/><br/>" +
+                "<i>%s</i>" +
+                "<br/><br/>" +
+                "Saved %s ago";
+
+        String type;
+        switch (draft.type) {
+            case TYPE_EDIT:
+                type = "Saved Edit";
+                break;
+            case TYPE_QUOTE:
+                type = "Saved Quote";
+                break;
+            case TYPE_NEW_REPLY:
+            default:
+                type = "Saved Reply";
+                break;
+        }
+
+        final int MAX_PREVIEW_LENGTH = 140;
+        String previewText = StringUtils.substring(draft.content, 0, MAX_PREVIEW_LENGTH).replaceAll("\\n", "<br/>");
+        if (draft.content.length() > MAX_PREVIEW_LENGTH) {
+            previewText += "...";
+        }
+
+        String message = String.format(template, type.toLowerCase(), previewText, epochToSimpleDuration(draft.timestamp));
+        String positiveLabel = (mReplyType == TYPE_QUOTE) ? "Add" : "Use";
+        new AlertDialog.Builder(activity)
+                .setIcon(R.drawable.ic_reply_dark)
+                .setTitle(type)
+                .setMessage(Html.fromHtml(message))
+                .setPositiveButton(positiveLabel, (dialog, which) -> {
+                    String newContent = draft.content;
+                    // If we're quoting something, stick it after the draft reply (and add some whitespace too)
+                    if (mReplyType == TYPE_QUOTE) {
+                        newContent += "\n\n" + messageComposer.getText();
+                    }
+                    messageComposer.setText(newContent, true);
+                })
+                .setNegativeButton(R.string.discard, (dialog, which) -> deleteSavedReply())
+                // avoid accidental draft losses by forcing a decision
+                .setCancelable(false)
+                .show();
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Send/preview posts
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Display a dialog allowing the user to submit or preview their post
+     */
+    private void showSubmitDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(String.format("Confirm %s?", mReplyType == TYPE_EDIT ? "Edit" : "Post"))
+                .setPositiveButton(R.string.submit,
+                        (dialog, button) -> {
+                            if (progressDialog == null && getActivity() != null) {
+                                progressDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
+                            }
+                            saveReply();
+                            submitPost();
+                        })
+                .setNeutralButton(R.string.preview, (dialog, button) -> previewPost())
+                .setNegativeButton(R.string.cancel, (dialog, button) -> {})
+                .show();
+    }
+
+
+    /**
+     * Actually submit the post/edit to the site.
+     */
+    private void submitPost() {
+        ContentValues cv = prepareCV();
+        if (cv == null) {
+            return;
+        }
+        AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
+            @Override
+            public void success(Void result) {
+                dismissProgressDialog();
+                deleteSavedReply();
+                saveRequired = false;
+
+                Context context = getContext();
+                if (context != null) {
+                    Toast.makeText(context, context.getString(R.string.post_sent), Toast.LENGTH_LONG).show();
+                }
+                mContentResolver.notifyChange(AwfulThread.CONTENT_URI, null);
+                leave(mReplyType == TYPE_EDIT ? mPostId : RESULT_POSTED);
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                dismissProgressDialog();
+                saveReply();
+            }
+        };
+        switch (mReplyType) {
+            case TYPE_QUOTE:
+            case TYPE_NEW_REPLY:
+                queueRequest(new SendPostRequest(getActivity(), cv).build(this, postCallback));
+                break;
+            case TYPE_EDIT:
+                queueRequest(new SendEditRequest(getActivity(), cv).build(this, postCallback));
+                break;
+        }
+    }
+
+
+    /**
+     * Request a preview of the current post from the site, and display it.
+     */
+    private void previewPost() {
+        ContentValues cv = prepareCV();
+        if (cv == null) {
+            return;
+        }
+        final PreviewFragment previewFrag = new PreviewFragment();
+        previewFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        previewFrag.show(getFragmentManager(), "Post Preview");
+        // TODO: 12/02/2017 this result should already be on the UI thread?
+        AwfulRequest.AwfulResultCallback<String> previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
+            @Override
+            public void success(final String result) {
+                getAwfulActivity().runOnUiThread(() -> previewFrag.setContent(result));
+            }
+
+            @Override
+            public void failure(VolleyError error) {
+                previewFrag.dismiss();
+                if (getView() != null) {
+                    Snackbar.make(getView(), "Preview failed.", Snackbar.LENGTH_LONG)
+                            .setAction("Retry", v -> previewPost()).show();
+                }
+            }
+        };
+        if (mReplyType == TYPE_EDIT) {
+            queueRequest(new PreviewEditRequest(getActivity(), cv).build(this, previewCallback));
+        } else {
+            queueRequest(new PreviewPostRequest(getActivity(), cv).build(this, previewCallback));
+        }
+    }
+
+
+    /**
+     * Create a ContentValues representing the current post and its options.
+     * <p>
+     * Returns null if the data is invalid, e.g. an empty post
+     *
+     * @return The post data, or null if there was an error.
+     */
+    @Nullable
+    private ContentValues prepareCV() {
+        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
+            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
+            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
+            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
+            Activity activity = getActivity();
+            if (activity != null) {
+                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
+            }
+            return null;
+        }
+        ContentValues cv = new ContentValues(replyData);
+        if (isReplyEmpty()) {
+            dismissProgressDialog();
+            new AlertBuilder().setTitle(R.string.message_empty)
+                    .setSubtitle(R.string.message_empty_subtext)
+                    .show();
+            return null;
+        }
+        if (!TextUtils.isEmpty(mFileAttachment)) {
+            cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+        }
+        if (postSignature) {
+            cv.put(REPLY_SIGNATURE, Constants.YES);
+        }
+        if (disableEmotes) {
+            cv.put(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
+        }
+        cv.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText());
+        return cv;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Lifecycle/navigation stuff
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateThreadTitle();
+        if (DEBUG) Log.e(TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (DEBUG) Log.e(TAG, "onPause");
+        cleanupTasks();
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView");
+        // final cleanup - some should have already been done in onPause (draft saving etc)
+        getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
+        getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
+        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
+    }
+
+    /**
+     * Tasks to perform when the reply window moves from the foreground.
+     * Basically saves a draft if required, and hides elements like the keyboard
+     */
+    private void cleanupTasks() {
+        autoSave();
+        dismissProgressDialog();
+        messageComposer.hideKeyboard();
+    }
+
+
+    /**
+     * Finish the reply activity, performing cleanup and returning a result code to the activity that created it.
+     */
+    private void leave(int activityResult) {
+        final AwfulActivity activity = getAwfulActivity();
+        if (activity != null) {
+            activity.setResult(activityResult);
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null && getView() != null) {
+                imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
+            }
+            activity.finish();
+        }
+    }
+
+
+    /**
+     * Call this when the user tries to leave the activity, so the Save/Discard dialog can be shown if necessary.
+     */
+    void onNavigateBack() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        } else if (isReplyEmpty()) {
+            leave(RESULT_CANCELLED);
+            return;
+        }
+        new AlertDialog.Builder(activity)
+                .setIcon(R.drawable.ic_reply_dark)
+                .setMessage(String.format("Save this %s?", mReplyType == TYPE_EDIT ? "edit" : "post"))
+                .setPositiveButton(R.string.save, (dialog, button) -> {
+                    // let #autoSave handle it on leaving
+                    saveRequired = true;
+                    leave(RESULT_CANCELLED);
+                })
+                .setNegativeButton(R.string.discard, (dialog, which) -> {
+                    deleteSavedReply();
+                    saveRequired = false;
+                    leave(RESULT_CANCELLED);
+                })
+                .setNeutralButton(R.string.cancel, (dialog, which) -> {
+                })
+                .setCancelable(true)
+                .show();
+
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Saving draft data
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Trigger a draft save, if required.
+     */
+    private void autoSave() {
+        if (saveRequired && messageComposer != null) {
+            if (isReplyEmpty()) {
+                Log.i(TAG, "Message unchanged, discarding.");
+                // TODO: 12/02/2017 does this actually need to check if it's unchanged?
+                deleteSavedReply();//if the reply is unchanged, throw it out.
+                messageComposer.setText(null, false);
+            } else {
+                Log.i(TAG, "Message Unsent, saving.");
+                saveReply();
+            }
+        }
+    }
+
+
+    /**
+     * Delete any saved reply for the current thread
+     */
+    private void deleteSavedReply() {
+        mContentResolver.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
+    }
+
+
+    /**
+     * Save a draft reply for the current thread.
+     */
+    private void saveReply() {
+        if (getActivity() != null && mThreadId > 0 && messageComposer != null) {
+            String content = messageComposer.getText();
+            // don't save if the message is empty/whitespace
+            // not trimming the actual content, so we retain any whitespace e.g. blank lines after quotes
+            if (!content.trim().isEmpty()) {
+                Log.i(TAG, "Saving reply! " + content);
+                ContentValues post = (replyData == null) ? new ContentValues() : new ContentValues(replyData);
+                post.put(AwfulMessage.ID, mThreadId);
+                post.put(AwfulMessage.TYPE, mReplyType);
+                post.put(AwfulMessage.REPLY_CONTENT, content);
+                post.put(AwfulMessage.EPOC_TIMESTAMP, System.currentTimeMillis());
+                if (mFileAttachment != null) {
+                    post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
+                }
+                if (mContentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null) < 1) {
+                    mContentResolver.insert(AwfulMessage.CONTENT_URI_REPLY, post);
+                }
+            }
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Menus
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
+        inflater.inflate(R.menu.post_reply, menu);
+
+        MenuItem attach = menu.findItem(R.id.add_attachment);
+        if (attach != null && mPrefs != null) {
+            attach.setEnabled(mPrefs.hasPlatinum);
+            attach.setVisible(mPrefs.hasPlatinum);
+        }
+        MenuItem remove = menu.findItem(R.id.remove_attachment);
+        if (remove != null && mPrefs != null) {
+            remove.setEnabled((mPrefs.hasPlatinum && this.mFileAttachment != null));
+            remove.setVisible(mPrefs.hasPlatinum && this.mFileAttachment != null);
+        }
+        MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
+        if (disableEmoticons != null) {
+            disableEmoticons.setChecked(disableEmotes);
+        }
+        MenuItem sig = menu.findItem(R.id.signature);
+        if (sig != null) {
+            sig.setChecked(postSignature);
+        }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        switch (item.getItemId()) {
+            case R.id.submit_button:
+                showSubmitDialog();
+                break;
+            case R.id.add_attachment:
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent,
+                        "Select Picture"), ADD_ATTACHMENT);
+                break;
+            case R.id.remove_attachment:
+                this.mFileAttachment = null;
+                Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
+                removeToast.show();
+                invalidateOptionsMenu();
+                break;
+            case R.id.signature:
+                item.setChecked(!item.isChecked());
+                postSignature = item.isChecked();
+                break;
+            case R.id.disableEmots:
+                item.setChecked(!item.isChecked());
+                disableEmotes = item.isChecked();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+    }
+
+
+    @Override
+    public void onPreferenceChange(AwfulPreferences prefs, String key) {
+        super.onPreferenceChange(prefs, key);
+        //refresh the menu to show/hide attach option (plat only)
+        invalidateOptionsMenu();
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Attachment handling
+    ///////////////////////////////////////////////////////////////////////////
+
+    // TODO: 13/04/2017 make a separate attachment component and stick all this in there
+
+    private void addAttachment() {
         addAttachment(attachmentData);
         attachmentData = null;
     }
 
-    protected void addAttachment(Intent data) {
+    private void addAttachment(Intent data) {
         Uri selectedImageUri = data.getData();
         String path = getFilePath(selectedImageUri);
         if (path == null) {
@@ -360,7 +848,7 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
 
-    public String getFilePath(final Uri uri) {
+    private String getFilePath(final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
@@ -435,8 +923,8 @@ public class PostReplyFragment extends AwfulFragment {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public String getDataColumn(Uri uri, String selection,
-                                String[] selectionArgs) {
+    private String getDataColumn(Uri uri, String selection,
+                                 String[] selectionArgs) {
 
         Cursor cursor = null;
         final String column = "_data";
@@ -463,7 +951,7 @@ public class PostReplyFragment extends AwfulFragment {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public boolean isExternalStorageDocument(Uri uri) {
+    private boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -471,7 +959,7 @@ public class PostReplyFragment extends AwfulFragment {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public boolean isDownloadsDocument(Uri uri) {
+    private boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -479,7 +967,7 @@ public class PostReplyFragment extends AwfulFragment {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public boolean isMediaDocument(Uri uri) {
+    private boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
@@ -487,437 +975,72 @@ public class PostReplyFragment extends AwfulFragment {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public boolean isGooglePhotosUri(Uri uri) {
+    private boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateThreadTitle();
-        if (DEBUG) Log.e(TAG, "onResume");
-    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Misc utility stuff
+    ///////////////////////////////////////////////////////////////////////////
+
 
     /**
-     * Finish the reply activity, performing cleanup and returning a result code to the activity that created it.
+     * Utility method to check if the composer contains an empty post
      */
-    private void leave(int activityResult) {
-        final AwfulActivity activity = getAwfulActivity();
-        if (activity != null) {
-            activity.setResult(activityResult);
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null && getView() != null) {
-                imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), 0);
-            }
-            activity.finish();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (DEBUG) Log.e(TAG, "onPause");
-        cleanupTasks();
-    }
-
-
-    void onNavigateBack() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        } else if (isReplyEmpty()) {
-            leave(RESULT_CANCELLED);
-            return;
-        }
-        new AlertDialog.Builder(activity)
-                .setIcon(R.drawable.ic_reply_dark)
-                .setMessage("Save this post?")
-                .setPositiveButton("Save", (dialog, button) -> {
-                    // let #autoSave handle it on leaving
-                    saveRequired = true;
-                    leave(RESULT_CANCELLED);
-                })
-                .setNegativeButton("Discard", (dialog, which) -> {
-                    deleteSavedReply();
-                    saveRequired = false;
-                    leave(RESULT_CANCELLED);
-                })
-                .setNeutralButton("Cancel", (dialog, which) -> {
-                })
-                .setCancelable(true)
-                .show();
-
-    }
-
-
-    private void autoSave() {
-        if (saveRequired && messageComposer != null) {
-            if (isReplyEmpty()) {
-                Log.i(TAG, "Message unchanged, discarding.");
-                // TODO: 12/02/2017 does this actually need to check if it's unchanged?
-                deleteSavedReply();//if the reply is unchanged, throw it out.
-                messageComposer.setText(null, false);
-            } else {
-                Log.i(TAG, "Message Unsent, saving.");
-                saveReply();
-            }
-        }
-    }
-
-
     private boolean isReplyEmpty() {
         return messageComposer.getText().trim().isEmpty();
     }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
-        inflater.inflate(R.menu.post_reply, menu);
-
-        MenuItem attach = menu.findItem(R.id.add_attachment);
-        if (attach != null && mPrefs != null) {
-            attach.setEnabled(mPrefs.hasPlatinum);
-            attach.setVisible(mPrefs.hasPlatinum);
-        }
-        MenuItem remove = menu.findItem(R.id.remove_attachment);
-        if (remove != null && mPrefs != null) {
-            remove.setEnabled((mPrefs.hasPlatinum && this.mFileAttachment != null));
-            remove.setVisible(mPrefs.hasPlatinum && this.mFileAttachment != null);
-        }
-        MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
-        if (disableEmoticons != null) {
-            disableEmoticons.setChecked(disableEmots);
-        }
-        MenuItem sig = menu.findItem(R.id.signature);
-        if (sig != null) {
-            sig.setChecked(postSignature);
-        }
-    }
-
-    @Override
-    public void onPreferenceChange(AwfulPreferences prefs, String key) {
-        super.onPreferenceChange(prefs, key);
-        //refresh the menu to show/hide attach option (plat only)
-        invalidateOptionsMenu();
-    }
-
-
     /**
-     * Take care of any saved draft, allowing the user to use it if appropriate.
+     * Convert an epoch timestamp to a duration relative to now.
+     * <p>
+     * Returns the duration in a "1d 4h 22m 30s" format, omitting units with zero values.
      */
-    private void handleDraft() {
-        // this implicitly relies on the Draft Reply Loader having already finished, assigning to savedDraft if it found any draft data
-        if (savedDraft == null) {
-            return;
-        }
-        /*
-           This is where we decide whether to load an existing draft, or ignore it.
-           The saved draft will end up getting replaced/deleted anyway (when the post is either posted or saved),
-           this just decides whether it's relevant to the current context, and the user needs to know about it.
-
-           We basically ignore a draft if:
-           - we're currently editing a post, and the draft isn't an edit
-           - the draft is an edit, but not for this post
-           in both cases we need to avoid replacing the original post (that we're trying to edit) with some other post's draft
-        */
-        // TODO: 11/04/2017 might be better to treat edits and posts/quotes as two separate things, so you can have 1 post and 1 edit saved per thread without them deleting each other
-        if ((savedDraft.type == TYPE_EDIT && savedDraft.postId != mPostId)
-                || savedDraft.type != TYPE_EDIT && mReplyType == TYPE_EDIT) {
-            return;
-        }
-        // got a useful draft, let the user decide what to do with it
-        displayDraftAlert(savedDraft);
-    }
-
-
-    /**
-     * Display a dialog allowing the user to use or discard an existing draft.
-     *
-     * @param draft a draft message relevant to this post
-     */
-    private void displayDraftAlert(@NonNull SavedDraft draft) {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-
-        String template = "You have a %s:" +
-                "<br/><br/>" +
-                "<i>%s</i>" +
-                "<br/><br/>" +
-                "Saved %s ago";
-
-        String type;
-        switch (draft.type) {
-            case TYPE_EDIT:
-                type = "Saved Edit";
-                break;
-            case TYPE_QUOTE:
-                type = "Saved Quote";
-                break;
-            case TYPE_NEW_REPLY:
-            default:
-                type = "Saved Reply";
-                break;
-        }
-
-        final int MAX_PREVIEW_LENGTH = 140;
-        String previewText = StringUtils.substring(draft.content, 0, MAX_PREVIEW_LENGTH).replaceAll("\\n", "<br/>");
-        if (draft.content.length() > MAX_PREVIEW_LENGTH) {
-            previewText += "...";
-        }
-
-        String message = String.format(template, type.toLowerCase(), previewText, epocToSimpleDate(draft.timestamp));
-        String positiveLabel = (mReplyType == TYPE_QUOTE) ? "Append" : "Use";
-        new AlertDialog.Builder(activity)
-                .setIcon(R.drawable.ic_reply_dark)
-                .setTitle(type)
-                .setMessage(Html.fromHtml(message))
-                .setPositiveButton(positiveLabel, (dialog, which) -> {
-                    String newContent = draft.content;
-                    // If we're quoting something, stick it after the draft reply (and add some whitespace too)
-                    if (mReplyType == TYPE_QUOTE) {
-                        newContent += "\n\n" + messageComposer.getText();
-                    }
-                    messageComposer.setText(newContent, true);
-                })
-                .setNegativeButton("Discard", (dialog, which) -> deleteSavedReply())
-                // avoid accidental draft losses by forcing a decision
-                .setCancelable(false)
-                .show();
-    }
-
-    private String epocToSimpleDate(long epoc) {
-        Duration diff = Duration.between(Instant.ofEpochSecond( (epoc/1000) ),Instant.now()).abs();
+    private String epochToSimpleDuration(long epoch) {
+        Duration diff = Duration.between(Instant.ofEpochSecond((epoch / 1000)), Instant.now()).abs();
         String time = "";
         if (diff.toDays() > 0) {
-            time+=" "+ diff.toDays()+"d";
+            time += " " + diff.toDays() + "d";
             diff = diff.minusDays(diff.toDays());
         }
         if (diff.toHours() > 0) {
-            time+=" "+ diff.toHours()+"h";
+            time += " " + diff.toHours() + "h";
             diff = diff.minusHours(diff.toHours());
         }
         if (diff.toMinutes() > 0) {
-            time+=" "+ diff.toMinutes()+"m";
+            time += " " + diff.toMinutes() + "m";
             diff = diff.minusMinutes(diff.toMinutes());
         }
 
-        time+=" "+ diff.getSeconds()+"s";
+        time += " " + diff.getSeconds() + "s";
         return time;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
-        switch (item.getItemId()) {
-            case R.id.submit_button:
-                postReply();
-                break;
-            case R.id.add_attachment:
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(Intent.createChooser(intent,
-                        "Select Picture"), ADD_ATTACHMENT);
-                break;
-            case R.id.remove_attachment:
-                this.mFileAttachment = null;
-                Toast removeToast = Toast.makeText(getAwfulActivity(), getAwfulActivity().getResources().getText(R.string.file_removed), Toast.LENGTH_SHORT);
-                removeToast.show();
-                invalidateOptionsMenu();
-                break;
-            case R.id.signature:
-                item.setChecked(!item.isChecked());
-                postSignature = item.isChecked();
-                break;
-            case R.id.disableEmots:
-                item.setChecked(!item.isChecked());
-                disableEmots = item.isChecked();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
 
-        return true;
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // UI things
+    ///////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.e(TAG, "onDestroyView");
-        // final cleanup - some should have already been done in onPause (draft saving etc)
-        getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
-        getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
-        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
-    }
 
     /**
-     * Tasks to perform when the reply window moves from the foreground.
-     * Basically saves a draft if required, and hides elements like the keyboard
+     * Dismiss the progress dialog and set it to null, if it isn't already.
      */
-    private void cleanupTasks() {
-        autoSave();
-        dismissProgressDialog();
-        messageComposer.hideKeyboard();
-    }
-
-    private void postReply() {
-        new AlertDialog.Builder(getActivity())
-                .setTitle((mReplyType == TYPE_EDIT) ? "Confirm Edit?" : "Confirm Post?")
-                .setPositiveButton(R.string.post_reply,
-                        (dialog, button) -> {
-                            if (progressDialog == null && getActivity() != null) {
-                                progressDialog = ProgressDialog.show(getActivity(), "Posting", "Hopefully it didn't suck...", true, true);
-                            }
-                            saveReply();
-                            sendPost();
-                        })
-                .setNeutralButton("Preview", (dialog, button) -> previewPost())
-                .setNegativeButton(R.string.cancel, (dialog, button) -> {})
-                .show();
-    }
-
-    private void sendPost() {
-        ContentValues cv = prepareCV();
-        if (cv == null) {
-            return;
-        }
-        AwfulRequest.AwfulResultCallback<Void> postCallback = new AwfulRequest.AwfulResultCallback<Void>() {
-            @Override
-            public void success(Void result) {
-                dismissProgressDialog();
-                deleteSavedReply();
-                saveRequired = false;
-
-                Context context = getContext();
-                if (context != null) {
-                    Toast.makeText(context, context.getString(R.string.post_sent), Toast.LENGTH_LONG).show();
-                }
-                mContentResolver.notifyChange(AwfulThread.CONTENT_URI, null);
-                leave(mReplyType == TYPE_EDIT ? mPostId : RESULT_POSTED);
-            }
-
-            @Override
-            public void failure(VolleyError error) {
-                dismissProgressDialog();
-                saveReply();
-            }
-        };
-        switch (mReplyType) {
-            case TYPE_QUOTE:
-            case TYPE_NEW_REPLY:
-                queueRequest(new SendPostRequest(getActivity(), cv).build(this, postCallback));
-                break;
-            case TYPE_EDIT:
-                queueRequest(new SendEditRequest(getActivity(), cv).build(this, postCallback));
-                break;
-            default:
-                getActivity().finish();
+    private void dismissProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
         }
     }
+
 
     /**
-     * Delete any saved reply for the current thread
+     * Update the title view to show the current thread title, if we have it
      */
-    private void deleteSavedReply() {
-        mContentResolver.delete(AwfulMessage.CONTENT_URI_REPLY, AwfulMessage.ID + "=?", AwfulProvider.int2StrArray(mThreadId));
-    }
-
-    /**
-     * Save a draft reply for the current thread.
-     */
-    private void saveReply() {
-        if (getActivity() != null && mThreadId > 0 && messageComposer != null) {
-            String content = messageComposer.getText();
-            // don't save if the message is empty/whitespace
-            // not trimming the actual content, so we retain any whitespace e.g. blank lines after quotes
-            if (!content.trim().isEmpty()) {
-                Log.i(TAG, "Saving reply! " + content);
-                ContentValues post = (replyData == null) ? new ContentValues() : new ContentValues(replyData);
-                post.put(AwfulMessage.ID, mThreadId);
-                post.put(AwfulMessage.TYPE, mReplyType);
-                post.put(AwfulMessage.REPLY_CONTENT, content);
-                post.put(AwfulMessage.EPOC_TIMESTAMP, System.currentTimeMillis());
-                if (mFileAttachment != null) {
-                    post.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
-                }
-                if (mContentResolver.update(ContentUris.withAppendedId(AwfulMessage.CONTENT_URI_REPLY, mThreadId), post, null, null) < 1) {
-                    mContentResolver.insert(AwfulMessage.CONTENT_URI_REPLY, post);
-                }
-            }
+    private void updateThreadTitle() {
+        if (threadTitleView != null) {
+            threadTitleView.setText(mThreadTitle == null ? "" : mThreadTitle);
         }
-    }
-
-    private void previewPost() {
-        ContentValues cv = prepareCV();
-        if (cv == null) {
-            return;
-        }
-        final PreviewFragment previewFrag = new PreviewFragment();
-        previewFrag.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        previewFrag.show(getFragmentManager(), "Post Preview");
-        // TODO: 12/02/2017 this result should already be on the UI thread?
-        AwfulRequest.AwfulResultCallback<String> previewCallback = new AwfulRequest.AwfulResultCallback<String>() {
-            @Override
-            public void success(final String result) {
-                getAwfulActivity().runOnUiThread(() -> previewFrag.setContent(result));
-            }
-
-            @Override
-            public void failure(VolleyError error) {
-                previewFrag.dismiss();
-                if (getView() != null) {
-                    Snackbar.make(getView(), "Preview failed.", Snackbar.LENGTH_LONG)
-                            .setAction("Retry", v -> previewPost()).show();
-                }
-            }
-        };
-        if (mReplyType == TYPE_EDIT) {
-            queueRequest(new PreviewEditRequest(getActivity(), cv).build(this, previewCallback));
-        } else {
-            queueRequest(new PreviewPostRequest(getActivity(), cv).build(this, previewCallback));
-        }
-    }
-
-    private ContentValues prepareCV() {
-        if (replyData == null || replyData.getAsInteger(AwfulMessage.ID) == null) {
-            // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
-            // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
-            Log.e(TAG, "No reply data in sendPost() - no thread ID to post to!");
-            Activity activity = getActivity();
-            if (activity != null) {
-                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show();
-            }
-            return null;
-        }
-        ContentValues cv = new ContentValues(replyData);
-        if (isReplyEmpty()) {
-            dismissProgressDialog();
-            new AlertBuilder().setTitle(R.string.message_empty)
-                    .setSubtitle(R.string.message_empty_subtext)
-                    .show();
-            return null;
-        }
-        if (!TextUtils.isEmpty(mFileAttachment)) {
-            cv.put(AwfulMessage.REPLY_ATTACHMENT, mFileAttachment);
-        }
-        if (postSignature) {
-            cv.put(REPLY_SIGNATURE, Constants.YES);
-        }
-        if (disableEmots) {
-            cv.put(AwfulMessage.REPLY_DISABLE_SMILIES, Constants.YES);
-        }
-        cv.put(AwfulMessage.REPLY_CONTENT, messageComposer.getText());
-        return cv;
-    }
-
-    private void getStoredDraft() {
-        restartLoader(Constants.REPLY_LOADER_ID, null, draftLoaderCallback);
-    }
-
-    private void refreshThreadInfo() {
-        restartLoader(Constants.MISC_LOADER_ID, null, threadInfoCallback);
     }
 
     @Override
@@ -934,23 +1057,14 @@ public class PostReplyFragment extends AwfulFragment {
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    addAttachment();
-                } else {
-                    Toast.makeText(getActivity(), R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Async classes etc
+    ///////////////////////////////////////////////////////////////////////////
 
+
+    /**
+     * Provides a Loader that pulls draft data for the current thread from the DB.
+     */
     private class DraftReplyLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
@@ -990,6 +1104,10 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
+
+    /**
+     * Provides a Loader that gets metadata for the current thread, and dsiplays its title
+     */
     private class ThreadInfoCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
@@ -1011,6 +1129,7 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
+    // TODO: 13/04/2017 do we even need this? Thread titles almost never change and we don't need to know in the middle of replying
     private class ThreadContentObserver extends ContentObserver {
         ThreadContentObserver(Handler aHandler) {
             super(aHandler);
