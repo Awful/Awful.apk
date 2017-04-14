@@ -38,14 +38,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -139,8 +137,6 @@ public class PostReplyFragment extends AwfulFragment {
     private final DraftReplyLoaderCallback draftLoaderCallback = new DraftReplyLoaderCallback();
     @NonNull
     private final ThreadInfoCallback threadInfoCallback = new ThreadInfoCallback();
-    @NonNull
-    private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(mHandler);
 
     // thread/reply metadata
     private int mThreadId;
@@ -214,7 +210,6 @@ public class PostReplyFragment extends AwfulFragment {
         }
 
         mContentResolver = activity.getContentResolver();
-        mContentResolver.registerContentObserver(AwfulThread.CONTENT_URI, true, mThreadObserver);
         // load any related stored draft before starting the reply request
         // TODO: 06/04/2017 probably better to handle this as two separate, completable requests - combine reply and draft data when they're both finished, instead of assuming the draft loader finishes first
         getStoredDraft();
@@ -601,7 +596,6 @@ public class PostReplyFragment extends AwfulFragment {
         // final cleanup - some should have already been done in onPause (draft saving etc)
         getLoaderManager().destroyLoader(Constants.REPLY_LOADER_ID);
         getLoaderManager().destroyLoader(Constants.MISC_LOADER_ID);
-        getActivity().getContentResolver().unregisterContentObserver(mThreadObserver);
     }
 
     /**
@@ -1129,18 +1123,6 @@ public class PostReplyFragment extends AwfulFragment {
         }
     }
 
-    // TODO: 13/04/2017 do we even need this? Thread titles almost never change and we don't need to know in the middle of replying
-    private class ThreadContentObserver extends ContentObserver {
-        ThreadContentObserver(Handler aHandler) {
-            super(aHandler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            if (DEBUG) Log.v(TAG, "Thread Data update.");
-            refreshThreadInfo();
-        }
-    }
 
     private static class SavedDraft {
         private final int type;
