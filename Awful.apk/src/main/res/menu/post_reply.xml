@@ -9,23 +9,6 @@
         android:orderInCategory="99999"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/save_draft"
-        android:title="@string/menu_save_draft"
-        app:showAsAction="never|withText">
-    </item>
-    <item
-        android:id="@+id/discard"
-        android:icon="@drawable/ic_error_dark"
-        android:title="@string/menu_discard"
-        app:showAsAction="never|withText">
-    </item>
-    <item
-        android:id="@+id/preview"
-        android:icon="@drawable/ic_preview"
-        android:title="@string/menu_preview"
-        app:showAsAction="never|withText">
-    </item>
-    <item
         android:id="@+id/signature"
         android:checkable="true"
         android:title="@string/signature"

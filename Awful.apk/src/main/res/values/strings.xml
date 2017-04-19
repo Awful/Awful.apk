@@ -106,9 +106,9 @@
     <string name="filter_emote_hint">Filter emotes…</string>
     <string name="bbcode">BBCode</string>
     <string name="submit">Submit</string>
-    <string name="menu_preview">Preview post</string>
-    <string name="menu_save_draft">Save draft</string>
-    <string name="menu_discard">Discard</string>
+    <string name="preview">Preview</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
     <string name="signature">Show Signature</string>
     <string name="disableEmots">Disable Smilies in This Post</string>
     <string name="add_attachment">Add file attachment</string>
