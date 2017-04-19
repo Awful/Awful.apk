@@ -2,24 +2,25 @@
 <resources>
     <string-array name="changelog">
         <item>
-            3.2.5.2:\n
-            - New Frog. Still doesn\'t spin.\n
-            - Announcement parsing: Always be informed of new Kickparpers and other forum drama.\n
-            - BBCode selection interface can now be used when creating private messages.\n
-            - Slightly improved attachment handling.\n
-            - Fixed giphy gif preview.\n
-            - You can no longer disable hardware acceleration.\n
-            - A few things you probably won\'t even notice.\n
-            - A couple of crash fixes and lots and lots of backend stuff.
+            3.3.0:\n
+            🐸 New Frog. Still doesn\'t spin.\n\n
+            📢 Announcement parsing: Always be informed of new Kickparpers and other forum drama. Or new forums.\n\n
+            📄 Fully overhauled reply window. It\'s so new and shiny.\n\n
+            💾 Moved saving replies out of the menu into you pressing the back button.\n\n
+            📧 BBCode selection interface can now be used when creating private messages.\n\n
+            💸 Slightly improved attachment handling.\n\n
+            🖼 A few new thread tags.\n\n
+            ⏬ Download button on videos now actually does something. Don\'t press it when you\'re not on wi-fi, you idiot.\n\n
+            ⚡ You can no longer disable hardware acceleration.\n\n
+            🐛 Fixed giphy gif preview.\n\n
+            🐛 Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n\n
+            🐛 Fixed attachment downloads.\n\n
+            🐛 Fixed volume-button scrolling.\n\n
+            🐛 Fixed log-in during probations. Probably. Maybe. Did not test.\n\n
+            🐛 A couple of crash fixes and lots and lots of backend stuff.\n\n
+            ❓ A few things you probably won\'t even notice. Like how twitter is now dark in dark themes. Or how the versioning scheme has changed.
         </item>
-        <item>
-            3.2.5.1:\n
-            - Fully overhauled reply window. It\'s so new and shiny.\n
-            - Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n
-            - Fixed attachment downloads.\n
-            - Fixed volume-button scrolling.\n
-            - Fixed log-in during probations. Probably. Maybe. Did not test.
-        </item>
+        <!--
         <item>
             3.2.5.0c:\n
             - Fast fix for flickering frogs
@@ -115,6 +116,6 @@
             - Fixed FYAD GIF avatars\n
             - fixed and improved marking users (including fixing a crash when importing settings with marked users)\n
             - more thread tags
-        </item>
+        </item>-->
     </string-array>
 </resources>
