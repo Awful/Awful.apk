@@ -194,9 +194,11 @@ padding:0 5px 0 0;
 }
 
 nav.postmenu:after {
-    content: "\2807";
+    font-family: 'icons' !important;
+    content: "\e902";
+    -webkit-font-smoothing: antialiased;
     display: inline-block;
     -webkit-user-select: none;
     user-select: none;
 }
-}
+

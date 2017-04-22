@@ -189,18 +189,18 @@ display:block;
 nav.postmenu {
 float:right;
 font-weight:bolder;
-font-size:1.5em;
+font-size: 2em;
 width:10px;
 height:30px;
-padding:0 5px 0 0;
+padding:0 10px 0 0;
 }
 
 nav.postmenu:after {
-    content: "\25AA\25AA\25AA";
+    font-family: 'icons' !important;
+    content: "\e901";
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
     display: inline-block;
-    font-weight: lighter;
-    -webkit-transform: rotate(30deg);
-    transform: rotate(90deg);
     -webkit-user-select: none;
     user-select: none;
 }
