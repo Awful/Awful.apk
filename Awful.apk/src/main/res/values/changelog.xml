@@ -2,23 +2,27 @@
 <resources>
     <string-array name="changelog">
         <item>
+            3.3.1:\n
+            - Fixed post menu button not being visible on devices with poor font-choices.
+        </item>
+        <item>
             3.3.0:\n
-            🐸 New Frog. Still doesn\'t spin.\n\n
-            📢 Announcement parsing: Always be informed of new Kickparpers and other forum drama. Or new forums.\n\n
-            📄 Fully overhauled reply window. It\'s so new and shiny.\n\n
-            💾 Moved saving replies out of the menu into you pressing the back button.\n\n
-            📧 BBCode selection interface can now be used when creating private messages.\n\n
-            💸 Slightly improved attachment handling.\n\n
-            🖼 A few new thread tags.\n\n
-            ⏬ Download button on videos now actually does something. Don\'t press it when you\'re not on wi-fi, you idiot.\n\n
-            ⚡ You can no longer disable hardware acceleration.\n\n
-            🐛 Fixed giphy gif preview.\n\n
-            🐛 Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n\n
-            🐛 Fixed attachment downloads.\n\n
-            🐛 Fixed volume-button scrolling.\n\n
-            🐛 Fixed log-in during probations. Probably. Maybe. Did not test.\n\n
-            🐛 A couple of crash fixes and lots and lots of backend stuff.\n\n
-            ❓ A few things you probably won\'t even notice. Like how twitter is now dark in dark themes. Or how the versioning scheme has changed.
+            - New Frog. Still doesn\'t spin.\n\n
+            - Announcement parsing: Always be informed of new Kickparpers and other forum drama. Or new forums.\n\n
+            - Fully overhauled reply window. It\'s so new and shiny.\n\n
+            - Moved saving replies out of the menu into you pressing the back button.\n\n
+            - BBCode selection interface can now be used when creating private messages.\n\n
+            - Slightly improved attachment handling.\n\n
+            - A few new thread tags.\n\n
+            - Download button on videos now actually does something. Don\'t press it when you\'re not on wi-fi, you idiot.\n\n
+            - You can no longer disable hardware acceleration.\n\n
+            - Fixed giphy gif preview.\n\n
+            - Fixed thread list without tags. Secondary tags (SAMART and A\/T) slightly offset in pre-Kitkat. WONTFIX, buy a new phone.\n\n
+            - Fixed attachment downloads.\n\n
+            - Fixed volume-button scrolling.\n\n
+            - Fixed log-in during probations. Probably. Maybe. Did not test.\n\n
+            - A couple of crash fixes and lots and lots of backend stuff.\n\n
+            - A few things you probably won\'t even notice. Like how twitter is now dark in dark themes. Or how the versioning scheme has changed.
         </item>
         <!--
         <item>
