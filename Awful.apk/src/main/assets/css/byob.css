@@ -222,16 +222,18 @@ display:block;
 nav.postmenu {
 float:right;
 font-weight:bolder;
-font-size:1.5em;
+font-size: 1.7em;
 width:10px;
 height:30px;
-padding:0 5px 0 0;
+padding:0 10px 0 0;
 }
 
 nav.postmenu:after {
-    content: "\2807";
+    font-family: 'icons' !important;
+    content: "\e902";
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
     display: inline-block;
     -webkit-user-select: none;
     user-select: none;
-}
 }
