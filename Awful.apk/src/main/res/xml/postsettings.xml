@@ -4,71 +4,51 @@
     <Preference
         android:defaultValue="16"
         android:key="@string/pref_key_post_font_size_dip"
-        android:title="@string/default_post_font_size" />
+        android:title="@string/default_post_font_size"/>
     <Preference
         android:defaultValue="13"
         android:key="@string/pref_key_post_fixed_font_size_dip"
-        android:title="@string/default_post_fixed_font_size" />
+        android:title="@string/default_post_fixed_font_size"/>
     <Preference
         android:defaultValue="40"
         android:key="@string/pref_key_post_per_page"
-        android:title="@string/setting_posts_per_page" />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_hide_old_posts"
-        android:summary="@string/hide_old_posts_summary"
-        android:title="@string/hide_old_posts" />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:defaultValue="false"
-        android:key="@string/pref_key_hide_ignored_posts"
-        android:summary="@string/hide_ignored_posts_summary"
-        android:title="@string/hide_ignored_posts" />
+        android:title="@string/setting_posts_per_page"/>
 
     <PreferenceScreen
         android:fragment="com.ferg.awfulapp.preferences.fragments.PostHighlightingSettings"
         android:key="@string/pref_key_highlighting_menu_item"
         android:title="@string/highlighting_settings_title"/>
 
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_inline_youtube"
-        android:summary="@string/inline_videos_summary"
-        android:title="@string/inline_videos" />
+    <PreferenceScreen
+        android:fragment="com.ferg.awfulapp.preferences.fragments.PostEmbeddingSettings"
+        android:key="@string/pref_key_embedding_menu_item"
+        android:title="@string/embedding_settings_title"
+        />
 
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
-        android:key="@string/pref_key_inline_tweets"
-        android:title="@string/inline_tweets"
-        android:summary="@string/inline_tweets_summary"
-        android:defaultValue="false"
-        />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
-    android:defaultValue="false"
-    android:key="@string/pref_key_inline_webm"
-    android:summary="@string/inline_webm_summary"
-    android:title="@string/inline_webm" />
-    <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="true"
-        android:key="@string/pref_key_autostart_webm"
-        android:summary="@string/autostart_webm_summary"
-        android:title="@string/autostart_webm" />
+        android:key="@string/pref_key_hide_old_posts"
+        android:summary="@string/hide_old_posts_summary"
+        android:title="@string/hide_old_posts"/>
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
-        android:key="@string/pref_key_inline_vines"
-        android:summary="@string/inline_vines_summary"
-        android:title="@string/inline_vines" />
+        android:key="@string/pref_key_hide_ignored_posts"
+        android:summary="@string/hide_ignored_posts_summary"
+        android:title="@string/hide_ignored_posts"/>
+
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="@string/pref_key_show_all_spoilers"
         android:summary="@string/show_spoilers_summary"
-        android:title="@string/show_spoilers" />
+        android:title="@string/show_spoilers"/>
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="@string/pref_key_hide_signatures"
         android:summary="@string/hide_signatures_summary"
-        android:title="@string/hide_signatures" />
+        android:title="@string/hide_signatures"/>
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
         android:defaultValue="false"
         android:key="@string/pref_key_always_open_urls"
         android:summary="@string/always_open_urls_summary"
-        android:title="@string/always_open_urls" />
+        android:title="@string/always_open_urls"/>
 </PreferenceScreen>

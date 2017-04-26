@@ -305,24 +305,7 @@
     <string name="hide_ignored_posts">Hide ignored posts</string>
     <string name="hide_ignored_posts_summary">Completely hide posts from posters on your ignore list</string>
     <string name="highlighting_settings_title">Highlighting</string>
-    <string name="user_highlight">Your username</string>
-    <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
-    <string name="user_quote">Your quotes</string>
-    <string name="user_quote_summary">Show when you\'re quoted in posts</string>
-    <string name="self_highlight">Your posts</string>
-    <string name="self_highlight_summary">Use a themed background color</string>
-    <string name="op_highlight">OP\'s posts</string>
-    <string name="op_highlight_summary">Use a themed background color</string>
-    <string name="inline_videos">Embed videos</string>
-    <string name="inline_videos_summary">May cause scroll lag/graphical glitches</string>
-    <string name="inline_tweets">Embed tweets</string>
-    <string name="inline_tweets_summary">May cause scroll lag/graphical glitches</string>
-    <string name="inline_vines">Embed vines</string>
-    <string name="inline_vines_summary">May cause scroll lag/graphical glitches</string>
-    <string name="inline_webm">Embed webm/gifv/mp4</string>
-    <string name="inline_webm_summary">May cause scroll lag/graphical glitches</string>
-    <string name="autostart_webm">Autostart embedded videos</string>
-    <string name="autostart_webm_summary">Start inlined videos when scrolled into view</string>
+    <string name="embedding_settings_title">Embedding</string>
     <string name="show_spoilers">Show all spoilers</string>
     <string name="show_spoilers_summary">Display spoilers as normal text</string>
     <string name="hide_signatures">Hide signatures in Awful</string>
@@ -331,6 +314,26 @@
     <string name="always_open_urls_summary">Disable link options menu</string>
     <string name="no_fab">Disable FABs</string>
     <string name="no_fab_summary">Disable all Floating Action Buttons (thread view, pm list)</string>
+
+    <!-- Post Highlighting page -->
+    <string name="post_highlighting_description">Highlight posts and other things. Colors depend on the current theme</string>
+    <string name="user_highlight">Your username</string>
+    <string name="user_highlight_summary">Show when you\'re mentioned in posts</string>
+    <string name="user_quote">Your quotes</string>
+    <string name="user_quote_summary">Show when you\'re quoted in posts</string>
+    <string name="self_highlight">Your posts</string>
+    <string name="op_highlight">OP\'s posts</string>
+
+    <!-- Post Embedding page -->
+    <string name="post_embedding_description">Embed elements in posts instead of just showing a link. These options may cause scroll lag or graphical glitches</string>
+    <string name="inline_tweets">Tweets</string>
+    <string name="post_embedding_divider_videos">Videos</string>
+    <string name="inline_youtube">YouTube</string>
+    <string name="inline_vines">Vine</string>
+    <string name="inline_webm">Other</string>
+    <string name="inline_webm_summary">WebM/GIFV/MP4 etc.</string>
+    <string name="autostart_webm">Autoplay embedded videos</string>
+    <string name="autostart_webm_summary">Play while the video is in view</string>
 
     <!-- Image Settings page -->
     <string name="load_images">Load images</string>

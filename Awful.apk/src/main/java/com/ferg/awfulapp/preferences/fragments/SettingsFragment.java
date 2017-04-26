@@ -95,8 +95,8 @@ public abstract class SettingsFragment extends PreferenceFragment {
     protected int[] VALUE_SUMMARY_PREF_KEYS;
 
     /**
-     * Preferences whose summaries should reflect their unavailability
-     * on the user's version of Android, if applicable.
+     * Preferences whose summaries should reflect their unavailability on the user's version of Android,
+     * if applicable. You need to actually disable the preference to mark it as unavailable.
      */
     protected int[] VERSION_DEPENDENT_SUMMARY_PREF_KEYS;
 
@@ -106,7 +106,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
      */
     protected Map<Preference.OnPreferenceClickListener, int[]> prefClickListeners = new ArrayMap<>();
 
-
+    // TODO: 26/04/2017 Fragment titles for submenus as per https://material.io/guidelines/patterns/settings.html#settings-labels-secondary-text
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,6 +156,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
             }
         }
 
+        // display a 'not on your version' summary if required and the pref has been disabled
         if (VERSION_DEPENDENT_SUMMARY_PREF_KEYS != null) {
             for (int keyResId : VERSION_DEPENDENT_SUMMARY_PREF_KEYS) {
                 keyName = getString(keyResId);
@@ -240,7 +241,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
         private final SettingsFragment mThis;
 
-        protected SubmenuListener(SettingsFragment fragment) {
+        SubmenuListener(SettingsFragment fragment) {
             mThis = fragment;
         }
 

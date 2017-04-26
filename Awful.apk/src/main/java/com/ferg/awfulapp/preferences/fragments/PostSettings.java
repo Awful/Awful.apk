@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.preference.Preference;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -18,17 +17,17 @@ import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 
 /**
  * Created by baka kaba on 04/05/2015.
+ *
+ * Settings fragment for the Posts settings submenu.
  */
 public class PostSettings extends SettingsFragment {
 
     {
         SETTINGS_XML_RES_ID = R.xml.postsettings;
-        VERSION_DEPENDENT_SUMMARY_PREF_KEYS = new int[] {
-                R.string.pref_key_inline_youtube
-        };
 
         SUBMENU_OPENING_KEYS = new int[] {
-                R.string.pref_key_highlighting_menu_item
+                R.string.pref_key_highlighting_menu_item,
+                R.string.pref_key_embedding_menu_item
         };
 
         prefClickListeners.put(new FontSizeListener(), new int[] {
@@ -41,6 +40,7 @@ public class PostSettings extends SettingsFragment {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onSetSummaries() {
         findPrefById(R.string.pref_key_post_font_size_dip)
@@ -75,13 +75,7 @@ public class PostSettings extends SettingsFragment {
             SeekBar bar = (SeekBar) mFontSizeDialog.findViewById(R.id.fontSizeBar);
             Button click = (Button) mFontSizeDialog.findViewById(R.id.fontSizeButton);
 
-            click.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    mFontSizeDialog.dismiss();
-                }
-            });
+            click.setOnClickListener(v -> mFontSizeDialog.dismiss());
 
             bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -131,17 +125,14 @@ public class PostSettings extends SettingsFragment {
             final int maxPages = Constants.ITEMS_PER_PAGE;
 
             new MinMaxNumberPicker(getActivity(), minPages, maxPages, mPrefs.postPerPage,
-                    getString(R.string.setting_posts_per_page), new MinMaxNumberPicker.ResultListener() {
-                @Override
-                public void onButtonPressed(int button, int resultValue) {
-                    if (button == DialogInterface.BUTTON_POSITIVE) {
-                        String key = preference.getKey();
-                        if (key.equals(getString(R.string.pref_key_post_per_page))) {
-                            mPrefs.setPreference(Keys.POST_PER_PAGE, resultValue);
+                    getString(R.string.setting_posts_per_page), (button, resultValue) -> {
+                        if (button == DialogInterface.BUTTON_POSITIVE) {
+                            String key = preference.getKey();
+                            if (key.equals(getString(R.string.pref_key_post_per_page))) {
+                                mPrefs.setPreference(Keys.POST_PER_PAGE, resultValue);
+                            }
                         }
-                    }
-                }
-            }).show();
+                    }).show();
 
             return true;
         }

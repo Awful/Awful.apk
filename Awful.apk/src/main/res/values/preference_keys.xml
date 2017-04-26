@@ -82,6 +82,7 @@
     <string name="pref_key_export_settings_menu_item">export_settings</string>
     <string name="pref_key_import_settings_menu_item">import_settings</string>
     <string name="pref_key_highlighting_menu_item">highlighting</string>
+    <string name="pref_key_embedding_menu_item">embedding</string>
     <string name="pref_key_update_forums_menu_item">update_forums</string>
     <string name="pref_key_clear_forums_data_menu_item">clear_forums_data</string>
 </resources>
