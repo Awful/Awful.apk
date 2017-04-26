@@ -1,11 +1,16 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.ListPreference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.ferg.awfulapp.AwfulApplication;
@@ -26,6 +31,8 @@ import java.util.regex.Pattern;
 
 /**
  * Created by baka kaba on 04/05/2015.
+ *
+ * Settings fragment for the Themes section.
  */
 public class ThemeSettings extends SettingsFragment {
 
@@ -44,20 +51,29 @@ public class ThemeSettings extends SettingsFragment {
     protected void initialiseSettings() {
         super.initialiseSettings();
         Pattern fontFilename = Pattern.compile("fonts/(.*).ttf.mp3", Pattern.CASE_INSENSITIVE);
+        Activity activity = getActivity();
+        // TODO: 25/04/2017 a separate permissions class would probably be good, keep all this garbage in one place
         if (AwfulUtils.isMarshmallow()) {
-            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
-            } else {
-                initListPreferences();
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(activity)
+                            .setMessage(R.string.permission_rationale_external_storage)
+                            .setTitle("Permission request")
+                            .setIcon(R.mipmap.ic_launcher)
+                            .setPositiveButton("Got it", (dialogInterface, i) -> {})
+                            .setOnDismissListener(dialogInterface -> requestStoragePermissions())
+                            .show();
+                } else {
+                    requestStoragePermissions();
+                }
             }
-        } else {
-            initListPreferences();
         }
+        refreshListPreferences();
 
-
+        // completely replace all entries in the font ListPreference
         ListPreference f = (ListPreference) findPrefById(R.string.pref_key_preferred_font);
-        String[] fontList = ((AwfulApplication) getActivity().getApplication()).getFontList();
+        String[] fontList = ((AwfulApplication) activity.getApplication()).getFontList();
         String[] fontNames = new String[fontList.length];
         String thisFontName;
         for (int x = 0; x < fontList.length; x++) {
@@ -69,19 +85,22 @@ public class ThemeSettings extends SettingsFragment {
             }
             fontNames[x] = WordUtils.capitalize(thisFontName);
         }
+        //noinspection ConstantConditions - let it crash if the preference is missing, someone screwed up
         f.setEntries(fontNames);
         f.setEntryValues(fontList);
-
     }
 
-
-    private void initListPreferences() {
-        initLayoutPreference();
-        initThemePreference();
+    private void refreshListPreferences() {
+        refreshLayoutPreference();
+        refreshThemePreference();
     }
 
-
-    private void initThemePreference() {
+    /**
+     * Rebuild the theme-chooser list preference.
+     *
+     * Replaces all entries with the stock app themes, and adds any custom ones it can find.
+     */
+    private void refreshThemePreference() {
         List<CharSequence> themeNames = new ArrayList<>();
         List<CharSequence> themeValues = new ArrayList<>();
         ListPreference themePref = (ListPreference) findPrefById(R.string.pref_key_theme);
@@ -98,7 +117,7 @@ public class ThemeSettings extends SettingsFragment {
         // get any custom themes
         File customDir = getCustomDir();
         if (customDir != null) {
-            /**
+            /*
              * Regex that matches filenames with a '.css' extension
              * Group 1 holds the name part (before the extension). If it contains any separating '.' characters,
              * e.g. 'like.this.here.css', group 2 will contain the last part ('here') and group 1 holds the rest ('like.this').
@@ -119,7 +138,12 @@ public class ThemeSettings extends SettingsFragment {
     }
 
 
-    private void initLayoutPreference() {
+    /**
+     * Rebuild the layout-chooser list preference.
+     *
+     * Retains any stock app layouts defined in the XML, and adds any custom ones it can find.
+     */
+    private void refreshLayoutPreference() {
         ListPreference layoutPref = (ListPreference) findPrefById(R.string.pref_key_layout);
         if (layoutPref == null) {
             throw new RuntimeException("Theme or layout preference is missing!");
@@ -141,9 +165,13 @@ public class ThemeSettings extends SettingsFragment {
     }
 
 
+    /**
+     * Get the path to the folder where custom files go.
+     *
+     * @return null if the folder can't be accessed
+     */
     @Nullable
     private File getCustomDir() {
-        // TODO: 08/01/2017 permissions check?
         File customDir = new File(AwfulTheme.getCustomThemePath());
         if (!customDir.canRead() || !customDir.isDirectory()) {
             Log.w(TAG, "Unable to access custom theme folder - themes and layouts not loaded\nPath: " + customDir.getPath());
@@ -161,16 +189,18 @@ public class ThemeSettings extends SettingsFragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestStoragePermissions() {
+        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    initListPreferences();
-                }
+            case Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE:
+                refreshListPreferences();
                 break;
-            }
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
