@@ -6,10 +6,6 @@
         <item>portrait</item>
         <item>landscape</item>
     </string-array>
-    <!-- Themes are defined in ThemeProvider, this is here as a placeholder to init the list preference -->
-    <string-array name="themes_values">
-        <item>default.css</item>
-    </string-array>
 
     <string-array name="layouts_values">
         <item>default</item>
