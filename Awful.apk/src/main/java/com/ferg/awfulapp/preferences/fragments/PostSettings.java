@@ -31,8 +31,8 @@ public class PostSettings extends SettingsFragment {
         };
 
         prefClickListeners.put(new FontSizeListener(), new int[] {
-                R.string.pref_key_post_font_size_dip,
-                R.string.pref_key_post_fixed_font_size_dip
+                R.string.pref_key_post_font_size_sp,
+                R.string.pref_key_post_fixed_font_size_sp
         });
 
         prefClickListeners.put(new PostsPerPageListener(), new int[] {
@@ -43,10 +43,10 @@ public class PostSettings extends SettingsFragment {
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onSetSummaries() {
-        findPrefById(R.string.pref_key_post_font_size_dip)
-                .setSummary(String.valueOf(mPrefs.postFontSizeDip));
-        findPrefById(R.string.pref_key_post_fixed_font_size_dip)
-                .setSummary(String.valueOf(mPrefs.postFixedFontSizeDip));
+        findPrefById(R.string.pref_key_post_font_size_sp)
+                .setSummary(String.valueOf(mPrefs.postFontSizeSp));
+        findPrefById(R.string.pref_key_post_fixed_font_size_sp)
+                .setSummary(String.valueOf(mPrefs.postFixedFontSizeSp));
         findPrefById(R.string.pref_key_post_per_page)
                 .setSummary(String.valueOf(mPrefs.postPerPage));
     }
@@ -58,10 +58,10 @@ public class PostSettings extends SettingsFragment {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             final String prefKey = preference.getKey();
-            final String FONT_SIZE_KEY = getString(R.string.pref_key_post_font_size_dip);
-            final String FIXED_FONT_SIZE_KEY = getString(R.string.pref_key_post_fixed_font_size_dip);
+            final String FONT_SIZE_KEY = getString(R.string.pref_key_post_font_size_sp);
+            final String FIXED_FONT_SIZE_KEY = getString(R.string.pref_key_post_fixed_font_size_sp);
             final String SIZE_PICKER_FORMAT_STRING = getString(R.string.font_size_picker_format_string);
-            final int    MIN_SIZE = Constants.MINIMUM_FONT_SIZE;
+            final int    MIN_SIZE = Constants.MINIMUM_FONT_SIZE_SP;
             final Dialog mFontSizeDialog = new Dialog(getActivity());
 
             mFontSizeDialog.setContentView(R.layout.font_size);
@@ -82,9 +82,9 @@ public class PostSettings extends SettingsFragment {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     if (prefKey.equals(FONT_SIZE_KEY)) {
-                        mPrefs.setPreference(Keys.POST_FONT_SIZE_DIP, seekBar.getProgress() + MIN_SIZE);
+                        mPrefs.setPreference(Keys.POST_FONT_SIZE_SP, seekBar.getProgress() + MIN_SIZE);
                     } else if (prefKey.equals(FIXED_FONT_SIZE_KEY)) {
-                        mPrefs.setPreference(Keys.POST_FIXED_FONT_SIZE_DIP, seekBar.getProgress() + MIN_SIZE);
+                        mPrefs.setPreference(Keys.POST_FIXED_FONT_SIZE_SP, seekBar.getProgress() + MIN_SIZE);
                     }
                 }
 
@@ -96,22 +96,22 @@ public class PostSettings extends SettingsFragment {
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     int selectedSize = progress + MIN_SIZE;
                     mFontSizeText.setText(String.format(SIZE_PICKER_FORMAT_STRING, selectedSize));
-                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, selectedSize);
+                    mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, selectedSize);
                 }
             });
 
             if (prefKey.equals(FONT_SIZE_KEY)){
-                bar.setProgress(mPrefs.postFontSizeDip - MIN_SIZE);
+                bar.setProgress(mPrefs.postFontSizeSp - MIN_SIZE);
             }
             else if (prefKey.equals(FIXED_FONT_SIZE_KEY)) {
-                bar.setProgress(mPrefs.postFixedFontSizeDip - MIN_SIZE);
+                bar.setProgress(mPrefs.postFixedFontSizeSp - MIN_SIZE);
                 mFontSizeText.setTypeface(Typeface.MONOSPACE);
             }
             else Log.w(TAG, "Tried to set font size for: " + prefKey + ", not a valid key!");
 
             int selectedSize = bar.getProgress() + MIN_SIZE;
             mFontSizeText.setText(String.format(SIZE_PICKER_FORMAT_STRING, selectedSize));
-            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, selectedSize);
+            mFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, selectedSize);
             mFontSizeDialog.show();
             return true;
         }

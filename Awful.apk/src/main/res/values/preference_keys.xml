@@ -11,8 +11,8 @@
     <string name="pref_key_orientation">orientation</string>
     <string name="pref_key_page_layout">page_layout</string>
     <string name="pref_key_transformer">transformer</string>
-    <string name="pref_key_post_font_size_dip">default_post_font_size_dip</string>
-    <string name="pref_key_post_fixed_font_size_dip">default_post_fixed_font_size_dip</string>
+    <string name="pref_key_post_font_size_sp">default_post_font_size_dip</string>
+    <string name="pref_key_post_fixed_font_size_sp">default_post_fixed_font_size_dip</string>
     <string name="pref_key_post_per_page">posts_per_page</string>
     <string name="pref_key_curr_pref_version">curr_pref_version</string>
     <string name="pref_key_alert_id_shown">alert_id_shown</string>

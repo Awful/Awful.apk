@@ -32,9 +32,7 @@ package com.ferg.awfulapp.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
@@ -92,15 +90,14 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean hasPlatinum;
     public boolean hasArchives;
     public boolean hasNoAds;
-    public boolean debugMode;
     public boolean sendUsernameInReport;
     public float scaleFactor;
     public String orientation;
     public String pageLayout;
 
     //THEME STUFF
-    public int postFontSizeDip;
-    public int postFixedFontSizeDip;
+    public int postFontSizeSp;
+    public int postFixedFontSizeSp;
     public int postFontSizePx;
     public boolean lockScrolling;
     public String theme;
@@ -132,10 +129,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean hideSignatures;
 	public boolean hideIgnoredPosts;
     public boolean noFAB;
-    /**
-     * TO BE REMOVED
-     * forces threadview into specific layout, values: auto - phone - tablet
-     */
     public boolean alwaysOpenUrls;
 
     //FORUM STUFF
@@ -143,8 +136,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean newThreadsFirstForum;
     public boolean threadInfo_Rating;
     public boolean threadInfo_Tag;
-    public boolean wrapThreadTitles;
-	public boolean forumIndexShowSections;
+    public boolean forumIndexShowSections;
 	public boolean forumIndexShowSubtitles;
 	public boolean forumIndexHideSubforums;
 
@@ -154,7 +146,6 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     public boolean inlineVines;
     public boolean inlineWebm;
 	public boolean autostartWebm;
-    public boolean enableHardwareAcceleration;
     public boolean disablePullNext;
     public long probationTime;
     public boolean showIgnoreWarning;
@@ -171,7 +162,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     private static final int PREFERENCES_VERSION = 1;
     private int currPrefVersion;
 
-    HashSet<String> longKeys;
+    private HashSet<String> longKeys;
 
 
     public interface AwfulPreferenceUpdate {
@@ -248,9 +239,9 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		hasPlatinum              = getPreference(Keys.HAS_PLATINUM, false);
 		hasArchives              = getPreference(Keys.HAS_ARCHIVES, false);
 		hasNoAds         	     = getPreference(Keys.HAS_NO_ADS, false);
-		postFontSizeDip            = getPreference(Keys.POST_FONT_SIZE_DIP, Constants.DEFAULT_FONT_SIZE);
-        postFixedFontSizeDip     = getPreference(Keys.POST_FIXED_FONT_SIZE_DIP, Constants.DEFAULT_FIXED_FONT_SIZE);
-		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, postFontSizeDip, mContext.getResources().getDisplayMetrics());
+		postFontSizeSp = getPreference(Keys.POST_FONT_SIZE_SP, Constants.DEFAULT_FONT_SIZE_SP);
+        postFixedFontSizeSp = getPreference(Keys.POST_FIXED_FONT_SIZE_SP, Constants.DEFAULT_FIXED_FONT_SIZE_SP);
+		postFontSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, postFontSizeSp, mContext.getResources().getDisplayMetrics());
 		theme					 = getPreference(Keys.THEME, "default.css");
 		layout					 = getPreference(Keys.LAYOUT, "default");
         imagesEnabled            = getPreference(Keys.IMAGES_ENABLED, true);
@@ -303,7 +294,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		transformer  		     = getPreference(Keys.TRANSFORMER, "Default");
 		amberDefaultPos  		 = getPreference(Keys.AMBER_DEFAULT_POS, false);
 		hideIgnoredPosts  		 = getPreference(Keys.HIDE_IGNORED_POSTS, false);
-		markedUsers = getPreference(Keys.MARKED_USERS, new HashSet<String>());
+		markedUsers = getPreference(Keys.MARKED_USERS, new HashSet<>());
 		forumIndexShowSections = getPreference(Keys.FORUM_INDEX_SHOW_SECTIONS, true);
 		forumIndexShowSubtitles = getPreference(Keys.FORUM_INDEX_SHOW_SUBTITLES, true);
 		forumIndexHideSubforums = getPreference(Keys.FORUM_INDEX_HIDE_SUBFORUMS, true);
@@ -423,20 +414,8 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 			return true;
 		}
 	}
-	
-	public boolean hasFlash(){
-		try {
-		  PackageManager pm =  mContext.getPackageManager();
-		  ApplicationInfo ai = pm.getApplicationInfo("com.adobe.flashplayer", 0);
-		  if (ai != null)
-		    return true;
-		} catch (NameNotFoundException e) {
-			return false;
-		}
-		return false;
-	}
 
-	public boolean canLoadImages() {
+    public boolean canLoadImages() {
 		ConnectivityManager conman = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 		return imagesEnabled && !(no3gImages && !conman.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
 	}

@@ -187,9 +187,9 @@ public class Constants {
 
 	public static final int LOGIN_ACTIVITY_REQUEST = 99;
 
-	public static final int DEFAULT_FONT_SIZE = 16;
-    public static final int DEFAULT_FIXED_FONT_SIZE = 13;
-    public static final int MINIMUM_FONT_SIZE = 5;
+	public static final int DEFAULT_FONT_SIZE_SP = 16;
+    public static final int DEFAULT_FIXED_FONT_SIZE_SP = 13;
+    public static final int MINIMUM_FONT_SIZE_SP = 5;
 	
 	public static final double TABLET_MIN_SIZE = 6.5; //everything above this is considered tablet layout
 
