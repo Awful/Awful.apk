@@ -34,6 +34,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 	 * Used for storing misc app data, separate from user preferences, so onPreferenceChange callbacks aren't triggered
 	 */
 	private static SharedPreferences appStatePrefs;
+    private static boolean crashlyticsEnabled = false;
 
 	private AwfulPreferences mPref;
 	private final HashMap<String, Typeface> fonts = new HashMap<>();
@@ -61,8 +62,10 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 			e.printStackTrace();
 		}
 		Log.i(TAG, String.format("App installed %d hours ago", hoursSinceInstall));
+
 		// enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
-		if (!Constants.DEBUG || hoursSinceInstall > 4) {
+		crashlyticsEnabled = !Constants.DEBUG || hoursSinceInstall > 4;
+        if (crashlyticsEnabled) {
 			Fabric.with(this, new Crashlytics());
 			if(mPref.sendUsernameInReport){
 				Crashlytics.setUserName(mPref.username);
@@ -84,6 +87,14 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		}
 
 		SyncManager.sync(this);
+    }
+
+
+    /**
+     * Returns true if the Crashlytics singleton has been initialised and can be used.
+     */
+    public static boolean crashlyticsEnabled() {
+        return crashlyticsEnabled;
     }
 
 

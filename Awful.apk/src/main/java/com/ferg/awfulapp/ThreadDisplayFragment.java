@@ -43,6 +43,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -50,6 +51,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -77,6 +79,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
+import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -1191,6 +1194,30 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			isGif = StringUtils.contains(lastSegment, ".gif")
 					&& !StringUtils.contains(lastSegment, ".gifv");
 		}
+
+		////////////////////////////////////////////////////////////////////////
+        // TODO: 28/04/2017 remove all this when Crashlytics #717 is fixed
+		if (AwfulApplication.crashlyticsEnabled()) {
+			Crashlytics.setString("Menu for URL:", url);
+			Crashlytics.setInt("Thread ID", getThreadId());
+			Crashlytics.setInt("Page", getPage());
+
+			FragmentActivity activity = getActivity();
+			Crashlytics.setBool("Activity exists", activity != null);
+			if (activity != null) {
+				String state = "Activity:";
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					state += (activity.isDestroyed()) ? "IS_DESTROYED " : "";
+				}
+				state += (activity.isFinishing()) ? "IS_FINISHING" : "";
+				state += (activity.isChangingConfigurations()) ? "IS_CHANGING_CONFIGURATIONS" : "";
+				Crashlytics.setString("Activity state:", state);
+			}
+			Crashlytics.setBool("Thread display fragment resumed", isResumed());
+			Crashlytics.setBool("Thread display fragment attached", isAdded());
+			Crashlytics.setBool("Thread display fragment removing", isRemoving());
+		}
+        ////////////////////////////////////////////////////////////////////////
 
 		PostActionsFragment postActions = new PostActionsFragment();
 		postActions.setTitle(url);

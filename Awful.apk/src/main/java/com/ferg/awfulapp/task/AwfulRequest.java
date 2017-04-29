@@ -18,6 +18,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.crashlytics.android.Crashlytics;
+import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
@@ -288,8 +289,8 @@ public abstract class AwfulRequest<T> {
                     return Response.error(ae);
                 }
             } catch (OutOfMemoryError e) {
-                if (!Constants.DEBUG) {
-                    Crashlytics.setString("URL", getUrl());
+                if (AwfulApplication.crashlyticsEnabled()) {
+                    Crashlytics.setString("Response URL", getUrl());
                     Crashlytics.setLong("Response data size", response.data.length);
                 }
                 throw e;
