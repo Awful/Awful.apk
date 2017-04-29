@@ -43,6 +43,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -675,7 +676,7 @@ public class AwfulProvider extends ContentProvider {
                     aSelectionArgs, null, null, aSortOrder);
             result.setNotificationUri(getContext().getContentResolver(), aUri);
         } catch (Exception e) {
-			if (!Constants.DEBUG){
+			if (AwfulApplication.crashlyticsEnabled()){
 				Crashlytics.log(String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables()));
 			}
             throw e;
