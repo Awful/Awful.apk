@@ -118,6 +118,9 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1220,13 +1223,39 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         ////////////////////////////////////////////////////////////////////////
 
 		PostActionsFragment postActions = new PostActionsFragment();
-		postActions.setTitle(url);
 		postActions.setParent(mSelf);
 		postActions.setUrl(url);
 		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
-
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-		postActions.show(fragmentManager, "Link Actions");
+		
+		if (isImage || isGif) {
+			AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
+				@Override
+				protected String doInBackground(String... parameters) {
+					try {
+						URL location = new URL(parameters[0]);
+						URLConnection connection = location.openConnection();
+						int size = connection.getContentLength();
+						return String.format("Size: %sB\n\n%s", size, url);
+					}
+					catch (IOException exception) {
+						exception.printStackTrace();
+						return null;
+					}
+				}
+
+				@Override
+				protected void onPostExecute(String result) {
+					postActions.setTitle(result);
+					postActions.show(fragmentManager, "Link Actions");
+				}
+			};
+			task.execute(url);
+		}
+		else {
+			postActions.setTitle(url);
+			postActions.show(fragmentManager, "Link Actions");
+		}
 	}
 
 	protected void showImageInline(String url){
