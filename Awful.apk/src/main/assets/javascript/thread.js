@@ -235,30 +235,34 @@ function scrollUpdate(){
     }
 }
 
-function showInlineImage(url){
-    // listener.debugMessage('showInlineImage');
-    imageLink = $('a[href="'+url+'"]');
-    firstLink = imageLink.first();
-    if(firstLink.hasClass('playGif')){
-      imageLink.addClass('loading');
-      loadImage(firstLink.attr('href'), function(){
-      showInlineGif(firstLink.attr('href'),true);
-        imageLink.removeClass('playGif').removeClass('loading');
-      });
-    }else if(firstLink.children('img[src="'+url+'"], img[src="file:///android_res/drawable/gif.png"]').size() < 1){
-        imageLink.append('<img src="'+url+'" />');
-    }else{
-    imageLink.each(function(){
-    image = $(this).children().first();
-            if(image.attr('src') == "file:///android_res/drawable/gif.png"){
-                  image.attr('src', url);
-                  image.css({
-                         width: 'auto',
-                         height: 'auto'
-                       });
-            }
-    })
+
+/**
+* Load an image url and replace links with the image. Handles paused gifs and basic text links.
+**/
+function showInlineImage(url) {
+    var LOADING = 'loading';
+    var FROZEN_GIF = 'playGif';
+
+    var isAlreadyLoading = function() { return $(this).hasClass(LOADING) }
+    var isAlreadyInlined = function() { return $('img[src="'+url+'"]', this).size() > 0 }
+    // basically treating anything not marked as a frozen gif as a text link
+    var isTextLink = function() { return !($(this).hasClass(FROZEN_GIF)) }
+
+    var addEmptyImg = function() { $(this).append(Zepto('<img src="" />')) }
+    var setLoading = function() { $(this).addClass(LOADING); }
+    var setInlined = function() { $(this).removeClass(LOADING +' '+FROZEN_GIF); }
+    var inlineImage = function() {
+        $('img', this).first().attr('src', url).css({ width: 'auto', height: 'auto' });
     }
+
+    // skip anything that's already loading/loaded
+    var imageLinks = $('a[href="' + url + '"]').not(isAlreadyLoading).not(isAlreadyInlined);
+    imageLinks.filter(isTextLink).each(addEmptyImg);
+    imageLinks.each(setLoading);
+    loadImage(url, function() {
+        // when the image is loaded, inline it everywhere and update the links
+        imageLinks.each(inlineImage).each(setInlined);
+    });
 }
 
 function gifHide() {
@@ -313,16 +317,5 @@ function updateMarkedUsers(users){
 }
 
 function loadImage(url, callback) {
-$('<img src="'+ url +'">').on('load', callback);
-}
-function showInlineGif(url, gifplay){
-    imageLink = $('a[href="'+url+'"]');
-    imageLink.each(function(){
-    image = $(this).children().first();
-                  image.attr('src', url);
-                  image.css({
-                         width: 'auto',
-                         height: 'auto'
-                       });
-    })
+    $('<img src="'+ url +'">').on('load', callback);
 }
