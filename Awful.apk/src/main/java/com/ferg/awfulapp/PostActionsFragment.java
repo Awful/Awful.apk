@@ -198,6 +198,16 @@ public class PostActionsFragment extends AwfulDialogFragment {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	
+	public void changeTitle(String title) {
+		View view = getView();
+		if (view != null) {
+			TextView actionTitle = (TextView) view.findViewById(R.id.actionTitle);
+			if (actionTitle != null) {
+				actionTitle.setText(title);
+			}
+		}
+	}
 
 	public void setPostId(String postId) {
 		this.postId = postId;

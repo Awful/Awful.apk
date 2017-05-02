@@ -60,6 +60,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -1227,6 +1228,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		postActions.setUrl(url);
 		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+		postActions.setTitle(url);
 		
 		if (isImage || isGif) {
 			AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
@@ -1236,7 +1238,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 						URL location = new URL(parameters[0]);
 						URLConnection connection = location.openConnection();
 						int size = connection.getContentLength();
-						return String.format("Size: %sB\n\n%s", size, url);
+						String pretty = Formatter.formatShortFileSize(getContext(), size);
+						return String.format("Image Size:\n%s\n\n%s", pretty, url);
 					}
 					catch (IOException exception) {
 						exception.printStackTrace();
@@ -1246,16 +1249,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 				@Override
 				protected void onPostExecute(String result) {
-					postActions.setTitle(result);
-					postActions.show(fragmentManager, "Link Actions");
+					postActions.changeTitle(result);
 				}
 			};
 			task.execute(url);
 		}
-		else {
-			postActions.setTitle(url);
-			postActions.show(fragmentManager, "Link Actions");
-		}
+		
+		postActions.show(fragmentManager, "Link Actions");
 	}
 
 	protected void showImageInline(String url){
