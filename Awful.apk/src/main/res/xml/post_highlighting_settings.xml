@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:summary="@string/post_highlighting_description"
+        />
+
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
         android:key="@string/pref_key_highlight_username"
-        android:title="@string/user_highlight"
         android:summary="@string/user_highlight_summary"
-        android:defaultValue="true"
+        android:title="@string/user_highlight"
         />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
         android:key="@string/pref_key_highlight_user_quote"
-        android:title="@string/user_quote"
         android:summary="@string/user_quote_summary"
-        android:defaultValue="true"
+        android:title="@string/user_quote"
         />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
         android:key="@string/pref_key_highlight_self"
         android:title="@string/self_highlight"
-        android:summary="@string/self_highlight_summary"
-        android:defaultValue="true"
         />
     <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
         android:key="@string/pref_key_highlight_op"
         android:title="@string/op_highlight"
-        android:summary="@string/op_highlight_summary"
-        android:defaultValue="true"
         />
 </PreferenceScreen>

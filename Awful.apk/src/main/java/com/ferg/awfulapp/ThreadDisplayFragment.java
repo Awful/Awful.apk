@@ -1296,8 +1296,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		if(mThreadView != null){
 			mThreadView.setBackgroundColor(Color.TRANSPARENT);
             mThreadView.runJavascript(String.format("changeFontFace('%s')", mPrefs.preferredFont));
-            mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeDip);
-            mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeDip);
+            mThreadView.getSettings().setDefaultFontSize(mPrefs.postFontSizeSp);
+            mThreadView.getSettings().setDefaultFixedFontSize(mPrefs.postFixedFontSizeSp);
 
 			if("marked_users".equals(key)){
 				mThreadView.runJavascript(String.format("updateMarkedUsers('%s')", TextUtils.join(",", mPrefs.markedUsers)));

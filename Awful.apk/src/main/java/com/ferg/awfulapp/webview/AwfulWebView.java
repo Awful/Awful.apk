@@ -75,8 +75,8 @@ public class AwfulWebView extends WebView {
         setBackgroundColor(Color.TRANSPARENT);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setDefaultFontSize(prefs.postFontSizeDip);
-        webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeDip);
+        webSettings.setDefaultFontSize(prefs.postFontSizeSp);
+        webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
 
         if (AwfulUtils.isLollipop()) {
             //noinspection AndroidLintNewApi, AndroidLintInlinedApi

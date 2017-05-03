@@ -48,8 +48,8 @@ public abstract class Keys {
 
     // ints
     @IntDef({
-            POST_FONT_SIZE_DIP,
-            POST_FIXED_FONT_SIZE_DIP,
+            POST_FONT_SIZE_SP,
+            POST_FIXED_FONT_SIZE_SP,
             POST_PER_PAGE,
             CURR_PREF_VERSION,
             ALERT_ID_SHOWN,
@@ -135,8 +135,8 @@ public abstract class Keys {
     public static final int PAGE_LAYOUT = R.string.pref_key_page_layout;
     public static final int TRANSFORMER = R.string.pref_key_transformer;
 
-    public static final int POST_FONT_SIZE_DIP = R.string.pref_key_post_font_size_dip;
-    public static final int POST_FIXED_FONT_SIZE_DIP = R.string.pref_key_post_fixed_font_size_dip;
+    public static final int POST_FONT_SIZE_SP = R.string.pref_key_post_font_size_sp;
+    public static final int POST_FIXED_FONT_SIZE_SP = R.string.pref_key_post_fixed_font_size_sp;
     public static final int POST_PER_PAGE = R.string.pref_key_post_per_page;
     public static final int CURR_PREF_VERSION = R.string.pref_key_curr_pref_version;
     public static final int ALERT_ID_SHOWN = R.string.pref_key_alert_id_shown;
