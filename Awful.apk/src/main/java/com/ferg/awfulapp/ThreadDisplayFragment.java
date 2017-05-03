@@ -1238,7 +1238,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 						URL location = new URL(parameters[0]);
 						URLConnection connection = location.openConnection();
 						int size = connection.getContentLength();
-						return String.format("%s", Formatter.formatShortFileSize(getContext(), size));
+						return String.format("Size: %s", Formatter.formatShortFileSize(getContext(), size));
 					}
 					catch (IOException exception) {
 						exception.printStackTrace();
@@ -1248,7 +1248,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 				@Override
 				protected void onPostExecute(String result) {
-					postActions.changeTitle(result);
+					postActions.setSize(result);
 				}
 			};
 			task.execute(url);

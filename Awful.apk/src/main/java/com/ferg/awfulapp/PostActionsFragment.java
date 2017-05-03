@@ -199,12 +199,12 @@ public class PostActionsFragment extends AwfulDialogFragment {
 		this.title = title;
 	}
 	
-	public void changeTitle(String title) {
+	public void setSize(String size) {
 		View view = getView();
 		if (view != null) {
 			TextView fileSize = (TextView) view.findViewById(R.id.fileSize);
 			if (fileSize != null) {
-				fileSize.setText(title);
+				fileSize.setText(size);
 			}
 		}
 	}
