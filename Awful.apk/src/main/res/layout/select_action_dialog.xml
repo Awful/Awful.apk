@@ -30,7 +30,19 @@
         android:paddingLeft="24dp"
         android:paddingTop="24dp"
         android:paddingRight="24dp"
-        android:textSize="@dimen/abc_text_size_headline_material"/>
+        android:textSize="@dimen/abc_text_size_headline_material"
+        tools:text="http://i.imgur.com/example.png"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fileSize"
+        android:background="?attr/colorPrimary"
+        android:textColor="?attr/actionBarFontColor"
+        android:paddingBottom="10dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        tools:text="64 KB"/>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="@dimen/dialog_size"

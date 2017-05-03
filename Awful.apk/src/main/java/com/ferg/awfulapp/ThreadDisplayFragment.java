@@ -1238,8 +1238,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 						URL location = new URL(parameters[0]);
 						URLConnection connection = location.openConnection();
 						int size = connection.getContentLength();
-						String pretty = Formatter.formatShortFileSize(getContext(), size);
-						return String.format("Image Size:\n%s\n\n%s", pretty, url);
+						return String.format("%s", Formatter.formatShortFileSize(getContext(), size));
 					}
 					catch (IOException exception) {
 						exception.printStackTrace();
