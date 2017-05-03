@@ -92,6 +92,7 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
@@ -1231,27 +1232,13 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		postActions.setTitle(url);
 		
 		if (isImage || isGif) {
-			AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
-				@Override
-				protected String doInBackground(String... parameters) {
-					try {
-						URL location = new URL(parameters[0]);
-						URLConnection connection = location.openConnection();
-						int size = connection.getContentLength();
-						return String.format("Size: %s", Formatter.formatShortFileSize(getContext(), size));
-					}
-					catch (IOException exception) {
-						exception.printStackTrace();
-						return null;
-					}
+			queueRequest(new ImageSizeRequest(url, result -> {
+				if (postActions == null) {
+					return;
 				}
-
-				@Override
-				protected void onPostExecute(String result) {
-					postActions.setSize(result);
-				}
-			};
-			task.execute(url);
+				String size = result == null ? "Unknown" : Formatter.formatShortFileSize(getContext(), result);
+				postActions.setSize(String.format("Size: %s", size));
+			}));
 		}
 		
 		postActions.show(fragmentManager, "Link Actions");

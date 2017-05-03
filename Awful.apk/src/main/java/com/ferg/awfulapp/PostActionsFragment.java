@@ -205,6 +205,7 @@ public class PostActionsFragment extends AwfulDialogFragment {
 			TextView fileSize = (TextView) view.findViewById(R.id.fileSize);
 			if (fileSize != null) {
 				fileSize.setText(size);
+				fileSize.setVisibility(size == null ? View.GONE : View.VISIBLE);
 			}
 		}
 	}

@@ -42,7 +42,9 @@
         android:paddingBottom="10dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        tools:text="64 KB"/>
+        android:visibility="gone"
+        tools:text="64 KB"
+        tools:visibility="visible"/>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="@dimen/dialog_size"
