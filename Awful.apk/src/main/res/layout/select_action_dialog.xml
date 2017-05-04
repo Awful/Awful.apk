@@ -12,7 +12,8 @@
     tools:context=".PostActionsFragment"
     android:orientation="vertical"
     android:paddingBottom="24dp"
-    android:elevation="24dp">
+    android:elevation="24dp"
+    android:animateLayoutChanges="true">
 
     <TextView
         android:layout_width="match_parent"
@@ -42,7 +43,7 @@
         android:paddingBottom="10dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         tools:text="64 KB"
         tools:visibility="visible"/>
 
