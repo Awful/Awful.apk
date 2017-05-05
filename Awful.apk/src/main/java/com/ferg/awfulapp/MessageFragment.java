@@ -26,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -326,6 +325,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 		}
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
+			// TODO: 05/05/2017 if pmId is negative (i.e. an invalid number) the load will fail - try and avoid doing it?
 			Log.i(TAG,"Create PM Cursor:"+pmId);
             return new CursorLoader(getActivity(), 
             						ContentUris.withAppendedId(AwfulMessage.CONTENT_URI, pmId), 
@@ -336,10 +336,11 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
         	//TODO retain info if entered into reply window
-        	if(aData.moveToFirst() && pmId >0){
-    			if(messageWebView != null){
+			// the Cursor will be null if pmId is negative
+			if(aData != null && aData.moveToFirst()){
+				Log.v(TAG,"PM load finished, populating: "+aData.getCount());
+				if(messageWebView != null){
 					messageWebView.setContent(null);
     			}
         		String title = aData.getString(aData.getColumnIndex(AwfulMessage.TITLE));
@@ -371,8 +372,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
         			mRecipient.setText(recipient);
         		}
         	}
-        	aData.close();
-        }
+		}
         
         @Override
         public void onLoaderReset(Loader<Cursor> aLoader) {

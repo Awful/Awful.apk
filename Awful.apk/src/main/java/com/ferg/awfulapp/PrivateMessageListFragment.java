@@ -297,7 +297,9 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	Log.v(TAG,"PM load finished, populating: "+aData.getCount());
+            if (aData != null) {
+                Log.v(TAG,"PM load finished, populating: "+aData.getCount());
+            }
         	mCursorAdapter.swapCursor(aData);
         }
         
