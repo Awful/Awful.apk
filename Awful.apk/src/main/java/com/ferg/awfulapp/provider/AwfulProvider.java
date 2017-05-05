@@ -228,7 +228,7 @@ public class AwfulProvider extends ContentProvider {
         }
         	
         	
-    	public void createForumTable(SQLiteDatabase aDb) {
+    	void createForumTable(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_FORUM + " (" +
                 AwfulForum.ID      + " INTEGER UNIQUE," + 
                 AwfulForum.PARENT_ID      + " INTEGER," + //subforums list parent forum id, primary forums list 0 (index)
@@ -240,7 +240,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulForum.TAG_CACHEFILE + " VARCHAR,"   +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createThreadTable(SQLiteDatabase aDb) {
+        void createThreadTable(SQLiteDatabase aDb) {
             aDb.execSQL("CREATE TABLE " + TABLE_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + 
                 AwfulThread.FORUM_ID      + " INTEGER,"   + 
@@ -264,14 +264,14 @@ public class AwfulProvider extends ContentProvider {
                 AwfulThread.RATING + " INTEGER, " +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createUCPTable(SQLiteDatabase aDb) {
+        void createUCPTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_UCP_THREADS + " ("    +
                 AwfulThread.ID      + " INTEGER UNIQUE,"  + //to be joined with thread table
                 AwfulThread.INDEX      + " INTEGER," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createPostTable(SQLiteDatabase aDb) {
+        void createPostTable(SQLiteDatabase aDb) {
 
             aDb.execSQL("CREATE TABLE " + TABLE_POSTS + " (" +
                 AwfulPost.ID                    + " INTEGER UNIQUE," + 
@@ -293,7 +293,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulPost.EDITED                + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createEmoteTable(SQLiteDatabase aDb) {
+        void createEmoteTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_EMOTES + " ("    +
         		AwfulEmote.ID      	 + " INTEGER UNIQUE,"  + 
@@ -303,7 +303,7 @@ public class AwfulProvider extends ContentProvider {
                 AwfulEmote.INDEX   	 + " INTEGER,"     + 
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createPMTable(SQLiteDatabase aDb) {
+        void createPMTable(SQLiteDatabase aDb) {
             
             aDb.execSQL("CREATE TABLE " + TABLE_PM + " ("    +
                 AwfulMessage.ID      	 + " INTEGER UNIQUE,"  + 
@@ -316,7 +316,7 @@ public class AwfulProvider extends ContentProvider {
 				AwfulMessage.DATE + " VARCHAR," +
             	UPDATED_TIMESTAMP   + " DATETIME);");
     	}
-        public void createDraftTable(SQLiteDatabase aDb) {
+        void createDraftTable(SQLiteDatabase aDb) {
             
             
             aDb.execSQL("CREATE TABLE " + TABLE_DRAFTS + " ("    +
@@ -341,31 +341,23 @@ public class AwfulProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase aDb, int aOldVersion, int aNewVersion) {
 			switch (aOldVersion) {//this switch intentionally falls through!
-				case 16:
-				case 17:
-				case 18:
-				case 19:
-				case 20:
-				case 21:
-					wipeRecreateTables(aDb);//clear cache to resolve remaining blank-forum issue.
 				case 23:
 				case 24:
 				case 25:
 				case 26:
-					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
+					dropTables(aDb, TABLE_DRAFTS);
 					createDraftTable(aDb);
 				case 27:
 				case 28:
 				case 29:
-					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+					dropTables(aDb, TABLE_PM, TABLE_POSTS);
 					createPMTable(aDb);
 					createPostTable(aDb);
 				case 30:
-					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
+					dropTables(aDb, TABLE_FORUM);
 					createForumTable(aDb);
 				case 31:
-					aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
+					dropTables(aDb, TABLE_THREADS);
 					createThreadTable(aDb);
 					break;//make sure to keep this break statement on the last case of this switch
 				default:
@@ -378,19 +370,19 @@ public class AwfulProvider extends ContentProvider {
         	wipeRecreateTables(aDb);
 		}
 
-		private void dropAllTables(SQLiteDatabase aDb){
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_FORUM);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_THREADS);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_EMOTES);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_UCP_THREADS);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_PM);
-            aDb.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTS);
-        }
+		/**
+		 * Attempt to drop the named tables in the given database
+		 */
+		private void dropTables(@NonNull SQLiteDatabase db, @NonNull String... tableNames) {
+			for (String table : tableNames) {
+				db.execSQL("DROP TABLE IF EXISTS " + table);
+			}
+		}
 		
-		public void wipeRecreateTables(SQLiteDatabase aDb){
-			dropAllTables(aDb);
-            onCreate(aDb);
+		void wipeRecreateTables(SQLiteDatabase aDb){
+			String[] allTables = {TABLE_FORUM, TABLE_THREADS, TABLE_POSTS, TABLE_EMOTES, TABLE_UCP_THREADS, TABLE_PM, TABLE_DRAFTS};
+			dropTables(aDb, allTables);
+			onCreate(aDb);
 		}
     }
 
@@ -404,12 +396,12 @@ public class AwfulProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri aUri) {
+    public String getType(@NonNull Uri aUri) {
         return null;
     }
 
     @Override
-    public int delete(Uri aUri, String aWhere, String[] aWhereArgs) {
+    public int delete(@NonNull Uri aUri, String aWhere, String[] aWhereArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         String table = null;
 
@@ -732,33 +724,29 @@ public class AwfulProvider extends ContentProvider {
             return newSelectionArgs;
         }
     }
-    
-    //the leaning pyramid of boilerplate
-    public static String[] int2StrArray(int arg1){
-    	return new String[]{Integer.toString(arg1)};
+
+	/**
+	 * Convert an array of ints to an array of Strings
+	 */
+	@NonNull
+	public static String[] int2StrArray(@NonNull int... args){
+		String[] strings = new String[args.length];
+		for (int i = 0; i < args.length; i++) {
+			strings[i] = Integer.toString(args[i]);
+		}
+		return strings;
     }
-    
-    public static String[] int2StrArray(int arg1, int arg2){
-    	return new String[]{Integer.toString(arg1), Integer.toString(arg2)};
-    }
-    
-    public static String[] int2StrArray(int arg1, int arg2, int arg3){
-    	return new String[]{Integer.toString(arg1),Integer.toString(arg2),Integer.toString(arg3)};
-    }
-    
-    public static String[] int2StrArray(int arg1, int arg2, int arg3, int arg4){
-    	return new String[]{Integer.toString(arg1),Integer.toString(arg2),Integer.toString(arg3),Integer.toString(arg4)};
-    }
+
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sForumProjectionMap = new HashMap<String, String>();
-        sPostProjectionMap = new HashMap<String, String>();
-        sThreadProjectionMap = new HashMap<String, String>();
-        sUCPThreadProjectionMap = new HashMap<String, String>();
-        sDraftProjectionMap = new HashMap<String, String>();
-        sPMReplyProjectionMap = new HashMap<String, String>();
-        sEmoteProjectionMap = new HashMap<String, String>();
+		sForumProjectionMap = new HashMap<>();
+        sPostProjectionMap = new HashMap<>();
+        sThreadProjectionMap = new HashMap<>();
+        sUCPThreadProjectionMap = new HashMap<>();
+        sDraftProjectionMap = new HashMap<>();
+        sPMReplyProjectionMap = new HashMap<>();
+        sEmoteProjectionMap = new HashMap<>();
 
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
 		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
@@ -775,6 +763,7 @@ public class AwfulProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.AUTHORITY, "emote", EMOTE);
 		sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", EMOTE_ID);
 
+		// TODO: 05/05/2017 we don't actually need to pass a projection map if every key maps to itself - is there a security benefit to doing it?
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
 		sForumProjectionMap.put(AwfulForum.INDEX, AwfulForum.INDEX);
