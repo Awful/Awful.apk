@@ -40,6 +40,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -51,6 +52,7 @@ import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class AwfulProvider extends ContentProvider {
@@ -608,9 +610,10 @@ public class AwfulProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + aUri);
     }
 
+    @Nullable
     @Override
-    public Cursor query(Uri aUri, String[] aProjection, String aSelection,
-        String[] aSelectionArgs, String aSortOrder) 
+    public Cursor query(@NonNull Uri aUri, String[] aProjection, String aSelection,
+						String[] aSelectionArgs, String aSortOrder)
     {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		// Typically this should fetch a readable database but we're querying before
@@ -618,6 +621,19 @@ public class AwfulProvider extends ContentProvider {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         final int match = sUriMatcher.match(aUri);
+		// check for non-match, return null since an unrecognised/malformed Uri gives us nothing useful to do
+		if (match == UriMatcher.NO_MATCH) {
+			String msg = String.format("Unrecognised query Uri!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
+					aUri, Arrays.toString(aProjection), aSelection, Arrays.toString(aSelectionArgs), aSortOrder);
+			if (AwfulApplication.crashlyticsEnabled()) {
+				Crashlytics.log(Log.WARN, TAG, msg);
+			} else {
+				Log.w(TAG, msg);
+			}
+			return null;
+		}
+
+		// set params on the query builder according to the type of Uri - these pairs fall through intentionally
         switch(match) {
 			case FORUM_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
@@ -626,6 +642,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_FORUM);
 				builder.setProjectionMap(sForumProjectionMap);
 				break;
+
 			case POST_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(AwfulPost.ID + "=?");
@@ -633,6 +650,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_POSTS);
 				builder.setProjectionMap(sPostProjectionMap);
 				break;
+
 			case THREAD_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(TABLE_THREADS+"."+AwfulThread.ID + "=?");
@@ -640,6 +658,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID);
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
+
 			case UCP_THREAD_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(AwfulThread.ID + "=?");
@@ -648,6 +667,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
+
 			case PM_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(TABLE_PM+"."+AwfulMessage.ID + "=?");
@@ -655,6 +675,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_PM+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_PM+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
 				builder.setProjectionMap(sPMReplyProjectionMap);
 				break;
+
 			case DRAFT_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(AwfulMessage.ID + "=?");
@@ -662,6 +683,7 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_DRAFTS);
 				builder.setProjectionMap(sDraftProjectionMap);
 				break;
+
 			case EMOTE_ID:
                 aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
                 builder.appendWhere(AwfulEmote.ID + "=?");
@@ -669,20 +691,26 @@ public class AwfulProvider extends ContentProvider {
 				builder.setTables(TABLE_EMOTES);
 				builder.setProjectionMap(sEmoteProjectionMap);
 				break;
+
+			default:
+				throw new RuntimeException(TAG + " - Unhandled URI type: " + match);
         }
-        Cursor result;
+
+        // perform the query
         try {
-            result = builder.query(db, aProjection, aSelection,
+            Cursor result = builder.query(db, aProjection, aSelection,
                     aSelectionArgs, null, null, aSortOrder);
             result.setNotificationUri(getContext().getContentResolver(), aUri);
+			return result;
         } catch (Exception e) {
+			String msg = String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables());
 			if (AwfulApplication.crashlyticsEnabled()){
-				Crashlytics.log(String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables()));
+				Crashlytics.log(Log.WARN, TAG, msg);
+			} else{
+				Log.w(TAG, msg, e);
 			}
             throw e;
         }
-
-        return result;
     }
 
     /**
