@@ -58,6 +58,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.MustacheException;
@@ -253,7 +254,7 @@ public class AwfulThread extends AwfulPagedItem  {
                 } else {
                     thread.put(BOOKMARKED, 0);
                 }
-        		thread.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+        		thread.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
                 result.add(thread);
             } catch (NullPointerException e) {
                 // If we can't parse a row, just skip it

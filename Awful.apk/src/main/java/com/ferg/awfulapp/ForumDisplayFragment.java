@@ -58,6 +58,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.service.ThreadCursorAdapter;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkColorRequest;
@@ -631,7 +632,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             String[] selectionArgs;
             if (isBookmarks) {
                 selection = String.format("%s.%s>=? AND %s.%s<?",
-                        AwfulProvider.TABLE_UCP_THREADS, AwfulThread.INDEX, AwfulProvider.TABLE_UCP_THREADS, AwfulThread.INDEX);
+                        DatabaseHelper.TABLE_UCP_THREADS, AwfulThread.INDEX, DatabaseHelper.TABLE_UCP_THREADS, AwfulThread.INDEX);
                 selectionArgs = AwfulProvider.int2StrArray(thisPageIndex, nextPageIndex);
             } else {
                 selection = String.format("%s=? AND %s>=? AND %s<?",
