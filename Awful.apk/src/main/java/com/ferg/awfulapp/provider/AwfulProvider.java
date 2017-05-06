@@ -56,15 +56,11 @@ import com.ferg.awfulapp.thread.AwfulThread;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
-    /**
-     * So this whole thing works, but is really ugly and maintains poorly. I'd rewrite it, but it's a lot of work for no real benefit this late in the project.
-     *
-     * e: I really need to refactor this shit, I have a split-up version of this pattern that functions the same but is a hell of a lot easier to maintain.
-     */
 
     private static final String DATABASE_NAME = "awful.db";
     private static final int DATABASE_VERSION = 32;
@@ -78,6 +74,11 @@ public class AwfulProvider extends ContentProvider {
     public static final String TABLE_DRAFTS    = "draft_messages";
 
     public static final String UPDATED_TIMESTAMP    = "timestamp_row_update";
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Matching Uris to types
+    ///////////////////////////////////////////////////////////////////////////
 
     private static final int URI_FORUM = 0;
     private static final int URI_FORUM_ID = 1;
@@ -93,128 +94,231 @@ public class AwfulProvider extends ContentProvider {
     private static final int URI_DRAFT_ID = 11;
     private static final int URI_EMOTE = 12;
     private static final int URI_EMOTE_ID = 13;
+    /** This just holds the Uri types that correspond to tables */
 	private static final Set<Integer> TABLE_URIS = new HashSet<>(Arrays.asList(URI_FORUM, URI_POST, URI_THREAD, URI_UCP_THREAD, URI_PM, URI_DRAFT, URI_EMOTE));
 
-    private static final UriMatcher sUriMatcher;
-	private static HashMap<String, String> sForumProjectionMap;
-	private static HashMap<String, String> sThreadProjectionMap;
-	private static HashMap<String, String> sPostProjectionMap;
-	private static HashMap<String, String> sUCPThreadProjectionMap;
-	private static HashMap<String, String> sDraftProjectionMap;
-	private static HashMap<String, String> sPMReplyProjectionMap;
-	private static HashMap<String, String> sEmoteProjectionMap;
-	
-	public static final String[] ThreadProjection = new String[]{
-		AwfulThread.ID,
-		AwfulThread.FORUM_ID,
-		AwfulThread.INDEX,
-		AwfulThread.TITLE,
-		AwfulThread.POSTCOUNT,
-		AwfulThread.UNREADCOUNT,
-		AwfulThread.AUTHOR,
-		AwfulThread.AUTHOR_ID,
-		AwfulThread.LOCKED,
-		AwfulThread.CAN_OPEN_CLOSE,
-		AwfulThread.BOOKMARKED,
-		AwfulThread.STICKY,
-		AwfulThread.CATEGORY,
-		AwfulThread.LASTPOSTER,
-		AwfulThread.TAG_URL,
-		AwfulThread.TAG_CACHEFILE,
-        AwfulThread.TAG_EXTRA,
-		AwfulThread.FORUM_TITLE,
-		AwfulThread.HAS_NEW_POSTS,
-		AwfulThread.HAS_VIEWED_THREAD,
-        AwfulThread.ARCHIVED,
-        AwfulThread.RATING,
-		UPDATED_TIMESTAMP };
-
-	public static final String[] ForumProjection = new String[]{
-		AwfulForum.ID,
-		AwfulForum.PARENT_ID,
-		AwfulForum.INDEX,
-		AwfulForum.TITLE,
-		AwfulForum.SUBTEXT,
-		AwfulForum.PAGE_COUNT,
-		AwfulForum.TAG_URL,
-		AwfulForum.TAG_CACHEFILE,
-		UPDATED_TIMESTAMP
-	};
-	
-	public static final String[] PostProjection = new String[]{
-        AwfulPost.ID,
-        AwfulPost.THREAD_ID,
-        AwfulPost.POST_INDEX,
-        AwfulPost.DATE,
-        AwfulPost.REGDATE,
-        AwfulPost.USER_ID,
-        AwfulPost.USERNAME,
-        AwfulPost.PREVIOUSLY_READ,
-        AwfulPost.EDITABLE,
-        AwfulPost.IS_OP,
-        AwfulPost.IS_ADMIN,
-		AwfulPost.IS_MOD,
-		AwfulPost.IS_PLAT,
-        AwfulPost.AVATAR,
-        AwfulPost.AVATAR_TEXT,
-        AwfulPost.CONTENT,
-        AwfulPost.EDITED
-	};
-	
-	public static final String[] PMProjection = new String[]{
-		AwfulMessage.ID,
-		AwfulMessage.AUTHOR,
-		AwfulMessage.TITLE,
-		AwfulMessage.CONTENT,
-		AwfulMessage.UNREAD,
-		AwfulMessage.ICON,
-		AwfulMessage.DATE
-	};
-	public static final String[] DraftProjection = new String[]{
-		AwfulMessage.ID,
-		AwfulMessage.TYPE,
-		AwfulMessage.RECIPIENT,
-		AwfulMessage.TITLE,
-		AwfulMessage.REPLY_CONTENT
-	};
-	
-	public static final String[] DraftPostProjection = new String[]{
-		AwfulMessage.ID,
-		AwfulMessage.TYPE,
-		AwfulPost.FORM_COOKIE,
-		AwfulPost.FORM_KEY,
-		AwfulPost.EDIT_POST_ID,
-		AwfulPost.REPLY_ORIGINAL_CONTENT,
-		AwfulMessage.REPLY_CONTENT,
-		AwfulMessage.REPLY_ATTACHMENT,
-		AwfulPost.FORM_BOOKMARK,
-        AwfulMessage.EPOC_TIMESTAMP,
-		UPDATED_TIMESTAMP
-	};
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    static {
+        sUriMatcher.addURI(Constants.AUTHORITY, "forum", URI_FORUM);
+        sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", URI_FORUM_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "thread", URI_THREAD);
+        sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", URI_THREAD_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "post", URI_POST);
+        sUriMatcher.addURI(Constants.AUTHORITY, "post/#", URI_POST_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", URI_UCP_THREAD);
+        sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", URI_UCP_THREAD_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages", URI_PM);
+        sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", URI_PM_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", URI_DRAFT);
+        sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", URI_DRAFT_ID);
+        sUriMatcher.addURI(Constants.AUTHORITY, "emote", URI_EMOTE);
+        sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", URI_EMOTE_ID);
+    }
 
 
-	public static final String[] PMReplyProjection = new String[]{
-		AwfulMessage.ID,
-		AwfulMessage.AUTHOR,
-		AwfulMessage.TITLE,
-		AwfulMessage.CONTENT,
-		AwfulMessage.UNREAD,
-		AwfulMessage.DATE,
-		AwfulMessage.TYPE,
-		AwfulMessage.RECIPIENT,
-		AwfulMessage.REPLY_TITLE,
-		AwfulMessage.REPLY_CONTENT
-	};
-	
-	public static final String[] EmoteProjection = new String[]{
-		AwfulEmote.ID,
-		AwfulEmote.TEXT,
-		AwfulEmote.SUBTEXT,
-		AwfulEmote.URL,
-		AwfulEmote.INDEX,
-		UPDATED_TIMESTAMP
-	};
-	
+    ///////////////////////////////////////////////////////////////////////////
+    // Projections
+    ///////////////////////////////////////////////////////////////////////////
+
+    // TODO: 06/05/2017 some of these maps are broken into multiple basic projections, and some are almost the full map. Might be worth checking if this is still right
+
+    @NonNull
+    private static String[] arrayOfKeys(@NonNull Map<String, ?> map) {
+        return map.keySet().toArray(new String[map.size()]);
+    }
+
+    // Forum
+	private static final HashMap<String, String> sForumProjectionMap = new HashMap<>();
+    static {
+        sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
+        sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
+        sForumProjectionMap.put(AwfulForum.INDEX, AwfulForum.INDEX);
+        sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
+        sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
+        sForumProjectionMap.put(AwfulForum.PAGE_COUNT, AwfulForum.PAGE_COUNT);
+        sForumProjectionMap.put(AwfulForum.TAG_URL, AwfulForum.TAG_URL);
+        sForumProjectionMap.put(AwfulForum.TAG_CACHEFILE, AwfulForum.TAG_CACHEFILE);
+        sForumProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
+    }
+    public static final String[] ForumProjection = arrayOfKeys(sForumProjectionMap);
+
+    // Thread
+	private static final HashMap<String, String> sThreadProjectionMap = new HashMap<>();
+    static {
+        sThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);
+        sThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+        sThreadProjectionMap.put(AwfulThread.INDEX, AwfulThread.INDEX);
+        sThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
+        sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
+        sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+        sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+        sThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
+        sThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+        sThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
+        sThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
+        sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
+        sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
+        sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+        sThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+ AwfulThread.HAS_NEW_POSTS);
+        sThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
+        sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
+        sThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
+        sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
+        sThreadProjectionMap.put(AwfulThread.TAG_EXTRA, TABLE_THREADS+"."+AwfulThread.TAG_EXTRA+" AS "+AwfulThread.TAG_EXTRA);
+        sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
+        sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
+        sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
+    }
+    public static final String[] ThreadProjection = arrayOfKeys(sThreadProjectionMap);
+
+    // Post
+	private static final HashMap<String, String> sPostProjectionMap = new HashMap<>();
+    static {
+        sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
+        sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
+        sPostProjectionMap.put(AwfulPost.POST_INDEX, AwfulPost.POST_INDEX);
+        sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
+        sPostProjectionMap.put(AwfulPost.REGDATE, AwfulPost.REGDATE);
+        sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
+        sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
+        sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
+        sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
+        sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
+        sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
+        sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
+        sPostProjectionMap.put(AwfulPost.IS_PLAT, AwfulPost.IS_PLAT);
+        sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
+        sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);
+        sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
+        sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
+    }
+    public static final String[] PostProjection = arrayOfKeys(sPostProjectionMap);
+
+    // UCP Thread
+	private static final HashMap<String, String> sUCPThreadProjectionMap = new HashMap<>();
+    static {
+        //hopefully this should let the join happen
+        //but documentation on projection maps is fucking scarce.
+        sUCPThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);//threads._id AS _id
+        sUCPThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
+        sUCPThreadProjectionMap.put(AwfulThread.INDEX, TABLE_UCP_THREADS+"."+AwfulThread.INDEX+" AS "+AwfulThread.INDEX);
+        sUCPThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
+        sUCPThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
+        sUCPThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
+        sUCPThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
+        sUCPThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
+        sUCPThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
+        sUCPThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
+        sUCPThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
+        sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
+        sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
+        sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
+        sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
+        sUCPThreadProjectionMap.put(AwfulThread.TAG_EXTRA, AwfulThread.TAG_EXTRA);
+        sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
+        sUCPThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+AwfulThread.HAS_NEW_POSTS);
+        sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
+        sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
+        sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
+        sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
+        sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
+    }
+
+    // Drafts
+	private static final HashMap<String, String> sDraftProjectionMap = new HashMap<>();
+    static {
+        sDraftProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
+        sDraftProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
+        sDraftProjectionMap.put(AwfulPost.FORM_COOKIE, AwfulPost.FORM_COOKIE);
+        sDraftProjectionMap.put(AwfulPost.FORM_KEY, AwfulPost.FORM_KEY);
+        sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
+        sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
+        sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+        sDraftProjectionMap.put(AwfulPost.EDIT_POST_ID, AwfulPost.EDIT_POST_ID);
+        sDraftProjectionMap.put(AwfulPost.REPLY_ORIGINAL_CONTENT, AwfulPost.REPLY_ORIGINAL_CONTENT);
+        sDraftProjectionMap.put(AwfulMessage.REPLY_ATTACHMENT, AwfulMessage.REPLY_ATTACHMENT);
+        sDraftProjectionMap.put(AwfulPost.FORM_BOOKMARK, AwfulPost.FORM_BOOKMARK);
+        sDraftProjectionMap.put(AwfulMessage.EPOC_TIMESTAMP, AwfulMessage.EPOC_TIMESTAMP);
+        sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
+    }
+    public static final String[] DraftProjection = new String[]{
+            AwfulMessage.ID,
+            AwfulMessage.TYPE,
+            AwfulMessage.RECIPIENT,
+            AwfulMessage.TITLE,
+            AwfulMessage.REPLY_CONTENT
+    };
+    public static final String[] DraftPostProjection = new String[]{
+            AwfulMessage.ID,
+            AwfulMessage.TYPE,
+            AwfulPost.FORM_COOKIE,
+            AwfulPost.FORM_KEY,
+            AwfulPost.EDIT_POST_ID,
+            AwfulPost.REPLY_ORIGINAL_CONTENT,
+            AwfulMessage.REPLY_CONTENT,
+            AwfulMessage.REPLY_ATTACHMENT,
+            AwfulPost.FORM_BOOKMARK,
+            AwfulMessage.EPOC_TIMESTAMP,
+            UPDATED_TIMESTAMP
+    };
+
+    // Private messages
+	private static final HashMap<String, String> sPMReplyProjectionMap = new HashMap<>();
+    static {
+        sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);
+        sPMReplyProjectionMap.put(AwfulMessage.TITLE, TABLE_PM+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.TITLE);
+        sPMReplyProjectionMap.put(AwfulMessage.CONTENT, AwfulMessage.CONTENT);
+        sPMReplyProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
+        sPMReplyProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
+        sPMReplyProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
+        sPMReplyProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
+        sPMReplyProjectionMap.put(AwfulMessage.REPLY_TITLE, TABLE_DRAFTS+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.REPLY_TITLE);
+        sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
+        sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
+        sPMReplyProjectionMap.put(AwfulMessage.ICON, AwfulMessage.ICON);
+        sPMReplyProjectionMap.put(AwfulMessage.FOLDER, AwfulMessage.FOLDER);
+    }
+    public static final String[] PMProjection = new String[]{
+            AwfulMessage.ID,
+            AwfulMessage.AUTHOR,
+            AwfulMessage.TITLE,
+            AwfulMessage.CONTENT,
+            AwfulMessage.UNREAD,
+            AwfulMessage.ICON,
+            AwfulMessage.DATE
+    };
+    public static final String[] PMReplyProjection = new String[]{
+            AwfulMessage.ID,
+            AwfulMessage.AUTHOR,
+            AwfulMessage.TITLE,
+            AwfulMessage.CONTENT,
+            AwfulMessage.UNREAD,
+            AwfulMessage.DATE,
+            AwfulMessage.TYPE,
+            AwfulMessage.RECIPIENT,
+            AwfulMessage.REPLY_TITLE,
+            AwfulMessage.REPLY_CONTENT
+    };
+
+    // Emotes
+	private static final HashMap<String, String> sEmoteProjectionMap = new HashMap<>();
+    static {
+        sEmoteProjectionMap.put(AwfulEmote.ID, AwfulEmote.ID);
+        sEmoteProjectionMap.put(AwfulEmote.TEXT, AwfulEmote.TEXT);
+        sEmoteProjectionMap.put(AwfulEmote.SUBTEXT, AwfulEmote.SUBTEXT);
+        sEmoteProjectionMap.put(AwfulEmote.URL, AwfulEmote.URL);
+        sEmoteProjectionMap.put(AwfulEmote.INDEX, AwfulEmote.INDEX);
+        sEmoteProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
+    }
+    public static final String[] EmoteProjection = arrayOfKeys(sEmoteProjectionMap);
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Database
+    ///////////////////////////////////////////////////////////////////////////
+
+    // TODO: 06/05/2017 separate this into its own main class
+
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context aContext) {
             super(aContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -391,10 +495,13 @@ public class AwfulProvider extends ContentProvider {
     }
 
     private DatabaseHelper mDbHelper;
+    /** Set in #onCreate, so it should never be null when methods come to use it*/
+    private Context context;
 
     @Override
     public boolean onCreate() {
-        mDbHelper = new DatabaseHelper(getContext());
+        context = getContext();
+        mDbHelper = new DatabaseHelper(context);
         return true;
     }
 
@@ -508,7 +615,7 @@ public class AwfulProvider extends ContentProvider {
 		}
 
         int result = db.update(table, aValues, aWhere, aWhereArgs);
-		getContext().getContentResolver().notifyChange(aUri, null);
+		context.getContentResolver().notifyChange(aUri, null);
 		return result;
     }
 
@@ -537,15 +644,15 @@ public class AwfulProvider extends ContentProvider {
 
 			db.setTransactionSuccessful();
             if (result > 0) {
-                getContext().getContentResolver().notifyChange(aUri, null);
+                context.getContentResolver().notifyChange(aUri, null);
             }
 		} catch (SQLiteConstraintException e) {
 			Log.w(TAG, e.toString());
 		} finally {
 			db.endTransaction();
 		}
-
-		return result;
+        // TODO: 06/05/2017 shouldn't result always be either aValues.length, or zero (failed and transaction rolled back)?
+        return result;
 	}
 
 
@@ -575,10 +682,10 @@ public class AwfulProvider extends ContentProvider {
 		// we actually add anything, so make it writable.
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-		final int match = matchUri(aUri, false);
+		final int uriType = matchUri(aUri, false);
 		// check for non-match, return null since an unrecognised/malformed Uri gives us nothing useful to do
-		if (match == UriMatcher.NO_MATCH) {
-			String msg = String.format("Unhandled query!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
+		if (uriType == UriMatcher.NO_MATCH) {
+			String msg = String.format("Unrecognised query Uri!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
 					aUri, Arrays.toString(aProjection), aSelection, Arrays.toString(aSelectionArgs), aSortOrder);
 			if (AwfulApplication.crashlyticsEnabled()) {
 				Crashlytics.log(Log.WARN, TAG, msg);
@@ -587,12 +694,13 @@ public class AwfulProvider extends ContentProvider {
 			}
 			return null;
 		}
-		String table = getTableForUriType(match);
 
+		// get the basic table name for this Uri - some will need to replace this with something more complex below
+		String table = getTableForUriType(uriType);
 		String whereClause = null;
 		// set params on the query builder according to the type of Uri - these pairs fall through intentionally
-        switch(match) {
-			case URI_FORUM_ID:
+        switch(uriType) {
+            case URI_FORUM_ID:
 				whereClause = AwfulForum.ID;
 			case URI_FORUM:
 				builder.setProjectionMap(sForumProjectionMap);
@@ -637,9 +745,9 @@ public class AwfulProvider extends ContentProvider {
 			case URI_EMOTE:
 				builder.setProjectionMap(sEmoteProjectionMap);
 				break;
-			// TODO: 05/05/2017 needed?
 			default:
-				throw new RuntimeException(TAG + " - Unhandled URI type: " + match);
+			    // this should explicitly handle all valid Uris, so if we get here, someone blew it
+				throw new RuntimeException(TAG + " - Unhandled URI type: " + uriType);
         }
 
         builder.setTables(table);
@@ -652,7 +760,7 @@ public class AwfulProvider extends ContentProvider {
         try {
             Cursor result = builder.query(db, aProjection, aSelection,
                     aSelectionArgs, null, null, aSortOrder);
-            result.setNotificationUri(getContext().getContentResolver(), aUri);
+            result.setNotificationUri(context.getContentResolver(), aUri);
 			return result;
         } catch (Exception e) {
 			String msg = String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables());
@@ -697,143 +805,4 @@ public class AwfulProvider extends ContentProvider {
 		return strings;
     }
 
-
-    static {
-        sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sForumProjectionMap = new HashMap<>();
-        sPostProjectionMap = new HashMap<>();
-        sThreadProjectionMap = new HashMap<>();
-        sUCPThreadProjectionMap = new HashMap<>();
-        sDraftProjectionMap = new HashMap<>();
-        sPMReplyProjectionMap = new HashMap<>();
-        sEmoteProjectionMap = new HashMap<>();
-
-		sUriMatcher.addURI(Constants.AUTHORITY, "forum", URI_FORUM);
-		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", URI_FORUM_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "thread", URI_THREAD);
-		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", URI_THREAD_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "post", URI_POST);
-		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", URI_POST_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", URI_UCP_THREAD);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", URI_UCP_THREAD_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages", URI_PM);
-		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", URI_PM_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", URI_DRAFT);
-		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", URI_DRAFT_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emote", URI_EMOTE);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", URI_EMOTE_ID);
-
-		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
-		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
-		sForumProjectionMap.put(AwfulForum.INDEX, AwfulForum.INDEX);
-		sForumProjectionMap.put(AwfulForum.TITLE, AwfulForum.TITLE);
-		sForumProjectionMap.put(AwfulForum.SUBTEXT, AwfulForum.SUBTEXT);
-		sForumProjectionMap.put(AwfulForum.PAGE_COUNT, AwfulForum.PAGE_COUNT);
-		sForumProjectionMap.put(AwfulForum.TAG_URL, AwfulForum.TAG_URL);
-		sForumProjectionMap.put(AwfulForum.TAG_CACHEFILE, AwfulForum.TAG_CACHEFILE);
-		sForumProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
-
-		sPostProjectionMap.put(AwfulPost.ID, AwfulPost.ID);
-		sPostProjectionMap.put(AwfulPost.THREAD_ID, AwfulPost.THREAD_ID);
-		sPostProjectionMap.put(AwfulPost.POST_INDEX, AwfulPost.POST_INDEX);
-		sPostProjectionMap.put(AwfulPost.DATE, AwfulPost.DATE);
-		sPostProjectionMap.put(AwfulPost.REGDATE, AwfulPost.REGDATE);
-		sPostProjectionMap.put(AwfulPost.USER_ID, AwfulPost.USER_ID);
-		sPostProjectionMap.put(AwfulPost.USERNAME, AwfulPost.USERNAME);
-		sPostProjectionMap.put(AwfulPost.PREVIOUSLY_READ, AwfulPost.PREVIOUSLY_READ);
-		sPostProjectionMap.put(AwfulPost.EDITABLE, AwfulPost.EDITABLE);
-		sPostProjectionMap.put(AwfulPost.IS_OP, AwfulPost.IS_OP);
-		sPostProjectionMap.put(AwfulPost.IS_ADMIN, AwfulPost.IS_ADMIN);
-		sPostProjectionMap.put(AwfulPost.IS_MOD, AwfulPost.IS_MOD);
-		sPostProjectionMap.put(AwfulPost.IS_PLAT, AwfulPost.IS_PLAT);
-		sPostProjectionMap.put(AwfulPost.AVATAR, AwfulPost.AVATAR);
-		sPostProjectionMap.put(AwfulPost.AVATAR_TEXT, AwfulPost.AVATAR_TEXT);
-		sPostProjectionMap.put(AwfulPost.CONTENT, AwfulPost.CONTENT);
-		sPostProjectionMap.put(AwfulPost.EDITED, AwfulPost.EDITED);
-		
-		sThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);
-		sThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
-		sThreadProjectionMap.put(AwfulThread.INDEX, AwfulThread.INDEX);
-		sThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
-		sThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
-		sThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
-		sThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
-		sThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
-		sThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
-		sThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
-		sThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
-		sThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
-		sThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
-		sThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
-		sThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+ AwfulThread.HAS_NEW_POSTS);
-		sThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
-        sThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
-        sThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
-		sThreadProjectionMap.put(AwfulThread.TAG_URL, TABLE_THREADS+"."+AwfulThread.TAG_URL+" AS "+AwfulThread.TAG_URL);
-		sThreadProjectionMap.put(AwfulThread.TAG_EXTRA, TABLE_THREADS+"."+AwfulThread.TAG_EXTRA+" AS "+AwfulThread.TAG_EXTRA);
-		sThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, TABLE_THREADS+"."+AwfulThread.TAG_CACHEFILE+" AS "+AwfulThread.TAG_CACHEFILE);
-		sThreadProjectionMap.put(AwfulThread.FORUM_TITLE, TABLE_FORUM+"."+AwfulForum.TITLE+" AS "+AwfulThread.FORUM_TITLE);
-		sThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
-		
-		
-		//hopefully this should let the join happen
-		//but documentation on projection maps is fucking scarce.
-		sUCPThreadProjectionMap.put(AwfulThread.ID, TABLE_THREADS+"."+AwfulThread.ID+" AS "+AwfulThread.ID);//threads._id AS _id
-		sUCPThreadProjectionMap.put(AwfulThread.FORUM_ID, AwfulThread.FORUM_ID);
-		sUCPThreadProjectionMap.put(AwfulThread.INDEX, TABLE_UCP_THREADS+"."+AwfulThread.INDEX+" AS "+AwfulThread.INDEX);
-		sUCPThreadProjectionMap.put(AwfulThread.TITLE, TABLE_THREADS+"."+AwfulThread.TITLE+" AS "+AwfulThread.TITLE);
-		sUCPThreadProjectionMap.put(AwfulThread.POSTCOUNT, AwfulThread.POSTCOUNT);
-		sUCPThreadProjectionMap.put(AwfulThread.UNREADCOUNT, AwfulThread.UNREADCOUNT);
-		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR, AwfulThread.AUTHOR);
-		sUCPThreadProjectionMap.put(AwfulThread.AUTHOR_ID, AwfulThread.AUTHOR_ID);
-		sUCPThreadProjectionMap.put(AwfulThread.LOCKED, AwfulThread.LOCKED);
-		sUCPThreadProjectionMap.put(AwfulThread.CAN_OPEN_CLOSE, AwfulThread.CAN_OPEN_CLOSE);
-		sUCPThreadProjectionMap.put(AwfulThread.BOOKMARKED, AwfulThread.BOOKMARKED);
-		sUCPThreadProjectionMap.put(AwfulThread.STICKY, AwfulThread.STICKY);
-		sUCPThreadProjectionMap.put(AwfulThread.CATEGORY, AwfulThread.CATEGORY);
-		sUCPThreadProjectionMap.put(AwfulThread.LASTPOSTER, AwfulThread.LASTPOSTER);
-		sUCPThreadProjectionMap.put(AwfulThread.TAG_URL, AwfulThread.TAG_URL);
-		sUCPThreadProjectionMap.put(AwfulThread.TAG_EXTRA, AwfulThread.TAG_EXTRA);
-		sUCPThreadProjectionMap.put(AwfulThread.TAG_CACHEFILE, AwfulThread.TAG_CACHEFILE);
-		sUCPThreadProjectionMap.put(AwfulThread.HAS_NEW_POSTS, AwfulThread.UNREADCOUNT+" > 0 AS "+AwfulThread.HAS_NEW_POSTS);
-		sUCPThreadProjectionMap.put(AwfulThread.HAS_VIEWED_THREAD, AwfulThread.HAS_VIEWED_THREAD);
-        sUCPThreadProjectionMap.put(AwfulThread.ARCHIVED, AwfulThread.ARCHIVED);
-        sUCPThreadProjectionMap.put(AwfulThread.RATING, AwfulThread.RATING);
-		sUCPThreadProjectionMap.put(AwfulThread.FORUM_TITLE, "null");
-		sUCPThreadProjectionMap.put(UPDATED_TIMESTAMP, TABLE_UCP_THREADS+"."+UPDATED_TIMESTAMP+" AS "+UPDATED_TIMESTAMP);
-
-		sDraftProjectionMap.put(AwfulMessage.ID, AwfulMessage.ID);
-		sDraftProjectionMap.put(AwfulMessage.TITLE, AwfulMessage.TITLE);
-		sDraftProjectionMap.put(AwfulPost.FORM_COOKIE, AwfulPost.FORM_COOKIE);
-		sDraftProjectionMap.put(AwfulPost.FORM_KEY, AwfulPost.FORM_KEY);
-		sDraftProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
-		sDraftProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
-		sDraftProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
-		sDraftProjectionMap.put(AwfulPost.EDIT_POST_ID, AwfulPost.EDIT_POST_ID);
-		sDraftProjectionMap.put(AwfulPost.REPLY_ORIGINAL_CONTENT, AwfulPost.REPLY_ORIGINAL_CONTENT);
-		sDraftProjectionMap.put(AwfulMessage.REPLY_ATTACHMENT, AwfulMessage.REPLY_ATTACHMENT);
-		sDraftProjectionMap.put(AwfulPost.FORM_BOOKMARK, AwfulPost.FORM_BOOKMARK);
-        sDraftProjectionMap.put(AwfulMessage.EPOC_TIMESTAMP, AwfulMessage.EPOC_TIMESTAMP);
-		sDraftProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
-		
-		sPMReplyProjectionMap.put(AwfulMessage.ID, TABLE_PM+"."+AwfulMessage.ID+" AS "+AwfulMessage.ID);
-		sPMReplyProjectionMap.put(AwfulMessage.TITLE, TABLE_PM+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.TITLE);
-		sPMReplyProjectionMap.put(AwfulMessage.CONTENT, AwfulMessage.CONTENT);
-		sPMReplyProjectionMap.put(AwfulMessage.AUTHOR, AwfulMessage.AUTHOR);
-		sPMReplyProjectionMap.put(AwfulMessage.DATE, AwfulMessage.DATE);
-		sPMReplyProjectionMap.put(AwfulMessage.UNREAD, AwfulMessage.UNREAD);
-		sPMReplyProjectionMap.put(AwfulMessage.REPLY_CONTENT, AwfulMessage.REPLY_CONTENT);
-		sPMReplyProjectionMap.put(AwfulMessage.REPLY_TITLE, TABLE_DRAFTS+"."+AwfulMessage.TITLE+" AS "+AwfulMessage.REPLY_TITLE);
-		sPMReplyProjectionMap.put(AwfulMessage.RECIPIENT, AwfulMessage.RECIPIENT);
-		sPMReplyProjectionMap.put(AwfulMessage.TYPE, AwfulMessage.TYPE);
-		sPMReplyProjectionMap.put(AwfulMessage.ICON, AwfulMessage.ICON);
-		sPMReplyProjectionMap.put(AwfulMessage.FOLDER, AwfulMessage.FOLDER);
-		
-		sEmoteProjectionMap.put(AwfulEmote.ID, AwfulEmote.ID);
-		sEmoteProjectionMap.put(AwfulEmote.TEXT, AwfulEmote.TEXT);
-		sEmoteProjectionMap.put(AwfulEmote.SUBTEXT, AwfulEmote.SUBTEXT);
-		sEmoteProjectionMap.put(AwfulEmote.URL, AwfulEmote.URL);
-		sEmoteProjectionMap.put(AwfulEmote.INDEX, AwfulEmote.INDEX);
-		sEmoteProjectionMap.put(UPDATED_TIMESTAMP, UPDATED_TIMESTAMP);
-    }
 }
