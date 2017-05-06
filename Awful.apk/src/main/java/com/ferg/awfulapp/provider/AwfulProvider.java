@@ -27,6 +27,7 @@
 
 package com.ferg.awfulapp.provider;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -54,6 +55,8 @@ import com.ferg.awfulapp.thread.AwfulThread;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AwfulProvider extends ContentProvider {
     private static final String TAG = "AwfulProvider";
@@ -73,23 +76,24 @@ public class AwfulProvider extends ContentProvider {
     public static final String TABLE_EMOTES    = "emotes";
     public static final String TABLE_PM    = "private_messages";
     public static final String TABLE_DRAFTS    = "draft_messages";
-    
+
     public static final String UPDATED_TIMESTAMP    = "timestamp_row_update";
 
-    private static final int FORUM     = 0;
-    private static final int FORUM_ID  = 1;
-    private static final int POST      = 2;
-    private static final int POST_ID   = 3;
-    private static final int THREAD    = 4;
-    private static final int THREAD_ID = 5;
-    private static final int UCP_THREAD    = 6;
-    private static final int UCP_THREAD_ID = 7;
-    private static final int PM    = 8;
-    private static final int PM_ID = 9;
-    private static final int DRAFT    = 10;
-    private static final int DRAFT_ID = 11;
-    private static final int EMOTE    = 12;
-    private static final int EMOTE_ID = 13;
+    private static final int URI_FORUM = 0;
+    private static final int URI_FORUM_ID = 1;
+    private static final int URI_POST = 2;
+    private static final int URI_POST_ID = 3;
+    private static final int URI_THREAD = 4;
+    private static final int URI_THREAD_ID = 5;
+    private static final int URI_UCP_THREAD = 6;
+    private static final int URI_UCP_THREAD_ID = 7;
+    private static final int URI_PM = 8;
+    private static final int URI_PM_ID = 9;
+    private static final int URI_DRAFT = 10;
+    private static final int URI_DRAFT_ID = 11;
+    private static final int URI_EMOTE = 12;
+    private static final int URI_EMOTE_ID = 13;
+	private static final Set<Integer> TABLE_URIS = new HashSet<>(Arrays.asList(URI_FORUM, URI_POST, URI_THREAD, URI_UCP_THREAD, URI_PM, URI_DRAFT, URI_EMOTE));
 
     private static final UriMatcher sUriMatcher;
 	private static HashMap<String, String> sForumProjectionMap;
@@ -391,7 +395,6 @@ public class AwfulProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mDbHelper = new DatabaseHelper(getContext());
-
         return true;
     }
 
@@ -400,162 +403,144 @@ public class AwfulProvider extends ContentProvider {
         return null;
     }
 
+    @NonNull
+    private String getTableForUriType(int uriType) {
+		switch (uriType) {
+			case URI_FORUM_ID:
+			case URI_FORUM:
+				return TABLE_FORUM;
+			case URI_POST_ID:
+			case URI_POST:
+				return TABLE_POSTS;
+			case URI_THREAD_ID:
+			case URI_THREAD:
+				return TABLE_THREADS;
+			case URI_UCP_THREAD_ID:
+			case URI_UCP_THREAD:
+				return TABLE_UCP_THREADS;
+			case URI_PM_ID:
+			case URI_PM:
+				return TABLE_PM;
+			case URI_DRAFT_ID:
+			case URI_DRAFT:
+				return TABLE_DRAFTS;
+			case URI_EMOTE_ID:
+			case URI_EMOTE:
+				return TABLE_EMOTES;
+			default:
+				throw new RuntimeException("Invalid table constant: " + uriType);
+		}
+	}
+
     @Override
     public int delete(@NonNull Uri aUri, String aWhere, String[] aWhereArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        String table = null;
-
 		// Be careful when using this! A generic URI will delete all rows in the
 		// table.  We want to do this before syncing so that we can easily throw
 		// out old data.
-        final int match = sUriMatcher.match(aUri);
-        switch (match) {
-            case FORUM:
-                table = TABLE_FORUM;
-                break;
-            case POST:
-                table = TABLE_POSTS;
-                break;
-            case THREAD:
-                table = TABLE_THREADS;
-                break;
-            case UCP_THREAD:
-                table = TABLE_UCP_THREADS;
-                break;
-			case PM:
-				table = TABLE_PM;
-				break;
-			case DRAFT:
-				table = TABLE_DRAFTS;
-				break;
-			case EMOTE:
-				table = TABLE_EMOTES;
-				break;
-            default:
-                break;
-        }
-        assert(table != null);
+		final int uriType = matchUri(aUri, true);
+		assertIsTableUri(uriType);
+		String table = getTableForUriType(uriType);
 
         return db.delete(table, aWhere, aWhereArgs);
     }
 
-    @Override
-    public int update(Uri aUri, ContentValues aValues, String aWhere, String[] aWhereArgs) {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        String table = null;
 
-        final int match = sUriMatcher.match(aUri);
-        switch (match) {
-            case FORUM_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulForum.ID + "=?";
-            case FORUM:
-                table = TABLE_FORUM;
+	/**
+	 * Matches a Uri to the defined patterns.
+	 *
+	 * @param aUri the Uri to match against
+	 * @param throwIfUnmatched if true, a failed match will throw a RuntimeException
+	 * @return the ID of the matched pattern, or {@link UriMatcher#NO_MATCH} if it failed
+	 */
+	private static int matchUri(@NonNull Uri aUri, boolean throwIfUnmatched) {
+		final int match = sUriMatcher.match(aUri);
+		if (match == UriMatcher.NO_MATCH && throwIfUnmatched) {
+			throw new RuntimeException("Unmatched Uri: " + aUri);
+		}
+		return match;
+	}
+
+	/**
+	 * Throw an exception if the supplied Uri type constant does not correspond to a table.
+	 */
+	@SuppressLint("DefaultLocale")
+	private static void assertIsTableUri(int uriType) {
+		if (!TABLE_URIS.contains(uriType)) {
+			throw new RuntimeException(String.format("Uri type [%d] does not correspond to a table", uriType));
+		}
+	}
+
+
+	@Override
+    public int update(@NonNull Uri aUri, ContentValues aValues, String aWhere, String[] aWhereArgs) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+		final int uriType = matchUri(aUri, true);
+		String table = getTableForUriType(uriType);
+		String whereClause;
+
+		// ID-type Uris need a Where clause as well as the table
+        switch (uriType) {
+            case URI_FORUM_ID:
+                whereClause = AwfulForum.ID;
                 break;
-            case POST_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulPost.ID + "=?";
-            case POST:
-                table = TABLE_POSTS;
+            case URI_POST_ID:
+                whereClause = AwfulPost.ID;
                 break;
-            case THREAD_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulThread.ID + "=?";
-            case THREAD:
-                table = TABLE_THREADS;
+            case URI_THREAD_ID:
+            case URI_UCP_THREAD_ID:
+                whereClause = AwfulThread.ID;
                 break;
-            case UCP_THREAD_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulThread.ID + "=?";
-            case UCP_THREAD:
-                table = TABLE_UCP_THREADS;
-                break;
-			case PM_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulMessage.ID + "=?";
-			case PM:
-				table = TABLE_PM;
+			case URI_PM_ID:
+			case URI_DRAFT_ID:
+               	whereClause = AwfulMessage.ID;
 				break;
-			case DRAFT_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulMessage.ID + "=?";
-			case DRAFT:
-				table = TABLE_DRAFTS;
+			case URI_EMOTE_ID:
+                whereClause = AwfulEmote.ID;
 				break;
-			case EMOTE_ID:
-                aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());        
-                aWhere = AwfulEmote.ID + "=?";
-			case EMOTE:
-				table = TABLE_EMOTES;
-				break;
+			default:
+				whereClause = null;
         }
+		if (whereClause != null) {
+			aWhere = whereClause + "=?";
+			aWhereArgs = insertSelectionArg(aWhereArgs, aUri.getLastPathSegment());
+		}
 
         int result = db.update(table, aValues, aWhere, aWhereArgs);
-
 		getContext().getContentResolver().notifyChange(aUri, null);
-
 		return result;
     }
 
-	@Override
-	public int bulkInsert(Uri aUri, @NonNull ContentValues[] aValues) {
-        String table = null;
-		int result = 0;
-		String unique_match = null;
-		String unique_match2 = null;
 
+	@Override
+	public int bulkInsert(@NonNull Uri aUri, @NonNull ContentValues[] aValues) {
+		int result = 0;
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        final int match = sUriMatcher.match(aUri);
-        switch(match) {
-            case FORUM:
-                table = TABLE_FORUM;
-                break;
-            case POST:
-                table = TABLE_POSTS;
-                unique_match = AwfulPost.POST_INDEX;
-                unique_match2 = AwfulPost.THREAD_ID;
-                break;
-            case THREAD:
-                table = TABLE_THREADS;
-                break;
-            case UCP_THREAD:
-                table = TABLE_UCP_THREADS;
-                break;
-			case PM:
-				table = TABLE_PM;
-				break;
-			case DRAFT:
-				table = TABLE_DRAFTS;
-				break;
-			case EMOTE:
-				table = TABLE_EMOTES;
-                unique_match = AwfulEmote.TEXT;
-				break;
-        }
+		final int uriType = matchUri(aUri, true);
+		assertIsTableUri(uriType);
+		String table = getTableForUriType(uriType);
 
 		db.beginTransaction();
-
 		try {
 			for (ContentValues value : aValues) {
-				if(unique_match != null){
-					if(unique_match2 != null){
-						db.delete(table, unique_match+"=? AND "+unique_match2+"=?", int2StrArray(value.getAsInteger(unique_match), value.getAsInteger(unique_match2)));
-					}else{
-						db.delete(table, unique_match+"=?", new String[]{value.getAsString(unique_match)});
-					}
+				if (uriType == URI_POST) {
+					db.delete(table, AwfulPost.POST_INDEX + "=? AND " + AwfulPost.THREAD_ID + "=?",
+							int2StrArray(value.getAsInteger(AwfulPost.POST_INDEX), value.getAsInteger(AwfulPost.THREAD_ID)));
+				} else if (uriType == URI_EMOTE) {
+					db.delete(table, AwfulEmote.TEXT + "=?", new String[]{value.getAsString(AwfulEmote.TEXT)});
 				}
 				db.replace(table, "", value);
 				result++;
 			}
 
 			db.setTransactionSuccessful();
-
             if (result > 0) {
                 getContext().getContentResolver().notifyChange(aUri, null);
             }
 		} catch (SQLiteConstraintException e) {
-			Log.i(TAG, e.toString());
+			Log.w(TAG, e.toString());
 		} finally {
 			db.endTransaction();
 		}
@@ -563,44 +548,22 @@ public class AwfulProvider extends ContentProvider {
 		return result;
 	}
 
+
     @Override
-    public Uri insert(Uri aUri, ContentValues aValues) {
+    public Uri insert(@NonNull Uri aUri, ContentValues aValues) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        String table = null;
 
-        final int match = sUriMatcher.match(aUri);
-        switch(match) {
-			case FORUM:
-				table = TABLE_FORUM;
-				break;
-			case POST:
-				table = TABLE_POSTS;
-				break;
-			case THREAD:
-				table = TABLE_THREADS;
-				break;
-			case UCP_THREAD:
-				table = TABLE_UCP_THREADS;
-				break;
-			case PM:
-				table = TABLE_PM;
-				break;
-			case DRAFT:
-				table = TABLE_DRAFTS;
-				break;
-			case EMOTE:
-				table = TABLE_EMOTES;
-				break;
-        }
+		final int uriType = matchUri(aUri, true);
+		assertIsTableUri(uriType);
+		String table = getTableForUriType(uriType);
 
-        long rowId = db.insert(table, "", aValues); 
-        
+        long rowId = db.insert(table, "", aValues);
         if (rowId > -1) {
             return ContentUris.withAppendedId(aUri, rowId);
         }
-
         throw new SQLException("Failed to insert row into " + aUri);
     }
+
 
     @Nullable
     @Override
@@ -612,10 +575,10 @@ public class AwfulProvider extends ContentProvider {
 		// we actually add anything, so make it writable.
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-        final int match = sUriMatcher.match(aUri);
+		final int match = matchUri(aUri, false);
 		// check for non-match, return null since an unrecognised/malformed Uri gives us nothing useful to do
 		if (match == UriMatcher.NO_MATCH) {
-			String msg = String.format("Unrecognised query Uri!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
+			String msg = String.format("Unhandled query!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
 					aUri, Arrays.toString(aProjection), aSelection, Arrays.toString(aSelectionArgs), aSortOrder);
 			if (AwfulApplication.crashlyticsEnabled()) {
 				Crashlytics.log(Log.WARN, TAG, msg);
@@ -624,69 +587,66 @@ public class AwfulProvider extends ContentProvider {
 			}
 			return null;
 		}
+		String table = getTableForUriType(match);
 
+		String whereClause = null;
 		// set params on the query builder according to the type of Uri - these pairs fall through intentionally
         switch(match) {
-			case FORUM_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulForum.ID + "=?");
-			case FORUM:
-				builder.setTables(TABLE_FORUM);
+			case URI_FORUM_ID:
+				whereClause = AwfulForum.ID;
+			case URI_FORUM:
 				builder.setProjectionMap(sForumProjectionMap);
 				break;
 
-			case POST_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulPost.ID + "=?");
-			case POST:
-				builder.setTables(TABLE_POSTS);
+			case URI_POST_ID:
+				whereClause = AwfulPost.ID;
+			case URI_POST:
 				builder.setProjectionMap(sPostProjectionMap);
 				break;
 
-			case THREAD_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(TABLE_THREADS+"."+AwfulThread.ID + "=?");
-			case THREAD:
-				builder.setTables(TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID);
+			case URI_THREAD_ID:
+                whereClause = TABLE_THREADS+"."+AwfulThread.ID;
+			case URI_THREAD:
+				table = TABLE_THREADS+" LEFT OUTER JOIN "+TABLE_FORUM+" ON "+TABLE_THREADS+"."+AwfulThread.FORUM_ID+"="+TABLE_FORUM+"."+AwfulForum.ID;
 				builder.setProjectionMap(sThreadProjectionMap);
 				break;
 
-			case UCP_THREAD_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulThread.ID + "=?");
-			case UCP_THREAD:
+			case URI_UCP_THREAD_ID:
+                whereClause = AwfulThread.ID;
+			case URI_UCP_THREAD:
 				//hopefully this join works
-				builder.setTables(TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID);
+				table = TABLE_UCP_THREADS+", "+TABLE_THREADS+" ON "+TABLE_UCP_THREADS+"."+AwfulThread.ID+"="+TABLE_THREADS+"."+AwfulThread.ID;
 				builder.setProjectionMap(sUCPThreadProjectionMap);
 				break;
 
-			case PM_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(TABLE_PM+"."+AwfulMessage.ID + "=?");
-			case PM:
-				builder.setTables(TABLE_PM+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_PM+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID);
+			case URI_PM_ID:
+                whereClause = TABLE_PM+"."+AwfulMessage.ID;
+			case URI_PM:
+				table = TABLE_PM+" LEFT OUTER JOIN "+TABLE_DRAFTS+" ON "+TABLE_PM+"."+AwfulMessage.ID+"="+TABLE_DRAFTS+"."+AwfulMessage.ID;
 				builder.setProjectionMap(sPMReplyProjectionMap);
 				break;
 
-			case DRAFT_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulMessage.ID + "=?");
-			case DRAFT:
-				builder.setTables(TABLE_DRAFTS);
+			case URI_DRAFT_ID:
+                whereClause = AwfulMessage.ID;
+			case URI_DRAFT:
 				builder.setProjectionMap(sDraftProjectionMap);
 				break;
 
-			case EMOTE_ID:
-                aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());        
-                builder.appendWhere(AwfulEmote.ID + "=?");
-			case EMOTE:
-				builder.setTables(TABLE_EMOTES);
+			case URI_EMOTE_ID:
+				whereClause = AwfulEmote.ID;
+			case URI_EMOTE:
 				builder.setProjectionMap(sEmoteProjectionMap);
 				break;
-
+			// TODO: 05/05/2017 needed?
 			default:
 				throw new RuntimeException(TAG + " - Unhandled URI type: " + match);
         }
+
+        builder.setTables(table);
+        if (whereClause != null) {
+			builder.appendWhere(whereClause + "=?");
+			aSelectionArgs = insertSelectionArg(aSelectionArgs, aUri.getLastPathSegment());
+		}
 
         // perform the query
         try {
@@ -748,22 +708,21 @@ public class AwfulProvider extends ContentProvider {
         sPMReplyProjectionMap = new HashMap<>();
         sEmoteProjectionMap = new HashMap<>();
 
-		sUriMatcher.addURI(Constants.AUTHORITY, "forum", FORUM);
-		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", FORUM_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "thread", THREAD);
-		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", THREAD_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "post", POST);
-		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", POST_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", UCP_THREAD);
-		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", UCP_THREAD_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages", PM);
-		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", PM_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", DRAFT);
-		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", DRAFT_ID);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emote", EMOTE);
-		sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", EMOTE_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "forum", URI_FORUM);
+		sUriMatcher.addURI(Constants.AUTHORITY, "forum/#", URI_FORUM_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "thread", URI_THREAD);
+		sUriMatcher.addURI(Constants.AUTHORITY, "thread/#", URI_THREAD_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "post", URI_POST);
+		sUriMatcher.addURI(Constants.AUTHORITY, "post/#", URI_POST_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread", URI_UCP_THREAD);
+		sUriMatcher.addURI(Constants.AUTHORITY, "ucpthread/#", URI_UCP_THREAD_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages", URI_PM);
+		sUriMatcher.addURI(Constants.AUTHORITY, "privatemessages/#", URI_PM_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies", URI_DRAFT);
+		sUriMatcher.addURI(Constants.AUTHORITY, "draftreplies/#", URI_DRAFT_ID);
+		sUriMatcher.addURI(Constants.AUTHORITY, "emote", URI_EMOTE);
+		sUriMatcher.addURI(Constants.AUTHORITY, "emote/#", URI_EMOTE_ID);
 
-		// TODO: 05/05/2017 we don't actually need to pass a projection map if every key maps to itself - is there a security benefit to doing it?
 		sForumProjectionMap.put(AwfulForum.ID, AwfulForum.ID);
 		sForumProjectionMap.put(AwfulForum.PARENT_ID, AwfulForum.PARENT_ID);
 		sForumProjectionMap.put(AwfulForum.INDEX, AwfulForum.INDEX);
