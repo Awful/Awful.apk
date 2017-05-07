@@ -50,6 +50,8 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
 
+import org.jsoup.nodes.Document;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -86,6 +88,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
     //GENERAL STUFF
     public String username;
     public String userTitle;
+	/** this is only set when the user is on probation! See {@link com.ferg.awfulapp.util.AwfulError#checkPageErrors(Document, AwfulPreferences)} */
     public int userId;
     public boolean hasPlatinum;
     public boolean hasArchives;
