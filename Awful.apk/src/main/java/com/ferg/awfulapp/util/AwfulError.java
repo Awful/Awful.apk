@@ -130,6 +130,15 @@ public class AwfulError extends VolleyError{
                 error = new AwfulError(ERROR_FORUM_CLOSED);
             }
         }
+
+        // Some generic error - shows up for (at least) post rate limiting and whatever #PostRequest was seeing in responses
+        if(page.getElementsByTag("body").hasClass("standarderror")) {
+            Element standard = page.getElementsByClass("standard").first();
+            if(standard != null && standard.hasText()){
+                error = new AwfulError(AwfulError.ERROR_ACCESS_DENIED, standard.text().replace("Special Message From Senor Lowtax", ""));
+            }
+        }
+
         Element probation = page.getElementById("probation_warn");
         if(probation != null){
             error = new AwfulError(ERROR_PROBATION);
