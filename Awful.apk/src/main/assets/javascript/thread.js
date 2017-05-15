@@ -151,13 +151,18 @@ function pageInit() {
         $('img[title][src$=".gif"]').on('load', function (){
             freezeGif($(this).get(0));
         });
-         $('.postcontent').on('click','img[title][src$=".gif"]', function (){
+        $('.postcontent').on('tap','img[title][src$=".gif"]', function (){
             freezeGif($(this).get(0));
         });
-        $('.postcontent').on('click','canvas[title][src$=".gif"]', function (){
+        $('.postcontent').on('tap','canvas[title][src$=".gif"]', function (){
             $(this).replaceWith('<img src="'+$(this).attr('src')+'" title="'+$(this).attr('title')+'" />')
         });
     }
+
+//    title popup on long-press
+    $('.postcontent').on('longTap','img[title], canvas[title]', function (){
+        listener.popupText($(this).attr('title'))
+    });
 
 
     $('.bbc-block.pre, .bbc-block.code, .bbc-block.php').on('touchend touchleave touchcancel',function(){
