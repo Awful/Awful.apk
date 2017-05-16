@@ -60,6 +60,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -91,6 +92,7 @@ import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.BookmarkRequest;
 import com.ferg.awfulapp.task.CloseOpenRequest;
 import com.ferg.awfulapp.task.IgnoreRequest;
+import com.ferg.awfulapp.task.ImageSizeRequest;
 import com.ferg.awfulapp.task.MarkLastReadRequest;
 import com.ferg.awfulapp.task.PostRequest;
 import com.ferg.awfulapp.task.ProfileRequest;
@@ -118,6 +120,9 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1230,12 +1235,22 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         ////////////////////////////////////////////////////////////////////////
 
 		PostActionsFragment postActions = new PostActionsFragment();
-		postActions.setTitle(url);
 		postActions.setParent(mSelf);
 		postActions.setUrl(url);
 		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
-
 		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+		postActions.setTitle(url);
+		
+		if (isImage || isGif) {
+			queueRequest(new ImageSizeRequest(url, result -> {
+				if (postActions == null) {
+					return;
+				}
+				String size = result == null ? "Unknown" : Formatter.formatShortFileSize(getContext(), result);
+				postActions.setSize(String.format("Size: %s", size));
+			}));
+		}
+		
 		postActions.show(fragmentManager, "Link Actions");
 	}
 

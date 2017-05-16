@@ -198,6 +198,17 @@ public class PostActionsFragment extends AwfulDialogFragment {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	
+	public void setSize(String size) {
+		View view = getView();
+		if (view != null) {
+			TextView fileSize = (TextView) view.findViewById(R.id.fileSize);
+			if (fileSize != null) {
+				fileSize.setText(size);
+				fileSize.setVisibility(size == null ? View.INVISIBLE : View.VISIBLE);
+			}
+		}
+	}
 
 	public void setPostId(String postId) {
 		this.postId = postId;
