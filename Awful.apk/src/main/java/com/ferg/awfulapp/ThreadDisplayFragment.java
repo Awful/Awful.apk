@@ -1450,7 +1450,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
     private class PostLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
-        private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
+		private final static String sortOrder = AwfulThread.STICKY + " " + AwfulPost.POST_INDEX + " ASC";
         private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
             int index = AwfulPagedItem.pageToIndex(getPage(), mPrefs.postPerPage, 0);
