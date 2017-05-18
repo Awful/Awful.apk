@@ -112,13 +112,14 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_EXTRA            = "tag_extra";
 
     /**
-     * All the scripts used in generating HTML
+     * All the scripts from the javascript folder used in generating HTML
      */
-    protected static final String[] JS_FILES = {
-            "zepto.min.js",
-            "zepto.selector.min.js",
-            "zepto.fx.min.js",
-            "zepto.fx_methods.min.js",
+    static final String[] JS_FILES = {
+            "zepto/zepto.min.js",
+            "zepto/selector.js",
+            "zepto/fx.js",
+            "zepto/fx_methods.js",
+            "zepto/touch.js",
             "scrollend.js",
             "inviewport.js",
             "json2.js",
@@ -408,7 +409,7 @@ public class AwfulThread extends AwfulPagedItem  {
             buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(aPrefs.preferredFont).append("'); }</style>\n");
         }
         for (String scriptName : JS_FILES) {
-            buffer.append("<script src='file:///android_asset/")
+            buffer.append("<script src='file:///android_asset/javascript/")
                     .append(scriptName)
                     .append("' type='text/javascript'></script>\n");
         }

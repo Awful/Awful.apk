@@ -1179,6 +1179,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			((ForumsIndexActivity)mSelf.getAwfulActivity()).reenableSwipe();
 		}
 
+		@JavascriptInterface
+		public void popupText(String text) {
+			Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+		}
+
     }
 
 	
