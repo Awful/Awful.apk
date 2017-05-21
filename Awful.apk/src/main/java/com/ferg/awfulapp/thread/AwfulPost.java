@@ -33,6 +33,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
@@ -41,6 +42,7 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.util.AwfulUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
@@ -50,6 +52,9 @@ import org.jsoup.select.Elements;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +69,9 @@ public class AwfulPost {
 	private static final Pattern youtubeHDId_regex = Pattern.compile("/embed/([\\w_-]+)&?");
 	private static final Pattern vimeoId_regex = Pattern.compile("clip_id=(\\d+)&?");
     private static final Pattern userid_regex = Pattern.compile("userid=(\\d+)");
+
+    private static final List<String> HTTPS_SUPPORTED_DOMAINS =
+            Collections.unmodifiableList(Arrays.asList("imgur.com", "somethingawful.com", "giphy.com"));
 
     public static final String ID                    = "_id";
     public static final String POST_INDEX            = "post_index";
@@ -467,47 +475,45 @@ public class AwfulPost {
     }
 
     public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
-    	ArrayList<ContentValues> result = new ArrayList<ContentValues>();
-    	boolean lastReadFound = false;
+    	ArrayList<ContentValues> result = new ArrayList<>();
+    	boolean foundUnreadPost = false;
 		int index = startIndex;
         String update_time = new Timestamp(System.currentTimeMillis()).toString();
-        Log.v(TAG, "Update time: " + update_time);
 
-        Elements posts;
-        if(preview){
-            posts = aThread.getElementsByClass("standard");
-        }else{
-            posts = aThread.getElementsByClass("post");
-        }
-        boolean isIgnoredPost;
+        Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
         for(Element postData : posts){
-            isIgnoredPost = false;
+            if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
+                continue;
+            }
+
             ContentValues post = new ContentValues();
+            //timestamp for DB trimming after a week
+            post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
         	post.put(THREAD_ID, aThreadId);
+
         	if(!preview) {
                 //post id is formatted "post1234567", so we strip out the "post" prefix.
                 post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
-            }
-        	//timestamp for DB trimming after a week
-            post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
-
-            //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
-            //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-            if(!preview) {
+                //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
+                //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
                 try {
                     post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
                 } catch (NumberFormatException nfe) {
                     post.put(POST_INDEX, index);
                 }
             }
-            if (postData.hasClass("ignored")) {
-                isIgnoredPost = true;
+
+            // Check for "class=seenX", or just rely on unread index
+            boolean markedSeen = false;
+            for (String aClass : postData.classNames()) {
+                if (aClass.toLowerCase().startsWith("seen")) {
+                    markedSeen = true;
+                    break;
+                }
             }
-            //Check for "class=seenX", or just rely on unread index
-            Elements seen = postData.getElementsByClass("seen");
-            if(seen.size() < 1 && index > unreadIndex){
+            if(!markedSeen && index > unreadIndex){
             	post.put(PREVIOUSLY_READ, 0);
-            	lastReadFound = true;
+            	foundUnreadPost = true;
             }else{
             	post.put(PREVIOUSLY_READ, 1);
             }
@@ -524,49 +530,43 @@ public class AwfulPost {
             	String type = entry.attr("class");
 
                 if (type.contains("author")) {
-                    post.put(USERNAME, entry.text().trim());
+                    post.put(USERNAME, entry.text());
                 }
-
             	if (type.contains("registered")) {
-					post.put(REGDATE, entry.text().trim());
+					post.put(REGDATE, entry.text());
 				}
-
                 if (type.contains("platinum")) {
                     post.put(IS_PLAT, 1);
                 }
-
 				if (type.contains("role-mod")) {
 					post.put(IS_MOD, 1);
 				}
-
 				if (type.contains("role-admin")) {
                     post.put(IS_ADMIN, 1);
 				}
 
 				if (type.equalsIgnoreCase("title") && entry.children().size() > 0) {
 					Elements avatar = entry.getElementsByTag("img");
-
 					if (avatar.size() > 0) {
                         tryConvertToHttps(avatar.get(0));
 						post.put(AVATAR, avatar.get(0).attr("src"));
 					}
-					post.put(AVATAR_TEXT, entry.text().trim());
+					post.put(AVATAR_TEXT, entry.text());
 				}
+
                 if(type.equalsIgnoreCase("inner postbody")){
                     entry.removeClass("inner");
                     type = entry.attr("class");
                 }
+
 				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
-
                     convertVideos(entry, prefs.inlineYoutube);
-
                     for(Element img : entry.getElementsByTag("img")) {
-                        processPostImage(img, lastReadFound, prefs);
+                        processPostImage(img, !foundUnreadPost, prefs);
                     }
                     for (Element link : entry.getElementsByTag("a")) {
                         tryConvertToHttps(link);
                     }
-
                     post.put(CONTENT, entry.html());
                 }
 
@@ -580,7 +580,7 @@ public class AwfulPost {
                     post.put(IS_OP, (opId == userId ? 1 : 0));
                 }
                 if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
-					post.put(EDITED, "<i>" + entry.children().get(0).text().trim() + "</i>");
+					post.put(EDITED, "<i>" + entry.children().get(0).text() + "</i>");
                 }
                 if (type.equalsIgnoreCase("profilelinks") && !post.containsKey(USER_ID)) {
                     Elements userlink = entry.getElementsByAttributeValueContaining("href", "userid=");
@@ -601,9 +601,7 @@ public class AwfulPost {
 
             }
             post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
-            if(!(isIgnoredPost && prefs.hideIgnoredPosts)) {
-                result.add(post);
-            }
+            result.add(post);
         }
         Log.i(TAG, Integer.toString(posts.size()) + " posts found, " + result.size() + " posts parsed.");
     	return result;
@@ -612,114 +610,162 @@ public class AwfulPost {
 
     /**
      * Process an img element from a post, to make it display correctly in the app.
-     *
+     * <p>
      * This performs any necessary conversion, referring to user preferences to determine if e.g.
      * images should be loaded or converted to a link. This mutates the supplied Element.
-     * @param img           an Element represented by an img tag
-     * @param isOldImage    whether this is an old image (from a previously seen post), may be hidden
-     * @param prefs         preferences used to make decisions
+     *
+     * @param img        an Element represented by an img tag
+     * @param isOldImage whether this is an old image (from a previously seen post), may be hidden
+     * @param prefs      preferences used to make decisions
      */
     public static void processPostImage(Element img, boolean isOldImage, AwfulPreferences prefs) {
         //don't alter video mock buttons
-        if ((img.hasAttr("class") && img.attr("class").contains("videoPlayButton"))) {
+        if (img.hasClass("videoPlayButton")) {
             return;
         }
         tryConvertToHttps(img);
-        boolean dontLink = false;
         boolean isTimg = img.hasClass("timg");
-        Element parent = img.parent();
-        String src = img.attr("src");
+        String originalUrl = img.attr("src");
 
-        if ((parent != null && parent.tagName().equalsIgnoreCase("a")) || (img.hasAttr("class") && img.attr("class").contains("nolink"))) { //image is linked, don't override
-            dontLink = true;
-        }
+        // check whether images can be converted to / wrapped in a link
+        boolean alreadyLinked = img.parent() != null && img.parent().tagName().equalsIgnoreCase("a");
+        boolean linkOk = !alreadyLinked && !img.hasClass("nolink");
+
+        // image is a smiley - if required, replace it with its :code: (held in the 'title' attr)
         if (img.hasAttr("title")) {
-            if (!prefs.showSmilies && !img.attr("title").endsWith("avatar")) { //kill all emotes
+            if (!prefs.showSmilies) {
                 String name = img.attr("title");
                 img.replaceWith(new Element(Tag.valueOf("p"), "").text(name));
             }
-        } else {
-            if (!isOldImage && prefs.hideOldImages || !prefs.canLoadImages()) {
-                if (!dontLink) {
-                    img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).text(src));
-                } else {
-                    img.replaceWith(new Element(Tag.valueOf("p"), "").text(src));
-                }
+            return;
+        }
+
+        // image shouldn't be displayed - convert to link / plaintext url
+        if (isOldImage && prefs.hideOldImages || !prefs.canLoadImages()) {
+            if (linkOk) {
+                // switch out for a link with the url
+                img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", originalUrl).text(originalUrl));
             } else {
-                if (!dontLink) {
-                    String thumb = src;
-                    boolean thumbnailed = false;
-
-                    if (!prefs.imgurThumbnails.equals("d") && thumb.contains("i.imgur.com")) {
-                        int lastDot = thumb.lastIndexOf('.');
-                        int lastSlash = thumb.lastIndexOf('/');
-                        String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
-                        //check if already thumbnails
-                        if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
-                            thumb = thumb.substring(0, lastDot) + prefs.imgurThumbnails + thumb.substring(lastDot);
-                        }
-                        img.attr("src", thumb);
-                        thumbnailed = true;
-                    }
-
-                    if (prefs.disableGifs && thumb.toLowerCase().contains(".gif")) {
-                        if (thumb.toLowerCase().contains("imgur.com")) {
-                            if (!thumbnailed) {
-                                int lastDot = thumb.lastIndexOf('.');
-                                int lastSlash = thumb.lastIndexOf('/');
-                                String ImgurImageId = thumb.substring(lastSlash + 1, lastDot);
-                                //check if already thumbnails
-                                if (ImgurImageId.length() != 6 && ImgurImageId.length() != 8) {
-                                    thumb = thumb.substring(0, lastDot) + "h" + thumb.substring(lastDot);
-                                }
-                            }
-                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
-                        } else if (thumb.toLowerCase().contains("i.kinja-img.com")) {
-                            thumb = thumb.replace(".gif", ".jpg");
-                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
-                        } else if (thumb.toLowerCase().contains("giphy.com")) {
-                            thumb = thumb.replace("://i.giphy.com", "://media.giphy.com/media");
-                            if (thumb.endsWith("giphy.gif")) {
-                                thumb = thumb.replace("giphy.gif", "200_s.gif");
-                            } else {
-                                thumb = thumb.replace(".gif", "/200_s.gif");
-                            }
-                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
-                        } else if (thumb.toLowerCase().contains("giant.gfycat.com")) {
-                            thumb = thumb.replace("giant.gfycat.com", "thumbs.gfycat.com");
-                            thumb = thumb.replace(".gif", "-poster.jpg");
-                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)).attr("class", "playGif"));
-                        } else {
-                            img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", "file:///android_res/drawable/gif.png").attr("width", "200px")));
-                        }
-                    }
-
-                    if (img.parent() != null && (prefs.disableTimgs || !isTimg)) {
-                        img.replaceWith(new Element(Tag.valueOf("a"), "").attr("href", src).appendChild(new Element(Tag.valueOf("img"), "").attr("src", thumb)));
-                    }
-                }
+                img.replaceWith(new Element(Tag.valueOf("p"), "").text(originalUrl));
             }
+            return;
+        }
+
+        // normal image - if we can't link it (e.g. to turn into an expandable thumbnail) there's nothing else to do
+        if (!linkOk) {
+            return;
+        }
+
+        // handle linking, thumbnailing, gif conversion etc
+
+        // default to the 'thumbnail' url just being the full image
+        String thumbUrl = originalUrl;
+
+        // thumbnail any imgur images according to user prefs, if set
+        if (!prefs.imgurThumbnails.equals("d") && thumbUrl.contains("i.imgur.com")) {
+            thumbUrl = imgurAsThumbnail(thumbUrl, prefs.imgurThumbnails);
+        }
+
+        // handle gifs - different cases for different sites
+        if (prefs.disableGifs && StringUtils.containsIgnoreCase(thumbUrl, ".gif")) {
+            if (StringUtils.containsIgnoreCase(thumbUrl, "imgur.com")) {
+                thumbUrl = imgurAsThumbnail(thumbUrl, "h");
+            } else if (StringUtils.containsIgnoreCase(thumbUrl, "i.kinja-img.com")) {
+                thumbUrl = thumbUrl.replace(".gif", ".jpg");
+            } else if (StringUtils.containsIgnoreCase(thumbUrl, "giphy.com")) {
+                thumbUrl = thumbUrl.replace("://i.giphy.com", "://media.giphy.com/media");
+                if (thumbUrl.endsWith("giphy.gif")) {
+                    thumbUrl = thumbUrl.replace("giphy.gif", "200_s.gif");
+                } else {
+                    thumbUrl = thumbUrl.replace(".gif", "/200_s.gif");
+                }
+            } else if (StringUtils.containsIgnoreCase(thumbUrl, "giant.gfycat.com")) {
+                thumbUrl = thumbUrl.replace("giant.gfycat.com", "thumbs.gfycat.com");
+                thumbUrl = thumbUrl.replace(".gif", "-poster.jpg");
+            } else {
+                thumbUrl = "file:///android_res/drawable/gif.png";
+                img.attr("width", "200px");
+            }
+
+            // link and rewrite image, setting the link as click-to-play
+            thumbnailAndLink(img, thumbUrl).addClass("playGif");
+            return;
+        }
+
+        // non-gif images - wrap them in a link, unless handling as a TIMG (to avoid breaking its click behaviour)
+        if (!isTimg || prefs.disableTimgs) {
+            // if the image hasn't been processed then thumbUrl will be the original image URL, i.e. a full-size image
+            thumbnailAndLink(img, thumbUrl);
         }
     }
 
 
     /**
-     * Converts URLs to https versions, where appropriate.
+     * Rewrite a Imgur image url as a thumbnailed version, if possible (e.g. not already a thumbnail).
      *
+     * @param imgurUrl      the image url to rewrite
+     * @param thumbnailCode the type of thumbnail, usually a single character code
+     * @return the rewritten url, or the original if it couldn't be rewritten
+     */
+    @NonNull
+    private static String imgurAsThumbnail(@NonNull String imgurUrl, @NonNull String thumbnailCode) {
+        int lastDot = imgurUrl.lastIndexOf('.');
+        int lastSlash = imgurUrl.lastIndexOf('/');
+        String imgurImageId = imgurUrl.substring(lastSlash + 1, lastDot);
+        //check if already thumbnails
+        if (imgurImageId.length() != 6 && imgurImageId.length() != 8) {
+            imgurUrl = imgurUrl.substring(0, lastDot) + thumbnailCode + imgurUrl.substring(lastDot);
+        }
+        return imgurUrl;
+    }
+
+
+    /**
+     * Rewrite an image element as a thumbnail, wrapping it in a link to the original image URL.
+     * <p>
+     * The image will be replaced in the DOM by the anchor element, with the image as its child, and
+     * the anchor returned. Classes on the image element are cleared.
+     *
+     * @param img          the image element
+     * @param thumbnailUrl the URL for the wrapped image
+     * @return the link element, containing the modified image element
+     */
+    @NonNull
+    private static Element thumbnailAndLink(@NonNull Element img, @NonNull String thumbnailUrl) {
+        Element link = new Element(Tag.valueOf("a"), "").attr("href", img.attr("src"));
+        // rewrite the image (new src, no classes) and wrap it with the link in the DOM
+        img.attr("src", thumbnailUrl);
+        img.classNames(Collections.emptySet());
+        img.replaceWith(link);
+        link.appendChild(img);
+        return link;
+    }
+
+
+    /**
+     * Converts URLs to https versions, where appropriate.
+     * <p>
      * This mutates the element directly.
      */
-    public static void tryConvertToHttps(Element element){
+    public static void tryConvertToHttps(@NonNull Element element) {
         String attr;
+        String url;
+
+        // get the element's url attribute, give up if it doesn't have one
         if (element.hasAttr("href")) {
             attr = "href";
-        }else if (element.hasAttr("src")) {
+        } else if (element.hasAttr("src")) {
             attr = "src";
-        }else {
+        } else {
             return;
         }
-        if (element.attr(attr).contains("imgur.com") || element.attr(attr).contains("somethingawful.com") || element.attr(attr).contains("giphy.com")) {
-            if (element.attr(attr).startsWith("http://")) {
-                element.attr(attr, element.attr(attr).replace("http://", "https://"));
+
+        // if the element's url is for a https-able domain, rewrite it
+        for (String domain : HTTPS_SUPPORTED_DOMAINS) {
+            url = element.attr(attr);
+            if (StringUtils.containsIgnoreCase(url, domain)) {
+                element.attr(attr, url.replace("http://", "https://"));
+                return;
             }
         }
     }
