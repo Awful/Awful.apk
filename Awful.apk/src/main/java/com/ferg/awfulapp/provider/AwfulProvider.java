@@ -398,7 +398,10 @@ public class AwfulProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri aUri, @NonNull ContentValues[] aValues) {
-        int result = 0;
+        // avoid DB operations and update notifications when there's nothing to do
+        if (aValues.length == 0) {
+            return 0;
+        }
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         final int uriType = matchUri(aUri, true);
@@ -415,20 +418,19 @@ public class AwfulProvider extends ContentProvider {
                     db.delete(table, AwfulEmote.TEXT + "=?", new String[]{value.getAsString(AwfulEmote.TEXT)});
                 }
                 db.replace(table, "", value);
-                result++;
             }
 
             db.setTransactionSuccessful();
-            if (result > 0) {
-                context.getContentResolver().notifyChange(aUri, null);
-            }
+            context.getContentResolver().notifyChange(aUri, null);
         } catch (SQLiteConstraintException e) {
             Log.w(TAG, e.toString());
+            // transaction failed (exception throws before #setTransactionSuccessful), no rows inserted
+            return 0;
         } finally {
             db.endTransaction();
         }
-        // TODO: 06/05/2017 shouldn't result always be either aValues.length, or zero (failed and transaction rolled back)?
-        return result;
+        // transaction succeeded, all rows inserted
+        return aValues.length;
     }
 
 
