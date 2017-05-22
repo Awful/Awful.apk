@@ -32,7 +32,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
@@ -40,7 +39,7 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -91,7 +90,7 @@ public class AwfulEmote {
 					emote.put(AwfulEmote.URL, url);
 					emote.put(INDEX, index);
 		        	//timestamp for DB trimming
-					emote.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+					emote.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
 					results.add(emote);
 				}catch(Exception e){
 					e.printStackTrace();

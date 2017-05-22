@@ -5,7 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.reply.Reply;
 import com.ferg.awfulapp.util.AwfulError;
 
@@ -34,7 +34,7 @@ public class QuoteRequest extends AwfulRequest<ContentValues> {
     @Override
     protected ContentValues handleResponse(Document doc) throws AwfulError {
         ContentValues newReply = Reply.processQuote(doc, threadId, postId);
-        newReply.put(AwfulProvider.UPDATED_TIMESTAMP, new Timestamp(System.currentTimeMillis()).toString());
+        newReply.put(DatabaseHelper.UPDATED_TIMESTAMP, new Timestamp(System.currentTimeMillis()).toString());
         return newReply;
     }
 

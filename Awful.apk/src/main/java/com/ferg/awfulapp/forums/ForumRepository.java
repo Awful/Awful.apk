@@ -16,6 +16,7 @@ import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexIconRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -296,7 +297,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
         pageCount = (pageCount < 1) ? 1 : pageCount;
         ContentValues forumData = new ContentValues(2);
         forumData.put(AwfulForum.PAGE_COUNT, pageCount);
-        forumData.put(AwfulProvider.UPDATED_TIMESTAMP, getTimestamp());
+        forumData.put(DatabaseHelper.UPDATED_TIMESTAMP, getTimestamp());
 
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = ContentUris.withAppendedId(AwfulForum.CONTENT_URI, forumId);
@@ -398,7 +399,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
             contentValues.put(AwfulForum.PARENT_ID, forum.parentId);
             contentValues.put(AwfulForum.TITLE, forum.title);
             contentValues.put(AwfulForum.SUBTEXT, forum.subtitle);
-            contentValues.put(AwfulProvider.UPDATED_TIMESTAMP, updateTime);
+            contentValues.put(DatabaseHelper.UPDATED_TIMESTAMP, updateTime);
             allContentValues.add(contentValues);
         }
 

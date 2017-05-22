@@ -26,7 +26,7 @@ import com.ToxicBakery.viewpager.transforms.ZoomOutSlideTransformer;
 import com.ToxicBakery.viewpager.transforms.ZoomOutTranformer;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
@@ -124,7 +124,7 @@ public class AwfulUtils {
     public static void trimDbEntries(ContentResolver cr) {
         int rowCount = 0;
         for (Uri uri : new Uri[]{AwfulThread.CONTENT_URI, AwfulThread.CONTENT_URI_UCP, AwfulPost.CONTENT_URI, AwfulEmote.CONTENT_URI}) {
-            rowCount += cr.delete(uri, AwfulProvider.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
+            rowCount += cr.delete(uri, DatabaseHelper.UPDATED_TIMESTAMP + " < datetime('now','-7 days')", null);
         }
         Log.i("AwfulTrimDB", "Trimming DB older than 7 days, culled: " + rowCount);
     }

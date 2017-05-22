@@ -37,6 +37,7 @@ import android.util.Log;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -130,7 +131,7 @@ public class AwfulForum extends AwfulPagedItem {
 			ContentValues bookmark = new ContentValues();
 			bookmark.put(AwfulThread.ID, thread.getAsInteger(AwfulThread.ID));
 			bookmark.put(AwfulThread.INDEX, start_index);
-			bookmark.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+			bookmark.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
 			start_index++;
 			bookmarks.add(bookmark);
 		}

@@ -39,7 +39,8 @@ import android.util.Log;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
+import com.ferg.awfulapp.provider.DatabaseHelper;
+import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -488,7 +489,7 @@ public class AwfulPost {
 
             ContentValues post = new ContentValues();
             //timestamp for DB trimming after a week
-            post.put(AwfulProvider.UPDATED_TIMESTAMP, update_time);
+            post.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
         	post.put(THREAD_ID, aThreadId);
 
         	if(!preview) {
