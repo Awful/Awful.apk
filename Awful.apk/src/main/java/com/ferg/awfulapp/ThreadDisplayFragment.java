@@ -50,7 +50,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -83,6 +82,8 @@ import com.android.volley.VolleyError;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.popupmenu.PostContextMenu;
+import com.ferg.awfulapp.popupmenu.UrlContextMenu;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.AwfulProvider;
@@ -100,7 +101,6 @@ import com.ferg.awfulapp.task.RedirectTask;
 import com.ferg.awfulapp.task.ReportRequest;
 import com.ferg.awfulapp.task.SinglePostRequest;
 import com.ferg.awfulapp.task.VoteRequest;
-import com.ferg.awfulapp.thread.AwfulAction;
 import com.ferg.awfulapp.thread.AwfulMessage;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulPost;
@@ -113,7 +113,6 @@ import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.LoggingWebChromeClient;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
-import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
@@ -607,7 +606,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @return the full URL
 	 */
 	@NonNull
-	private String generateThreadUrl(@Nullable String postId) {
+	private String generateThreadUrl(@Nullable Integer postId) {
 		Uri.Builder builder = Uri.parse(Constants.FUNCTION_THREAD).buildUpon()
 				.appendQueryParameter(Constants.PARAM_THREAD_ID, String.valueOf(getThreadId()))
 				.appendQueryParameter(Constants.PARAM_PAGE, String.valueOf(getPage()))
@@ -626,10 +625,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @return the full URL
 	 */
 	@NonNull
-	private String generatePostUrl(@NonNull String postId) {
+	private String generatePostUrl(int postId) {
 		return Uri.parse(Constants.FUNCTION_THREAD).buildUpon()
 				.appendQueryParameter(Constants.PARAM_GOTO, Constants.VALUE_POST)
-				.appendQueryParameter(Constants.PARAM_POST_ID, postId)
+				.appendQueryParameter(Constants.PARAM_POST_ID, Integer.toString(postId))
 				.toString();
 	}
 
@@ -642,7 +641,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @param url The url to share
 	 */
 	@NonNull
-	protected Intent createShareIntent(@Nullable String url) {
+	public Intent createShareIntent(@Nullable String url) {
 		Intent intent = new Intent(Intent.ACTION_SEND).setType("text/plain");
 		if (url == null) {
 			// we're sharing the current thread - we can add the title in here
@@ -656,9 +655,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	/**
 	 * Copy a thread's URL to the clipboard
-	 * @param postId	An optional post ID, used as the url's fragment
-     */
-	protected void copyThreadURL(@Nullable String postId) {
+	 * @param postId    An optional post ID, used as the url's fragment
+	 */
+	public void copyThreadURL(@Nullable Integer postId) {
 		String clipLabel = getString(R.string.copy_url) + getPage();
 		String clipText  = generateThreadUrl(postId);
 		safeCopyToClipboard(clipLabel, clipText, R.string.copy_url_success);
@@ -676,25 +675,21 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 		new AlertDialog.Builder(activity)
 				.setTitle("Rate this thread")
-				.setItems(items, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int item) {
-						queueRequest(new VoteRequest(activity, getThreadId(), item)
-								.build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
-									@Override
-									public void success(Void result) {
-										new AlertBuilder().setTitle(R.string.vote_succeeded)
-												.setSubtitle(R.string.vote_succeeded_sub)
-												.setIcon(R.drawable.ic_mood)
-												.show();
-									}
+				.setItems(items, (dialog, item) -> queueRequest(new VoteRequest(activity, getThreadId(), item)
+                        .build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
+                            @Override
+                            public void success(Void result) {
+                                new AlertBuilder().setTitle(R.string.vote_succeeded)
+                                        .setSubtitle(R.string.vote_succeeded_sub)
+                                        .setIcon(R.drawable.ic_mood)
+                                        .show();
+                            }
 
 
-									@Override
-									public void failure(VolleyError error) {
-									}
-								}));
-					}
-				}).show();
+                            @Override
+                            public void failure(VolleyError error) {
+                            }
+                        }))).show();
 	}
 
 
@@ -703,24 +698,20 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 *
 	 * @param userId The awful ID of the user
 	 */
-	protected void ignoreUser(@NonNull final String userId) {
+	public void ignoreUser(int userId) {
 		final Activity activity = getActivity();
 		if (mPrefs.ignoreFormkey == null) {
 			queueRequest(new ProfileRequest(activity, null).build());
 		}
 		if (mPrefs.showIgnoreWarning) {
 
-			DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == AlertDialog.BUTTON_NEUTRAL) {
-						// cancel future alerts if the user clicks the "don't warn" option
-						mPrefs.setPreference(Keys.SHOW_IGNORE_WARNING, false);
-					}
-					doIgnoreUser(activity, userId);
-				}
-			};
+			DialogInterface.OnClickListener onClickListener = (dialog, which) -> {
+                if (which == AlertDialog.BUTTON_NEUTRAL) {
+                    // cancel future alerts if the user clicks the "don't warn" option
+                    mPrefs.setPreference(Keys.SHOW_IGNORE_WARNING, false);
+                }
+                doIgnoreUser(activity, userId);
+            };
 
 			new AlertDialog.Builder(activity)
 			.setPositiveButton(R.string.confirm, onClickListener)
@@ -738,7 +729,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	/**
 	 * Carry out the ignore user request
      */
-	private void doIgnoreUser(@NonNull Context context, @NonNull String userId) {
+	private void doIgnoreUser(@NonNull Context context, int userId) {
 		//we don't care about status callbacks for this, so we use the build() that doesn't do callbacks
 		queueRequest(new IgnoreRequest(context, userId).build());
 	}
@@ -747,7 +738,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     /**
 	 * Toggle a user as marked or unmarked.
      */
-	protected void toggleMarkUser(String username){
+	public void toggleMarkUser(String username){
         if(mPrefs.markedUsers.contains(username)){
             mPrefs.unmarkUser(username);
         }else{
@@ -763,11 +754,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @param aUsername	The username of the user, if toggling on
      */
 	// TODO: refactor this and the methods it calls - it's so weird
-	protected void toggleUserPosts(String aPostId, String aUserId, String aUsername){
+	public void toggleUserPosts(int aPostId, int aUserId, String aUsername){
 		if(postFilterUserId != null){
 			showAllPosts(aPostId);
 		}else{
-			showUsersPosts(Integer.parseInt(aUserId), aUsername);
+			showUsersPosts(aUserId, aUsername);
 		}
 	}
 
@@ -777,30 +768,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 *
 	 * @param postId	The ID of the bad post
      */
-	protected void reportUser(final String postId){
+	public void reportUser(int postId){
 		final EditText reportReason = new EditText(this.getActivity());
 
 		new AlertDialog.Builder(this.getActivity())
 		  .setTitle("Report inappropriate post")
 		  .setMessage("Did this post break the forum rules? If so, please report it by clicking below. If you would like to add any comments explaining why you submitted this post, please do so here:")
 		  .setView(reportReason)
-		  .setPositiveButton("Report", new DialogInterface.OnClickListener() {
-		    public void onClick(DialogInterface dialog, int whichButton) {
-		      String reason = reportReason.getText().toString();
-		      queueRequest(new ReportRequest(getActivity(), postId, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
-                  @Override
-                  public void success(String result) {
-					  new AlertBuilder().setTitle(result).setIcon(R.drawable.ic_mood).show();
-                  }
+		  .setPositiveButton("Report", (dialog, whichButton) -> {
+            String reason = reportReason.getText().toString();
+            queueRequest(new ReportRequest(getActivity(), postId, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
+                @Override
+                public void success(String result) {
+                    new AlertBuilder().setTitle(result).setIcon(R.drawable.ic_mood).show();
+                }
 
-                  @Override
-                  public void failure(VolleyError error) {
-					  new AlertBuilder().setTitle(error.getMessage()).setIcon(R.drawable.ic_mood).show();
+                @Override
+                public void failure(VolleyError error) {
+                    new AlertBuilder().setTitle(error.getMessage()).setIcon(R.drawable.ic_mood).show();
 
-                  }
-              }));
-		    }
-		  })
+                }
+            }));
+          })
 		  .setNegativeButton(R.string.cancel, null)
 		  .show();
 	}
@@ -862,7 +851,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 *
 	 * @param index The <code>data-idx</code> value of the post.
 	 */
-	protected void markLastRead(int index) {
+	public void markLastRead(int index) {
 		new AlertBuilder().setTitle(R.string.mark_last_read_progress)
 				.setSubtitle(R.string.please_wait_subtext)
 				.setIcon(R.drawable.ic_visibility)
@@ -984,14 +973,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			return;
 		}
 
-		new PagePicker(activity, getLastPage(), getPage(), new MinMaxNumberPicker.ResultListener() {
-			@Override
-			public void onButtonPressed(int button, int resultValue) {
-				if (button == DialogInterface.BUTTON_POSITIVE) {
-					goToPage(resultValue);
-				}
-			}
-		}).show();
+		new PagePicker(activity, getLastPage(), getPage(), (button, resultValue) -> {
+            if (button == DialogInterface.BUTTON_POSITIVE) {
+                goToPage(resultValue);
+            }
+        }).show();
 	}
 
 
@@ -1041,13 +1027,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	/**
 	 * General click listener for thread view widgets
 	 */
-    private final View.OnClickListener onButtonClick = new View.OnClickListener() {
-        public void onClick(View aView) {
-            switch (aView.getId()) {
-				case R.id.just_post:
-					displayPostReplyDialog();
-					break;
-            }
+    private final View.OnClickListener onButtonClick = aView -> {
+        switch (aView.getId()) {
+            case R.id.just_post:
+                displayPostReplyDialog();
+                break;
         }
     };
 
@@ -1105,17 +1089,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public void onMoreClick(final String aPostId, final String aUsername, final String aUserId, final String lastReadUrl, final boolean editable, final boolean isAdminOrMod, final boolean isPlat) {
-			PostActionsFragment postActions = new PostActionsFragment();
-			postActions.setTitle("Select an Action");
-			postActions.setParent(mSelf);
-			postActions.setPostId(aPostId);
-			postActions.setUsername(aUsername);
-			postActions.setUserId(aUserId);
-			postActions.setThreadId(getThreadId());
-			postActions.setLastReadUrl(lastReadUrl);
-			postActions.setActions(AwfulAction.getPostActions(aUsername, editable, isAdminOrMod, isPlat));
-
-			postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+			PostContextMenu postActions = PostContextMenu.newInstance(getThreadId(), Integer.parseInt(aPostId),
+					Integer.parseInt(lastReadUrl), editable, aUsername, Integer.parseInt(aUserId), isPlat, isAdminOrMod);
+			postActions.setTargetFragment(ThreadDisplayFragment.this, -1);
 			postActions.show(mSelf.getFragmentManager(), "Post Actions");
 		}
 
@@ -1237,33 +1213,28 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
         ////////////////////////////////////////////////////////////////////////
 
-		PostActionsFragment postActions = new PostActionsFragment();
-		postActions.setParent(mSelf);
-		postActions.setUrl(url);
-		postActions.setActions(AwfulAction.getURLActions(url, isImage, isGif));
-		postActions.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-		postActions.setTitle(url);
-		
-		if (isImage || isGif) {
+		UrlContextMenu linkActions = UrlContextMenu.newInstance(url, isImage, isGif, isGif ? "Getting file size" : null);
+
+		if (isGif) {
 			queueRequest(new ImageSizeRequest(url, result -> {
-				if (postActions == null) {
+				if (linkActions == null) {
 					return;
 				}
-				String size = result == null ? "Unknown" : Formatter.formatShortFileSize(getContext(), result);
-				postActions.setSize(String.format("Size: %s", size));
+				String size = result == null ? "unknown" : Formatter.formatShortFileSize(getContext(), result);
+				linkActions.setSubheading(String.format("Size: %s", size));
 			}));
 		}
-		
-		postActions.show(fragmentManager, "Link Actions");
+		linkActions.setTargetFragment(ThreadDisplayFragment.this, -1);
+		linkActions.show(fragmentManager, "Link Actions");
 	}
 
-	protected void showImageInline(String url){
+	public void showImageInline(String url){
 		if(mThreadView != null){
 			mThreadView.runJavascript(String.format("showInlineImage('%s')", url));
 		}
 	}
 
-	protected void enqueueDownload(Uri link) {
+	public void enqueueDownload(Uri link) {
 		if(AwfulUtils.isMarshmallow()){
 			int permissionCheck = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
 			if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -1285,11 +1256,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		dlManager.enqueue(request);
 	}
 
-	protected void copyToClipboard(String text){
+	public void copyToClipboard(String text){
 		safeCopyToClipboard("Copied URL", text, null);
+		new AlertBuilder().setIcon(R.drawable.ic_insert_link).setTitle(R.string.copy_url_success).show();
 	}
 
-	protected void startUrlIntent(String url){
+	public void startUrlIntent(String url){
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 		PackageManager pacMan = getActivity().getPackageManager();
 		List<ResolveInfo> res = pacMan.queryIntentActivities(browserIntent,
@@ -1305,7 +1277,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 	}
 
-	protected void displayImage(String text){
+	public void displayImage(String text){
 		Intent intent = new Intent(this.getContext(),ImageViewActivity.class);
 		intent.putExtra(Constants.ZOOM_URL, text);
 		startActivity(intent);
@@ -1416,16 +1388,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * Clear filtering added by {@link #showUsersPosts(int, String)} and return to a specific post
 	 * @param postId	The ID of the post to navigate to
      */
-	private void showAllPosts(String postId){
-		if(TextUtils.isEmpty(postId) || postId.length() < 3){
+	private void showAllPosts(@Nullable Integer postId){
+		if (postId != null) {
+			showBlankPage();
+	        openThread(AwfulURL.parse(generatePostUrl(postId)));
+		} else {
 			setPostFiltering(null, null);
 			setPage(pageBeforeFiltering);
 			mLastPage = 0;
 			mPostJump = "";
 			refresh();
-		}else{
-			showBlankPage();
-	        openThread(AwfulURL.parse(generatePostUrl(postId)));
 		}
 	}
 
