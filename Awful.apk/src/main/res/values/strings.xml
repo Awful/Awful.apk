@@ -21,6 +21,7 @@
     <string name="new_pm">New private message</string>
     <string name="toggle_folder">Toggle mail folder</string>
     <string name="select_message">Open a message or create a new one</string>
+    <string name="forums_updated_message">Forums updated</string>
 
     <plurals name="numberOfNewAnnouncements">
         <item quantity="one">%d new announcement</item>
@@ -42,7 +43,6 @@
     <string name="usercp">Bookmarks</string>
     <string name="user_cp">Bookmarks</string>
 
-    <string name="forums_title">Forums</string>
     <string name="go_to">Go to page</string>
     <string name="invalid_page">Enter a real number</string>
     <string name="settings">Settings</string>
@@ -55,10 +55,17 @@
     <string name="page_bar_refresh_page_description">Refresh page</string>
 
     <!-- Forum index -->
+    <string name="forums_title">Forums</string>
+    <string name="favourite_forums_title">Favorites</string>
     <string name="show_and_hide_subforums">Show and hide subforums</string>
     <string name="no_forums_data">No forums data</string>
+    <string name="no_favourites">No favorites</string>
     <string name="forums_update_failure_message">Couldn\'t get forums data.\nCheck your connection and restart.</string>
     <string name="updating_forums">Updating forums…</string>
+    <string name="forums_list_unset_favorite">Unfavorite</string>
+    <string name="forums_list_set_favorite">Set favorite</string>
+    <string name="manage_favourites_title">Choose your favorites</string>
+    <string name="manage_favorites_unavailable">Can\'t manage favorites right now</string>
 
     <!-- Thread list -->
     <string name="thread_tag_description">Thread tag</string>
@@ -278,6 +285,9 @@
     <string name="forum_index_show_sections_summary">Divide the forum list by category</string>
     <string name="forum_index_hide_subforums">Hide subforums</string>
     <string name="forum_index_hide_subforums_summary">Put subforums in expandable lists</string>
+    <string name="forum_index_default_show_favourites">Show favorites</string>
+    <string name="forum_index_default_show_favourites_summary">Default to favorites instead of the full forum list</string>
+
     <string name="forum_index_update_forums">Force a forum update</string>
     <string name="forum_index_update_forums_summary_not_updating">Last checked %1$d %2$s ago</string>
     <string name="forum_index_update_forums_summary_updating">Running update…</string>

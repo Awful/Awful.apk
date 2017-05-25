@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/manage_fav_forums"
+        android:icon="@drawable/ic_playlist_add_24dp"
+        android:title="Manage favourites"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/toggle_list_fav_forums"
+        android:icon="@drawable/ic_star_border_24dp"
+        android:title="Toggle favourites"
+        app:showAsAction="ifRoom"
+        />
+</menu>

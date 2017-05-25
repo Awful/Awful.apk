@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
@@ -208,6 +209,8 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
 
     public interface EventListener {
         void onForumClicked(@NonNull Forum forum);
+
+        void onContextMenuCreated(@NonNull Forum forum, @NonNull Menu contextMenu);
     }
 
     private static class TopLevelForum implements ParentListItem {
@@ -245,6 +248,8 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         TextView title;
         @BindView(R.id.forum_subtitle)
         TextView subtitle;
+        @BindView(R.id.forum_favourite_marker)
+        ImageView favouriteMarker;
         // left column (used for forums)
         @BindView(R.id.subforums_expand_arrow)
         ImageView dropdownButton;
@@ -265,6 +270,7 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             super(itemView);
             this.itemView = itemView;
             ButterKnife.bind(this, itemView);
+            detailsArea.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
         }
 
 
@@ -287,6 +293,8 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             setText(forum, title, subtitle, sectionTitle);
             setThemeColours(itemView, title, subtitle);
             handleSubtitles(forum, subtitle);
+
+            favouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
 
             /* the left section (potentially) has a tag and a dropdown button, anything missing
                is set to GONE so whatever's there gets vertically centred, and the space remains */
@@ -342,10 +350,14 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
 
         Forum forum;
 
+        @BindView(R.id.forum_details)
+        View detailsArea;
         @BindView(R.id.forum_title)
         TextView title;
         @BindView(R.id.forum_subtitle)
         TextView subtitle;
+        @BindView(R.id.forum_favourite_marker)
+        ImageView favouriteMarker;
         @BindView(R.id.item_container)
         View itemLayout;
 
@@ -353,6 +365,7 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
         SubforumHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            detailsArea.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> eventListener.onContextMenuCreated(forum, contextMenu));
         }
 
 
@@ -361,6 +374,7 @@ public class ForumListAdapter extends ExpandableRecyclerAdapter<ForumListAdapter
             setText(forum, title, subtitle, null);
             setThemeColours(itemLayout, title, subtitle);
             handleSubtitles(forum, subtitle);
+            favouriteMarker.setVisibility(forum.isFavourite() ? VISIBLE : GONE);
         }
 
 

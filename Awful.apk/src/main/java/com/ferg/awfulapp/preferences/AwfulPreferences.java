@@ -169,7 +169,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 
 
     public interface AwfulPreferenceUpdate {
-        void onPreferenceChange(AwfulPreferences preferences, String key);
+        void onPreferenceChange(AwfulPreferences preferences, @Nullable String key);
     }
 
     /**
@@ -315,30 +315,30 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	 */
 
 	@Nullable
-	private String getPreference(@Keys.StringPreference @StringRes int key,
+	public String getPreference(@Keys.StringPreference @StringRes int key,
 								 @Nullable String defaultValue) {
 		return mPrefs.getString(mResources.getString(key), defaultValue);
 	}
 
 	@NonNull
-	private Set<String> getPreference(@Keys.StringSetPreference @StringRes int key,
+	public Set<String> getPreference(@Keys.StringSetPreference @StringRes int key,
 									  @NonNull Set<String> defaultValue) {
 		return mPrefs.getStringSet(mResources.getString(key), defaultValue);
 	}
 
-	private boolean getPreference(@Keys.BooleanPreference @StringRes int key, boolean defaultValue) {
+	public boolean getPreference(@Keys.BooleanPreference @StringRes int key, boolean defaultValue) {
 		return mPrefs.getBoolean(mResources.getString(key), defaultValue);
 	}
 
-	private int getPreference(@Keys.IntPreference @StringRes int key, int defaultValue) {
+	public int getPreference(@Keys.IntPreference @StringRes int key, int defaultValue) {
 		return mPrefs.getInt(mResources.getString(key), defaultValue);
 	}
 
-	private long getPreference(@Keys.LongPreference @StringRes int key, long defaultValue) {
+	public long getPreference(@Keys.LongPreference @StringRes int key, long defaultValue) {
 		return mPrefs.getLong(mResources.getString(key), defaultValue);
 	}
 
-	private float getPreference(@Keys.FloatPreference @StringRes int key, float defaultValue) {
+	public float getPreference(@Keys.FloatPreference @StringRes int key, float defaultValue) {
 		return mPrefs.getFloat(mResources.getString(key), defaultValue);
 	}
 

@@ -272,7 +272,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
     }
 
     @Override
-	public void onPreferenceChange(AwfulPreferences prefs, String key) {
+	public void onPreferenceChange(AwfulPreferences prefs, @Nullable String key) {
 		if(mSRL != null){
             DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
             float dpHeight = displayMetrics.heightPixels / displayMetrics.density;

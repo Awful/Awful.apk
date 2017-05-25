@@ -61,10 +61,12 @@
     <string name="pref_key_hide_ignored_posts">hide_ignored_posts</string>
     <string name="pref_key_immersion_mode">immersion_mode</string>
     <string name="pref_key_marked_users">marked_users</string>
+    <string name="pref_key_favourite_forums">favourite_forums</string>
 
     <string name="pref_key_forum_index_show_subtitles">forum_index_show_subtitles</string>
     <string name="pref_key_forum_index_show_section_headers">forum_index_show_section_headers</string>
     <string name="pref_key_forum_index_hide_subforums">forum_index_hide_subforums</string>
+    <string name="pref_key_forum_index_default_show_favourites">forum_index_default_show_favourites</string>
 
 
     <!--keys for preferences that don't store a value (i.e. settings menu items that act as buttons)-->

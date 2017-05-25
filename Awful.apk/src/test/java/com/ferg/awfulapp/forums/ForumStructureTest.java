@@ -145,6 +145,32 @@ public class ForumStructureTest {
 
 
     @Test
+    public void buildFromOrderedList_withNoTopLevelParentId() {
+        // create an ordered, flat list of the forums in sourceTree
+        List<Forum> sourceList = new ArrayList<>();
+        Collections.addAll(sourceList, bookmarks, games, shsc, cobol, projectlog);
+
+        // the expected result - everything without a parent present is on the top level, with
+        // their subforum hierarchy intact and correct
+        List<Forum> topLevelTree = new ArrayList<>();
+        Forum newBookmarks = new Forum(bookmarks);
+        Forum newGames = new Forum(games);
+        Forum newShsc = new Forum(shsc);
+        Forum newCobol = new Forum(cobol);
+        Forum newProjectlog = new Forum(projectlog);
+        Collections.addAll(topLevelTree, newBookmarks, newGames, newShsc);
+        newShsc.subforums.add(newCobol);
+        newCobol.subforums.add(newProjectlog);
+
+        // build a ForumStructure from the flat list, and get the tree it creates
+        ForumStructure forumStructure = ForumStructure.buildFromOrderedList(sourceList, null);
+        List<Forum> builtTree = forumStructure.getAsList().formatAs(FULL_TREE).build();
+
+        assertThat(builtTree, is(aForumTreeMatching(topLevelTree)));
+    }
+
+
+    @Test
     public void buildFromOrderedList_withEmptyList() {
         // create a ForumStructure from an empty list
         ForumStructure forumStructure = ForumStructure.buildFromOrderedList(Collections.<Forum>emptyList(), TOP_LEVEL_ID);
@@ -196,7 +222,6 @@ public class ForumStructureTest {
         // the resulting tree should be empty
         assertThat(builtTree.isEmpty(), is(true));
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -300,7 +325,6 @@ public class ForumStructureTest {
         // this should match our expected list
         assertThat(builtList, is(aForumTreeMatching(expectedFlatList)));
     }
-
 
 
     private Matcher<List<Forum>> aForumTreeMatching(final List<Forum> matchToThis) {

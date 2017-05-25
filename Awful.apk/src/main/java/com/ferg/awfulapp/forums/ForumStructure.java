@@ -1,6 +1,8 @@
 package com.ferg.awfulapp.forums;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
@@ -12,7 +14,7 @@ import java.util.Map;
 
 /**
  * Created by baka kaba on 09/04/2016.
- *
+ * <p>
  * Represents a hierarchy of forums, with methods for building the structure
  * and converting it to various customisable list formats.
  */
@@ -28,25 +30,27 @@ public class ForumStructure {
 
 
     /**
-     * Build a ForumStructure from an ordered list of Forum elements.
-     * This will build a hierarchical tree based on the IDs and parent IDs of the Forums,
-     * and the elements at each node will be in the order they appeared in the list.
+     * Create a forum structure from an ordered list of Forums, according to their {@link Forum#parentId}s.
+     * <p>
+     * This builds a hierarchy by comparing forum and parent IDs, and placing forums in their
+     * parents' subforum group. List ordering is respected, so forums in the same group will be
+     * ordered by their position in the list.
+     * <p>
+     * The top level consists of the forums without a parent in the list, each of which may have
+     * its own tree of subforums.
+     * <p>
+     * You can provide an optional top-level parent ID, to only return the forums with that
+     * {@link Forum#parentId}, whether the parent is present or not. This allows you to get a branch
+     * of the hierarchy, e.g. the forums within a specific {@link Forum#SECTION}, or the subforums
+     * of a certain forum. Passing <b>null</b> will return the whole hierarchy.
      *
-     * Use this to turn a collection of Forum items (in indexed order) into an ordered tree.
-     * Only the Forums in the supplied list will be added - their subforum fields will be ignored.
-     *
-     * The topLevelId represents the parentID of the top level forums - any Forums with this as
-     * their {@link Forum#parentId} will appear at the top of the hierarchy. If a Forum has a
-     * parentId which doesn't match another Forum's id, and it isn't the topLevelId, that Forum is
-     * effectively orphaned and will be excluded (along with its subforums) from the resulting ForumStructure.
-     * This can be used to select a small branch of the tree (only the subforums of a given forum)
-     *
-     * @param orderedForums A list of Forums in the order they should appear,
-     *                      with {@link Forum#id} and {@link Forum#parentId} set
-     * @param topLevelId    The ID that represents the root of the hierarchy
-     * @return              A ForumStructure representing the supplied forums
+     * @param orderedForums    A list of Forums in the order they should appear,
+     *                         with {@link Forum#id} and {@link Forum#parentId} set
+     * @param topLevelParentId optional - the parent ID of the required branch of the hierarchy.
+     * @return A ForumStructure representing the finished hierarchy
      */
-    public static ForumStructure buildFromOrderedList(List<Forum> orderedForums, int topLevelId) {
+    @NonNull
+    static ForumStructure buildFromOrderedList(List<Forum> orderedForums, @Nullable Integer topLevelParentId) {
         List<Forum> forumTree = new ArrayList<>();
 
         // linked hashmap so we maintain the list's ordering
@@ -56,15 +60,20 @@ public class ForumStructure {
             forumsById.put(forumCopy.id, forumCopy);
         }
 
+        /*
+            keep list of all forums with parentID = toplevelID, OR no parent in forum map
+         */
+
         Forum parentForum;
         for (Forum forum : forumsById.values()) {
+            parentForum = forumsById.get(forum.parentId);
+
             // check if this forum is a top-level category 'forum' like Main or Community
-            if (forum.parentId == topLevelId) {
+            if (topLevelParentId == null && parentForum == null || topLevelParentId != null && forum.parentId == topLevelParentId) {
                 forumTree.add(forum);
             }
             // otherwise add the forum to its parent's subforum list
             else {
-                parentForum = forumsById.get(forum.parentId);
                 if (parentForum != null) {
                     parentForum.subforums.add(forum);
                 } else {
@@ -79,16 +88,17 @@ public class ForumStructure {
 
     /**
      * Build a ForumStructure from a hierarchical tree of Forum objects.
-     *
+     * <p>
      * This will treat the Forum/subforum structure as authoritative, and the Forums'
      * {@link Forum#parentId}s will be set to reflect the {@link Forum#id} of its containing Forum.
      * The order of each node list will be preserved.
      *
-     * @param forumTree     A list of Forums, which in turn may contain Forums in their subforum lists
-     * @param topLevelId    The ID that represents the root of the hierarchy
-     * @return              A ForumStructure with the same hierarchy
+     * @param forumTree  A list of Forums, which in turn may contain Forums in their subforum lists
+     * @param topLevelId The ID that represents the root of the hierarchy
+     * @return A ForumStructure with the same hierarchy
      */
-    public static ForumStructure buildFromTree(List<Forum> forumTree, int topLevelId) {
+    @NonNull
+    static ForumStructure buildFromTree(List<Forum> forumTree, int topLevelId) {
         List<Forum> newForumTree = new ArrayList<>();
         copyTreeWithParentId(forumTree, newForumTree, topLevelId);
         return new ForumStructure(newForumTree);
@@ -97,15 +107,18 @@ public class ForumStructure {
 
     /**
      * Recursively add the contents of a tree node into another tree node, specifying a new parent ID.
-     * @param sourceTree        The tree to copy
-     * @param destinationTree   The tree to copy into
-     * @param parentId          The parent ID for the new tree
+     *
+     * @param sourceTree      The tree to copy
+     * @param destinationTree The tree to copy into
+     * @param parentId        The parent ID for the new tree
      */
     private static void copyTreeWithParentId(List<Forum> sourceTree, List<Forum> destinationTree, int parentId) {
         for (Forum sourceForum : sourceTree) {
             // TODO: this is hacky, should be able to set things all at once
             Forum forumCopy = new Forum(sourceForum.id, parentId, sourceForum.title, sourceForum.subtitle);
             forumCopy.setType(sourceForum.getType());
+            forumCopy.setTagUrl(sourceForum.getTagUrl());
+            forumCopy.setFavourite(sourceForum.isFavourite());
             destinationTree.add(forumCopy);
             // copy this Forum's subforums, but ensure the parent IDs refer to this Forum's ID
             copyTreeWithParentId(sourceForum.subforums, forumCopy.subforums, forumCopy.id);
@@ -115,7 +128,8 @@ public class ForumStructure {
 
     /**
      * Get the number of forums held in this structure.
-     * @return  The total number of forums, including section forums e.g. Main
+     *
+     * @return The total number of forums, including section forums e.g. Main
      */
     public int getNumberOfForums() {
         return countForums(forumTree, 0);
@@ -130,11 +144,11 @@ public class ForumStructure {
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////
     // List builder
     ///////////////////////////////////////////////////////////////////////////
 
+    @NonNull
     public ListBuilder getAsList() {
         return new ListBuilder();
     }
@@ -142,15 +156,17 @@ public class ForumStructure {
     /**
      * Output format types:
      * <ul>
-     *     <li>FULL_TREE - the full hierarchy</li>
-     *     <li>TWO_LEVEL - categories/top-level forums/bookmarks etc at the top level,
-     *     each with any subforums compacted into a second level</li>
-     *     <li>FLAT - everything on a single level</li>
+     * <li>FULL_TREE - the full hierarchy</li>
+     * <li>TWO_LEVEL - categories/top-level forums/bookmarks etc at the top level,
+     * each with any subforums compacted into a second level</li>
+     * <li>FLAT - everything on a single level</li>
      * </ul>
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FULL_TREE, TWO_LEVEL, FLAT})
-    @interface ListFormat {}
+    @interface ListFormat {
+    }
+
     public static final int FULL_TREE = 0;
     public static final int TWO_LEVEL = 1;
     public static final int FLAT = 2;
@@ -167,6 +183,7 @@ public class ForumStructure {
          * Include or exclude section forums (e.g. Main).
          * If sections are excluded, their immediate subforums will appear in the top level list.
          */
+        @NonNull
         public ListBuilder includeSections(boolean show) {
             includeSections = show;
             return this;
@@ -176,11 +193,13 @@ public class ForumStructure {
         /**
          * The type of list structure to produce.
          */
+        @NonNull
         public ListBuilder formatAs(@ListFormat int formatType) {
             listFormat = formatType;
             return this;
         }
 
+        @NonNull
         public List<Forum> build() {
             List<Forum> generatedList = new ArrayList<>();
 
@@ -222,8 +241,9 @@ public class ForumStructure {
     /**
      * Recursively copy all subforums in a tree into a supplied list.
      * This maintains the hierarchy of the subforums and their descendants
-     * @param source        The source tree, whose hierarchy will be traversed
-     * @param collection    A list to collect all the subforum objects in
+     *
+     * @param source     The source tree, whose hierarchy will be traversed
+     * @param collection A list to collect all the subforum objects in
      */
     private static void copyForumTree(List<Forum> source, List<Forum> collection) {
         Forum forumCopy;
@@ -237,8 +257,9 @@ public class ForumStructure {
 
     /**
      * Recursively copy all subforums in a tree into a flat list.
-     * @param source        The source tree, whose hierarchy will be traversed
-     * @param collection    A list to collect all the subforum objects in
+     *
+     * @param source     The source tree, whose hierarchy will be traversed
+     * @param collection A list to collect all the subforum objects in
      */
     private static void collectSubforums(List<Forum> source, List<Forum> collection) {
         for (Forum forum : source) {
