@@ -230,7 +230,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	 */
 	private void closeMessage() {
 		PrivateMessageCallbacks activity = (PrivateMessageCallbacks) getActivity();
-		activity.onMessageClosed();
+		if (activity != null) {
+			activity.onMessageClosed();
+		}
 	}
 
 
