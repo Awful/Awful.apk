@@ -1021,7 +1021,7 @@ public class PostReplyFragment extends AwfulFragment {
      * Dismiss the progress dialog and set it to null, if it isn't already.
      */
     private void dismissProgressDialog() {
-        if (progressDialog != null) {
+        if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
             progressDialog = null;
         }
