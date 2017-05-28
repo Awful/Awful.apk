@@ -15,7 +15,7 @@ import com.ferg.awfulapp.R;
  * Handles inserting BBcode image tags into EditTexts
  */
 
-public abstract class ImageInserter extends Inserter {
+abstract class ImageInserter extends Inserter {
 
     /**
      * Display a dialog to insert an image, with options.
@@ -40,26 +40,21 @@ public abstract class ImageInserter extends Inserter {
             setText(urlField, clipboardText);
         }
 
-        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                doInsert(replyMessage, urlField.getText().toString(), thumbnailCheckbox.isChecked());
-            }
-        };
+        DialogInterface.OnClickListener clickListener = (dialog, which) ->
+                insertUrl(replyMessage, urlField.getText().toString(), thumbnailCheckbox.isChecked());
 
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert image").show();
     }
 
 
     /**
-     * Perform the insert, either as an image or a thumbnail image.
+     * Format a URL with BBcode image tags and insert into a reply.
      *
      * @param replyMessage The reply message being edited
      * @param url          the image URL
      * @param useThumbnail true to use thumbnail tags
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String url, boolean useThumbnail) {
+    static void insertUrl(@NonNull EditText replyMessage, @NonNull String url, boolean useThumbnail) {
         //noinspection SpellCheckingInspection
         String template = useThumbnail ? "[timg]%s[/timg]" : "[img]%s[/img]";
         String bbCode = String.format(template, url);

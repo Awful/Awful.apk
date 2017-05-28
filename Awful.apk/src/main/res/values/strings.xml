@@ -162,6 +162,12 @@
         <item>Alphabetical</item>
     </string-array>
 
+    <string-array name="imgur_upload_types">
+        <!-- this ordering needs to be maintained, so the option can be identified by position -->
+        <item>from URL</item>
+        <item>image</item>
+    </string-array>
+
     <string name="insert_list_style_label">List style</string>
     <string name="insert_list_text_field_hint">List items (one per added line)</string>
     <string name="insert_code_text_field_hint">Code</string>

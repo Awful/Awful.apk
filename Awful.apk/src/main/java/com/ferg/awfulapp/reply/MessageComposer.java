@@ -127,6 +127,11 @@ public class MessageComposer extends Fragment {
             case R.id.bbcode_image:
                 insertWith(ImageInserter::insert);
                 break;
+            case R.id.bbcode_imgur:
+                ImgurInserter imgurInserter = new ImgurInserter();
+                imgurInserter.setTargetFragment(this, -1);
+                imgurInserter.show(getFragmentManager(), "imgur uploader");
+                break;
             case R.id.bbcode_video:
                 insertWith(VideoInserter::insert);
                 break;
@@ -158,6 +163,15 @@ public class MessageComposer extends Fragment {
 
     private void insertWith(BbCodeTag bbCodeTag) {
         BasicTextInserter.insert(messageBox, bbCodeTag, getActivity());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Callbacks
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    public void onImageUploaded(@NonNull String url, boolean useThumbnail) {
+        ImageInserter.insertUrl(messageBox, url, useThumbnail);
     }
 
 
