@@ -44,7 +44,7 @@ public class PostRequest extends AwfulRequest<Integer> {
 
     @Override
     protected Integer handleResponse(Document doc) throws AwfulError {
-        AwfulThread.getThreadPosts(getContentResolver(), doc, threadId, page, getPreferences().postPerPage, getPreferences(), userId);
+        AwfulThread.parseThreadPage(getContentResolver(), doc, threadId, page, getPreferences().postPerPage, getPreferences(), userId);
         return page;
     }
 

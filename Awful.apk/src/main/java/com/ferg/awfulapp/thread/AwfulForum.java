@@ -100,7 +100,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 */
 	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) {
 		// get the threads on a (normal) forum page, index them and store
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), forumId);
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumId, forumPageToIndex(pageNumber));
 		deletePageOfThreads(forumId, pageNumber, contentInterface);
 		insertThreads(threads, contentInterface);
 
@@ -119,7 +119,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 */
 	public static void parseUCPThreads(@NonNull Document page, int pageNumber, @NonNull ContentResolver contentInterface) {
 		// get all the threads on the bookmarks page, with their INDEXes set appropriately, and store them
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), Constants.USERCP_ID);
+		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, Constants.USERCP_ID, forumPageToIndex(pageNumber));
 		insertThreads(threads, contentInterface);
 
 		// for each thread on the page, create a bookmark (with the thread's ID) in the same position (same index)
