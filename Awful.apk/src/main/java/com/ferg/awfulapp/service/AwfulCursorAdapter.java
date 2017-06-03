@@ -73,7 +73,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
-			AwfulThread.getView(current, mPrefs, data, mFragment);
+			AwfulThread.setDataOnThreadListItem(current, mPrefs, data, mFragment);
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
 //		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
@@ -91,7 +91,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		View row;
 		if(data.getColumnIndex(AwfulThread.BOOKMARKED) >= 0){//unique to threads
 			row = inf.inflate(R.layout.thread_item, parent, false);
-			AwfulThread.getView(row, mPrefs, data, mFragment);
+			AwfulThread.setDataOnThreadListItem(row, mPrefs, data, mFragment);
 		}else if(data.getColumnIndex(AwfulMessage.UNREAD) >= 0){
 			row = inf.inflate(R.layout.thread_item, parent, false);
 			AwfulMessage.getView(row, mPrefs, data, false);

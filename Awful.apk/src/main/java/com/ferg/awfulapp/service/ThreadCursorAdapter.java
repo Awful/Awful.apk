@@ -57,14 +57,14 @@ public class ThreadCursorAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View current, Context context, Cursor data) {
-        AwfulThread.getView(current, mPrefs, data, mFragment);
+        AwfulThread.setDataOnThreadListItem(current, mPrefs, data, mFragment);
 		mParent.setPreferredFont(current);
 	}
 
 	@Override
 	public View newView(Context context, Cursor data, ViewGroup parent) {
 		View row = inf.inflate(R.layout.thread_item, parent, false);
-        AwfulThread.getView(row, mPrefs, data, mFragment);
+        AwfulThread.setDataOnThreadListItem(row, mPrefs, data, mFragment);
 		mParent.setPreferredFont(row);
 		return row;
 	}
