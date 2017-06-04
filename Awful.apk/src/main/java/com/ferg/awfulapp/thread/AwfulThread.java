@@ -27,27 +27,22 @@
 
 package com.ferg.awfulapp.thread;
 
-import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -58,28 +53,16 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.AwfulProvider;
-import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.DatabaseHelper;
-import com.ferg.awfulapp.util.AwfulUtils;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.MustacheException;
-import com.samskivert.mustache.Template;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,23 +101,6 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_URL 		        = "tag_url";
     public static final String TAG_CACHEFILE 	    = "tag_cachefile";
     public static final String TAG_EXTRA            = "tag_extra";
-
-    /**
-     * All the scripts from the javascript folder used in generating HTML
-     */
-    static final String[] JS_FILES = {
-            "zepto/zepto.min.js",
-            "zepto/selector.js",
-            "zepto/fx.js",
-            "zepto/fx_methods.js",
-            "zepto/touch.js",
-            "scrollend.js",
-            "inviewport.js",
-            "json2.js",
-            "twitterwidget.js",
-            "salr.js",
-            "thread.js"
-    };
 
     private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
 	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
@@ -501,140 +467,7 @@ public class AwfulThread extends AwfulPagedItem  {
     }
 
 
-    public static String getContainerHtml(AwfulPreferences aPrefs, int forumId){
-        StringBuilder buffer = new StringBuilder("<!DOCTYPE html>\n<html>\n<head>\n");
-        buffer.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0 maximum-scale=1.0 minimum-scale=1.0, user-scalable=no\" />\n");
-        buffer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
-        buffer.append("<meta name='format-detection' content='telephone=no' />\n");
-        buffer.append("<meta name='format-detection' content='address=no' />\n");
-
-
-        // build the theme css tag, using the appropriate css path
-        // the dark-theme attribute can be used to e.g. embed a dark or light widget
-        AwfulTheme theme = AwfulTheme.forForum(forumId);
-        buffer.append(String.format("<link id='theme-css' rel='stylesheet' data-dark-theme='%b' href='%s'>\n", theme.isDark(), theme.getCssPath()));
-        buffer.append("<link rel='stylesheet' href='file:///android_asset/css/general.css' />");
-
-
-        if(!aPrefs.preferredFont.contains("default")){
-            buffer.append("<style id='font-face' type='text/css'>@font-face { font-family: userselected; src: url('content://com.ferg.awfulapp.webprovider/").append(aPrefs.preferredFont).append("'); }</style>\n");
-        }
-        for (String scriptName : JS_FILES) {
-            buffer.append("<script src='file:///android_asset/javascript/")
-                    .append(scriptName)
-                    .append("' type='text/javascript'></script>\n");
-        }
-
-        buffer.append("</head><body><div id='container' class='container' ")
-                .append((!aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
-                .append("></div></body></html>");
-        return buffer.toString();
-    }
-
-
-    public static String getHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, int page, int lastPage, int forumId, boolean threadLocked) {
-        StringBuilder buffer = new StringBuilder(1024);
-        buffer.append("<div class='content'>\n");
-
-        if(aPrefs.hideOldPosts && aPosts.size() > 0 && !aPosts.get(aPosts.size()-1).isPreviouslyRead()){
-            int unreadCount = 0;
-            for(AwfulPost ap : aPosts){
-                if(!ap.isPreviouslyRead()){
-                    unreadCount++;
-                }
-            }
-            if(unreadCount < aPosts.size() && unreadCount > 0){
-                buffer.append("    <article class='toggleread'>");
-                buffer.append("      <a>\n");
-                final int prevPosts = aPosts.size() - unreadCount;
-                buffer.append("        <h3>Show ")
-                        .append(prevPosts).append(" Previous Post").append(prevPosts > 1 ? "s" : "").append("</h3>\n");
-                buffer.append("      </a>\n");
-                buffer.append("    </article>");
-            }
-        }
-
-        buffer.append(AwfulThread.getPostsHtml(aPosts, aPrefs, threadLocked));
-
-        if(page == lastPage){
-            buffer.append("<div class='unread' ></div>\n");
-        }
-        buffer.append("</div>\n");
-
-        return buffer.toString();
-    }
-
-
-    public static String getPostsHtml(List<AwfulPost> aPosts, AwfulPreferences aPrefs, boolean threadLocked) {
-        StringBuilder buffer = new StringBuilder();
-        Template postTemplate;
-
-        try {
-            Reader templateReader = null;
-            if (!"default".equals(aPrefs.layout)) {
-                if (AwfulUtils.isMarshmallow()) {
-                    int permissionCheck = ContextCompat.checkSelfPermission(aPrefs.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-
-                    if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                        File template = new File(Environment.getExternalStorageDirectory() + "/awful/" + aPrefs.layout);
-                        if (template.isFile() && template.canRead()) {
-                            templateReader = new FileReader(template);
-                        }
-                    }else{
-                        Toast.makeText(aPrefs.getContext(), "Can't access custom layout because Awful lacks storage permissions. Reverting to default layout.", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    File template = new File(Environment.getExternalStorageDirectory() + "/awful/" + aPrefs.layout);
-                    if (template.isFile() && template.canRead()) {
-                        templateReader = new FileReader(template);
-                    }
-
-                }
-            }
-            if (templateReader == null) {
-                templateReader = new InputStreamReader(aPrefs.getResources().getAssets().open("mustache/post.mustache"));
-            }
-            postTemplate = Mustache.compiler().compile(templateReader);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-
-        for (AwfulPost post : aPosts) {
-        	Map<String, String> postData = new HashMap<>();
-            String username = post.getUsername();
-            String avatar   = post.getAvatar();
-
-        	postData.put("seen", (post.isPreviouslyRead() ? "read" : "unread"));
-        	postData.put("isOP", (aPrefs.highlightOP && post.isOp()) ? "op" : null);
-            postData.put("isMarked", (aPrefs.markedUsers.contains(username)) ? "marked" : null);
-        	postData.put("postID", post.getId());
-        	postData.put("isSelf", (aPrefs.highlightSelf && username.equals(aPrefs.username)) ? "self" : null);
-            postData.put("avatarURL", (aPrefs.canLoadAvatars() && avatar != null && avatar.length() > 0 ) ? avatar : null);
-        	postData.put("username", username);
-        	postData.put("userID", post.getUserId());
-        	postData.put("postDate", post.getDate());
-        	postData.put("regDate", post.getRegDate());
-        	postData.put("mod", (post.isMod()) ? "mod" : null);
-            postData.put("admin", (post.isAdmin()) ? "admin" : null);
-            postData.put("plat", (post.isPlat()) ? "plat" : null);
-        	postData.put("avatarText", ""+post.getAvatarText());
-        	postData.put("lastReadUrl", post.getLastReadUrl());
-        	postData.put("notOnProbation",(aPrefs.isOnProbation()) ? null : "notOnProbation");
-        	postData.put("editable",(post.isEditable()) ? "editable" : null);
-        	postData.put("postcontent", post.getContent());
-
-        	try{
-        		buffer.append(postTemplate.execute(postData));
-        	}catch(MustacheException e){
-        		e.printStackTrace();
-        	}
-        }
-        return buffer.toString();
-    }
-
-
-	@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
 	public static void setDataOnThreadListItem(View item, AwfulPreferences prefs, Cursor data, AwfulFragment parent) {
         AwfulThread thread = fromCursorRow(data);
         if (thread == null) {

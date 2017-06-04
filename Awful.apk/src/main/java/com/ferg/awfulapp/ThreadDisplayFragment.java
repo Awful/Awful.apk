@@ -107,6 +107,7 @@ import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.thread.AwfulURL.TYPE;
+import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.util.AwfulError;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.webview.AwfulWebView;
@@ -120,9 +121,6 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1079,7 +1077,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         try {
             if (DEBUG) Log.d(TAG, String.format("populateThreadView: displaying %d posts", aPosts.size()));
-            String html = AwfulThread.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage, mParentForumId, threadClosed);
+            String html = ThreadDisplay.getHtml(aPosts, AwfulPreferences.getInstance(getActivity()), getPage(), mLastPage);
             refreshSessionCookie();
             bodyHtml = html;
 			mThreadView.refreshPageContents(true);
@@ -1373,7 +1371,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @return	The basic page HTML, with no post content
      */
 	private String getBlankPage(){
-		return AwfulThread.getContainerHtml(mPrefs, getParentForumId());
+		return ThreadDisplay.getContainerHtml(mPrefs, getParentForumId());
 	}
 
     private int getLastPage() {
