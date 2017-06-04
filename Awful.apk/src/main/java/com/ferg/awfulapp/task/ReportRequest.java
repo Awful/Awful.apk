@@ -13,9 +13,9 @@ import org.jsoup.nodes.Element;
  * Created by matt on 8/8/13.
  */
 public class ReportRequest extends AwfulRequest<String> {
-    private String postId;
+    private int postId;
     private String mComments;
-    public ReportRequest(Context context, String postId, String mComments) {
+    public ReportRequest(Context context, int postId, String mComments) {
         super(context, null);
         this.mComments = mComments;
         this.postId = postId;
@@ -24,7 +24,7 @@ public class ReportRequest extends AwfulRequest<String> {
     @Override
     protected String generateUrl(Uri.Builder urlBuilder) {
         addPostParam(Constants.PARAM_COMMENTS, mComments);
-        addPostParam(Constants.PARAM_POST_ID, postId);
+        addPostParam(Constants.PARAM_POST_ID, Integer.toString(postId));
         addPostParam(Constants.PARAM_ACTION, "submit");
 
         return Constants.FUNCTION_REPORT;

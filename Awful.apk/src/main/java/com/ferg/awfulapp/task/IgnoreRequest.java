@@ -12,12 +12,12 @@ import org.jsoup.nodes.Document;
  * Created by Matthew on 8/8/13.
  */
 public class IgnoreRequest extends AwfulRequest<Void> {
-    public IgnoreRequest(Context context, String userId) {
+    public IgnoreRequest(Context context, int userId) {
         super(context, null);//member2? heh, ~radium~
         addPostParam(Constants.PARAM_ACTION, Constants.ACTION_ADDLIST);
         addPostParam(Constants.PARAM_USERLIST, Constants.USERLIST_IGNORE);
         addPostParam(Constants.FORMKEY, getPreferences().ignoreFormkey);
-        addPostParam(Constants.PARAM_USER_ID, userId);
+        addPostParam(Constants.PARAM_USER_ID, Integer.toString(userId));
     }
 
     @Override
