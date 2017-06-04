@@ -45,6 +45,7 @@ import org.jsoup.select.Elements;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,7 +101,7 @@ public class AwfulForum extends AwfulPagedItem {
 	 */
 	public static void parseThreads(Document page, int forumId, int pageNumber, ContentResolver contentInterface) {
 		// get the threads on a (normal) forum page, index them and store
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), forumId);
+		List<ContentValues> threads = AwfulThread.parseForumThreads(page, forumId, forumPageToIndex(pageNumber));
 		deletePageOfThreads(forumId, pageNumber, contentInterface);
 		insertThreads(threads, contentInterface);
 
@@ -119,12 +120,12 @@ public class AwfulForum extends AwfulPagedItem {
 	 */
 	public static void parseUCPThreads(@NonNull Document page, int pageNumber, @NonNull ContentResolver contentInterface) {
 		// get all the threads on the bookmarks page, with their INDEXes set appropriately, and store them
-		ArrayList<ContentValues> threads = AwfulThread.parseForumThreads(page, forumPageToIndex(pageNumber), Constants.USERCP_ID);
+		List<ContentValues> threads = AwfulThread.parseForumThreads(page, Constants.USERCP_ID, forumPageToIndex(pageNumber));
 		insertThreads(threads, contentInterface);
 
 		// for each thread on the page, create a bookmark (with the thread's ID) in the same position (same index)
 		String update_time = new Timestamp(System.currentTimeMillis()).toString();
-		ArrayList<ContentValues> bookmarks = new ArrayList<>();
+		List<ContentValues> bookmarks = new ArrayList<>();
 
 		int start_index = forumPageToIndex(pageNumber);
 		for (ContentValues thread : threads) {
@@ -145,12 +146,12 @@ public class AwfulForum extends AwfulPagedItem {
 	}
 
 
-	private static void insertThreads(@NonNull ArrayList<ContentValues> threads, @NonNull ContentResolver resolver) {
+	private static void insertThreads(@NonNull List<ContentValues> threads, @NonNull ContentResolver resolver) {
 		resolver.bulkInsert(AwfulThread.CONTENT_URI, threads.toArray(new ContentValues[threads.size()]));
 	}
 
 
-	private static void insertBookmarks(@NonNull ArrayList<ContentValues> bookmarks, @NonNull ContentResolver resolver) {
+	private static void insertBookmarks(@NonNull List<ContentValues> bookmarks, @NonNull ContentResolver resolver) {
 		resolver.bulkInsert(AwfulThread.CONTENT_URI_UCP, bookmarks.toArray(new ContentValues[bookmarks.size()]));
 
 	}

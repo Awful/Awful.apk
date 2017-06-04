@@ -22,7 +22,7 @@ import com.ferg.awfulapp.provider.AwfulTheme;
 import com.ferg.awfulapp.task.AnnouncementsRequest;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.thread.AwfulPost;
-import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 
@@ -38,7 +38,7 @@ import butterknife.ButterKnife;
  * <p>
  * This is basically a butchered thread view since that's kind of what the announcements page is.
  * Most of that happens in the request (not setting certain fields), here we just throw in some
- * meaningless constants in the {@link AwfulThread#getHtml(List, AwfulPreferences, int, int, int, boolean)}
+ * meaningless constants in the {@link #getHtml(List}
  * call, and hope it doesn't break. Seems to work! Fix later!
  * <p>
  * Also this also assumes the announcements page won't ever have more than one page.
@@ -117,7 +117,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(AwfulThread.getContainerHtml(mPrefs, -1));
+        webView.setContent(ThreadDisplay.getContainerHtml(mPrefs, -1));
     }
 
 
@@ -141,7 +141,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                         AnnouncementsManager.getInstance().markAllRead();
                         // these constants don't mean anything in the context of the announcement page
                         // we just want it to a) display ok, and b) not let the user click anything bad
-                        bodyHtml = AwfulThread.getHtml(result, AwfulPreferences.getInstance(), 1, 1, 0, true);
+                        bodyHtml = ThreadDisplay.getHtml(result, AwfulPreferences.getInstance(), 1, 1);
                         if (webView != null) {
                             webView.refreshPageContents(true);
                         }

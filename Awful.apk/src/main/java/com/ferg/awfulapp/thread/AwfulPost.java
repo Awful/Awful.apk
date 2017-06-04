@@ -40,7 +40,6 @@ import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.provider.DatabaseHelper;
-import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -468,11 +467,24 @@ public class AwfulPost {
 	}
 
 
-    public static void syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
+    /**
+     * Parse a thread page to grab its post data.
+     *
+     * @param content
+     * @param aThread
+     * @param aThreadId
+     * @param unreadIndex
+     * @param opId
+     * @param prefs
+     * @param startIndex
+     * @return the number of posts found on the page
+     */
+    public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
         ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
-
+        // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
+        return resultCount;
     }
 
     public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
@@ -483,6 +495,7 @@ public class AwfulPost {
 
         Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
         for(Element postData : posts){
+            // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }

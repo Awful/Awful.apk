@@ -38,8 +38,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.thread.AwfulThread;
+import com.ferg.awfulapp.thread.ThreadDisplay;
 import com.ferg.awfulapp.webview.AwfulWebView;
 import com.ferg.awfulapp.webview.WebViewJsInterface;
 
@@ -79,7 +78,7 @@ public class PreviewFragment extends AwfulDialogFragment {
     }
 
     private String getBlankPage() {
-        return AwfulThread.getContainerHtml(mPrefs, 0);
+        return ThreadDisplay.getContainerHtml(mPrefs, 0);
     }
 
 

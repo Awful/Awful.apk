@@ -403,7 +403,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     private AdapterView.OnItemClickListener onThreadSelected = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-        	Cursor row = mCursorAdapter.getRow(aId);
+            // TODO: 04/06/2017 why is all this in a threadlist click listener? We know it's a thread! It's not a forum!
+            Cursor row = mCursorAdapter.getRow(aId);
             if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
                     Log.i(TAG, "Thread ID: " + Long.toString(aId));
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
