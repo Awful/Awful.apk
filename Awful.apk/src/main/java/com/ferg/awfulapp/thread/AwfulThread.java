@@ -107,32 +107,32 @@ public class AwfulThread extends AwfulPagedItem  {
 
 
     // TODO: 04/06/2017 explicit default values, nulls where parsed data doesn't set values (i.e. never added to the ContentValues)?
-    int id;
-    int index;
-    String title;
+    public int id;
+    public int index;
+    public String title;
 
-    int forumId;
-//    String forumTitle;
+    public int forumId;
+//  public   String forumTitle;
 
-    String author;
-    int authorId;
-    String lastPoster;
-    int postCount;
-    int unreadCount;
+    public String author;
+    public int authorId;
+    public String lastPoster;
+    public int postCount;
+    public int unreadCount;
 
-    int rating;
-    int bookmarkType;
+    public int rating;
+    public int bookmarkType;
 
-    boolean isLocked;
-    boolean isSticky;
-    boolean canOpenClose;
-    boolean hasBeenViewed;
-    boolean archived;
+    public boolean isLocked;
+    public boolean isSticky;
+    public boolean canOpenClose;
+    public boolean hasBeenViewed;
+    public boolean archived;
 
-    String tagUrl;
-    String tagCacheFile;
-    int tagExtra;
-    int category;
+    public String tagUrl;
+    public String tagCacheFile;
+    public int tagExtra;
+    public int category;
 
 
     @Nullable
@@ -214,6 +214,10 @@ public class AwfulThread extends AwfulPagedItem  {
 
     public int getPageCount(int postsPerPage) {
         return AwfulPagedItem.indexToPage(postCount, postsPerPage);
+    }
+
+    public int getReadCount() {
+        return postCount - unreadCount;
     }
 
 
@@ -436,7 +440,8 @@ public class AwfulThread extends AwfulPagedItem  {
         // TODO: 02/06/2017 sort out the ignored posts issue, the post parser doesn't put them in the DB (if you have 'always hide' on in the settings) and it messes up the numbers
         int postsOnThisPage = AwfulPost.syncPosts(resolver, page, threadId, firstUnreadIndex, thread.authorId, prefs, firstPostOnPageIndex);
         int postsOnPreviousPages = (pageNumber - 1) * postsPerPage;
-        int postsRead = postsOnPreviousPages + postsOnThisPage;
+        // calculate the read total by counting posts on this + preceding pages - only update the read count if it has grown (e.g. going back to an old page will give a lower count)
+        int postsRead = Math.max(thread.getReadCount(), postsOnPreviousPages + postsOnThisPage);
 
         // we might have more recent info here, see if we need to update lastPostCount
         // first up, if this is the last page then we've read all the posts
@@ -451,6 +456,7 @@ public class AwfulThread extends AwfulPagedItem  {
             int lastPostCount = thread.postCount;
             thread.postCount = (minTotal <= lastPostCount && lastPostCount <= maxTotal) ? lastPostCount : minTotal;
         }
+        // TODO: 16/06/2017 would it be better to store postCount and postsRead in the DB, and calculate the unread count from that?
         thread.unreadCount = thread.postCount - postsRead;
 
         Log.d(TAG, String.format("getThreadPosts: Thread ID %d, page %d of %d, %d posts on page%n%d posts total: %d read/%d unread",
