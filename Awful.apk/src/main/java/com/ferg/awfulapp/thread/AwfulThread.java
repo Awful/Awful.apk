@@ -387,8 +387,10 @@ public class AwfulThread extends AwfulPagedItem  {
 
         Cursor threadData = resolver.query(ContentUris.withAppendedId(CONTENT_URI, threadId), AwfulProvider.ThreadProjection, null, null, null);
         AwfulThread thread = null;
-        if (threadData != null && threadData.moveToFirst()) {
-            thread = fromCursorRow(threadData);
+        if (threadData != null) {
+            if (threadData.moveToFirst()) {
+                thread = fromCursorRow(threadData);
+            }
             threadData.close();
         }
         if (thread == null) {
