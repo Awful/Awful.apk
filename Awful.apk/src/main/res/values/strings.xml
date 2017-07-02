@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Share handling -->
+    <string name="share_handler_no_url_found">This share isn\'t an Awful link!</string>
+
     <string name="awful_web_provider">AwfulWebProvider</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
