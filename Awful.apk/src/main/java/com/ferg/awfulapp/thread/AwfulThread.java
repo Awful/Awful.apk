@@ -275,7 +275,7 @@ public class AwfulThread extends AwfulPagedItem  {
 
                 thread.lastPoster = threadElement.select(".lastpost .author").first().text();
                 thread.isLocked = threadElement.hasClass("closed");
-                thread.isSticky = threadElement.select(".title_sticky").isEmpty();
+                thread.isSticky = !threadElement.select(".title_sticky").isEmpty();
 
 
                 // optional thread rating
