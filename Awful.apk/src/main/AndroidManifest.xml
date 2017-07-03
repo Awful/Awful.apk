@@ -50,6 +50,18 @@
 				<data android:pathPrefix="/showthread.php"/>
             </intent-filter>
         </activity>
+
+        <!--
+        This handles share intents, and is meant to run invisibly and separately in its own task (singleInstance)
+        -->
+        <activity android:name=".ShareHandlerActivity" android:launchMode="singleInstance" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <activity
                 android:name="com.ferg.awfulapp.AwfulLoginActivity"
                 android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.AppCompat.Light" android:launchMode="singleTop"/>
