@@ -1,6 +1,7 @@
 package com.ferg.awfulapp.task;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -16,6 +17,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.R;
+import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 import org.apache.http.HttpEntity;
@@ -98,7 +100,7 @@ public class ImgurUploadRequest extends Request<JSONObject> {
     /**
      * Used to lower the app credit limit, to avoid hitting the full limit (and getting the app banned)
      */
-    private static final int APP_CREDIT_BUFFER = 1000;
+    private static final int APP_CREDIT_BUFFER = Constants.DEBUG ? 500 : 1000; // dev privilege
 
     /**
      * Our own quota period, we reset daily
@@ -107,7 +109,7 @@ public class ImgurUploadRequest extends Request<JSONObject> {
     /**
      * Our own per-user daily upload quota, to stop a handful of users spending all the app's credits
      */
-    private static final int USER_CREDIT_QUOTA_MAX = 500;
+    private static final int USER_CREDIT_QUOTA_MAX = Constants.DEBUG ? Integer.MAX_VALUE : 500; // dev privilege
 
     private static final String IMGUR_ENDPOINT_URL = "https://api.imgur.com/3/image";
 

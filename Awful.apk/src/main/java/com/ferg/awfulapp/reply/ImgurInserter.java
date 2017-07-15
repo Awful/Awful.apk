@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -21,6 +23,7 @@ import android.text.format.DateFormat;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -37,11 +40,13 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.ImgurUploadRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -82,11 +87,15 @@ public class ImgurInserter extends DialogFragment {
     @BindView(R.id.image_details)
     TextView imageDetailsLabel;
 
+    @BindView(R.id.upload_url_text_input_layout)
+    TextInputLayout uploadUrlTextWrapper;
     @BindView(R.id.upload_url_edittext)
     EditText uploadUrlEditText;
 
     @BindView(R.id.use_thumbnail)
     CheckBox thumbnailCheckbox;
+    @BindView(R.id.add_gifs_as_video)
+    CheckBox gifsAsVideoCheckbox;
 
     @BindView(R.id.upload_status)
     TextView uploadStatus;
@@ -116,9 +125,9 @@ public class ImgurInserter extends DialogFragment {
         View layout = activity.getLayoutInflater().inflate(R.layout.insert_imgur_dialog, null);
         bind(this, layout);
         AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle("Upload and insert Imgur")
+                .setTitle(R.string.imgur_uploader_dialog_title)
                 .setView(layout)
-                .setPositiveButton("Upload", null)
+                .setPositiveButton(R.string.imgur_uploader_ok_button, null)
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dismiss())
                 .show();
         // get the dialog's 'upload' positive button so we can enable and disable it
@@ -170,21 +179,22 @@ public class ImgurInserter extends DialogFragment {
         Pair<Integer, Long> uploadLimit = ImgurUploadRequest.getCurrentUploadLimit();
         Integer remaining = uploadLimit.first;
         Long resetTime = uploadLimit.second;
-        creditsResetTime.setText(resetTime == null ? "" : "Resets at " + timeFormat.format(resetTime) + " on " + dateFormat.format(resetTime));
+        creditsResetTime.setText(resetTime == null ? "" : getString(R.string.imgur_uploader_remaining_uploads_reset_time, timeFormat.format(resetTime), dateFormat.format(resetTime)));
 
         if (remaining == null) {
-            remainingUploads.setText("Unknown upload availability");
+            remainingUploads.setText(R.string.imgur_uploader_remaining_uploads_unknown);
             creditsResetTime.setText("");
-        } else if (remaining > 0) {
-            remainingUploads.setText(String.format("%d upload%s left", remaining, (remaining > 1) ? "s" : ""));
         } else {
-            setState(State.NO_UPLOAD_CREDITS);
+            remainingUploads.setText(getResources().getQuantityString(R.plurals.imgur_uploader_remaining_uploads, remaining, remaining));
+            if (remaining < 1) {
+                setState(State.NO_UPLOAD_CREDITS);
+            }
         }
     }
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // Choosing an image
+    // Choosing an image file
     ///////////////////////////////////////////////////////////////////////////
 
     /**
@@ -195,7 +205,7 @@ public class ImgurInserter extends DialogFragment {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("image/*");
-        Intent chooser = Intent.createChooser(intent, "CHOOSE YOU ARE DESTINY");
+        Intent chooser = Intent.createChooser(intent, getString(R.string.imgur_uploader_file_chooser_title));
         startActivityForResult(chooser, IMGUR_IMAGE_PICKER);
     }
 
@@ -203,7 +213,6 @@ public class ImgurInserter extends DialogFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IMGUR_IMAGE_PICKER && resultCode == Activity.RESULT_OK) {
-            // TODO: 29/05/2017 FAILED?
             if (data != null) {
                 Uri imageUri = data.getData();
                 if (imageUri != null) {
@@ -218,34 +227,64 @@ public class ImgurInserter extends DialogFragment {
      * Handle a newly selected image source, displaying a preview and updating state.
      */
     private void onImageSelected(@NonNull Uri imageUri) {
+        // check if this image looks invalid - if so, complain instead of using it
+        String invalidReason = reasonImageIsInvalid(imageUri);
+        if (invalidReason != null) {
+            uploadStatus.setText(invalidReason);
+            return;
+        }
+
+        // looks ok, so proceed with it
         setState(State.READY_TO_UPLOAD);
         imageFile = imageUri;
-        displayData(imageUri);
-        displayPreview(imageUri);
+        displayImageDetails(imageUri);
+        displayImagePreview(imageUri);
     }
 
 
     /**
-     * Display file information for an image, if possible.
+     * Try to ascertain if an image is invalid.
+     * <p>
+     * This attempts to do some checks, e.g. file size, to determine if an image is <b>definitely</b>
+     * invalid. It's possible that some checks can't be performed (e.g. if data isn't available),
+     * so a value of <i>false</i> doesn't necessarily mean the image <b>is</b> valid.
      */
-    private void displayData(@NonNull Uri imageUri) {
-        Cursor cursor = getActivity().getContentResolver().query(imageUri, null, null, null, null);
+    @Nullable
+    private String reasonImageIsInvalid(@NonNull Uri imageUri) {
+        long maxUploadSize = 10L * 1024 * 1024; // 10MB limit
+        Long imageSizeBytes = getFileNameAndSize(imageUri).second;
+        if (imageSizeBytes != null && imageSizeBytes > maxUploadSize) {
+            String fullFileSize = Formatter.formatFileSize(getContext(), imageSizeBytes);
+            return getString(R.string.imgur_uploader_error_image_too_large, fullFileSize);
+        }
+        // haven't hit any obvious issues, so it's not invalid (as far as we can tell)
+        return null;
+    }
+
+
+    /**
+     * Get the name and size of a file, if possible.
+     *
+     * @return a [name, size] pair, where attributes are <b>null</b> if no data was available for them
+     */
+    @NonNull
+    private Pair<String, Long> getFileNameAndSize(@NonNull Uri fileUri) {
+        // TODO: 17/07/2017 this could be pulled out somewhere and used for this and attachment handling
+        Cursor cursor = null;
         try {
+            cursor = getActivity().getContentResolver().query(fileUri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                String size;
+                Long size;
                 try {
-                    long bytes = Long.parseLong(cursor.getString(sizeIndex));
-                    size = Formatter.formatShortFileSize(getContext(), bytes);
+                    size = Long.parseLong(cursor.getString(cursor.getColumnIndex(OpenableColumns.SIZE)));
                 } catch (NumberFormatException e) {
-                    size = "unknown";
+                    size = null;
                 }
-                imageNameLabel.setText("Name: " + name);
-                imageDetailsLabel.setText("Size: " + size);
+                return new Pair<>(name, size);
             } else {
-                imageNameLabel.setText("");
-                imageDetailsLabel.setText("Can't get file details");
+                // no data for this Uri
+                return new Pair<>(null, null);
             }
         } finally {
             if (cursor != null) {
@@ -256,9 +295,26 @@ public class ImgurInserter extends DialogFragment {
 
 
     /**
-     * Display a preview thumbnail an image.
+     * Display file information for an image, if possible.
      */
-    private void displayPreview(Uri imageUri) {
+    private void displayImageDetails(@NonNull Uri imageUri) {
+        Pair<String, Long> nameAndSize = getFileNameAndSize(imageUri);
+        if (nameAndSize.first == null && nameAndSize.second == null) {
+            imageNameLabel.setText("");
+            imageDetailsLabel.setText(R.string.imgur_uploader_no_file_details);
+        } else {
+            String name = (nameAndSize.first == null) ? getString(R.string.imgur_uploader_unknown_value) : nameAndSize.first;
+            imageNameLabel.setText(getString(R.string.imgur_uploader_file_name, name));
+            String size = (nameAndSize.second == null) ? getString(R.string.imgur_uploader_unknown_value) : Formatter.formatShortFileSize(getContext(), nameAndSize.second);
+            imageDetailsLabel.setText(getString(R.string.imgur_uploader_file_size, size));
+        }
+    }
+
+
+    /**
+     * Display a preview thumbnail for an image.
+     */
+    private void displayImagePreview(@NonNull Uri imageUri) {
         if (previewBitmap != null) {
             previewBitmap.recycle();
         }
@@ -294,14 +350,29 @@ public class ImgurInserter extends DialogFragment {
         if (urlIsEmpty && state == State.READY_TO_UPLOAD) {
             setState(State.CHOOSING);
         } else if (!urlIsEmpty && state == State.CHOOSING) {
-            // TODO: 01/06/2017 'looks like a URL' check?
             setState(State.READY_TO_UPLOAD);
         }
+
+        // if there's some text, do some validation warning checks
+        if (urlIsEmpty) {
+            return;
+        }
+
+        String url = uploadUrlEditText.getText().toString().toLowerCase();
+        boolean looksLikeUrl = Patterns.WEB_URL.matcher(url).matches();
+        String warningMessage = null;
+        if (!StringUtils.startsWithAny(url, "http://", "https://")) {
+            // TODO: 17/07/2017 uploading without these will fail - should really disable the button, or implicitly add a prefix (but then we have to guess which is valid...)
+            warningMessage = getString(R.string.imgur_uploader_url_prefix_warning);
+        } else if (!looksLikeUrl) {
+            warningMessage = getString(R.string.imgur_uploader_url_validation_warning);
+        }
+        uploadUrlTextWrapper.setError(warningMessage);
     }
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // Upload request and response handling
+    // Upload request and normal response handling
     ///////////////////////////////////////////////////////////////////////////
 
 
@@ -309,31 +380,32 @@ public class ImgurInserter extends DialogFragment {
      * Attempt to start an upload for the current image source, cancelling any upload in progress.
      */
     void startUpload() {
-        // TODO: 28/05/2017 rate limiting somewhere, especially for repeated attempts with the same image?
-        if (state == State.READY_TO_UPLOAD) {
-            setState(State.UPLOADING);
-            cancelUploadTask();
+        if (state != State.READY_TO_UPLOAD) {
+            return;
+        }
+        setState(State.UPLOADING);
+        cancelUploadTask();
 
-            // do a url if we have one
-            if (uploadSourceIsUrl) {
-                uploadTask = new ImgurUploadRequest(uploadUrlEditText.getText().toString(), this::parseUploadResponse, this::handleUploadError);
-            } else {
-                ContentResolver contentResolver = getActivity().getContentResolver();
-                if (contentResolver != null) {
-                    try {
-                        InputStream inputStream = contentResolver.openInputStream(imageFile);
+        // do a url if we have one
+        if (uploadSourceIsUrl) {
+            uploadTask = new ImgurUploadRequest(uploadUrlEditText.getText().toString(), this::parseUploadResponse, this::handleUploadError);
+            NetworkUtils.queueRequest(uploadTask);
+        } else {
+            ContentResolver contentResolver = getActivity().getContentResolver();
+            if (contentResolver != null) {
+                try {
+                    InputStream inputStream = contentResolver.openInputStream(imageFile);
+                    if (inputStream != null) {
                         uploadTask = new ImgurUploadRequest(inputStream, this::parseUploadResponse, this::handleUploadError);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
                     }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
-
-            // queue the request if we were able to make it
-            if (uploadTask != null) {
-                NetworkUtils.queueRequest(uploadTask);
+            if (uploadTask == null) {
+                onUploadError(getString(R.string.imgur_uploader_error_file_access));
             } else {
-                onUploadError("Error accessing file or something");
+                NetworkUtils.queueRequest(uploadTask);
             }
         }
     }
@@ -351,27 +423,27 @@ public class ImgurInserter extends DialogFragment {
     private void parseUploadResponse(JSONObject response) {
         try {
             boolean success = response.getBoolean("success");
-            String url = response.getJSONObject("data").getString("link");
             if (success) {
                 if (previewBitmap != null) {
                     previewBitmap.recycle();
                 }
-                ((MessageComposer) getTargetFragment()).onImageUploaded(url, thumbnailCheckbox.isChecked());
+                JSONObject data = response.getJSONObject("data");
+                String videoUrl = StringUtils.defaultIfBlank(data.optString("gifv"), data.optString("mp4"));
+                String imageUrl = data.getString("link");
+                if (gifsAsVideoCheckbox.isChecked() && StringUtils.isNotBlank(videoUrl)) {
+                    ((MessageComposer) getTargetFragment()).onHtml5VideoUploaded(videoUrl);
+                } else {
+                    ((MessageComposer) getTargetFragment()).onImageUploaded(imageUrl, thumbnailCheckbox.isChecked());
+                }
                 dismiss();
                 return;
             }
+            // no success? Guess it's an error then...?
+            onUploadError(getErrorMessageFromResponseData(response));
         } catch (JSONException e) {
-            e.printStackTrace();
+            onUploadError(getString(R.string.imgur_uploader_error_site_response_unrecognised));
+            Log.w(TAG, "parseUploadResponse: failed to parse Imgur response, unexpected structure?", e);
         }
-        // fall-through error case
-        onUploadError("Got a response, couldn't parse it though!");
-    }
-
-
-    private void handleUploadError(VolleyError error) {
-        // TODO: 01/06/2017 better error messages (here and elsewhere e.g. inputstream-getting) and blocking repeated attempts
-        Log.d(TAG, "Oh no an error: " + error.getMessage(), error.getCause());
-        onUploadError("Volley error!");
     }
 
 
@@ -379,22 +451,55 @@ public class ImgurInserter extends DialogFragment {
     // Error handling
     ///////////////////////////////////////////////////////////////////////////
 
-    /*
-        ERRORS:
-         can't access image (can't get inputstream etc)
-         invalid url?
-         no credits?
-         response errors
-     */
 
     /**
-     * Handle errors by displaying an error message and falling back to the 'ready to upload' state.
+     * Display an error message and fall back to the 'ready to upload' state.
      */
     private void onUploadError(@NonNull String errorMessage) {
         // revert back to pre-upload state
         setState(State.READY_TO_UPLOAD);
         uploadStatus.setText(errorMessage);
         updateRemainingUploads();
+    }
+
+
+    /**
+     * Handle network errors and Imgur-specific errors from an upload request.
+     */
+    private void handleUploadError(VolleyError error) {
+        Log.d(TAG, "Network error: " + error.getMessage(), error.getCause());
+        // try and parse out some Imgur-specific error details from the response, and display their error message
+        JSONObject responseData = null;
+        if (error.networkResponse != null && error.networkResponse.data != null) {
+            try {
+                responseData = new JSONObject(new String(error.networkResponse.data, "UTF-8"));
+            } catch (UnsupportedEncodingException | JSONException e) {
+                Log.w(TAG, "handleUploadError: couldn't convert response data to JSON\n", e);
+            }
+        }
+        onUploadError(getErrorMessageFromResponseData(responseData));
+    }
+
+
+    /**
+     * Attempt to extract an error message from an Imgur response's JSON.
+     *
+     * @param responseData the returned JSON, or null to get a default error message
+     */
+    @NonNull
+    private String getErrorMessageFromResponseData(@Nullable JSONObject responseData) {
+        if (responseData != null) {
+            try {
+                // thanks for the inconsistent JSON structure for various errors guys - "error" is either a string or a bunch of data with a "message" string
+                JSONObject errorData = responseData.getJSONObject("data");
+                JSONObject errorObject = errorData.optJSONObject("error");
+                return (errorObject != null) ? errorObject.getString("message") : errorData.getString("error");
+            } catch (JSONException e) {
+                Log.w(TAG, "getErrorMessageFromResponseData: failed to parse error response correctly\n" + responseData, e);
+            }
+        }
+        // generic message for null/bad data
+        return getString(R.string.imgur_uploader_error_upload_generic);
     }
 
 
@@ -422,51 +527,45 @@ public class ImgurInserter extends DialogFragment {
                 // this intentionally sets the appearing view to visible BEFORE removing the other
                 // which avoids too much weirdness with the layout change animation
                 if (uploadSourceIsUrl) {
-                    uploadUrlEditText.setVisibility(VISIBLE);
+                    uploadUrlTextWrapper.setVisibility(VISIBLE);
                     uploadImageSection.setVisibility(GONE);
                 } else {
                     uploadImageSection.setVisibility(VISIBLE);
-                    uploadUrlEditText.setVisibility(GONE);
+                    uploadUrlTextWrapper.setVisibility(GONE);
                 }
-                uploadImageSection.setVisibility(uploadSourceIsUrl ? GONE : VISIBLE);
-                uploadUrlEditText.setVisibility(uploadSourceIsUrl ? VISIBLE : GONE);
                 imagePreview.setImageResource(R.drawable.ic_photo_dark);
                 imageNameLabel.setText("");
-                imageDetailsLabel.setText("Tap to select an image");
+                imageDetailsLabel.setText(R.string.imgur_uploader_tap_to_choose_file);
                 uploadUrlEditText.setText("");
+                uploadUrlTextWrapper.setError(null);
 
                 uploadButton.setEnabled(false);
-                uploadStatus.setText(uploadSourceIsUrl ? "Enter an image URL above" : "Select an image above");
-                uploadProgressBar.setIndeterminate(false);
-                uploadProgressBar.setProgress(0);
+                uploadStatus.setText(uploadSourceIsUrl ? getString(R.string.imgur_uploader_status_enter_image_url) : getString(R.string.imgur_uploader_status_choose_source_file));
+                uploadProgressBar.setVisibility(GONE);
                 break;
 
             // upload source selected (either a URL entered, or a source file chosen)
             case READY_TO_UPLOAD:
                 uploadButton.setEnabled(true);
-                uploadStatus.setText("Ready to upload");
-                uploadProgressBar.setIndeterminate(false);
-                uploadProgressBar.setProgress(0);
+                uploadStatus.setText(R.string.imgur_uploader_status_ready_to_upload);
+                uploadProgressBar.setVisibility(GONE);
                 break;
 
             // upload request in progress
             case UPLOADING:
                 uploadButton.setEnabled(false);
-                uploadStatus.setText("Uploading...");
-                // TODO: 27/06/2017 implement actual upload progress bar for files?
-                uploadProgressBar.setIndeterminate(true);
-                uploadProgressBar.setProgress(50);
+                uploadStatus.setText(R.string.imgur_uploader_status_upload_in_progress);
+                uploadProgressBar.setVisibility(VISIBLE);
                 break;
 
             // error state for when we can't upload
             case NO_UPLOAD_CREDITS:
                 // put on the brakes, hide everything and prevent uploads
                 uploadButton.setEnabled(false);
-                uploadStatus.setText("No uploads remaining!");
+                uploadStatus.setText(R.string.imgur_uploader_status_no_remaining_uploads);
                 uploadImageSection.setVisibility(GONE);
-                uploadUrlEditText.setVisibility(GONE);
-                uploadProgressBar.setIndeterminate(false);
-                uploadProgressBar.setProgress(0);
+                uploadUrlTextWrapper.setVisibility(GONE);
+                uploadProgressBar.setVisibility(GONE);
                 break;
         }
     }

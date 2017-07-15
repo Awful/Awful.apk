@@ -11,11 +11,11 @@ import com.ferg.awfulapp.R;
 
 /**
  * Created by baka kaba on 26/09/2016.
- *
+ * <p>
  * Handles inserting BBcode quote blocks into an EditText.
  */
 
-public abstract class QuoteInserter extends Inserter {
+abstract class QuoteInserter extends Inserter {
 
     /**
      * Display a dialog to insert a BBcode quote block.
@@ -27,20 +27,16 @@ public abstract class QuoteInserter extends Inserter {
      * @param replyMessage The wrapped text will be added here
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
         View layout = getDialogLayout(R.layout.insert_quote_dialog, activity);
         final EditText sourceField = (EditText) layout.findViewById(R.id.source_field);
         final EditText textField = (EditText) layout.findViewById(R.id.text_field);
         setToSelection(textField, replyMessage);
 
-        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String quoteSource = sourceField.getText().toString();
-                doInsert(replyMessage, textField.getText().toString(), quoteSource.isEmpty() ? null : quoteSource);
-            }
+        DialogInterface.OnClickListener clickListener = (dialog, which) -> {
+            String quoteSource = sourceField.getText().toString();
+            insertWithoutDialog(replyMessage, textField.getText().toString(), quoteSource.isEmpty() ? null : quoteSource);
         };
-
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert quote").show();
     }
 
@@ -53,7 +49,7 @@ public abstract class QuoteInserter extends Inserter {
      * @param quoteText    The text of the quote
      * @param quoteSource  An optional quote source
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String quoteText, @Nullable String quoteSource) {
+    private static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String quoteText, @Nullable String quoteSource) {
         // add the quote's source as a parameter if we have one
         String sourceParam = quoteSource == null ? "" : "=\"" + quoteSource + "\"";
         String bbCode = String.format("%n[quote%s]%n%s%n[/quote]%n", sourceParam, quoteText);

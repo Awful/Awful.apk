@@ -26,7 +26,7 @@ abstract class ImageInserter extends Inserter {
      * @param replyMessage The wrapped text will be added here
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
         View layout = getDialogLayout(R.layout.insert_image_dialog, activity);
         final EditText urlField = (EditText) layout.findViewById(R.id.url_field);
         final CheckBox thumbnailCheckbox = (CheckBox) layout.findViewById(R.id.use_thumbnail);
@@ -41,8 +41,7 @@ abstract class ImageInserter extends Inserter {
         }
 
         DialogInterface.OnClickListener clickListener = (dialog, which) ->
-                insertUrl(replyMessage, urlField.getText().toString(), thumbnailCheckbox.isChecked());
-
+                insertWithoutDialog(replyMessage, urlField.getText().toString(), thumbnailCheckbox.isChecked());
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert image").show();
     }
 
@@ -54,7 +53,7 @@ abstract class ImageInserter extends Inserter {
      * @param url          the image URL
      * @param useThumbnail true to use thumbnail tags
      */
-    static void insertUrl(@NonNull EditText replyMessage, @NonNull String url, boolean useThumbnail) {
+    static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String url, boolean useThumbnail) {
         //noinspection SpellCheckingInspection
         String template = useThumbnail ? "[timg]%s[/timg]" : "[img]%s[/img]";
         String bbCode = String.format(template, url);
