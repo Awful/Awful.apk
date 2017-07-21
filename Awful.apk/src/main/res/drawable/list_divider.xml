@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape = "line">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- TODO: this needs tinting by theme, can't use ?attr pre-lollipop! -->
-    <stroke
-        android:width="0.5dp"
-        android:color="@color/alt_background" />
+    <!--
+        You probably don't want to use this!
+        Pre-lollipop can't use ?attr references here, so you need to tint the drawable to theme it.
+        Tinting in XML has issues, so it's better to just use a 1dp-high ImageView and set its
+        background colour if you need a divider. This is only here so the Preferences divider can be set to something
+    -->
 
-    <size
-        android:height="1dp" />
+    <solid android:color="#99FF0000"/>
+    <size android:height="1dp"/>
 
 </shape>
