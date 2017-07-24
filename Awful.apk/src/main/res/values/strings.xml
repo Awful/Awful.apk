@@ -64,8 +64,8 @@
     <string name="updating_forums">Updating forums…</string>
     <string name="forums_list_unset_favorite">Unfavorite</string>
     <string name="forums_list_set_favorite">Set favorite</string>
-    <string name="manage_favourites_title">Choose your favorites</string>
-    <string name="manage_favorites_unavailable">Can\'t manage favorites right now</string>
+    <string name="forums_list_show_favorites_view">Show favorites</string>
+    <string name="forums_list_show_all_forums">Show all forums</string>
 
     <!-- Thread list -->
     <string name="thread_tag_description">Thread tag</string>

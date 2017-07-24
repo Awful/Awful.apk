@@ -27,6 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -268,16 +271,23 @@ public class ForumRepository implements UpdateTask.ResultListener {
     // Favourites
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Local storage of the user's favourite forum IDs, for quick lookup and add/removal
-     */
-    private static List<Integer> favouriteIds = new ArrayList<>();
 
-    static {
-        String[] strings = loadFavouriteIds();
-        for (String id : strings) {
-            favouriteIds.add(Integer.parseInt(id));
-        }
+    /**
+     * Get the user's favourite forums, as a sequence of forum IDs.
+     */
+    private static String[] getFavouriteForumIds() {
+        String favouriteList = AwfulPreferences.getInstance().getPreference(Keys.FAVOURITE_FORUMS, "");
+        return StringUtils.split(favouriteList, FAV_ID_SEPARATOR);
+    }
+
+
+    /**
+     * Set the user's favourite forums, as a sequence of forum IDs.
+     */
+    private static void setFavouriteForumIds(@NonNull List<String> forumIds) {
+        // stored as a single string of IDs
+        String joinedIds = StringUtils.join(forumIds, FAV_ID_SEPARATOR);
+        AwfulPreferences.getInstance().setPreference(Keys.FAVOURITE_FORUMS, joinedIds);
     }
 
 
@@ -287,43 +297,8 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * These are ordered by stored index, i.e. in order of appearance in the full forum list.
      */
     public ForumStructure getFavouriteForums() {
-        String[] ids = new String[favouriteIds.size()];
-        for (int i = 0; i < ids.length; i++) {
-            ids[i] = favouriteIds.get(i).toString();
-        }
-        return ForumStructure.buildFromOrderedList(loadForumData(getForumsCursor(ids)), null);
-    }
-
-
-    /**
-     * Load and unpack the list of favourite forum IDs from the sharedprefs.
-     */
-    private static String[] loadFavouriteIds() {
-        String favouriteList = AwfulPreferences.getInstance().getPreference(Keys.FAVOURITE_FORUMS, "");
-        return StringUtils.split(favouriteList, FAV_ID_SEPARATOR);
-    }
-
-
-    /**
-     * Store the current list of favourite forum IDs in the sharedprefs.
-     * Call this whenever you make a change to {@link #favouriteIds}!
-     */
-    private static void storeFavouriteIds() {
-        String joinedIds = StringUtils.join(favouriteIds, FAV_ID_SEPARATOR);
-        AwfulPreferences.getInstance().setPreference(Keys.FAVOURITE_FORUMS, joinedIds);
-    }
-
-
-    /**
-     * Set a new list of favourite forums, overwriting the previous list.
-     */
-    public void setFavourites(@NonNull List<Forum> favourites) {
-        // get all the forum IDs, and join them into a space-separated string
-        favouriteIds.clear();
-        for (Forum forum : favourites) {
-            favouriteIds.add(forum.id);
-        }
-        storeFavouriteIds();
+        List<Forum> favourites = loadForumData(getForumsCursor(getFavouriteForumIds()));
+        return ForumStructure.buildFromOrderedList(favourites, null);
     }
 
 
@@ -336,14 +311,17 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * @param forum The forum to add or remove
      */
     public void toggleFavorite(@NonNull Forum forum) {
-        if (favouriteIds.contains(forum.id)) {
-            favouriteIds.remove(Integer.valueOf(forum.id));
+        // generate a new set of favourite forum IDs by removing or adding the toggled one
+        List<String> favourites = new ArrayList<>(Arrays.asList(getFavouriteForumIds()));
+        String forumId = Integer.toString(forum.id);
+        if (favourites.remove(forumId)) {
             forum.setFavourite(false);
         } else {
-            favouriteIds.add(forum.id);
+            // we don't handle custom ordering (see #getFavouriteForums) so we can just add anywhere
+            favourites.add(forumId);
             forum.setFavourite(true);
         }
-        storeFavouriteIds();
+        setFavouriteForumIds(favourites);
     }
 
 
@@ -420,6 +398,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
         }
 
         Forum forum;
+        List<String> favouriteForumIds = Arrays.asList(getFavouriteForumIds());
         while (cursor.moveToNext()) {
             forum = new Forum(
                     cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
@@ -431,8 +410,8 @@ public class ForumRepository implements UpdateTask.ResultListener {
             String tagUrl = cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL));
             forum.setTagUrl(tagUrl);
 
-            // check for favourites
-            forum.setFavourite(favouriteIds.contains(forum.id));
+            // set favourite status by checking the favourites list
+            forum.setFavourite(favouriteForumIds.contains(Integer.toString(forum.id)));
 
             // set the type e.g. for the index list to handle formatting
             if (forum.id == Constants.USERCP_ID) {

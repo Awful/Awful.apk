@@ -148,9 +148,8 @@ public class ForumsIndexFragment extends AwfulFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forum_index_fragment, menu);
         MenuItem toggleFavourites = menu.findItem(R.id.toggle_list_fav_forums);
-        MenuItem manageFavourites = menu.findItem(R.id.manage_fav_forums);
         toggleFavourites.setIcon(showFavourites ? R.drawable.ic_star_24dp : R.drawable.ic_star_border_24dp);
-        manageFavourites.setVisible(showFavourites);
+        toggleFavourites.setTitle(showFavourites ? R.string.forums_list_show_all_forums : R.string.forums_list_show_favorites_view);
     }
 
 
@@ -163,9 +162,6 @@ public class ForumsIndexFragment extends AwfulFragment
                 invalidateOptionsMenu();
                 setTitle(getTitle());
                 refreshForumList();
-                return true;
-            case R.id.manage_fav_forums:
-                showManageFavouritesDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -224,17 +220,6 @@ public class ForumsIndexFragment extends AwfulFragment
                 .getAsList()
                 .formatAs(FLAT)
                 .build();
-    }
-
-
-    private void showManageFavouritesDialog() {
-        if (forumRepo.hasForumData()) {
-            FavouriteForumsDialogFragment favouritesFragment = new FavouriteForumsDialogFragment();
-            favouritesFragment.show(getFragmentManager(), "manage favourites");
-        } else {
-            // No forums data to pick from, and they might end up clearing their favourites, so do nothing
-            new AlertBuilder().setTitle(R.string.no_forums_data).setSubtitle(R.string.manage_favorites_unavailable).show();
-        }
     }
 
 
