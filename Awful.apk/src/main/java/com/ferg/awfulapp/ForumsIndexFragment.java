@@ -1,56 +1,34 @@
-/********************************************************************************
- * Copyright (c) 2011, Scott Ferguson
- * All rights reserved.
- * <p/>
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * * Neither the name of the software nor the
- * names of its contributors may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- * <p/>
- * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL SCOTT FERGUSON BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
-
 package com.ferg.awfulapp;
 
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.ferg.awfulapp.forums.Forum;
 import com.ferg.awfulapp.forums.ForumListAdapter;
 import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.ColorProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -59,18 +37,34 @@ import static android.view.View.VISIBLE;
 import static com.ferg.awfulapp.forums.ForumStructure.FLAT;
 import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 
+/**
+ * Created by baka kaba on 16/05/2016.
+ * <p>
+ * A fragment to display the current list of forums, or the user's favourites.
+ * <p>
+ * The fragment uses the {@link ForumRepository} to acquire {@link com.ferg.awfulapp.forums.ForumStructure}s
+ * and format them according to the user's settings (e.g. as a single flat list), displaying the
+ * results in a RecyclerView, and handling its click events. There is also a 'no data' view for when
+ * the forum list is empty, with a customisable label and optional loading spinner.
+ * <p>
+ * There are two list displays, the full forums list and the user's favourite forums, switched by a
+ * menu icon. In favourites mode, the user has the option to manage their list of favourites.
+ * <p>
+ * This fragment registers as a {@link com.ferg.awfulapp.forums.ForumRepository.ForumsUpdateListener}
+ * to receive data update events, so it can refresh the forum list or display the loading spinner as
+ * required.
+ */
 public class ForumsIndexFragment extends AwfulFragment
         implements ForumRepository.ForumsUpdateListener, ForumListAdapter.EventListener {
 
-
     @BindView(R.id.forum_index_list)
     RecyclerView forumRecyclerView;
-    @BindString(R.string.forums_title)
-    String forumsTitle;
     @BindView(R.id.view_switcher)
     ViewSwitcher forumsListSwitcher;
     @BindView(R.id.forums_update_progress_bar)
     ProgressBar updatingIndicator;
+    @BindView(R.id.no_forums_label)
+    TextView noForumsLabel;
 
     private ForumListAdapter forumListAdapter;
     private ForumRepository forumRepo;
@@ -78,6 +72,16 @@ public class ForumsIndexFragment extends AwfulFragment
      * repo timestamp for the currently displayed data, used to check if the repo has since updated
      */
     private long lastUpdateTime = -1;
+
+    /**
+     * Current view state - either showing the favourites list, or the full forums list
+     */
+    private boolean showFavourites = AwfulPreferences.getInstance().getPreference(Keys.FORUM_INDEX_PREFER_FAVOURITES, false);
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Lifecycle
+    ///////////////////////////////////////////////////////////////////////////
 
 
     @Override
@@ -108,6 +112,10 @@ public class ForumsIndexFragment extends AwfulFragment
         forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, mPrefs);
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        // this fixes the issue where the activity is first created with this fragment visible, but
+        // doesn't set the actual titlebar text (leaves the xml default) until the viewpager triggers it
+        setTitle(getTitle());
     }
 
 
@@ -131,25 +139,110 @@ public class ForumsIndexFragment extends AwfulFragment
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Menus
+    ///////////////////////////////////////////////////////////////////////////
+
+
     @Override
-    public void onPreferenceChange(AwfulPreferences mPrefs, String key) {
-        super.onPreferenceChange(mPrefs, key);
-        if (forumRepo != null) {
-            refreshForumList();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.forum_index_fragment, menu);
+        MenuItem toggleFavourites = menu.findItem(R.id.toggle_list_fav_forums);
+        toggleFavourites.setIcon(showFavourites ? R.drawable.ic_star_24dp : R.drawable.ic_star_border_24dp);
+        toggleFavourites.setTitle(showFavourites ? R.string.forums_list_show_all_forums : R.string.forums_list_show_favorites_view);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.toggle_list_fav_forums:
+                // flip the view mode and refresh everything that needs to update
+                showFavourites = !showFavourites;
+                invalidateOptionsMenu();
+                setTitle(getTitle());
+                refreshForumList();
+                return true;
         }
-        updateViewColours();
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Forum list setup and display
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Query the database for the current Forum data, and update the list
+     */
+    private void refreshForumList() {
+        lastUpdateTime = forumRepo.getLastRefreshTime();
+        // get a new data set (possibly empty if there's no data yet) and give it to the adapter
+        List<Forum> forumList = showFavourites ? getFavouriteForums() : getAllForums();
+        forumListAdapter.updateForumList(forumList);
+        refreshNoDataView();
     }
 
 
     /**
-     * Set any colours that need to change according to the current theme
+     * Show/hide the 'no data' view as appropriate, and show/hide the updating state
      */
-    private void updateViewColours() {
-        if (forumRecyclerView != null) {
-            forumRecyclerView.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
+    private void refreshNoDataView() {
+        // adjust the label in the 'no forums' view
+        noForumsLabel.setText(showFavourites ? R.string.no_favourites : R.string.no_forums_data);
+
+        // work out if we need to switch the empty view to the forum list, or vice versa
+        boolean noData = forumListAdapter.getParentItemList().isEmpty();
+        if (noData && forumsListSwitcher.getCurrentView() == forumRecyclerView) {
+            forumsListSwitcher.showNext();
+        } else if (!noData && forumsListSwitcher.getNextView() == forumRecyclerView) {
+            forumsListSwitcher.showNext();
         }
+        // show the update spinner if an update is going on
+        updatingIndicator.setVisibility(forumRepo.isUpdating() ? VISIBLE : INVISIBLE);
     }
 
+
+    // list formatting for the forums
+
+    private List<Forum> getAllForums() {
+        return forumRepo.getAllForums()
+                .getAsList()
+                .includeSections(mPrefs.forumIndexShowSections)
+                .formatAs(mPrefs.forumIndexHideSubforums ? TWO_LEVEL : FLAT)
+                .build();
+    }
+
+
+    private List<Forum> getFavouriteForums() {
+        return forumRepo.getFavouriteForums()
+                .getAsList()
+                .formatAs(FLAT)
+                .build();
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Event callbacks
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public void onForumClicked(@NonNull Forum forum) {
+        displayForum(forum.id, 1);
+    }
+
+    @Override
+    public void onContextMenuCreated(@NonNull Forum forum, @NonNull Menu contextMenu) {
+        // show an option to set/unset the forum as a favourite
+        MenuItem menuItem = contextMenu.add(forum.isFavourite() ? getString(R.string.forums_list_unset_favorite) : getString(R.string.forums_list_set_favorite));
+        menuItem.setOnMenuItemClickListener(item -> {
+            forumRepo.toggleFavorite(forum);
+            forumListAdapter.notifyDataSetChanged();
+            return true;
+        });
+    }
 
     @Override
     public void onForumsUpdateStarted() {
@@ -161,7 +254,7 @@ public class ForumsIndexFragment extends AwfulFragment
     public void onForumsUpdateCompleted(final boolean success) {
         getActivity().runOnUiThread(() -> {
             if (success) {
-                Snackbar.make(forumRecyclerView, "Forums updated", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(forumRecyclerView, R.string.forums_updated_message, Snackbar.LENGTH_SHORT).show();
                 refreshForumList();
             }
             updatingIndicator.setVisibility(INVISIBLE);
@@ -175,47 +268,38 @@ public class ForumsIndexFragment extends AwfulFragment
     }
 
 
-    /**
-     * Query the database for the current Forum data, and update the list
-     */
-    private void refreshForumList() {
-        lastUpdateTime = forumRepo.getLastRefreshTime();
-        // get a new data set (possibly empty if there's no data yet) and give it to the adapter
-        List<Forum> forumList = forumRepo.getForumStructure()
-                .getAsList()
-                .includeSections(mPrefs.forumIndexShowSections)
-                .formatAs(mPrefs.forumIndexHideSubforums ? TWO_LEVEL : FLAT)
-                .build();
-        forumListAdapter.updateForumList(forumList);
-        refreshNoDataView();
-    }
-
-
-    /**
-     * Show/hide the 'no data' view as appropriate, and show/hide the updating state
-     */
-    private void refreshNoDataView() {
-        boolean noData = forumListAdapter.getParentItemList().isEmpty();
-        // work out if we need to switch the empty view to the forum list, or vice versa
-        if (noData && forumsListSwitcher.getCurrentView() == forumRecyclerView) {
-            forumsListSwitcher.showNext();
-        } else if (!noData && forumsListSwitcher.getNextView() == forumRecyclerView) {
-            forumsListSwitcher.showNext();
-        }
-        // show the update spinner if an update is going on
-        updatingIndicator.setVisibility(forumRepo.isUpdating() ? VISIBLE : INVISIBLE);
-    }
-
-
     @Override
-    public void onForumClicked(@NonNull Forum forum) {
-        displayForum(forum.id, 1);
+    public void onPreferenceChange(AwfulPreferences mPrefs, @Nullable String key) {
+        super.onPreferenceChange(mPrefs, key);
+        if (getString(R.string.pref_key_theme).equals(key)) {
+            updateViewColours();
+        } else if (getString(R.string.pref_key_favourite_forums).equals(key)) {
+            // only refresh the list if we're looking at the favourites
+            if (showFavourites && forumRepo != null) {
+                refreshForumList();
+            }
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Other stuff
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Set any colours that need to change according to the current theme
+     */
+    private void updateViewColours() {
+        if (forumRecyclerView != null) {
+            forumRecyclerView.setBackgroundColor(ColorProvider.BACKGROUND.getColor());
+        }
     }
 
 
     @Override
     public String getTitle() {
-        return forumsTitle;
+        return getString(showFavourites ? R.string.favourite_forums_title : R.string.forums_title);
     }
 
 

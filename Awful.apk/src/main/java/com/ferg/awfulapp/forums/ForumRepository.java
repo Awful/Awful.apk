@@ -15,14 +15,21 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
+import com.ferg.awfulapp.preferences.AwfulPreferences;
+import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.task.IndexIconRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -44,6 +51,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
     static final int TOP_LEVEL_PARENT_ID = 0;
     private static final String TAG = "ForumRepo";
     private static final String PREF_KEY_FORUM_REFRESH_TIMESTAMP = "LAST_FORUM_REFRESH_TIME";
+    private static final char FAV_ID_SEPARATOR = ' ';
     /**
      * Synchronization lock for accessing currentUpdateTask
      */
@@ -219,7 +227,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
      * This is a quick way of determining if an update needs to run (e.g. after data wipe)
      */
     public boolean hasForumData() {
-        Cursor cursor = getForumsCursor();
+        Cursor cursor = getForumsCursor(null);
         int numForums = (cursor == null) ? 0 : cursor.getCount();
         if (cursor != null) {
             cursor.close();
@@ -254,8 +262,66 @@ public class ForumRepository implements UpdateTask.ResultListener {
 
 
     @NonNull
-    public ForumStructure getForumStructure() {
-        return ForumStructure.buildFromOrderedList(loadForumData(), TOP_LEVEL_PARENT_ID);
+    public ForumStructure getAllForums() {
+        return ForumStructure.buildFromOrderedList(loadForumData(getForumsCursor(null)), TOP_LEVEL_PARENT_ID);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Favourites
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Get the user's favourite forums, as a sequence of forum IDs.
+     */
+    private static String[] getFavouriteForumIds() {
+        String favouriteList = AwfulPreferences.getInstance().getPreference(Keys.FAVOURITE_FORUMS, "");
+        return StringUtils.split(favouriteList, FAV_ID_SEPARATOR);
+    }
+
+
+    /**
+     * Set the user's favourite forums, as a sequence of forum IDs.
+     */
+    private static void setFavouriteForumIds(@NonNull List<String> forumIds) {
+        // stored as a single string of IDs
+        String joinedIds = StringUtils.join(forumIds, FAV_ID_SEPARATOR);
+        AwfulPreferences.getInstance().setPreference(Keys.FAVOURITE_FORUMS, joinedIds);
+    }
+
+
+    /**
+     * Get the user's current favourited forums as a ForumStructure.
+     * <p>
+     * These are ordered by stored index, i.e. in order of appearance in the full forum list.
+     */
+    public ForumStructure getFavouriteForums() {
+        List<Forum> favourites = loadForumData(getForumsCursor(getFavouriteForumIds()));
+        return ForumStructure.buildFromOrderedList(favourites, null);
+    }
+
+
+    /**
+     * Toggle a forum's favourite status.
+     * <p>
+     * This relies on the internal favourites state and ignores the current {@link Forum#isFavourite()} value.
+     * The Forum is updated to reflect the new state.
+     *
+     * @param forum The forum to add or remove
+     */
+    public void toggleFavorite(@NonNull Forum forum) {
+        // generate a new set of favourite forum IDs by removing or adding the toggled one
+        List<String> favourites = new ArrayList<>(Arrays.asList(getFavouriteForumIds()));
+        String forumId = Integer.toString(forum.id);
+        if (favourites.remove(forumId)) {
+            forum.setFavourite(false);
+        } else {
+            // we don't handle custom ordering (see #getFavouriteForums) so we can just add anywhere
+            favourites.add(forumId);
+            forum.setFavourite(true);
+        }
+        setFavouriteForumIds(favourites);
     }
 
 
@@ -275,16 +341,26 @@ public class ForumRepository implements UpdateTask.ResultListener {
 
 
     /**
-     * Get a Cursor pointing to all Forum records, ordered by index.
+     * Get Forum records, ordered by {@link AwfulForum#INDEX} as stored.
+     *
+     * @param forumIds the IDs of the forums you want, or null to return all forums
+     * @see #storeForumData(ForumStructure)
      */
     @Nullable
-    private Cursor getForumsCursor() {
+    private Cursor getForumsCursor(@Nullable String[] forumIds) {
         ContentResolver contentResolver = context.getContentResolver();
-        // get all forums, ordered by index (the order they were added to the DB)
+        // if we have some IDs we need to build a WHERE query, otherwise leave both null to get everything
+        String where = null;
+        if (forumIds != null) {
+            String placeholders = StringUtils.repeat("?", ",", forumIds.length);
+            where = AwfulForum.ID + " IN (" + placeholders + ")";
+        }
+
+        // get the required forums, ordered by index (the order they were added to the DB)
         return contentResolver.query(AwfulForum.CONTENT_URI,
                 AwfulProvider.ForumProjection,
-                null,
-                null,
+                where,
+                forumIds,
                 AwfulForum.INDEX);
     }
 
@@ -308,20 +384,21 @@ public class ForumRepository implements UpdateTask.ResultListener {
 
 
     /**
-     * Get all forums stored in the DB, as a list of Forums ordered by index.
+     * Build a list of Forum objects from a list of forum records, ordered by index.
      * See {@link #storeForumData(ForumStructure)} for details on index ordering.
      *
-     * @return The list of Forums
+     * @param cursor a cursor over the required forum records
+     * @return The resulting list of Forums
      */
     @NonNull
-    private List<Forum> loadForumData() {
+    private List<Forum> loadForumData(@Nullable Cursor cursor) {
         List<Forum> forumList = new ArrayList<>();
-        Cursor cursor = getForumsCursor();
         if (cursor == null) {
             return forumList;
         }
 
         Forum forum;
+        List<String> favouriteForumIds = Arrays.asList(getFavouriteForumIds());
         while (cursor.moveToNext()) {
             forum = new Forum(
                     cursor.getInt(cursor.getColumnIndex(AwfulForum.ID)),
@@ -332,6 +409,9 @@ public class ForumRepository implements UpdateTask.ResultListener {
             // the forum might have an image tag too
             String tagUrl = cursor.getString(cursor.getColumnIndex(AwfulForum.TAG_URL));
             forum.setTagUrl(tagUrl);
+
+            // set favourite status by checking the favourites list
+            forum.setFavourite(favouriteForumIds.contains(Integer.toString(forum.id)));
 
             // set the type e.g. for the index list to handle formatting
             if (forum.id == Constants.USERCP_ID) {

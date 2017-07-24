@@ -30,18 +30,21 @@ public class Forum {
     @Nullable
     private String tagUrl = null;
 
+    private boolean isFavourite = false;
+
     @ForumType
     private int type = FORUM;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FORUM, SECTION, BOOKMARKS})
     public @interface ForumType {
+
     }
 
     public static final int FORUM = 0;
+
     public static final int SECTION = 1;
     public static final int BOOKMARKS = 2;
-
 
     Forum(int id, int parentId, String title, String subtitle) {
         this(id, parentId, title, subtitle, new ArrayList<>());
@@ -66,7 +69,17 @@ public class Forum {
     Forum(Forum sourceForum) {
         this(sourceForum.id, sourceForum.parentId, sourceForum.title, sourceForum.subtitle);
         setTagUrl(sourceForum.getTagUrl());
-        setType(sourceForum.type);
+        setType(sourceForum.getType());
+        setFavourite(sourceForum.isFavourite());
+    }
+
+
+    public boolean isFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
     }
 
 

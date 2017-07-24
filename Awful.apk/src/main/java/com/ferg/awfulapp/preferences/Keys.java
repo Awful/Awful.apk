@@ -9,10 +9,10 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Created by baka kaba on 24/03/2016.
- *
+ * <p>
  * <p>This class holds constants for preference keys that the app can get and set,
  * grouped by type, to enforce consistency and type checking.</p>
- *
+ * <p>
  * <p>The actual key values are stored as string resources, so that the settings XML files can
  * reference them too. Any code that needs to set a preference should call the relevant
  * setPreference() method (e.g. {@link AwfulPreferences#setPreference(int, boolean)},
@@ -32,10 +32,12 @@ public abstract class Keys {
             IGNORE_FORMKEY,
             ORIENTATION,
             PAGE_LAYOUT,
-            TRANSFORMER
+            TRANSFORMER,
+            FAVOURITE_FORUMS
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface StringPreference{}
+    public @interface StringPreference {
+    }
 
 
     // string sets
@@ -43,7 +45,8 @@ public abstract class Keys {
             MARKED_USERS
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface StringSetPreference{}
+    public @interface StringSetPreference {
+    }
 
 
     // ints
@@ -57,7 +60,8 @@ public abstract class Keys {
             LAST_VERSION_SEEN
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface IntPreference{}
+    public @interface IntPreference {
+    }
 
 
     // floats
@@ -65,14 +69,16 @@ public abstract class Keys {
             P2R_DISTANCE
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface FloatPreference{}
+    public @interface FloatPreference {
+    }
 
     // longs
     @IntDef({
             PROBATION_TIME
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface LongPreference{}
+    public @interface LongPreference {
+    }
 
     // bools
     @IntDef({
@@ -118,10 +124,12 @@ public abstract class Keys {
             IMMERSION_MODE,
             FORUM_INDEX_SHOW_SECTIONS,
             FORUM_INDEX_SHOW_SUBTITLES,
-            FORUM_INDEX_HIDE_SUBFORUMS
+            FORUM_INDEX_HIDE_SUBFORUMS,
+            FORUM_INDEX_PREFER_FAVOURITES
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface BooleanPreference{}
+    public @interface BooleanPreference {
+    }
 
 
     public static final int USERNAME = R.string.pref_key_username;
@@ -191,7 +199,9 @@ public abstract class Keys {
     public static final int FORUM_INDEX_SHOW_SUBTITLES = R.string.pref_key_forum_index_show_subtitles;
     public static final int FORUM_INDEX_HIDE_SUBFORUMS = R.string.pref_key_forum_index_hide_subforums;
 
-    public static final int MARKED_USERS = R.string.pref_key_marked_users;
+    public static final int FAVOURITE_FORUMS = R.string.pref_key_favourite_forums;
+    public static final int FORUM_INDEX_PREFER_FAVOURITES = R.string.pref_key_forum_index_default_show_favourites;
 
+    public static final int MARKED_USERS = R.string.pref_key_marked_users;
 
 }

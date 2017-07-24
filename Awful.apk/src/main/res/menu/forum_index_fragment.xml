@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/toggle_list_fav_forums"
+        android:icon="@drawable/ic_star_border_24dp"
+        android:title="@string/forums_list_show_favorites_view"
+        app:showAsAction="ifRoom"
+        />
+</menu>
