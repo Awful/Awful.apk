@@ -2,18 +2,31 @@ package com.ferg.awfulapp.preferences.fragments;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
+import com.ferg.awfulapp.provider.AwfulTheme;
 
 import java.util.Map;
 
@@ -125,6 +138,18 @@ public abstract class SettingsFragment extends PreferenceFragment {
         }
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // for some reason, if you theme android:listDivider it won't show up in the preference list
+        // so doing this directly seems to be the only way to theme it? Can't just get() it either
+        ListView listview = (ListView) getActivity().findViewById(android.R.id.list);
+        Drawable divider = getResources().getDrawable(R.drawable.list_divider);
+        TypedValue colour = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.listDivider, colour, true);
+        divider.setColorFilter(colour.data, PorterDuff.Mode.SRC_IN);
+        listview.setDivider(divider);
+    }
 
     /**
      * Set required defaults and selectively enable preferences.

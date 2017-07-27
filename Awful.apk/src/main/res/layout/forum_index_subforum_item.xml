@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_container"
     android:layout_width="fill_parent"
@@ -11,10 +10,9 @@
     <ImageView
         android:id="@+id/list_divider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
         android:layout_alignParentBottom="true"
-        android:tint="?android:listDivider"
-        app:srcCompat="@drawable/list_divider"
         tools:ignore="ContentDescription,MissingPrefix"/>
 
     <RelativeLayout

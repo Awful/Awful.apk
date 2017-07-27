@@ -115,11 +115,10 @@
     <ImageView
         android:id="@+id/list_divider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:layout_below="@id/section_title"
-        android:tint="?android:listDivider"
-        app:srcCompat="@drawable/list_divider"
+        android:background="?android:attr/listDivider"
         tools:ignore="ContentDescription,MissingPrefix"/>
 
 </RelativeLayout>
