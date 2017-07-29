@@ -296,7 +296,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements NavigationEv
         super.onViewCreated(view, savedInstanceState);
 
 
-        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.thread_swipe));
+        setAllowedSwipeRefreshDirections(SwipyRefreshLayoutDirection.BOTH);
+        setSwipyLayout(view.findViewById(R.id.thread_swipe));
 		getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
 		getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
 		getSwipyLayout().setEnabled(!getPrefs().disablePullNext);

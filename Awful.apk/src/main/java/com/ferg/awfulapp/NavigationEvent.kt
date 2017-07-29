@@ -10,7 +10,9 @@ import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.search.SearchFilter
 import com.ferg.awfulapp.search.SearchFragment
 import com.ferg.awfulapp.thread.AwfulURL
+import com.ferg.awfulapp.users.LepersColonyFragment
 import com.ferg.awfulapp.util.AwfulUtils
+import com.ferg.awfulapp.util.tryGetIntExtra
 import timber.log.Timber
 
 /**
@@ -114,6 +116,21 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         }
     }
 
+    /**
+     * Show the Leper's Colony, or a user's Rap Sheet if a [userId] is provided.
+     *
+     * You can specify an optional [page] number.
+     */
+    // TODO: remove the overloads bit when this isn't being accessed thru Java, i.e. the context menu that navigates to the LC
+    data class LepersColony @JvmOverloads constructor(val userId: Int? = null, val page: Int = LepersColonyFragment.FIRST_PAGE) : NavigationEvent(TYPE_LEPERS_COLONY) {
+        override fun activityIntent(context: Context) = context.intentFor(com.ferg.awfulapp.users.LepersColonyActivity::class.java)
+
+        override val addDataToIntent: Intent.() -> Unit = {
+            userId?.let { putExtra(Constants.PARAM_USER_ID, userId) }
+            putExtra(Constants.PARAM_PAGE, page)
+        }
+    }
+
 
     /**
      * Build an Intent for this NavigationEvent.
@@ -143,6 +160,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         private const val TYPE_SHOW_PRIVATE_MESSAGES = "nav_show_private_messages"
         private const val TYPE_COMPOSE_PRIVATE_MESSAGE = "nav_compose_private_message"
         private const val TYPE_ANNOUNCEMENTS = "nav_announcements"
+        private const val TYPE_LEPERS_COLONY = "nav_rap_sheet"
 
         private const val KEY_SEARCH_FILTERS = "key_search_filters"
 
@@ -156,7 +174,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
             return when (getStringExtra(EVENT_EXTRA_KEY)) {
             //TODO: handle behaviour for missing data, e.g. can't navigate to a thread with no thread ID
             // TODO: might be better to default to null? And let the caller decide what to do when parsing fails - can use the elvis ?: to supply a default event
-                TYPE_RE_AUTHENTICATE -> ReAuthenticate
+                TYPE_RE_AUTHENTICATE -> NavigationEvent.ReAuthenticate
                 TYPE_SETTINGS -> Settings
                 TYPE_SEARCH_FORUMS -> SearchForums(
                         *getParcelableArrayListExtra<SearchFilter>(KEY_SEARCH_FILTERS).toTypedArray()
@@ -179,6 +197,10 @@ sealed class NavigationEvent(private val extraTypeId: String) {
                         id = getIntExtra(Constants.THREAD_ID)!!,
                         page = getIntExtra(Constants.THREAD_PAGE),
                         postJump = getStringExtra(Constants.THREAD_FRAGMENT)
+                )
+                TYPE_LEPERS_COLONY -> LepersColony(
+                        userId = getIntExtra(Constants.PARAM_USER_ID),
+                        page = getIntExtra(Constants.PARAM_PAGE) ?: LepersColonyFragment.FIRST_PAGE
                 )
                 else -> {
                     Timber.w("Couldn't parse Intent as NavigationEvent - event key: ${getStringExtra(EVENT_EXTRA_KEY)}")
@@ -219,13 +241,7 @@ sealed class NavigationEvent(private val extraTypeId: String) {
         /**
          * Nullable getter for int extras, which also logs when they're missing.
          */
-        private fun Intent.getIntExtra(name: String) =
-                if (hasExtra(name)) {
-                    getIntExtra(name, -12345)
-                } else {
-                    Timber.i("No int extra: $name")
-                    null
-                }
+        private fun Intent.getIntExtra(name: String) = tryGetIntExtra(name) ?: null.also { Timber.i("No int extra: $name") }
     }
 }
 

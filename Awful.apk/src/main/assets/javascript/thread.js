@@ -452,6 +452,11 @@ function toggleInfo(info) {
  * @param {Element} postMenu The HTMLElement of the postmenu
  */
 function showPostMenu(postMenu) {
+// temp hack to create the right menu for rap sheet entries without making its own CSS class etc
+    if (postMenu.hasAttribute('badPostUrl')) {
+    	showPunishmentMenu(postMenu);
+    	return;
+    }
 	listener.onMoreClick(
 		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
 		postMenu.getAttribute('username'),
@@ -460,6 +465,21 @@ function showPostMenu(postMenu) {
 		postMenu.hasAttribute('editable'),
 		postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin'),
 		postMenu.hasAttribute('isPlat')
+	);
+}
+
+
+/**
+ * Displays the context for a leper's colony punishment
+ * @param {Element} menu The HTMLElement of the clicked menu
+ */
+function showPunishmentMenu(menu) {
+	listener.onMoreClick(
+		menu.getAttribute('username'),
+		menu.getAttribute('userId'),
+		menu.getAttribute('badPostUrl'),
+		menu.getAttribute('adminUsername'),
+		menu.getAttribute('adminId')
 	);
 }
 
