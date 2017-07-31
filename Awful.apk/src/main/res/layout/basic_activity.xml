@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="?attr/background"
@@ -19,10 +18,8 @@
         app:popupTheme="?attr/awfulPopUpTheme"
         />
 
-    <fragment
-        android:id="@+id/announcements_fragment"
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.ferg.awfulapp.announcements.AnnouncementsFragment"
-        tools:layout="@layout/announcements_fragment"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>
