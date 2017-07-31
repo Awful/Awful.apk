@@ -75,8 +75,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
         <activity
-            android:name="com.ferg.awfulapp.announcements.AnnouncementsActivity"
-            android:label="@string/announcements"
+            android:name="com.ferg.awfulapp.BasicActivity"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
@@ -112,11 +111,6 @@
         </activity>
         <activity
             android:name="com.ferg.awfulapp.SearchActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            />
-        <activity
-            android:name="com.ferg.awfulapp.ImageViewActivity"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize"
             />

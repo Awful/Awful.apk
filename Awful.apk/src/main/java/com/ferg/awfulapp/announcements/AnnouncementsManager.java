@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.BasicActivity;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -206,7 +208,8 @@ public class AnnouncementsManager {
      * @param activity used to launch the new activity
      */
     public void showAnnouncements(@NonNull Activity activity) {
-        activity.startActivity(new Intent().setClass(activity.getApplicationContext(), AnnouncementsActivity.class));
+        Intent intent = BasicActivity.Companion.intentFor(AnnouncementsFragment.class, activity, activity.getString(R.string.announcements));
+        activity.startActivity(intent);
     }
 
 
