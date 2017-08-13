@@ -17,7 +17,7 @@ import static com.ferg.awfulapp.reply.BasicTextInserter.BbCodeTag.FIXED;
  * Handles inserting basic, unparameterised BBcode tags into EditTexts.
  */
 
-public abstract class BasicTextInserter extends Inserter {
+abstract class BasicTextInserter extends Inserter {
 
     /**
      * Wrap selected text in a BBcode tag, or show a dialog to insert some.
@@ -34,13 +34,13 @@ public abstract class BasicTextInserter extends Inserter {
      * @param tag          The tag type to add
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage,
-                       @NonNull final BbCodeTag tag,
-                       @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage,
+                            @NonNull final BbCodeTag tag,
+                            @NonNull final Activity activity) {
         // if there's text selected, just wrap it - don't show a dialog
         String selectedText = getSelectedText(replyMessage);
         if (selectedText != null && !selectedText.isEmpty()) {
-            doInsert(replyMessage, selectedText, tag);
+            insertWithoutDialog(replyMessage, selectedText, tag);
             return;
         }
 
@@ -52,15 +52,9 @@ public abstract class BasicTextInserter extends Inserter {
         }
         setToSelection(textField, replyMessage);
 
-        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                doInsert(replyMessage, textField.getText().toString(), tag);
-            }
-        };
-
-        getDialogBuilder(activity, layout, clickListener)
-                .setTitle(tag.dialogTitle).show();
+        DialogInterface.OnClickListener clickListener = (dialog, which) ->
+                insertWithoutDialog(replyMessage, textField.getText().toString(), tag);
+        getDialogBuilder(activity, layout, clickListener).setTitle(tag.dialogTitle).show();
     }
 
     /**
@@ -70,7 +64,7 @@ public abstract class BasicTextInserter extends Inserter {
      * @param text         The text being wrapped
      * @param tag          The tag to wrap with
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String text, @NonNull BbCodeTag tag) {
+    static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String text, @NonNull BbCodeTag tag) {
         String bbCode = String.format(tag.tagFormatString, text);
         insertIntoReply(replyMessage, bbCode);
     }
@@ -79,7 +73,7 @@ public abstract class BasicTextInserter extends Inserter {
     /**
      * Represents simple (parameterless) BBcode tags.
      */
-    public enum BbCodeTag {
+    enum BbCodeTag {
         BOLD("Insert bold text", "[b]%s[/b]"),
         ITALICS("Insert italic text", "[i]%s[/i]"),
         UNDERLINE("Insert underlined text", "[u]%s[/u]"),
