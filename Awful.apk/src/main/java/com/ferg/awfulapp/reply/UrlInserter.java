@@ -3,10 +3,13 @@ package com.ferg.awfulapp.reply;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.EditText;
 
 import com.ferg.awfulapp.R;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by baka kaba on 25/09/2016.
@@ -14,7 +17,7 @@ import com.ferg.awfulapp.R;
  * Handles inserting BBcode URL tags into an EditText.
  */
 
-public abstract class UrlInserter extends Inserter {
+abstract class UrlInserter extends Inserter {
 
     /**
      * Display a dialog to insert a URL.
@@ -31,7 +34,7 @@ public abstract class UrlInserter extends Inserter {
      * @param replyMessage The wrapped text will be added here
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
         View layout = getDialogLayout(R.layout.insert_url_dialog, activity);
         final EditText urlField = (EditText) layout.findViewById(R.id.url_field);
         final EditText textField = (EditText) layout.findViewById(R.id.text_field);
@@ -48,29 +51,25 @@ public abstract class UrlInserter extends Inserter {
             }
         }
 
-        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // if the link text is blank, use the URL
-                String linkText = textField.getText().toString();
-                String url = urlField.getText().toString();
-                doInsert(replyMessage, url, linkText.isEmpty() ? url : linkText);
-            }
-        };
+        DialogInterface.OnClickListener clickListener = (dialog, which) ->
+                insertWithoutDialog(replyMessage, urlField.getText().toString(), textField.getText().toString());
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert URL").show();
     }
 
 
     /**
      * Perform the insertion.
+     * <p>
+     * If (non-empty) link text is provided then the url is added in the opening tag, otherwise
+     * the url is added between the tags.
      *
      * @param replyMessage The reply message being edited
      * @param url          The URL of the link
-     * @param linkText     The text to display
+     * @param linkText     Optional text to display
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String url, @NonNull String linkText) {
-        String bbCode = String.format("[url=\"%s\"]%s[/url]", url, linkText);
+    static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String url, @Nullable String linkText) {
+        String formatString = StringUtils.isEmpty(linkText) ? "[url]%s[/url]" : "[url=\"%s\"]%s[/url]";
+        String bbCode = String.format(formatString, url, linkText);
         insertIntoReply(replyMessage, bbCode);
     }
 

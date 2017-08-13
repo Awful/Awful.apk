@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.reply;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -18,7 +17,7 @@ import java.util.regex.Pattern;
  * Handles inserting BBcode video tags into an EditText.
  */
 
-public abstract class VideoInserter extends Inserter {
+abstract class VideoInserter extends Inserter {
 
     /**
      * Display a dialog to insert a video.
@@ -32,7 +31,7 @@ public abstract class VideoInserter extends Inserter {
      * @param replyMessage The wrapped text will be added here
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
         View layout = getDialogLayout(R.layout.insert_video_dialog, activity);
         final EditText urlField = (EditText) layout.findViewById(R.id.url_field);
 
@@ -45,13 +44,7 @@ public abstract class VideoInserter extends Inserter {
             setText(urlField, clipboardText);
         }
 
-        DialogInterface.OnClickListener clickListener = new Dialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                doInsert(replyMessage, urlField.getText().toString());
-            }
-        };
-
+        DialogInterface.OnClickListener clickListener = (dialog, which) -> insertWithoutDialog(replyMessage, urlField.getText().toString());
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert video").show();
     }
 
@@ -64,12 +57,13 @@ public abstract class VideoInserter extends Inserter {
      * @param replyMessage The reply message being edited
      * @param videoUrl     the URL to add to the tag
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String videoUrl) {
+    static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String videoUrl) {
         videoUrl = sanitiseUrl(videoUrl);
         final String bbCodeTemplate = "%n[video]%s[/video]%n";
         String bbCode = String.format(bbCodeTemplate, videoUrl);
         insertIntoReply(replyMessage, bbCode);
     }
+
 
     /**
      * Handle any annoying URLs the site can't manage, i.e. the mobile youtu.be/lol stuff

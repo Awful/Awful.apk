@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.reply;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -12,11 +11,11 @@ import com.ferg.awfulapp.R;
 
 /**
  * Created by baka kaba on 26/09/2016.
- *
+ * <p>
  * Handles inserting BBcode lists into an EditText.
  */
 
-public abstract class ListInserter extends Inserter {
+abstract class ListInserter extends Inserter {
 
     // fixed ordering for the extra list type options, so we can check selected options by position
     // (and the labels can be changed/translated)
@@ -32,20 +31,16 @@ public abstract class ListInserter extends Inserter {
      * @param replyMessage The wrapped text will be added here
      * @param activity     The current Activity, used to display the dialog UI
      */
-    public static void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
+    static void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity) {
         View layout = getDialogLayout(R.layout.insert_list_dialog, activity);
         final EditText textField = (EditText) layout.findViewById(R.id.list_items_field);
         final Spinner listTypeSpinner = (Spinner) layout.findViewById(R.id.list_type_spinner);
         setToSelection(textField, replyMessage);
 
-        DialogInterface.OnClickListener clickListener = new Dialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                int listTypeIndex = listTypeSpinner.getSelectedItemPosition();
-                doInsert(replyMessage, textField.getText().toString(), listTypeIndex);
-            }
+        DialogInterface.OnClickListener clickListener = (dialog, which) -> {
+            int listTypeIndex = listTypeSpinner.getSelectedItemPosition();
+            insertWithoutDialog(replyMessage, textField.getText().toString(), listTypeIndex);
         };
-
         getDialogBuilder(activity, layout, clickListener).setTitle("Insert list").show();
     }
 
@@ -60,7 +55,7 @@ public abstract class ListInserter extends Inserter {
      * @param listItems     The items in the list, separated by newlines
      * @param listTypeIndex A type constant used to format
      */
-    private static void doInsert(@NonNull EditText replyMessage, @NonNull String listItems, int listTypeIndex) {
+    private static void insertWithoutDialog(@NonNull EditText replyMessage, @NonNull String listItems, int listTypeIndex) {
         // build the outer tags according to the selected list type
         String tagFormatString;
         switch (listTypeIndex) {

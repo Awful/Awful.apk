@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_panorama_dark"
         android:title="@string/reply_img_tag"/>
     <item
+        android:id="@+id/bbcode_imgur"
+        android:icon="@drawable/ic_cloud_upload_dark"
+        android:title="Insert Imgur"/>
+    <item
         android:id="@+id/bbcode_video"
         android:icon="@drawable/ic_movie_dark"
         android:title="@string/reply_video"/>

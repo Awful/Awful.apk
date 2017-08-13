@@ -25,7 +25,7 @@ abstract class Inserter {
      * Functional interface for the various untagged inserters
      */
     interface Untagged {
-        void insert(@NonNull final EditText replyMessage, @NonNull final Activity activity);
+        void smartInsert(@NonNull final EditText replyMessage, @NonNull final Activity activity);
     }
 
     /**

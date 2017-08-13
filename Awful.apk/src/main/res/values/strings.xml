@@ -173,6 +173,12 @@
         <item>Alphabetical</item>
     </string-array>
 
+    <string-array name="imgur_upload_types">
+        <!-- this ordering needs to be maintained, so the option can be identified by position -->
+        <item>from URL</item>
+        <item>image</item>
+    </string-array>
+
     <string name="insert_list_style_label">List style</string>
     <string name="insert_list_text_field_hint">List items (one per added line)</string>
     <string name="insert_code_text_field_hint">Code</string>
@@ -222,6 +228,39 @@
     <string name="search_by_threadid">Thread id</string>
     <string name="search_by_quoting">Quoting user</string>
 
+
+    <!-- Imgur uploader -->
+    <string name="imgur_uploader_dialog_title">Add to Imgur and insert</string>
+    <string name="imgur_uploader_ok_button">Upload</string>
+
+    <string name="imgur_uploader_tap_to_choose_file">Tap to select an image</string>
+    <string name="imgur_uploader_file_chooser_title">Select an image to upload</string>
+    <string name="imgur_uploader_file_name">Name: %s</string>
+    <string name="imgur_uploader_file_size">Size: %s</string>
+    <string name="imgur_uploader_unknown_value">unknown</string>
+    <string name="imgur_uploader_no_file_details">Can\'t get file details</string>
+
+    <string name="imgur_uploader_url_prefix_warning">MUST start with http:// or https://</string>
+    <string name="imgur_uploader_url_validation_warning">This doesn\'t look like a url…</string>
+
+    <string name="imgur_uploader_remaining_uploads_unknown">Unknown upload availability</string>
+    <string name="imgur_uploader_remaining_uploads_reset_time">Resets at %1$s on %2$s</string>
+    <plurals name="imgur_uploader_remaining_uploads">
+        <item quantity="zero">No uploads left!</item>
+        <item quantity="one">%d upload left</item>
+        <item quantity="other">%d uploads left</item>
+    </plurals>
+
+    <string name="imgur_uploader_status_enter_image_url">Enter an image URL above</string>
+    <string name="imgur_uploader_status_choose_source_file">Select an image above</string>
+    <string name="imgur_uploader_status_ready_to_upload">Ready to upload</string>
+    <string name="imgur_uploader_status_upload_in_progress">Uploading…</string>
+    <string name="imgur_uploader_status_no_remaining_uploads">Out of upload credits!</string>
+
+    <string name="imgur_uploader_error_image_too_large">Max upload size is 10MB\nYour image is %s</string>
+    <string name="imgur_uploader_error_file_access">Couldn\'t read your image file</string>
+    <string name="imgur_uploader_error_site_response_unrecognised">Unrecognized site response!</string>
+    <string name="imgur_uploader_error_upload_generic">Upload error!</string>
 
 
     <!--
