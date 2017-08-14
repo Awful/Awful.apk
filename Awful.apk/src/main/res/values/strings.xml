@@ -389,6 +389,8 @@
     <string name="post_embedding_divider_videos">Videos</string>
     <string name="inline_youtube">YouTube</string>
     <string name="inline_vines">Vine</string>
+    <string name="inline_twitch">Twitch</string>
+    <string name="inline_twitch_summary">Slow with several on a page</string>
     <string name="inline_webm">Other</string>
     <string name="inline_webm_summary">WebM/GIFV/MP4 etc.</string>
     <string name="autostart_webm">Autoplay embedded videos</string>

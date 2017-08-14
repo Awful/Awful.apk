@@ -35,6 +35,13 @@
 
         <com.ferg.awfulapp.preferences.CustomSwitchPreference
             android:defaultValue="false"
+            android:key="@string/pref_key_inline_twitch"
+            android:summary="@string/inline_twitch_summary"
+            android:title="@string/inline_twitch"
+            />
+
+        <com.ferg.awfulapp.preferences.CustomSwitchPreference
+            android:defaultValue="false"
             android:key="@string/pref_key_inline_webm"
             android:summary="@string/inline_webm_summary"
             android:title="@string/inline_webm"

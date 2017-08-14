@@ -36,6 +36,7 @@
     <string name="pref_key_inline_youtube">inline_youtube</string>
     <string name="pref_key_inline_tweets">inline_tweets</string>
     <string name="pref_key_inline_instagram">inline_instagram</string>
+    <string name="pref_key_inline_twitch">inline_twitch</string>
     <string name="pref_key_inline_vines">inline_vines</string>
     <string name="pref_key_inline_webm">inline_webm</string>
     <string name="pref_key_autostart_webm">autostart_webm</string>
