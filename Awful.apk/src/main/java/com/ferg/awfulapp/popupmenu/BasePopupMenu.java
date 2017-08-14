@@ -95,6 +95,8 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
 
     /**
      * Called when the user selects one of your menu items.
+     *
+     * The dialog is dismissed after this method is called - don't dismiss it yourself!
      */
     abstract void onActionClicked(@NonNull T action);
 
@@ -139,7 +141,11 @@ public abstract class BasePopupMenu<T extends AwfulAction> extends DialogFragmen
             holder.actionText.setText(getMenuLabel(action));
             holder.actionText.setTextColor(ColorProvider.PRIMARY_TEXT.getColor());
             holder.actionTag.setImageResource(action.getIconId());
-            holder.itemView.setOnClickListener(v -> onActionClicked(action));
+            holder.itemView.setOnClickListener(v -> {
+                onActionClicked(action);
+                // Sometimes this happens after onSaveInstanceState is called, which throws an Exception if we don't allow state loss
+                dismissAllowingStateLoss();
+            });
         }
 
         @Override
