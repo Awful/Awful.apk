@@ -15,8 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.ferg.awfulapp.forums.Forum;
@@ -25,6 +23,7 @@ import com.ferg.awfulapp.forums.ForumRepository;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.provider.ColorProvider;
+import com.ferg.awfulapp.widget.StatusFrog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +31,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static com.ferg.awfulapp.forums.ForumStructure.FLAT;
 import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 
@@ -61,10 +58,8 @@ public class ForumsIndexFragment extends AwfulFragment
     RecyclerView forumRecyclerView;
     @BindView(R.id.view_switcher)
     ViewSwitcher forumsListSwitcher;
-    @BindView(R.id.forums_update_progress_bar)
-    ProgressBar updatingIndicator;
-    @BindView(R.id.no_forums_label)
-    TextView noForumsLabel;
+    @BindView(R.id.status_frog)
+    StatusFrog statusFrog;
 
     private ForumListAdapter forumListAdapter;
     private ForumRepository forumRepo;
@@ -190,7 +185,7 @@ public class ForumsIndexFragment extends AwfulFragment
      */
     private void refreshNoDataView() {
         // adjust the label in the 'no forums' view
-        noForumsLabel.setText(showFavourites ? R.string.no_favourites : R.string.no_forums_data);
+        statusFrog.setStatusText(showFavourites ? R.string.no_favourites : R.string.no_forums_data);
 
         // work out if we need to switch the empty view to the forum list, or vice versa
         boolean noData = forumListAdapter.getParentItemList().isEmpty();
@@ -200,7 +195,7 @@ public class ForumsIndexFragment extends AwfulFragment
             forumsListSwitcher.showNext();
         }
         // show the update spinner if an update is going on
-        updatingIndicator.setVisibility(forumRepo.isUpdating() ? VISIBLE : INVISIBLE);
+        statusFrog.showSpinner(forumRepo.isUpdating());
     }
 
 
@@ -246,7 +241,7 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public void onForumsUpdateStarted() {
-        getActivity().runOnUiThread(() -> updatingIndicator.setVisibility(VISIBLE));
+        getActivity().runOnUiThread(() -> statusFrog.showSpinner(true));
     }
 
 
@@ -257,14 +252,14 @@ public class ForumsIndexFragment extends AwfulFragment
                 Snackbar.make(forumRecyclerView, R.string.forums_updated_message, Snackbar.LENGTH_SHORT).show();
                 refreshForumList();
             }
-            updatingIndicator.setVisibility(INVISIBLE);
+            statusFrog.showSpinner(false);
         });
     }
 
 
     @Override
     public void onForumsUpdateCancelled() {
-        getActivity().runOnUiThread(() -> updatingIndicator.setVisibility(INVISIBLE));
+        getActivity().runOnUiThread(() -> statusFrog.showSpinner(false));
     }
 
 
