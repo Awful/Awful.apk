@@ -2,45 +2,37 @@ package com.ferg.awfulapp.preferences.fragments;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.SettingsActivity;
-import com.ferg.awfulapp.provider.AwfulTheme;
 
 import java.util.Map;
 
 /**
  * Created by baka kaba on 04/05/2015.
- *
+ * <p>
  * <p>Base fragment that adds preferences from a given XML resource,
  * sets defaults and enables options based on the user's device,
  * and sets preference summaries.</p>
- *
+ * <p>
  * <p>For some fragments the XML resource ID is all that's required.
  * Others may need to specify preferences etc., or override the
  * initialisation methods to perform more advanced shenanigans.</p>
- *
+ * <p>
  * <p>When adding a new fragment, please add its XML resId to
  * {@link SettingsActivity#PREFERENCE_XML_FILES} so it can be
  * automatically checked for defaults!</p>
@@ -76,17 +68,17 @@ public abstract class SettingsFragment extends PreferenceFragment {
 
     /**
      * <p>This must be set to the resource ID of a layout file containing the fragment's preferences</p>
-     *
+     * <p>
      * <p>Layout files should describe <b>a single level</b> in the preference hierarchy -
      * don't use the standard {@link android.preference.PreferenceScreen} behaviour to define
      * additional levels, as they will launch a separate activity.</p>
-     *
+     * <p>
      * <p>Instead, create a separate fragment to hold that content, and define a preference in
      * this layout which will open that fragment when clicked. Set this preference's
      * <i>android:fragment</i> value to this target fragment, and add the preference's key
      * to the SUBMENU_OPENING_KEYS array to enable its click behaviour.
      * See the {@link RootSettings} class for an example</p>
-     *
+     * <p>
      * <p>(This isn't ideal, it would be better if the click listener was added automatically wherever
      * a fragment value is set on a preference in the XML, so if anyone can handle that cleanly be my guest)</p>
      */
@@ -119,8 +111,6 @@ public abstract class SettingsFragment extends PreferenceFragment {
      */
     protected Map<Preference.OnPreferenceClickListener, int[]> prefClickListeners = new ArrayMap<>();
 
-    // TODO: 26/04/2017 Fragment titles for submenus as per https://material.io/guidelines/patterns/settings.html#settings-labels-secondary-text
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,7 +133,7 @@ public abstract class SettingsFragment extends PreferenceFragment {
         super.onActivityCreated(savedInstanceState);
         // for some reason, if you theme android:listDivider it won't show up in the preference list
         // so doing this directly seems to be the only way to theme it? Can't just get() it either
-        ListView listview = (ListView) getActivity().findViewById(android.R.id.list);
+        ListView listview = (ListView) getView().findViewById(android.R.id.list);
         Drawable divider = getResources().getDrawable(R.drawable.list_divider);
         TypedValue colour = new TypedValue();
         getActivity().getTheme().resolveAttribute(android.R.attr.listDivider, colour, true);
@@ -155,7 +145,17 @@ public abstract class SettingsFragment extends PreferenceFragment {
      * Set required defaults and selectively enable preferences.
      * Override this to perform any custom initialisation in the fragment
      */
-    protected void initialiseSettings() { }
+    protected void initialiseSettings() {
+    }
+
+
+    /**
+     * Get a title for this fragment - this should usually be the same as the label of the preference
+     * that opened it, e.g. clicking 'Images' should open a fragment whose title is 'Images'.
+     * See <a href="https://material.io/guidelines/patterns/settings.html#settings-grouping-settings">the Material Design specs</a>
+     */
+    @NonNull
+    public abstract String getTitle();
 
 
     /**
@@ -199,7 +199,8 @@ public abstract class SettingsFragment extends PreferenceFragment {
      * Override this if you want to perform any special handling
      * when a summary update call comes in.
      */
-    protected void onSetSummaries() { }
+    protected void onSetSummaries() {
+    }
 
 
     /**
@@ -254,14 +255,17 @@ public abstract class SettingsFragment extends PreferenceFragment {
     public interface OnSubmenuSelectedListener {
         /**
          * Respond to a click on a preference that opens a submenu
-         * @param container         The fragment containing the clicked preference
-         * @param submenuFragment   The name of the submenu fragment's class
+         *
+         * @param sourceFragment      The fragment containing the clicked preference
+         * @param submenuFragmentName The name of the submenu fragment's class
          */
-        void onSubmenuSelected(SettingsFragment container, String submenuFragment);
+        void onSubmenuSelected(@NonNull SettingsFragment sourceFragment, @NonNull String submenuFragmentName);
     }
 
 
-    /** Listener for clicks on options that open submenus */
+    /**
+     * Listener for clicks on options that open submenus
+     */
     private class SubmenuListener implements Preference.OnPreferenceClickListener {
 
         private final SettingsFragment mThis;

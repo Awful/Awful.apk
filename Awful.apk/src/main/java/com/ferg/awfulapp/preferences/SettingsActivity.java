@@ -4,9 +4,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -15,10 +16,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,32 +39,31 @@ import java.io.File;
 
 /**
  * Created by baka kaba on 04/05/2015.
- *
+ * <p>
  * Activity to host a new fragment-based settings system!
  * Holds a {@link RootSettings} which forms the root menu, and handles and
  * displays additional {@link SettingsFragment}s in place of PreferenceScreens (which like
  * to spawn new activities all over the screen). Please see the {@link SettingsFragment}
  * documentation for information on extending and adding to the Preference hierarchy.
- *
+ * <p>
  * In portrait mode the root menu is displayed, and submenus open on top of this, as usual. The
  * back button walks back through the hierarchy, until the root menu is shown, at which point
  * the back button will exit the Settings activity.
- *
+ * <p>
  * In dual-pane landscape mode, the fragment hierarchy is displayed on the right, and a copy of
  * the root menu is on the left. Since the root is always visible, the copy in the fragment
  * hierarchy is hidden, and the back stack will only walk back until the top level of a submenu is
  * visible.
- *
+ * <p>
  * Switching between orientations maintains this state, while ensuring you get the expected behaviour
  * (e.g. pressing back in dual-pane mode with a top-level submenu displayed will exit, but rotating
  * to portrait first will display the submenu, and pressing back will move to the root menu)
- *
  */
 public class SettingsActivity extends AwfulActivity implements AwfulPreferences.AwfulPreferenceUpdate,
         SettingsFragment.OnSubmenuSelectedListener {
 
-    private static final String ROOT_FRAGMENT_TAG      = "rootfragtag";
-    private static final String SUBMENU_FRAGMENT_TAG   = "subfragtag";
+    private static final String ROOT_FRAGMENT_TAG = "rootfragtag";
+    private static final String SUBMENU_FRAGMENT_TAG = "subfragtag";
     public static final int DIALOG_ABOUT = 1;
     public static final int SETTINGS_FILE = 2;
 
@@ -86,7 +89,9 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     };
     private Intent importData;
 
-    /** Initialise all preference defaults from the XML hierarchy */
+    /**
+     * Initialise all preference defaults from the XML hierarchy
+     */
     public static void setDefaultsFromXml(Context context) {
         for (int id : PREFERENCE_XML_FILES) {
             PreferenceManager.setDefaultValues(context, id, true);
@@ -96,7 +101,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefs = AwfulPreferences.getInstance(this,this);
+        prefs = AwfulPreferences.getInstance(this, this);
         currentThemeName = prefs.theme;
         setCurrentTheme();
         // theme needs to be set BEFORE the super call, or it'll be inconsistent
@@ -107,26 +112,33 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             isDualPane = true;
         }
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.awful_toolbar);
-        setSupportActionBar(mToolbar);
-        setActionbarTitle(getString(R.string.settings_activity_title), null);
-
         FragmentManager fm = getFragmentManager();
         // if there's no previous fragment history being restored, initialise!
+        // we need to start with the root fragment, so it's always under the backstack
         if (savedInstanceState == null) {
             fm.beginTransaction()
                     .replace(R.id.main_fragment_container, new RootSettings(), ROOT_FRAGMENT_TAG)
                     .commit();
-        }
-        // don't display the root fragment in dual pane mode (there's one in the layout)
-        if (isDualPane) {
             fm.executePendingTransactions();
-            SettingsFragment fragment = (SettingsFragment) fm.findFragmentByTag(ROOT_FRAGMENT_TAG);
-            if (fragment != null) {
+        }
+
+        // hide the root fragment in dual-pane mode (there's a copy visible in the layout),
+        // but make sure it's shown in single-pane (we might have switched from dual-pane)
+        SettingsFragment fragment = (SettingsFragment) fm.findFragmentByTag(ROOT_FRAGMENT_TAG);
+        if (fragment != null) {
+            if (isDualPane) {
                 fm.beginTransaction().hide(fragment).commit();
+            } else {
+                fm.beginTransaction().show(fragment).commit();
             }
         }
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.awful_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        updateTitleBar();
     }
+
 
     /*
      * Overridden because the activity descends from the support library,
@@ -134,29 +146,37 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
      * PreferenceFragments which need to use the standard FragmentManager
      */
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         FragmentManager fm = getFragmentManager();
-        int backStackEntryCount = fm.getBackStackEntryCount();
-        // don't pop to the root fragment at the base of the fragment hierarchy in dual-pane mode
-        if (isDualPane && backStackEntryCount > 1) {
-            fm.popBackStack();
-        } else if (!isDualPane && backStackEntryCount > 0) {
-            fm.popBackStack();
+        int backStackCount = fm.getBackStackEntryCount();
+        // don't pop off the first entry in dual-pane mode, it will leave the second pane blank - just exit
+        if (backStackCount == 0 || isDualPane && backStackCount == 1) {
+            finish();
         } else {
-            super.onBackPressed();
+            fm.popBackStackImmediate();
+            updateTitleBar();
         }
     }
 
 
     @Override
-    public void onSubmenuSelected(SettingsFragment container, String submenuFragment) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onSubmenuSelected(@NonNull SettingsFragment sourceFragment, @NonNull String submenuFragmentName) {
         try {
-            SettingsFragment fragment = (SettingsFragment)(Class.forName(submenuFragment).newInstance());
-            boolean fromRootMenu = container != null && container instanceof RootSettings;
+            SettingsFragment fragment = (SettingsFragment) (Class.forName(submenuFragmentName).newInstance());
+            boolean fromRootMenu = sourceFragment instanceof RootSettings;
             displayFragment(fragment, fromRootMenu);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            Log.e(TAG, "Unable to create fragment (" + submenuFragment + ")\n", e);
+            Log.e(TAG, "Unable to create fragment (" + submenuFragmentName + ")\n", e);
         }
     }
 
@@ -184,30 +204,62 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
         // if we're opening a submenu and there's already one open, wipe it from the back stack
         FragmentManager fm = getFragmentManager();
-        if (addedFromRoot && fm.findFragmentByTag(SUBMENU_FRAGMENT_TAG) != null) {
-            // when a root submenu is clicked, clear the side pane state first
-            int fragsAddedToStack = fm.getBackStackEntryCount();
-            for (int i = 0; i < fragsAddedToStack; i++) {
-                fm.popBackStack();
-            }
+        if (addedFromRoot) {
+            // when a root submenu is clicked, we need a new submenu backstack
+            clearBackStack(fm);
         }
-        fm.beginTransaction().replace(R.id.main_fragment_container, fragment, SUBMENU_FRAGMENT_TAG)
+        fm.beginTransaction()
+                .replace(R.id.main_fragment_container, fragment, SUBMENU_FRAGMENT_TAG)
                 .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
+        updateTitleBar();
+    }
+
+
+    private void clearBackStack(FragmentManager fm) {
+        int fragsAddedToStack = fm.getBackStackEntryCount();
+        for (int i = 0; i < fragsAddedToStack; i++) {
+            fm.popBackStackImmediate();
+        }
+    }
+
+
+    /**
+     * Update the action bar's title according to what's being displayed.
+     * <p>
+     * Call this whenever the layout or fragment stack changes.
+     */
+    private void updateTitleBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        FragmentManager fm = getFragmentManager();
+        // make sure fragment transactions are finished before we poke around in there
+        fm.executePendingTransactions();
+        // if there's a submenu fragment present, get the title from that
+        // need to check #isAdded because popping the last submenu fragment off the backstack doesn't immediately remove it from the manager,
+        // i.e. the find call won't return null (but it will later - this was fun to troubleshoot)
+        Fragment fragment = fm.findFragmentByTag(SUBMENU_FRAGMENT_TAG);
+        if (fragment == null || !fragment.isAdded()) {
+            fragment = fm.findFragmentByTag(ROOT_FRAGMENT_TAG);
+        }
+        actionBar.setTitle(((SettingsFragment) fragment).getTitle());
     }
 
 
     @Override
     public void onPreferenceChange(AwfulPreferences preferences, String key) {
         // update the summaries on any loaded fragments
-        for (String tag : new String[] {ROOT_FRAGMENT_TAG, SUBMENU_FRAGMENT_TAG}) {
+        for (String tag : new String[]{ROOT_FRAGMENT_TAG, SUBMENU_FRAGMENT_TAG}) {
             SettingsFragment fragment = (SettingsFragment) getFragmentManager().findFragmentByTag(tag);
             if (fragment != null) {
                 fragment.setSummaries();
             }
         }
 
-        if(!mPrefs.theme.equals(this.currentThemeName)) {
+        if (!mPrefs.theme.equals(this.currentThemeName)) {
             this.currentThemeName = mPrefs.theme;
             setCurrentTheme();
             recreate();
@@ -225,21 +277,22 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SETTINGS_FILE) {
-                if(AwfulUtils.isMarshmallow()){
+                if (AwfulUtils.isMarshmallow()) {
                     int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
                     if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                         this.importData = data;
                         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.AWFUL_PERMISSION_READ_EXTERNAL_STORAGE);
-                    }else{
+                    } else {
                         importFile(data);
                     }
-                }else {
+                } else {
                     importFile(data);
                 }
             }
         }
     }
-    protected void importFile(Intent data){
+
+    protected void importFile(Intent data) {
         Toast.makeText(this, "importing settings", Toast.LENGTH_SHORT).show();
         Uri selectedSetting = data.getData();
         String path = getFilePath(selectedSetting);
@@ -254,12 +307,12 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
     public String getFilePath(Uri uri) {
         Cursor cursor = null;
         try {
-            String[] projection = { MediaStore.Images.Media.DATA };
+            String[] projection = {MediaStore.Images.Media.DATA};
             cursor = this.getContentResolver().query(uri, projection, null, null, null);
             int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
             return cursor.getString(column_index);
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             Toast.makeText(this, "Your file explorer sent incompatible data, please try a different way", Toast.LENGTH_LONG).show();
             e.printStackTrace();
             return null;
@@ -273,7 +326,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
 
     @Override
     protected Dialog onCreateDialog(int dialogId) {
-        switch(dialogId) {
+        switch (dialogId) {
             case DIALOG_ABOUT:
                 CharSequence app_version = getText(R.string.app_name);
                 try {
@@ -293,11 +346,8 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
                 return new AlertDialog.Builder(this)
                         .setTitle(app_version)
                         .setMessage(aboutText)
-                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }})
+                        .setNeutralButton(android.R.string.ok, (dialog, which) -> {
+                        })
                         .create();
             default:
                 return super.onCreateDialog(dialogId);
