@@ -23,6 +23,7 @@
     <string name="select_message">Open a message or create a new one</string>
     <string name="forums_updated_message">Forums updated</string>
 
+    <!-- Announcements -->
     <plurals name="numberOfNewAnnouncements">
         <item quantity="one">%d new announcement</item>
         <item quantity="other">%d new announcements</item>
@@ -32,6 +33,10 @@
         <item quantity="one">%d unread announcement</item>
         <item quantity="other">%d unread announcements</item>
     </plurals>
+
+    <string name="announcements_status_fetching">Getting announcements…</string>
+    <string name="announcements_status_none">No current announcements</string>
+    <string name="announcements_status_failed">Couldn\'t get announcements!</string>
 
 
     <!-- Sidebar-->

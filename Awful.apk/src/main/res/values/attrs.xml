@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StatusFrog">
+        <attr name="status_message" format="string"/>
+        <attr name="show_spinner" format="boolean"/>
+    </declare-styleable>
+</resources>
