@@ -12,6 +12,12 @@
         android:title="@string/inline_tweets"
         />
 
+    <com.ferg.awfulapp.preferences.CustomSwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_inline_instagram"
+        android:title="@string/inline_instagram"
+        />
+
     <PreferenceCategory
         android:title="@string/post_embedding_divider_videos">
 
