@@ -1,6 +1,7 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
@@ -35,6 +36,13 @@ public class ForumIndexSettings extends SettingsFragment
 
     private final ForumRepository forumRepo = ForumRepository.getInstance(null);
     private volatile boolean updateRunning = false;
+
+
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.forum_index_settings);
+    }
 
 
     @Override

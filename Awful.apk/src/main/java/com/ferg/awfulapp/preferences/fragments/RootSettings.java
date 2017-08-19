@@ -55,6 +55,11 @@ public class RootSettings extends SettingsFragment {
         });
     }
 
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.settings_activity_title);
+    }
 
     /** Listener for the 'About...' option */
     private class AboutListener implements Preference.OnPreferenceClickListener {

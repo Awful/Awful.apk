@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Button;
@@ -38,6 +39,13 @@ public class PostSettings extends SettingsFragment {
         prefClickListeners.put(new PostsPerPageListener(), new int[] {
                 R.string.pref_key_post_per_page
         });
+    }
+
+
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.prefs_post_display);
     }
 
     @SuppressWarnings("ConstantConditions")
