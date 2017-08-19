@@ -1,7 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reply_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,8 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/background"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
         <FrameLayout
             android:id="@+id/fragment_pane"
@@ -35,15 +34,15 @@
             android:layout_weight="1"/>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            android:orientation="horizontal">
 
             <ImageView
                 style="@style/VerticalGradientRight"/>
 
-            <RelativeLayout
+            <FrameLayout
                 android:id="@+id/fragment_pane_two"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -51,22 +50,15 @@
                 android:layout_marginRight="@dimen/material_screen_edge_margin"
                 >
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_centerInParent="true"
-                    app:srcCompat="@drawable/frog_silhouette"
-                    android:tint="?android:listDivider"
-                    tools:ignore="ContentDescription"/>
-
-                <TextView
+                <com.ferg.awfulapp.widget.StatusFrog
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="@string/select_message"
-                    android:textSize="16dip"
-                    android:textStyle="bold"/>
-            </RelativeLayout>
+                    android:layout_gravity="center"
+                    app:show_spinner="false"
+                    app:status_message="@string/select_message"
+                    />
+
+            </FrameLayout>
 
         </LinearLayout>
     </LinearLayout>

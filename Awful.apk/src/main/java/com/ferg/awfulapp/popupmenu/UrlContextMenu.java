@@ -149,7 +149,6 @@ public class UrlContextMenu extends BasePopupMenu<UrlContextMenu.UrlMenuAction> 
                 parent.displayImage(url);
                 break;
         }
-        this.dismiss();
     }
 
 

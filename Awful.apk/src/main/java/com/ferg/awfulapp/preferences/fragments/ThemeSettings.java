@@ -47,6 +47,13 @@ public class ThemeSettings extends SettingsFragment {
 
     private static final String TAG = "ThemeSettings";
 
+
+    @NonNull
+    @Override
+    public String getTitle() {
+        return getString(R.string.theme_settings);
+    }
+
     @Override
     protected void initialiseSettings() {
         super.initialiseSettings();
