@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
+import android.view.View
 import com.ferg.awfulapp.BasicActivity.Companion.intentFor
 
 /**
@@ -42,7 +43,7 @@ class BasicActivity: AwfulActivity() {
                 .add(R.id.content_frame, fragment, fragmentName)
                 .commit()
 
-        setSupportActionBar(findViewById(R.id.toolbar) as Toolbar)
+        setSupportActionBar(findViewById<View>(R.id.toolbar) as Toolbar)
         setActionBar()
         setActionbarTitle(intent.extras.getString(TITLE, "No title"), null)
     }
