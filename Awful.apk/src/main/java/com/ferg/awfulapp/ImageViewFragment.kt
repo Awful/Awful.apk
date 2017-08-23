@@ -52,7 +52,7 @@ class ImageViewFragment : AwfulFragment() {
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        val mImageView = activity.findViewById(R.id.iv_photo) as ImageView
+        val mImageView = activity.findViewById<View>(R.id.iv_photo) as ImageView
 
         activity.intent.getStringExtra(EXTRA_IMAGE_URL)?.let {
             imageUrl = it
