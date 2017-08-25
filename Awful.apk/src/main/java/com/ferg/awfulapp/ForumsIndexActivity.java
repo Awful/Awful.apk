@@ -371,14 +371,14 @@ public class ForumsIndexActivity extends AwfulActivity
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            avatar.setImageResource(R.mipmap.ic_launcher);
+                            avatar.setImageResource(R.drawable.frog_icon);
                         }
                     });
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(true);
                     }
                 } else {
-                    avatar.setImageResource(R.mipmap.ic_launcher);
+                    avatar.setImageResource(R.drawable.frog_icon);
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(false);
                     }
