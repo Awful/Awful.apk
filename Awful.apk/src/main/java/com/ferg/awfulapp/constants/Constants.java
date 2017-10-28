@@ -173,8 +173,6 @@ public class Constants {
 
 	public static final String EXTRA_BUNDLE = "extras";
 
-    public static final String ZOOM_URL = "url";
-
     public static final String SUBMIT_REPLY = "Submit Reply";
     public static final String PREVIEW_REPLY = "Preview Reply";
 

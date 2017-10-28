@@ -67,7 +67,7 @@ public class ThemeSettings extends SettingsFragment {
                     new AlertDialog.Builder(activity)
                             .setMessage(R.string.permission_rationale_external_storage)
                             .setTitle("Permission request")
-                            .setIcon(R.mipmap.ic_launcher)
+                            .setIcon(R.drawable.frog_icon)
                             .setPositiveButton("Got it", (dialogInterface, i) -> {})
                             .setOnDismissListener(dialogInterface -> requestStoragePermissions())
                             .show();

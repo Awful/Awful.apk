@@ -311,7 +311,8 @@ public class ForumsIndexActivity extends AwfulActivity
                         startActivity(new Intent().setClass(context, SettingsActivity.class));
                         break;
                     case R.id.sidebar_search:
-                        startActivity(new Intent().setClass(context, SearchActivity.class));
+                        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, context, "");
+                        startActivity(intent);
                         break;
                     case R.id.sidebar_pm:
                         startActivity(new Intent().setClass(context, PrivateMessageActivity.class));
@@ -370,14 +371,14 @@ public class ForumsIndexActivity extends AwfulActivity
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            avatar.setImageResource(R.mipmap.ic_launcher);
+                            avatar.setImageResource(R.drawable.frog_icon);
                         }
                     });
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(true);
                     }
                 } else {
-                    avatar.setImageResource(R.mipmap.ic_launcher);
+                    avatar.setImageResource(R.drawable.frog_icon);
                     if (AwfulUtils.isLollipop()) {
                         avatar.setClipToOutline(false);
                     }
