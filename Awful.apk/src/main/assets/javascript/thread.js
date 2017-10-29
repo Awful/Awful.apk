@@ -121,6 +121,8 @@ function pageInit() {
         });
      }
 
+    processThreadEmbeds();
+
     $('.postcontent').find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function(){
         var videoID = $(this).attr('value').match(/clip_id=(\d+)/)
         if (videoID === null) return
