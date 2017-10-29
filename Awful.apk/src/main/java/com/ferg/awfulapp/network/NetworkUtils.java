@@ -99,6 +99,8 @@ public class NetworkUtils {
      * @param context   A context used to create a cache dir
      */
     public static void init(Context context) {
+        // update the security provider first, to ensure we fix SSL errors before setting anything else up
+        SecurityProvider.INSTANCE.update(context);
         mNetworkQueue = Volley.newRequestQueue(context);
         // TODO: find out if this is even being used anywhere
         mImageCache = new LRUImageCache();

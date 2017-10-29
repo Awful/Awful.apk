@@ -91,6 +91,9 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
+    // used to fix SSL issues on older devices - old version so it works on the API 18 emulator THANKS GOOGLE
+    compile 'com.google.android.gms:play-services-auth:9.2.1'
+
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.8.0'

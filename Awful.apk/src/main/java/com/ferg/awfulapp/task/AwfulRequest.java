@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -154,6 +155,11 @@ public abstract class AwfulRequest<T> {
         new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                // TODO: 29/10/2017 this is a temporary warning/advice for people on older devices who can't connect - remove it once there's something better for recommending security updates
+                if (error.getMessage().contains("SSLProtocolException")) {
+                    String message = "CAN'T CONNECT\nYour device is trying to use an outdated secure connection!\nUpdate \"Google Play Services\" in the Play Store, and try restarting the app";
+                    Toast.makeText(cont, message, Toast.LENGTH_LONG).show();
+                }
                 if(resultListener != null){
                     resultListener.failure(error);
                 }
