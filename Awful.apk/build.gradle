@@ -91,13 +91,16 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
+
+    // used to fix SSL issues on older devices - old version so it works on the API 18 emulator THANKS GOOGLE
+    compile 'com.google.android.gms:play-services-auth:9.2.1'
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'org.jsoup:jsoup:1.10.3'
     compile 'com.jakewharton.threetenabp:threetenabp:1.0.4'
     compile 'com.samskivert:jmustache:1.13'
-    
+
     compile group: 'cz.msebera.android' , name: 'httpclient', version: '4.4.1.1'
     compile ('org.apache.httpcomponents:httpmime:4.3.1') {
         exclude module: "httpclient"
