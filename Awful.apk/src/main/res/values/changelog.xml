@@ -2,8 +2,12 @@
 <resources>
     <string-array name="changelog">
         <item>
-            3.3.2:\n
-            - Fix for HTTPS connection failures on older devices. If you still get SSL errors, try updating Google Play Services in the Play Store and restart the app!
+            3.4.0:\n
+            - Fix for HTTPS connection failures on older devices. If you still get SSL errors, try updating Google Play Services in the Play Store and restart the app!\n\n
+            - Oreo support including adaptive icons that jiggle around or something\n\n
+            - Imgur uploading - limited uploads per day for now\n\n
+            - Instagram embedding, and -very- experimental Twitch embeds\n\n
+            - Settings gets some visual tweaks and fixes\n\n
         </item>
         <item>
             3.3.1:\n
