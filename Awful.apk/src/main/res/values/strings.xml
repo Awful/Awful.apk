@@ -198,6 +198,7 @@
     <string name="insert_video_url_field_hint">Video URL</string>
 
     <!-- other shit -->
+    <string name="ssl_connection_error_message">CAN\'T CONNECT Your device is trying to use an outdated secure connection! Update \"Google Play Services\" in the Play Store, and try restarting the app</string>
     <string name="alert_message_1">GIF Animations are now disabled by default. This significantly improves battery life on
     most devices. \n
     \n

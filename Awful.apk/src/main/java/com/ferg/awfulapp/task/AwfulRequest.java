@@ -20,11 +20,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.AwfulError;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -156,9 +158,8 @@ public abstract class AwfulRequest<T> {
             @Override
             public void onErrorResponse(VolleyError error) {
                 // TODO: 29/10/2017 this is a temporary warning/advice for people on older devices who can't connect - remove it once there's something better for recommending security updates
-                if (error.getMessage().contains("SSLProtocolException")) {
-                    String message = "CAN'T CONNECT\nYour device is trying to use an outdated secure connection!\nUpdate \"Google Play Services\" in the Play Store, and try restarting the app";
-                    Toast.makeText(cont, message, Toast.LENGTH_LONG).show();
+                if (error != null && StringUtils.contains(error.getMessage(), "SSLProtocolException")) {
+                    Toast.makeText(cont, R.string.ssl_connection_error_message, Toast.LENGTH_LONG).show();
                 }
                 if(resultListener != null){
                     resultListener.failure(error);
