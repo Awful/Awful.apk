@@ -2,8 +2,9 @@
 <resources>
     <string-array name="changelog">
         <item>
-            3.3.2:\n
-            - Fix for HTTPS connection failures on older devices. If you still get SSL errors, try updating Google Play Services in the Play Store and restart the app!
+            3.3.3:\n
+            - Fix for HTTPS connection failures on older devices. If you still get SSL errors, try updating Google Play Services in the Play Store and restart the app!\n\n
+            - other bug fixes
         </item>
         <item>
             3.3.1:\n
