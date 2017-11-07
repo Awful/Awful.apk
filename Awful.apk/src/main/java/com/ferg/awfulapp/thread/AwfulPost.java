@@ -319,7 +319,7 @@ public class AwfulPost {
                         youtubeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
                         Element youtubeLink = new Element(Tag.valueOf("a"), "");
                         youtubeLink.attr("href", link);
-                        youtubeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
+                        youtubeLink.attr("style", "position: absolute; background:url('file:///android_asset/images/ic_menu_play.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
                         Element img = new Element(Tag.valueOf("img"), "");
                         img.attr("class", "nolink videoPlayButton");
                         img.attr("src", image);
@@ -401,7 +401,7 @@ public class AwfulPost {
                         nodeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
                         Element nodeLink = new Element(Tag.valueOf("a"), "");
                         nodeLink.attr("href", link);
-                        nodeLink.attr("style", "position: absolute; background:url('file:///android_res/drawable/ic_menu_video.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
+                        nodeLink.attr("style", "position: absolute; background:url('file:///android_asset/images/ic_menu_play.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
                         Element img = new Element(Tag.valueOf("img"), "");
                         img.attr("class", "nolink videoPlayButton");
                         img.attr("src", image);
@@ -697,7 +697,7 @@ public class AwfulPost {
                 thumbUrl = thumbUrl.replace("giant.gfycat.com", "thumbs.gfycat.com");
                 thumbUrl = thumbUrl.replace(".gif", "-poster.jpg");
             } else {
-                thumbUrl = "file:///android_res/drawable/gif.png";
+                thumbUrl = "file:///android_asset/images/gif.png";
                 img.attr("width", "200px");
             }
 
