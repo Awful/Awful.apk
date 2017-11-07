@@ -84,6 +84,29 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+
+    task copyThreadTags(type: Copy) {
+        // Run this Gradle task to import Awful thread tags into the app, renaming as necessary -
+        // this is meant to be a quick way to update when tags are added to the repo
+        // Call it by passing the path to the folder containing the tag files (other files and
+        // subfolders are ignored)
+        String pathParam = 'tagFolderPath'
+        if (!project.hasProperty(pathParam)) {
+            println 'ERROR - You need to supply a path for the source folder!'
+            println "        Call this task with the parameter -P$pathParam=\"full_path\""
+            return
+        }
+        File srcPath = file (project.property(pathParam))
+        if (!srcPath.directory) {
+            println "ERROR - $srcPath is not a valid directory!"
+            return
+        }
+        println "Copying tag files from $srcPath"
+        from(srcPath) { include '**/*.png' }
+        into "$projectDir/src/main/res/drawable-ldpi"
+        rename { fileName -> fileName.replace("-", "_") }
+        rename ~/(.).(.)stars(.*)/, 'rating_$1_$2stars$3'
+    }
 }
 
 dependencies {
