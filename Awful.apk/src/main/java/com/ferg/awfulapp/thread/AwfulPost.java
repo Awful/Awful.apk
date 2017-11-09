@@ -39,7 +39,6 @@ import android.util.Log;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.util.AwfulUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +54,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -467,6 +471,10 @@ public class AwfulPost {
 	}
 
 
+
+    // TODO: 01/12/2017 maybe a general parsing pool somewhere would be better, so everything can submit jobs it instead of creating their own
+    private static ExecutorService postParseExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     /**
      * Parse a thread page to grab its post data.
      *
@@ -487,137 +495,47 @@ public class AwfulPost {
         return resultCount;
     }
 
+
     public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
     	ArrayList<ContentValues> result = new ArrayList<>();
-    	boolean foundUnreadPost = false;
 		int index = startIndex;
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        String updateTime = new Timestamp(System.currentTimeMillis()).toString();
 
         Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
+        List<Callable<ContentValues>> parseTasks = new ArrayList<>(posts.size());
         for(Element postData : posts){
             // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }
-
-            ContentValues post = new ContentValues();
-            //timestamp for DB trimming after a week
-            post.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
-        	post.put(THREAD_ID, aThreadId);
-
-        	if(!preview) {
-                //post id is formatted "post1234567", so we strip out the "post" prefix.
-                post.put(ID, Integer.parseInt(postData.id().replaceAll("\\D", "")));
-                //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
-                //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-                try {
-                    post.put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replaceAll("\\D", "")));
-                } catch (NumberFormatException nfe) {
-                    post.put(POST_INDEX, index);
-                }
-            }
-
-            // Check for "class=seenX", or just rely on unread index
-            boolean markedSeen = false;
-            for (String aClass : postData.classNames()) {
-                if (aClass.toLowerCase().startsWith("seen")) {
-                    markedSeen = true;
-                    break;
-                }
-            }
-            if(!markedSeen && index > unreadIndex){
-            	post.put(PREVIOUSLY_READ, 0);
-            	foundUnreadPost = true;
-            }else{
-            	post.put(PREVIOUSLY_READ, 1);
-            }
+            parseTasks.add(new PostParseTaskKt(postData, updateTime, index, unreadIndex, aThreadId, opId, preview, prefs));
             index++;
-
-            //set these to 0 now, update them if needed, probably should have used a default value in the SQL table
-			post.put(IS_MOD, 0);
-            post.put(IS_ADMIN, 0);
-            post.put(IS_PLAT, 0);
-
-            //rather than repeatedly query for specific classes, we are just going to grab them all and run through them all
-            Elements postClasses = postData.getElementsByAttribute("class");
-            for(Element entry: postClasses){
-            	String type = entry.attr("class");
-
-                if (type.contains("author")) {
-                    post.put(USERNAME, entry.text());
-                }
-            	if (type.contains("registered")) {
-					post.put(REGDATE, entry.text());
-				}
-                if (type.contains("platinum")) {
-                    post.put(IS_PLAT, 1);
-                }
-				if (type.contains("role-mod")) {
-					post.put(IS_MOD, 1);
-				}
-				if (type.contains("role-admin")) {
-                    post.put(IS_ADMIN, 1);
-				}
-
-				if (type.equalsIgnoreCase("title") && entry.children().size() > 0) {
-					Elements avatar = entry.getElementsByTag("img");
-					if (avatar.size() > 0) {
-                        tryConvertToHttps(avatar.get(0));
-						post.put(AVATAR, avatar.get(0).attr("src"));
-					}
-					post.put(AVATAR_TEXT, entry.text());
-				}
-
-                if(type.equalsIgnoreCase("inner postbody")){
-                    entry.removeClass("inner");
-                    type = entry.attr("class");
-                }
-
-				if (type.equalsIgnoreCase("postbody") && !(entry.getElementsByClass("complete_shit").size() > 0) || type.contains("complete_shit")) {
-                    convertVideos(entry, prefs.inlineYoutube);
-                    for(Element img : entry.getElementsByTag("img")) {
-                        processPostImage(img, !foundUnreadPost, prefs);
-                    }
-                    for (Element link : entry.getElementsByTag("a")) {
-                        tryConvertToHttps(link);
-                    }
-                    post.put(CONTENT, entry.html());
-                }
-
-                if (type.equalsIgnoreCase("postdate")) {
-					post.put(DATE, NetworkUtils.unencodeHtml(entry.text()).replaceAll("[^\\w\\s:,]", "").trim());
-				}
-
-				if (type.startsWith("userinfo userid-")) {
-                    int userId = Integer.parseInt(type.substring(16));
-                    post.put(USER_ID, userId);
-                    post.put(IS_OP, (opId == userId ? 1 : 0));
-                }
-                if (type.equalsIgnoreCase("editedby") && entry.children().size() > 0) {
-					post.put(EDITED, "<i>" + entry.children().get(0).text() + "</i>");
-                }
-                if (type.equalsIgnoreCase("profilelinks") && !post.containsKey(USER_ID)) {
-                    Elements userlink = entry.getElementsByAttributeValueContaining("href", "userid=");
-
-                    if (userlink.size() > 0) {
-                        Matcher userid = userid_regex.matcher(userlink.get(0).attr("href"));
-                        if(userid.find()){
-                            int uid = Integer.parseInt(userid.group(1));
-                            post.put(USER_ID, uid);
-                            post.put(IS_OP, (opId == uid ? 1 : 0));
-                        }else{
-                            Log.e(TAG, "Failed to parse UID!");
-                        }
-                    }else{
-                        Log.e(TAG, "Failed to parse UID!");
-                    }
-                }
-
-            }
-            post.put(EDITABLE, postData.getElementsByAttributeValue("alt", "Edit").size());
-            result.add(post);
         }
-        Log.i(TAG, Integer.toString(posts.size()) + " posts found, " + result.size() + " posts parsed.");
+
+        long startTime = System.currentTimeMillis();
+        // parse posts using multithreading if possible - some of the Jsoup calls (#html in particular) are very slow
+        // (#html should be a lot faster when jsoup updates to handle Windows-1252 encoding user their fast path for Entities#canEncode)
+        try {
+            List<Future<ContentValues>> parsedPosts = postParseExecutor.invokeAll(parseTasks);
+            for (Future<ContentValues> parsed : parsedPosts) {
+                result.add(parsed.get());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            Log.w(TAG, "parsePosts: parallel parse failed - attempting on main thread", e);
+            // parallel parsing failed somehow - just do it on the main thread
+            try {
+                result.clear();
+                for (Callable<ContentValues> parseTask : parseTasks) {
+                    result.add(parseTask.call());
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+                Log.w(TAG, "parsePosts: single-thread parse failed", e2);
+                return new ArrayList<>();
+            }
+        }
+        float averageParseTime = (System.currentTimeMillis() - startTime) / (float) parseTasks.size();
+        Log.i(TAG, String.format("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime));
     	return result;
     }
 

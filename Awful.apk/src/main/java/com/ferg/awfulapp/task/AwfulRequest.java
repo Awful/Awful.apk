@@ -275,6 +275,7 @@ public abstract class AwfulRequest<T> {
         @Override
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try{
+                long startTime = System.currentTimeMillis();
                 if(Constants.DEBUG) Log.i(TAG, "Starting parse: " + getUrl());
                 updateProgress(25);
                 Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
@@ -289,7 +290,10 @@ public abstract class AwfulRequest<T> {
                 try{
                     T result = handleResponse(doc);
                     updateProgress(100);
-                    if(Constants.DEBUG) Log.i(TAG, "Successful parse: " + getUrl());
+                    if(Constants.DEBUG) {
+                        long parseTime = System.currentTimeMillis() - startTime;
+                        Log.i(TAG, String.format("Successful parse: %s\nTook %dms", getUrl(), parseTime));
+                    }
                     return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
                 }catch(AwfulError ae){
                     updateProgress(100);
@@ -303,7 +307,7 @@ public abstract class AwfulRequest<T> {
                 throw e;
             }catch(Exception e){
                 updateProgress(100);
-                if(Constants.DEBUG) Log.i(TAG, "Failed parse: " + getUrl());
+                if(Constants.DEBUG) Log.w(TAG, "Failed parse: " + getUrl(), e);
                 return Response.error(new ParseError(e));
             }
         }

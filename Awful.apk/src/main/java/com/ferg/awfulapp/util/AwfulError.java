@@ -19,9 +19,7 @@ import org.jsoup.nodes.Element;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -143,25 +141,9 @@ public class AwfulError extends VolleyError {
         // not logged in
         if (null != page.getElementById("notregistered")) {
             Log.e(TAG, "!!!Page says not registered - You are now LOGGED OUT");
-            Log.w(TAG, "NetworkUtils Cookie Headers dump:");
-            Map<String, String> headerMap = new HashMap<>();
-            NetworkUtils.setCookieHeaders(headerMap);
-            for (Map.Entry header : headerMap.entrySet()) {
-                Log.w(TAG, "Header key: " + header.getKey() + " value: " + header.getValue());
-            }
-
-            Log.w(TAG, "HttpClient CookieStore dump:");
-            NetworkUtils.logCookies();
-
-            // TODO fix the actual problem, probably repeated network requests in a short space of time
-            if (!NetworkUtils.dodgeLogoutBullet()) {
                 NetworkUtils.clearLoginCookies(prefs.getContext());
                 prefs.getContext().startActivity(new Intent().setClass(prefs.getContext(), AwfulLoginActivity.class));
-                Log.e(TAG, "ERROR_LOGGED_OUT");
-            }
             return new AwfulError(ERROR_LOGGED_OUT);
-        } else {
-            NetworkUtils.resetDodges();
         }
 
         // closed forums
@@ -172,8 +154,8 @@ public class AwfulError extends VolleyError {
         }
 
         // Some generic error - shows up for (at least) post rate limiting and whatever #PostRequest was seeing in responses
-        if (page.getElementsByTag("body").hasClass("standarderror")) {
-            Element standard = page.getElementsByClass("standard").first();
+        if (page.selectFirst("body").hasClass("standarderror")) {
+            Element standard = page.selectFirst(".standard");
             if (standard != null && standard.hasText()) {
                 return new AwfulError(AwfulError.ERROR_ACCESS_DENIED, standard.text().replace("Special Message From Senor Lowtax", ""));
             }
