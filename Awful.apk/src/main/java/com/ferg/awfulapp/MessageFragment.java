@@ -13,6 +13,7 @@ import android.os.Messenger;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -152,7 +153,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 				closeMessage();
 				return true;
             case R.id.send_pm:
-                sendPM();
+                showSubmitDialog();
                 return true;
             case R.id.new_pm:
             	newMessage();
@@ -198,10 +199,29 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             }
         }));
 	}
+
+
+    /**
+     * Display a dialog allowing the user to send their message
+     */
+    private void showSubmitDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Send message?")
+                .setPositiveButton(R.string.submit,
+                        (dialog, button) -> {
+                            if (mDialog == null && getActivity() != null) {
+                                mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true, true);
+                            }
+                            saveReply();
+                            sendPM();
+                        })
+                .setNegativeButton(R.string.cancel, (dialog, button) -> {
+                })
+                .show();
+    }
+
 	
 	public void sendPM() {
-		mDialog = ProgressDialog.show(getActivity(), "Sending", "Hopefully it didn't suck...", true);
-		saveReply();
         queueRequest(new SendPrivateMessageRequest(getActivity(), pmId).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
