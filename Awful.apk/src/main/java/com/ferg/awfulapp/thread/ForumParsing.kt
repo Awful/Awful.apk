@@ -28,6 +28,7 @@ private val parseTaskExecutor: ExecutorService by lazy { Executors.newFixedThrea
 
 @Throws(Exception::class)
 fun <T> parseSingleThreaded(parseTasks: Collection<Callable<T>>) = parseTasks.map(Callable<T>::call)
+
 @Throws(InterruptedException::class, ExecutionException::class)
 fun <T> parseMultiThreaded(parseTasks: Collection<Callable<T>>) = parseTaskExecutor.invokeAll(parseTasks).map(Future<T>::get)
 
@@ -52,8 +53,6 @@ fun <T> parse(parseTasks: Collection<Callable<T>>): List<T> {
         emptyList()
     }
 }
-
-
 
 
 private val USER_ID_REGEX = Pattern.compile("userid=(\\d+)")
@@ -92,14 +91,10 @@ class PostParseTaskKt constructor(
 
             if (!preview) {
                 //post id is formatted "post1234567", so we strip out the "post" prefix.
-                put(ID, Integer.parseInt(postData.id().replace(POST_ID_GARBAGE, "")))
+                put(ID, postData.id().replace(POST_ID_GARBAGE, "").toInt())
                 //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
                 //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
-                try {
-                    put(POST_INDEX, Integer.parseInt(postData.attr("data-idx").replace(POST_ID_GARBAGE, "")))
-                } catch (nfe: NumberFormatException) {
-                    put(POST_INDEX, index)
-                }
+                put(POST_INDEX, postData.attr("data-idx").replace(POST_ID_GARBAGE, "").toIntOrNull() ?: index)
             }
 
             // Check for "class=seenX", or just rely on unread index
@@ -140,19 +135,19 @@ class PostParseTaskKt constructor(
 
             // parse user ID - fall back to the profile link if necessary
             var userId = postData.getElementsByClass("userinfo")
-                    .flatMap { it.classNames() }
+                    .flatMap(Element::classNames)
                     .map { it.substringAfter("userid-", "") }
-                    .firstOrNull { it.isNotEmpty() }
+                    .firstOrNull(String::isNotEmpty)
                     ?.toInt()
 
             if (userId == null) {
-                postData.selectFirst(".profilelinks [href*='userid=']")
-                        ?.let {
-                            val matcher = USER_ID_REGEX.matcher(it.attr("href"))
-                            if (matcher.find()) {
-                                userId = Integer.parseInt(matcher.group(1))
-                            }
+                postData.selectFirst(".profilelinks [href*='userid=']")?.let {
+                    with(USER_ID_REGEX.matcher(it.attr("href"))) {
+                        if (find()) {
+                            userId = group(1).toInt()
                         }
+                    }
+                }
             }
 
             if (userId != null) {
@@ -197,9 +192,9 @@ class ForumParseTask(
         // start building thread data
         val awfulThread = AwfulThread()
         with(awfulThread) {
-            id = parseInt(threadElement.id().replace("\\D".toRegex(), ""))
+            id = threadElement.id().replace("\\D".toRegex(), "").toInt()
             index = startIndex
-            forumId = forumId
+            forumId = this@ForumParseTask.forumId
 
             threadElement.selectFirst(".thread_title")?.let { title = it.text() }
             threadElement.selectFirst(".author")?.let {
@@ -207,7 +202,7 @@ class ForumParseTask(
                 it.selectFirst("a[href*='userid']")
                         ?.attr("href")
                         ?.let { Uri.parse(it).getQueryParameter("userid") }
-                        ?.let { authorId = parseInt(it) }
+                        ?.let { authorId = it.toInt() }
             }
             canOpenClose = author == username
 
@@ -221,22 +216,21 @@ class ForumParseTask(
                     ?: AwfulRatings.NO_RATING
 
             // main thread tag
-            threadElement.selectFirst(".icon img")
-                    ?.let {
-                        with(THREAD_URL_ID_REGEX.matcher(it.attr("src"))) {
+            threadElement.selectFirst(".icon img")?.let {
+                with(THREAD_URL_ID_REGEX.matcher(it.attr("src"))) {
+                    if (find()) {
+                        tagUrl = group(1)
+                        category = group(2).toInt()
+                        with(AwfulEmote.fileName_regex.matcher(tagUrl)) {
                             if (find()) {
-                                tagUrl = group(1)
-                                category = parseInt(group(2))
-                                with(AwfulEmote.fileName_regex.matcher(tagUrl)) {
-                                    if (find()) {
-                                        tagCacheFile = group(1)
-                                    }
-                                }
-                            } else {
-                                category = 0
+                                tagCacheFile = group(1)
                             }
                         }
+                    } else {
+                        category = 0
                     }
+                }
+            }
 
             // secondary thread tag (e.g. Ask/Tell type)
             tagExtra = threadElement.selectFirst(".icon2 img")
@@ -246,11 +240,10 @@ class ForumParseTask(
 
             // replies / postcount
             // this represents the number of replies, but the actual postcount includes OP
-            threadElement.selectFirst(".replies")
-                    ?.let { postCount = parseInt(it.text()) + 1 }
+            threadElement.selectFirst(".replies")?.let { postCount = it.text().toInt() + 1 }
 
             // unread count / viewed status
-            unreadCount = threadElement.selectFirst(".count")?.let { parseInt(it.text()) } ?: 0
+            unreadCount = threadElement.selectFirst(".count")?.text()?.toInt() ?: 0
             // If there are X's then the user has viewed the thread
             hasBeenViewed = unreadCount > 0 || threadElement.selectFirst(".x") != null
 

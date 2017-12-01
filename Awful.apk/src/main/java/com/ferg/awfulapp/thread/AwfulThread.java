@@ -231,131 +231,22 @@ public class AwfulThread extends AwfulPagedItem  {
      * @param startIndex the threads' positions in the forum will start from this index
      * @return the list of all the threads' metadata objects, ready for storage
      */
-    public static List<ContentValues> parseForumThreads(Document forumPage, int forumId, int startIndex) {
+    static List<ContentValues> parseForumThreads(Document forumPage, int forumId, int startIndex) {
         long startTime = System.currentTimeMillis();
         String update_time = new Timestamp(startTime).toString();
-        List<ContentValues> result = new ArrayList<>();
         Log.v(TAG, "Update time: " + update_time);
         String username = AwfulPreferences.getInstance().username;
 
+        List<ForumParseTask> parseTasks = new ArrayList<>();
         for (Element threadElement : forumPage.select("#forum .thread")) {
-            try {
-                String threadId = threadElement.id();
-                if (TextUtils.isEmpty(threadId)) {
-                    //skip the table header
-                    continue;
-                }
-
-                // start building thread data
-                AwfulThread thread = new AwfulThread();
-                thread.id = parseInt(threadId.replaceAll("\\D", ""));
-                thread.index = startIndex;
-                thread.forumId = forumId;
-                startIndex++;
-
-
-                // parse out the various elements in the thread html:
-
-                // title
-                Element title = threadElement.select(".thread_title").first();
-                if (title != null) {
-                    thread.title = title.text();
-                }
-
-                // thread author, and whether it's the user
-                boolean userIsAuthor = false;
-                Element author = threadElement.select(".author").first();
-                if (author != null) {
-                    thread.author = author.text();
-                    String href = author.select("a[href*='userid']").first().attr("href");
-                    thread.authorId = parseInt(Uri.parse(href).getQueryParameter("userid"));
-
-                    userIsAuthor = author.text().equals(username);
-                }
-                thread.canOpenClose = userIsAuthor;
-
-                thread.lastPoster = threadElement.select(".lastpost .author").first().text();
-                thread.isLocked = threadElement.hasClass("closed");
-                thread.isSticky = !threadElement.select(".title_sticky").isEmpty();
-
-
-                // optional thread rating
-                Element rating = threadElement.select(".rating img").first();
-                thread.rating = (rating != null) ? AwfulRatings.getId(rating.attr("src")) : AwfulRatings.NO_RATING;
-
-
-                // main thread tag
-                Element threadTag = threadElement.select(".icon img").first();
-                if (threadTag != null) {
-                    Matcher threadTagMatcher = urlId_regex.matcher(threadTag.attr("src"));
-                    if (threadTagMatcher.find()) {
-                        thread.tagUrl = threadTagMatcher.group(1);
-                        thread.category = parseInt(threadTagMatcher.group(2));
-                        //thread tag stuff
-                        Matcher fileNameMatcher = AwfulEmote.fileName_regex.matcher(threadTagMatcher.group(1));
-                        if (fileNameMatcher.find()) {
-                            thread.tagCacheFile = fileNameMatcher.group(1);
-                        }
-                    } else {
-                        thread.category = 0;
-                    }
-                }
-
-                // secondary thread tag (e.g. Ask/Tell type)
-                Element extraTag = threadElement.select(".icon2 img").first();
-                thread.tagExtra = (extraTag != null) ? ExtraTags.getId(extraTag.attr("src")) : ExtraTags.NO_TAG;
-
-
-                // replies / postcount
-                Element postCount = threadElement.select(".replies").first();
-                if (postCount != null) {
-                    // this represents the number of replies, but the actual postcount includes OP
-                    thread.postCount = Integer.parseInt(postCount.text()) + 1;
-                }
-
-
-                // unread count / viewed status
-                Element unreadCount = threadElement.select(".count").first();
-                if (unreadCount != null) {
-                    thread.unreadCount = parseInt(unreadCount.text());
-                    thread.hasBeenViewed = true;
-                } else {
-                    thread.unreadCount = 0;
-                    // If there are X's then the user has viewed the thread
-                    thread.hasBeenViewed = !threadElement.select(".x").isEmpty();
-                }
-
-                // bookmarked status
-                Element star = threadElement.select(".star").first();
-                int bookmarkType = 0;
-                if (star != null) {
-                    // Bookmarks can only be detected now by the presence of a "bmX" class - no star image
-                    if (star.hasClass("bm0")) {
-                        bookmarkType = 1;
-                    } else if (star.hasClass("bm1")) {
-                        bookmarkType = 2;
-                    } else if (star.hasClass("bm2")) {
-                        bookmarkType = 3;
-                    }
-                }
-                thread.bookmarkType = bookmarkType;
-
-
-                // finally create and add the parsed thread
-                // TODO: 04/06/2017 handle this in the database classes
-                ContentValues cv = thread.toContentValues();
-                cv.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
-                // don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
-                if (forumId == Constants.USERCP_ID) {
-                    cv.remove(INDEX);
-                    cv.remove(FORUM_ID);
-                }
-                result.add(cv);
-            } catch (NullPointerException e) {
-                // If we can't parse a row, just skip it
-                e.printStackTrace();
+            if (TextUtils.isEmpty(threadElement.id())) {
+                //skip the table header
+                continue;
             }
+            parseTasks.add(new ForumParseTask(threadElement, forumId, startIndex, username, update_time));
+            startIndex++;
         }
+        List<ContentValues> result = ForumParsingKt.parse(parseTasks);
 
         float averageParseTime = (System.currentTimeMillis() - startTime) / (float) result.size();
         Log.i(TAG, String.format("%d threads parsed\nAverage parse time: %.3fms", result.size(), averageParseTime));
