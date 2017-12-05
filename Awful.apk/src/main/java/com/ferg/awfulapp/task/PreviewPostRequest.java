@@ -15,12 +15,15 @@ import com.ferg.awfulapp.util.AwfulError;
 
 import org.jsoup.nodes.Document;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by matt on 8/8/13.
  */
 public class PreviewPostRequest extends AwfulRequest<String> {
+
+    // TODO: 18/12/2017 this and PreviewEditRequest are almost identical, merge 'em
+
     public PreviewPostRequest(Context context, ContentValues reply) {
         super(context, null);
         addPostParam(Constants.PARAM_ACTION, "postreply");
@@ -55,15 +58,14 @@ public class PreviewPostRequest extends AwfulRequest<String> {
 
     @Override
     protected String handleResponse(Document doc) throws AwfulError {
-        //System.out.println(doc.body().html());
-        ArrayList<ContentValues> parsed = new ArrayList<>();
-        try {
-            parsed = AwfulPost.parsePosts(doc, 0, 0, 0, AwfulPreferences.getInstance(), 0, true);
+        List<ContentValues> parsed;
+        parsed = AwfulPost.parsePosts(doc, 0, 0, 0, AwfulPreferences.getInstance(), 0, true);
+        if (parsed.isEmpty()) {
+            Log.w(TAG, "handleResponse: parsing preview failed");
+            return "";
+        } else {
+            return parsed.get(0).getAsString(AwfulPost.CONTENT);
         }
-        catch (Exception e){
-            Log.e(TAG,"a thing happened",e);
-        }
-        return parsed.get(0).getAsString(AwfulPost.CONTENT);
     }
 
     @Override

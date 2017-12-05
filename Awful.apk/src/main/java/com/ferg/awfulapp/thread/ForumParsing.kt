@@ -1,13 +1,17 @@
 package com.ferg.awfulapp.thread
 
 import android.content.ContentValues
+import android.net.Uri
 import android.util.Log
+import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.DatabaseHelper
 import com.ferg.awfulapp.thread.AwfulPost.*
+import com.ferg.awfulapp.thread.AwfulThread.FORUM_ID
+import com.ferg.awfulapp.thread.AwfulThread.INDEX
 import org.jsoup.nodes.Element
-import java.util.concurrent.Callable
+import java.util.concurrent.*
 import java.util.regex.Pattern
 
 /**
@@ -19,6 +23,38 @@ import java.util.regex.Pattern
  * This is meant to be used with a multithreaded executor, so you can parse posts in parallel and
  * speed up page loads.
  */
+
+private val parseTaskExecutor: ExecutorService by lazy { Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()) }
+
+@Throws(Exception::class)
+fun <T> parseSingleThreaded(parseTasks: Collection<Callable<T>>) = parseTasks.map(Callable<T>::call)
+@Throws(InterruptedException::class, ExecutionException::class)
+fun <T> parseMultiThreaded(parseTasks: Collection<Callable<T>>) = parseTaskExecutor.invokeAll(parseTasks).map(Future<T>::get)
+
+/**
+ * Run a set of parse tasks in parallel, retrying on the current thread if there's a failure.
+ *
+ * This function blocks until all results are available.
+ */
+fun <T> parse(parseTasks: Collection<Callable<T>>): List<T> {
+    try {
+        return parseMultiThreaded(parseTasks)
+    } catch (e: InterruptedException) {
+        Log.w(TAG, "parse: parallel parse failed - attempting on main thread", e)
+    } catch (e: ExecutionException) {
+        Log.w(TAG, "parse: parallel parse failed - attempting on main thread", e)
+    }
+
+    return try {
+        parseSingleThreaded(parseTasks)
+    } catch (e: Exception) {
+        Log.w(TAG, "parse: single-thread parse failed", e)
+        emptyList()
+    }
+}
+
+
+
 
 private val USER_ID_REGEX = Pattern.compile("userid=(\\d+)")
 private val POST_ID_GARBAGE = "\\D".toRegex()
@@ -144,4 +180,99 @@ class PostParseTaskKt constructor(
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
             this.selectFirst(".$cssClass") != null
+}
+
+
+private val THREAD_URL_ID_REGEX = Pattern.compile("([^#]+)#(\\d+)$")
+
+class ForumParseTask(
+        private val threadElement: Element,
+        private val forumId: Int,
+        private val startIndex: Int,
+        private val username: String,
+        private val parseTimestamp: String
+) : Callable<ContentValues> {
+
+    override fun call(): ContentValues {
+        // start building thread data
+        val awfulThread = AwfulThread()
+        with(awfulThread) {
+            id = parseInt(threadElement.id().replace("\\D".toRegex(), ""))
+            index = startIndex
+            forumId = forumId
+
+            threadElement.selectFirst(".thread_title")?.let { title = it.text() }
+            threadElement.selectFirst(".author")?.let {
+                author = it.text()
+                it.selectFirst("a[href*='userid']")
+                        ?.attr("href")
+                        ?.let { Uri.parse(it).getQueryParameter("userid") }
+                        ?.let { authorId = parseInt(it) }
+            }
+            canOpenClose = author == username
+
+            lastPoster = threadElement.selectFirst(".lastpost .author").text()
+            isLocked = threadElement.hasClass("closed")
+            isSticky = threadElement.selectFirst(".title_sticky") != null
+
+            // optional thread rating
+            rating = threadElement.selectFirst(".rating img")
+                    ?.let { AwfulRatings.getId(it.attr("src")) }
+                    ?: AwfulRatings.NO_RATING
+
+            // main thread tag
+            threadElement.selectFirst(".icon img")
+                    ?.let {
+                        with(THREAD_URL_ID_REGEX.matcher(it.attr("src"))) {
+                            if (find()) {
+                                tagUrl = group(1)
+                                category = parseInt(group(2))
+                                with(AwfulEmote.fileName_regex.matcher(tagUrl)) {
+                                    if (find()) {
+                                        tagCacheFile = group(1)
+                                    }
+                                }
+                            } else {
+                                category = 0
+                            }
+                        }
+                    }
+
+            // secondary thread tag (e.g. Ask/Tell type)
+            tagExtra = threadElement.selectFirst(".icon2 img")
+                    ?.let { ExtraTags.getId(it.attr("src")) }
+                    ?: ExtraTags.NO_TAG
+
+
+            // replies / postcount
+            // this represents the number of replies, but the actual postcount includes OP
+            threadElement.selectFirst(".replies")
+                    ?.let { postCount = parseInt(it.text()) + 1 }
+
+            // unread count / viewed status
+            unreadCount = threadElement.selectFirst(".count")?.let { parseInt(it.text()) } ?: 0
+            // If there are X's then the user has viewed the thread
+            hasBeenViewed = unreadCount > 0 || threadElement.selectFirst(".x") != null
+
+            // Bookmarks can only be detected now by the presence of a "bmX" class - no star image
+            val star = threadElement.selectFirst(".star")
+            bookmarkType = when {
+                star.hasClass("bm0") -> 1
+                star.hasClass("bm1") -> 2
+                star.hasClass("bm2") -> 3
+                else -> 0
+            }
+        }
+        // finally create and add the parsed thread
+        // TODO: 04/06/2017 handle this in the database classes
+        return awfulThread.toContentValues().apply {
+            put(DatabaseHelper.UPDATED_TIMESTAMP, parseTimestamp)
+            // don't update these values if we are loading bookmarks, or it will overwrite the cached forum results.
+            if (forumId == Constants.USERCP_ID) {
+                remove(INDEX)
+                remove(FORUM_ID)
+            }
+        }
+    }
+
 }

@@ -55,10 +55,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -472,9 +468,6 @@ public class AwfulPost {
 
 
 
-    // TODO: 01/12/2017 maybe a general parsing pool somewhere would be better, so everything can submit jobs it instead of creating their own
-    private static ExecutorService postParseExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     /**
      * Parse a thread page to grab its post data.
      *
@@ -488,7 +481,7 @@ public class AwfulPost {
      * @return the number of posts found on the page
      */
     public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
+        List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
         // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
         Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
@@ -496,8 +489,7 @@ public class AwfulPost {
     }
 
 
-    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
-    	ArrayList<ContentValues> result = new ArrayList<>();
+    public static List<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
 		int index = startIndex;
         String updateTime = new Timestamp(System.currentTimeMillis()).toString();
 
@@ -515,28 +507,10 @@ public class AwfulPost {
         long startTime = System.currentTimeMillis();
         // parse posts using multithreading if possible - some of the Jsoup calls (#html in particular) are very slow
         // (#html should be a lot faster when jsoup updates to handle Windows-1252 encoding user their fast path for Entities#canEncode)
-        try {
-            List<Future<ContentValues>> parsedPosts = postParseExecutor.invokeAll(parseTasks);
-            for (Future<ContentValues> parsed : parsedPosts) {
-                result.add(parsed.get());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            Log.w(TAG, "parsePosts: parallel parse failed - attempting on main thread", e);
-            // parallel parsing failed somehow - just do it on the main thread
-            try {
-                result.clear();
-                for (Callable<ContentValues> parseTask : parseTasks) {
-                    result.add(parseTask.call());
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-                Log.w(TAG, "parsePosts: single-thread parse failed", e2);
-                return new ArrayList<>();
-            }
-        }
+        List<ContentValues> result = ForumParsingKt.parse(parseTasks);
         float averageParseTime = (System.currentTimeMillis() - startTime) / (float) parseTasks.size();
         Log.i(TAG, String.format("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime));
-    	return result;
+        return result;
     }
 
 
