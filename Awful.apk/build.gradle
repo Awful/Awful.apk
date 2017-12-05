@@ -120,7 +120,8 @@ dependencies {
     //compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.github.samkirton:android-volley:9aba4f5f86'
     compile 'com.google.code.gson:gson:2.8.0'
-    compile 'org.jsoup:jsoup:1.10.3'
+
+    compile 'org.jsoup:jsoup:1.11.2'
     compile 'com.jakewharton.threetenabp:threetenabp:1.0.4'
     compile 'com.samskivert:jmustache:1.13'
 

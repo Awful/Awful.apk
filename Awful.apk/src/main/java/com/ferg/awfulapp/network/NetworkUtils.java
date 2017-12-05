@@ -32,10 +32,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.http.HttpResponseCache;
 import android.os.Messenger;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -45,8 +45,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.util.LRUImageCache;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -59,14 +57,12 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,13 +120,6 @@ public class NetworkUtils {
     }
 
 
-    public static void clearDiskCache() {
-        Cache diskCache;
-        if (mNetworkQueue != null && (diskCache = mNetworkQueue.getCache()) != null) {
-            diskCache.clear();
-        }
-    }
-
     public static void queueRequest(Request request){
         if (mNetworkQueue != null) {
             mNetworkQueue.add(request);
@@ -148,12 +137,17 @@ public class NetworkUtils {
         }
     }
 
-    public static void setCookieHeaders(Map<String, String> headers) {
+    /**
+     * Add the current session cookie's data to a header map.
+     *
+     * The data is provided as a single header - see {@link #restoreLoginCookies(Context)} for the format.
+     */
+    public static void setCookieHeaders(@NonNull Map<String, String> headers) {
         if(cookie == null){
             Log.e(TAG,"Cookie was empty for some reason, trying to restore cookie");
             restoreLoginCookies(AwfulPreferences.getInstance().getContext());
         }
-        if (cookie.length() > 0) {
+        if (!cookie.isEmpty()) {
             headers.put(COOKIE_HEADER, cookie);
         }
     }
@@ -352,13 +346,6 @@ public class NetworkUtils {
         return response;
     }
 
-//    public static void delete(String aUrl) throws Exception {
-//        Log.i(TAG, "DELETE: " + aUrl);
-//        HttpResponse hResponse = sHttpClient.execute(new HttpDelete(aUrl));
-//        if (hResponse.getStatusLine().getStatusCode() < 400) {
-//            throw new Exception("ERROR: " + hResponse.getStatusLine().getStatusCode());
-//        }
-//    }
 
     public static String getRedirect(String aUrl, HashMap<String, String> aParams) throws Exception {
         URI location;
@@ -384,19 +371,6 @@ public class NetworkUtils {
         return null;
     }
 
-
-    private static ArrayList<NameValuePair> getPostParameters(HashMap<String, String> aParams) {
-        // Append parameters
-        ArrayList<NameValuePair> result = new ArrayList<NameValuePair>();
-
-        if (aParams != null) {
-            for (Map.Entry<String, String> param : aParams.entrySet()) {
-                result.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-            }
-        }
-
-        return result;
-    }
 
     public static String getQueryStringParameters(HashMap<String, String> aParams) {
         StringBuilder result = new StringBuilder("?");
@@ -436,10 +410,6 @@ public class NetworkUtils {
         }
     }
 
-    public static String getAsString(Document pc) {
-        return pc.text();
-    }
-
     /**
      * Parses all html-escaped characters to a regular Java string. Does not handle html tags.
      *
@@ -476,40 +446,4 @@ public class NetworkUtils {
     }
 
 
-
-    /*
-        Stupid garbage to stave off forced logouts
-     */
-
-    private static final int MAX_REPEATED_LOGOUT_DODGES = 4;
-    private static AtomicInteger remaining_dodges = new AtomicInteger(MAX_REPEATED_LOGOUT_DODGES);
-
-    /**
-     * If a request hits the 'not registered' page, check if the user actually has
-     * login cookies, and ignore a few of them. Call {@link #resetDodges()} when a
-     * request succeeds normally, to reset the allowed failures counter
-     * @return  True if the problem should be ignored, false if the user should be logged out
-     */
-    public synchronized static boolean dodgeLogoutBullet() {
-        String username = NetworkUtils.getCookieString(Constants.COOKIE_NAME_USERID);
-        String password = NetworkUtils.getCookieString(Constants.COOKIE_NAME_PASSWORD);
-        if ("".equals(username) || "".equals(password)) {
-            Log.w(TAG, "Your cookie is broken though, better log in");
-            return false;
-        }
-        Log.w(TAG, "Looks like you're logged in to me though...");
-        if (remaining_dodges.decrementAndGet() <= 0) {
-            Log.w(TAG, "But it's happened " + MAX_REPEATED_LOGOUT_DODGES + " times in a row, logging out");
-            return false;
-        }
-        Log.w(TAG, "Letting it slide, " + remaining_dodges.get() + " chances remaining");
-        return true;
-    }
-
-    /**
-     * Reset the failure counter, call this after a request passes the 'unregistered' check
-     */
-    public static void resetDodges() {
-        remaining_dodges.set(MAX_REPEATED_LOGOUT_DODGES);
-    }
 }

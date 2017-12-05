@@ -232,7 +232,8 @@ public class AwfulThread extends AwfulPagedItem  {
      * @return the list of all the threads' metadata objects, ready for storage
      */
     public static List<ContentValues> parseForumThreads(Document forumPage, int forumId, int startIndex) {
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        long startTime = System.currentTimeMillis();
+        String update_time = new Timestamp(startTime).toString();
         List<ContentValues> result = new ArrayList<>();
         Log.v(TAG, "Update time: " + update_time);
         String username = AwfulPreferences.getInstance().username;
@@ -355,6 +356,9 @@ public class AwfulThread extends AwfulPagedItem  {
                 e.printStackTrace();
             }
         }
+
+        float averageParseTime = (System.currentTimeMillis() - startTime) / (float) result.size();
+        Log.i(TAG, String.format("%d threads parsed\nAverage parse time: %.3fms", result.size(), averageParseTime));
         return result;
     }
 
@@ -379,6 +383,7 @@ public class AwfulThread extends AwfulPagedItem  {
      * @param filterUserId if this page is for a thread filtered by user, this should be set to the user's ID, otherwise 0
      */
     public static void parseThreadPage(ContentResolver resolver, Document page, int threadId, int pageNumber, int postsPerPage, AwfulPreferences prefs, int filterUserId) {
+        long startTime = System.currentTimeMillis();
         // TODO: 03/06/2017 see issue #503 on GitHub - filtering by user means the thread data gets overwritten by the pages from this new, shorter thread containing their posts
         final int BLANK_USER_ID = 0;
         final boolean filteringOnUserId = filterUserId > BLANK_USER_ID;
@@ -467,11 +472,13 @@ public class AwfulThread extends AwfulPagedItem  {
         // finally write new thread data to the database
         ContentValues cv = thread.toContentValues();
         // TODO: 04/06/2017 this should be handled in the database-management classes
-        String update_time = new Timestamp(System.currentTimeMillis()).toString();
+        String update_time = new Timestamp(startTime).toString();
         cv.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
         if (resolver.update(ContentUris.withAppendedId(CONTENT_URI, threadId), cv, null, null) < 1) {
             resolver.insert(CONTENT_URI, cv);
         }
+
+        Log.i(TAG, String.format("Thread parse time: %dms", System.currentTimeMillis() - startTime));
     }
 
 
