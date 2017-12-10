@@ -226,13 +226,19 @@
     <string name="max_button_text">max</string>
 
     <!-- search -->
+    <string name="search_forums_activity_title">Search</string>
+    <string name="search_forums_active_dialog_title">Searching</string>
+    <string name="search_forums_active_dialog_message">Getting results…</string>
+    <string name="search_forums_failure_message">Searching failed</string>
+    <string name="search_forums_query_text_hint">Enter some search terms</string>
 
-    <string name="Search_terms">Search terms</string>
-    <string name="search_by_userid">User id</string>
-    <string name="search_by_username">Username</string>
-    <string name="search_by_intitle">In title</string>
-    <string name="search_by_threadid">Thread id</string>
-    <string name="search_by_quoting">Quoting user</string>
+    <string name="search_forums_select_forums">Select forums</string>
+    <string name="search_forums_special_terms">Search terms</string>
+    <string name="search_forums_special_terms_by_userid">User id</string>
+    <string name="search_forums_special_terms_by_username">Username</string>
+    <string name="search_forums_special_terms_by_intitle">In title</string>
+    <string name="search_forums_special_terms_by_thread_id">Thread id</string>
+    <string name="search_forums_special_terms_by_quoting">Quoting user</string>
 
 
     <!-- Imgur uploader -->

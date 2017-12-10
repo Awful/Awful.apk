@@ -311,7 +311,7 @@ public class ForumsIndexActivity extends AwfulActivity
                         startActivity(new Intent().setClass(context, SettingsActivity.class));
                         break;
                     case R.id.sidebar_search:
-                        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, context, "");
+                        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, context, getString(R.string.search_forums_activity_title));
                         startActivity(intent);
                         break;
                     case R.id.sidebar_pm:

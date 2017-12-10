@@ -100,15 +100,15 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         if (DEBUG) Log.e(TAG, "onCreateView");
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
-        mSearchQuery = (EditText) result.findViewById(R.id.search_query);
+        mSearchQuery = result.findViewById(R.id.search_query);
 
-        mSRL = (SwipyRefreshLayout) result.findViewById(R.id.search_srl);
+        mSRL = result.findViewById(R.id.search_srl);
         mSRL.setOnRefreshListener(this);
         mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
         mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
         mSRL.setEnabled(false);
 
-        mSearchResultList = (RecyclerView) result.findViewById(R.id.search_results);
+        mSearchResultList = result.findViewById(R.id.search_results);
         mSearchResultList.setAdapter(new RecyclerView.Adapter<SearchResultHolder>() {
             @Override
             public SearchResultHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -124,6 +124,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                 holder.hitInfo.setText(Html.fromHtml("<b>" + search.getUsername()+"</b> in <b>" + search.getForumTitle()+"</b>"));
                 holder.blurb.setText(Html.fromHtml(search.getBlurb()));
                 holder.threadName.setText(search.getThreadTitle());
+                holder.timestamp.setText(search.getPostDate());
 
 
                 final String threadlink = search.getThreadLink();
@@ -152,24 +153,21 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         }
                     }
                 };
-                holder.self.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                holder.self.setOnClickListener(v -> {
 
 
-                        if (getActivity() != null) {
-                            if(redirect.getStatus() == AsyncTask.Status.PENDING){
-                                redirect.execute();
-                                redirectDialog.setMessage("Just a second");
-                                redirectDialog.setTitle("Loading");
-                                redirectDialog.setIndeterminate(true);
-                                redirectDialog.setCancelable(false);
-                                redirectDialog.show();
-                            }
+                    if (getActivity() != null) {
+                        if(redirect.getStatus() == AsyncTask.Status.PENDING){
+                            redirect.execute();
+                            redirectDialog.setMessage("Just a second");
+                            redirectDialog.setTitle("Loading");
+                            redirectDialog.setIndeterminate(true);
+                            redirectDialog.setCancelable(false);
+                            redirectDialog.show();
                         }
-
-
                     }
+
+
                 });
             }
 
@@ -208,7 +206,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
 
     private void search() {
-        mDialog = ProgressDialog.show(getActivity(), "Loading", "Searching...", true, false);
+        mDialog = ProgressDialog.show(getActivity(), getString(R.string.search_forums_active_dialog_title), getString(R.string.search_forums_active_dialog_message), true, false);
         Integer[] searchforums = new Integer[]{};
         int[] searchforumsprimitive = ArrayUtils.toPrimitive(searchForums.toArray(searchforums));
         NetworkUtils.queueRequest(new SearchRequest(this.getContext(), mSearchQuery.getText().toString().toLowerCase(), searchforumsprimitive).build(null, new AwfulRequest.AwfulResultCallback<AwfulSearchResult>() {
@@ -238,14 +236,8 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                     mDialog.dismiss();
                     mDialog = null;
                 }
-                Snackbar.make(getView(), "Searching failed.", Snackbar.LENGTH_LONG)
-                        .setAction("Retry", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                search();
-                            }
-
-                        }).show();
+                Snackbar.make(getView(), R.string.search_forums_failure_message, Snackbar.LENGTH_LONG)
+                        .setAction("Retry", v -> search()).show();
             }
         }));
     }
@@ -264,7 +256,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
             case R.id.search_submit:
                 search();
                 break;
-            case R.id.search_forums:
+            case R.id.select_forums:
                 SearchForumsFragment frag = new SearchForumsFragment(this);
                 frag.setStyle(DialogFragment.STYLE_NO_TITLE,0);
                 frag.show(getFragmentManager(), "searchforums");
@@ -346,13 +338,15 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
         final TextView threadName;
         final TextView hitInfo;
         final TextView blurb;
+        final TextView timestamp;
         final View self;
-        public SearchResultHolder(View view) {
+        SearchResultHolder(View view) {
             super(view);
             self = view;
-            threadName = (TextView) itemView.findViewById(R.id.search_result_threadname);
-            hitInfo = (TextView) itemView.findViewById(R.id.search_result_hit_info);
-            blurb = (TextView) itemView.findViewById(R.id.search_result_blurb);
+            threadName = itemView.findViewById(R.id.search_result_threadname);
+            hitInfo = itemView.findViewById(R.id.search_result_hit_info);
+            blurb = itemView.findViewById(R.id.search_result_blurb);
+            timestamp = itemView.findViewById(R.id.search_result_timestamp);
         }
     }
 
