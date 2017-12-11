@@ -329,6 +329,7 @@
     <string name="export_settings_summary">Save a backup of your Awful choices</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_summary">Restore your backed up settings</string>
+    <string name="import_settings_chooser_title">Select settings file</string>
 
     <!-- Forum Index Settings page -->
     <string name="forum_index_show_subtitles">Include subtitles</string>

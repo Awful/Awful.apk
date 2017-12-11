@@ -36,6 +36,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -43,12 +44,12 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.util.Log;
 import android.util.TypedValue;
-import android.widget.Toast;
 
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.nodes.Document;
 
@@ -56,13 +57,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -183,7 +185,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		SettingsActivity.setDefaultsFromXml(context);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
-		updateValues(mPrefs);
+		updateValues();
 		upgradePreferences();
 		
 		longKeys = new HashSet<>();
@@ -212,7 +214,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
-	public SharedPreferences getPrefs(){
+	public SharedPreferences getSharedPrefs(){
 		return mPrefs;
 	}
 	
@@ -226,7 +228,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		updateValues(prefs);
+		updateValues();
 		for (AwfulPreferenceUpdate auc : mCallback.keySet()) {
 			if (auc != null) {
 				auc.onPreferenceChange(this, key);
@@ -234,7 +236,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-	private void updateValues(SharedPreferences prefs) {
+	private void updateValues() {
 		Resources res = mContext.getResources();
 		scaleFactor				 = res.getDisplayMetrics().density;
 		username                 = getPreference(Keys.USERNAME, "Username");
@@ -426,73 +428,123 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 	public boolean canLoadAvatars(){
 		return avatarsEnabled && canLoadImages();
 	}
-	
-	public void exportSettings(){
+
+
+	/**
+	 * Export the app's current preferences to a file in the app folder.
+	 * <p>
+	 * You need to ensure the user has granted write permissions before calling this!
+	 */
+	public boolean exportSettings() {
 		Map settings = mPrefs.getAll();
 		Calendar date = Calendar.getInstance();
 		Gson gson = new Gson();
+		// serialise all SharedPreferences mappings to JSON
 		String settingsJson = gson.toJson(settings);
-	    try {
-		PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
 
-			if(Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)){
-				File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/awful");
-				
-				if(!awfulFolder.exists()){
-					if (!awfulFolder.mkdir()) {
-                        Log.i(TAG, "failed to create missing awful folder!");
-					}
-				}
-				Log.i(TAG, "exporting settings to file: awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings");
-
-	        	FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), "awful-"+pInfo.versionCode+"-"+date.get(Calendar.DATE)+"-"+(date.get(Calendar.MONTH)+1)+"-"+date.get(Calendar.YEAR)+".settings"));
-	        	out.write(settingsJson.getBytes());
-	        	out.close();
-	        }
-	    }
-	    catch (IOException e) {
-			e.printStackTrace();
-	    } catch (NameNotFoundException e) {
-			e.printStackTrace();
+		if (!Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
+			Log.w(TAG, "exportSettings: external storage not mounted");
+			return false;
+		}
+		// TODO: 11/12/2017 the folder name should probably be a global constant, it's referenced elsewhere too e.g. custom themes location
+		// TODO: 17/12/2017 honestly we could probably do with a class that handles the Awful folder and all the storage state checking in one place
+		File awfulFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/awful");
+		if (!awfulFolder.isDirectory() && !awfulFolder.mkdir()) {
+			Log.w(TAG, "exportSettings: failed to create missing awful folder!");
+			return false;
 		}
 
-		Toast.makeText(getContext(), "Settings exported", Toast.LENGTH_LONG).show();
+		// build the filename using the current app version and today's date
+		String filename;
+		try {
+			PackageInfo pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+			filename = String.format(Locale.US, "awful-%d-%d-%d-%d.settings",
+					pInfo.versionCode, date.get(Calendar.DATE), date.get(Calendar.MONTH) + 1, date.get(Calendar.YEAR));
+		} catch (NameNotFoundException e) {
+			Log.w(TAG, "exportSettings: can't get package name for app version code", e);
+			return false;
+		}
+
+		// save the JSON in binary format
+		Log.i(TAG, "exporting settings to file: " + filename);
+		try (FileOutputStream out = new FileOutputStream(new File(awfulFolder.getAbsolutePath(), filename))) {
+			out.write(settingsJson.getBytes());
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 
-	public void importSettings(File settingsFile){
-		Log.i(TAG, "importing settings from file: "+settingsFile.getName());
+	/**
+	 * Import an exported settings file, and apply it to the app, updating AwfulPreferences.
+	 *
+	 * @param settingsUri the file to import
+	 * @return false if importing failed completely
+	 * @see #exportSettings()
+	 */
+	boolean importSettings(@NonNull Uri settingsUri) {
+		Log.i(TAG, "importing settings from file: " + settingsUri.getLastPathSegment());
 		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader(settingsFile));
+			InputStream in = getContext().getContentResolver().openInputStream(settingsUri);
+			if (in == null) {
+				Log.w(TAG, "importSettings: unable to get input stream for uri: " + settingsUri);
+				return false;
+			}
+			br = new BufferedReader(new InputStreamReader(in));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			return;
+			return false;
 		}
-		
-		Gson gson = new Gson();
-		Map settings = gson.fromJson(br, mPrefs.getAll().getClass());
-		for (Object setting : settings.entrySet()) {
-			HashMap.Entry entry = (HashMap.Entry) setting;
-			String classname = entry.getValue().getClass().getSimpleName();
-            String key = (String)entry.getKey();
-			if ("Boolean".equals(classname)){
-				mPrefs.edit().putBoolean(key, (Boolean) entry.getValue()).apply();
-			} else if ("String".equals(classname)){
-				mPrefs.edit().putString(key, (String) entry.getValue()).apply();
-			} else if ("Float".equals(classname)) {
-				mPrefs.edit().putFloat(key, (Float) entry.getValue()).apply();
-			} else if ("ArrayList".equals(classname)) {
-				mPrefs.edit().putStringSet(key, new HashSet<>((ArrayList<String>) entry.getValue())).apply();
-			} else {
-				if (longKeys.contains(key)) {
-					mPrefs.edit().putLong(key, ((Double)entry.getValue()).longValue()).apply();
-				} else {
-					mPrefs.edit().putInt(key, ((Double)entry.getValue()).intValue()).apply();
+
+		// read settings JSON file and deserialise into the types SharedPreferences dumps as
+		Map<String, Object> settings = new Gson().fromJson(br, new TypeToken<Map<String, Object>>() {
+		}.getType());
+		SharedPreferences.Editor editor = mPrefs.edit();
+
+		// TODO: 15/12/2017 there's no checking here at all - need to handle any errors safely. What happens when a pref no longer exists, or has its type changed between versions?
+		for (Map.Entry<String, Object> entry : settings.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			// basically switching on the value type so we can call the correct setter method :/
+			if (value instanceof Boolean) {
+				editor.putBoolean(key, (Boolean) value);
+			} else if (value instanceof String) {
+				editor.putString(key, (String) value);
+			} else if (value instanceof Float) {
+				editor.putFloat(key, (Float) value);
+			} else if (value instanceof List) {
+				// this one's a little different, list -> string set
+				Set<String> values = new HashSet<>();
+				for (Object item : (List) value) {
+					values.add(item.toString());
 				}
+				editor.putStringSet(key, values);
+			} else {
+				// catch everything else - seems bad, look for Ints/Longs only
+				// TODO: the following prefs currently export and import as doubles, and get cast to either int or long - why??
+				/*
+				default_post_fixed_font_size_dip is type Double -> parses as int (are these two legacy settings?)
+				default_post_font_size_dip is type Double -> int
+				curr_pref_version is type Double -> int
+				last_version_seen is type Double -> int
+				alert_id_shown is type Double => int
+				probation_time is type Double -> long
+		 		*/
+
+				if (longKeys.contains(key)) {
+					editor.putLong(key, ((Double) value).longValue());
+				} else {
+					editor.putInt(key, ((Double) value).intValue());
+				}
+				// TODO: 15/12/2017 once the doubles are sorted out, probably better to explicitly catch those types and have a safe failure default
 			}
 		}
-		updateValues(mPrefs);
+		editor.apply();
+		updateValues();
+		return true;
 	}
 	
 	@Override
