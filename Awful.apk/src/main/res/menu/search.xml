@@ -3,31 +3,31 @@
       xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/search_forums"
-        android:icon="@drawable/ic_settings"
+        android:id="@+id/select_forums"
+        android:icon="@drawable/ic_filter_list_24dp"
         app:showAsAction="always"
-        android:title="@string/submit"/>
+        android:title="@string/search_forums_select_forums"/>
     <item
         android:id="@+id/search_terms"
         android:icon="@drawable/ic_find_in_page"
         app:showAsAction="ifRoom"
-        android:title="@string/Search_terms">
+        android:title="@string/search_forums_special_terms">
         <menu>
             <item
                 android:id="@+id/search_threadid"
-                android:title="@string/search_by_threadid"/>
+                android:title="@string/search_forums_special_terms_by_thread_id"/>
             <item
                 android:id="@+id/search_intitle"
-                android:title="@string/search_by_intitle"/>
+                android:title="@string/search_forums_special_terms_by_intitle"/>
             <item
                 android:id="@+id/search_userid"
-                android:title="@string/search_by_userid"/>
+                android:title="@string/search_forums_special_terms_by_userid"/>
             <item
                 android:id="@+id/search_username"
-                android:title="@string/search_by_username"/>
+                android:title="@string/search_forums_special_terms_by_username"/>
             <item
                 android:id="@+id/search_quoting"
-                android:title="@string/search_by_quoting"/>
+                android:title="@string/search_forums_special_terms_by_quoting"/>
         </menu>
     </item>
 

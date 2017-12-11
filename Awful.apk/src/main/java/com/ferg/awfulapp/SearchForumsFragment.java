@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,15 +67,15 @@ public class SearchForumsFragment extends AwfulDialogFragment {
     @Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
-		getDialog().setTitle("Select Forums");
+		getDialog().setTitle(getTitle());
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		final View result = inflateView(R.layout.search_forums_dialog, container, inflater);
-		mProgress = (ProgressBar) result.findViewById(R.id.search_forums_progress);
-		mSearchForums = (RecyclerView) result.findViewById(R.id.search_forums);
+		mProgress = result.findViewById(R.id.search_forums_progress);
+		mSearchForums = result.findViewById(R.id.select_forums);
 		mSearchForums.setAdapter(new RecyclerView.Adapter<SearchHolder>() {
 			@Override
 			public SearchHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -92,35 +91,33 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 				holder.forumCheckbox.setChecked(searchForum.isChecked());
 				holder.forumCheckbox.setTag(searchForum);
 				final RecyclerView.Adapter<SearchHolder> self = this;
-				holder.forumCheckbox.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						CheckBox cb = (CheckBox) v;
-						AwfulSearchForum forum = (AwfulSearchForum) cb.getTag();
+				holder.forumCheckbox.setOnClickListener(v -> {
+                    CheckBox cb = (CheckBox) v;
+                    AwfulSearchForum forum = (AwfulSearchForum) cb.getTag();
 
-						forum.setChecked(cb.isChecked());
-						searchForum.setChecked(cb.isChecked());
-						if(cb.isChecked()){
-							parent.searchForums.add(forum.getForumId());
-						}else{
-							parent.searchForums.remove(forum.getForumId());
-						}
-						if(searchForum.getDepth() <3 ){
-							for (AwfulSearchForum childSearchforum: forums){
-								if(childSearchforum.getDepth()>searchForum.getDepth() || searchForum.getForumId() == -1){
-									if(childSearchforum.getParents().contains("parent"+searchForum.getForumId()) || searchForum.getForumId() == -1){
-										childSearchforum.setChecked(searchForum.isChecked());
-										if(searchForum.isChecked()){
-											parent.searchForums.add(childSearchforum.getForumId());
-										}else{
-											parent.searchForums.remove(childSearchforum.getForumId());
-										}
-									}
-								}
-							}
-							self.notifyDataSetChanged();
-						}
-					}
-				});
+                    forum.setChecked(cb.isChecked());
+                    searchForum.setChecked(cb.isChecked());
+                    if(cb.isChecked()){
+                        parent.searchForums.add(forum.getForumId());
+                    }else{
+                        parent.searchForums.remove(forum.getForumId());
+                    }
+                    if(searchForum.getDepth() <3 ){
+                        for (AwfulSearchForum childSearchForum: forums){
+                            if(childSearchForum.getDepth()>searchForum.getDepth() || searchForum.getForumId() == -1){
+                                if(childSearchForum.getParents().contains("parent"+searchForum.getForumId()) || searchForum.getForumId() == -1){
+                                    childSearchForum.setChecked(searchForum.isChecked());
+                                    if(searchForum.isChecked()){
+                                        parent.searchForums.add(childSearchForum.getForumId());
+                                    }else{
+                                        parent.searchForums.remove(childSearchForum.getForumId());
+                                    }
+                                }
+                            }
+                        }
+                        self.notifyDataSetChanged();
+                    }
+                });
 			}
 
 			@Override
@@ -141,7 +138,7 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 
 	@Override
 	public String getTitle() {
-		return "Select Forums";
+		return getString(R.string.search_forums_select_forums);
 	}
 
 	@Override
@@ -165,14 +162,8 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 
 			@Override
 			public void failure(VolleyError error) {
-				Snackbar.make(getView() != null ? getView() : parent.getView(), "Searching failed.", Snackbar.LENGTH_LONG)
-						.setAction("Retry", new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								getForums();
-							}
-
-						}).show();
+				Snackbar.make(getView() != null ? getView() : parent.getView(), R.string.search_forums_failure_message, Snackbar.LENGTH_LONG)
+						.setAction("Retry", v -> getForums()).show();
 			}
 		}));
 	}
@@ -181,10 +172,10 @@ public class SearchForumsFragment extends AwfulDialogFragment {
 	private class SearchHolder extends RecyclerView.ViewHolder {
 		final TextView forumName;
 		final CheckBox forumCheckbox;
-		public SearchHolder(View view) {
+		SearchHolder(View view) {
 			super(view);
-			forumName = (TextView) itemView.findViewById(R.id.search_forum_name);
-			forumCheckbox = (CheckBox) itemView.findViewById(R.id.search_forum_checkbox);
+			forumName = itemView.findViewById(R.id.search_forum_name);
+			forumCheckbox = itemView.findViewById(R.id.search_forum_checkbox);
 		}
 	}
 }

@@ -1,31 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:layout_height="wrap_content">
+
     <TextView
         android:id="@+id/search_result_threadname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="General Bullshit 2: On The Move"
-        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:textIsSelectable="false"
         android:textSize="16sp"
-        android:textIsSelectable="false" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Thread title: bon mot"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/search_result_hit_info"
-        android:text="Medium Text"
-        android:textSize="13sp"
-        android:textIsSelectable="false" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Small Text"
+        android:textIsSelectable="false"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="@+id/search_result_threadname"
+        app:layout_constraintTop_toBottomOf="@+id/search_result_threadname"
+        tools:text="Some Goon in Whatever Forum"/>
+
+    <TextView
+        android:id="@+id/search_result_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toStartOf="@+id/search_result_hit_info"
+        app:layout_constraintTop_toBottomOf="@+id/search_result_hit_info"
+        tools:text="17:23 on 10/12/2017"/>
+
+    <TextView
         android:id="@+id/search_result_blurb"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textIsSelectable="false"
         android:textSize="12sp"
-        android:textIsSelectable="false" />
-</LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_result_timestamp"
+        tools:text="Gh eligi alikaŭze plue, manier lingvonomo nf ido. Cit apuda leteri inkluzive oz. Dek pleje okej' frazetvortigo ha. Am jen iliard aspektismo, sed bo kapabl singularo proksimumeco, ato op tiele panjo subjekto. Mia ng nepo ilion fratineto, kio vela komo vendo ge, tiu vatto laringalo ladskatolo em.
+
+Ido ke lipa prepoziciaĵo, ano peto interjekcio co, fontoj parentezo un' oz. Gh obl kilometro subtegmentejo, iv ador nenie substantiva ajn, kuzo eŭro tempodaŭro vir ot. Do nea aligi ferio maldekstre. Oj jesa longa antaŭpriskribo hav. Ia laŭ vira alikvante hop, ul veki kernovorto esperanteca kaj."/>
+
+    <ImageView
+        android:id="@+id/list_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/search_result_blurb"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="ContentDescription,MissingPrefix"/>
+
+</android.support.constraint.ConstraintLayout>
