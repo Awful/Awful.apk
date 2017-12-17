@@ -759,11 +759,20 @@ public class ForumsIndexActivity extends AwfulActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case FORUM_LIST_FRAGMENT_POSITION:
-                    return new ForumsIndexFragment();
+                    if (mIndexFragment == null) {
+                        mIndexFragment = new ForumsIndexFragment();
+                    }
+                    return mIndexFragment;
                 case THREAD_LIST_FRAGMENT_POSITION:
-                    return ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
+                    if (mForumFragment == null) {
+                        mForumFragment = ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
+                    }
+                    return mForumFragment;
                 case THREAD_VIEW_FRAGMENT_POSITION:
-                    return new ThreadDisplayFragment();
+                    if (mThreadFragment == null) {
+                        mThreadFragment = new ThreadDisplayFragment();
+                    }
+                    return mThreadFragment;
             }
             Log.e(TAG, "ERROR: asked for too many fragments in ForumPagerAdapter.getItem");
             return null;
