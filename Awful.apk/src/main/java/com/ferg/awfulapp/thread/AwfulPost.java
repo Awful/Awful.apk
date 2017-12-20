@@ -500,7 +500,7 @@ public class AwfulPost {
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }
-            parseTasks.add(new PostParseTaskKt(postData, updateTime, index, unreadIndex, aThreadId, opId, preview, prefs));
+            parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, preview, prefs));
             index++;
         }
 

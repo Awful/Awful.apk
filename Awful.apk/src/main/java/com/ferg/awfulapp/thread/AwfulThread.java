@@ -39,7 +39,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,7 +51,6 @@ import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.provider.DatabaseHelper;
 
@@ -63,16 +61,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static butterknife.ButterKnife.findById;
-import static java.lang.Integer.parseInt;
 
 public class AwfulThread extends AwfulPagedItem  {
-    private static final String TAG = "AwfulThread";
 
     public static final String PATH         = "/thread";
     public static final String UCP_PATH     = "/ucpthread";
@@ -101,9 +97,6 @@ public class AwfulThread extends AwfulPagedItem  {
     public static final String TAG_URL 		        = "tag_url";
     public static final String TAG_CACHEFILE 	    = "tag_cachefile";
     public static final String TAG_EXTRA            = "tag_extra";
-
-    private static final Pattern forumId_regex = Pattern.compile("forumid=(\\d+)");
-	private static final Pattern urlId_regex = Pattern.compile("([^#]+)#(\\d+)$");
 
 
     // TODO: 04/06/2017 explicit default values, nulls where parsed data doesn't set values (i.e. never added to the ContentValues)?
@@ -138,7 +131,7 @@ public class AwfulThread extends AwfulPagedItem  {
     @Nullable
     public static AwfulThread fromCursorRow(@NonNull Cursor row) {
         if (row.isBeforeFirst() || row.isAfterLast()) {
-            Log.w(TAG, "fromCursor: passed empty row");
+            Timber.w("fromCursor: passed empty row");
             return null;
         }
         AwfulThread thread = new AwfulThread();
@@ -234,7 +227,7 @@ public class AwfulThread extends AwfulPagedItem  {
     static List<ContentValues> parseForumThreads(Document forumPage, int forumId, int startIndex) {
         long startTime = System.currentTimeMillis();
         String update_time = new Timestamp(startTime).toString();
-        Log.v(TAG, "Update time: " + update_time);
+        Timber.v("Update time: %s", update_time);
         String username = AwfulPreferences.getInstance().username;
 
         List<ForumParseTask> parseTasks = new ArrayList<>();
@@ -249,7 +242,7 @@ public class AwfulThread extends AwfulPagedItem  {
         List<ContentValues> result = ForumParsingKt.parse(parseTasks);
 
         float averageParseTime = (System.currentTimeMillis() - startTime) / (float) result.size();
-        Log.i(TAG, String.format("%d threads parsed\nAverage parse time: %.3fms", result.size(), averageParseTime));
+        Timber.i("%d threads parsed\nAverage parse time: %.3fms", result.size(), averageParseTime);
         return result;
     }
 
@@ -277,91 +270,11 @@ public class AwfulThread extends AwfulPagedItem  {
         long startTime = System.currentTimeMillis();
         // TODO: 03/06/2017 see issue #503 on GitHub - filtering by user means the thread data gets overwritten by the pages from this new, shorter thread containing their posts
         final int BLANK_USER_ID = 0;
+        // TODO: 05/01/2018 this filtering on userID thing isn't actually doing anything...
         final boolean filteringOnUserId = filterUserId > BLANK_USER_ID;
 
-        // first parse general thread metadata
-
-        Cursor threadData = resolver.query(ContentUris.withAppendedId(CONTENT_URI, threadId), AwfulProvider.ThreadProjection, null, null, null);
-        AwfulThread thread = null;
-        if (threadData != null) {
-            if (threadData.moveToFirst()) {
-                thread = fromCursorRow(threadData);
-            }
-            threadData.close();
-        }
-        if (thread == null) {
-            thread = new AwfulThread();
-        }
-
-        thread.id = threadId;
-
-        Element title = page.getElementsByClass("bclast").first();
-        thread.title = (title == null) ? "UNKNOWN TITLE" : title.text();
-
-        // look for a real reply button - if there isn't one, this thread is locked
-        Element replyButton = page.select("[alt=Reply]:not([src*='forum-closed'])").first();
-        thread.isLocked = (replyButton == null);
-
-        Element openCloseButton = page.select("[alt='Close thread']").first();
-        thread.canOpenClose = (openCloseButton != null);
-
-        Element bookmarkButton = page.select(".thread_bookmark").first();
-        // we're assuming no bookmark button means archived - there's an explicit archived icon we could find too
-        thread.archived = (bookmarkButton == null);
-        boolean bookmarked = (bookmarkButton != null) && bookmarkButton.attr("src").contains("unbookmark");
-
-        if (!bookmarked) {
-            thread.bookmarkType = 0;
-        } else if (thread.bookmarkType == 0) {
-            // update bookmarked status when it was previously 'unbookmarked'
-            thread.bookmarkType = 1;
-        }
-
-        // ID of this thread's forum
-        int forumId = -1;
-        Matcher matchForumId;
-        for (Element breadcrumb : page.select(".breadcrumbs [href]")) {
-            matchForumId = forumId_regex.matcher(breadcrumb.attr("href"));
-            if (matchForumId.find()) {//switched this to a regex
-                forumId = parseInt(matchForumId.group(1));//so this won't fail
-            }
-        }
-        thread.forumId = forumId;
-
-
-        // now calculate some read/unread numbers based on what we can see on the page
-        int lastPageNumber = AwfulPagedItem.parseLastPage(page);
-        int firstPostOnPageIndex = AwfulPagedItem.pageToIndex(pageNumber, postsPerPage, 0);
-        int firstUnreadIndex = !thread.hasBeenViewed ? 0 : thread.postCount - thread.unreadCount;
-
-        // hand off the page for post parsing, and get back the number of posts it found
-        // TODO: 02/06/2017 sort out the ignored posts issue, the post parser doesn't put them in the DB (if you have 'always hide' on in the settings) and it messes up the numbers
-        int postsOnThisPage = AwfulPost.syncPosts(resolver, page, threadId, firstUnreadIndex, thread.authorId, prefs, firstPostOnPageIndex);
-        int postsOnPreviousPages = (pageNumber - 1) * postsPerPage;
-        // calculate the read total by counting posts on this + preceding pages - only update the read count if it has grown (e.g. going back to an old page will give a lower count)
-        int postsRead = Math.max(thread.getReadCount(), postsOnPreviousPages + postsOnThisPage);
-
-        // we might have more recent info here, see if we need to update lastPostCount
-        // first up, if this is the last page then we've read all the posts
-        if (pageNumber == lastPageNumber) {
-            thread.postCount = postsRead;
-        } else {
-            // we can calculate a minimum and maximum posts range by looking at the last page number
-            int minTotal = ((lastPageNumber - 1) * postsPerPage) + 1;   // one post on the last page, any preceding pages are full
-            int maxTotal = lastPageNumber * postsPerPage;               // all pages full
-            // if lastPostCount is within this range, let's just assume it's more accurate than taking the minimum
-            // if it's outside of that range it's obviously a stale value, use the min as our best guess
-            int lastPostCount = thread.postCount;
-            thread.postCount = (minTotal <= lastPostCount && lastPostCount <= maxTotal) ? lastPostCount : minTotal;
-        }
-        // TODO: 16/06/2017 would it be better to store postCount and postsRead in the DB, and calculate the unread count from that?
-        thread.unreadCount = thread.postCount - postsRead;
-
-        Log.d(TAG, String.format("getThreadPosts: Thread ID %d, page %d of %d, %d posts on page%n%d posts total: %d read/%d unread",
-                thread.id, pageNumber, lastPageNumber, postsOnThisPage, thread.postCount, postsRead, thread.unreadCount));
-
         // finally write new thread data to the database
-        ContentValues cv = thread.toContentValues();
+        ContentValues cv = new ThreadPageParseTask(resolver, page, threadId, pageNumber, postsPerPage, prefs).call();
         // TODO: 04/06/2017 this should be handled in the database-management classes
         String update_time = new Timestamp(startTime).toString();
         cv.put(DatabaseHelper.UPDATED_TIMESTAMP, update_time);
@@ -369,7 +282,7 @@ public class AwfulThread extends AwfulPagedItem  {
             resolver.insert(CONTENT_URI, cv);
         }
 
-        Log.i(TAG, String.format("Thread parse time: %dms", System.currentTimeMillis() - startTime));
+        Timber.i("Thread parse time: %dms", System.currentTimeMillis() - startTime);
     }
 
 
@@ -377,7 +290,7 @@ public class AwfulThread extends AwfulPagedItem  {
 	public static void setDataOnThreadListItem(View item, AwfulPreferences prefs, Cursor data, AwfulFragment parent) {
         AwfulThread thread = fromCursorRow(data);
         if (thread == null) {
-            Log.w(TAG, "setDataOnThreadView: unable to get data for thread!");
+            Timber.w("setDataOnThreadView: unable to get data for thread!");
             return;
         }
 
