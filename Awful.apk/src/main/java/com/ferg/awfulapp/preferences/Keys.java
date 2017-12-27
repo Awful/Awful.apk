@@ -33,7 +33,8 @@ public abstract class Keys {
             ORIENTATION,
             PAGE_LAYOUT,
             TRANSFORMER,
-            FAVOURITE_FORUMS
+            FAVOURITE_FORUMS,
+            RECENT_EMOTES
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface StringPreference {
@@ -205,6 +206,8 @@ public abstract class Keys {
 
     public static final int FAVOURITE_FORUMS = R.string.pref_key_favourite_forums;
     public static final int FORUM_INDEX_PREFER_FAVOURITES = R.string.pref_key_forum_index_default_show_favourites;
+
+    public static final int RECENT_EMOTES = R.string.pref_key_recent_emotes;
 
     public static final int MARKED_USERS = R.string.pref_key_marked_users;
 

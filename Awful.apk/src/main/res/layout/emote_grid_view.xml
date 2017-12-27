@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <GridView
+        android:id="@+id/emote_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:gravity="center"
+        android:horizontalSpacing="4dp"
+        android:numColumns="3"
+        android:padding="@dimen/material_screen_edge_margin"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="12dp"
+        />
+</FrameLayout>
