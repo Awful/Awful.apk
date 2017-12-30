@@ -988,7 +988,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         switch (aRequestCode) {
             case PostReplyFragment.REQUEST_POST:
             		bypassBackStack = true;
-            	if(aResultCode == PostReplyFragment.RESULT_POSTED){
+            	if(aResultCode == PostReplyFragment.Companion.getRESULT_POSTED()){
             		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), mPrefs.postPerPage).getURL(mPrefs.postPerPage));
             	}else if(aResultCode > 100){//any result >100 it is a post id we edited
 					// TODO: >100 is a bit too magical

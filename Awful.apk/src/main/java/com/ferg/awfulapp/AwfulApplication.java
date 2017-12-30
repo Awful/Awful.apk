@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
+import timber.log.Timber;
 
 public class AwfulApplication extends Application implements AwfulPreferences.AwfulPreferenceUpdate{
 	private static final String TAG = "AwfulApplication";
@@ -46,6 +47,10 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		// initialise the AwfulPreferences singleton first since a lot of things rely on it for a Context
 		mPref = AwfulPreferences.getInstance(this, this);
 		appStatePrefs = this.getSharedPreferences(APP_STATE_PREFERENCES, MODE_PRIVATE);
+
+		if(BuildConfig.DEBUG) {
+			Timber.plant(new Timber.DebugTree());
+		}
 
 		NetworkUtils.init(this);
 		AndroidThreeTen.init(this);

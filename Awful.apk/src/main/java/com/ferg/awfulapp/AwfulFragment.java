@@ -475,7 +475,7 @@ public abstract class AwfulFragment extends Fragment implements AwfulRequest.Pro
         toast.show();
     }
 
-    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
+    protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<?> callback) {
         if(getActivity() != null){
             getLoaderManager().restartLoader(id, data, callback);
         }
