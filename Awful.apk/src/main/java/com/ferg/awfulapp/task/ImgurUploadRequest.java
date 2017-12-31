@@ -263,7 +263,7 @@ public class ImgurUploadRequest extends Request<JSONObject> {
      */
     @NonNull
     public static Pair<Integer, Long> getCurrentUploadLimit() {
-        SharedPreferences appStatePrefs = AwfulApplication.getAppStatePrefs();
+        SharedPreferences appStatePrefs = AwfulApplication.Companion.getAppStatePrefs();
         long now = System.currentTimeMillis();
 
         long appCreditsExpiry = appStatePrefs.getLong(KEY_APP_CREDITS_EXPIRY, -1);
@@ -311,7 +311,7 @@ public class ImgurUploadRequest extends Request<JSONObject> {
             int appUploadCredits = Integer.parseInt(response.headers.get("X-RateLimit-ClientRemaining"));
             long userCreditResetTimestamp = Long.parseLong(response.headers.get("X-RateLimit-UserReset")) * 1000L; // API timestamp is in seconds
             // only update the prefs when we've successfully parsed everything
-            AwfulApplication.getAppStatePrefs().edit()
+            AwfulApplication.Companion.getAppStatePrefs().edit()
                     .putInt(KEY_USER_CREDITS, userUploadCredits)
                     .putLong(KEY_USER_CREDITS_EXPIRY, userCreditResetTimestamp)
                     .putInt(KEY_APP_CREDITS, appUploadCredits - APP_CREDIT_BUFFER) // record a lower number of total credits to provide some safety
@@ -331,7 +331,7 @@ public class ImgurUploadRequest extends Request<JSONObject> {
      * restoring the quota to its maximum and updating the expiry timestamp relative to now.
      */
     private static void subtractUploadFromQuota() {
-        SharedPreferences appStatePrefs = AwfulApplication.getAppStatePrefs();
+        SharedPreferences appStatePrefs = AwfulApplication.Companion.getAppStatePrefs();
         long now = System.currentTimeMillis();
         int currentQuota = appStatePrefs.getInt(KEY_USER_QUOTA_REMAINING, USER_CREDIT_QUOTA_MAX);
         long quotaExpiryTime = appStatePrefs.getLong(KEY_USER_QUOTA_EXPIRY, -1);

@@ -114,11 +114,11 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
         }
 
 
-    private val onThreadSelected = AdapterView.OnItemClickListener { aParent, aView, aPosition, aId ->
+    private val onThreadSelected = AdapterView.OnItemClickListener { _, _, _, aId ->
         // TODO: 04/06/2017 why is all this in a threadlist click listener? We know it's a thread! It's not a forum!
-        val row = mCursorAdapter?.getRow(aId)
+        val row = mCursorAdapter.getRow(aId)
         if (row != null && row.getColumnIndex(AwfulThread.BOOKMARKED) > -1) {
-           Timber.i("Thread ID: " + java.lang.Long.toString(aId))
+           Timber.i("Thread ID: %s", java.lang.Long.toString(aId))
             val unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
                     mPrefs.postPerPage,

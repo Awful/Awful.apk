@@ -620,12 +620,12 @@ class PostReplyFragment : AwfulFragment() {
         inflater.inflate(R.menu.post_reply, menu)
 
         val attach = menu.findItem(R.id.add_attachment)
-        if (attach != null && mPrefs != null) {
+        if (attach != null) {
             attach.isEnabled = mPrefs.hasPlatinum
             attach.isVisible = mPrefs.hasPlatinum
         }
         val remove = menu.findItem(R.id.remove_attachment)
-        if (remove != null && mPrefs != null) {
+        if (remove != null) {
             remove.isEnabled = mPrefs.hasPlatinum && this.mFileAttachment != null
             remove.isVisible = mPrefs.hasPlatinum && this.mFileAttachment != null
         }

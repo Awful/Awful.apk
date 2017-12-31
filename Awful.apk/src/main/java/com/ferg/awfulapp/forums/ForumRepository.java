@@ -28,8 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -244,7 +242,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
      */
     public long getLastRefreshTime() {
         // forum data may be updated (with timestamps) after a full refresh, so we need to keep a separate timestamp
-        SharedPreferences prefs = AwfulApplication.getAppStatePrefs();
+        SharedPreferences prefs = AwfulApplication.Companion.getAppStatePrefs();
         return prefs.getLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, 0);
     }
 
@@ -256,7 +254,7 @@ public class ForumRepository implements UpdateTask.ResultListener {
      */
     private void setLastRefreshTime(long timestamp) {
         timestamp = (timestamp < 0) ? 0 : timestamp;
-        SharedPreferences prefs = AwfulApplication.getAppStatePrefs();
+        SharedPreferences prefs = AwfulApplication.Companion.getAppStatePrefs();
         prefs.edit().putLong(PREF_KEY_FORUM_REFRESH_TIMESTAMP, timestamp).apply();
     }
 
