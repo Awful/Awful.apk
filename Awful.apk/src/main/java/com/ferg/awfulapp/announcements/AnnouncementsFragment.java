@@ -118,7 +118,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(ThreadDisplay.getContainerHtml(mPrefs, -1));
+        webView.setContent(ThreadDisplay.getContainerHtml(getMPrefs(), -1));
     }
 
 
@@ -158,7 +158,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                     @Override
                     public void failure(VolleyError error) {
                         statusFrog.setStatusText(R.string.announcements_status_failed).showSpinner(false);
-                        Log.w(TAG, "Announcement get failed!\n" + error.getMessage());
+                        Log.w(getTAG(), "Announcement get failed!\n" + error.getMessage());
                     }
                 })
         );

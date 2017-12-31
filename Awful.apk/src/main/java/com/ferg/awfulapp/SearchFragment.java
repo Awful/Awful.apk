@@ -89,7 +89,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(TAG, "onCreate");
+        if (Companion.getDEBUG()) Log.e(TAG, "onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -97,7 +97,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        if (DEBUG) Log.e(TAG, "onCreateView");
+        if (Companion.getDEBUG()) Log.e(TAG, "onCreateView");
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
         mSearchQuery = result.findViewById(R.id.search_query);
@@ -186,7 +186,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        if (DEBUG) Log.e(TAG, "onActivityCreated");
+        if (Companion.getDEBUG()) Log.e(TAG, "onActivityCreated");
 
     }
 
@@ -250,7 +250,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        if (Companion.getDEBUG()) Log.e(TAG, "onOptionsItemSelected");
         switch (item.getItemId()) {
 
             case R.id.search_submit:

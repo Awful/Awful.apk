@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.ProgressListener;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -242,7 +243,7 @@ public abstract class AwfulRequest<T> {
     /**
      * Whether or not to automatically check for common page errors during the request process.
      * Override it and return false to disable these checks.
-     * @see handleError() and AwfulError.checkPageErrors() for more details.
+     * see handleError() and AwfulError.checkPageErrors() for more details.
      * @return true to automatically check, false to disable.
      */
     protected boolean shouldCheckErrors(){
@@ -410,16 +411,5 @@ public abstract class AwfulRequest<T> {
             }
             return super.getBodyContentType();
         }
-    }
-
-    /**
-     * Utility callbacks for AwfulRequest status updates.
-     * This is for updating the actionbar within AwfulFragment.
-     * You shouldn't need to use these, look at the AwfulResultCallback interface for success/failure results.
-     */
-    public interface ProgressListener{
-        void requestStarted(AwfulRequest req);
-        void requestUpdate(AwfulRequest req, int percent);
-        void requestEnded(AwfulRequest req, VolleyError error);
     }
 }

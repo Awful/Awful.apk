@@ -61,7 +61,7 @@ class ImageViewFragment : AwfulFragment() {
                 displayImage(imageUrl, mImageView)
             }
         }
-        title = imageUrl
+        setTitle(imageUrl)
     }
 
     override fun getTitle(): String = imageUrl

@@ -104,7 +104,7 @@ public class ForumsIndexFragment extends AwfulFragment
         Context context = getActivity();
         forumRepo = ForumRepository.getInstance(context);
 
-        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, mPrefs);
+        forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, getMPrefs());
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
 
@@ -204,8 +204,8 @@ public class ForumsIndexFragment extends AwfulFragment
     private List<Forum> getAllForums() {
         return forumRepo.getAllForums()
                 .getAsList()
-                .includeSections(mPrefs.forumIndexShowSections)
-                .formatAs(mPrefs.forumIndexHideSubforums ? TWO_LEVEL : FLAT)
+                .includeSections(getMPrefs().forumIndexShowSections)
+                .formatAs(getMPrefs().forumIndexHideSubforums ? TWO_LEVEL : FLAT)
                 .build();
     }
 

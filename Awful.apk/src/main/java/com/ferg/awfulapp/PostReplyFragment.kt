@@ -142,7 +142,7 @@ class PostReplyFragment : AwfulFragment() {
         mReplyType = intent.getIntExtra(Constants.EDITING, -999)
         mPostId = intent.getIntExtra(Constants.REPLY_POST_ID, 0)
         mThreadId = intent.getIntExtra(Constants.REPLY_THREAD_ID, 0)
-        title = title
+        setTitle(getTitle())
 
         // perform some sanity checking
         var badRequest = false
@@ -154,7 +154,7 @@ class PostReplyFragment : AwfulFragment() {
             badRequest = true
         }
         if (badRequest) {
-            Toast.makeText(activity, "Can't create reply! Bad parameters", Toast.LENGTH_LONG).show()
+            makeToast("Can't create reply! Bad parameters")
             val template = "Failed to init reply activity%nReply type: %d, Thread ID: %d, Post ID: %d"
             Timber.w(String.format(template, mReplyType, mThreadId, mPostId))
             activity?.finish()
@@ -193,7 +193,7 @@ class PostReplyFragment : AwfulFragment() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     addAttachment()
                 } else {
-                    Toast.makeText(activity, R.string.no_file_permission_attachment, Toast.LENGTH_LONG).show()
+                    makeToast(R.string.no_file_permission_attachment)
                 }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
@@ -260,7 +260,7 @@ class PostReplyFragment : AwfulFragment() {
             TYPE_EDIT -> queueRequest(EditRequest(activity, mThreadId, mPostId).build(this, loadCallback))
             else -> {
                 // TODO: 13/04/2017 make an enum/intdef for reply types and just fail early if necessary, shouldn't need to keep checking for bad values everywhere
-                Toast.makeText(activity, "Unknown reply type: " + mReplyType, Toast.LENGTH_LONG).show()
+                makeToast("Unknown reply type: " + mReplyType)
                 leave(RESULT_CANCELLED)
             }
         }
@@ -387,9 +387,7 @@ class PostReplyFragment : AwfulFragment() {
                 deleteSavedReply()
                 saveRequired = false
 
-                activity?.let {
-                    Toast.makeText(it, it.getString(R.string.post_sent), Toast.LENGTH_LONG).show()
-                }
+                makeToast(R.string.post_sent)
                 mContentResolver.notifyChange(AwfulThread.CONTENT_URI, null)
                 leave(if (mReplyType == TYPE_EDIT) mPostId else RESULT_POSTED)
             }
@@ -417,7 +415,7 @@ class PostReplyFragment : AwfulFragment() {
         // TODO: 12/02/2017 this result should already be on the UI thread?
         val previewCallback = object : AwfulRequest.AwfulResultCallback<String> {
             override fun success(result: String) {
-                awfulActivity.runOnUiThread { previewFrag.setContent(result) }
+                awfulActivity?.runOnUiThread { previewFrag.setContent(result) }
             }
 
             override fun failure(error: VolleyError) {
@@ -446,9 +444,7 @@ class PostReplyFragment : AwfulFragment() {
             // TODO: if this ever happens, the ID never gets set (and causes an NPE in SendPostRequest) - handle this in a better way?
             // Could use the mThreadId value, but that might be incorrect at this point and post to the wrong thread? Is null reply data an exceptional event?
             Timber.e("No reply data in sendPost() - no thread ID to post to!")
-            if (activity != null) {
-                Toast.makeText(activity, "Unknown thread ID - can't post!", Toast.LENGTH_LONG).show()
-            }
+            makeToast("Unknown thread ID - can't post!")
             return null
         }
         val cv = ContentValues(replyData)
@@ -508,6 +504,7 @@ class PostReplyFragment : AwfulFragment() {
         dismissProgressDialog()
         messageComposer.hideKeyboard()
     }
+
 
 
     /**
@@ -653,8 +650,7 @@ class PostReplyFragment : AwfulFragment() {
             }
             R.id.remove_attachment -> {
                 this.mFileAttachment = null
-                val removeToast = Toast.makeText(awfulActivity, awfulActivity.resources.getText(R.string.file_removed), Toast.LENGTH_SHORT)
-                removeToast.show()
+                makeToast(R.string.file_removed, Toast.LENGTH_SHORT)
                 invalidateOptionsMenu()
             }
             R.id.signature -> {
@@ -725,7 +721,7 @@ class PostReplyFragment : AwfulFragment() {
 
     private fun setAttachment(attachment: String?, toastMessage: String) {
         mFileAttachment = attachment
-        Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
+        makeToast(toastMessage)
         invalidateOptionsMenu()
     }
 
