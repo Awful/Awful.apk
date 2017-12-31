@@ -46,15 +46,15 @@ class ImageViewFragment : AwfulFragment() {
         const val EXTRA_IMAGE_URL = "image url"
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflateView(R.layout.image_view_fragment, container, inflater)
     }
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        val mImageView = activity.findViewById<View>(R.id.iv_photo) as ImageView
+        val mImageView = activity!!.findViewById<View>(R.id.iv_photo) as ImageView
 
-        activity.intent.getStringExtra(EXTRA_IMAGE_URL)?.let {
+        activity!!.intent.getStringExtra(EXTRA_IMAGE_URL)?.let {
             imageUrl = it
             with(ImageLoader.getInstance()) {
                 init(ImageLoaderConfiguration.createDefault(activity))
