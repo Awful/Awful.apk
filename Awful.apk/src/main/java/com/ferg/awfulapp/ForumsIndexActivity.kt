@@ -449,11 +449,12 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+    override fun onNewIntent(intent: Intent?) {
         Timber.v("onNewIntent")
+        super.onNewIntent(intent)
+
         setIntent(intent)
-        val initialPage = parseNewIntent(intent)
+        val initialPage = parseNewIntent(intent!!)
         if (pagerAdapter.count >= initialPage && initialPage >= 0) {
             mViewPager.currentItem = initialPage
         }
@@ -467,7 +468,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         }
     }
 
-    private fun parseNewIntent(intent: Intent): Int {
+    private fun parseNewIntent(intent: Intent?): Int {
+        Timber.v("parseNewIntent")
         var initialPage = NULL_PAGE_ID
         var forumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId)
         var forumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage)
@@ -503,12 +505,12 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         if (displayIndex) {
             displayForumIndex()
         }
-        if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum) {
+        if (intent!!.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum) {
             initialPage = if (isTablet) 0 else 1
         } else {
             skipLoad = !isTablet
         }
-        if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect || url.isThread) {
+        if (intent!!.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect || url.isThread) {
             initialPage = 2
         }
         return initialPage
@@ -758,7 +760,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         mViewPager.currentItem = 0
     }
 
-    override fun onActivityResult(request: Int, result: Int, intent: Intent) {
+    override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
+        if (intent == null) return
         Timber.d("onActivityResult: $request result: $result")
         super.onActivityResult(request, result, intent)
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {

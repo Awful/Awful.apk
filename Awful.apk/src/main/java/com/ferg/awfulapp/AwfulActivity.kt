@@ -112,9 +112,9 @@ open class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreference
     }
 
 
-    override fun onActivityResult(request: Int, result: Int, intent: Intent) {
-        super.onActivityResult(request, result, intent)
+    override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
         Timber.v("onActivityResult: $request result: $result")
+        super.onActivityResult(request, result, intent)
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
             finish()
         }
