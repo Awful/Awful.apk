@@ -63,7 +63,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     protected var TAG = "AwfulFragment"
 
     lateinit protected var mPrefs: AwfulPreferences
-    protected var progressPercent = 100
+    var progressPercent = 100
     private var mProgressBar: AwfulProgressBar? = null
     protected var mSRL: SwipyRefreshLayout? = null
     private var probationBar: ProbationBar? = null
@@ -90,7 +90,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
             it.setActionbarTitle(title, this)
         }
     }
-    protected abstract fun getTitle() : String?
+    abstract fun getTitle() : String?
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
