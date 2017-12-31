@@ -476,20 +476,17 @@ class PostReplyFragment : AwfulFragment() {
 
     override fun onResume() {
         super.onResume()
-        Timber.w("onResume")
         updateThreadTitle()
     }
 
     override fun onPause() {
         super.onPause()
-        Timber.w("onPause")
         cleanupTasks()
     }
 
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Timber.w("onDestroyView")
         // final cleanup - some should have already been done in onPause (draft saving etc)
         loaderManager.destroyLoader(Constants.REPLY_LOADER_ID)
         loaderManager.destroyLoader(Constants.MISC_LOADER_ID)
@@ -504,7 +501,6 @@ class PostReplyFragment : AwfulFragment() {
         dismissProgressDialog()
         messageComposer.hideKeyboard()
     }
-
 
 
     /**
@@ -526,10 +522,8 @@ class PostReplyFragment : AwfulFragment() {
      * Call this when the user tries to leave the activity, so the Save/Discard dialog can be shown if necessary.
      */
     fun onNavigateBack() {
-        val activity = activity
-        if (activity == null) {
-            return
-        } else if (replyIsEmpty()) {
+        val activity = activity ?: return
+        if (replyIsEmpty()) {
             leave(RESULT_CANCELLED)
             return
         }
@@ -619,13 +613,11 @@ class PostReplyFragment : AwfulFragment() {
         Timber.w("onCreateOptionsMenu")
         inflater.inflate(R.menu.post_reply, menu)
 
-        val attach = menu.findItem(R.id.add_attachment)
-        if (attach != null) {
+        menu.findItem(R.id.add_attachment)?.let { attach ->
             attach.isEnabled = mPrefs.hasPlatinum
             attach.isVisible = mPrefs.hasPlatinum
         }
-        val remove = menu.findItem(R.id.remove_attachment)
-        if (remove != null) {
+        menu.findItem(R.id.remove_attachment)?.let { remove ->
             remove.isEnabled = mPrefs.hasPlatinum && this.mFileAttachment != null
             remove.isVisible = mPrefs.hasPlatinum && this.mFileAttachment != null
         }
@@ -871,7 +863,6 @@ class PostReplyFragment : AwfulFragment() {
 
             savedDraft = SavedDraft(draftType, draftReply, postId, draftTimestamp)
             Timber.i("$draftType Saved reply message: $draftReply")
-
         }
 
         override fun onLoaderReset(aLoader: Loader<Cursor>) {}
@@ -898,7 +889,6 @@ class PostReplyFragment : AwfulFragment() {
 
         override fun onLoaderReset(aLoader: Loader<Cursor>) {}
     }
-
 
     // Utility method to check if the composer contains an empty post
     private fun replyIsEmpty() = messageComposer.text.trim { it <= ' ' }.isEmpty()

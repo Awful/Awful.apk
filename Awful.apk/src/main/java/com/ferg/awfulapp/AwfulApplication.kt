@@ -125,7 +125,7 @@ class AwfulApplication : Application(), AwfulPreferences.AwfulPreferenceUpdate {
 
     override fun onPreferenceChange(prefs: AwfulPreferences?, key: String?) {
         currentFont = fonts[mPref.preferredFont]
-        Timber.i("FONT SELECTED: %i", mPref.preferredFont)
+        Timber.i("FONT SELECTED: %s", mPref.preferredFont)
     }
 
     private fun processFonts() {

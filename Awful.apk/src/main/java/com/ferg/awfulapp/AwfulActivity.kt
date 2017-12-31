@@ -165,16 +165,14 @@ open class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreference
     }
 
     open fun setActionbarTitle(aTitle: String?, requestor: Any?) {
-        val action = supportActionBar
-        if (action != null) {
-            mTitleView = action.customView as TextView
+        supportActionBar?.let { bar ->
+            mTitleView = bar.customView as TextView
         }
         if (aTitle != null && mTitleView != null && aTitle.isNotEmpty()) {
-            //    		mTitleView.setText(Html.fromHtml(aTitle));
             mTitleView?.text = aTitle
             mTitleView?.scrollTo(0, 0)
         } else {
-            Timber.v("FAILED setActionbarTitle - $aTitle")
+            Timber.e("FAILED setActionbarTitle - $aTitle")
         }
     }
 
@@ -200,13 +198,12 @@ open class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreference
         setTheme(AwfulTheme.forForum(null).themeResId)
     }
 
-
     private fun afterThemeChange() {
         recreate()
     }
 
     override fun getCacheDir(): File {
-        Timber.v("getCacheDir(): " + super.getCacheDir())
+        Timber.v("getCacheDir(): %s", super.getCacheDir())
         return super.getCacheDir()
     }
 

@@ -63,10 +63,13 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     protected var TAG = "AwfulFragment"
 
     lateinit protected var mPrefs: AwfulPreferences
-    var progressPercent = 100
-    private var mProgressBar: AwfulProgressBar? = null
+    lateinit private var mProgressBar: AwfulProgressBar
+    lateinit private var probationBar: ProbationBar
+
     protected var mSRL: SwipyRefreshLayout? = null
-    private var probationBar: ProbationBar? = null
+
+    var progressPercent = 100
+
     protected val mHandler = Handler()
 
 
@@ -86,7 +89,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     @CallSuper
     open fun setTitle(title: String) {
         awfulActivity?.let {
-            Timber.d("setTitle: setting for " + this.javaClass.simpleName)
+            Timber.d("setTitle: setting for %s", this.javaClass.simpleName)
             it.setActionbarTitle(title, this)
         }
     }
@@ -106,7 +109,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
         // set up the probation bar, if we have one - use this ID when adding to a layout!
         probationBar = v.findViewById(R.id.probation_bar)
-        probationBar?.setListener { goToLeperColony() }
+        probationBar.setListener { goToLeperColony() }
 
         return v
     }
@@ -139,7 +142,6 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     protected fun displayThread(aId: Int, aPage: Int, forumId: Int, forumPage: Int, forceReload: Boolean) {
         awfulActivity?.displayThread(aId, aPage, forumId, forumPage, forceReload)
-
     }
 
     protected fun displayForum(forumId: Long, page: Long) {
@@ -164,7 +166,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
         if (progressPercent > 0) {
             mSRL?.isRefreshing = false
         }
-        mProgressBar?.setProgress(percent, activity)
+        mProgressBar.setProgress(percent, activity)
     }
 
     protected fun makeToast(@StringRes text: Int, length: Int = Toast.LENGTH_LONG) {
@@ -186,7 +188,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      * Refresh the probation bar's visual state
      */
     protected fun refreshProbationBar() {
-        probationBar?.setProbation(if (mPrefs.isOnProbation) mPrefs.probationTime else null)
+        probationBar.setProbation(if (mPrefs.isOnProbation) mPrefs.probationTime else null)
     }
 
     /**
@@ -259,7 +261,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     }
 
     protected fun invalidateOptionsMenu() {
-        awfulActivity?.supportInvalidateOptionsMenu()
+        awfulActivity?.invalidateOptionsMenu()
     }
 
     open fun onPageVisible() {}
@@ -385,7 +387,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     protected fun restartLoader(id: Int, data: Bundle?, callback: LoaderManager.LoaderCallbacks<out Any>) {
         if (activity != null) {
-            Timber.d("loader id is " + id)
+            Timber.d("loader id is $id")
             loaderManager.restartLoader(id, data, callback)
         }
     }

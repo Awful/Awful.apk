@@ -36,7 +36,6 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -295,8 +294,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         username.text = mPrefs.username
 
         val avatar: ImageView = nav.findViewById(R.id.sidebar_avatar)
-        if (null != mPrefs.userTitle) {
-            if ("" != mPrefs.userTitle) {
+        if (mPrefs.userTitle != null) {
+            if (mPrefs.userTitle.isNotEmpty()) {
                 NetworkUtils.getImageLoader().get(mPrefs.userTitle, object : ImageLoader.ImageListener {
                     override fun onResponse(response: ImageLoader.ImageContainer, isImmediate: Boolean) {
                         avatar.setImageBitmap(response.bitmap)
@@ -316,7 +315,6 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
                 }
             }
         }
-
 
         updateNavigationMenu()
         mDrawerToggle.syncState()
@@ -510,7 +508,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         } else {
             skipLoad = !isTablet
         }
-        if (intent!!.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect || url.isThread) {
+        if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect || url.isThread) {
             initialPage = 2
         }
         return initialPage
@@ -519,12 +517,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     override fun onResume() {
         super.onResume()
 
-        var versionCode = 0
-        try {
-            versionCode = packageManager.getPackageInfo(packageName, 0).versionCode
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
+        val versionCode = BuildConfig.VERSION_CODE
 
         // check if this is the first run, and if so show the 'welcome' dialog
         if (mPrefs.alertIDShown == 0) {
@@ -685,8 +678,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             if (requestor is AwfulFragment && isFragmentVisible((requestor as AwfulFragment?)!!)) {
                 super.setActionbarTitle(aTitle, requestor)
             } else {
-                if (AwfulActivity.Companion.DEBUG)
-                   Timber.i("Failed setActionbarTitle: $aTitle - $requestor")
+                Timber.d("Failed setActionbarTitle: $aTitle - $requestor")
             }
         } else {
             super.setActionbarTitle(aTitle, requestor)
@@ -708,7 +700,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
     override fun displayForum(id: Int, page: Int) {
-        Timber.d("displayForum $id")
+        Timber.i("displayForum $id")
         setForum(id, page)
         setNavIds(id, null)
         if (mForumFragment != null) {
@@ -747,9 +739,6 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             setThread(id, page)
         }
         mViewPager.currentItem = pagerAdapter.getItemPosition(mThreadFragment!!)
-
-        // if viewpager is null?
-        //super.displayThread(id, page, forumId, forumPg, forceReload)
     }
 
     override fun displayUserCP() {
@@ -841,11 +830,10 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         val TAG = "ForumsIndexActivity"
 
         private val DEFAULT_HIDE_DELAY = 300
-
         private val MESSAGE_HIDING = 0
         private val MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1
 
-        val NULL_FORUM_ID = 0
+        private val NULL_FORUM_ID = 0
         private val NULL_THREAD_ID = 0
         private val NULL_PAGE_ID = -1
 

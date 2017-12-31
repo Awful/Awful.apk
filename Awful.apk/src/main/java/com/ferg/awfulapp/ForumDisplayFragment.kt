@@ -79,8 +79,8 @@ import java.util.*
  */
 class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListener {
 
-    private var mListView: ListView? = null
-    private var mPageBar: PageBar? = null
+    lateinit private var mListView: ListView
+    lateinit private var mPageBar: PageBar
 
     private var lastPage = 1
     private var mTitle: String? = null
@@ -97,7 +97,6 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
     /**
      * Set the current Forum ID.
      * Falls back to the Bookmarks forum for invalid ID values
-     * @param forumId   the ID to switch to
      */
     var forumId: Int = 0
         private set(forumId) {
@@ -149,7 +148,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
         // page bar
         mPageBar = result.findViewById<View>(R.id.page_bar) as PageBar
-        mPageBar?.setListener(object : PageBar.PageBarCallbacks {
+        mPageBar.setListener(object : PageBar.PageBarCallbacks {
             override fun onPageNavigation(nextPage: Boolean) {
                 goToPage(page + if (nextPage) 1 else -1)
             }
@@ -162,7 +161,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                 selectForumPage()
             }
         })
-        awfulActivity?.setPreferredFont(mPageBar?.textView)
+        awfulActivity?.setPreferredFont(mPageBar.textView)
         updatePageBar()
         refreshProbationBar()
 
@@ -240,17 +239,17 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
 
         mCursorAdapter = ThreadCursorAdapter(activity as AwfulActivity?, null, this)
-        mListView?.adapter = mCursorAdapter
-        mListView?.onItemClickListener = onThreadSelected
+        mListView.adapter = mCursorAdapter
+        mListView.onItemClickListener = onThreadSelected
 
         updateColors()
-        registerForContextMenu(mListView!!)
+        registerForContextMenu(mListView)
     }
 
 
     // TODO: pull this out as a shared method/widget in AwfulFragment
     fun updatePageBar() {
-        mPageBar?.updatePagePosition(page, lastPage)
+        mPageBar.updatePagePosition(page, lastPage)
     }
 
     override fun onResume() {
@@ -381,10 +380,10 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         super.onPreferenceChange(mPrefs, key)
-        awfulActivity?.setPreferredFont(mPageBar?.textView)
+        awfulActivity?.setPreferredFont(mPageBar.textView)
         updateColors()
-        mListView?.invalidate()
-        mListView?.invalidateViews()
+        mListView.invalidate()
+        mListView.invalidateViews()
     }
 
 
@@ -393,8 +392,8 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
         updatePageBar()
         refreshProbationBar()
         // interrupt any scrolling animation and jump to the top of the page
-        mListView?.smoothScrollBy(0, 0)
-        mListView?.setSelection(0)
+        mListView.smoothScrollBy(0, 0)
+        mListView.setSelection(0)
         // display the chosen page (may be cached), then update its contents
         refreshInfo()
         syncForum()
@@ -434,7 +433,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                             //                            mToggleSidebar.setColorFilter(0);
                             loadFailed = false
                             refreshInfo()
-                            mListView?.setSelectionAfterHeaderView()
+                            mListView.setSelectionAfterHeaderView()
                         }
 
                         override fun failure(error: VolleyError) {
@@ -446,7 +445,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                             refreshInfo()
                             lastRefresh = System.currentTimeMillis()
                             loadFailed = true
-                            mListView?.setSelectionAfterHeaderView()
+                            mListView.setSelectionAfterHeaderView()
                         }
                     }
             ), false)
@@ -581,7 +580,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
         }
 
         override fun onLoadFinished(aLoader: Loader<Cursor>, aData: Cursor) {
-            Timber.v("Forum title finished, populating: " + aData.count)
+            Timber.v("Forum title finished, populating: %s", aData.count)
             if (!aData.isClosed && aData.moveToFirst()) {
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE))
                 lastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT))
@@ -615,21 +614,20 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
         }
     }
 
-    public override fun getTitle() = mTitle
+    override fun getTitle() = mTitle
 
     override fun doScroll(down: Boolean): Boolean {
-        val scrollAmount = (mListView?.height ?: 0) / 2
-        mListView?.smoothScrollBy(if (down) scrollAmount else -scrollAmount, 400)
+        val scrollAmount = (mListView.height) / 2
+        mListView.smoothScrollBy(if (down) scrollAmount else -scrollAmount, 400)
         return true
     }
 
 
     private fun updateColors() {
-        mPageBar?.setTextColour(ColorProvider.ACTION_BAR_TEXT.color)
-        if (mListView == null) return
+        mPageBar.setTextColour(ColorProvider.ACTION_BAR_TEXT.color)
         val backgroundColor = ColorProvider.BACKGROUND.getColor(forumId)
-        mListView?.setBackgroundColor(backgroundColor)
-        mListView?.cacheColorHint = backgroundColor
+        mListView.setBackgroundColor(backgroundColor)
+        mListView.cacheColorHint = backgroundColor
     }
 
     companion object {

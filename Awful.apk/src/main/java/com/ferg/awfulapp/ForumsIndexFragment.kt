@@ -50,26 +50,20 @@ class ForumsIndexFragment : AwfulFragment(), ForumRepository.ForumsUpdateListene
 
     lateinit private var forumListAdapter: ForumListAdapter
     lateinit private var forumRepo: ForumRepository
-    /**
-     * repo timestamp for the currently displayed data, used to check if the repo has since updated
-     */
+
+    // repo timestamp for the currently displayed data, used to check if the repo has since updated
     private var lastUpdateTime: Long = -1
 
-    /**
-     * Current view state - either showing the favourites list, or the full forums list
-     */
+    // Current view state - either showing the favourites list, or the full forums list
     private var showFavourites = AwfulPreferences.getInstance().getPreference(Keys.FORUM_INDEX_PREFER_FAVOURITES, false)
 
-
     // list formatting for the forums
-
     private val allForums: List<Forum>
         get() = forumRepo.allForums
                 .asList
                 .includeSections(mPrefs.forumIndexShowSections)
                 .formatAs(if (mPrefs.forumIndexHideSubforums) TWO_LEVEL else FLAT)
                 .build()
-
 
     private val favouriteForums: List<Forum>
         get() = forumRepo.favouriteForums
@@ -206,6 +200,7 @@ class ForumsIndexFragment : AwfulFragment(), ForumRepository.ForumsUpdateListene
         displayForum(forum.id.toLong(), 1)
     }
 
+
     override fun onContextMenuCreated(forum: Forum, contextMenu: Menu) {
         // show an option to set/unset the forum as a favourite
         val menuItem = contextMenu.add(if (forum.isFavourite) getString(R.string.forums_list_unset_favorite) else getString(R.string.forums_list_set_favorite))
@@ -262,9 +257,7 @@ class ForumsIndexFragment : AwfulFragment(), ForumRepository.ForumsUpdateListene
         forumRecyclerView.setBackgroundColor(ColorProvider.BACKGROUND.color)
     }
 
-
     override fun getTitle() = getString(if (showFavourites) R.string.favourite_forums_title else R.string.forums_title)
-
 
     override fun doScroll(down: Boolean): Boolean {
         val scrollAmount = forumRecyclerView.height / 2
