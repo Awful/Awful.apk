@@ -159,8 +159,8 @@ public class ForumsIndexActivity extends AwfulActivity
         setContentView(R.layout.forum_index_activity);
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
-        mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !mPrefs.transformer.equals("Disabled")) {
+        mViewPager.setSwipeEnabled(!getMPrefs().lockScrolling);
+        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !getMPrefs().transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
         mViewPager.setOffscreenPageLimit(2);
@@ -246,7 +246,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void setupImmersion() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
@@ -356,14 +356,14 @@ public class ForumsIndexActivity extends AwfulActivity
         // update the navigation drawer header
         TextView username = (TextView) nav.findViewById(R.id.sidebar_username);
         if (null != username) {
-            username.setText(mPrefs.username);
+            username.setText(getMPrefs().username);
         }
 
         final ImageView avatar = (ImageView) nav.findViewById(R.id.sidebar_avatar);
         if (null != avatar) {
-            if (null != mPrefs.userTitle) {
-                if (!("".equals(mPrefs.userTitle))) {
-                    NetworkUtils.getImageLoader().get(mPrefs.userTitle, new ImageLoader.ImageListener() {
+            if (null != getMPrefs().userTitle) {
+                if (!("".equals(getMPrefs().userTitle))) {
+                    NetworkUtils.getImageLoader().get(getMPrefs().userTitle, new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                             avatar.setImageBitmap(response.getBitmap());
@@ -424,13 +424,13 @@ public class ForumsIndexActivity extends AwfulActivity
         // private messages - show 'em if you got 'em
         final MenuItem pmItem = navMenu.findItem(R.id.sidebar_pm);
         if (pmItem != null) {
-            pmItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+            pmItem.setEnabled(getMPrefs().hasPlatinum).setVisible(getMPrefs().hasPlatinum);
         }
 
         // private messages - show 'em if you got 'em
         final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
         if (searchItem != null) {
-            searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
+            searchItem.setEnabled(getMPrefs().hasPlatinum).setVisible(getMPrefs().hasPlatinum);
         }
 
         // show the unread announcement count
@@ -486,7 +486,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -517,7 +517,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             // When the window loses focus (e.g. the action overflow is shown),
             // cancel any pending hide action. When the window gains focus,
             // hide the system UI.
@@ -531,7 +531,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void showSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -540,7 +540,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void hideSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -551,7 +551,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (DEBUG) Log.e(TAG, "onNewIntent");
+        if (Companion.getDEBUG()) Log.e(TAG, "onNewIntent");
         setIntent(intent);
         int initialPage = parseNewIntent(intent);
         if (mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0) {
@@ -564,7 +564,7 @@ public class ForumsIndexActivity extends AwfulActivity
             if (url.isThread() || url.isPost()) {
                 mThreadFragment.openThread(url);
             } else if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0) {
-                if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
+                if (Companion.getDEBUG()) Log.e(TAG, "else: "+mThreadPost);
                 mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost);
             }
         }
@@ -635,7 +635,7 @@ public class ForumsIndexActivity extends AwfulActivity
         }
 
         // check if this is the first run, and if so show the 'welcome' dialog
-        if (mPrefs.alertIDShown == 0) {
+        if (getMPrefs().alertIDShown == 0) {
             new AlertDialog.Builder(this).
                     setTitle(getString(R.string.alert_title_1))
                     .setMessage(getString(R.string.alert_message_1))
@@ -653,11 +653,11 @@ public class ForumsIndexActivity extends AwfulActivity
                         }
                     })
                     .show();
-            mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1);
-        } else if (mPrefs.lastVersionSeen != versionCode) {
-            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode));
+            getMPrefs().setPreference(Keys.ALERT_ID_SHOWN, 1);
+        } else if (getMPrefs().lastVersionSeen != versionCode) {
+            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", getMPrefs().lastVersionSeen, versionCode));
             ChangelogDialog.show(this);
-            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode);
+            getMPrefs().setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
     }
 
@@ -731,7 +731,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
         @Override
         public void onPageSelected(int arg0) {
-            if (DEBUG) Log.i(TAG, "onPageSelected: " + arg0);
+            if (Companion.getDEBUG()) Log.i(TAG, "onPageSelected: " + arg0);
             if (visible != null) {
                 visible.onPageHidden();
             }
@@ -841,7 +841,7 @@ public class ForumsIndexActivity extends AwfulActivity
             if (requestor instanceof AwfulFragment &&  isFragmentVisible((AwfulFragment)requestor)) {
                 super.setActionbarTitle(aTitle, requestor);
             } else {
-                if (DEBUG)
+                if (Companion.getDEBUG())
                     Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requestor.toString());
             }
         } else {
@@ -939,7 +939,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if (DEBUG) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
+        if (Companion.getDEBUG()) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
             SyncManager.sync(this);
@@ -949,7 +949,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         AwfulFragment pagerItem = (AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem());
-        if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
+        if (getMPrefs().volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);

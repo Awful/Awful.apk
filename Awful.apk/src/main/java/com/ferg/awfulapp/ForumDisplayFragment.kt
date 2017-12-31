@@ -162,7 +162,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
                 selectForumPage()
             }
         })
-        awfulActivity?.setPreferredFont(mPageBar!!.textView)
+        awfulActivity?.setPreferredFont(mPageBar?.textView)
         updatePageBar()
         refreshProbationBar()
 
@@ -381,9 +381,7 @@ class ForumDisplayFragment : AwfulFragment(), SwipyRefreshLayout.OnRefreshListen
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         super.onPreferenceChange(mPrefs, key)
-        if (mPageBar != null) {
-            awfulActivity!!.setPreferredFont(mPageBar!!.textView)
-        }
+        awfulActivity?.setPreferredFont(mPageBar?.textView)
         updateColors()
         mListView?.invalidate()
         mListView?.invalidateViews()
