@@ -63,8 +63,8 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     protected var TAG = "AwfulFragment"
 
     lateinit protected var mPrefs: AwfulPreferences
-    lateinit private var mProgressBar: AwfulProgressBar
-    lateinit private var probationBar: ProbationBar
+    private var mProgressBar: AwfulProgressBar? = null
+    private var probationBar: ProbationBar? = null
 
     protected var mSRL: SwipyRefreshLayout? = null
 
@@ -109,7 +109,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
         // set up the probation bar, if we have one - use this ID when adding to a layout!
         probationBar = v.findViewById(R.id.probation_bar)
-        probationBar.setListener { goToLeperColony() }
+        probationBar?.setListener { goToLeperColony() }
 
         return v
     }
@@ -166,7 +166,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
         if (progressPercent > 0) {
             mSRL?.isRefreshing = false
         }
-        mProgressBar.setProgress(percent, activity)
+        mProgressBar?.setProgress(percent, activity)
     }
 
     protected fun makeToast(@StringRes text: Int, length: Int = Toast.LENGTH_LONG) {
@@ -188,7 +188,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      * Refresh the probation bar's visual state
      */
     protected fun refreshProbationBar() {
-        probationBar.setProbation(if (mPrefs.isOnProbation) mPrefs.probationTime else null)
+        probationBar?.setProbation(if (mPrefs.isOnProbation) mPrefs.probationTime else null)
     }
 
     /**
