@@ -765,7 +765,7 @@ public class ForumsIndexActivity extends AwfulActivity
                     return mIndexFragment;
                 case THREAD_LIST_FRAGMENT_POSITION:
                     if (mForumFragment == null) {
-                        mForumFragment = ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
+                        mForumFragment = ForumDisplayFragment.Companion.getInstance(mForumId, mForumPage, skipLoad);
                     }
                     return mForumFragment;
                 case THREAD_VIEW_FRAGMENT_POSITION:

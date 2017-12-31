@@ -90,7 +90,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
             it.setActionbarTitle(title, this)
         }
     }
-    protected abstract fun getTitle() : String
+    protected abstract fun getTitle() : String?
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -385,6 +385,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     protected fun restartLoader(id: Int, data: Bundle?, callback: LoaderManager.LoaderCallbacks<out Any>) {
         if (activity != null) {
+            Timber.d("loader id is " + id)
             loaderManager.restartLoader(id, data, callback)
         }
     }
