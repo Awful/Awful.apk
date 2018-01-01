@@ -22,16 +22,6 @@ import com.ferg.awfulapp.BasicActivity.Companion.intentFor
 
 class BasicActivity: AwfulActivity() {
 
-    companion object {
-        private const val FRAGMENT_CLASS: String = "fragment class"
-        private const val TITLE: String = "action bar title"
-
-        fun intentFor(fragmentClass: Class<out Fragment>, context: Context, title: String = ""): Intent =
-                Intent(context, BasicActivity::class.java)
-                        .putExtra(FRAGMENT_CLASS, fragmentClass.name)
-                        .putExtra(TITLE, title)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.basic_activity)
@@ -48,11 +38,21 @@ class BasicActivity: AwfulActivity() {
         setActionbarTitle(intent.extras.getString(TITLE, "No title"), null)
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> { finish(); return true }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+
+    companion object {
+        private const val FRAGMENT_CLASS: String = "fragment class"
+        private const val TITLE: String = "action bar title"
+
+        fun intentFor(fragmentClass: Class<out Fragment>, context: Context, title: String = ""): Intent =
+                Intent(context, BasicActivity::class.java)
+                        .putExtra(FRAGMENT_CLASS, fragmentClass.name)
+                        .putExtra(TITLE, title)
     }
 }

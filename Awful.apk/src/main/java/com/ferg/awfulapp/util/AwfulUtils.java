@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -30,6 +32,9 @@ import com.ferg.awfulapp.provider.DatabaseHelper;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulPost;
 import com.ferg.awfulapp.thread.AwfulThread;
+
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import java.util.HashMap;
 
@@ -158,5 +163,41 @@ public class AwfulUtils {
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Spanned fromHtml(String html){
+        Spanned result;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            result = Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            result = Html.fromHtml(html);
+        }
+        return result;
+    }
+
+
+    /**
+     * Convert an epoch timestamp to a duration relative to now.
+     * Returns the duration in a "1d 4h 22m 30s" format, omitting units with zero values.
+     */
+    public static String epochToSimpleDuration(long epoch) {
+        Duration diff = Duration.between(Instant.ofEpochSecond((epoch / 1000)), Instant.now()).abs();
+        String time = "";
+        if (diff.toDays() > 0) {
+            time += " " + diff.toDays() + "d";
+            diff = diff.minusDays(diff.toDays());
+        }
+        if (diff.toHours() > 0) {
+            time += " " + diff.toHours() + "h";
+            diff = diff.minusHours(diff.toHours());
+        }
+        if (diff.toMinutes() > 0) {
+            time += " " + diff.toMinutes() + "m";
+            diff = diff.minusMinutes(diff.toMinutes());
+        }
+
+        time += " " + diff.getSeconds() + "s";
+        return time;
     }
 }

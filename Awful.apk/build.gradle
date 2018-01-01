@@ -15,6 +15,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 
 repositories {
@@ -138,7 +139,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.5.1'
     compile 'com.github.chrisbanes:PhotoView:1.3.1'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    kapt 'com.jakewharton:butterknife-compiler:8.5.1'
+    implementation 'com.jakewharton.timber:timber:4.6.0'
 //    compile 'com.github.OrangeGangsters:SwipyRefreshLayout:15eeb9444d'
     compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true;

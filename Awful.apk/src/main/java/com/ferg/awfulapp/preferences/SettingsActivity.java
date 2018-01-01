@@ -172,7 +172,7 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             boolean fromRootMenu = sourceFragment instanceof RootSettings;
             displayFragment(fragment, fromRootMenu);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            Log.e(TAG, "Unable to create fragment (" + submenuFragmentName + ")\n", e);
+            Log.e(Companion.getTAG(), "Unable to create fragment (" + submenuFragmentName + ")\n", e);
         }
     }
 
@@ -255,8 +255,8 @@ public class SettingsActivity extends AwfulActivity implements AwfulPreferences.
             }
         }
 
-        if (!mPrefs.theme.equals(this.currentThemeName)) {
-            this.currentThemeName = mPrefs.theme;
+        if (!getMPrefs().theme.equals(this.currentThemeName)) {
+            this.currentThemeName = getMPrefs().theme;
             setCurrentTheme();
             recreate();
         }

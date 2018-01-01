@@ -1,7 +1,8 @@
 /********************************************************************************
  * Copyright (c) 2011, Scott Ferguson
  * All rights reserved.
- * <p>
+ *
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * * Redistributions of source code must retain the above copyright
@@ -12,7 +13,8 @@
  * * Neither the name of the software nor the
  * names of its contributors may be used to endorse or promote products
  * derived from this software without specific prior written permission.
- * <p>
+ *
+ *
  * THIS SOFTWARE IS PROVIDED BY SCOTT FERGUSON ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,59 +25,46 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
 
-package com.ferg.awfulapp;
+package com.ferg.awfulapp
 
-import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import android.os.Bundle
+import android.support.v7.widget.Toolbar
+import android.view.MenuItem
+import butterknife.BindView
+import butterknife.ButterKnife
 
 
-public class PostReplyActivity extends AwfulActivity {
+class PostReplyActivity : AwfulActivity() {
 
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
-    PostReplyFragment replyFragment;
+    @BindView(R.id.toolbar) lateinit var mToolbar: Toolbar
+    lateinit private var replyFragment: PostReplyFragment
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.post_reply_activity);
-        ButterKnife.bind(this);
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.post_reply_activity)
+        ButterKnife.bind(this)
 
-        setSupportActionBar(mToolbar);
-        setActionBar();
+        setSupportActionBar(mToolbar)
+        setActionBar()
 
-        FragmentManager fm = getSupportFragmentManager();
-        replyFragment = (PostReplyFragment) fm.findFragmentById(R.id.reply_fragment);
+        val fm = supportFragmentManager
+        replyFragment = fm.findFragmentById(R.id.reply_fragment) as PostReplyFragment
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onLeaveActivity();
-                break;
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> onLeaveActivity()
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    @Override
-    public void onBackPressed() {
-        onLeaveActivity();
+    override fun onBackPressed() {
+        onLeaveActivity()
     }
 
-    private void onLeaveActivity() {
-        replyFragment.onNavigateBack();
+    private fun onLeaveActivity() {
+        replyFragment.onNavigateBack()
     }
 }

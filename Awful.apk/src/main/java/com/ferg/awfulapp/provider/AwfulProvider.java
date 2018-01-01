@@ -43,8 +43,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.ferg.awfulapp.AwfulApplication;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.thread.AwfulEmote;
 import com.ferg.awfulapp.thread.AwfulForum;
@@ -57,6 +55,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import timber.log.Timber;
 
 import static com.ferg.awfulapp.provider.DatabaseHelper.TABLE_DRAFTS;
 import static com.ferg.awfulapp.provider.DatabaseHelper.TABLE_EMOTES;
@@ -449,11 +449,7 @@ public class AwfulProvider extends ContentProvider {
         if (uriType == UriMatcher.NO_MATCH) {
             String msg = String.format("Unrecognised query Uri!\nUri: %s\nProjection: %s\nSelection: %s\nSelection args: %s\nSort order: %s",
                     aUri, Arrays.toString(aProjection), aSelection, Arrays.toString(aSelectionArgs), aSortOrder);
-            if (AwfulApplication.crashlyticsEnabled()) {
-                Crashlytics.log(Log.WARN, TAG, msg);
-            } else {
-                Log.w(TAG, msg);
-            }
+            Timber.w(msg);
             return null;
         }
 
@@ -526,11 +522,7 @@ public class AwfulProvider extends ContentProvider {
             return result;
         } catch (Exception e) {
             String msg = String.format("aUri:\n%s\nQuery tables string:\n%s", aUri, builder.getTables());
-            if (AwfulApplication.crashlyticsEnabled()){
-                Crashlytics.log(Log.WARN, TAG, msg);
-            } else{
-                Log.w(TAG, msg, e);
-            }
+            Timber.w(msg);
             throw e;
         }
     }

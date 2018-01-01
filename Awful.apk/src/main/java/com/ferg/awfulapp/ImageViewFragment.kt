@@ -52,16 +52,16 @@ class ImageViewFragment : AwfulFragment() {
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        val mImageView = activity!!.findViewById<View>(R.id.iv_photo) as ImageView
+        val mImageView = activity?.findViewById<View>(R.id.iv_photo) as ImageView
 
-        activity!!.intent.getStringExtra(EXTRA_IMAGE_URL)?.let {
+        activity?.intent?.getStringExtra(EXTRA_IMAGE_URL)?.let {
             imageUrl = it
             with(ImageLoader.getInstance()) {
                 init(ImageLoaderConfiguration.createDefault(activity))
                 displayImage(imageUrl, mImageView)
             }
         }
-        title = imageUrl
+        setTitle(imageUrl)
     }
 
     override fun getTitle(): String = imageUrl

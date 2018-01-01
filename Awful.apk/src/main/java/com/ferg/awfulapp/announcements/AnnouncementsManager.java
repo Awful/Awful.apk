@@ -237,7 +237,7 @@ public class AnnouncementsManager {
      * Persist the current announcement data, so it can be restored on app reload.
      */
     private void saveState() {
-        SharedPreferences.Editor appState = AwfulApplication.getAppStatePrefs().edit();
+        SharedPreferences.Editor appState = AwfulApplication.Companion.getAppStatePrefs().edit();
         synchronized (stateLock) {
             appState.putStringSet(PREF_KEY_CURRENT_ANNOUNCEMENTS, currentAnnouncements)
                     .putStringSet(PREF_KEY_READ_ANNOUNCEMENTS, readAnnouncements);
@@ -253,7 +253,7 @@ public class AnnouncementsManager {
      * as possible to retain the last-known state and update on top of that.
      */
     private void restoreState() {
-        SharedPreferences appState = AwfulApplication.getAppStatePrefs();
+        SharedPreferences appState = AwfulApplication.Companion.getAppStatePrefs();
         synchronized (stateLock) {
             // can't just use the returned sets apparently!
             currentAnnouncements.clear();

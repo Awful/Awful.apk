@@ -18,8 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.crashlytics.android.Crashlytics;
-import com.ferg.awfulapp.AwfulApplication;
+import com.ferg.awfulapp.ProgressListener;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -41,6 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * Created by Matt Shepard on 8/7/13.
@@ -242,7 +243,7 @@ public abstract class AwfulRequest<T> {
     /**
      * Whether or not to automatically check for common page errors during the request process.
      * Override it and return false to disable these checks.
-     * @see handleError() and AwfulError.checkPageErrors() for more details.
+     * see handleError() and AwfulError.checkPageErrors() for more details.
      * @return true to automatically check, false to disable.
      */
     protected boolean shouldCheckErrors(){
@@ -276,7 +277,7 @@ public abstract class AwfulRequest<T> {
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try{
                 long startTime = System.currentTimeMillis();
-                if(Constants.DEBUG) Log.i(TAG, "Starting parse: " + getUrl());
+                Timber.v("Starting parse: %s", getUrl());
                 updateProgress(25);
                 Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
                 updateProgress(50);
@@ -292,7 +293,7 @@ public abstract class AwfulRequest<T> {
                     updateProgress(100);
                     if(Constants.DEBUG) {
                         long parseTime = System.currentTimeMillis() - startTime;
-                        Log.i(TAG, String.format("Successful parse: %s\nTook %dms", getUrl(), parseTime));
+                        Timber.i("Successful parse: %s\nTook %dms", getUrl(), parseTime);
                     }
                     return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
                 }catch(AwfulError ae){
@@ -300,14 +301,13 @@ public abstract class AwfulRequest<T> {
                     return Response.error(ae);
                 }
             } catch (OutOfMemoryError e) {
-                if (AwfulApplication.crashlyticsEnabled()) {
-                    Crashlytics.setString("Response URL", getUrl());
-                    Crashlytics.setLong("Response data size", response.data.length);
-                }
+                Timber.e(e, "OutOfMemory");
+                Timber.e("Response URL: %s", getUrl());
+                Timber.e("Response data size: %s", response.data.length);
                 throw e;
             }catch(Exception e){
                 updateProgress(100);
-                if(Constants.DEBUG) Log.w(TAG, "Failed parse: " + getUrl(), e);
+                Timber.e(e, "Failed parse: %s", getUrl());
                 return Response.error(new ParseError(e));
             }
         }
@@ -410,16 +410,5 @@ public abstract class AwfulRequest<T> {
             }
             return super.getBodyContentType();
         }
-    }
-
-    /**
-     * Utility callbacks for AwfulRequest status updates.
-     * This is for updating the actionbar within AwfulFragment.
-     * You shouldn't need to use these, look at the AwfulResultCallback interface for success/failure results.
-     */
-    public interface ProgressListener{
-        void requestStarted(AwfulRequest req);
-        void requestUpdate(AwfulRequest req, int percent);
-        void requestEnded(AwfulRequest req, VolleyError error);
     }
 }
