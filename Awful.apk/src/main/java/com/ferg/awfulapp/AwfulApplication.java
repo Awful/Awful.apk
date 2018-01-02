@@ -51,12 +51,7 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		AnnouncementsManager.init();
         onPreferenceChange(mPref,null);
 
-		Fabric.with(this, new Crashlytics());
-		if(BuildConfig.DEBUG) {
-			Timber.plant(new Timber.DebugTree());
-		} else {
-			Timber.plant(new CrashlyticsReportingTree());
-		}
+
 
 		// work out how long it's been since the app was updated
 		long hoursSinceInstall = Long.MAX_VALUE;
@@ -69,13 +64,17 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		}
 		Timber.i("App installed %d hours ago", hoursSinceInstall);
 
+
 		// enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
-		crashlyticsEnabled = !Constants.DEBUG || hoursSinceInstall > 4;
+		crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
         if (crashlyticsEnabled) {
 			Fabric.with(this, new Crashlytics());
-			if(mPref.sendUsernameInReport){
+			Timber.plant(new CrashlyticsReportingTree());
+			if (mPref.sendUsernameInReport) {
 				Crashlytics.setUserName(mPref.username);
 			}
+		} else {
+			Timber.plant(new Timber.DebugTree());
 		}
 
 		if (Constants.DEBUG) {
