@@ -51,8 +51,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 		AnnouncementsManager.init();
         onPreferenceChange(mPref,null);
 
-
-
 		// work out how long it's been since the app was updated
 		long hoursSinceInstall = Long.MAX_VALUE;
 		try {
@@ -63,7 +61,6 @@ public class AwfulApplication extends Application implements AwfulPreferences.Aw
 			e.printStackTrace();
 		}
 		Timber.i("App installed %d hours ago", hoursSinceInstall);
-
 
 		// enable Crashlytics on non-debug builds, or debug builds that have been installed for a while
 		crashlyticsEnabled = !BuildConfig.DEBUG || hoursSinceInstall > 4;
