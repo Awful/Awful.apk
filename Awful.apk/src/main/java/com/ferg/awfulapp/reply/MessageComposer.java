@@ -21,7 +21,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import com.ferg.awfulapp.EmoteFragment;
+import com.ferg.awfulapp.EmotePicker;
+import com.ferg.awfulapp.EmotePickerListener;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.reply.BasicTextInserter.BbCodeTag;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -44,7 +45,7 @@ import static com.ferg.awfulapp.R.id.emotes;
  * {@link #onOptionsItemSelected(MenuItem)} are called when appropriate.
  */
 
-public class MessageComposer extends Fragment {
+public class MessageComposer extends Fragment implements EmotePickerListener {
 
     private EditText messageBox;
     private BottomSheetMenuDialog bottomSheetMenuDialog;
@@ -60,7 +61,7 @@ public class MessageComposer extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.message_composer, container, true);
-        messageBox = (EditText) result.findViewById(R.id.message_edit_text);
+        messageBox = result.findViewById(R.id.message_edit_text);
         addBbCodeToSelectionMenu(messageBox);
         return result;
     }
@@ -122,7 +123,7 @@ public class MessageComposer extends Fragment {
 
             // insert menu (emotes, images, block formatting, parameterised tags etc)
             case emotes:
-                new EmoteFragment(this).show(getFragmentManager(), "emotes");
+                new EmotePicker().show(getChildFragmentManager(), "emotes");
                 break;
             case R.id.bbcode_image:
                 insertWith(ImageInserter::smartInsert);
@@ -130,6 +131,7 @@ public class MessageComposer extends Fragment {
             case R.id.bbcode_imgur:
                 ImgurInserter imgurInserter = new ImgurInserter();
                 imgurInserter.setTargetFragment(this, -1);
+                // TODO: 29/12/2017 switch this to childFragmentManager and test
                 imgurInserter.show(getFragmentManager(), "imgur uploader");
                 break;
             case R.id.bbcode_video:
@@ -241,7 +243,7 @@ public class MessageComposer extends Fragment {
      *
      * @param emoteCode the smiley code to insert at the current selection point
      */
-    public void insertEmote(@NonNull String emoteCode) {
+    public void onEmoteChosen(@NonNull String emoteCode) {
         int selectionStart = messageBox.getSelectionStart();
         messageBox.getEditableText().insert(selectionStart, emoteCode);
         messageBox.setSelection(selectionStart + emoteCode.length());
