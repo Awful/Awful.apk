@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * Created by baka kaba on 05/02/2017.
@@ -118,7 +118,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(ThreadDisplay.getContainerHtml(mPrefs, -1));
+        webView.setContent(ThreadDisplay.getContainerHtml(getMPrefs(), -1));
     }
 
 
@@ -158,7 +158,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                     @Override
                     public void failure(VolleyError error) {
                         statusFrog.setStatusText(R.string.announcements_status_failed).showSpinner(false);
-                        Log.w(TAG, "Announcement get failed!\n" + error.getMessage());
+                        Timber.w("Announcement get failed!\n" + error.getMessage());
                     }
                 })
         );

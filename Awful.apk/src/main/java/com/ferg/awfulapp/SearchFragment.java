@@ -70,6 +70,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import timber.log.Timber;
+
 public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener{
     private static final String TAG = "SearchFragment";
 
@@ -89,7 +91,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(TAG, "onCreate");
+        Timber.v("onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -97,7 +99,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        if (DEBUG) Log.e(TAG, "onCreateView");
+        Timber.v("onCreateView");
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
         mSearchQuery = result.findViewById(R.id.search_query);
@@ -186,8 +188,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        if (DEBUG) Log.e(TAG, "onActivityCreated");
-
+        Timber.v("onActivityCreated");
     }
 
 
@@ -250,7 +251,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        if (Companion.getDEBUG()) Log.e(TAG, "onOptionsItemSelected");
         switch (item.getItemId()) {
 
             case R.id.search_submit:

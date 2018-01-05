@@ -96,6 +96,7 @@ import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_BYTES;
 import static com.ferg.awfulapp.constants.Constants.ATTACHMENT_MAX_HEIGHT;
@@ -160,7 +161,7 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(TAG, "onCreate");
+        Timber.v("onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -169,7 +170,7 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        if (DEBUG) Log.e(TAG, "onCreateView");
+        Timber.v("onCreateView");
         return inflateView(R.layout.post_reply, aContainer, aInflater);
     }
 
@@ -177,7 +178,7 @@ public class PostReplyFragment extends AwfulFragment {
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        if (DEBUG) Log.e(TAG, "onActivityCreated");
+        Timber.v("onActivityCreated");
         Activity activity = getActivity();
         ButterKnife.bind(this, activity);
 
@@ -205,7 +206,7 @@ public class PostReplyFragment extends AwfulFragment {
         if (badRequest) {
             Toast.makeText(activity, "Can't create reply! Bad parameters", Toast.LENGTH_LONG).show();
             String template = "Failed to init reply activity%nReply type: %d, Thread ID: %d, Post ID: %d";
-            Log.w(TAG, String.format(template, mReplyType, mThreadId, mPostId));
+            Timber.w(template, mReplyType, mThreadId, mPostId);
             activity.finish();
         }
 
@@ -308,7 +309,7 @@ public class PostReplyFragment extends AwfulFragment {
             public void failure(VolleyError error) {
                 dismissProgressDialog();
                 //allow time for the error to display, then close the window
-                mHandler.postDelayed(() -> leave(RESULT_CANCELLED), 3000);
+                getMHandler().postDelayed(() -> leave(RESULT_CANCELLED), 3000);
             }
         };
         switch (mReplyType) {
@@ -578,13 +579,13 @@ public class PostReplyFragment extends AwfulFragment {
     public void onResume() {
         super.onResume();
         updateThreadTitle();
-        if (DEBUG) Log.e(TAG, "onResume");
+        Timber.v("onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (DEBUG) Log.e(TAG, "onPause");
+        Timber.v("onPause");
         cleanupTasks();
     }
 
@@ -721,18 +722,18 @@ public class PostReplyFragment extends AwfulFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (DEBUG) Log.e(TAG, "onCreateOptionsMenu");
+        Timber.v("onCreateOptionsMenu");
         inflater.inflate(R.menu.post_reply, menu);
 
         MenuItem attach = menu.findItem(R.id.add_attachment);
-        if (attach != null && mPrefs != null) {
-            attach.setEnabled(mPrefs.hasPlatinum);
-            attach.setVisible(mPrefs.hasPlatinum);
+        if (attach != null && getMPrefs() != null) {
+            attach.setEnabled(getMPrefs().hasPlatinum);
+            attach.setVisible(getMPrefs().hasPlatinum);
         }
         MenuItem remove = menu.findItem(R.id.remove_attachment);
-        if (remove != null && mPrefs != null) {
-            remove.setEnabled((mPrefs.hasPlatinum && this.mFileAttachment != null));
-            remove.setVisible(mPrefs.hasPlatinum && this.mFileAttachment != null);
+        if (remove != null && getMPrefs() != null) {
+            remove.setEnabled((getMPrefs().hasPlatinum && this.mFileAttachment != null));
+            remove.setVisible(getMPrefs().hasPlatinum && this.mFileAttachment != null);
         }
         MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
         if (disableEmoticons != null) {
@@ -747,7 +748,7 @@ public class PostReplyFragment extends AwfulFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        Timber.v("onOptionsItemSelected");
         switch (item.getItemId()) {
             case R.id.submit_button:
                 showSubmitDialog();

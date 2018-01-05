@@ -63,7 +63,7 @@ import com.ferg.awfulapp.widget.AwfulProgressBar;
  * Currently only exists for EmoteFragment, and usually falls behind on changes made to AwfulFragment.
  * Welp.
  */
-public abstract class AwfulDialogFragment extends DialogFragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
+public abstract class AwfulDialogFragment extends DialogFragment implements ActionMode.Callback, ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected static String TAG = "AwfulFragment";
 	protected AwfulPreferences mPrefs;
 	protected int currentProgress = 100;

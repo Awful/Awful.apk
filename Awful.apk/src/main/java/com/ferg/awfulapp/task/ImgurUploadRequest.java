@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.task;
 
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -16,9 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.ferg.awfulapp.AwfulApplication;
-import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
-import com.ferg.awfulapp.preferences.AwfulPreferences;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -173,7 +170,8 @@ public class ImgurUploadRequest extends Request<JSONObject> {
 
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        String clientId = AwfulPreferences.getInstance().getResources().getString(R.string.imgur_api_client_id);
+        //String clientId = AwfulPreferences.getInstance().getResources().getString(R.string.imgur_api_client_id);
+        String clientId = "";
         Map<String, String> headers = new ArrayMap<>(1);
         headers.put("Authorization", "Client-ID " + clientId);
         return headers;
