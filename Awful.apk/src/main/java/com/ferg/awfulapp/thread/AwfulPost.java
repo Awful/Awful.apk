@@ -34,7 +34,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -55,12 +54,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -288,7 +285,7 @@ public class AwfulPost {
                 result.add(current);
             } while (aCursor.moveToNext());
         }else{
-        	Log.i(TAG,"No posts to convert.");
+            Timber.i("No posts to convert.");
         }
         return result;
     }
@@ -351,7 +348,7 @@ public class AwfulPost {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed youtube convertion:", e);
+                Timber.e(e, "Failed youtube conversion:");
                 continue; //if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -423,7 +420,7 @@ public class AwfulPost {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed video convertion:", e);
+                Timber.e(e, "Failed video conversion:");
                 continue;//if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -472,9 +469,6 @@ public class AwfulPost {
 
 
 
-    // TODO: 01/12/2017 maybe a general parsing pool somewhere would be better, so everything can submit jobs it instead of creating their own
-    private static ExecutorService postParseExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     /**
      * Parse a thread page to grab its post data.
      *
@@ -488,55 +482,36 @@ public class AwfulPost {
      * @return the number of posts found on the page
      */
     public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        ArrayList<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
+        List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
         // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
-        Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
+        Timber.i("Inserted " + resultCount + " posts into DB, threadId:" + aThreadId + " unreadIndex: " + unreadIndex);
         return resultCount;
     }
 
 
-    public static ArrayList<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
-    	ArrayList<ContentValues> result = new ArrayList<>();
+    public static List<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
 		int index = startIndex;
         String updateTime = new Timestamp(System.currentTimeMillis()).toString();
 
-        Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
+        Elements posts = aThread.getElementsByClass("post");
         List<Callable<ContentValues>> parseTasks = new ArrayList<>(posts.size());
         for(Element postData : posts){
             // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }
-            parseTasks.add(new PostParseTaskKt(postData, updateTime, index, unreadIndex, aThreadId, opId, preview, prefs));
+            parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, prefs));
             index++;
         }
 
         long startTime = System.currentTimeMillis();
         // parse posts using multithreading if possible - some of the Jsoup calls (#html in particular) are very slow
         // (#html should be a lot faster when jsoup updates to handle Windows-1252 encoding user their fast path for Entities#canEncode)
-        try {
-            List<Future<ContentValues>> parsedPosts = postParseExecutor.invokeAll(parseTasks);
-            for (Future<ContentValues> parsed : parsedPosts) {
-                result.add(parsed.get());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            Log.w(TAG, "parsePosts: parallel parse failed - attempting on main thread", e);
-            // parallel parsing failed somehow - just do it on the main thread
-            try {
-                result.clear();
-                for (Callable<ContentValues> parseTask : parseTasks) {
-                    result.add(parseTask.call());
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-                Log.w(TAG, "parsePosts: single-thread parse failed", e2);
-                return new ArrayList<>();
-            }
-        }
+        List<ContentValues> result = ForumParsingKt.parse(parseTasks);
         float averageParseTime = (System.currentTimeMillis() - startTime) / (float) parseTasks.size();
-        Log.i(TAG, String.format("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime));
-    	return result;
+        Timber.i("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime);
+        return result;
     }
 
 
