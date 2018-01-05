@@ -68,13 +68,14 @@ fun <T> parse(parseTasks: Collection<Callable<T>>): List<T> {
  * an _id_ attribute of "postXXXXXX", or a _data-idx_ attribute of "XXXXX". Currently (as of 5/1/18)
  * this is a _table_.
  *
+ * Don't use this for parsing previews! Use [PostPreviewParseTask] instead.
+ *
  * @param[postData]         an Element containing a post structure
  * @param[updateTime]       a parsing timestamp, which should be the same for each parsing task in a page load
  * @param[index]            the index of this post in the thread
  * @param[lastReadIndex]    the index of the last-read post, used to mark this post as seen or unseen
  * @param[threadId]         the ID of this post's thread
  * @param[opId]             the user ID of the person who created the thread
- * @param[preview]          true if this post is from a post preview page, false for a normal thread view
  * @returns the post data represented as a ContentValues (see [AwfulPost])
  */
 class PostParseTask(
@@ -84,7 +85,6 @@ class PostParseTask(
         private val lastReadIndex: Int,
         private val threadId: Int,
         private val opId: Int,
-        private val preview: Boolean,
         private val prefs: AwfulPreferences
 ) : Callable<ContentValues> {
 
@@ -101,13 +101,11 @@ class PostParseTask(
             put(DatabaseHelper.UPDATED_TIMESTAMP, updateTime)
             put(THREAD_ID, threadId)
 
-            if (!preview) {
                 //post id is formatted "post1234567", so we strip out the "post" prefix.
                 put(AwfulPost.ID, postData.id().replace(POST_ID_GARBAGE, "").toInt())
                 //we calculate this beforehand, but now can pull this from the post (thanks cooch!)
                 //wait actually no, FYAD doesn't support this. ~FYAD Privilege~
                 put(POST_INDEX, postData.attr("data-idx").replace(POST_ID_GARBAGE, "").toIntOrNull() ?: index)
-            }
 
             // Check for "class=seenX", or just rely on unread index
             val markedSeen = postData.selectFirst("[class^=seen]") != null
@@ -187,6 +185,17 @@ class PostParseTask(
 
     private fun Element.hasDescendantWithClass(cssClass: String): Boolean =
             this.selectFirst(".$cssClass") != null
+}
+
+
+/**
+ * A task that parses the post preview HTML from a preview page.
+ *
+ * @param previewPage the page provided by the site when you request a preview
+ * @returns the HTML content of the preview
+ */
+class PostPreviewParseTask(private val previewPage: Document) : Callable<String> {
+    override fun call() = previewPage.selectFirst(".standard > .postbody")?.html() ?: "Preview error!"
 }
 
 

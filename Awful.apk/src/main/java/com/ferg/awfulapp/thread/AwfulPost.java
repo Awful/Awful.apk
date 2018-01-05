@@ -34,7 +34,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -57,6 +56,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 public class AwfulPost {
     private static final String TAG = "AwfulPost";
@@ -284,7 +285,7 @@ public class AwfulPost {
                 result.add(current);
             } while (aCursor.moveToNext());
         }else{
-        	Log.i(TAG,"No posts to convert.");
+            Timber.i("No posts to convert.");
         }
         return result;
     }
@@ -347,7 +348,7 @@ public class AwfulPost {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed youtube convertion:", e);
+                Timber.e(e, "Failed youtube conversion:");
                 continue; //if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -419,7 +420,7 @@ public class AwfulPost {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Failed video convertion:", e);
+                Timber.e(e, "Failed video conversion:");
                 continue;//if we fail to convert the video tag, we can still display the rest.
             }
         }
@@ -481,26 +482,26 @@ public class AwfulPost {
      * @return the number of posts found on the page
      */
     public static int syncPosts(ContentResolver content, Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
-        List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex, false);
+        List<ContentValues> result = AwfulPost.parsePosts(aThread, aThreadId, unreadIndex, opId, prefs, startIndex);
         // TODO: 02/06/2017 see below, ignored posts are NOT stored!
         int resultCount = content.bulkInsert(CONTENT_URI, result.toArray(new ContentValues[result.size()]));
-        Log.i(TAG, "Inserted "+resultCount+" posts into DB, threadId:"+aThreadId+" unreadIndex: "+unreadIndex);
+        Timber.i("Inserted " + resultCount + " posts into DB, threadId:" + aThreadId + " unreadIndex: " + unreadIndex);
         return resultCount;
     }
 
 
-    public static List<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex, boolean preview){
+    public static List<ContentValues> parsePosts(Document aThread, int aThreadId, int unreadIndex, int opId, AwfulPreferences prefs, int startIndex){
 		int index = startIndex;
         String updateTime = new Timestamp(System.currentTimeMillis()).toString();
 
-        Elements posts = aThread.getElementsByClass(preview ? "standard" : "post");
+        Elements posts = aThread.getElementsByClass("post");
         List<Callable<ContentValues>> parseTasks = new ArrayList<>(posts.size());
         for(Element postData : posts){
             // TODO: 02/06/2017 this drops ignored posts completely - fine for a view, bad for actually getting all the posts on a page! Letting them store might break ignore??
             if (postData.hasClass("ignored") && prefs.hideIgnoredPosts) {
                 continue;
             }
-            parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, preview, prefs));
+            parseTasks.add(new PostParseTask(postData, updateTime, index, unreadIndex, aThreadId, opId, prefs));
             index++;
         }
 
@@ -509,7 +510,7 @@ public class AwfulPost {
         // (#html should be a lot faster when jsoup updates to handle Windows-1252 encoding user their fast path for Entities#canEncode)
         List<ContentValues> result = ForumParsingKt.parse(parseTasks);
         float averageParseTime = (System.currentTimeMillis() - startTime) / (float) parseTasks.size();
-        Log.i(TAG, String.format("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime));
+        Timber.i("%d posts found, %d posts parsed\nAverage parse time: %.3fms", posts.size(), result.size(), averageParseTime);
         return result;
     }
 
