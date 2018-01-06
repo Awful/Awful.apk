@@ -5,7 +5,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -42,6 +41,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * Created by Matt Shepard on 8/7/13.
@@ -91,7 +92,7 @@ public abstract class AwfulRequest<T> {
         if(key == null || value == null){
             //intentionally triggering that NPE here, so we can log it now instead of when it hits the volley queue
             //noinspection ConstantConditions,RedundantStringToString
-            Log.e("AWFULREQUEST", "PARAM NULL: "+key.toString()+" -v: "+value.toString());
+            Timber.e("PARAM NULL: %s - v: %s", key.toString(), value.toString());
         }
         if(attachParams != null){
             try {
@@ -243,7 +244,7 @@ public abstract class AwfulRequest<T> {
     /**
      * Whether or not to automatically check for common page errors during the request process.
      * Override it and return false to disable these checks.
-     * handleError() and AwfulError.checkPageErrors() for more details.
+     * See {@link #handleError} and {@link AwfulError#checkPageErrors} for more details.
      * @return true to automatically check, false to disable.
      */
     protected boolean shouldCheckErrors(){
@@ -268,7 +269,7 @@ public abstract class AwfulRequest<T> {
         private Response.Listener<T> success;
         public ActualRequest(String url, Response.Listener<T> successListener, Response.ErrorListener errorListener) {
             super(params != null? Method.POST : Method.GET, url, errorListener);
-            if(Constants.DEBUG) Log.e(TAG, "Created request: " + url);
+            Timber.i("Created request: %s", url);
             success = successListener;
             setRetryPolicy(lenientRetryPolicy);
         }
@@ -277,7 +278,7 @@ public abstract class AwfulRequest<T> {
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try{
                 long startTime = System.currentTimeMillis();
-                if(Constants.DEBUG) Log.i(TAG, "Starting parse: " + getUrl());
+                Timber.i("Starting parse: %s", getUrl());
                 updateProgress(25);
                 Document doc = Jsoup.parse(new ByteArrayInputStream(response.data), "CP1252", Constants.BASE_URL);
                 updateProgress(50);
@@ -293,7 +294,7 @@ public abstract class AwfulRequest<T> {
                     updateProgress(100);
                     if(Constants.DEBUG) {
                         long parseTime = System.currentTimeMillis() - startTime;
-                        Log.i(TAG, String.format("Successful parse: %s\nTook %dms", getUrl(), parseTime));
+                        Timber.i("Successful parse: %s\nTook %dms", getUrl(), parseTime);
                     }
                     return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
                 }catch(AwfulError ae){
@@ -308,7 +309,7 @@ public abstract class AwfulRequest<T> {
                 throw e;
             }catch(Exception e){
                 updateProgress(100);
-                if(Constants.DEBUG) Log.w(TAG, "Failed parse: " + getUrl(), e);
+                Timber.e(e, "Failed parse: %s", getUrl());
                 return Response.error(new ParseError(e));
             }
         }
@@ -320,7 +321,7 @@ public abstract class AwfulRequest<T> {
             if (volleyError == null) {
                 errorMessage += "(null VolleyError)";
             } else {
-                Log.e(TAG, volleyError.toString());
+                Timber.e(volleyError);
                 if (volleyError.getCause() != null) {
                     String causeMessage = volleyError.getCause().getMessage();
                     errorMessage += (causeMessage == null) ? "unknown" : causeMessage;
@@ -329,7 +330,7 @@ public abstract class AwfulRequest<T> {
                     errorMessage += "\nStatus code: " + volleyError.networkResponse.statusCode;
                 }
             }
-            Log.e(TAG, errorMessage);
+            Timber.e(errorMessage);
             return volleyError;// new AwfulError(errorMessage);
         }
 
@@ -375,7 +376,7 @@ public abstract class AwfulRequest<T> {
                 headers = new HashMap<>();
             }
             NetworkUtils.setCookieHeaders(headers);
-            if(Constants.DEBUG) Log.i(TAG, "getHeaders: "+headers.toString());
+            Timber.i("getHeaders: %s", headers);
             return headers;
         }
 
@@ -395,7 +396,7 @@ public abstract class AwfulRequest<T> {
                     httpEntity.writeTo(bytes);
                     return bytes.toByteArray();
                 }catch(IOException ioe){
-                    Log.e(TAG, "Failed to convert body bytestream");
+                    Timber.e("Failed to convert body bytestream");
                 }
             }
             return super.getBody();

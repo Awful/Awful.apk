@@ -197,7 +197,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
     private AsyncTask<Void, Void, String> redirect = null;
 	private Uri downloadLink;
 
-	private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(getMHandler());
+	private final ThreadContentObserver mThreadObserver = new ThreadContentObserver(getHandler());
 
 
 	@Override
@@ -233,14 +233,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 				switch (url.getType()) {
 					case THREAD:
 						if (url.isRedirect()) {
-							startPostRedirect(url.getURL(getMPrefs().postPerPage));
+							startPostRedirect(url.getURL(getPrefs().postPerPage));
 						} else {
 							setThreadId((int) url.getId());
-							setPage((int) url.getPage(getMPrefs().postPerPage));
+							setPage((int) url.getPage(getPrefs().postPerPage));
 						}
 						break;
 					case POST:
-						startPostRedirect(url.getURL(getMPrefs().postPerPage));
+						startPostRedirect(url.getURL(getPrefs().postPerPage));
 						break;
 					case INDEX:
 						displayForumIndex();
@@ -314,10 +314,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         super.onViewCreated(view, savedInstanceState);
 
 
-        setMSRL((SwipyRefreshLayout) view.findViewById(R.id.thread_swipe));
-		getMSRL().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
-		getMSRL().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
-		getMSRL().setEnabled(!getMPrefs().disablePullNext);
+        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.thread_swipe));
+		getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+		getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
+		getSwipyLayout().setEnabled(!getPrefs().disablePullNext);
     }
 
 
@@ -373,16 +373,16 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					break;
 				case THREAD:
 					if (aLink.isRedirect()) {
-						startPostRedirect(aLink.getURL(getMPrefs().postPerPage));
+						startPostRedirect(aLink.getURL(getPrefs().postPerPage));
 					} else {
 						pushThread((int) aLink.getId(), (int) aLink.getPage(), aLink.getFragment().replaceAll("\\D", ""));
 					}
 					break;
 				case POST:
-					startPostRedirect(aLink.getURL(getMPrefs().postPerPage));
+					startPostRedirect(aLink.getURL(getPrefs().postPerPage));
 					break;
 				case EXTERNAL:
-					if (getMPrefs().alwaysOpenUrls) {
+					if (getPrefs().alwaysOpenUrls) {
 						startUrlIntent(aUrl);
 					} else {
 						showUrlMenu(aUrl);
@@ -431,7 +431,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			invalidateOptionsMenu();
 		}
 		if (mThreadView != null) {
-			getMSRL().setOnRefreshListener(getMPrefs().disablePullNext ? null : this);
+			getSwipyLayout().setOnRefreshListener(getPrefs().disablePullNext ? null : this);
 		}
 	}
 
@@ -534,7 +534,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		MenuItem reply = menu.findItem(R.id.reply);
 		if(reply != null){
-			reply.setVisible(getMPrefs().noFAB);
+			reply.setVisible(getPrefs().noFAB);
 		}
         MenuItem bk = menu.findItem(R.id.bookmark);
         if(bk != null){
@@ -607,7 +607,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		Uri.Builder builder = Uri.parse(Constants.FUNCTION_THREAD).buildUpon()
 				.appendQueryParameter(Constants.PARAM_THREAD_ID, String.valueOf(getThreadId()))
 				.appendQueryParameter(Constants.PARAM_PAGE, String.valueOf(getPage()))
-				.appendQueryParameter(Constants.PARAM_PER_PAGE, String.valueOf(getMPrefs().postPerPage));
+				.appendQueryParameter(Constants.PARAM_PER_PAGE, String.valueOf(getPrefs().postPerPage));
 		if (postId != null) {
 			builder.fragment("post" + postId);
 		}
@@ -697,15 +697,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 */
 	public void ignoreUser(int userId) {
 		final Activity activity = getActivity();
-		if (getMPrefs().ignoreFormkey == null) {
+		if (getPrefs().ignoreFormkey == null) {
 			queueRequest(new ProfileRequest(activity, null).build());
 		}
-		if (getMPrefs().showIgnoreWarning) {
+		if (getPrefs().showIgnoreWarning) {
 
 			DialogInterface.OnClickListener onClickListener = (dialog, which) -> {
                 if (which == AlertDialog.BUTTON_NEUTRAL) {
                     // cancel future alerts if the user clicks the "don't warn" option
-                    getMPrefs().setPreference(Keys.SHOW_IGNORE_WARNING, false);
+                    getPrefs().setPreference(Keys.SHOW_IGNORE_WARNING, false);
                 }
                 doIgnoreUser(activity, userId);
             };
@@ -736,10 +736,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * Toggle a user as marked or unmarked.
      */
 	public void toggleMarkUser(String username){
-        if(getMPrefs().markedUsers.contains(username)){
-            getMPrefs().unmarkUser(username);
+        if(getPrefs().markedUsers.contains(username)){
+            getPrefs().unmarkUser(username);
         }else{
-            getMPrefs().markUser(username);
+            getPrefs().markUser(username);
         }
 	}
 
@@ -902,8 +902,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * Toggle between amberPOS and greenPOS, refreshing the display.
 	 */
 	private void toggleYospos() {
-		getMPrefs().amberDefaultPos = !getMPrefs().amberDefaultPos;
-		getMPrefs().setPreference(Keys.AMBER_DEFAULT_POS, getMPrefs().amberDefaultPos);
+		getPrefs().amberDefaultPos = !getPrefs().amberDefaultPos;
+		getPrefs().setPreference(Keys.AMBER_DEFAULT_POS, getPrefs().amberDefaultPos);
 		if (mThreadView != null) {
 			mThreadView.runJavascript(String.format("changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 		}
@@ -939,11 +939,11 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                     //The redirected url is lacking the perpage=XX value.
                     //We just override the assumed (40) with the number we requested when starting the redirect.
                     //I gotta ask chooch to fix this at some point.
-                    result.setPerPage(getMPrefs().postPerPage);
+                    result.setPerPage(getPrefs().postPerPage);
                 }
                 if (result.getType() == TYPE.THREAD) {
 					int threadId = (int) result.getId();
-					int threadPage = (int) result.getPage(getMPrefs().postPerPage);
+					int threadPage = (int) result.getPage(getPrefs().postPerPage);
 					String postJump = result.getFragment().replaceAll("\\D", "");
 					if (bypassBackStack) {
                         openThread(threadId, threadPage, postJump);
@@ -986,10 +986,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             case PostReplyFragment.REQUEST_POST:
             		bypassBackStack = true;
             	if(aResultCode == PostReplyFragment.RESULT_POSTED){
-            		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), getMPrefs().postPerPage).getURL(getMPrefs().postPerPage));
+            		startPostRedirect(AwfulURL.threadLastPage(getThreadId(), getPrefs().postPerPage).getURL(getPrefs().postPerPage));
             	}else if(aResultCode > 100){//any result >100 it is a post id we edited
 					// TODO: >100 is a bit too magical
-            		startPostRedirect(AwfulURL.post(aResultCode, getMPrefs().postPerPage).getURL(getMPrefs().postPerPage));
+            		startPostRedirect(AwfulURL.post(aResultCode, getPrefs().postPerPage).getURL(getPrefs().postPerPage));
             	}
                 break;
         }
@@ -1339,7 +1339,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @return	The basic page HTML, with no post content
      */
 	private String getBlankPage(){
-		return ThreadDisplay.getContainerHtml(getMPrefs(), getParentForumId());
+		return ThreadDisplay.getContainerHtml(getPrefs(), getParentForumId());
 	}
 
     private int getLastPage() {
@@ -1424,14 +1424,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         private final static String sortOrder = AwfulPost.POST_INDEX + " ASC";
         private final static String selection = AwfulPost.THREAD_ID + "=? AND " + AwfulPost.POST_INDEX + ">=? AND " + AwfulPost.POST_INDEX + "<?";
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            int index = AwfulPagedItem.pageToIndex(getPage(), getMPrefs().postPerPage, 0);
+            int index = AwfulPagedItem.pageToIndex(getPage(), getPrefs().postPerPage, 0);
             Timber.i("Loading page %d of thread %d from database\nStart index is %d with %d posts per page",
-                    getPage(), getThreadId(), index, getMPrefs().postPerPage);
+                    getPage(), getThreadId(), index, getPrefs().postPerPage);
             return new CursorLoader(getActivity(),
             						AwfulPost.CONTENT_URI,
             						AwfulProvider.PostProjection,
             						selection,
-            						AwfulProvider.int2StrArray(getThreadId(), index, index+ getMPrefs().postPerPage),
+            						AwfulProvider.int2StrArray(getThreadId(), index, index+ getPrefs().postPerPage),
             						sortOrder);
         }
 
@@ -1464,7 +1464,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
         	Timber.i("Loaded thread metadata, updating fragment state and UI");
         	if(aData.getCount() >0 && aData.moveToFirst()){
-        		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)), getMPrefs().postPerPage);
+        		mLastPage = AwfulPagedItem.indexToPage(aData.getInt(aData.getColumnIndex(AwfulThread.POSTCOUNT)), getPrefs().postPerPage);
 				threadClosed = aData.getInt(aData.getColumnIndex(AwfulThread.LOCKED))>0;
 				threadOpenClose = aData.getInt(aData.getColumnIndex(AwfulThread.CAN_OPEN_CLOSE))>0;
         		threadBookmarked = aData.getInt(aData.getColumnIndex(AwfulThread.BOOKMARKED))>0;
@@ -1494,7 +1494,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         		}
                 invalidateOptionsMenu();
 				if (mFAB != null) {
-					mFAB.setVisibility((getMPrefs().noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
+					mFAB.setVisibility((getPrefs().noFAB || threadClosed || threadArchived)?View.GONE:View.VISIBLE);
 				}
         	}
         }
@@ -1579,10 +1579,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * Open a specific thread represented in an AwfulURL
      */
 	public void openThread(AwfulURL url) {
-		// TODO: fix this mPrefs stuff, get it initialised somewhere consistent in the lifecycle, preferably in AwfulFragment
-		if(getMPrefs() == null){
-			setMPrefs(AwfulPreferences.getInstance(getAwfulActivity(), this));
-		}
+		// TODO: fix this prefs stuff, get it initialised somewhere consistent in the lifecycle, preferably in AwfulFragment
 		// TODO: validate the AwfulURL, e.g. make sure it's the correct type
 		if(url == null){
 			Toast.makeText(this.getActivity(), "Error occurred: URL was empty", Toast.LENGTH_LONG).show();
@@ -1590,9 +1587,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
     	clearBackStack();
     	if(url.isRedirect()){
-    		startPostRedirect(url.getURL(getMPrefs().postPerPage));
+    		startPostRedirect(url.getURL(getPrefs().postPerPage));
     	}else{
-    		loadThread((int) url.getId(), (int) url.getPage(getMPrefs().postPerPage), url.getFragment(), true);
+    		loadThread((int) url.getId(), (int) url.getPage(getPrefs().postPerPage), url.getFragment(), true);
     	}
 	}
 

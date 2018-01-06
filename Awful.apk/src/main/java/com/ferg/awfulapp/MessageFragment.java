@@ -64,9 +64,9 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
 	
 	private ProgressDialog mDialog;
 
-    private Messenger mMessenger = new Messenger(getMHandler());
-    private PMCallback mPMDataCallback = new PMCallback(getMHandler());
-    private ContentObserver pmReplyObserver = new ContentObserver(getMHandler()){
+    private Messenger mMessenger = new Messenger(getHandler());
+    private PMCallback mPMDataCallback = new PMCallback(getHandler());
+    private ContentObserver pmReplyObserver = new ContentObserver(getHandler()){
     	@Override
         public void onChange (boolean selfChange){
         	Log.i(TAG,"PM Data update.");

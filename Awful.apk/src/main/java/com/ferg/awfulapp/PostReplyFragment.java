@@ -309,7 +309,7 @@ public class PostReplyFragment extends AwfulFragment {
             public void failure(VolleyError error) {
                 dismissProgressDialog();
                 //allow time for the error to display, then close the window
-                getMHandler().postDelayed(() -> leave(RESULT_CANCELLED), 3000);
+                getHandler().postDelayed(() -> leave(RESULT_CANCELLED), 3000);
             }
         };
         switch (mReplyType) {
@@ -726,14 +726,14 @@ public class PostReplyFragment extends AwfulFragment {
         inflater.inflate(R.menu.post_reply, menu);
 
         MenuItem attach = menu.findItem(R.id.add_attachment);
-        if (attach != null && getMPrefs() != null) {
-            attach.setEnabled(getMPrefs().hasPlatinum);
-            attach.setVisible(getMPrefs().hasPlatinum);
+        if (attach != null && getPrefs() != null) {
+            attach.setEnabled(getPrefs().hasPlatinum);
+            attach.setVisible(getPrefs().hasPlatinum);
         }
         MenuItem remove = menu.findItem(R.id.remove_attachment);
-        if (remove != null && getMPrefs() != null) {
-            remove.setEnabled((getMPrefs().hasPlatinum && this.mFileAttachment != null));
-            remove.setVisible(getMPrefs().hasPlatinum && this.mFileAttachment != null);
+        if (remove != null && getPrefs() != null) {
+            remove.setEnabled((getPrefs().hasPlatinum && this.mFileAttachment != null));
+            remove.setVisible(getPrefs().hasPlatinum && this.mFileAttachment != null);
         }
         MenuItem disableEmoticons = menu.findItem(R.id.disableEmots);
         if (disableEmoticons != null) {

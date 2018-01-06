@@ -39,7 +39,6 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
-import android.text.TextUtils
 import android.view.*
 import android.view.animation.Animation
 import android.widget.ImageView
@@ -52,6 +51,7 @@ import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.util.AwfulError
+import com.ferg.awfulapp.util.hide
 import com.ferg.awfulapp.widget.AwfulProgressBar
 import com.ferg.awfulapp.widget.ProbationBar
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
@@ -62,21 +62,20 @@ import timber.log.Timber
 abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
     protected var TAG = "AwfulFragment"
 
-    lateinit protected var mPrefs: AwfulPreferences
-    private var mProgressBar: AwfulProgressBar? = null
-    private var probationBar: ProbationBar? = null
+    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this)}
+    protected val handler: Handler by lazy { Handler() }
 
-    protected var mSRL: SwipyRefreshLayout? = null
+    protected var swipyLayout: SwipyRefreshLayout? = null
+    private var progressBar: AwfulProgressBar? = null
+    private var probationBar: ProbationBar? = null
 
     var progressPercent = 100
 
-    protected val mHandler = Handler()
 
-
-    val awfulActivity: AwfulActivity?
+    val awfulActivity
         get() = activity as AwfulActivity?
 
-    protected val awfulApplication: AwfulApplication?
+    protected val awfulApplication
         get() = awfulActivity?.application as AwfulApplication?
 
     /** Get this fragment's display title  */
@@ -100,36 +99,34 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
         if (activity !is AwfulActivity) {
             throw IllegalStateException("AwfulFragment - parent activity must extend AwfulActivity!")
         }
-        mPrefs = AwfulPreferences.getInstance(context, this)
     }
 
     protected fun inflateView(resId: Int, container: ViewGroup?, inflater: LayoutInflater): View {
         val v = inflater.inflate(resId, container, false)
-        mProgressBar = v.findViewById(R.id.progress_bar)
 
-        // set up the probation bar, if we have one - use this ID when adding to a layout!
+        // set up the probation and progress bar, if we have them - use this ID when adding to a layout!
+        progressBar = v.findViewById(R.id.progress_bar)
         probationBar = v.findViewById(R.id.probation_bar)
         probationBar?.setListener { goToLeperColony() }
-
         return v
     }
 
     override fun onActivityCreated(aSavedState: Bundle?) {
         super.onActivityCreated(aSavedState)
-        onPreferenceChange(mPrefs, null)
+        onPreferenceChange(prefs, null)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         this.cancelNetworkRequests()
-        mHandler.removeCallbacksAndMessages(null)
-        mPrefs.unregisterCallback(this)
+        handler.removeCallbacksAndMessages(null)
+        prefs.unregisterCallback(this)
     }
 
     override fun onDetach() {
         super.onDetach()
         this.cancelNetworkRequests()
-        mHandler.removeCallbacksAndMessages(null)
+        handler.removeCallbacksAndMessages(null)
     }
 
     protected fun displayForumIndex() {
@@ -150,23 +147,21 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
         awfulActivity?.runOnUiThread {
-            if (activity != null) {
-                startActivityForResult(
-                        Intent(activity, PostReplyActivity::class.java)
-                                .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                                .putExtra(Constants.EDITING, type)
-                                .putExtra(Constants.REPLY_POST_ID, postId),
-                        PostReplyFragment.REQUEST_POST)
-            }
+            startActivityForResult(
+                    Intent(activity, PostReplyActivity::class.java)
+                            .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                            .putExtra(Constants.EDITING, type)
+                            .putExtra(Constants.REPLY_POST_ID, postId),
+                    PostReplyFragment.REQUEST_POST)
         }
     }
 
     protected fun setProgress(percent: Int) {
         progressPercent = percent
         if (progressPercent > 0) {
-            mSRL?.isRefreshing = false
+            swipyLayout?.isRefreshing = false
         }
-        mProgressBar?.setProgress(percent, activity)
+        progressBar?.setProgress(percent, activity)
     }
 
     protected fun makeToast(@StringRes text: Int, length: Int = Toast.LENGTH_LONG) {
@@ -174,9 +169,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     }
 
     protected fun makeToast(text: String, length: Int = Toast.LENGTH_LONG) {
-        if (activity != null) {
-            Toast.makeText(activity, text, length).show()
-        }
+        activity?.let { Toast.makeText(it, text, length).show() }
     }
 
 
@@ -184,18 +177,13 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     // Probation bar
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Refresh the probation bar's visual state
-     */
     protected fun refreshProbationBar() {
-        probationBar?.setProbation(if (mPrefs.isOnProbation) mPrefs.probationTime else null)
+        probationBar?.setProbation(if (prefs.isOnProbation) prefs.probationTime else null)
     }
 
-    /**
-     * Open the Leper Colony page - call this when the user clicks the probation button
-     */
+    // Open the Leper Colony page - call this when the user clicks the probation button
     private fun goToLeperColony() {
-        val openThread = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.FUNCTION_BANLIST + '?' + Constants.PARAM_USER_ID + "=" + mPrefs.userId))
+        val openThread = Intent(Intent.ACTION_VIEW, Uri.parse("""${Constants.FUNCTION_BANLIST}?${Constants.PARAM_USER_ID}=${prefs.userId}"""))
         startActivity(openThread)
     }
 
@@ -206,8 +194,8 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     override fun requestStarted(req: AwfulRequest<*>) {
         // P2R Library is ... awful - part 1
-        mSRL?.direction = TOP
-        mSRL?.isRefreshing = true
+        swipyLayout?.direction = TOP
+        swipyLayout?.isRefreshing = true
     }
 
     override fun requestUpdate(req: AwfulRequest<*>, percent: Int) {
@@ -215,9 +203,9 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     }
 
     override fun requestEnded(req: AwfulRequest<*>, error: VolleyError?) {
-        mSRL?.isRefreshing = false
         // P2R Library is ... awful - part 2
-        mSRL?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
+        swipyLayout?.isRefreshing = false
+        swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
 
         if (error is AwfulError) {
             AlertBuilder().fromError((error as AwfulError?)!!).show()
@@ -227,11 +215,10 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     }
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        if (mSRL != null) {
+        swipyLayout?.let { swipy ->
             val displayMetrics = this.resources.displayMetrics
             val dpHeight = displayMetrics.heightPixels / displayMetrics.density
-
-            mSRL?.setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
+            swipy.setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
         }
     }
 
@@ -248,10 +235,8 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      */
     @JvmOverloads
     fun queueRequest(request: Request<*>?, cancelOnDestroy: Boolean = false) {
-        if (request != null) {
-            if (cancelOnDestroy) {
-                request.tag = this
-            }
+        request?.let {
+            if (cancelOnDestroy) request.tag = this
             NetworkUtils.queueRequest(request)
         }
     }
@@ -274,12 +259,9 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      * @return      true if the event was consumed
      */
     fun attemptVolumeScroll(event: KeyEvent): Boolean {
-        val action = event.action
-        val keyCode = event.keyCode
-
-        return if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (action == KeyEvent.ACTION_DOWN) {
-                doScroll(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+        return if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                doScroll(event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
             } else {
                 true
             }
@@ -355,38 +337,33 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     }
 
 
-    private fun displayAlertInternal(title: String, subtext: String, iconRes: Int, animate: Animation?) {
+    private fun displayAlertInternal(titleText: String, subtext: String, iconRes: Int, animate: Animation?) {
         val activity = activity ?: return
-        val inflater = activity.layoutInflater
-        val popup = inflater.inflate(R.layout.alert_popup,
-                activity.findViewById<View>(R.id.alert_popup_root) as ViewGroup)
-        val popupTitle = popup.findViewById<View>(R.id.popup_title) as TextView
-        popupTitle.text = title
-        val popupSubTitle = popup.findViewById<View>(R.id.popup_subtitle) as TextView
-        if (TextUtils.isEmpty(subtext)) {
-            popupSubTitle.visibility = View.GONE
-        } else {
-            popupSubTitle.visibility = View.VISIBLE
-            popupSubTitle.text = subtext
-        }
+        val popup = activity.layoutInflater.inflate(R.layout.alert_popup,
+                activity.findViewById(R.id.alert_popup_root)) as ViewGroup
+        val title: TextView     = popup.findViewById(R.id.popup_title)
+        val subtitle: TextView  = popup.findViewById(R.id.popup_subtitle)
+        val icon: ImageView     = popup.findViewById(R.id.popup_icon)
+
+        title.text = titleText
+
+        if (subtext.isEmpty()) subtitle.hide()
+        else subtitle.text = subtext
+
         if (iconRes != 0) {
-            val popupIcon = popup.findViewById<View>(R.id.popup_icon) as ImageView
-            if (animate != null) {
-                popupIcon.setImageResource(iconRes)
-                popupIcon.startAnimation(animate)
-            } else {
-                popupIcon.setImageResource(iconRes)
-            }
+            animate?.let { icon.startAnimation(animate) }
+            icon.setImageResource(iconRes)
         }
-        val toast = Toast(awfulApplication)
-        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0)
-        toast.duration = Toast.LENGTH_LONG
-        toast.view = popup
-        toast.show()
+        with(Toast(awfulApplication)) {
+            setGravity(Gravity.CENTER_VERTICAL, 0, 0)
+            duration = Toast.LENGTH_LONG
+            view = popup
+            show()
+        }
     }
 
     protected fun restartLoader(id: Int, data: Bundle?, callback: LoaderManager.LoaderCallbacks<out Any>) {
-        if (activity != null) {
+        activity?.let {
             Timber.d("loader id is $id")
             loaderManager.restartLoader(id, data, callback)
         }
@@ -407,36 +384,24 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     protected fun safeCopyToClipboard(label: String,
                                       clipText: String,
                                       @StringRes successMessageId: Int?): Boolean {
-        val clipboard = this.activity!!.getSystemService(
-                Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        val clipboard = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(label, clipText)
         try {
             clipboard.primaryClip = clip
-            if (successMessageId != null) {
+            successMessageId?.let {
                 AlertBuilder().setTitle(successMessageId)
                         .setIcon(R.drawable.ic_insert_link_dark)
                         .show()
             }
             return true
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
             AlertBuilder().setTitle("Unable to copy to clipboard!")
                     .setSubtitle("Another app has locked access, you may need to reboot")
                     .setIcon(R.drawable.ic_error)
                     .show()
-            e.printStackTrace()
-            return false
-        } catch (e: SecurityException) {
-            AlertBuilder().setTitle("Unable to copy to clipboard!").setSubtitle("Another app has locked access, you may need to reboot").setIcon(R.drawable.ic_error).show()
-            e.printStackTrace()
-            return false
-        } catch (e: IllegalStateException) {
-            AlertBuilder().setTitle("Unable to copy to clipboard!").setSubtitle("Another app has locked access, you may need to reboot").setIcon(R.drawable.ic_error).show()
-            e.printStackTrace()
+            Timber.e(e, "Clipboard exception")
             return false
         }
-    }
-
-    companion object {
-        protected val DEBUG = Constants.DEBUG
     }
 }

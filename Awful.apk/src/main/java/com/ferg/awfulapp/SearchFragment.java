@@ -39,7 +39,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -228,7 +227,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         mSRL.setEnabled(true);
                     }
                 }
-                Log.e(TAG,"mQueryPages: "+mQueryPages+ " mQueryId: "+mQueryId);
+                Timber.e("mQueryPages: %s\nmQueryId: %s", mQueryPages, mQueryId);
             }
 
             @Override
@@ -251,7 +250,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (Companion.getDEBUG()) Log.e(TAG, "onOptionsItemSelected");
+        Timber.v("onOptionsItemSelected");
         switch (item.getItemId()) {
 
             case R.id.search_submit:
@@ -312,7 +311,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public void onRefresh(SwipyRefreshLayoutDirection direction) {
-        Log.e(TAG,"onRefresh: "+ mMaxPageQueried+ " ");
+        Timber.i("onRefresh: %s", mMaxPageQueried);
         final int preItemCount = mSearchResultList.getAdapter().getItemCount();
         NetworkUtils.queueRequest(new SearchResultRequest(this.getContext(), mQueryId, (mMaxPageQueried+1)).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
 

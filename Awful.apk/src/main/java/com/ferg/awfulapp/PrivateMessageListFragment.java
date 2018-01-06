@@ -72,7 +72,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     private ListView mPMList;
 
 	private AwfulCursorAdapter mCursorAdapter;
-    private PMIndexCallback mPMDataCallback = new PMIndexCallback(getMHandler());
+    private PMIndexCallback mPMDataCallback = new PMIndexCallback(getHandler());
 
     private SwipeRefreshLayout mSRL;
 
@@ -101,11 +101,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
 
-        setMPrefs(AwfulPreferences.getInstance(this.getActivity()));
-        
         View result = aInflater.inflate(R.layout.private_message_list_fragment, aContainer, false);
-
-
 
 //        mToolbar = (Toolbar) result.findViewById(R.id.awful_toolbar_pm);
 //        this.getAwfulActivity().setSupportActionBar(mToolbar);
@@ -116,7 +112,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         mFAB  = (FloatingActionButton) result.findViewById(R.id.just_pm);
         mFAB.setOnClickListener(onButtonClick);
-        mFAB.setVisibility((getMPrefs().noFAB ? View.GONE : View.VISIBLE));
+        mFAB.setVisibility((getPrefs().noFAB ? View.GONE : View.VISIBLE));
 
         return result;
     }
@@ -202,7 +198,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 
         MenuItem newPM = menu.findItem(R.id.new_pm);
         if(null != newPM){
-            newPM.setVisible(getMPrefs().noFAB);
+            newPM.setVisible(getPrefs().noFAB);
         }
         MenuItem sendPM = menu.findItem(R.id.send_pm);
         if(null != sendPM){

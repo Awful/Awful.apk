@@ -126,8 +126,8 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
 	private ThreadCursorAdapter mCursorAdapter;
-    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(getMHandler());
-    private ForumDataCallback mForumDataCallback = new ForumDataCallback(getMHandler());
+    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(getHandler());
+    private ForumDataCallback mForumDataCallback = new ForumDataCallback(getHandler());
 
 
     @Override
@@ -180,10 +180,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         super.onViewCreated(view, savedInstanceState);
 
         // TODO: move P2R stuff into AwfulFragment
-        setMSRL((SwipyRefreshLayout) view.findViewById(R.id.forum_swipe));
-        getMSRL().setOnRefreshListener(this);
-        getMSRL().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
-        getMSRL().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
+        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.forum_swipe));
+        getSwipyLayout().setOnRefreshListener(this);
+        getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+        getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
     }
 
     @Override
@@ -317,7 +317,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	        Cursor row = mCursorAdapter.getRow(info.id);
             if(row != null && row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))>-1) {
 	              inflater.inflate(R.menu.thread_longpress, aMenu);
-	              if(row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))<1 || !getMPrefs().coloredBookmarks){
+	              if(row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))<1 || !getPrefs().coloredBookmarks){
 	            	  MenuItem bookmarkColor = aMenu.findItem(R.id.thread_bookmark_color);
 	            	  if(bookmarkColor != null){
 	            		  bookmarkColor.setEnabled(false);
@@ -336,11 +336,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
-                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getMPrefs().postPerPage);
+                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
                 viewThread((int) info.id,lastPage);
                 return true;
             case R.id.go_to_page:
-                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getMPrefs().postPerPage);
+                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
                 selectThreadPage((int) info.id, maxPage);
                 return true;
             case R.id.mark_thread_unread:
@@ -409,7 +409,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                     Timber.i("Thread ID: " + aId);
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
-                    												getMPrefs().postPerPage,
+                    												getPrefs().postPerPage,
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
@@ -420,7 +420,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
-		super.onPreferenceChange(getMPrefs(), key);
+		super.onPreferenceChange(getPrefs(), key);
         if(mPageBar != null) {
             getAwfulActivity().setPreferredFont(mPageBar.getTextView());
         }
@@ -641,7 +641,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
             }
 
-            boolean sortNewFirst = (isBookmarks && getMPrefs().newThreadsFirstUCP) || (!isBookmarks && getMPrefs().newThreadsFirstForum);
+            boolean sortNewFirst = (isBookmarks && getPrefs().newThreadsFirstUCP) || (!isBookmarks && getPrefs().newThreadsFirstForum);
             String sortOrder = sortNewFirst ? AwfulThread.HAS_NEW_POSTS + " DESC, " + AwfulThread.INDEX : AwfulThread.INDEX;
 
             return new CursorLoader(getActivity(), contentUri, AwfulProvider.ThreadProjection, selection, selectionArgs, sortOrder);

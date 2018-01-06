@@ -118,7 +118,7 @@ public class AnnouncementsFragment extends AwfulFragment {
                 return true;
             }
         });
-        webView.setContent(ThreadDisplay.getContainerHtml(getMPrefs(), -1));
+        webView.setContent(ThreadDisplay.getContainerHtml(getPrefs(), -1));
     }
 
 
