@@ -87,7 +87,7 @@ public abstract class ThreadDisplay {
 
         buffer.append("</head><body><div id='container' class='container' ")
                 .append((!aPrefs.noFAB ? "style='padding-bottom:75px'" : ""))
-                .append("></div></body></html>");
+                .append("></div><script type='text/javascript'>containerInit();</script></body></html>");
         return buffer.toString();
     }
 
