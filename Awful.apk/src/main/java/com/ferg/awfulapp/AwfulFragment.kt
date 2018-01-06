@@ -209,11 +209,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
         when(error) {
             is AwfulError -> alertView.show(error)
-            is VolleyError -> {
-                alertView
-                        .setTitle(R.string.loading_failed)
-                        .setIcon(R.drawable.ic_error).show()
-            }
+            is VolleyError -> alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show()
         }
     }
 
