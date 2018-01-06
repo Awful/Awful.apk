@@ -58,7 +58,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import timber.log.Timber
 
-abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
+abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any> {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this)}
@@ -192,17 +192,17 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
     // Reacting to request progress
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun requestStarted(req: AwfulRequest<*>) {
+    override fun requestStarted(req: AwfulRequest<Any>) {
         // P2R Library is ... awful - part 1
         swipyLayout?.direction = TOP
         swipyLayout?.isRefreshing = true
     }
 
-    override fun requestUpdate(req: AwfulRequest<*>, percent: Int) {
+    override fun requestUpdate(req: AwfulRequest<Any>, percent: Int) {
         setProgress(percent)
     }
 
-    override fun requestEnded(req: AwfulRequest<*>, error: VolleyError?) {
+    override fun requestEnded(req: AwfulRequest<Any>, error: VolleyError?) {
         // P2R Library is ... awful - part 2
         swipyLayout?.isRefreshing = false
         swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP

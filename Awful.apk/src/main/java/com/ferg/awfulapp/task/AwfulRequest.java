@@ -19,7 +19,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.crashlytics.android.Crashlytics;
 import com.ferg.awfulapp.AwfulApplication;
-import com.ferg.awfulapp.ProgressListener;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
@@ -412,5 +411,12 @@ public abstract class AwfulRequest<T> {
             }
             return super.getBodyContentType();
         }
+    }
+
+
+    public interface ProgressListener<T>{
+        void requestStarted(AwfulRequest<T> req);
+        void requestUpdate(AwfulRequest<T> req, int percent);
+        void requestEnded(AwfulRequest<T> req, VolleyError error);
     }
 }
