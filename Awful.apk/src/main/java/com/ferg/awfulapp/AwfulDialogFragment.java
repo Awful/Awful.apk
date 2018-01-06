@@ -31,23 +31,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.view.ActionMode;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
@@ -56,6 +49,7 @@ import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulRequest;
 import com.ferg.awfulapp.util.AwfulError;
+import com.ferg.awfulapp.widget.AlertView;
 import com.ferg.awfulapp.widget.AwfulProgressBar;
 
 /**
@@ -65,9 +59,12 @@ import com.ferg.awfulapp.widget.AwfulProgressBar;
  */
 public abstract class AwfulDialogFragment extends DialogFragment implements ActionMode.Callback, AwfulRequest.ProgressListener, AwfulPreferences.AwfulPreferenceUpdate {
 	protected static String TAG = "AwfulFragment";
-	protected AwfulPreferences mPrefs;
+
+	private AlertView alertView;
+
+	protected AwfulPreferences prefs;
 	protected int currentProgress = 100;
-	private AwfulProgressBar mProgressBar;
+	private AwfulProgressBar progressBar;
 	
 
     protected Handler mHandler = new Handler();
@@ -78,14 +75,14 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
     	if(!(aActivity instanceof AwfulActivity)){
     		Log.e("AwfulFragment","PARENT ACTIVITY NOT EXTENDING AwfulActivity!");
     	}
-        mPrefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
+        prefs = AwfulPreferences.getInstance(getAwfulActivity(), this);
     }
     
     protected View inflateView(int resId, ViewGroup container, LayoutInflater inflater){
     	View v = inflater.inflate(resId, container, false);
     	View progressBar = v.findViewById(R.id.progress_bar);
     	if(progressBar instanceof AwfulProgressBar){
-    		mProgressBar = (AwfulProgressBar) progressBar;
+    		this.progressBar = (AwfulProgressBar) progressBar;
     	}
     	return v;
     }
@@ -93,13 +90,20 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	@Override
 	public void onActivityCreated(Bundle aSavedState) {
 		super.onActivityCreated(aSavedState);
-		onPreferenceChange(mPrefs, null);
+		onPreferenceChange(prefs, null);
 	}
     
     @Override
     public void onDestroy() {
     	super.onDestroy();
-        mPrefs.unregisterCallback(this);
+        prefs.unregisterCallback(this);
+    }
+
+    protected AlertView getAlertView() {
+        if(alertView == null) {
+            alertView = new AlertView(getActivity());
+        }
+        return alertView;
     }
     
     protected void displayForumIndex(){
@@ -151,8 +155,8 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	
 	protected void setProgress(int percent){
 		currentProgress = percent;
-		if(mProgressBar != null){
-			mProgressBar.setProgress(percent, getActivity());
+		if(progressBar != null){
+			progressBar.setProgress(percent, getActivity());
 		}
 	}
 	
@@ -252,87 +256,10 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
             aa.setSupportProgressBarVisibility(false);
         }
         if(error instanceof AwfulError){
-            displayAlert((AwfulError) error);
+            alertView.show((AwfulError) error);
         }else if(error != null){
-            displayAlert(R.string.loading_failed);
+            alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show();
         }
-    }
-
-    private static final int ALERT_DISPLAY_MILLIS = 3000;
-    protected void displayAlert(int titleRes){
-        if(getActivity() != null){
-            displayAlert(getString(titleRes), null, 0, null);
-        }
-    }
-
-    protected void displayAlert(int titleRes, int subtitleRes, int iconRes){
-        if(getActivity() != null){
-            if(subtitleRes != 0){
-                displayAlert(getString(titleRes), getString(subtitleRes), iconRes, null);
-            }else{
-                displayAlert(getString(titleRes), null, iconRes, null);
-            }
-        }
-    }
-
-    protected void displayAlert(AwfulError error){
-        displayAlert(error.getMessage(), error.getSubMessage(), error.getIconResource(), error.getIconAnimation());
-    }
-
-    protected void displayAlert(String title){
-        displayAlert(title, null, 0, null);
-    }
-
-    protected void displayAlert(String title, int iconRes){
-        displayAlert(title, null, iconRes, null);
-    }
-
-    protected void displayAlert(String title, String subtext){
-        displayAlert(title, subtext, 0, null);
-    }
-
-    private void displayAlert(final String title, final String subtext, final int iconRes, final Animation animate){
-        if(Looper.getMainLooper().equals(Looper.myLooper())){
-            displayAlertInternal(title, subtext, iconRes, animate);
-        }else{
-            //post on main thread, if this is called from a secondary thread.
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    displayAlertInternal(title, subtext, iconRes, animate);
-                }
-            });
-        }
-    }
-
-    protected void displayAlertInternal(String title, String subtext, int iconRes, Animation animate){
-        if(getActivity() == null){
-            return;
-        }
-        View popup = LayoutInflater.from(getActivity()).inflate(R.layout.alert_popup, null);
-        TextView popupTitle = (TextView)popup.findViewById(R.id.popup_title);
-        popupTitle.setText(title);
-        TextView popupSubTitle = (TextView) popup.findViewById(R.id.popup_subtitle);
-        if(TextUtils.isEmpty(subtext)){
-            popupSubTitle.setVisibility(View.GONE);
-        }else{
-            popupSubTitle.setVisibility(View.VISIBLE);
-            popupSubTitle.setText(subtext);
-        }
-        if(iconRes != 0){
-            ImageView popupIcon = (ImageView) popup.findViewById(R.id.popup_icon);
-            if(animate != null){
-                popupIcon.setImageResource(iconRes);
-                popupIcon.startAnimation(animate);
-            }else{
-                popupIcon.setImageResource(iconRes);
-            }
-        }
-        Toast toast = new Toast(AwfulPreferences.getInstance().getContext());
-        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        toast.setDuration(Toast.LENGTH_LONG);
-        toast.setView(popup);
-        toast.show();
     }
 
     protected void restartLoader(int id, Bundle data, LoaderManager.LoaderCallbacks<? extends Object> callback) {
