@@ -119,7 +119,7 @@
     <string name="mark_unread_success">Thread Marked Unread</string>
 
     <!-- Reply view -->
-    <string name="filter_emote_hint">Filter emotes…</string>
+    <string name="filter_emote_hint">Search terms</string>
     <string name="bbcode">BBCode</string>
     <string name="submit">Submit</string>
     <string name="preview">Preview</string>
