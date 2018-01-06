@@ -209,17 +209,18 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
         when(error) {
             is AwfulError -> alertView.show(error)
-            is VolleyError -> alertView
-                    .setTitle(R.string.loading_failed)
-                    .setIcon(R.drawable.ic_error).show()
+            is VolleyError -> {
+                alertView
+                        .setTitle(R.string.loading_failed)
+                        .setIcon(R.drawable.ic_error).show()
+            }
         }
     }
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        swipyLayout?.let { swipy ->
-            val displayMetrics = this.resources.displayMetrics
-            val dpHeight = displayMetrics.heightPixels / displayMetrics.density
-            swipy.setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
+        swipyLayout?.apply {
+            val dpHeight = with(this@AwfulFragment.resources.displayMetrics) { heightPixels / density }
+            setDistanceToTriggerSync(Math.round(prefs.p2rDistance * dpHeight))
         }
     }
 
@@ -260,13 +261,15 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      * @return      true if the event was consumed
      */
     fun attemptVolumeScroll(event: KeyEvent): Boolean {
-        return if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                doScroll(event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
-            } else {
-                true
-            }
-        } else false
+        return with(event) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                if (action == KeyEvent.ACTION_DOWN) {
+                    doScroll(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+                } else {
+                    true
+                }
+            } else false
+        }
     }
 
 
@@ -304,18 +307,27 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
         val clipboard = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(label, clipText)
-        try {
-            clipboard.primaryClip = clip
-            successMessageId?.let {
-                alertView.setTitle(successMessageId).setIcon(R.drawable.ic_insert_link_dark).show()
-            }
-            return true
-        } catch (e: Exception) {
+
+        fun handle(e: Exception): Boolean {
             alertView.setTitle("Unable to copy to clipboard!")
                     .setSubtitle("Another app has locked access, you may need to reboot")
                     .setIcon(R.drawable.ic_error).show()
             Timber.e(e, "Clipboard exception")
             return false
+        }
+
+        return try {
+            clipboard.primaryClip = clip
+            successMessageId?.let {
+                alertView.setTitle(successMessageId).setIcon(R.drawable.ic_insert_link_dark).show()
+            }
+            true
+        } catch (e: IllegalArgumentException) {
+            handle(e)
+        } catch (e: SecurityException) {
+            handle(e)
+        } catch (e: IllegalStateException) {
+            handle(e)
         }
     }
 }

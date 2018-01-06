@@ -1,6 +1,5 @@
 package com.ferg.awfulapp.widget
 
-import android.os.Handler
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.app.FragmentActivity
@@ -17,12 +16,24 @@ import com.ferg.awfulapp.util.show
 import timber.log.Timber
 
 
+/**
+ * The purpose of the clear in [displayAlert] is to clear all the inputs to reset so the next call will be a fresh start
+ * This will allow the view to be reused to avoid unecessary multiple inflations and allocations
+ * This may be unecessary optimization for such a simple view, but since inflation is one of the
+ * most expensive operations in the android OS we might as well avoid it
+ *
+ * [show]
+ * TODO: Once all calls to this class are made in kotlin, all of the set*() methods can be replaced with a single builder method with nullable values
+ * FOR THE TIME BEING this method will not work because of this error, but I'd like to keep a note if that changes
+ * https://stackoverflow.com/questions/47016590/stringres-drawableres-layoutres-and-so-on-android-annotations-lint-check-wi
+ */
+
 class AlertView(private val activity: FragmentActivity?) {
 
     private var root: ViewGroup? = null
-    lateinit var titleView: TextView
-    lateinit var subtitleView: TextView
-    lateinit var iconView: ImageView
+    private lateinit var titleView: TextView
+    private lateinit var subtitleView: TextView
+    private lateinit var iconView: ImageView
 
 
     private var title: String? = null
@@ -122,21 +133,13 @@ class AlertView(private val activity: FragmentActivity?) {
             duration = Toast.LENGTH_LONG
             view = root
             show()
-            // TODO: Once all calls to this class are made in kotlin, this can be done much more elegantly with a builder method that takes nullable values
-            /*
-             * The purpose of this is to wait until the toast disappears, then clear all the inputs to reset
-             * This will allow the view to be reused to avoid unecessary multiple inflations and allocations
-             * This may be unecessary optimization for such a simple view, but since inflation is one of the
-             * most expensive operations in the android OS we might as well avoid it
-             * FOR THE TIME BEING this method will not work because of this error, but I'd like to keep a note if that changes
-             * https://stackoverflow.com/questions/47016590/stringres-drawableres-layoutres-and-so-on-android-annotations-lint-check-wi
-             */
-            Handler().postDelayed({ clear() }, 3500)
         }
+
+        clear()
     }
 
+    // reset all the data so the next toast starts with a blank slate
     private fun clear() {
-        Timber.v("clearing alert")
         title = null
         subtitle = null
         animation = null
@@ -144,7 +147,7 @@ class AlertView(private val activity: FragmentActivity?) {
     }
 
 
-    // This can replace all of the set*() methods if the error referenced above gets fixed
+    // uncomment for fun when kotlin gets fixed
     /*
     fun show(@StringRes titleRes: Int = 0,
               titleString: String? = null,
@@ -161,5 +164,5 @@ class AlertView(private val activity: FragmentActivity?) {
             displayAlert(title, subtitle, iconRes, animation)
         }
     }
-     */
+    */
 }
