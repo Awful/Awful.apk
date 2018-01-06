@@ -229,7 +229,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-				new AlertBuilder().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
+				getAlertView().setTitle("Message Sent!").setIcon(R.drawable.ic_check_circle).show();
 				closeMessage();
             }
 
@@ -239,7 +239,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
                     mDialog.dismiss();
                     mDialog = null;
                 }
-				new AlertBuilder().setTitle("Failed to send!").setSubtitle("Draft Saved").show();
+				getAlertView().setTitle("Failed to send!").setSubtitle("Draft Saved").show();
             }
         }));
 	}

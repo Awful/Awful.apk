@@ -551,7 +551,7 @@ public class PostReplyFragment extends AwfulFragment {
         ContentValues cv = new ContentValues(replyData);
         if (isReplyEmpty()) {
             dismissProgressDialog();
-            new AlertBuilder().setTitle(R.string.message_empty)
+            getAlertView().setTitle(R.string.message_empty)
                     .setSubtitle(R.string.message_empty_subtext)
                     .show();
             return null;

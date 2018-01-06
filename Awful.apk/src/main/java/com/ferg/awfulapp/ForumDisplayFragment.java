@@ -543,7 +543,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                new AlertBuilder().setTitle(R.string.mark_unread_success)
+                getAlertView().setTitle(R.string.mark_unread_success)
                         .setIcon(R.drawable.ic_check_circle)
                         .show();
                 refreshInfo();

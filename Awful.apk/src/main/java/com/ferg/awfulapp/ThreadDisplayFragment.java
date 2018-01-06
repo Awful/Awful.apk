@@ -344,7 +344,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		Timber.w("Can't inflate thread view, WebView package is updating?:\n");
 		e.printStackTrace();
-		new AlertBuilder()
+		getAlertView()
 				.setIcon(R.drawable.ic_error)
 				.setTitle(R.string.web_view_missing_alert_title)
 				.setSubtitle(R.string.web_view_missing_alert_message)
@@ -676,7 +676,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                         .build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<Void>() {
                             @Override
                             public void success(Void result) {
-                                new AlertBuilder().setTitle(R.string.vote_succeeded)
+                                getAlertView().setTitle(R.string.vote_succeeded)
                                         .setSubtitle(R.string.vote_succeeded_sub)
                                         .setIcon(R.drawable.ic_mood)
                                         .show();
@@ -777,12 +777,12 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
             queueRequest(new ReportRequest(getActivity(), postId, reason).build(ThreadDisplayFragment.this, new AwfulRequest.AwfulResultCallback<String>() {
                 @Override
                 public void success(String result) {
-                    new AlertBuilder().setTitle(result).setIcon(R.drawable.ic_mood).show();
+                    getAlertView().setTitle(result).setIcon(R.drawable.ic_mood).show();
                 }
 
                 @Override
                 public void failure(VolleyError error) {
-                    new AlertBuilder().setTitle(error.getMessage()).setIcon(R.drawable.ic_mood).show();
+                    getAlertView().setTitle(error.getMessage()).setIcon(R.drawable.ic_mood).show();
 
                 }
             }));
@@ -849,7 +849,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	 * @param index The <code>data-idx</code> value of the post.
 	 */
 	public void markLastRead(int index) {
-		new AlertBuilder().setTitle(R.string.mark_last_read_progress)
+		getAlertView().setTitle(R.string.mark_last_read_progress)
 				.setSubtitle(R.string.please_wait_subtext)
 				.setIcon(R.drawable.ic_visibility)
 				.show();
@@ -859,7 +859,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			@Override
 			public void success(Void result) {
 				if(getActivity() != null){
-					new AlertBuilder().setTitle(R.string.mark_last_read_success)
+					getAlertView().setTitle(R.string.mark_last_read_success)
 							.setIcon(R.drawable.ic_visibility)
 							.show();
 					refreshInfo();
@@ -929,7 +929,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
                 if (isCancelled()) {
                     return;
                 } else if (url == null) {
-                    new AlertBuilder().fromError(new AwfulError()).show();
+                    getAlertView().show(new AwfulError());
                     return;
                 }
 
@@ -1255,7 +1255,10 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	public void copyToClipboard(String text){
 		safeCopyToClipboard("Copied URL", text, null);
-		new AlertBuilder().setIcon(R.drawable.ic_insert_link).setTitle(R.string.copy_url_success).show();
+		getAlertView()
+				.setTitle(R.string.copy_url_success)
+				.setIcon(R.drawable.ic_insert_link)
+				.show();
 	}
 
 	public void startUrlIntent(String url){
@@ -1268,7 +1271,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			getActivity().startActivity(browserIntent);
 		} else {
 			String[] split = url.split(":");
-			new AlertBuilder().setTitle("Cannot open link:")
+			getAlertView().setTitle("Cannot open link:")
 					.setSubtitle("No application found for protocol" + (split.length > 0 ? ": " + split[0] : "."))
 					.show();
 		}
@@ -1691,7 +1694,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 
 		//TODO icon
-		new AlertBuilder().setTitle(keepScreenOn? "Screen stays on" :"Screen turns itself off").show();
+		getAlertView().setTitle(keepScreenOn? "Screen stays on" :"Screen turns itself off").show();
 	}
 
 	@Override

@@ -149,7 +149,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
-                                new AlertBuilder().fromError(new AwfulError()).show();
+                                getAlertView().show(new AwfulError());
                             }
                         }
                     }

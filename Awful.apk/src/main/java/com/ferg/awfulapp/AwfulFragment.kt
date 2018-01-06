@@ -35,14 +35,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.annotation.CallSuper
-import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
-import android.view.*
-import android.view.animation.Animation
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.VolleyError
@@ -51,7 +50,7 @@ import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.util.AwfulError
-import com.ferg.awfulapp.util.hide
+import com.ferg.awfulapp.widget.AlertView
 import com.ferg.awfulapp.widget.AwfulProgressBar
 import com.ferg.awfulapp.widget.ProbationBar
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
@@ -64,6 +63,7 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this)}
     protected val handler: Handler by lazy { Handler() }
+    protected val alertView: AlertView by lazy { AlertView(activity) }
 
     protected var swipyLayout: SwipyRefreshLayout? = null
     private var progressBar: AwfulProgressBar? = null
@@ -207,10 +207,11 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
         swipyLayout?.isRefreshing = false
         swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
 
-        if (error is AwfulError) {
-            AlertBuilder().fromError((error as AwfulError?)!!).show()
-        } else if (error != null) {
-            AlertBuilder().setTitle(R.string.loading_failed).show()
+        when(error) {
+            is AwfulError -> alertView.show(error)
+            is VolleyError -> alertView
+                    .setTitle(R.string.loading_failed)
+                    .setIcon(R.drawable.ic_error).show()
         }
     }
 
@@ -278,90 +279,6 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
      */
     protected open fun doScroll(down: Boolean) = false
 
-
-    /**
-     * Builds and displays alert toasts
-     */
-    protected inner class AlertBuilder {
-        private var title = ""
-        private var subtitle = ""
-        @DrawableRes
-        private var iconResId = 0
-        private var animation: Animation? = null
-
-        fun setTitle(@StringRes title: Int): AlertBuilder {
-            if (activity != null) {
-                this.title = getString(title)
-            }
-            return this
-        }
-
-        fun setTitle(title: String?): AlertBuilder {
-            this.title = title ?: ""
-            return this
-        }
-
-        fun setSubtitle(@StringRes subtitle: Int): AlertBuilder {
-            this.subtitle = getString(subtitle)
-            return this
-        }
-
-        fun setSubtitle(subtitle: String?): AlertBuilder {
-            this.subtitle = subtitle ?: ""
-            return this
-        }
-
-        fun setIcon(@DrawableRes iconResId: Int): AlertBuilder {
-            this.iconResId = iconResId
-            return this
-        }
-
-        fun setIconAnimation(animation: Animation?): AlertBuilder {
-            this.animation = animation
-            return this
-        }
-
-        fun fromError(error: AwfulError): AlertBuilder {
-            setTitle(error.message)
-            setSubtitle(error.subMessage)
-            setIcon(error.iconResource)
-            setIconAnimation(error.iconAnimation)
-            return this
-        }
-
-        fun show() {
-            activity?.runOnUiThread {
-                displayAlertInternal(title, subtitle, iconResId, animation)
-            }
-        }
-    }
-
-
-    private fun displayAlertInternal(titleText: String, subtext: String, iconRes: Int, animate: Animation?) {
-        val activity = activity ?: return
-        val popup = activity.layoutInflater.inflate(R.layout.alert_popup,
-                activity.findViewById(R.id.alert_popup_root)) as ViewGroup
-        val title: TextView     = popup.findViewById(R.id.popup_title)
-        val subtitle: TextView  = popup.findViewById(R.id.popup_subtitle)
-        val icon: ImageView     = popup.findViewById(R.id.popup_icon)
-
-        title.text = titleText
-
-        if (subtext.isEmpty()) subtitle.hide()
-        else subtitle.text = subtext
-
-        if (iconRes != 0) {
-            animate?.let { icon.startAnimation(animate) }
-            icon.setImageResource(iconRes)
-        }
-        with(Toast(awfulApplication)) {
-            setGravity(Gravity.CENTER_VERTICAL, 0, 0)
-            duration = Toast.LENGTH_LONG
-            view = popup
-            show()
-        }
-    }
-
     protected fun restartLoader(id: Int, data: Bundle?, callback: LoaderManager.LoaderCallbacks<out Any>) {
         activity?.let {
             Timber.d("loader id is $id")
@@ -390,16 +307,13 @@ abstract class AwfulFragment : Fragment(), ProgressListener, AwfulPreferences.Aw
         try {
             clipboard.primaryClip = clip
             successMessageId?.let {
-                AlertBuilder().setTitle(successMessageId)
-                        .setIcon(R.drawable.ic_insert_link_dark)
-                        .show()
+                alertView.setTitle(successMessageId).setIcon(R.drawable.ic_insert_link_dark).show()
             }
             return true
         } catch (e: Exception) {
-            AlertBuilder().setTitle("Unable to copy to clipboard!")
+            alertView.setTitle("Unable to copy to clipboard!")
                     .setSubtitle("Another app has locked access, you may need to reboot")
-                    .setIcon(R.drawable.ic_error)
-                    .show()
+                    .setIcon(R.drawable.ic_error).show()
             Timber.e(e, "Clipboard exception")
             return false
         }
