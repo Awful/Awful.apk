@@ -177,9 +177,6 @@ class EmoteHistoryFragment : EmoteGridFragment() {
  * Class with shared code for the fragment pages, mostly handling the emote grid and lifecycle stuff.
  */
 abstract class EmoteGridFragment : AwfulFragment() {
-    init {
-        TAG = title
-    }
 
     abstract protected val layoutId: Int
 

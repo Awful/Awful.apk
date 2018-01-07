@@ -77,7 +77,7 @@ public class AwfulCursorAdapter extends CursorAdapter {
 		}else if(data.getColumnIndex(AwfulForum.PARENT_ID) >= 0){//unique to forums
 			assert(false);
 //		}else if(data.getColumnIndex(AwfulPost.PREVIOUSLY_READ) >= 0){
-//			AwfulPost.getView(current, mPrefs, data, msgCallback);
+//			AwfulPost.getView(current, prefs, data, msgCallback);
 		}else if(data.getColumnIndex(AwfulMessage.DATE) >= 0){
 			AwfulMessage.getView(current, mPrefs, data, false);
 		}else if(data.getColumnIndex(AwfulEmote.INDEX) >= 0){
