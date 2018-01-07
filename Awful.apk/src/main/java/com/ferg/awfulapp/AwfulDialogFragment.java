@@ -256,9 +256,9 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
             aa.setSupportProgressBarVisibility(false);
         }
         if(error instanceof AwfulError){
-            alertView.show((AwfulError) error);
+            getAlertView().show((AwfulError) error);
         }else if(error != null){
-            alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show();
+            getAlertView().setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show();
         }
     }
 
