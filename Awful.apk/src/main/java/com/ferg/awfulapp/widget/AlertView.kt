@@ -13,19 +13,16 @@ import com.ferg.awfulapp.R
 import com.ferg.awfulapp.util.AwfulError
 import com.ferg.awfulapp.util.hide
 import com.ferg.awfulapp.util.show
-import timber.log.Timber
 
 
 /**
- * The purpose of the clear in [displayAlert] is to clear all the inputs to reset so the next call will be a fresh start
- * This will allow the view to be reused to avoid unecessary multiple inflations and allocations
- * This may be unecessary optimization for such a simple view, but since inflation is one of the
- * most expensive operations in the android OS we might as well avoid it
+ * Displays a popup alert as a custom view in a toast.
  *
- * [show]
+ * Uses the builder pattern to be friendly with java.
+ *
  * TODO: Once all calls to this class are made in kotlin, all of the set*() methods can be replaced with a single builder method with nullable values
  * FOR THE TIME BEING this method will not work because of this error, but I'd like to keep a note if that changes
- * https://stackoverflow.com/questions/47016590/stringres-drawableres-layoutres-and-so-on-android-annotations-lint-check-wi
+ * [stackoverflow reference](https://stackoverflow.com/questions/47016590/stringres-drawableres-layoutres-and-so-on-android-annotations-lint-check-wi)
  */
 
 class AlertView(private val activity: FragmentActivity?) {
@@ -90,6 +87,7 @@ class AlertView(private val activity: FragmentActivity?) {
     }
 
 
+    // inflates views exactly once. yay!
     private fun inflateView() {
         if(root == null) {
             root = activity?.layoutInflater?.inflate(R.layout.alert_popup,
@@ -107,8 +105,19 @@ class AlertView(private val activity: FragmentActivity?) {
     }
 
 
+    /**
+      * Builds the alert and sets the view content to the input parameters.
+      * If there is no content for a corresponding view, it remains hidden
+      * The purpose of the [clear] is to reset all the values so the next call will be a fresh start
+      * This will allow the view to be reused to avoid unecessary multiple inflations and allocations
+      * This may be unecessary optimization for such a simple view, but since inflation is one of the
+      * most expensive operations in the android OS we might as well avoid it
+      * @param title
+      * @param subtitle
+      * @param iconRes
+      * @param animate
+     */
     private fun displayAlert(title: String?, subtitle: String?, iconRes: Int, animate: Animation?) {
-        Timber.v("Creating alert - title: $title, subtitle: $subtitle")
 
         inflateView()
 
