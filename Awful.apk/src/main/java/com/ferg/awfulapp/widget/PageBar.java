@@ -67,7 +67,7 @@ public class PageBar extends FrameLayout {
 
 
     private void init() {
-        View pageBar = LayoutInflater.from(getContext()).inflate(R.layout.pagebar, this, true);
+        View pageBar = LayoutInflater.from(getContext()).inflate(R.layout.page_bar, this, true);
         ButterKnife.bind(pageBar);
         updatePagePosition(FIRST_PAGE, FIRST_PAGE);
     }
