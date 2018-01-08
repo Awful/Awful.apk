@@ -41,6 +41,7 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
+        android:minWidth="120sp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
