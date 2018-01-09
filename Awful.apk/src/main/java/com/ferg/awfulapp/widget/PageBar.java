@@ -2,6 +2,7 @@ package com.ferg.awfulapp.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -16,6 +17,8 @@ import android.widget.TextView;
 import com.ferg.awfulapp.R;
 
 import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -99,9 +102,36 @@ public class PageBar extends FrameLayout {
         updateDisplay(currentPage, lastPage, type, hasPageCount);
     }
 
-    private void updateDisplay(int currentPage, int lastPage, PageType pageType, boolean hasPageCount) {
-        String text = String.format(Locale.getDefault(), "Page %d%s", currentPage, hasPageCount ? "/" + lastPage : "");
+    /*
+        Testing stuff to randomise the page number display's style
+     */
+    private static final Random random = new Random();
+    private static final String[] pageTemplates = {"Page %d%s", "page %d%s", "%d%s"};
+    private static final String[] separators = {"/", " / ", " of "};
+    private static long nextStyleUpdate = 0;
+    private static String currentTemplate;
+    private static String currentSeparator;
+    private static int textStyle = Typeface.NORMAL;
+
+    private void updateStyle() {
+        currentTemplate = pageTemplates[random.nextInt(pageTemplates.length)];
+        currentSeparator = separators[random.nextInt(separators.length)];
+        textStyle = random.nextBoolean() ? Typeface.ITALIC : Typeface.NORMAL;
+    }
+
+    private void updateDisplay(int currentPage, int lastPage, @NonNull PageType pageType, boolean hasPageCount) {
+//        String text = String.format(Locale.getDefault(), "Page %d%s", currentPage, hasPageCount ? "/" + lastPage : "");
+//        mPageCountText.setText(text);
+        // this is all testing stuff replacing the normal code above
+        if (System.currentTimeMillis() > nextStyleUpdate) {
+            updateStyle();
+            mPageCountText.setVisibility(INVISIBLE);
+            mPageCountText.setTypeface(null, textStyle);
+            nextStyleUpdate = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
+        }
+        String text = String.format(Locale.getDefault(), currentTemplate, currentPage, hasPageCount ? currentSeparator + lastPage : "");
         mPageCountText.setText(text);
+        mPageCountText.setVisibility(VISIBLE);
         /*
             hide and show the appropriate icons for each state:
             - don't show the prev/next arrow on the first/last page
