@@ -130,11 +130,15 @@ class PostParseTask(
             // FYAD has its post contents inside the .complete_shit element, so we just grab that instead of the full .postbody
             val postBody = postData.selectFirst(".postbody")
             val fyadPostBody = postBody!!.selectFirst(".complete_shit")
-            (fyadPostBody ?: postBody).also {
-                convertVideos(it, prefs.inlineYoutube)
-                it.getElementsByTag("img").forEach { processPostImage(it, postHasBeenRead, prefs) }
-                it.getElementsByTag("a").forEach { tryConvertToHttps(it) }
-                put(CONTENT, it.html())
+            (fyadPostBody ?: postBody).apply {
+                convertVideos(this, prefs.inlineYoutube)
+                getElementsByTag("img").forEach { processPostImage(it, postHasBeenRead, prefs) }
+                getElementsByTag("a").forEach(::tryConvertToHttps)
+                if (this == fyadPostBody) {
+                    // FYAD sigs are currently a sibling div alongside .complete_shit, so we need to stick them at the end of the content
+                    postBody.selectFirst("> .signature")?.appendTo(this)
+                }
+                put(CONTENT, html())
             }
 
             // extract and clean up post timestamp

@@ -39,7 +39,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,6 +69,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import timber.log.Timber;
+
 public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener{
     private static final String TAG = "SearchFragment";
 
@@ -89,7 +90,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(TAG, "onCreate");
+        Timber.v("onCreate");
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -97,7 +98,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         super.onCreateView(aInflater, aContainer, aSavedState);
-        if (DEBUG) Log.e(TAG, "onCreateView");
+        Timber.v("onCreateView");
 
         View result = inflateView(R.layout.search, aContainer, aInflater);
         mSearchQuery = result.findViewById(R.id.search_query);
@@ -148,7 +149,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                                 activity.finish();
                                 startActivity(openThread);
                             } else {
-                                new AlertBuilder().fromError(new AwfulError()).show();
+                                getAlertView().show(new AwfulError());
                             }
                         }
                     }
@@ -186,8 +187,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
     @Override
     public void onActivityCreated(Bundle aSavedState) {
         super.onActivityCreated(aSavedState);
-        if (DEBUG) Log.e(TAG, "onActivityCreated");
-
+        Timber.v("onActivityCreated");
     }
 
 
@@ -227,7 +227,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
                         mSRL.setEnabled(true);
                     }
                 }
-                Log.e(TAG,"mQueryPages: "+mQueryPages+ " mQueryId: "+mQueryId);
+                Timber.e("mQueryPages: %s\nmQueryId: %s", mQueryPages, mQueryId);
             }
 
             @Override
@@ -250,7 +250,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, "onOptionsItemSelected");
+        Timber.v("onOptionsItemSelected");
         switch (item.getItemId()) {
 
             case R.id.search_submit:
@@ -311,7 +311,7 @@ public class SearchFragment extends AwfulFragment implements SwipyRefreshLayout.
 
     @Override
     public void onRefresh(SwipyRefreshLayoutDirection direction) {
-        Log.e(TAG,"onRefresh: "+ mMaxPageQueried+ " ");
+        Timber.i("onRefresh: %s", mMaxPageQueried);
         final int preItemCount = mSearchResultList.getAdapter().getItemCount();
         NetworkUtils.queueRequest(new SearchResultRequest(this.getContext(), mQueryId, (mMaxPageQueried+1)).build(null, new AwfulRequest.AwfulResultCallback<ArrayList<AwfulSearch>>() {
 

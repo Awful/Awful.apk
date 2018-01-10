@@ -41,7 +41,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -78,6 +77,8 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 
 import java.util.Arrays;
 import java.util.Locale;
+
+import timber.log.Timber;
 
 import static com.ferg.awfulapp.constants.Constants.USERCP_ID;
 
@@ -122,12 +123,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     public ForumDisplayFragment() {
         super();
-        TAG = "ForumDisplayFragment";
     }
 
 	private ThreadCursorAdapter mCursorAdapter;
-    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(mHandler);
-    private ForumDataCallback mForumDataCallback = new ForumDataCallback(mHandler);
+    private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(getHandler());
+    private ForumDataCallback mForumDataCallback = new ForumDataCallback(getHandler());
 
 
     @Override
@@ -140,7 +140,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         setForumId(args.getInt(ARG_KEY_FORUM_ID));
         setPage(args.getInt(ARG_KEY_PAGE_NUMBER));
         skipLoad = args.getBoolean(ARG_KEY_SKIP_LOAD);
-        Log.d(TAG, String.format("onCreate: set forumID to %d, set page to %d", mForumId, mPage));
+        Timber.i("onCreate: set forumID to %d, set page to %d", mForumId, mPage);
     }
 
 
@@ -180,10 +180,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         super.onViewCreated(view, savedInstanceState);
 
         // TODO: move P2R stuff into AwfulFragment
-        mSRL = (SwipyRefreshLayout) view.findViewById(R.id.forum_swipe);
-        mSRL.setOnRefreshListener(this);
-        mSRL.setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
-        mSRL.setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
+        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.forum_swipe));
+        getSwipyLayout().setOnRefreshListener(this);
+        getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
+        getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
     }
 
     @Override
@@ -206,18 +206,18 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     	if(aSavedState != null){
             // if there's saved state, load that
-            Log.i(TAG,"Restoring savedInstanceState!");
+            Timber.i("Restoring savedInstanceState!");
             setForumId(aSavedState.getInt(Constants.FORUM_ID, mForumId));
             setPage(aSavedState.getInt(Constants.FORUM_PAGE, FIRST_PAGE));
         }else if(mForumId < 1){
-            Log.d(TAG, "onActivityCreated: mForumId is less than 1 (" + mForumId + "), messing with intents and bundles");
+            Timber.d("onActivityCreated: mForumId is less than 1 (" + mForumId + "), messing with intents and bundles");
             // otherwise if forumID is uninitialised/invalid (which is never true now, it's always set and validated for values <1)
             Intent intent = getActivity().getIntent();
             int forumIdFromIntent = intent.getIntExtra(Constants.FORUM_ID, mForumId);
             setForumId(forumIdFromIntent);
             setPage(intent.getIntExtra(Constants.FORUM_PAGE, mPage));
-            Log.d(TAG, String.format("onActivityCreated: activity's intent args - got id: %b, got page: %b",
-                    intent.hasExtra(Constants.FORUM_ID), intent.hasExtra(Constants.FORUM_PAGE)));
+            Timber.d("onActivityCreated: activity's intent args - got id: %b, got page: %b",
+                    intent.hasExtra(Constants.FORUM_ID), intent.hasExtra(Constants.FORUM_PAGE));
             // I think these are fallbacks if the following doesn't work?
 
 	        Bundle args = getArguments();
@@ -225,25 +225,25 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
             // if the activity has a data URI, get that and set the forum and page... again
 	        if(urldata != null){
-                Log.d(TAG, "onActivityCreated: got URL data from ACTIVITY's intent");
+                Timber.d("onActivityCreated: got URL data from ACTIVITY's intent");
                 AwfulURL aurl = AwfulURL.parse(intent.getDataString());
 	        	if(aurl.getType() == TYPE.FORUM){
-                    Log.d(TAG, "onActivityCreated: URL is for a forum, that's for us");
+                    Timber.d("onActivityCreated: URL is for a forum, that's for us");
                     setForumId((int) aurl.getId());
                     setPage((int) aurl.getPage());
                 } else {
-                    Log.d(TAG, "onActivityCreated: URL was not for a forum, I guess we ignore it then");
+                    Timber.d("onActivityCreated: URL was not for a forum, I guess we ignore it then");
                 }
 	        }else if(args != null){
-                Log.d(TAG, "onActivityCreated: no URL data, but we have fragment arguments");
+                Timber.d("onActivityCreated: no URL data, but we have fragment arguments");
                 // default to page 1 of bookmarks if we have no data URI and we have fragment args
                 setForumId(args.getInt(Constants.FORUM_ID, USERCP_ID));
                 setPage(args.getInt(Constants.FORUM_PAGE, FIRST_PAGE));
-                Log.d(TAG, String.format("onActivityCreated: original fragment args - got id: %b, got page: %b",
-                        args.get(Constants.FORUM_ID) != null, args.get(Constants.FORUM_PAGE) != null));
+                Timber.d("onActivityCreated: original fragment args - got id: %b, got page: %b",
+                        args.get(Constants.FORUM_ID) != null, args.get(Constants.FORUM_PAGE) != null);
             }
     	} else {
-            Log.d(TAG, "onActivityCreated: got method call, but there was no savedInstanceState and forum ID was already set");
+            Timber.d("onActivityCreated: got method call, but there was no savedInstanceState and forum ID was already set");
         }
 
 
@@ -289,7 +289,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-        Log.d(TAG, String.format("onSaveInstanceState: saving instance state - forumId: %d, page: %d", getForumId(), getPage()));
+        Timber.d("onSaveInstanceState: saving instance state - forumId: %d, page: %d", getForumId(), getPage());
         outState.putInt(Constants.FORUM_PAGE, getPage());
     	outState.putInt(Constants.FORUM_ID, getForumId());
 	}
@@ -317,7 +317,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	        Cursor row = mCursorAdapter.getRow(info.id);
             if(row != null && row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))>-1) {
 	              inflater.inflate(R.menu.thread_longpress, aMenu);
-	              if(row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))<1 || !mPrefs.coloredBookmarks){
+	              if(row.getInt(row.getColumnIndex(AwfulThread.BOOKMARKED))<1 || !getPrefs().coloredBookmarks){
 	            	  MenuItem bookmarkColor = aMenu.findItem(R.id.thread_bookmark_color);
 	            	  if(bookmarkColor != null){
 	            		  bookmarkColor.setEnabled(false);
@@ -336,11 +336,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             	viewThread((int) info.id,1);
                 return true;
             case R.id.last_page:
-                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
+                int lastPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
                 viewThread((int) info.id,lastPage);
                 return true;
             case R.id.go_to_page:
-                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), mPrefs.postPerPage);
+                int maxPage = AwfulPagedItem.indexToPage(mCursorAdapter.getInt(info.id, AwfulThread.POSTCOUNT), getPrefs().postPerPage);
                 selectThreadPage((int) info.id, maxPage);
                 return true;
             case R.id.mark_thread_unread:
@@ -406,10 +406,10 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
             // TODO: 04/06/2017 why is all this in a threadlist click listener? We know it's a thread! It's not a forum!
             Cursor row = mCursorAdapter.getRow(aId);
             if(row != null && row.getColumnIndex(AwfulThread.BOOKMARKED)>-1) {
-                    Log.i(TAG, "Thread ID: " + Long.toString(aId));
+                    Timber.i("Thread ID: " + aId);
                     int unreadPage = AwfulPagedItem.getLastReadPage(row.getInt(row.getColumnIndex(AwfulThread.UNREADCOUNT)),
                     												row.getInt(row.getColumnIndex(AwfulThread.POSTCOUNT)),
-                    												mPrefs.postPerPage,
+                    												getPrefs().postPerPage,
                     												row.getInt(row.getColumnIndex(AwfulThread.HAS_VIEWED_THREAD)));
                     viewThread((int) aId, unreadPage);
             }else if(row != null && row.getColumnIndex(AwfulForum.PARENT_ID)>-1){
@@ -420,7 +420,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 	@Override
 	public void onPreferenceChange(AwfulPreferences prefs, String key) {
-		super.onPreferenceChange(mPrefs, key);
+		super.onPreferenceChange(getPrefs(), key);
         if(mPageBar != null) {
             getAwfulActivity().setPreferredFont(mPageBar.getTextView());
         }
@@ -517,7 +517,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                         @Override
                         public void failure(VolleyError error) {
                             if(null != error.getMessage() && error.getMessage().startsWith("java.net.ProtocolException: Too many redirects")){
-                                Log.e(TAG, "Error: " + error.getMessage() + "\nFailed to sync thread list - You are now LOGGED OUT");
+                                Timber.e("Error: " + error.getMessage() + "\nFailed to sync thread list - You are now LOGGED OUT");
                                 NetworkUtils.clearLoginCookies(getAwfulActivity());
                                 getAwfulActivity().startActivity(new Intent().setClass(getAwfulActivity(), AwfulLoginActivity.class));
                             }
@@ -543,7 +543,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         queueRequest(new MarkUnreadRequest(getActivity(), id).build(this, new AwfulRequest.AwfulResultCallback<Void>() {
             @Override
             public void success(Void result) {
-                new AlertBuilder().setTitle(R.string.mark_unread_success)
+                getAlertView().setTitle(R.string.mark_unread_success)
                         .setIcon(R.drawable.ic_check_circle)
                         .show();
                 refreshInfo();
@@ -620,7 +620,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-			if(DEBUG) Log.e(TAG,"Creating forum cursor: "+getForumId());
+			Timber.i("Creating forum cursor: "+getForumId());
             // TODO: move this query code into a provider class
             boolean isBookmarks = (getForumId() == USERCP_ID);
             int thisPageIndex = AwfulPagedItem.forumPageToIndex(getPage());
@@ -641,7 +641,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 selectionArgs = AwfulProvider.int2StrArray(getForumId(), thisPageIndex, nextPageIndex);
             }
 
-            boolean sortNewFirst = (isBookmarks && mPrefs.newThreadsFirstUCP) || (!isBookmarks && mPrefs.newThreadsFirstForum);
+            boolean sortNewFirst = (isBookmarks && getPrefs().newThreadsFirstUCP) || (!isBookmarks && getPrefs().newThreadsFirstForum);
             String sortOrder = sortNewFirst ? AwfulThread.HAS_NEW_POSTS + " DESC, " + AwfulThread.INDEX : AwfulThread.INDEX;
 
             return new CursorLoader(getActivity(), contentUri, AwfulProvider.ThreadProjection, selection, selectionArgs, sortOrder);
@@ -649,7 +649,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 		@Override
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-			if(DEBUG) Log.e(TAG,"Forum contents finished, populating");
+			Timber.i("Forum contents finished, populating");
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
             	mCursorAdapter.swapCursor(aData);
         	}else{
@@ -659,7 +659,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> arg0) {
-			if(DEBUG) Log.e(TAG,"ForumContentsCallback - onLoaderReset");
+			Timber.i("ForumContentsCallback - onLoaderReset");
 			mCursorAdapter.swapCursor(null);
 		}
     }
@@ -673,13 +673,13 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		}
 
 		public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {
-            if(DEBUG) Log.e(TAG,"Creating forum title cursor: "+getForumId());
+            Timber.i("Creating forum title cursor: "+getForumId());
             return new CursorLoader(getActivity(), ContentUris.withAppendedId(AwfulForum.CONTENT_URI, getForumId()),
             		AwfulProvider.ForumProjection, null, null, null);
         }
 
         public void onLoadFinished(Loader<Cursor> aLoader, Cursor aData) {
-        	if(DEBUG) Log.v(TAG,"Forum title finished, populating: "+aData.getCount());
+        	Timber.i("Forum title finished, populating: "+aData.getCount());
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
                 mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
@@ -715,7 +715,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
                 getLoaderManager().destroyLoader(Constants.FORUM_LOADER_ID);
             }
         }catch(NullPointerException npe){
-            Log.e(TAG, Arrays.toString(npe.getStackTrace()));
+            Timber.e(Arrays.toString(npe.getStackTrace()));
         }
 	}
 
