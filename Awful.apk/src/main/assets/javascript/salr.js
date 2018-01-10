@@ -123,22 +123,17 @@ SALR.prototype.inlineTweets = function() {
     tweets = tweets.not('.bbc-spoiler a');
     tweets.each(function() {
 
-        var match = $(this).attr('href').match(twitterRegex);
-        if (match == null) {
-            return;
-        }
-        var tweetId = match[1];
+        var tweetUrl = $(this).attr('href');
         var link = $(this);
-        $.ajax({url:"https://api.twitter.com/1/statuses/oembed.json?id="+tweetId,
+        $.ajax({url:"https://publish.twitter.com/oembed?omit_script=true&url="+escape(tweetUrl),
             dataType: 'jsonp',
             success: function(data) {
                 link = $(link).wrap("<div class='tweet'>").parent();
-                datahtml = data.html.replace("src=\"//platform.twitter.com/widgets.js\"", "src=\"file:///android_asset/twitterwidget.js\"");
-                $(link).html(datahtml);
+                $(link).html(data.html);
                 if($("#theme-css").data('dark-theme')) {
                     $(link).children('blockquote').first().data('theme','dark');
                 }
-                window.twttr.widgets.load(link);
+                window.twttr.widgets.load(link[0]);
             }
         });
     });
