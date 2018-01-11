@@ -163,7 +163,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private int pageBeforeFiltering = 0;
 
 	private static final int BLANK_USER_ID = 0;
-	private static final int FIRST_PAGE = 1;
+	public static final int FIRST_PAGE = 1;
 
 	// TODO: fix this it's all over the place, getting assigned as 1 in loadThread etc - maybe it should default to FIRST_PAGE?
 	/** Current thread's last page */
@@ -1349,7 +1349,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         return mLastPage;
     }
 
-    private int getThreadId() {
+    public int getThreadId() {
         return parentActivity.getThreadId();
     }
 	
