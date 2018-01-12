@@ -2,10 +2,10 @@ package com.ferg.awfulapp.provider;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulThread;
@@ -18,18 +18,18 @@ public class StringProvider {
         return prefs.getResources().getString(stringId);
     }
 
-    public static String getForumName(AwfulActivity context, int forumId){
+    public static String getForumName(Context context, int forumId){
         return getName(context, forumId, AwfulForum.CONTENT_URI, AwfulProvider.ForumProjection,
                 AwfulForum.TITLE, "Forum #");
     }
 
-    public static String getThreadName(AwfulActivity context, int threadId){
+    public static String getThreadName(Context context, int threadId){
         return getName(context, threadId, AwfulThread.CONTENT_URI, AwfulProvider.ThreadProjection,
                 AwfulThread.TITLE, "Thread #");
     }
 
 
-    private static String getName(AwfulActivity context, int id, Uri contentUri, String[] projection,
+    private static String getName(Context context, int id, Uri contentUri, String[] projection,
                                   String columnName, String defaultPrefix) {
         String result;
         ContentResolver contentResolver = context.getContentResolver();

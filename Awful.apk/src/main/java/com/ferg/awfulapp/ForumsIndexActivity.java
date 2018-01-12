@@ -30,58 +30,42 @@
 package com.ferg.awfulapp;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
 import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.messages.PmManager;
-import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.ColorProvider;
-import com.ferg.awfulapp.provider.StringProvider;
 import com.ferg.awfulapp.sync.SyncManager;
 import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
@@ -112,13 +96,10 @@ public class ForumsIndexActivity extends AwfulActivity
     private View mDecorView;
     private ForumPagerAdapter pagerAdapter;
     private Toolbar mToolbar;
-
-    private DrawerLayout mDrawerLayout;
-
-    private ActionBarDrawerToggle mDrawerToggle;
+    private NavigationDrawer navigationDrawer;
 
     public static final int NULL_FORUM_ID = 0;
-    private static final int NULL_THREAD_ID = 0;
+    public static final int NULL_THREAD_ID = 0;
     private static final int NULL_PAGE_ID = -1;
 
     private static final int FORUM_LIST_FRAGMENT_POSITION = 0;
@@ -140,6 +121,13 @@ public class ForumsIndexActivity extends AwfulActivity
     public void onCreate(Bundle savedInstanceState) {
         Log.e(TAG,"onCreate");
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.forum_index_activity);
+        mViewPager = findViewById(R.id.forum_index_pager);
+        mToolbar = findViewById(R.id.awful_toolbar);
+        setSupportActionBar(mToolbar);
+        setActionBar();
+        navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
+
         isTablet = AwfulUtils.isTablet(this);
         int initialPage;
         if (savedInstanceState != null) {
@@ -156,9 +144,7 @@ public class ForumsIndexActivity extends AwfulActivity
             initialPage = parseNewIntent(getIntent());
         }
 
-        setContentView(R.layout.forum_index_activity);
 
-        mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
         if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !mPrefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
@@ -176,10 +162,6 @@ public class ForumsIndexActivity extends AwfulActivity
             mViewPager.setCurrentItem(initialPage);
         }
 
-        mToolbar = (Toolbar) findViewById(R.id.awful_toolbar);
-        setSupportActionBar(mToolbar);
-        setNavigationDrawer();
-        setActionBar();
         checkIntentExtras();
         setupImmersion();
 
@@ -195,27 +177,17 @@ public class ForumsIndexActivity extends AwfulActivity
         if (uri != null) {
             pmIntent.setData(uri);
         }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String message = "Private message from %s\n(%d unread)";
-                Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
-                        .setDuration(3000)
-                        .setAction("View", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                startActivity(pmIntent);
-                            }
-                        })
-                        .show();
-            }
+        runOnUiThread(() -> {
+            String message = "Private message from %s\n(%d unread)";
+            Snackbar.make(mToolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
+                    .setDuration(3000)
+                    .setAction("View", view -> startActivity(pmIntent))
+                    .show();
         });
     }
 
     @Override
     public void onAnnouncementsUpdated(int newCount, int oldUnread, int oldRead, boolean isFirstUpdate) {
-        // update the nav drawer, in case it needs to reflect the new announcements
-        // TODO: 27/01/2017 maybe the nav drawer should register itself as a listener, if it needs updates
         if (isFirstUpdate || newCount > 0) {
             Resources res = getResources();
             // only show one of 'new announcements' or 'unread announcements', ignoring read ones
@@ -226,7 +198,6 @@ public class ForumsIndexActivity extends AwfulActivity
                 showAnnouncementSnackbar(res.getQuantityString(R.plurals.numberOfOldUnreadAnnouncements, oldUnread, oldUnread));
             }
         }
-        updateNavigationMenu();
     }
 
     private void showAnnouncementSnackbar(String message) {
@@ -239,8 +210,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
+        navigationDrawer.getDrawerToggle().syncState();
     }
 
 
@@ -250,16 +220,13 @@ public class ForumsIndexActivity extends AwfulActivity
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
-                    new View.OnSystemUiVisibilityChangeListener() {
-                        @Override
-                        public void onSystemUiVisibilityChange(int flags) {
-                            boolean visible = (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0;
-                            if (visible) {
-                                // Add some delay so the act of swiping to bring system UI into view doesn't turn it back off
-                                mHideHandler.removeMessages(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS);
-                                mHideHandler.sendEmptyMessageDelayed(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS, 800);
-                                mIgnoreFling = true;
-                            }
+                    flags -> {
+                        boolean visible = (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0;
+                        if (visible) {
+                            // Add some delay so the act of swiping to bring system UI into view doesn't turn it back off
+                            mHideHandler.removeMessages(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS);
+                            mHideHandler.sendEmptyMessageDelayed(MESSAGE_VISIBLE_CHANGE_IN_PROGRESS, 800);
+                            mIgnoreFling = true;
                         }
                     });
 
@@ -283,204 +250,78 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
 
-    /** Listener for all the navigation drawer menu items */
-    private final NavigationView.OnNavigationItemSelectedListener navDrawerSelectionListener;
-    {
-        final Context context = this;
-        navDrawerSelectionListener = new NavigationView.OnNavigationItemSelectedListener() {
+    ///////////////////////////////////////////////////////////////////////////
+    // Navigation events
+    ///////////////////////////////////////////////////////////////////////////
 
-            @Override
-            public boolean onNavigationItemSelected (MenuItem menuItem){
-                switch (menuItem.getItemId()) {
-                    case R.id.sidebar_index:
-                        displayForumIndex();
-                        break;
-                    case R.id.sidebar_forum:
-                        displayForum(mNavForumId, 1);
-                        break;
-                    case R.id.sidebar_thread:
-                        displayThread(mNavThreadId, mThreadPage, mNavForumId, mForumPage, false);
-                        break;
-                    case R.id.sidebar_bookmarks:
-                        startActivity(new Intent().setClass(context, ForumsIndexActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                                .putExtra(Constants.FORUM_PAGE, 1));
-                        break;
-                    case R.id.sidebar_settings:
-                        startActivity(new Intent().setClass(context, SettingsActivity.class));
-                        break;
-                    case R.id.sidebar_search:
-                        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, context, getString(R.string.search_forums_activity_title));
-                        startActivity(intent);
-                        break;
-                    case R.id.sidebar_pm:
-                        startActivity(new Intent().setClass(context, PrivateMessageActivity.class));
-                        break;
-                    case R.id.sidebar_announcements:
-                        AnnouncementsManager.getInstance().showAnnouncements(ForumsIndexActivity.this);
-                        break;
-                    case R.id.sidebar_logout:
-                        new LogOutDialog(context).show();
-                        break;
-                    default:
-                        return false;
-                }
-                mDrawerLayout.closeDrawer(Gravity.LEFT);
-                return true;
-            }
-        };
+
+    /** Display the user's bookmarks */
+    public void showBookmarks() {
+        startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
+                .putExtra(Constants.FORUM_PAGE, ForumDisplayFragment.FIRST_PAGE));
+    }
+
+
+    public void showLogout() {
+        new LogOutDialog(this).show();
+    }
+
+    /** Display the announcements */
+    public void showAnnouncements() {
+        AnnouncementsManager.getInstance().showAnnouncements(ForumsIndexActivity.this);
+    }
+
+    /** Display the user's PMs */
+    public void showPrivateMessages() {
+        startActivity(new Intent().setClass(this, PrivateMessageActivity.class));
+    }
+
+    /** Display the forum search */
+    public void showSearch() {
+        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, this, getString(R.string.search_forums_activity_title));
+        startActivity(intent);
+    }
+
+    /** Display the app settings */
+    public void showSettings() {
+        startActivity(new Intent().setClass(this, SettingsActivity.class));
     }
 
 
     /**
-     * Initialise the navigation drawer
-     */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setNavigationDrawer() {
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView navigation = (NavigationView) findViewById(R.id.navigation);
-        navigation.setNavigationItemSelectedListener(navDrawerSelectionListener);
-
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                mToolbar,  /* nav drawer icon to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description */
-                R.string.drawer_close  /* "close drawer" description */
-        );
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-        View nav = navigation.getHeaderView(0);
-
-        // update the navigation drawer header
-        TextView username = (TextView) nav.findViewById(R.id.sidebar_username);
-        if (null != username) {
-            username.setText(mPrefs.username);
-        }
-
-        final ImageView avatar = (ImageView) nav.findViewById(R.id.sidebar_avatar);
-        if (null != avatar) {
-            if (null != mPrefs.userTitle) {
-                if (!("".equals(mPrefs.userTitle))) {
-                    NetworkUtils.getImageLoader().get(mPrefs.userTitle, new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                            avatar.setImageBitmap(response.getBitmap());
-                        }
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            avatar.setImageResource(R.drawable.frog_icon);
-                        }
-                    });
-                    if (AwfulUtils.isLollipop()) {
-                        avatar.setClipToOutline(true);
-                    }
-                } else {
-                    avatar.setImageResource(R.drawable.frog_icon);
-                    if (AwfulUtils.isLollipop()) {
-                        avatar.setClipToOutline(false);
-                    }
-                }
-            }
-        }
-
-        updateNavigationMenu();
-        mDrawerToggle.syncState();
-    }
-
-
-    /**
-     * Update any changeable menu items, e.g. current thread title
-     * Synchronized because it gets called by other threads through
-     * {@link #setNavIds(int, Integer)}
-     */
-    private synchronized void updateNavigationMenu() {
-        // avoid premature update calls (e.g. through onCreate)
-        NavigationView navView = (NavigationView) findViewById(R.id.navigation);
-        if (navView == null) {
-            return;
-        }
-        Menu navMenu = navView.getMenu();
-        final MenuItem forumItem = navMenu.findItem(R.id.sidebar_forum);
-        final MenuItem threadItem = navMenu.findItem(R.id.sidebar_thread);
-
-        // display the current forum title (or not)
-        boolean showForumName = mNavForumId != NULL_FORUM_ID && mNavForumId != Constants.USERCP_ID;
-        if (forumItem != null) {
-            forumItem.setVisible(showForumName);
-        }
-
-        boolean showThreadName = mNavThreadId != NULL_THREAD_ID;
-        if (threadItem != null) {
-            threadItem.setVisible(showThreadName);
-        }
-
-        // update the forum and thread titles in the background, to avoid hitting the DB on the UI thread
-        // to keep things simple, it also sets the text on anything we just hid, which will be placeholder text if the IDs are invalid
-        updateNavMenuText(mNavForumId, mNavThreadId, forumItem, threadItem);
-
-        // private messages - show 'em if you got 'em
-        final MenuItem pmItem = navMenu.findItem(R.id.sidebar_pm);
-        if (pmItem != null) {
-            pmItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
-        }
-
-        // private messages - show 'em if you got 'em
-        final MenuItem searchItem = navMenu.findItem(R.id.sidebar_search);
-        if (searchItem != null) {
-            searchItem.setEnabled(mPrefs.hasPlatinum).setVisible(mPrefs.hasPlatinum);
-        }
-
-        // show the unread announcement count
-        final MenuItem announcements = navMenu.findItem(R.id.sidebar_announcements);
-        if (announcements != null) {
-            int unread = AnnouncementsManager.getInstance().getUnreadCount();
-            announcements.setTitle(getString(R.string.announcements) + (unread == 0 ? "" : " (" + unread + ")"));
-        }
-    }
-
-
-    /**
-     * Update the nav menu's forum and thread titles in the background.
+     * Page to the thread view. If it's not currently showing the expected thread, load the first page of it.
      *
-     * This does some DB lookups and hurts the UI thread a lot, so let's async it for now
-     * @param forumId       The ID of the forum to lookup
-     * @param threadId      The ID of the thread to lookup
-     * @param forumItem     An optional menu item to update with the forum name
-     * @param threadItem    An optional menu item to update with the thread name
+     * @param expectedThreadId  the page that should be shown
+     * @param parentForumId     the ID of the thread's parent forum
      */
-    private void updateNavMenuText(final int forumId,
-                                   final int threadId,
-                                   @Nullable final MenuItem forumItem,
-                                   @Nullable final MenuItem threadItem) {
-        final AwfulActivity context = this;
-        new AsyncTask<Void, Void, Void>() {
-
-            private String forumName;
-            private String threadName;
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                threadName = StringProvider.getThreadName(context, threadId);
-                if(forumId >= 0){
-                    forumName = StringProvider.getForumName(context, forumId);
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                if (forumItem != null) {
-                    forumItem.setTitle(forumName);
-                }
-                if (threadItem != null) {
-                    threadItem.setTitle(threadName);
-                }
-            }
-        }.execute();
+    public void showThreadView(int expectedThreadId, int parentForumId) {
+        if (mThreadFragment.getThreadId() != expectedThreadId) {
+            displayThread(expectedThreadId, ThreadDisplayFragment.FIRST_PAGE, parentForumId, ForumDisplayFragment.FIRST_PAGE, true);
+        } else {
+            mViewPager.setCurrentItem(THREAD_VIEW_FRAGMENT_POSITION);
+        }
     }
+
+
+    /**
+     * Page to the forum/threadlist view. If it's not currently showing the expected forum, load the first page of it.
+     * @param expectedForumId the forum that should be shown
+     */
+    public void showForumView(int expectedForumId) {
+        if (mForumFragment.getForumId() != expectedForumId) {
+            displayForum(expectedForumId, ForumDisplayFragment.FIRST_PAGE);
+        } else {
+            mViewPager.setCurrentItem(THREAD_LIST_FRAGMENT_POSITION);
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
 
 
     @Override
@@ -639,18 +480,10 @@ public class ForumsIndexActivity extends AwfulActivity
             new AlertDialog.Builder(this).
                     setTitle(getString(R.string.alert_title_1))
                     .setMessage(getString(R.string.alert_message_1))
-                    .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .setNegativeButton(getString(R.string.alert_settings), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            startActivity(new Intent().setClass(ForumsIndexActivity.this, SettingsActivity.class));
-                        }
+                    .setPositiveButton(getString(R.string.alert_ok), (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton(getString(R.string.alert_settings), (dialog, which) -> {
+                        dialog.dismiss();
+                        showSettings();
                     })
                     .show();
             mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1);
@@ -851,16 +684,15 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-            mDrawerLayout.closeDrawers();
-        } else {
-            if (mViewPager != null && mViewPager.getCurrentItem() > 0) {
-                if (!((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()) {
-                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
-                }
-            } else {
-                super.onBackPressed();
+        if (navigationDrawer.close()) {
+            return;
+        }
+        if (mViewPager != null && mViewPager.getCurrentItem() > 0) {
+            if (!((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()) {
+                mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
             }
+        } else {
+            super.onBackPressed();
         }
 
     }
@@ -890,15 +722,6 @@ public class ForumsIndexActivity extends AwfulActivity
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 
@@ -964,7 +787,6 @@ public class ForumsIndexActivity extends AwfulActivity
         if (mViewPager != null) {
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
-        setNavigationDrawer();
         if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !prefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
@@ -990,7 +812,7 @@ public class ForumsIndexActivity extends AwfulActivity
         if(mViewPager != null){
             ((ForumPagerAdapter)mViewPager.getAdapter()).getItem(mViewPager.getCurrentItem()).onConfigurationChanged(newConfig);
         }
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        navigationDrawer.getDrawerToggle().onConfigurationChanged(newConfig);
     }
 
 
@@ -1001,10 +823,7 @@ public class ForumsIndexActivity extends AwfulActivity
      * @param threadId
      */
     public synchronized void setNavIds(int forumId, @Nullable Integer threadId) {
-        // if we only get a forumId, clear the thread one so it's not displayed
-        mNavForumId = forumId;
-        mNavThreadId = threadId != null ? threadId : NULL_THREAD_ID;
-        updateNavigationMenu();
+        navigationDrawer.setCurrentForumAndThread(forumId, threadId);
     }
 
     public void preventSwipe() {
@@ -1012,14 +831,11 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
     public void reenableSwipe() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mViewPager.beginFakeDrag()) {
-                    mViewPager.endFakeDrag();
-                }
-                mViewPager.setSwipeEnabled(true);
+        runOnUiThread(() -> {
+            if (mViewPager.beginFakeDrag()) {
+                mViewPager.endFakeDrag();
             }
+            mViewPager.setSwipeEnabled(true);
         });
     }
 
