@@ -13,8 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.ImageLoader
-import com.ferg.awfulapp.ForumsIndexActivity.NULL_FORUM_ID
-import com.ferg.awfulapp.ForumsIndexActivity.NULL_THREAD_ID
+import com.ferg.awfulapp.ForumsIndexActivity.Companion.NULL_FORUM_ID
+import com.ferg.awfulapp.ForumsIndexActivity.Companion.NULL_THREAD_ID
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
@@ -70,7 +70,7 @@ class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val 
     init {
         navigationMenu.setNavigationItemSelectedListener(::handleItemSelection)
         drawerToggle = ActionBarDrawerToggle(activity, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
-        drawerLayout.setDrawerListener(drawerToggle)
+        drawerLayout.addDrawerListener(drawerToggle)
 
         val nav = navigationMenu.getHeaderView(0)
         username = nav.findViewById(R.id.sidebar_username) as TextView
