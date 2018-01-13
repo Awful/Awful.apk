@@ -389,6 +389,127 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
 
+    override fun onBackPressed() {
+        if (navigationDrawer.close()) return
+        if (viewPager.currentItem > 0) {
+            if (!(pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment).onBackPressed()) {
+                viewPager.currentItem = viewPager.currentItem - 1
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun displayForum(id: Int, page: Int) {
+        Timber.i("displayForum $id")
+        setForum(id, page)
+        setNavIds(id, null)
+        forumFragment?.let { frag ->
+            frag.openForum(id, page)
+            viewPager.currentItem = pagerAdapter.getItemPosition(frag)
+        }
+    }
+
+
+    override fun isFragmentVisible(awfulFragment: AwfulFragment?): Boolean {
+        if(awfulFragment == null) return false
+        if (isTablet) {
+            val itemPos = pagerAdapter.getItemPosition(awfulFragment)
+            return itemPos == viewPager.currentItem || itemPos == viewPager.currentItem + 1
+        } else {
+            return pagerAdapter.getItemPosition(awfulFragment) == viewPager.currentItem
+        }
+    }
+
+
+    override fun displayThread(id: Int, page: Int, forumId: Int, forumPg: Int, forceReload: Boolean) {
+        Timber.i("displayThread $id $forumId")
+
+        threadFragment?.let { threadFrag ->
+            if (!forceReload && threadId == id && threadPage == page) {
+                setNavIds(threadFrag.parentForumId, NULL_THREAD_ID)
+            } else {
+                threadFragment?.openThread(id, page, null)
+                viewPager.adapter?.notifyDataSetChanged()
+            }
+            viewPager.currentItem = pagerAdapter.getItemPosition(threadFrag)
+        } ?: setThread(id, page)
+    }
+
+
+    override fun displayUserCP() {
+        displayForum(Constants.USERCP_ID, 1)
+    }
+
+    override fun displayForumIndex() {
+        viewPager.currentItem = 0
+    }
+
+
+    override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
+        Timber.i("onActivityResult: $request result: $result")
+        super.onActivityResult(request, result, intent)
+        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
+            SyncManager.sync(this)
+        }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val pagerItem = pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment?
+        return if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) true
+        else super.dispatchKeyEvent(event)
+    }
+
+    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
+        super.onPreferenceChange(prefs, key)
+        viewPager.setSwipeEnabled(!prefs.lockScrolling)
+        if (!isTablet && AwfulUtils.isJellybean() && prefs.transformer != "Disabled") {
+            viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val wasTab = isTablet
+        isTablet = AwfulUtils.isTablet(this)
+        if (wasTab != isTablet) {
+            if (isTablet) {
+                viewPager.pageMargin = 1
+                //TODO what color should it use here?
+                viewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
+            } else {
+                viewPager.pageMargin = 0
+            }
+        }
+        viewPager.adapter?.getItem(viewPager.currentItem)?.onConfigurationChanged(newConfig)
+        navigationDrawer.drawerToggle.onConfigurationChanged(newConfig)
+    }
+
+
+    /**
+     * Set the IDs that the navigation view knows about?
+     * Updates the navigation menu to reflect these
+     * @param forumId   The current forum
+     * @param threadId
+     */
+    @Synchronized
+    fun setNavIds(forumId: Int, threadId: Int?) {
+        navigationDrawer.setCurrentForumAndThread(forumId, threadId)
+    }
+
+    fun preventSwipe() {
+        this.viewPager.setSwipeEnabled(false)
+    }
+
+    fun reenableSwipe() {
+        runOnUiThread {
+            if (viewPager.beginFakeDrag()) {
+                viewPager.endFakeDrag()
+            }
+            viewPager.setSwipeEnabled(true)
+        }
+    }
+
     inner class ForumPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm), ViewPager.OnPageChangeListener {
 
         private var visible: AwfulFragment? = null
@@ -433,8 +554,6 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             return frag
         }
 
-        override fun getCount() =  if (threadId < 1) 2 else 3
-
         override fun getItemPosition(item: Any): Int {
             return when (item) {
                 mIndexFragment -> FORUM_LIST_FRAGMENT_POSITION
@@ -454,144 +573,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             }
             return super.getPageWidth(position)
         }
-    }
 
-
-    override fun setActionbarTitle(aTitle: String?, requestor: Any?) {
-        if (requestor != null) {
-            //This will only honor the request if the requestor is the currently active view.
-            if (requestor is AwfulFragment && isFragmentVisible(requestor as AwfulFragment?)) {
-                super.setActionbarTitle(aTitle, requestor)
-            } else {
-                if (AwfulActivity.DEBUG)
-                    Timber.i("Failed setActionbarTitle: $aTitle - $requestor")
-            }
-        } else {
-            super.setActionbarTitle(aTitle, requestor)
-        }
-    }
-
-    override fun onBackPressed() {
-        if (navigationDrawer.close()) return
-        if (viewPager.currentItem > 0) {
-            if (!(pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment).onBackPressed()) {
-                viewPager.currentItem = viewPager.currentItem - 1
-            }
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun displayForum(id: Int, page: Int) {
-        Timber.i("displayForum $id")
-        setForum(id, page)
-        setNavIds(id, null)
-        forumFragment?.let { frag ->
-            frag.openForum(id, page)
-            viewPager.currentItem = pagerAdapter.getItemPosition(frag)
-        }
-    }
-
-
-    override fun isFragmentVisible(awfulFragment: AwfulFragment?): Boolean {
-        if(awfulFragment == null) return false
-        if (isTablet) {
-            val itemPos = pagerAdapter.getItemPosition(awfulFragment)
-            return itemPos == viewPager.currentItem || itemPos == viewPager.currentItem + 1
-        } else {
-            return pagerAdapter.getItemPosition(awfulFragment) == viewPager.currentItem
-        }
-    }
-
-
-    override fun displayThread(id: Int, page: Int, forumId: Int, forumPg: Int, forceReload: Boolean) {
-        Timber.d("displayThread $id $forumId")
-
-        threadFragment?.let { threadFrag ->
-            if (!forceReload && threadId == id && threadPage == page) {
-                setNavIds(threadFrag.parentForumId, NULL_THREAD_ID)
-            } else {
-                threadFragment?.openThread(id, page, null)
-                viewPager.adapter?.notifyDataSetChanged()
-            }
-            viewPager.currentItem = pagerAdapter.getItemPosition(threadFrag)
-        } ?: setThread(id, page)
-    }
-
-
-    override fun displayUserCP() {
-        displayForum(Constants.USERCP_ID, 1)
-    }
-
-    override fun displayForumIndex() {
-        viewPager.currentItem = 0
-    }
-
-
-    override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
-        Timber.i("onActivityResult: $request result: $result")
-        super.onActivityResult(request, result, intent)
-        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
-            SyncManager.sync(this)
-        }
-    }
-
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val pagerItem = pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment?
-        return if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
-            true
-        } else super.dispatchKeyEvent(event)
-    }
-
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        super.onPreferenceChange(prefs, key)
-        viewPager.setSwipeEnabled(!prefs.lockScrolling)
-        if (!isTablet && AwfulUtils.isJellybean() && prefs.transformer != "Disabled") {
-            viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
-        }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        Timber.v("onConfigurationChanged")
-        val wasTab = isTablet
-        isTablet = AwfulUtils.isTablet(this)
-        if (wasTab != isTablet) {
-            if (isTablet) {
-                viewPager.pageMargin = 1
-                //TODO what color should it use here?
-                viewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
-            } else {
-                viewPager.pageMargin = 0
-            }
-        }
-        viewPager.adapter?.getItem(viewPager.currentItem)?.onConfigurationChanged(newConfig)
-        navigationDrawer.drawerToggle.onConfigurationChanged(newConfig)
-    }
-
-
-    /**
-     * Set the IDs that the navigation view knows about?
-     * Updates the navigation menu to reflect these
-     * @param forumId   The current forum
-     * @param threadId
-     */
-    @Synchronized
-    fun setNavIds(forumId: Int, threadId: Int?) {
-        navigationDrawer.setCurrentForumAndThread(forumId, threadId)
-    }
-
-    fun preventSwipe() {
-        this.viewPager.setSwipeEnabled(false)
-    }
-
-    fun reenableSwipe() {
-        runOnUiThread {
-            if (viewPager.beginFakeDrag()) {
-                viewPager.endFakeDrag()
-            }
-            viewPager.setSwipeEnabled(true)
-        }
+        override fun getCount() =  if (threadId < 1) 2 else 3
     }
 
     companion object {
