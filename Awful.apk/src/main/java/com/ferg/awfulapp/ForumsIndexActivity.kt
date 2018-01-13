@@ -37,7 +37,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -63,7 +62,6 @@ import com.ferg.awfulapp.widget.ToggleViewPager
 import timber.log.Timber
 import java.util.*
 
-//import com.ToxicBakery.viewpager.transforms.*;
 
 class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsManager.AnnouncementListener {
     private var mIndexFragment: ForumsIndexFragment? = null
@@ -74,18 +72,16 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     private var isTablet: Boolean = false
     private var url = AwfulURL()
 
-    lateinit private var mViewPager: ToggleViewPager
+    lateinit private var toolbar: Toolbar
+    lateinit private var viewPager: ToggleViewPager
     lateinit private var pagerAdapter: ForumPagerAdapter
     lateinit private var navigationDrawer: NavigationDrawer
     lateinit private var fullscreenCoordinator: FullscreenCoordinator
 
-    private var toolbar: Toolbar? = null
-
-    @Volatile private var mForumId = Constants.USERCP_ID
-    @Volatile private var mForumPage = 1
+    @Volatile private var forumID = Constants.USERCP_ID
+    @Volatile private var forumPage = 1
     @Volatile var threadId = NULL_THREAD_ID
     @Volatile var threadPage = 1
-
     private var threadPost = ""
 
 
@@ -93,19 +89,18 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         Timber.v("onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.forum_index_activity)
-        mViewPager = findViewById(R.id.forum_index_pager)
-        toolbar = findViewById(R.id.awful_toolbar)
-        setSupportActionBar(toolbar)
-        setActionBar()
-        navigationDrawer = NavigationDrawer(this, toolbar!!, mPrefs)
 
+        viewPager = findViewById(R.id.forum_index_pager)
+        toolbar = findViewById(R.id.awful_toolbar)
+        navigationDrawer = NavigationDrawer(this, toolbar, mPrefs)
         fullscreenCoordinator = FullscreenCoordinator(this, mPrefs.immersionMode)
+        setSupportActionBar(toolbar)
 
         isTablet = AwfulUtils.isTablet(this)
         val initialPage: Int
         if (savedInstanceState != null) {
-            val forumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId)
-            val forumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage)
+            val forumId = savedInstanceState.getInt(Constants.FORUM_ID, forumID)
+            val forumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, forumPage)
             setForum(forumId, forumPage)
 
             val threadPage = savedInstanceState.getInt(Constants.THREAD_PAGE, 1)
@@ -117,21 +112,21 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             initialPage = parseNewIntent(intent)
         }
 
-        mViewPager.setSwipeEnabled(!mPrefs.lockScrolling)
-        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && mPrefs.transformer != "Disabled") {
-            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
+        viewPager.setSwipeEnabled(!mPrefs.lockScrolling)
+        if (!isTablet && AwfulUtils.isJellybean() && mPrefs.transformer != "Disabled") {
+            viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
         }
-        mViewPager.offscreenPageLimit = 2
+        viewPager.offscreenPageLimit = 2
         if (isTablet) {
-            mViewPager.pageMargin = 1
+            viewPager.pageMargin = 1
             //TODO what color should it use here?
-            mViewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
+            viewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
         }
         pagerAdapter = ForumPagerAdapter(supportFragmentManager)
-        mViewPager.adapter = pagerAdapter
-        mViewPager.addOnPageChangeListener(pagerAdapter)
+        viewPager.adapter = pagerAdapter
+        viewPager.addOnPageChangeListener(pagerAdapter)
         if (initialPage >= 0) {
-            mViewPager.currentItem = initialPage
+            viewPager.currentItem = initialPage
         }
 
         checkIntentExtras()
@@ -148,7 +143,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         }
         runOnUiThread {
             val message = "Private message from %s\n(%d unread)"
-            Snackbar.make(toolbar!!, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
+            Snackbar.make(toolbar, String.format(Locale.getDefault(), message, sender, unreadCount), Snackbar.LENGTH_LONG)
                     .setAction("View") { startActivity(pmIntent) }
                     .show()
         }
@@ -168,7 +163,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
     private fun showAnnouncementSnackbar(message: String) {
-        Snackbar.make(toolbar!!, message, Snackbar.LENGTH_LONG)
+        Snackbar.make(toolbar, message, Snackbar.LENGTH_LONG)
                 .setAction("View") { AnnouncementsManager.getInstance().showAnnouncements(this) }
                 .show()
     }
@@ -226,23 +221,22 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
      * @param parentForumId     the ID of the thread's parent forum
      */
     fun showThreadView(expectedThreadId: Int, parentForumId: Int) {
-        if (threadFragment!!.threadId != expectedThreadId) {
+        if (threadFragment?.threadId != expectedThreadId) {
             displayThread(expectedThreadId, ThreadDisplayFragment.FIRST_PAGE, parentForumId, ForumDisplayFragment.FIRST_PAGE, true)
         } else {
-            mViewPager.currentItem = THREAD_VIEW_FRAGMENT_POSITION
+            viewPager.currentItem = THREAD_VIEW_FRAGMENT_POSITION
         }
     }
-
 
     /**
      * Page to the forum/threadlist view. If it's not currently showing the expected forum, load the first page of it.
      * @param expectedForumId the forum that should be shown
      */
     fun showForumView(expectedForumId: Int) {
-        if (forumFragment!!.forumId != expectedForumId) {
+        if (forumFragment?.forumId != expectedForumId) {
             displayForum(expectedForumId, ForumDisplayFragment.FIRST_PAGE)
         } else {
-            mViewPager.currentItem = THREAD_LIST_FRAGMENT_POSITION
+            viewPager.currentItem = THREAD_LIST_FRAGMENT_POSITION
         }
     }
 
@@ -251,16 +245,15 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     //
     ///////////////////////////////////////////////////////////////////////////
 
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Timber.v("onNewIntent")
         setIntent(intent)
         val initialPage = parseNewIntent(intent)
         if (pagerAdapter.count >= initialPage && initialPage >= 0) {
-            mViewPager.currentItem = initialPage
+            viewPager.currentItem = initialPage
         }
-        forumFragment?.openForum(mForumId, mForumPage)
+        forumFragment?.openForum(forumID, forumPage)
 
         threadFragment?.apply {
             if (url.isThread || url.isPost) {
@@ -274,8 +267,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     private fun parseNewIntent(intent: Intent): Int {
         var initialPage = NULL_PAGE_ID
-        var forumId = getIntent().getIntExtra(Constants.FORUM_ID, mForumId)
-        var forumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage)
+        var forumId = getIntent().getIntExtra(Constants.FORUM_ID, forumID)
+        var forumPage = getIntent().getIntExtra(Constants.FORUM_PAGE, forumPage)
         var threadId = getIntent().getIntExtra(Constants.THREAD_ID, this.threadId)
         var threadPage = getIntent().getIntExtra(Constants.THREAD_PAGE, this.threadPage)
         threadPost = getIntent().getStringExtra(Constants.THREAD_FRAGMENT) ?: ""
@@ -285,7 +278,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         }
 
         var displayIndex = false
-        val scheme = if (getIntent().data == null) null else getIntent().data!!.scheme
+        val scheme = getIntent().data?.scheme
         if ("http" == scheme || "https" == scheme) {
             url = AwfulURL.parse(getIntent().dataString)
             when (url.type) {
@@ -305,9 +298,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         setForum(forumId, forumPage)
         setThread(threadId, threadPage)
 
-        if (displayIndex) {
-            displayForumIndex()
-        }
+        if (displayIndex) displayForumIndex()
         if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum) {
             initialPage = if (isTablet) 0 else 1
         } else {
@@ -322,30 +313,29 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     override fun onResume() {
         super.onResume()
 
-        val versionCode = BuildConfig.VERSION_CODE
+        val version = BuildConfig.VERSION_CODE
 
         // check if this is the first run, and if so show the 'welcome' dialog
         if (mPrefs.alertIDShown == 0) {
             AlertDialog.Builder(this).setTitle(getString(R.string.alert_title_1))
                     .setMessage(getString(R.string.alert_message_1))
-                    .setPositiveButton(getString(R.string.alert_ok)) { dialog, which -> dialog.dismiss() }
-                    .setNegativeButton(getString(R.string.alert_settings)) { dialog, which ->
+                    .setPositiveButton(getString(R.string.alert_ok)) { dialog, _ -> dialog.dismiss() }
+                    .setNegativeButton(getString(R.string.alert_settings)) { dialog, _ ->
                         dialog.dismiss()
                         showSettings()
-                    }
-                    .show()
+                    }.show()
             mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1)
-        } else if (mPrefs.lastVersionSeen != versionCode) {
-            Timber.i("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode)
+        } else if (mPrefs.lastVersionSeen != BuildConfig.VERSION_CODE) {
+            Timber.i("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, version)
             ChangelogDialog.show(this)
-            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode)
+            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, version)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (forumFragment != null) {
-            setForum(forumFragment!!.forumId, forumFragment!!.page)
+        forumFragment?.apply {
+            setForum(forumId, page)
         }
     }
 
@@ -356,11 +346,13 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        outState!!.putInt(Constants.FORUM_ID, mForumId)
-        outState.putInt(Constants.FORUM_PAGE, mForumPage)
-        outState.putInt(Constants.THREAD_ID, threadId)
-        outState.putInt(Constants.THREAD_PAGE, threadPage)
-        outState.putInt("viewPage", mViewPager.currentItem)
+        outState?.apply {
+            putInt(Constants.FORUM_ID, forumID)
+            putInt(Constants.FORUM_PAGE, forumPage)
+            putInt(Constants.THREAD_ID, threadId)
+            putInt(Constants.THREAD_PAGE, threadPage)
+            putInt("viewPage", viewPager.currentItem)
+        }
     }
 
 
@@ -375,9 +367,9 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     @Synchronized
     private fun setForum(forumId: Int, page: Int) {
-        mForumId = forumId
-        mForumPage = page
-        setNavIds(mForumId, null)
+        this.forumID = forumId
+        forumPage = page
+        setNavIds(this.forumID, null)
     }
 
 
@@ -386,7 +378,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         if (page != null) {
             threadPage = page
         }
-        if (threadId != null) {
+        threadId?.let {
             val oldThreadId = this.threadId
             this.threadId = threadId
             if ((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId) {
@@ -401,13 +393,10 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
         private var visible: AwfulFragment? = null
 
-
         override fun onPageSelected(arg0: Int) {
             Timber.i("onPageSelected: $arg0")
-            if (visible != null) {
-                visible!!.onPageHidden()
-            }
-            val apf = instantiateItem(mViewPager, arg0) as AwfulFragment
+            visible?.onPageHidden()
+            val apf = instantiateItem(viewPager, arg0) as AwfulFragment
             // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
             // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
             // where these fragment methods crash because they have no activity yet
@@ -420,23 +409,18 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         }
 
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-
         override fun onPageScrollStateChanged(state: Int) {}
 
         override fun getItem(position: Int): Fragment? {
-            when (position) {
-                FORUM_LIST_FRAGMENT_POSITION -> {
-                    return mIndexFragment ?: ForumsIndexFragment()
-                }
-                THREAD_LIST_FRAGMENT_POSITION -> {
-                    return forumFragment ?: ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad)
-                }
-                THREAD_VIEW_FRAGMENT_POSITION -> {
-                    return threadFragment ?: ThreadDisplayFragment()
+            return when (position) {
+                FORUM_LIST_FRAGMENT_POSITION -> mIndexFragment ?: ForumsIndexFragment()
+                THREAD_LIST_FRAGMENT_POSITION -> forumFragment ?: ForumDisplayFragment.getInstance(forumID, forumPage, skipLoad)
+                THREAD_VIEW_FRAGMENT_POSITION -> threadFragment ?: ThreadDisplayFragment()
+                else -> {
+                    Timber.e("ERROR: asked for too many fragments in ForumPagerAdapter.getItem")
+                    null
                 }
             }
-            Timber.e("ERROR: asked for too many fragments in ForumPagerAdapter.getItem")
-            return null
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -452,15 +436,12 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         override fun getCount() =  if (threadId < 1) 2 else 3
 
         override fun getItemPosition(item: Any): Int {
-            if (mIndexFragment != null && mIndexFragment == item) {
-                return FORUM_LIST_FRAGMENT_POSITION
+            return when (item) {
+                mIndexFragment -> FORUM_LIST_FRAGMENT_POSITION
+                forumFragment -> THREAD_LIST_FRAGMENT_POSITION
+                threadFragment -> THREAD_VIEW_FRAGMENT_POSITION
+                else -> super.getItemPosition(item)
             }
-            if (forumFragment != null && forumFragment == item) {
-                return THREAD_LIST_FRAGMENT_POSITION
-            }
-            return if (threadFragment != null && threadFragment == item) {
-                THREAD_VIEW_FRAGMENT_POSITION
-            } else super.getItemPosition(item)
         }
 
         override fun getPageWidth(position: Int): Float {
@@ -492,14 +473,13 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     override fun onBackPressed() {
         if (navigationDrawer.close()) return
-        if (mViewPager.currentItem > 0) {
-            if (!(pagerAdapter.getItem(mViewPager.currentItem) as AwfulFragment).onBackPressed()) {
-                mViewPager.currentItem = mViewPager.currentItem - 1
+        if (viewPager.currentItem > 0) {
+            if (!(pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment).onBackPressed()) {
+                viewPager.currentItem = viewPager.currentItem - 1
             }
         } else {
             super.onBackPressed()
         }
-
     }
 
     override fun displayForum(id: Int, page: Int) {
@@ -508,7 +488,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         setNavIds(id, null)
         forumFragment?.let { frag ->
             frag.openForum(id, page)
-            mViewPager.currentItem = pagerAdapter.getItemPosition(frag)
+            viewPager.currentItem = pagerAdapter.getItemPosition(frag)
         }
     }
 
@@ -517,9 +497,9 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
         if(awfulFragment == null) return false
         if (isTablet) {
             val itemPos = pagerAdapter.getItemPosition(awfulFragment)
-            return itemPos == mViewPager.currentItem || itemPos == mViewPager.currentItem + 1
+            return itemPos == viewPager.currentItem || itemPos == viewPager.currentItem + 1
         } else {
-            return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.currentItem
+            return pagerAdapter.getItemPosition(awfulFragment) == viewPager.currentItem
         }
     }
 
@@ -532,9 +512,9 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
                 setNavIds(threadFrag.parentForumId, NULL_THREAD_ID)
             } else {
                 threadFragment?.openThread(id, page, null)
-                mViewPager.adapter?.notifyDataSetChanged()
+                viewPager.adapter?.notifyDataSetChanged()
             }
-            mViewPager.currentItem = pagerAdapter.getItemPosition(threadFrag)
+            viewPager.currentItem = pagerAdapter.getItemPosition(threadFrag)
         } ?: setThread(id, page)
     }
 
@@ -544,7 +524,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
     override fun displayForumIndex() {
-        mViewPager.currentItem = 0
+        viewPager.currentItem = 0
     }
 
 
@@ -557,7 +537,7 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val pagerItem = pagerAdapter.getItem(mViewPager.currentItem) as AwfulFragment?
+        val pagerItem = pagerAdapter.getItem(viewPager.currentItem) as AwfulFragment?
         return if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             true
         } else super.dispatchKeyEvent(event)
@@ -565,30 +545,27 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
         super.onPreferenceChange(prefs, key)
-        mViewPager.setSwipeEnabled(!prefs.lockScrolling)
-        if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && prefs.transformer != "Disabled") {
-            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
+        viewPager.setSwipeEnabled(!prefs.lockScrolling)
+        if (!isTablet && AwfulUtils.isJellybean() && prefs.transformer != "Disabled") {
+            viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
         }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Timber.v("onConfigurationChanged")
-        val oldTab = isTablet
+        val wasTab = isTablet
         isTablet = AwfulUtils.isTablet(this)
-        if (oldTab != isTablet) {
+        if (wasTab != isTablet) {
             if (isTablet) {
-                mViewPager.pageMargin = 1
+                viewPager.pageMargin = 1
                 //TODO what color should it use here?
-                mViewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
+                viewPager.setPageMarginDrawable(ColorDrawable(ColorProvider.ACTION_BAR.color))
             } else {
-                mViewPager.pageMargin = 0
+                viewPager.pageMargin = 0
             }
-
-            mViewPager.adapter = pagerAdapter
         }
-        (mViewPager.adapter as ForumPagerAdapter).getItem(mViewPager.currentItem)?.onConfigurationChanged(newConfig)
-
+        viewPager.adapter?.getItem(viewPager.currentItem)?.onConfigurationChanged(newConfig)
         navigationDrawer.drawerToggle.onConfigurationChanged(newConfig)
     }
 
@@ -605,18 +582,17 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
     }
 
     fun preventSwipe() {
-        this.mViewPager.setSwipeEnabled(false)
+        this.viewPager.setSwipeEnabled(false)
     }
 
     fun reenableSwipe() {
         runOnUiThread {
-            if (mViewPager.beginFakeDrag()) {
-                mViewPager.endFakeDrag()
+            if (viewPager.beginFakeDrag()) {
+                viewPager.endFakeDrag()
             }
-            mViewPager.setSwipeEnabled(true)
+            viewPager.setSwipeEnabled(true)
         }
     }
-
 
     companion object {
         val NULL_FORUM_ID = 0
