@@ -375,9 +375,8 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
 
     @Synchronized
     fun setThread(threadId: Int?, page: Int?) {
-        if (page != null) {
-            threadPage = page
-        }
+        page?.let { threadPage = page }
+
         threadId?.let {
             val oldThreadId = this.threadId
             this.threadId = threadId
@@ -435,7 +434,6 @@ class ForumsIndexActivity : AwfulActivity(), PmManager.Listener, AnnouncementsMa
             viewPager.currentItem = pagerAdapter.getItemPosition(threadFrag)
         } ?: setThread(id, page)
     }
-
 
     override fun displayUserCP() {
         displayForum(Constants.USERCP_ID, 1)
