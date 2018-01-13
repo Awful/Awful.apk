@@ -5,6 +5,8 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.ferg.awfulapp.ForumsIndexActivity;
+
 public class ToggleViewPager extends ViewPager{
     private boolean swipeEnabled = true;
     public ToggleViewPager(Context context) {
@@ -50,5 +52,10 @@ public class ToggleViewPager extends ViewPager{
 
     public void setSwipeEnabled(boolean swipe){
         swipeEnabled = swipe;
+    }
+
+    @Override
+    public ForumsIndexActivity.ForumPagerAdapter getAdapter() {
+        return (ForumsIndexActivity.ForumPagerAdapter) super.getAdapter();
     }
 }

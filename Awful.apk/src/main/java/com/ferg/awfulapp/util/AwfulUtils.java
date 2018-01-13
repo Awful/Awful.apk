@@ -45,7 +45,7 @@ public class AwfulUtils {
     }
 
     public static boolean isJellybean() {
-        return isAtLeast(Build.VERSION_CODES.JELLY_BEAN);
+        return isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1);
     }
 
     public static boolean isKitKat() {
