@@ -823,7 +823,11 @@ public class ForumsIndexActivity extends AwfulActivity
      * @param threadId
      */
     public synchronized void setNavIds(int forumId, @Nullable Integer threadId) {
-        navigationDrawer.setCurrentForumAndThread(forumId, threadId);
+        // TODO: 15/01/2018 when fragments restore, they call this before the Activity (and its nav drawer) are created - really the activity should create and then ASK what the fragments are showing
+        // TODO: 15/01/2018 replace this method - fragments shouldn't be setting this, they should just alert the activity "now I'm showing this forum" or whatever, let the activity react to that event and coordinate everything
+        if (navigationDrawer != null) {
+            navigationDrawer.setCurrentForumAndThread(forumId, threadId);
+        }
     }
 
     public void preventSwipe() {
