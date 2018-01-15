@@ -160,7 +160,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
         mViewPager = (ToggleViewPager) findViewById(R.id.forum_index_pager);
         mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !mPrefs.transformer.equals("Disabled")) {
+        if (!isTablet && !mPrefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
         mViewPager.setOffscreenPageLimit(2);
@@ -246,7 +246,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void setupImmersion() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (mPrefs.immersionMode) {
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
@@ -486,7 +486,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (mPrefs.immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -517,7 +517,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (mPrefs.immersionMode) {
             // When the window loses focus (e.g. the action overflow is shown),
             // cancel any pending hide action. When the window gains focus,
             // hide the system UI.
@@ -531,7 +531,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void showSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (mPrefs.immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -540,7 +540,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void hideSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (mPrefs.immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -965,7 +965,7 @@ public class ForumsIndexActivity extends AwfulActivity
             mViewPager.setSwipeEnabled(!prefs.lockScrolling);
         }
         setNavigationDrawer();
-        if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !prefs.transformer.equals("Disabled")) {
+        if (!AwfulUtils.isTablet(this) && !prefs.transformer.equals("Disabled")) {
             mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
     }

@@ -2,27 +2,68 @@
  * Initializes the container holding all the posts.
  */
 function containerInit() {
-	var container = $('#container');
-	if (listener.getPreference('showSpoilers') != 'true') {
-		container.on('click', '.bbc-spoiler', function spoilerClick() {
-			$(this).toggleClass('spoiled');
+	var container = document.getElementById('container');
+	
+	container.addEventListener('click', function containerClick(event) {
+		var that = event.target;
+		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') != 'true') {
+			that.classList.toggle('spoiled');
+		}
+		if (findInPath(event, 'toggleread')) {
+			showReadPosts();
+		}
+		if (findInPath(event, 'postinfo')) {
+			toggleInfo(findInPath(event, 'postinfo', true));
+		}
+		if (findInPath(event, 'postmenu')) {
+			showPostMenu(findInPath(event, 'postmenu', true));
+		}
+		if (findInPath(event, 'timg')) {
+			enlargeTimg(findInPath(event, 'timg', true));
+		}
+		if (findInPath(event, 'quote_link')) {
+			handleQuoteLink(event);
+		}
+		if (that.tagName === 'a' && that.getAttribute('href').startsWith('showthread.php?action=showpost')){
+			loadIgnoredPost(event);
+		}
+	});
+	container.addEventListener('longTap', function(event) {
+		if((event.target.tagName === 'img' || event.target.tagName === 'img') && event.target.hasAttribute('title')) {
+			// title popup on long-press
+			listener.popupText(event.target.getAttribute('title'));
+		}
+	});
+	container.addEventListener('touchend touchleave touchcancel', function(event) {
+		if(event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
+			listener.resumeSwipe();
+		}
+	});
+	container.addEventListener('touchstart', function(event) {
+		if((event.target.tagName === 'img' || event.target.tagName === 'img') && event.target.hasAttribute('title')) {
+			listener.haltSwipe();
+		}
+	});
+	container.addEventListener('tap', function(event){
+		var that = event.target;
+		if(that.tagName === 'img' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')){
+			freezeGif(that);
+		}
+		if(that.tagName === 'canvas' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')){
+			that.replaceWith('<img src="' + that.getAttribute('src') + '" title="' + that.getAttribute('title') + '" />');
+		}
+	});
+	if (listener.getPreference('inlineWebm') == 'true' && listener.getPreference('autostartWebm') == 'true') {
+		window.addEventListener('scroll', function containerScroll(){
+			//TODO: debounce;
+			debounce(pauseVideosOutOfView, 2000);
 		});
 	}
-	container.on('click', '.toggleread', showReadPosts);
-	container.on('click', '.postinfo',	toggleInfo);
-	container.on('click', '.postmenu', showPostMenu);
-	container.on('click', 'a[href^="showthread.php?action=showpost"]', loadIgnoredPost);
-	container.on('click', '.timg', enlargeTimg);
-	container.on('longTap', '.postcontent img[title],.postcontent canvas[title]', function() {
-		// title popup on long-press
-		listener.popupText($(this).attr('title'));
-	});
-	container.on('touchend touchleave touchcancel', '.bbc-block.pre, .bbc-block.code, .bbc-block.php', listener.resumeSwipe);
-	container.on('touchstart', '.bbc-block.pre, .bbc-block.code, .bbc-block.php', listener.haltSwipe);
-	container.on('click', '.quote_link', handleQuoteLink);
-	if (listener.getPreference('inlineWebm') == 'true' && listener.getPreference('autostartWebm') == 'true') {
-		$(window).scrollEnd(pauseVideosOutOfView, 2000);
-	}
+}
+
+function findInPath(event, cssClass, returnElement) {
+	var search = event.path.filter(function(node){ return node.classList && node.classList.contains(cssClass);});
+	return returnElement ? search[0] : search.length > 0;
 }
 
 /**
@@ -43,7 +84,7 @@ function loadPageHtml(checkFirst) {
 	document.getElementById('container').innerHTML = html;
 	pageInit();
 	window.topScrollID = window.setTimeout(scrollPost, 1000);
-	$(window).on('load', function() {
+	document.addEventListener('DOMContentLoaded', function updateCssForPage() {
 		changeCSS(listener.getCSS());
 	});
 }
@@ -52,53 +93,41 @@ function loadPageHtml(checkFirst) {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
-	var spoilers = $('.bbc-spoiler');
-	spoilers.removeAttr('onmouseover');
-	spoilers.removeAttr('onmouseout');
-	if (listener.getPreference('showSpoilers') == 'true') {
-		spoilers.removeClass('bbc-spoiler');
-	}
+	var spoilers = document.querySelectorAll('.bbc-spoiler');
+	spoilers.forEach(function(spoiler){
+		spoiler.removeAttribute('onmouseover');
+		spoiler.removeAttribute('onmouseout');
+		if (listener.getPreference('showSpoilers') == 'true') {
+			spoiler.classList.remove('bbc-spoiler');
+		}
+	});
 	// hide-old posts
-	if ($('.toggleread').length > 0) {
-		$('.read').hide();
+	if (document.querySelector('.toggleread') !== null) {
+		document.querySelectorAll('.read').forEach(function each(post){
+			post.style.display = 'none';
+		});
 	}
 	if (listener.getPreference('hideSignatures') == 'true') {
-		$('section.postcontent .signature').hide();
+		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature){
+			signature.remove();
+		});
 	}
 	processThreadEmbeds();
-	var postContent = $('.postcontent');
-	postContent.find('div.bbcode_video object param[value^="http://vimeo.com"]').each(function() {
-		var param = $(this);
-		var videoID = param.attr('value').match(/clip_id=(\d+)/);
-		if (videoID === null) {
-			return;
-		}
-		videoID = videoID[1];
-		var object = param.closest('object');
-		param.closest('div.bbcode_video').replaceWith('<div class="videoWrapper"></div>').append($('<iframe/>', {
-			src: 'http://player.vimeo.com/video/' + videoID + '?byline=0&portrait=0',
-			width: object.attr('width'),
-			height: object.attr('height'),
-			frameborder: 0,
-			webkitAllowFullScreen: '',
-			allowFullScreen: ''
-		}));
-	});
-	try {
-		var salr = new SALR(listener);
-	} catch (error) {
-		console.log(error);
+	pauseVideosOutOfView();
+
+	if (listener.getPreference('hideSignatures') == 'true') {
+		highlightOwnUsername();
 	}
+	
+	if (listener.getPreference('hideSignatures') == 'true') {
+		highlightOwnQuotes();
+	}
+
 	if (listener.getPreference('disableGifs') == 'true') {
-		$('img[title][src$=".gif"]').on('load', function() {
-			freezeGif($(this).get(0));
-		});
-		postContent.on('tap', 'img[title][src$=".gif"]', function() {
-			freezeGif($(this).get(0));
-		});
-		postContent.on('tap', 'canvas[title][src$=".gif"]', function() {
-			var canvas = $(this);
-			canvas.replaceWith('<img src="' + canvas.attr('src') + '" title="' + canvas.attr('title') + '" />');
+		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif){
+			gif.addEventListener('load', function() {
+				freezeGif(this);
+			});
 		});
 	}
 }
@@ -107,12 +136,11 @@ function pageInit() {
  * Eventhandler that pauses all videos that have been scrolled out of the viewport and starts all videos currently in the viewport
  */
 function pauseVideosOutOfView() {
-	$('video').each(function() {
-		var video = $(this);
-		if (video.is(':inviewport') && !video.parent().is('blockquote') && video.children('source').first().attr('src').indexOf('webm') == -1) {
-			video[0].play();
+	document.querySelectorAll('video').forEach(function(video) {
+		if (isElementInViewport(video) && !video.parentElement.tagName === 'blockquote' && video.firstChild.getAttribute('src').indexOf('webm') == -1) {
+			video.play();
 		} else {
-			video[0].pause();
+			video.pause();
 		}
 	});
 }
@@ -124,16 +152,16 @@ function scrollPost() {
 	var postjump = listener.getPostJump();
 	if (postjump != '') {
 		try {
-			window.topScrollItem = $('#post' + postjump).first();
-			window.topScrollPos = window.topScrollItem.offset().top;
-			window.scrollTo(0, window.topScrollPos);
+			window.topScrollItem = document.getElementById('#post' + postjump);
+			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top;
+			//window.scrollTo(0, window.topScrollPos);
 			window.topScrollCount = 200;
 			window.topScrollID = window.setTimeout(scrollUpdate, 500);
 		} catch (error) {
-			scrollLastRead();
+			//scrollLastRead();
 		}
 	} else {
-		scrollLastRead();
+		//scrollLastRead();
 	}
 }
 
@@ -142,8 +170,8 @@ function scrollPost() {
  */
 function scrollLastRead() {
 	try {
-		window.topScrollItem = $('.unread').first();
-		window.topScrollPos = window.topScrollItem.offset().top;
+		window.topScrollItem = document.querySelector('.unread');
+		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top;
 		window.topScrollCount = 100;
 		window.scrollTo(0, window.topScrollPos);
 		window.topScrollID = window.setTimeout(scrollUpdate, 500);
@@ -159,7 +187,7 @@ function scrollLastRead() {
 function scrollUpdate() {
 	try {
 		if (window.topScrollCount > 0 && window.topScrollItem) {
-			var newPosition = window.topScrollItem.offset().top;
+			var newPosition = window.topScrollItem.getBoundingClientRect().top;
 			if (newPosition - window.topScrollPos > 0) {
 				window.scrollBy(0, newPosition - window.topScrollPos);
 			}
@@ -177,9 +205,11 @@ function scrollUpdate() {
  * Makes already read posts visible
  */
 function showReadPosts() {
-	$('.read').show();
-	$('.toggleread').hide();
-	window.setTimeout(scrollLastRead, 200);
+	document.querySelectorAll('.read').forEach(function showAllReadPosts(post) {
+		post.style.display = '';
+	});
+	document.querySelector('.toggleread').remove();
+	//window.setTimeout(scrollLastRead, 200);
 }
 
 /**
@@ -189,38 +219,35 @@ function showReadPosts() {
 function showInlineImage(url) {
 	var LOADING = 'loading';
 	var FROZEN_GIF = 'playGif';
-	var isAlreadyLoading = function() {
-		return $(this).hasClass(LOADING);
-	};
-	var isAlreadyInlined = function() {
-		return $('img[src="' + url + '"]', this).size() > 0;
-	};
 	// basically treating anything not marked as a frozen gif as a text link
-	var isTextLink = function() {
-		return !($(this).hasClass(FROZEN_GIF));
+
+	var addEmptyImg = function(link) {
+		if(!link.classList.contains(FROZEN_GIF)){
+			var image = document.createElement('img');
+			image.src = '';
+			link.append(image);
+		} else {
+			link.classList.add(LOADING);
+		}
 	};
-	var addEmptyImg = function() {
-		$(this).append(Zepto('<img src="" />'));
-	};
-	var setLoading = function() {
-		$(this).addClass(LOADING);
-	};
-	var setInlined = function() {
-		$(this).removeClass(LOADING + ' ' + FROZEN_GIF);
-	};
-	var inlineImage = function() {
-		$('img', this).first().attr('src', url).css({
-			width: 'auto',
-			height: 'auto'
-		});
+	var inlineImage = function(link) {
+		var image = link.querySelector('img');
+		image.src = url;
+		image.style.height = 'auto';
+		image.style.width = 'auto';
+		link.classList.remove(LOADING);
+		link.classList.remove(FROZEN_GIF);
 	};
 	// skip anything that's already loading/loaded
-	var imageLinks = $('a[href="' + url + '"]').not(isAlreadyLoading).not(isAlreadyInlined);
-	imageLinks.filter(isTextLink).each(addEmptyImg);
-	imageLinks.each(setLoading);
-	loadImage(url, function() {
+	var imageLinks = document.querySelectorAll('a[href="' + url + '"]:not(.loading)');
+	imageLinks.forEach(addEmptyImg);
+	
+	var pseudoImage = document.createElement('img');
+	pseudoImage.src = url;
+	pseudoImage.addEventListener('load', function(){
 		// when the image is loaded, inline it everywhere and update the links
-		imageLinks.each(inlineImage).each(setInlined);
+		imageLinks.forEach(inlineImage);
+		pseudoImage.remove();
 	});
 }
 
@@ -229,15 +256,15 @@ function showInlineImage(url) {
  * @param font The name of the font
  */
 function changeFontFace(font) {
-	var fontFace = $('#font-face');
+	var fontFace = document.getElementById('#font-face');
 	if (font == 'default') {
 		fontFace.remove();
 	}
 	if (fontFace.length) {
 		fontFace.remove();
-		$('head').append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
+		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
 	} else {
-		$('head').append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
+		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
 	}
 }
 
@@ -264,7 +291,7 @@ function freezeGif(image) {
  * @param id The postId of the ignored post
  */
 function insertIgnoredPost(id) {
-	$('#ignorePost-' + id).replaceWith(listener.getIgnorePostHtml(id));
+	document.getElementById('#ignorePost-' + id).replaceWith(listener.getIgnorePostHtml(id));
 }
 
 /**
@@ -272,41 +299,36 @@ function insertIgnoredPost(id) {
  * @param users A string of users seperated by commas 
  */
 function updateMarkedUsers(users) {
-	$('article.marked').removeClass('marked');
-	var userArray = users.split(',');
-	$.each(userArray, function(index, username) {
-		$('.postinfo-poster:contains(' + username + ')').closest('article').addClass('marked');
+	document.querySelectorAll('article.marked').forEach(function each(){
+		this.classList.remove('marked');
 	});
-}
-
-/**
- * Loads an image. Over the internet.
- * @param url The url of the image that is loaded
- * @param {Function} callback A function that should be called when the image is loaded
- */
-function loadImage(url, callback) {
-	$('<img src="' + url + '">').on('load', callback);
+	var userArray = users.split(',');
+	userArray.forEach(function each(username) {
+		document.querySelectorAll('.postmenu[username=' + username + ']').closest('article').classList.add('marked');
+	});
 }
 
 /**
  * Handles a quote link click event depending on the URL of the link. Moves the webview if the post is on the same page
  * @param {Event} event The click-event triggered by the user
  */
-function handleQuoteLink(event) {
-	var id = this.hash;
+function handleQuoteLink(event, that) {
+	var id = that.hash;
 	try {
-		if ($(id).size() > 0) {
+		var postOfID = document.getElementById(id);
+		if (postOfID) {
 			event.preventDefault();
-			if ($(id).css('display') == 'none') {
-				var count = $('.read').size();
-				$('.toggleread').hide();
-				$('.read').show(0, function() {
-					if (--count == 0) {
-						window.scrollTo(0, $(id).offset().top);
-					}
+			if (postOfID.style.display === 'none') {
+				var readPosts = document.querySelectorAll('.read');
+				document.querySelector('.toggleread').remove();
+				readPosts.forEach(function(){
+					readPosts.style.display = '';
 				});
+				if (--readPosts.length == 0) {
+					window.scrollTo(0, postOfID.getBoundingClientRect().top);
+				}	
 			} else {
-				window.scrollTo(0, $(id).offset().top);
+				window.scrollTo(0, postOfID.getBoundingClientRect().top);
 			}
 		}
 	} catch (error) {
@@ -317,23 +339,24 @@ function handleQuoteLink(event) {
 /**
  * Expands or retracts the postinfo 
  */
-function toggleInfo() {
-	var info = $(this);
-	if (info.children('.postinfo-title').hasClass('extended')) {
-		info.children('.avatar-cell').removeClass('extended');
-		info.children('.avatar-cell').children('.avatar').removeClass('extended');
-		info.children('.postinfo-title').removeClass('extended');
-		info.children('.postinfo-regdate').removeClass('extended');
-		if (listener.getPreference('disableGifs') == 'true' && info.find('.avatar').children('img').first().is('[src$=".gif"]')) {
-			freezeGif(info.find('.avatar').children('img').first().get(0));
+function toggleInfo(info) {
+	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
+		info.querySelector('.avatar-cell').classList.remove('extended');
+		info.querySelector('.avatar-cell .avatar').classList.remove('extended');
+		info.querySelector('.postinfo-title').classList.remove('extended');
+		info.querySelector('.postinfo-regdate').classList.remove('extended');
+		if (listener.getPreference('disableGifs') == 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
+			freezeGif(info.querySelector('.avatar img'));
 		}
 	} else {
-		info.children('.avatar-cell').addClass('extended');
-		info.children('.avatar-cell').children('.avatar').addClass('extended');
-		info.children('.postinfo-title').addClass('extended');
-		info.children('.postinfo-regdate').addClass('extended');
-		if (info.find('canvas').get(0) !== undefined) {
-			info.find('canvas').first().replaceWith('<img src="' + info.find('canvas').first().attr('src') + '" />');
+		info.querySelector('.avatar-cell').classList.add('extended');
+		info.querySelector('.avatar-cell .avatar').classList.add('extended');
+		info.querySelector('.postinfo-title').classList.add('extended');
+		info.querySelector('.postinfo-regdate').classList.add('extended');
+		if (info.querySelector('canvas') !== null) {
+			var avatar = document.createElement('img');
+			avatar.src = info.querySelector('canvas').getAttribute('src');
+			info.querySelector('canvas').replaceWith(avatar);
 		}
 	}
 }
@@ -341,16 +364,15 @@ function toggleInfo() {
 /**
  * Triggers the display of the postmenu
  */
-function showPostMenu() {
-	var postMenu = $(this);
+function showPostMenu(postMenu) {
 	listener.onMoreClick(
-		postMenu.closest('article').attr('id').replace(/post/, ''),
-		postMenu.attr('username'),
-		postMenu.attr('userid'),
-		postMenu.attr('lastreadurl'),
-		postMenu[0].hasAttribute('editable'),
-		(postMenu[0].hasAttribute('isMod') || postMenu[0].hasAttribute('isAdmin')),
-		postMenu[0].hasAttribute('isPlat')
+		postMenu.closest('article').getAttribute('id').replace(/post/, ''),
+		postMenu.getAttribute('username'),
+		postMenu.getAttribute('userid'),
+		postMenu.getAttribute('lastreadurl'),
+		postMenu.hasAttribute('editable'),
+		(postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin')),
+		postMenu.hasAttribute('isPlat')
 	);
 }
 
@@ -359,7 +381,7 @@ function showPostMenu() {
  * @param  file Name of the CSS to be used
  */
 function changeCSS(file) {
-	$('head').children('link').first().attr('href', file);
+	document.getElementsByTagName('head')[0].querySelector('link').setAttribute('href', file);
 }
 
 /**
@@ -368,19 +390,102 @@ function changeCSS(file) {
  */
 function loadIgnoredPost(event) {
 	event.preventDefault();
-	var url = $(this).attr('href');
+	var url = this.setAttribute('href');
 	var id = url.substring(url.indexOf('#') + 1);
 	listener.loadIgnoredPost(id);
-	$(this).replaceWith('<span id="ignorePost-' + id + '">Loading Post, please wait...</span>');
+	this.replaceWith('<span id="ignorePost-' + id + '">Loading Post, please wait...</span>');
 }
 
 /**
  * Removes the timg class from a timg to turn it into a normal image
  */
-function enlargeTimg() {
-	var tImg = $(this);
-	tImg.removeClass('timg');
-	if (!tImg.parent().is('a')) {
-		tImg.wrap('<a href="' + tImg.attr('src') + '" />');
+function enlargeTimg(tImg) {
+	tImg.classList.remove('timg');
+	if (!tImg.parentElement.tagName === 'a') {
+		var link = document.createElement('a');
+		tImg.parentNode.insertBefore(link, tImg);
+		tImg.parentNode.removeChild(tImg);
+		link.appendChild(tImg);
 	}
 }
+
+function isElementInViewport (el) {
+
+	var rect = el.getBoundingClientRect();
+
+	return (
+		rect.top >= 0 &&
+		rect.left >= 0 &&
+		rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && 
+		rect.right <= (window.innerWidth || document.documentElement.clientWidth) 
+	);
+}
+
+/**
+ * Highlight the user's username in posts
+ */
+function highlightOwnUsername() {
+	function getTextNodesIn(node) {
+		var textNodes = [];
+
+		function getTextNodes(node) {
+			if (node.nodeType == 3) {
+				textNodes.push(node);
+			} else {
+				for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+					getTextNodes(node.childNodes[i]);
+				}
+			}
+		}
+
+		getTextNodes(node);
+		return textNodes;
+	}
+
+	var selector = '.postcontent:contains("' + listener.getPreference('username') + '")';
+	
+	var regExp = new RegExp('\\b'+listener.getPreference('username')+'\\b', 'g');
+	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
+	document.querySelectorAll(selector).forEach(function() {
+		getTextNodesIn(this).forEach(function(node) {
+			if (node.wholeText.match(regExp)) {
+				var newNode = node.ownerDocument.createElement('span');
+				newNode.innerHTML = node.wholeText.replace(regExp, styled);
+				node.parentNode.replaceChild(newNode, node);
+			}
+		});
+	});
+}
+
+/**
+ * Highlight the quotes of the user themselves.
+ */
+function highlightOwnQuotes() {
+	var usernameQuoteMatch = listener.getPreference('username') + ' posted:';
+	var quotes = document.querySelectorAll('.bbc-block h4');
+	Array.prototype.filter.call(quotes, function(quote){
+		return quote.innerHTML.indexOf(usernameQuoteMatch) !== -1;
+	});
+	quotes.forEach(function(quote) {
+		quote.parentElement.classList.add('self');
+		// Replace the styling from username highlighting
+		quote.querySelectorAll('.usernameHighlight').forEach(function(name) {
+			name.classList.remove('usernameHighlight');
+		});
+	});
+}
+
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};

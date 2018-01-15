@@ -44,14 +44,6 @@ public class AwfulUtils {
         return Build.VERSION.SDK_INT >= code;
     }
 
-    public static boolean isJellybean() {
-        return isAtLeast(Build.VERSION_CODES.JELLY_BEAN);
-    }
-
-    public static boolean isKitKat() {
-        return isAtLeast(Build.VERSION_CODES.KITKAT);
-    }
-
     public static boolean isKitKatOnly() {
         return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
     }

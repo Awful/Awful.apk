@@ -47,11 +47,10 @@ public class MiscSettings extends SettingsFragment {
         super.initialiseSettings();
 
         findPrefById(R.string.pref_key_disable_gifs).setEnabled(true);
-        findPrefById(R.string.pref_key_immersion_mode).setEnabled(AwfulUtils.isKitKat());
+        findPrefById(R.string.pref_key_immersion_mode).setEnabled(true);
         boolean tab = AwfulUtils.isTablet(getActivity(), true);
-        boolean jellybeanMr1 = AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1);
         findPrefById(R.string.pref_key_page_layout).setEnabled(tab);
-        findPrefById(R.string.pref_key_transformer).setEnabled(jellybeanMr1 && !tab);
+        findPrefById(R.string.pref_key_transformer).setEnabled(!tab);
 //        if(!tab){
 //            findPreference("page_layout").setSummary(getString(R.string.page_layout_summary_disabled));
 //        }
