@@ -8,61 +8,69 @@ function containerInit() {
 		var that = event.target;
 		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') != 'true') {
 			that.classList.toggle('spoiled');
+			return;
 		}
 		if (findInPath(event, 'toggleread')) {
 			showReadPosts();
+			return;
 		}
 		if (findInPath(event, 'postinfo')) {
 			toggleInfo(findInPath(event, 'postinfo', true));
+			return;
 		}
 		if (findInPath(event, 'postmenu')) {
 			showPostMenu(findInPath(event, 'postmenu', true));
+			return;
 		}
 		if (findInPath(event, 'timg')) {
 			enlargeTimg(findInPath(event, 'timg', true));
+			return;
 		}
 		if (findInPath(event, 'quote_link')) {
-			handleQuoteLink(event);
+			handleQuoteLink(that, event);
+			return;
 		}
-		if (that.tagName === 'a' && that.getAttribute('href').startsWith('showthread.php?action=showpost')){
-			loadIgnoredPost(event);
+		if (that.tagName.toLowerCase() === 'a' && that.href.startsWith('showthread.php?action=showpost')) {
+			loadIgnoredPost(that, event);
 		}
 	});
-	container.addEventListener('longTap', function(event) {
-		if((event.target.tagName === 'img' || event.target.tagName === 'img') && event.target.hasAttribute('title')) {
+	container.addEventListener('touchstart', Longtap(function(event) {
+		if ((event.target.tagName.toLowerCase() === 'img' || event.target.tagName.toLowerCase() === 'canvas') && event.target.hasAttribute('title')) {
 			// title popup on long-press
 			listener.popupText(event.target.getAttribute('title'));
 		}
-	});
+	}));
 	container.addEventListener('touchend touchleave touchcancel', function(event) {
-		if(event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
+		if (event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
 			listener.resumeSwipe();
 		}
 	});
 	container.addEventListener('touchstart', function(event) {
-		if((event.target.tagName === 'img' || event.target.tagName === 'img') && event.target.hasAttribute('title')) {
-			listener.haltSwipe();
-		}
-	});
-	container.addEventListener('tap', function(event){
 		var that = event.target;
-		if(that.tagName === 'img' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')){
+		if (that.tagName.toLowerCase() === 'img' && that.hasAttribute('title') && that.src.endsWith('.gif')) {
 			freezeGif(that);
+			return;
 		}
-		if(that.tagName === 'canvas' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')){
-			that.replaceWith('<img src="' + that.getAttribute('src') + '" title="' + that.getAttribute('title') + '" />');
+		if (that.tagName.toLowerCase() === 'canvas' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')) {
+			that.outerHTML = '<img src="' + that.getAttribute('src') + '" title="' + that.getAttribute('title') + '" />';
+			return;
+		}
+		if (event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
+			listener.haltSwipe();
+			return;
 		}
 	});
 	if (listener.getPreference('inlineWebm') == 'true' && listener.getPreference('autostartWebm') == 'true') {
-		window.addEventListener('scroll', function containerScroll(){
-			//TODO: debounce;
-			debounce(pauseVideosOutOfView, 2000);
+		var debouncedVideosScrollListener = debounce(pauseVideosOutOfView, 1000);
+
+		window.addEventListener('scroll', function containerScroll() {
+			debouncedVideosScrollListener();
 		});
 	}
 }
 
 function findInPath(event, cssClass, returnElement) {
-	var search = event.path.filter(function(node){ return node.classList && node.classList.contains(cssClass);});
+	var search = event.path.filter(function(node) { return node.classList && node.classList.contains(cssClass);});
 	return returnElement ? search[0] : search.length > 0;
 }
 
@@ -93,8 +101,11 @@ function loadPageHtml(checkFirst) {
  * Initializes the newly added posts that have just been added to the container
  */
 function pageInit() {
+	document.querySelectorAll('head script.JSONP').forEach(function removeScripts(script) {
+		script.remove();
+	});
 	var spoilers = document.querySelectorAll('.bbc-spoiler');
-	spoilers.forEach(function(spoiler){
+	spoilers.forEach(function(spoiler) {
 		spoiler.removeAttribute('onmouseover');
 		spoiler.removeAttribute('onmouseout');
 		if (listener.getPreference('showSpoilers') == 'true') {
@@ -103,12 +114,12 @@ function pageInit() {
 	});
 	// hide-old posts
 	if (document.querySelector('.toggleread') !== null) {
-		document.querySelectorAll('.read').forEach(function each(post){
+		document.querySelectorAll('.read').forEach(function each(post) {
 			post.style.display = 'none';
 		});
 	}
 	if (listener.getPreference('hideSignatures') == 'true') {
-		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature){
+		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature) {
 			signature.remove();
 		});
 	}
@@ -124,10 +135,14 @@ function pageInit() {
 	}
 
 	if (listener.getPreference('disableGifs') == 'true') {
-		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif){
-			gif.addEventListener('load', function() {
-				freezeGif(this);
-			});
+		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
+			if(!gif.complete) {
+				gif.addEventListener('load', function() {
+					freezeGif(this);
+				});
+			} else {
+				freezeGif(gif);
+			}
 		});
 	}
 }
@@ -137,7 +152,7 @@ function pageInit() {
  */
 function pauseVideosOutOfView() {
 	document.querySelectorAll('video').forEach(function(video) {
-		if (isElementInViewport(video) && !video.parentElement.tagName === 'blockquote' && video.firstChild.getAttribute('src').indexOf('webm') == -1) {
+		if (isElementInViewport(video) && video.parentElement.tagName.toLowerCase() !== 'blockquote' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
 			video.pause();
@@ -152,16 +167,16 @@ function scrollPost() {
 	var postjump = listener.getPostJump();
 	if (postjump != '') {
 		try {
-			window.topScrollItem = document.getElementById('#post' + postjump);
-			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top;
-			//window.scrollTo(0, window.topScrollPos);
+			window.topScrollItem = document.getElementById('post' + postjump);
+			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
+			window.scrollTo(0, window.topScrollPos);
 			window.topScrollCount = 200;
 			window.topScrollID = window.setTimeout(scrollUpdate, 500);
 		} catch (error) {
-			//scrollLastRead();
+			scrollLastRead();
 		}
 	} else {
-		//scrollLastRead();
+		scrollLastRead();
 	}
 }
 
@@ -171,7 +186,7 @@ function scrollPost() {
 function scrollLastRead() {
 	try {
 		window.topScrollItem = document.querySelector('.unread');
-		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top;
+		window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
 		window.topScrollCount = 100;
 		window.scrollTo(0, window.topScrollPos);
 		window.topScrollID = window.setTimeout(scrollUpdate, 500);
@@ -187,7 +202,7 @@ function scrollLastRead() {
 function scrollUpdate() {
 	try {
 		if (window.topScrollCount > 0 && window.topScrollItem) {
-			var newPosition = window.topScrollItem.getBoundingClientRect().top;
+			var newPosition = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
 			if (newPosition - window.topScrollPos > 0) {
 				window.scrollBy(0, newPosition - window.topScrollPos);
 			}
@@ -222,7 +237,7 @@ function showInlineImage(url) {
 	// basically treating anything not marked as a frozen gif as a text link
 
 	var addEmptyImg = function(link) {
-		if(!link.classList.contains(FROZEN_GIF)){
+		if (!link.classList.contains(FROZEN_GIF)) {
 			var image = document.createElement('img');
 			image.src = '';
 			link.append(image);
@@ -244,7 +259,7 @@ function showInlineImage(url) {
 	
 	var pseudoImage = document.createElement('img');
 	pseudoImage.src = url;
-	pseudoImage.addEventListener('load', function(){
+	pseudoImage.addEventListener('load', function() {
 		// when the image is loaded, inline it everywhere and update the links
 		imageLinks.forEach(inlineImage);
 		pseudoImage.remove();
@@ -256,14 +271,11 @@ function showInlineImage(url) {
  * @param font The name of the font
  */
 function changeFontFace(font) {
-	var fontFace = document.getElementById('#font-face');
-	if (font == 'default') {
+	var fontFace = document.getElementById('font-face');
+	if (fontFace !== null) {
 		fontFace.remove();
 	}
-	if (fontFace.length) {
-		fontFace.remove();
-		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
-	} else {
+	if (font != 'default') {
 		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
 	}
 }
@@ -280,18 +292,11 @@ function freezeGif(image) {
 	try {
 		image.src = canvas.toDataURL('image/gif'); // if possible, retain all css aspects
 	} catch (e) { // cross-domain -- mimic original with all its tag attributes
-		for (var i = 0, attribute = image.attributes[i]; i < image.attributes.length; i++)
-			canvas.setAttribute(attribute.name, attribute.value);
+		for (var i = 0; i < image.attributes.length; i++) {
+			canvas.setAttribute(image.attributes[i].name, image.attributes[i].value);
+		}
 		image.parentNode.replaceChild(canvas, image);
 	}
-}
-
-/**
- * Replaces the previously ignored post with the loaded version
- * @param id The postId of the ignored post
- */
-function insertIgnoredPost(id) {
-	document.getElementById('#ignorePost-' + id).replaceWith(listener.getIgnorePostHtml(id));
 }
 
 /**
@@ -299,7 +304,7 @@ function insertIgnoredPost(id) {
  * @param users A string of users seperated by commas 
  */
 function updateMarkedUsers(users) {
-	document.querySelectorAll('article.marked').forEach(function each(){
+	document.querySelectorAll('article.marked').forEach(function each() {
 		this.classList.remove('marked');
 	});
 	var userArray = users.split(',');
@@ -310,10 +315,11 @@ function updateMarkedUsers(users) {
 
 /**
  * Handles a quote link click event depending on the URL of the link. Moves the webview if the post is on the same page
+ * @param {Element} link The HTMLElement of the link
  * @param {Event} event The click-event triggered by the user
  */
-function handleQuoteLink(event, that) {
-	var id = that.hash;
+function handleQuoteLink(link, event) {
+	var id = link.hash.substring(1);
 	try {
 		var postOfID = document.getElementById(id);
 		if (postOfID) {
@@ -321,18 +327,18 @@ function handleQuoteLink(event, that) {
 			if (postOfID.style.display === 'none') {
 				var readPosts = document.querySelectorAll('.read');
 				document.querySelector('.toggleread').remove();
-				readPosts.forEach(function(){
+				readPosts.forEach(function() {
 					readPosts.style.display = '';
 				});
 				if (--readPosts.length == 0) {
-					window.scrollTo(0, postOfID.getBoundingClientRect().top);
+					window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
 				}	
 			} else {
-				window.scrollTo(0, postOfID.getBoundingClientRect().top);
+				window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
 			}
 		}
 	} catch (error) {
-		console.log(error);
+		window.console.log(error);
 	}
 }
 
@@ -341,23 +347,27 @@ function handleQuoteLink(event, that) {
  */
 function toggleInfo(info) {
 	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
-		info.querySelector('.avatar-cell').classList.remove('extended');
-		info.querySelector('.avatar-cell .avatar').classList.remove('extended');
+		if (info.querySelector('.avatar-cell') !== null) {
+			info.querySelector('.avatar-cell').classList.remove('extended');
+			info.querySelector('.avatar-cell .avatar').classList.remove('extended');
+			if (listener.getPreference('disableGifs') == 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
+				freezeGif(info.querySelector('.avatar img'));
+			}
+		}
 		info.querySelector('.postinfo-title').classList.remove('extended');
 		info.querySelector('.postinfo-regdate').classList.remove('extended');
-		if (listener.getPreference('disableGifs') == 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
-			freezeGif(info.querySelector('.avatar img'));
-		}
 	} else {
-		info.querySelector('.avatar-cell').classList.add('extended');
-		info.querySelector('.avatar-cell .avatar').classList.add('extended');
+		if (info.querySelector('.avatar-cell') !== null) {
+			info.querySelector('.avatar-cell').classList.add('extended');
+			info.querySelector('.avatar-cell .avatar').classList.add('extended');
+			if (info.querySelector('canvas') !== null) {
+				var avatar = document.createElement('img');
+				avatar.src = info.querySelector('canvas').src;
+				info.querySelector('canvas').replaceWith(avatar);
+			}
+		}
 		info.querySelector('.postinfo-title').classList.add('extended');
 		info.querySelector('.postinfo-regdate').classList.add('extended');
-		if (info.querySelector('canvas') !== null) {
-			var avatar = document.createElement('img');
-			avatar.src = info.querySelector('canvas').getAttribute('src');
-			info.querySelector('canvas').replaceWith(avatar);
-		}
 	}
 }
 
@@ -386,14 +396,24 @@ function changeCSS(file) {
 
 /**
  * Loads an ignored post
+ * @param {Element} post The HTMLElement of the post
  * @param {Event} event User-triggered click event
  */
-function loadIgnoredPost(event) {
+function loadIgnoredPost(post, event) {
 	event.preventDefault();
-	var url = this.setAttribute('href');
-	var id = url.substring(url.indexOf('#') + 1);
+	var id = post.hash.substring(1);
 	listener.loadIgnoredPost(id);
-	this.replaceWith('<span id="ignorePost-' + id + '">Loading Post, please wait...</span>');
+	post.outerHTML = '<span id="ignorePost-' + id + '">Loading Post, please wait...</span>';
+}
+
+/**
+ * Replaces the previously ignored post with the loaded version
+ * @param id The postId of the ignored post
+ */
+function insertIgnoredPost(id) {
+	var ignoredPost = document.getElementById('ignorePost-' + id);
+	ignoredPost.innerHTML = listener.getIgnorePostHtml(id);
+	processThreadEmbeds(ignoredPost);
 }
 
 /**
@@ -401,7 +421,7 @@ function loadIgnoredPost(event) {
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
-	if (!tImg.parentElement.tagName === 'a') {
+	if (!tImg.parentElement.tagName.toLowerCase() === 'a') {
 		var link = document.createElement('a');
 		tImg.parentNode.insertBefore(link, tImg);
 		tImg.parentNode.removeChild(tImg);
@@ -425,26 +445,19 @@ function isElementInViewport (el) {
  * Highlight the user's username in posts
  */
 function highlightOwnUsername() {
-	function getTextNodesIn(node) {
-		var textNodes = [];
-
-		function getTextNodes(node) {
-			if (node.nodeType == 3) {
-				textNodes.push(node);
-			} else {
-				for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-					getTextNodes(node.childNodes[i]);
-				}
-			}
+	function getTextNodesIn(element) {
+		var textNodeArray = [];
+		var treeWalker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+		while(treeWalker.nextNode())
+		{
+			textNodeArray.push(treeWalker.currentNode);
 		}
-
-		getTextNodes(node);
-		return textNodes;
+		return textNodeArray;
 	}
 
-	var selector = '.postcontent:contains("' + listener.getPreference('username') + '")';
+	var selector = 'article:not(self) .postcontent';
 	
-	var regExp = new RegExp('\\b'+listener.getPreference('username')+'\\b', 'g');
+	var regExp = new RegExp('\\b' + listener.getPreference('username') + '\\b', 'g');
 	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
 	document.querySelectorAll(selector).forEach(function() {
 		getTextNodesIn(this).forEach(function(node) {
@@ -463,7 +476,7 @@ function highlightOwnUsername() {
 function highlightOwnQuotes() {
 	var usernameQuoteMatch = listener.getPreference('username') + ' posted:';
 	var quotes = document.querySelectorAll('.bbc-block h4');
-	Array.prototype.filter.call(quotes, function(quote){
+	Array.prototype.filter.call(quotes, function(quote) {
 		return quote.innerHTML.indexOf(usernameQuoteMatch) !== -1;
 	});
 	quotes.forEach(function(quote) {
