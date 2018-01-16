@@ -43,7 +43,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -98,6 +97,7 @@ public class ForumsIndexActivity extends AwfulActivity
     private Toolbar mToolbar;
     private NavigationDrawer navigationDrawer;
 
+    // TODO: 15/01/2018 move these into the respective fragments
     public static final int NULL_FORUM_ID = 0;
     public static final int NULL_THREAD_ID = 0;
     private static final int NULL_PAGE_ID = -1;
@@ -106,9 +106,8 @@ public class ForumsIndexActivity extends AwfulActivity
     private static final int THREAD_LIST_FRAGMENT_POSITION = 1;
     private static final int THREAD_VIEW_FRAGMENT_POSITION = 2;
 
-    private volatile int mNavForumId    = Constants.USERCP_ID;
-    private volatile int mNavThreadId   = NULL_THREAD_ID;
-    private volatile int mForumId       = Constants.USERCP_ID;
+    // TODO: 15/01/2018 remove these state variables, ask the fragments for their current state instead
+private volatile int mForumId       = Constants.USERCP_ID;
     private volatile int mForumPage     = 1;
     private volatile int mThreadId      = NULL_THREAD_ID;
     private volatile int mThreadPage    = 1;
@@ -127,18 +126,11 @@ public class ForumsIndexActivity extends AwfulActivity
         setSupportActionBar(mToolbar);
         setActionBar();
         navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
+        updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
         int initialPage;
         if (savedInstanceState != null) {
-            int forumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
-            int forumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
-            setForum(forumId, forumPage);
-
-            int threadPage = savedInstanceState.getInt(Constants.THREAD_PAGE, 1);
-            int threadId = savedInstanceState.getInt(Constants.THREAD_ID, NULL_THREAD_ID);
-            setThread(threadId, threadPage);
-
             initialPage = savedInstanceState.getInt("viewPage", NULL_PAGE_ID);
         } else {
             initialPage = parseNewIntent(getIntent());
@@ -161,6 +153,9 @@ public class ForumsIndexActivity extends AwfulActivity
         if (initialPage >= 0) {
             mViewPager.setCurrentItem(initialPage);
         }
+
+        // TODO: 16/01/2018 this is a hack to instantiate the fragment early and get the heavy stuff set up - probably better to do it somewhere else (viewpager?)
+        pagerAdapter.getItem(THREAD_VIEW_FRAGMENT_POSITION);
 
         checkIntentExtras();
         setupImmersion();
@@ -246,6 +241,43 @@ public class ForumsIndexActivity extends AwfulActivity
                         }
                     });
             showSystemUi();
+        }
+    }
+
+
+    private void updateNavigationDrawer() {
+        if (navigationDrawer != null) {
+            // display details for the currently open thread - if there isn't one, show the current forum instead
+            if (mThreadFragment != null) {
+                navigationDrawer.setCurrentForumAndThread(mThreadFragment.getParentForumId(), mThreadFragment.getThreadId());
+            } else if (mForumFragment != null) {
+                navigationDrawer.setCurrentForumAndThread(mForumFragment.getForumId(), null);
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Fragment events
+    ///////////////////////////////////////////////////////////////////////////
+
+    // TODO: 15/01/2018 refactor so the individual components send events to the activity, instead of directly interacting with each other
+
+    void onThreadChange() {
+        if (navigationDrawer != null) {
+            mThreadId = mThreadFragment.getThreadId();
+            mThreadPage = mThreadFragment.getPageNumber();
+            int parentForumId = mThreadFragment.getParentForumId();
+            navigationDrawer.setCurrentForumAndThread(parentForumId, mThreadId);
+        }
+        if (pagerAdapter != null) {
+            pagerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    void onForumChange() {
+        if (navigationDrawer != null) {
+            int forumId = mForumFragment.getForumId();
+            navigationDrawer.setCurrentForumAndThread(forumId, null);
         }
     }
 
@@ -391,6 +423,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
+        // TODO: 15/01/2018 rework this so it performs the correct operation (e.g. display thread X page Y) without storing state here e.g. mThreadId
         super.onNewIntent(intent);
         if (DEBUG) Log.e(TAG, "onNewIntent");
         setIntent(intent);
@@ -406,7 +439,7 @@ public class ForumsIndexActivity extends AwfulActivity
                 mThreadFragment.openThread(url);
             } else if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0) {
                 if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
-                mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost);
+                mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost, false);
             }
         }
     }
@@ -447,8 +480,10 @@ public class ForumsIndexActivity extends AwfulActivity
             }
         }
 
-        setForum(forumId, forumPage);
-        setThread(threadId, threadPage);
+        mForumId = forumId;
+        mForumPage = forumPage;
+        mThreadId = threadId;
+        mThreadPage = threadPage;
 
         if (displayIndex) {
             displayForumIndex();
@@ -494,21 +529,10 @@ public class ForumsIndexActivity extends AwfulActivity
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mForumFragment != null) {
-            setForum(mForumFragment.getForumId(), mForumFragment.getPage());
-        }
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(Constants.FORUM_ID, mForumId);
-        outState.putInt(Constants.FORUM_PAGE, mForumPage);
-        outState.putInt(Constants.THREAD_ID, mThreadId);
-        outState.putInt(Constants.THREAD_PAGE, mThreadPage);
         if (mViewPager != null) {
             outState.putInt("viewPage", mViewPager.getCurrentItem());
         }
@@ -521,36 +545,6 @@ public class ForumsIndexActivity extends AwfulActivity
                 displayForum(Constants.USERCP_ID, 1);
             }
         }
-    }
-
-    public int getThreadId() {
-        return mThreadId;
-    }
-
-    public int getThreadPage() {
-        return mThreadPage;
-    }
-
-
-    public synchronized void setForum(int forumId, int page) {
-        mForumId = forumId;
-        mForumPage = page;
-        setNavIds(mForumId, null);
-    }
-
-
-    public synchronized void setThread(@Nullable Integer threadId, @Nullable Integer page) {
-        if (page != null) {
-            mThreadPage = page;
-        }
-        if (threadId != null) {
-            int oldThreadId = mThreadId;
-            mThreadId = threadId;
-            if ((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null) {
-                pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
-            }
-        }
-        setNavIds(mNavForumId, mThreadId);
     }
 
 
@@ -630,7 +624,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
         @Override
         public int getCount() {
-            if (getThreadId() < 1) {
+            if (mThreadFragment == null || mThreadFragment.getThreadId() == NULL_THREAD_ID) {
                 return 2;
             }
             return 3;
@@ -700,8 +694,6 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void displayForum(int id, int page) {
         Log.d(TAG, "displayForum " + id);
-        setForum(id, page);
-        setNavIds(id, null);
         if (mForumFragment != null) {
             mForumFragment.openForum(id, page);
             if (mViewPager != null) {
@@ -729,17 +721,15 @@ public class ForumsIndexActivity extends AwfulActivity
     public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload) {
         Log.d(TAG, "displayThread " + id + " " + forumId);
         if (mViewPager != null) {
-            if (mThreadFragment != null) {
-                if (!forceReload && getThreadId() == id && getThreadPage() == page) {
-                    setNavIds(mThreadFragment.getParentForumId(), mNavThreadId);
-                } else {
-                    mThreadFragment.openThread(id, page, null);
-                    mViewPager.getAdapter().notifyDataSetChanged();
-                }
-            } else {
-                setThread(id, page);
-            }
-            mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
+//            if (mThreadFragment != null) {
+//                mThreadFragment.openThread(id, page, null, forceReload);
+//            } else {
+//                // TODO: 15/01/2018 the fragment should never be null - should be calling a getter that creates it if necessary. The fragment can handle storing the state until it's ready to perform the action
+//            }
+            // TODO: 16/01/2018 notify data set changed somewhere, preferably where the fragment's created the first time
+            mThreadFragment.openThread(id, page, null, forceReload);
+            pagerAdapter.notifyDataSetChanged();
+            mViewPager.setCurrentItem(THREAD_VIEW_FRAGMENT_POSITION);
         } else {
             super.displayThread(id, page, forumId, forumPg, forceReload);
         }
@@ -815,20 +805,6 @@ public class ForumsIndexActivity extends AwfulActivity
         navigationDrawer.getDrawerToggle().onConfigurationChanged(newConfig);
     }
 
-
-    /**
-     * Set the IDs that the navigation view knows about?
-     * Updates the navigation menu to reflect these
-     * @param forumId   The current forum
-     * @param threadId
-     */
-    public synchronized void setNavIds(int forumId, @Nullable Integer threadId) {
-        // TODO: 15/01/2018 when fragments restore, they call this before the Activity (and its nav drawer) are created - really the activity should create and then ASK what the fragments are showing
-        // TODO: 15/01/2018 replace this method - fragments shouldn't be setting this, they should just alert the activity "now I'm showing this forum" or whatever, let the activity react to that event and coordinate everything
-        if (navigationDrawer != null) {
-            navigationDrawer.setCurrentForumAndThread(forumId, threadId);
-        }
-    }
 
     public void preventSwipe() {
         this.mViewPager.setSwipeEnabled(false);

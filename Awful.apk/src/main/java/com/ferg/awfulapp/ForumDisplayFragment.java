@@ -488,12 +488,12 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     	mLastPage = 0;
     	lastRefresh = 0;
     	loadFailed = false;
-    	if(getActivity() != null){
-			((ForumsIndexActivity) getActivity()).setNavIds(mForumId, null);
-			getActivity().invalidateOptionsMenu();
-			refreshInfo();
-			syncForum();
-    	}
+        if (getActivity() != null) {
+            ((ForumsIndexActivity) getActivity()).onForumChange();
+        }
+        invalidateOptionsMenu();
+        refreshInfo();
+        syncForum();
     }
 
 	public void syncForum() {
