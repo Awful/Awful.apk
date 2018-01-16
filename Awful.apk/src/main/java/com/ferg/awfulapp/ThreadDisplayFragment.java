@@ -167,7 +167,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 	private int currentPage = FIRST_PAGE;
-	private int currentThreadId = ForumsIndexActivity.NULL_THREAD_ID;
+	public static final int NULL_THREAD_ID = 0;
+	private int currentThreadId = NULL_THREAD_ID;
 	
 	// TODO: fix this it's all over the place, getting assigned as 1 in loadThread etc - maybe it should default to FIRST_PAGE?
 	/** Current thread's last page */
@@ -223,8 +224,8 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			// restoring old state - we have a thread ID and page
 			// TODO: 04/05/2017 post filtering state isn't restored properly - need to do filtering AND maintain filtered page/position AND recreate the backstack/'go back' UI
 			Timber.i("Restoring fragment - loading cached posts from database");
-			setThreadId(savedInstanceState.getInt(THREAD_ID_KEY, 0));
-			setPageNumber(savedInstanceState.getInt(THREAD_PAGE_KEY, 1));
+			setThreadId(savedInstanceState.getInt(THREAD_ID_KEY, NULL_THREAD_ID));
+			setPageNumber(savedInstanceState.getInt(THREAD_PAGE_KEY, FIRST_PAGE));
 			// TODO: 04/05/2017 saved scroll position doesn't seem to actually get used to set the position?
 			savedScrollPosition = savedInstanceState.getInt(SCROLL_POSITION_KEY, 0);
 			loadFromCache = true;

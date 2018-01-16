@@ -95,6 +95,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     public static final String ARG_KEY_FORUM_ID = "forum ID";
     public static final String ARG_KEY_PAGE_NUMBER = "page number";
     public static final String ARG_KEY_SKIP_LOAD = "skip load";
+    public static final int NULL_FORUM_ID = 0;
     public static final int FIRST_PAGE = 1;
     private ListView mListView;
 

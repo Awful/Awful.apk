@@ -97,10 +97,7 @@ public class ForumsIndexActivity extends AwfulActivity
     private Toolbar mToolbar;
     private NavigationDrawer navigationDrawer;
 
-    // TODO: 15/01/2018 move these into the respective fragments
-    public static final int NULL_FORUM_ID = 0;
-    public static final int NULL_THREAD_ID = 0;
-    private static final int NULL_PAGE_ID = -1;
+    private static final int NO_PAGER_ITEM = -1;
 
     private static final int FORUM_LIST_FRAGMENT_POSITION = 0;
     private static final int THREAD_LIST_FRAGMENT_POSITION = 1;
@@ -109,7 +106,7 @@ public class ForumsIndexActivity extends AwfulActivity
     // TODO: 15/01/2018 remove these state variables, ask the fragments for their current state instead
 private volatile int mForumId       = Constants.USERCP_ID;
     private volatile int mForumPage     = 1;
-    private volatile int mThreadId      = NULL_THREAD_ID;
+    private volatile int mThreadId      = ThreadDisplayFragment.NULL_THREAD_ID;
     private volatile int mThreadPage    = 1;
 
     private GestureDetector mImmersionGestureDetector = null;
@@ -129,11 +126,11 @@ private volatile int mForumId       = Constants.USERCP_ID;
         updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
-        int initialPage;
+        int focusedPagerItem;
         if (savedInstanceState != null) {
-            initialPage = savedInstanceState.getInt("viewPage", NULL_PAGE_ID);
+            focusedPagerItem = savedInstanceState.getInt("viewPage", NO_PAGER_ITEM);
         } else {
-            initialPage = parseNewIntent(getIntent());
+            focusedPagerItem = parseNewIntent(getIntent());
         }
 
 
@@ -150,8 +147,8 @@ private volatile int mForumId       = Constants.USERCP_ID;
         pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(pagerAdapter);
-        if (initialPage >= 0) {
-            mViewPager.setCurrentItem(initialPage);
+        if (focusedPagerItem != NO_PAGER_ITEM) {
+            mViewPager.setCurrentItem(focusedPagerItem);
         }
 
         // TODO: 16/01/2018 this is a hack to instantiate the fragment early and get the heavy stuff set up - probably better to do it somewhere else (viewpager?)
@@ -437,7 +434,7 @@ private volatile int mForumId       = Constants.USERCP_ID;
         if (mThreadFragment != null) {
             if (url.isThread() || url.isPost()) {
                 mThreadFragment.openThread(url);
-            } else if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0) {
+            } else if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0) {
                 if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
                 mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost, false);
             }
@@ -445,7 +442,7 @@ private volatile int mForumId       = Constants.USERCP_ID;
     }
 
     private int parseNewIntent(Intent intent) {
-        int initialPage = NULL_PAGE_ID;
+        int focusedPagerItem = NO_PAGER_ITEM;
         int forumId     = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
         int forumPage   = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
         int threadId    = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
@@ -489,14 +486,14 @@ private volatile int mForumId       = Constants.USERCP_ID;
             displayForumIndex();
         }
         if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum()) {
-            initialPage = isTablet ? 0 : 1;
+            focusedPagerItem = isTablet ? 0 : 1;
         } else {
             skipLoad = !isTablet;
         }
-        if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect() || url.isThread()) {
-            initialPage = 2;
+        if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0 || url.isRedirect() || url.isThread()) {
+            focusedPagerItem = 2;
         }
-        return initialPage;
+        return focusedPagerItem;
     }
 
     @Override
@@ -624,7 +621,7 @@ private volatile int mForumId       = Constants.USERCP_ID;
 
         @Override
         public int getCount() {
-            if (mThreadFragment == null || mThreadFragment.getThreadId() == NULL_THREAD_ID) {
+            if (mThreadFragment == null || mThreadFragment.getThreadId() == ThreadDisplayFragment.NULL_THREAD_ID) {
                 return 2;
             }
             return 3;
