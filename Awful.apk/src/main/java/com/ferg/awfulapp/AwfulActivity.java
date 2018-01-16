@@ -210,10 +210,6 @@ public class AwfulActivity extends AppCompatActivity implements AwfulPreferences
 		return loggedIn;
 	}
 
-	public boolean isFragmentVisible(AwfulFragment awfulFragment) {
-		return true;
-	}
-
 
     protected void setCurrentTheme() {
         setTheme(AwfulTheme.forForum(null).themeResId);
