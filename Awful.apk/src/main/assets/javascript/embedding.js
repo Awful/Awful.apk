@@ -1,43 +1,47 @@
-//
-// Created by baka kaba on 16/08/2017.
-//
-// Functions to automatically embed page content, e.g. turn an Instagram URL into a widget
-//
+'use strict';
 
 var listener;
 
+/**
+ * Functions to automatically embed page content, e.g. turn an Instagram URL into a widget
+ * @author baka kaba
+ * @param {Element} [post] Can be set to limit the scope of where the embeds are processed, defaults to the document
+ */
 function processThreadEmbeds(post) {
 
 	var replacementArea = post || document;
 	// map preference keys to their corresponding embed functions
 	var embedFunctions = {
-		'inlineInstagram': embedInstagram,
-		'inlineTweets': embedTweets,
-		'inlineVines': embedVines,
-		'inlineWebm': embedVideos
+		inlineInstagram: embedInstagram,
+		inlineTweets: embedTweets,
+		inlineVines: embedVines,
+		inlineWebm: embedVideos
 	};
 
 	// check all embed preference keys - any set to true, run their embed function
 	for (var embedType in embedFunctions) {
-		if (listener.getPreference(embedType) == 'true') {
+		if (listener.getPreference(embedType) === 'true') {
 			embedFunctions[embedType].call(post);
 		}
 	}
 	// There's no vimeo setting
 	replaceVimeo();
 
-	function embedInstagram(post) {
+	/**
+	 * Replaces all instagram links with instagram embeds
+	 */
+	function embedInstagram() {
 		var instagrams = replacementArea.querySelectorAll('.postcontent a[href*="instagr.am/p"],.postcontent a[href*="instagram.com/p"]');
-		if(instagrams.length > 0){
-			instagrams.forEach(function(instagramLink) {
+		if (instagrams.length > 0) {
+			instagrams.forEach(function eachInstagramLink(instagramLink) {
 				var url = instagramLink.getA('href');
-				var api_call = 'https://api.instagram.com/oembed?omitscript=true&url=' + url + '&callback=?';
+				var apiCall = 'https://api.instagram.com/oembed?omitscript=true&url=' + url + '&callback=?';
 
-				JSONP.get(api_call, {}, function (data) {
+				JSONP.get(apiCall, {}, function getInstagrams(data) {
 					instagramLink.outerHTML = data.html;
 				});
 			});
-			if(!document.getElementById('instagramScript')){
+			if (!document.getElementById('instagramScript')) {
 				window.instgrm.Embeds.process();
 			} else {
 				// add the embed script, and run it after all the HTML widgets have been added
@@ -49,6 +53,9 @@ function processThreadEmbeds(post) {
 		}
 	}
 
+	/**
+	 * Replaces all broken Vimeo Flash plugins with iframe versions that Actually Work™
+	 */
 	function replaceVimeo() {
 		replacementArea.querySelectorAll('.postcontent .bbcode_video object param[value^="http://vimeo.com"]').forEach(function each(vimeoPlayer) {
 			var param = vimeoPlayer;
@@ -74,61 +81,77 @@ function processThreadEmbeds(post) {
 		});
 	}
 
+	/**
+	 * Replaces all twitter status links (tweets) with twitter embeds
+	 */
 	function embedTweets() {
 		var tweets = replacementArea.querySelectorAll('.postcontent a[href*="twitter.com"]');
 
-		Array.prototype.filter.call(tweets, function isTweet(twitterURL){
+		tweets = Array.prototype.filter.call(tweets, function isTweet(twitterURL) {
 			return twitterURL.href.match(RegExp('https?://(?:[\\w\\.]*\\.)?twitter.com/[\\w_]+/status(?:es)?/([\\d]+)'));
 		});
-		Array.prototype.filter.call(tweets, filterNwsAndSpoiler);
-		tweets.forEach(function(tweet) {
+		tweets = Array.prototype.filter.call(tweets, filterNwsAndSpoiler);
+		tweets.forEach(function eachTweet(tweet) {
 			var tweetUrl = tweet.href;
-			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url='+escape(tweetUrl), {},function (data) {
+			JSONP.get('https://publish.twitter.com/oembed?omit_script=true&url=' + escape(tweetUrl), {}, function getTworts(data) {
 				var div = document.createElement('div');
 				div.classList.add('tweet');
 				tweet.parentNode.insertBefore(div, tweet);
 				tweet.parentNode.removeChild(tweet);
 				div.appendChild(tweet);
 				div.innerHTML = data.html;
-				if(document.getElementById('theme-css').getAttribute('data-dark-theme') === 'true'){
-					div.querySelector('blockquote').setAttribute('data-theme', 'dark');
+				if (document.getElementById('theme-css').dataset.darkTheme === 'true') {
+					div.querySelector('blockquote').dataset.theme = 'dark';
 				}
-				window.twttr.widgets.load(div);
+				if (window.twttr) {
+					window.twttr.widgets.load(div);
+				} else {
+					missedEmbeds.push(div);
+				}
 			});
 		});
 	}
 
+	/**
+	 * Replaces all vine links with vines embeds.
+	 */
 	function embedVines() {
 		var vines = replacementArea.querySelectorAll('.postcontent a[href*="://vine.co/v/"]');
 
-		Array.prototype.filter.call(vines, filterNwsAndSpoiler);
-		vines.forEach(function(vine) {
-			vine.innerHTML = '<iframe class="vine-embed" src="' + vine.href + '/embed/simple" frameborder="0"></iframe>'+
-							'<script async src="http://platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
+		vines = Array.prototype.filter.call(vines, filterNwsAndSpoiler);
+		vines.forEach(function eachVine(vine) {
+			vine.innerHTML = '<iframe class="vine-embed" src="' + vine.href + '/embed/simple" frameborder="0"></iframe>' + '<script async src="http://platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
 		});
 	}
 
+	/**
+	 * Replaces all links to .webm, .mp4 or .gifv video files with a video tag playing that video.
+	 */
 	function embedVideos() {
-		var videos = replacementArea.querySelectorAll('.postcontent a[href$="webm"],.postcontent a[href$="gifv"],.postcontent a[href$="mp4"]');
+		var videos = replacementArea.querySelectorAll('.postcontent a[href$="webm"], .postcontent a[href$="gifv"], .postcontent a[href$="mp4"]');
 
-
-		Array.prototype.filter.call(videos, filterNwsAndSpoiler);
-		videos.forEach(function(video) {
+		videos = Array.prototype.filter.call(videos, filterNwsAndSpoiler);
+		videos.forEach(function eachVideo(video) {
 			var hasThumbnail;
-			video.setAttribute('href', video.href.replace('.gifv','.mp4'));
+			video.setAttribute('href', video.href.replace('.gifv', '.mp4'));
 			var videoURL = video.href;
-			if(videoURL.indexOf('imgur.com') !== -1){
-				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.'))+'m.jpg';
-				video.setAttribute('href', videoURL.replace('.webm','.mp4'));
-			} else if(videoURL.indexOf('gfycat.com') !== -1){
+			if (videoURL.indexOf('imgur.com') !== -1) {
+				hasThumbnail = videoURL.substring(0, videoURL.lastIndexOf('.')) + 'm.jpg';
+				video.setAttribute('href', videoURL.replace('.webm', '.mp4'));
+			} else if (videoURL.indexOf('gfycat.com') !== -1) {
 				hasThumbnail = 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.jpg';
-				video.setAttribute('href','https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4');
+				video.setAttribute('href', 'https://thumbs' + videoURL.substring(videoURL.indexOf('.'), videoURL.lastIndexOf('.')) + '-mobile.mp4');
 			}
-			video.outerHTML = '<video loop width="100%" muted="true" controls preload="none" '+(hasThumbnail !== undefined ?'poster="'+hasThumbnail+'"':'')+' > <source src="'+videoURL+'" type="video/'+videoURL.substring(videoURL.lastIndexOf('.')+1)+'"> </video>';
+			video.outerHTML = '<video loop width="100%" muted="true" controls preload="none" ' + (hasThumbnail !== undefined ? 'poster="' + hasThumbnail + '"' : '') + ' > <source src="' + videoURL + '" type="video/' + videoURL.substring(videoURL.lastIndexOf('.') + 1) + '"> </video>';
 		});
 	}
 
-	function filterNwsAndSpoiler(element){
+	/**
+	 * Checks whether an element should be embedded depending on whether there are NWS/NMS emoticons in the post or if it is spoilered
+	 * @param {Element} element The element that might be NWS or spoilered
+	 * @returns {Boolean} False if the element is spoilered or possibly NWS/NMS
+	 */
+	function filterNwsAndSpoiler(element) {
 		// NWS/NMS element
 		var nmws = element.closest('.postcontent').querySelector('img[title=":nws:"], img[title=":nms:"]') !== null;
 		// Spoilered element

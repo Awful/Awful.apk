@@ -1,13 +1,17 @@
+'use strict';
+
 /**
  * Initializes the container holding all the posts.
  */
 function containerInit() {
 	var container = document.getElementById('container');
-	
+
+	// Most click events
 	container.addEventListener('click', function containerClick(event) {
-		var that = event.target;
-		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') != 'true') {
-			that.classList.toggle('spoiled');
+		var target = event.target;
+
+		if (findInPath(event, 'bbc-spoiler') && listener.getPreference('showSpoilers') !== 'true') {
+			target.classList.toggle('spoiled');
 			return;
 		}
 		if (findInPath(event, 'toggleread')) {
@@ -27,41 +31,43 @@ function containerInit() {
 			return;
 		}
 		if (findInPath(event, 'quote_link')) {
-			handleQuoteLink(that, event);
+			handleQuoteLink(target, event);
 			return;
 		}
-		if (that.tagName.toLowerCase() === 'a' && that.href.startsWith('showthread.php?action=showpost')) {
-			loadIgnoredPost(that, event);
+		if (target.tagName.toLowerCase() === 'a' && target.href.startsWith('showthread.php?action=showpost')) {
+			loadIgnoredPost(target, event);
 		}
 	});
-	container.addEventListener('touchstart', Longtap(function(event) {
+
+	// Longtaps (emoticons)
+	container.addEventListener('touchstart', Longtap(function longtap(event) {
 		if ((event.target.tagName.toLowerCase() === 'img' || event.target.tagName.toLowerCase() === 'canvas') && event.target.hasAttribute('title')) {
 			// title popup on long-press
 			listener.popupText(event.target.getAttribute('title'));
 		}
 	}));
-	container.addEventListener('touchend touchleave touchcancel', function(event) {
-		if (event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
-			listener.resumeSwipe();
-		}
-	});
-	container.addEventListener('touchstart', function(event) {
-		var that = event.target;
-		if (that.tagName.toLowerCase() === 'img' && that.hasAttribute('title') && that.src.endsWith('.gif')) {
-			freezeGif(that);
+	// Some touch events, freezing gifs and blocking side-swiping on code-blocks
+	container.addEventListener('touchstart', function touchStartHandler(event) {
+		var target = event.target;
+		if (target.tagName.toLowerCase() === 'img' && target.hasAttribute('title') && target.src.endsWith('.gif')) {
+			freezeGif(target);
 			return;
 		}
-		if (that.tagName.toLowerCase() === 'canvas' && that.hasAttribute('title') && that.getAttribute('src').endsWith('.gif')) {
-			that.outerHTML = '<img src="' + that.getAttribute('src') + '" title="' + that.getAttribute('title') + '" />';
+		if (target.tagName.toLowerCase() === 'canvas' && target.hasAttribute('title') && target.getAttribute('src').endsWith('.gif')) {
+			target.outerHTML = '<img src="' + target.getAttribute('src') + '" title="' + target.getAttribute('title') + '" />';
 			return;
 		}
-		if (event.target.classList.contains('bbc-block') && (event.target.classList.contains('pre') || event.target.classList.contains('code') || event.target.classList.contains('php'))) {
+		var bbcBlock = findInPath(event, 'bbc-block', true);
+		if (bbcBlock && (bbcBlock.classList.contains('pre') || bbcBlock.classList.contains('code') || bbcBlock.classList.contains('php'))) {
 			listener.haltSwipe();
-			return;
+			document.addEventListener('touchend', handleTouchLeave);
+			document.addEventListener('touchleave', handleTouchLeave);
+			document.addEventListener('touchcancel', handleTouchLeave);
 		}
 	});
-	if (listener.getPreference('inlineWebm') == 'true' && listener.getPreference('autostartWebm') == 'true') {
-		var debouncedVideosScrollListener = debounce(pauseVideosOutOfView, 1000);
+	// Auto-starting of videos
+	if (listener.getPreference('inlineWebm') === 'true' && listener.getPreference('autostartWebm') === 'true') {
+		var debouncedVideosScrollListener = debounce(pauseVideosOutOfView, 250);
 
 		window.addEventListener('scroll', function containerScroll() {
 			debouncedVideosScrollListener();
@@ -69,14 +75,23 @@ function containerInit() {
 	}
 }
 
+/**
+ * This message tries to find a css class in the path of an event
+ * @param {Event} event Initiating user event
+ * @param {String} cssClass CSS class that is expected
+ * @param {Boolean} returnElement If true returns the found element
+ * @returns {Element|undefined} The requested Element or undefined if the Element is not found
+ */
 function findInPath(event, cssClass, returnElement) {
-	var search = event.path.filter(function(node) { return node.classList && node.classList.contains(cssClass);});
+	var search = event.path.filter(function filter(node) {
+		return node.classList && node.classList.contains(cssClass);
+	});
 	return returnElement ? search[0] : search.length > 0;
 }
 
 /**
  * Loads the thread html into the container
- * @param checkFirst If true checks whether the webview has actually already been initialized
+ * @param {Boolean} checkFirst If true checks whether the webview has actually already been initialized
  */
 function loadPageHtml(checkFirst) {
 	if (checkFirst !== undefined && document.getElementById('container').innerHTML != '') {
@@ -105,10 +120,10 @@ function pageInit() {
 		script.remove();
 	});
 	var spoilers = document.querySelectorAll('.bbc-spoiler');
-	spoilers.forEach(function(spoiler) {
+	spoilers.forEach(function each(spoiler) {
 		spoiler.removeAttribute('onmouseover');
 		spoiler.removeAttribute('onmouseout');
-		if (listener.getPreference('showSpoilers') == 'true') {
+		if (listener.getPreference('showSpoilers') === 'true') {
 			spoiler.classList.remove('bbc-spoiler');
 		}
 	});
@@ -118,7 +133,7 @@ function pageInit() {
 			post.style.display = 'none';
 		});
 	}
-	if (listener.getPreference('hideSignatures') == 'true') {
+	if (listener.getPreference('hideSignatures') === 'true') {
 		document.querySelectorAll('section.postcontent .signature').forEach(function each(signature) {
 			signature.remove();
 		});
@@ -126,18 +141,18 @@ function pageInit() {
 	processThreadEmbeds();
 	pauseVideosOutOfView();
 
-	if (listener.getPreference('hideSignatures') == 'true') {
+	if (listener.getPreference('highlightUsername') === 'true') {
 		highlightOwnUsername();
 	}
-	
-	if (listener.getPreference('hideSignatures') == 'true') {
+
+	if (listener.getPreference('highlightUserQuote') === 'true') {
 		highlightOwnQuotes();
 	}
 
-	if (listener.getPreference('disableGifs') == 'true') {
+	if (listener.getPreference('disableGifs') === 'true') {
 		document.querySelectorAll('img[title][src$=".gif"]').forEach(function each(gif) {
-			if(!gif.complete) {
-				gif.addEventListener('load', function() {
+			if (!gif.complete) {
+				gif.addEventListener('load', function freezeLoadHandler() {
 					freezeGif(this);
 				});
 			} else {
@@ -151,7 +166,7 @@ function pageInit() {
  * Eventhandler that pauses all videos that have been scrolled out of the viewport and starts all videos currently in the viewport
  */
 function pauseVideosOutOfView() {
-	document.querySelectorAll('video').forEach(function(video) {
+	document.querySelectorAll('video').forEach(function eachVideo(video) {
 		if (isElementInViewport(video) && video.parentElement.tagName.toLowerCase() !== 'blockquote' && video.firstElementChild.src.indexOf('webm') === -1) {
 			video.play();
 		} else {
@@ -165,7 +180,7 @@ function pauseVideosOutOfView() {
  */
 function scrollPost() {
 	var postjump = listener.getPostJump();
-	if (postjump != '') {
+	if (postjump !== '') {
 		try {
 			window.topScrollItem = document.getElementById('post' + postjump);
 			window.topScrollPos = window.topScrollItem.getBoundingClientRect().top + document.body.scrollTop;
@@ -224,19 +239,23 @@ function showReadPosts() {
 		post.style.display = '';
 	});
 	document.querySelector('.toggleread').remove();
-	//window.setTimeout(scrollLastRead, 200);
+	window.setTimeout(scrollLastRead, 200);
 }
 
 /**
  * Load an image url and replace links with the image. Handles paused gifs and basic text links.
- * @param url The image URL
+ * @param {String} url The image URL
  */
 function showInlineImage(url) {
 	var LOADING = 'loading';
 	var FROZEN_GIF = 'playGif';
-	// basically treating anything not marked as a frozen gif as a text link
 
-	var addEmptyImg = function(link) {
+	/**
+	 * Adds an empty Image Element to the Link if the link is not around a gif
+	 * @param {Element} link Link Element
+	 */
+	function addEmptyImg(link) {
+		// basically treating anything not marked as a frozen gif as a text link
 		if (!link.classList.contains(FROZEN_GIF)) {
 			var image = document.createElement('img');
 			image.src = '';
@@ -244,22 +263,27 @@ function showInlineImage(url) {
 		} else {
 			link.classList.add(LOADING);
 		}
-	};
-	var inlineImage = function(link) {
+	}
+
+	/**
+	 * Inlines the loaded image
+	 * @param {Element} link The link the image is wrapping
+	 */
+	function inlineImage(link) {
 		var image = link.querySelector('img');
 		image.src = url;
 		image.style.height = 'auto';
 		image.style.width = 'auto';
 		link.classList.remove(LOADING);
 		link.classList.remove(FROZEN_GIF);
-	};
+	}
 	// skip anything that's already loading/loaded
 	var imageLinks = document.querySelectorAll('a[href="' + url + '"]:not(.loading)');
 	imageLinks.forEach(addEmptyImg);
-	
+
 	var pseudoImage = document.createElement('img');
 	pseudoImage.src = url;
-	pseudoImage.addEventListener('load', function() {
+	pseudoImage.addEventListener('load', function loadHandler() {
 		// when the image is loaded, inline it everywhere and update the links
 		imageLinks.forEach(inlineImage);
 		pseudoImage.remove();
@@ -268,14 +292,14 @@ function showInlineImage(url) {
 
 /**
  * Changes the font-face of the webview
- * @param font The name of the font
+ * @param {String} font The name of the font
  */
 function changeFontFace(font) {
 	var fontFace = document.getElementById('font-face');
 	if (fontFace !== null) {
 		fontFace.remove();
 	}
-	if (font != 'default') {
+	if (font !== 'default') {
 		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
 	}
 }
@@ -286,22 +310,21 @@ function changeFontFace(font) {
  */
 function freezeGif(image) {
 	var canvas = document.createElement('canvas');
-	var imageWidth = canvas.width = image.naturalWidth;
-	var imageHeight = canvas.height = image.naturalHeight;
+	var imageWidth = image.naturalWidth;
+	var imageHeight = image.naturalHeight;
+	canvas.width = image.naturalWidth;
+	canvas.height = image.naturalHeight;
 	canvas.getContext('2d').drawImage(image, 0, 0, imageWidth, imageHeight);
-	try {
-		image.src = canvas.toDataURL('image/gif'); // if possible, retain all css aspects
-	} catch (e) { // cross-domain -- mimic original with all its tag attributes
-		for (var i = 0; i < image.attributes.length; i++) {
-			canvas.setAttribute(image.attributes[i].name, image.attributes[i].value);
-		}
-		image.parentNode.replaceChild(canvas, image);
+	// if possible, retain all css aspects
+	for (var i = 0; i < image.attributes.length; i++) {
+		canvas.setAttribute(image.attributes[i].name, image.attributes[i].value);
 	}
+	image.parentNode.replaceChild(canvas, image);
 }
 
 /**
  * Updates the background color of all posters that were previously, or are now, marked by the user
- * @param users A string of users seperated by commas 
+ * @param {String} users A string of users separated by commas
  */
 function updateMarkedUsers(users) {
 	document.querySelectorAll('article.marked').forEach(function each() {
@@ -322,35 +345,35 @@ function handleQuoteLink(link, event) {
 	var id = link.hash.substring(1);
 	try {
 		var postOfID = document.getElementById(id);
-		if (postOfID) {
-			event.preventDefault();
-			if (postOfID.style.display === 'none') {
-				var readPosts = document.querySelectorAll('.read');
-				document.querySelector('.toggleread').remove();
-				readPosts.forEach(function() {
-					readPosts.style.display = '';
-				});
-				if (--readPosts.length == 0) {
-					window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
-				}	
-			} else {
-				window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
-			}
+		if (!postOfID) {
+			return;
 		}
+		event.preventDefault();
+		if (postOfID.style.display === 'none') {
+			var readPosts = document.querySelectorAll('.read');
+			document.querySelector('.toggleread').remove();
+			readPosts.forEach(function eachPost(readPost) {
+				readPost.style.display = '';
+			});
+		}
+		window.setTimeout(function wait() {
+			window.scrollTo(0, postOfID.getBoundingClientRect().top + document.body.scrollTop);
+		}, 100);
 	} catch (error) {
 		window.console.log(error);
 	}
 }
 
 /**
- * Expands or retracts the postinfo 
+ * Expands or retracts the postinfo
+ * @param {Element} info The HTMLElement of the postinfo
  */
 function toggleInfo(info) {
 	if (info.querySelector('.postinfo-title').classList.contains('extended')) {
 		if (info.querySelector('.avatar-cell') !== null) {
 			info.querySelector('.avatar-cell').classList.remove('extended');
 			info.querySelector('.avatar-cell .avatar').classList.remove('extended');
-			if (listener.getPreference('disableGifs') == 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
+			if (listener.getPreference('disableGifs') === 'true' && info.querySelector('.avatar img').src.endsWith('.gif')) {
 				freezeGif(info.querySelector('.avatar img'));
 			}
 		}
@@ -362,7 +385,7 @@ function toggleInfo(info) {
 			info.querySelector('.avatar-cell .avatar').classList.add('extended');
 			if (info.querySelector('canvas') !== null) {
 				var avatar = document.createElement('img');
-				avatar.src = info.querySelector('canvas').src;
+				avatar.src = info.querySelector('canvas').getAttribute('src');
 				info.querySelector('canvas').replaceWith(avatar);
 			}
 		}
@@ -373,6 +396,7 @@ function toggleInfo(info) {
 
 /**
  * Triggers the display of the postmenu
+ * @param {Element} postMenu The HTMLElement of the postmenu
  */
 function showPostMenu(postMenu) {
 	listener.onMoreClick(
@@ -381,14 +405,14 @@ function showPostMenu(postMenu) {
 		postMenu.getAttribute('userid'),
 		postMenu.getAttribute('lastreadurl'),
 		postMenu.hasAttribute('editable'),
-		(postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin')),
+		postMenu.hasAttribute('isMod') || postMenu.hasAttribute('isAdmin'),
 		postMenu.hasAttribute('isPlat')
 	);
 }
 
 /**
  * Changes the styling of the webview
- * @param  file Name of the CSS to be used
+ * @param {String} file Name of the CSS to be used
  */
 function changeCSS(file) {
 	document.getElementsByTagName('head')[0].querySelector('link').setAttribute('href', file);
@@ -408,7 +432,7 @@ function loadIgnoredPost(post, event) {
 
 /**
  * Replaces the previously ignored post with the loaded version
- * @param id The postId of the ignored post
+ * @param {String} id The postId of the ignored post
  */
 function insertIgnoredPost(id) {
 	var ignoredPost = document.getElementById('ignorePost-' + id);
@@ -418,6 +442,7 @@ function insertIgnoredPost(id) {
 
 /**
  * Removes the timg class from a timg to turn it into a normal image
+ * @param {Element} tImg The HTMLElement of the timg
  */
 function enlargeTimg(tImg) {
 	tImg.classList.remove('timg');
@@ -429,15 +454,18 @@ function enlargeTimg(tImg) {
 	}
 }
 
-function isElementInViewport (el) {
+/**
+ * Checks whether the supplied Element is currently fully visible in the viewport
+ * @param {Element} element The Element that checked for visibility
+ * @returns {Boolean} True if the element is in the viewport
+ */
+function isElementInViewport(element) {
 
-	var rect = el.getBoundingClientRect();
+	var rect = element.getBoundingClientRect();
 
 	return (
 		rect.top >= 0 &&
-		rect.left >= 0 &&
-		rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && 
-		rect.right <= (window.innerWidth || document.documentElement.clientWidth) 
+		rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
 	);
 }
 
@@ -445,22 +473,27 @@ function isElementInViewport (el) {
  * Highlight the user's username in posts
  */
 function highlightOwnUsername() {
+
+	/**
+	 * Returns all textnodes inside the element
+	 * @param {Element} element Where the text nodes are to be found
+	 * @returns {Array} Array of text node Elements
+	 */
 	function getTextNodesIn(element) {
 		var textNodeArray = [];
 		var treeWalker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-		while(treeWalker.nextNode())
-		{
+		while (treeWalker.nextNode()) {
 			textNodeArray.push(treeWalker.currentNode);
 		}
 		return textNodeArray;
 	}
 
 	var selector = 'article:not(self) .postcontent';
-	
+
 	var regExp = new RegExp('\\b' + listener.getPreference('username') + '\\b', 'g');
 	var styled = '<span class="usernameHighlight">' + listener.getPreference('username') + '</span>';
-	document.querySelectorAll(selector).forEach(function() {
-		getTextNodesIn(this).forEach(function(node) {
+	document.querySelectorAll(selector).forEach(function eachPost(post) {
+		getTextNodesIn(post).forEach(function eachTextNode(node) {
 			if (node.wholeText.match(regExp)) {
 				var newNode = node.ownerDocument.createElement('span');
 				newNode.innerHTML = node.wholeText.replace(regExp, styled);
@@ -476,29 +509,55 @@ function highlightOwnUsername() {
 function highlightOwnQuotes() {
 	var usernameQuoteMatch = listener.getPreference('username') + ' posted:';
 	var quotes = document.querySelectorAll('.bbc-block h4');
-	Array.prototype.filter.call(quotes, function(quote) {
-		return quote.innerHTML.indexOf(usernameQuoteMatch) !== -1;
+	quotes = Array.prototype.filter.call(quotes, function filterQuotes(quote) {
+		return quote.innerText === usernameQuoteMatch;
 	});
-	quotes.forEach(function(quote) {
+	quotes.forEach(function eachQuote(quote) {
 		quote.parentElement.classList.add('self');
 		// Replace the styling from username highlighting
-		quote.querySelectorAll('.usernameHighlight').forEach(function(name) {
+		quote.querySelectorAll('.usernameHighlight').forEach(function eachHighlight(name) {
 			name.classList.remove('usernameHighlight');
 		});
 	});
 }
 
-function debounce(func, wait, immediate) {
+/**
+ * Debounces a function and returns it. The returned function will call the supplied callback after a predetermined amount of time
+ * @param {Function} callback The callback that should be called after the wait time
+ * @param {Integer} wait Time to wait in ms
+ * @param {Boolean} immediate Run callback immediately if true
+ * @returns {Function} Debounced function
+ */
+function debounce(callback, wait, immediate) {
 	var timeout;
-	return function() {
-		var context = this, args = arguments;
-		var later = function() {
+	return function debounced() {
+		var that = this;
+		var args = arguments;
+
+		/**
+		 * Function that is called when the timer runs out
+		 */
+		function later() {
 			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
+			if (!immediate) {
+				callback.apply(that, args);
+			}
+		}
 		var callNow = immediate && !timeout;
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
+		if (callNow) {
+			callback.apply(that, args);
+		}
 	};
-};
+}
+
+/**
+ * Handles the leaving of the touch event
+ */
+function handleTouchLeave() {
+	listener.resumeSwipe();
+	document.removeEventListener('touchend', handleTouchLeave);
+	document.removeEventListener('touchleave', handleTouchLeave);
+	document.removeEventListener('touchcancel', handleTouchLeave);
+}

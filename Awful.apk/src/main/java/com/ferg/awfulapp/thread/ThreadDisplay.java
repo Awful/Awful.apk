@@ -35,9 +35,8 @@ public abstract class ThreadDisplay {
      * All the scripts from the javascript folder used in generating HTML
      */
     static final String[] JS_FILES = {
-            "event.js",
-            "longtap.js",
             "twitterwidget.js",
+            "longtap.js",
             "jsonp.js",
             "embedding.js",
             "thread.js"
