@@ -2,6 +2,7 @@ package com.ferg.awfulapp
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
@@ -34,8 +35,13 @@ class ForumsPagerController(
         val viewPager: ToggleViewPager,
         prefs: AwfulPreferences,
         activity: FragmentActivity,
-        private val callbacks: PagerCallbacks
+        private val callbacks: PagerCallbacks,
+        savedInstanceState: Bundle?
 ) {
+
+    companion object {
+        private const val KEY_THREAD_VIEW_ADDED = "thread view added"
+    }
 
     private val pagerAdapter: ForumPagerAdapter
     var tabletMode: Boolean = false
@@ -50,14 +56,20 @@ class ForumsPagerController(
 
     init {
         Timber.d("--- init start")
-        viewPager.offscreenPageLimit = 2
         onPreferenceChange(prefs)
         onConfigurationChange(prefs)
-        pagerAdapter = ForumPagerAdapter(this, activity.supportFragmentManager)
-        viewPager.adapter = pagerAdapter
-        viewPager.setOnPageChangeListener(pagerAdapter)
+        pagerAdapter = ForumPagerAdapter(this, activity.supportFragmentManager).apply {
+            savedInstanceState?.let { state -> threadViewAdded = state.getBoolean(KEY_THREAD_VIEW_ADDED) }
+        }
+        with (viewPager) {
+            offscreenPageLimit = 2
+            adapter = pagerAdapter
+            setOnPageChangeListener(pagerAdapter)
+        }
         Timber.d("--- init finish")
     }
+
+    fun onSaveInstanceState(bundle: Bundle) = apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
 
 
     fun onPreferenceChange(prefs: AwfulPreferences) {

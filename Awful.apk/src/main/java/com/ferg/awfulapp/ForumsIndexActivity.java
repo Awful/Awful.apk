@@ -99,7 +99,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
         ToggleViewPager viewPager = findViewById(R.id.forum_index_pager);
         // TODO: 04/11/2017 passing activity in - do after create?
-        forumsPager = new ForumsPagerController(viewPager, mPrefs, this, this);
+        forumsPager = new ForumsPagerController(viewPager, mPrefs, this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
         setActionBar();
@@ -494,6 +494,7 @@ public class ForumsIndexActivity extends AwfulActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("viewPage", forumsPager.getCurrentPagerItem());
+        forumsPager.onSaveInstanceState(outState);
     }
 
 
