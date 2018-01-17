@@ -185,7 +185,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private boolean bypassBackStack = false;
 
     private String mTitle = null;
-	private String mPostJump = "";
+	private String postJump = "";
 	private int savedScrollPosition = 0;
 	
 	private ShareActionProvider shareProvider;
@@ -234,7 +234,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			Intent data = getActivity().getIntent();
 			if (data.getData() != null && data.getScheme().equals("http")) {
 				AwfulURL url = AwfulURL.parse(data.getDataString());
-				mPostJump = url.getFragment().replaceAll("\\D", "");
+				setPostJump(url.getFragment().replaceAll("\\D", ""));
 				switch (url.getType()) {
 					case THREAD:
 						if (url.isRedirect()) {
@@ -472,7 +472,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			mThreadView.onPause();
 		}
 	}
-	
+
     @Override
     public void onPause() {
         super.onPause();
@@ -1088,6 +1088,14 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 	private final ClickInterface clickInterface = new ClickInterface();
 
+	public String getPostJump() {
+		return postJump;
+	}
+
+	private void setPostJump(String postJump) {
+		this.postJump = postJump;
+	}
+
 	private class ClickInterface extends WebViewJsInterface {
 
         @JavascriptInterface
@@ -1102,7 +1110,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		@Override
 		protected void setCustomPreferences(Map<String, String> preferences) {
 			// TODO: 23/01/2017 add methods so you can't mess with the map directly
-			preferences.put("postjumpid", mPostJump);
+			preferences.put("postjumpid", postJump);
 			preferences.put("scrollPosition", Integer.toString(savedScrollPosition));
 		}
 
@@ -1118,7 +1126,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
         @JavascriptInterface
         public String getPostJump(){
-            return mPostJump;
+            return postJump;
         }
 
         @JavascriptInterface
@@ -1337,7 +1345,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		setPageNumber(aPage);
 		updateUiElements();
-		mPostJump = "";
+		setPostJump("");
 		showBlankPage();
 		syncThread();
 	}
@@ -1384,7 +1392,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		setPostFiltering(id, name);
 		setPageNumber(FIRST_PAGE);
 		mLastPage = FIRST_PAGE;
-		mPostJump = "";
+		setPostJump("");
         refresh();
 	}
 
@@ -1401,7 +1409,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			setPostFiltering(null, null);
 			setPageNumber(pageBeforeFiltering);
 			mLastPage = 0;
-			mPostJump = "";
+			setPostJump("");
 			refresh();
 		}
 	}
@@ -1627,7 +1635,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void loadThread(int id, int page, @Nullable String postJump, boolean fullSync) {
 		setThreadId(id);
 		setPageNumber(page);
-		mPostJump = postJump != null ? postJump : "";
+		this.setPostJump(postJump != null ? postJump : "");
 		setPostFiltering(null, null);
 		mLastPage = FIRST_PAGE;
 		updateUiElements();

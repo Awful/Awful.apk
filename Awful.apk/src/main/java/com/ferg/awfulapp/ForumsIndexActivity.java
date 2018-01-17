@@ -104,7 +104,7 @@ public class ForumsIndexActivity extends AwfulActivity
         setSupportActionBar(mToolbar);
         setActionBar();
         navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
-        updateNavigationDrawer();
+//        updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
         int focusedPagerItem;
