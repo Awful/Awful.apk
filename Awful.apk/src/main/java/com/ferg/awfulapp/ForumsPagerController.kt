@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.ViewGroup
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.preferences.AwfulPreferences
@@ -23,6 +22,11 @@ import kotlin.properties.Delegates
  * Created by baka kaba on 04/11/2017.
  */
 
+/**
+ * Defines each of the ViewPager pages, in order.
+ *
+ * @param width the width of this page in tablet mode, as a fraction of the screen width
+ */
 enum class Pages(val width: Float) {
     ForumList(0.4f), ThreadList(0.6f), ThreadDisplay(1f);
 
@@ -31,6 +35,13 @@ enum class Pages(val width: Float) {
     }
 }
 
+
+/**
+ * Manages the ViewPager holding the forum pages.
+ *
+ * @param viewPager the inflated ViewPager from the activity's layout
+ * @param savedInstanceState the activity's saved state - used to restore the viewpager
+ */
 class ForumsPagerController(
         val viewPager: ToggleViewPager,
         prefs: AwfulPreferences,
@@ -61,7 +72,7 @@ class ForumsPagerController(
         pagerAdapter = ForumPagerAdapter(this, activity.supportFragmentManager).apply {
             savedInstanceState?.let { state -> threadViewAdded = state.getBoolean(KEY_THREAD_VIEW_ADDED) }
         }
-        with (viewPager) {
+        with(viewPager) {
             offscreenPageLimit = 2
             adapter = pagerAdapter
             setOnPageChangeListener(pagerAdapter)
@@ -69,6 +80,9 @@ class ForumsPagerController(
         Timber.d("--- init finish")
     }
 
+    /**
+     * Call this from the host activity, so we can store the current ViewPager state.
+     */
     fun onSaveInstanceState(bundle: Bundle) = apply { bundle.putBoolean(KEY_THREAD_VIEW_ADDED, pagerAdapter.threadViewAdded) }
 
 
@@ -110,7 +124,7 @@ class ForumsPagerController(
 
     fun openThread(id: Int, page: Int, jump: String, forceReload: Boolean = true) {
         showPage(Pages.ThreadDisplay)
-        with (pagerAdapter.threadDisplayFragment!!) {
+        with(pagerAdapter.threadDisplayFragment!!) {
             if (forceReload || threadId != id || pageNumber != page || postJump != jump) {
                 Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
                 openThread(id, page, jump, false)
@@ -130,12 +144,12 @@ class ForumsPagerController(
 
     fun setSwipeEnabled(enabled: Boolean) = viewPager.setSwipeEnabled(enabled)
 
-    fun reenableSwipe() {
-        if (viewPager.beginFakeDrag()) {
-            viewPager.endFakeDrag()
-        }
-        viewPager.setSwipeEnabled(true)
-    }
+    fun reenableSwipe() =
+            with(viewPager) {
+                if (beginFakeDrag()) endFakeDrag()
+                setSwipeEnabled(true)
+            }
+
 
     fun onPageChanged(pageNum: Int, pageFragment: AwfulFragment) {
         callbacks.onPageChanged(pageNum, pageFragment)
@@ -159,21 +173,21 @@ private class ForumPagerAdapter(
 ) : FragmentPagerAdapter(fm),
         ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
 
-    private val TAG = this.javaClass.simpleName
-
-    var threadViewAdded: Boolean by Delegates.observable(false) { _, old, new ->
-        if (old != new) notifyDataSetChanged()
-    }
-
     var forumListFragment: ForumsIndexFragment? = null
     var threadListFragment: ForumDisplayFragment? = null
     var threadDisplayFragment: ThreadDisplayFragment? = null
     var currentFragment: AwfulFragment? = null
 
+    var threadViewAdded: Boolean by Delegates.observable(false) { _, old, new ->
+        if (old != new) notifyDataSetChanged()
+    }
+
+    override fun getCount() = if (threadViewAdded) 3 else 2
+    override fun getPageWidth(position: Int) = if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
 
     override fun onPageSelected(pageNum: Int) {
         // TODO: redo this so we're not instantiating things
-        if (AwfulActivity.DEBUG) Log.i(TAG, "onPageSelected: " + pageNum)
+        if (AwfulActivity.DEBUG) Timber.i("onPageSelected: $pageNum")
         currentFragment?.onPageHidden()
         val selectedPage = instantiateItem(controller.viewPager, pageNum) as AwfulFragment
         controller.onPageChanged(pageNum, selectedPage)
@@ -183,24 +197,32 @@ private class ForumPagerAdapter(
 
     override fun getItem(position: Int): Fragment {
         return when (Pages[position]) {
-            Pages.ForumList -> { Timber.d("Creating ForumsIndexFragment"); ForumsIndexFragment() }
-            Pages.ThreadList -> { Timber.d("Creating ForumsDisplayFragment"); ForumDisplayFragment.getInstance(Constants.USERCP_ID, ForumDisplayFragment.FIRST_PAGE, false) }
-            Pages.ThreadDisplay -> { Timber.d("Creating ThreadDisplayFragment"); ThreadDisplayFragment() }
+            Pages.ForumList -> {
+                Timber.d("Creating ForumsIndexFragment"); ForumsIndexFragment()
+            }
+            Pages.ThreadList -> {
+                Timber.d("Creating ForumsDisplayFragment"); ForumDisplayFragment.getInstance(Constants.USERCP_ID, ForumDisplayFragment.FIRST_PAGE, false)
+            }
+            Pages.ThreadDisplay -> {
+                Timber.d("Creating ThreadDisplayFragment"); ThreadDisplayFragment()
+            }
         }
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any =
             // overriding this so we get a reference when we provide a fragment OR the framework restores one
-         super.instantiateItem(container, position).apply {
-             when (this) {
-                 is ForumsIndexFragment -> { forumListFragment = this; Timber.d("Setting ForumsIndexFragment") }
-                 is ForumDisplayFragment -> { threadListFragment = this; Timber.d("Setting ForumDisplayFragment") }
-                 is ThreadDisplayFragment -> { threadDisplayFragment = this; threadViewAdded = true; Timber.d("Setting ThreadDisplayFragment") }
-             }
-         }
-
-
-    override fun getCount() = if (threadViewAdded) 3 else 2
-    override fun getPageWidth(position: Int) = if (controller.tabletMode) Pages[position].width else super.getPageWidth(position)
+            super.instantiateItem(container, position).apply {
+                when (this) {
+                    is ForumsIndexFragment -> {
+                        forumListFragment = this; Timber.d("Setting ForumsIndexFragment")
+                    }
+                    is ForumDisplayFragment -> {
+                        threadListFragment = this; Timber.d("Setting ForumDisplayFragment")
+                    }
+                    is ThreadDisplayFragment -> {
+                        threadDisplayFragment = this; threadViewAdded = true; Timber.d("Setting ThreadDisplayFragment")
+                    }
+                }
+            }
 
 }
