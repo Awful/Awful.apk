@@ -107,13 +107,6 @@ public class ForumsIndexActivity extends AwfulActivity
 //        updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
-        int focusedPagerItem;
-        if (savedInstanceState != null) {
-            focusedPagerItem = savedInstanceState.getInt("viewPage", NO_PAGER_ITEM);
-        } else {
-            focusedPagerItem = parseNewIntent(getIntent());
-        }
-        forumsPager.setCurrentPagerItem(focusedPagerItem);
 
         checkIntentExtras();
         setupImmersion();
@@ -493,7 +486,6 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("viewPage", forumsPager.getCurrentPagerItem());
         forumsPager.onSaveInstanceState(outState);
     }
 
