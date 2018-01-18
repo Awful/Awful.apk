@@ -108,10 +108,11 @@ class ForumsPagerController(
     fun getForumDisplayFragment() = pagerAdapter.threadListFragment
     fun getThreadDisplayFragment() = pagerAdapter.threadDisplayFragment
 
+    // TODO: need more general functions here - show a forum (if it's open just page to it, otherwise also load page 1) and show thread (same deal, just page over if it's already open)
 
-    fun openForum(forumId: Int, pageNum: Int) {
+    fun openForum(forumId: Int, pageNum: Int? = null) {
         showPage(Pages.ThreadList)
-        pagerAdapter.threadListFragment!!.openForum(forumId, pageNum)
+        pagerAdapter.threadListFragment?.openForum(forumId, pageNum)
     }
 
     fun openThread(url: AwfulURL) {
@@ -122,13 +123,11 @@ class ForumsPagerController(
     }
 
 
-    fun openThread(id: Int, page: Int, jump: String, forceReload: Boolean = true) {
+    fun openThread(id: Int, page: Int? = null, jump: String? = null, forceReload: Boolean = true) {
         showPage(Pages.ThreadDisplay)
-        with(pagerAdapter.threadDisplayFragment!!) {
-            if (forceReload || threadId != id || pageNumber != page || postJump != jump) {
-                Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
-                openThread(id, page, jump, false)
-            }
+        pagerAdapter.threadDisplayFragment?.apply {
+            Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
+            this.openThread(id, page, jump, false)
         }
         // TODO: notify nav drawer
     }

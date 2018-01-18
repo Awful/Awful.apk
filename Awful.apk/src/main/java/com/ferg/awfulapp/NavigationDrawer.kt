@@ -101,7 +101,7 @@ class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val 
             when (menuItem.itemId) {
                 R.id.sidebar_index -> displayForumIndex()
                 R.id.sidebar_forum -> showForumView(currentForumId)
-                R.id.sidebar_thread -> showThreadView(currentThreadId, currentForumId)
+                R.id.sidebar_thread -> showThreadView(currentThreadId)
                 R.id.sidebar_bookmarks -> showBookmarks()
                 R.id.sidebar_settings -> showSettings()
                 R.id.sidebar_search -> showSearch()

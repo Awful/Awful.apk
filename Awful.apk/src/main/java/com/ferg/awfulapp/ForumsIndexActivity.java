@@ -66,6 +66,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
+import timber.log.Timber;
+
 //import com.ToxicBakery.viewpager.transforms.*;
 
 public class ForumsIndexActivity extends AwfulActivity
@@ -77,7 +79,6 @@ public class ForumsIndexActivity extends AwfulActivity
     private static final int MESSAGE_HIDING = 0;
     private static final int MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1;
 
-    private boolean skipLoad = false;
     private boolean isTablet;
     private AwfulURL url = new AwfulURL();
 
@@ -104,7 +105,7 @@ public class ForumsIndexActivity extends AwfulActivity
         setSupportActionBar(mToolbar);
         setActionBar();
         navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
-//        updateNavigationDrawer();
+        updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
 
@@ -197,15 +198,17 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     private void updateNavigationDrawer() {
+        // TODO: 17/01/2018 what is this actually meant to display? The current thread and the forum (including Bookmarks) that it's in? Or the current state of each page?
         if (navigationDrawer != null) {
             // display details for the currently open thread - if there isn't one, show the current forum instead
             ThreadDisplayFragment threadFragment = forumsPager.getThreadDisplayFragment();
+            ForumDisplayFragment forumFragment = forumsPager.getForumDisplayFragment();
             if (threadFragment != null) {
                 int threadId = threadFragment.getThreadId();
                 int parentForumId = threadFragment.getParentForumId();
                 navigationDrawer.setCurrentForumAndThread(parentForumId, threadId);
-            } else {
-                int forumId = forumsPager.getForumDisplayFragment().getForumId();
+            } else if (forumFragment != null){
+                int forumId = forumFragment.getForumId();
                 navigationDrawer.setCurrentForumAndThread(forumId, null);
             }
         }
@@ -264,19 +267,15 @@ public class ForumsIndexActivity extends AwfulActivity
         startActivity(new Intent().setClass(this, SettingsActivity.class));
     }
 
+    // TODO: 17/01/2018 refactor the displayForum etc methods so they can take a null page, use them instead of these
 
     /**
      * Page to the thread view. If it's not currently showing the expected thread, load the first page of it.
      *
      * @param expectedThreadId  the page that should be shown
-     * @param parentForumId     the ID of the thread's parent forum
      */
-    public void showThreadView(int expectedThreadId, int parentForumId) {
-        if (forumsPager.getThreadDisplayFragment().getThreadId() != expectedThreadId) {
-            displayThread(expectedThreadId, ThreadDisplayFragment.FIRST_PAGE, parentForumId, ForumDisplayFragment.FIRST_PAGE, true);
-        } else {
-            forumsPager.setCurrentPagerItem(2);
-        }
+    public void showThreadView(int expectedThreadId) {
+        forumsPager.openThread(expectedThreadId, null, null, false);
     }
 
 
@@ -285,11 +284,7 @@ public class ForumsIndexActivity extends AwfulActivity
      * @param expectedForumId the forum that should be shown
      */
     public void showForumView(int expectedForumId) {
-        if (forumsPager.getForumDisplayFragment().getForumId() != expectedForumId) {
-            displayForum(expectedForumId, ForumDisplayFragment.FIRST_PAGE);
-        } else {
-            forumsPager.setCurrentPagerItem(1);
-        }
+        forumsPager.openForum(expectedForumId, null);
     }
 
 
@@ -443,7 +438,6 @@ public class ForumsIndexActivity extends AwfulActivity
             focusedPagerItem = isTablet ? 0 : 1;
         } else {
             // something to do with not loading the forum on create if we're on a phone?
-            skipLoad = !isTablet;
         }
         // oh hey ACTUALLY if we have a valid thread ID/url or a redirect, always show page 2
         if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0 || url.isRedirect() || url.isThread()) {
@@ -491,10 +485,8 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     private void checkIntentExtras() {
-        if (getIntent().hasExtra(Constants.SHORTCUT)) {
-            if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-                displayForum(Constants.USERCP_ID, 1);
-            }
+        if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
+            displayUserCP();
         }
     }
 
@@ -545,7 +537,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void displayForum(int id, int page) {
-        Log.d(TAG, "displayForum " + id);
+        Timber.d("displayForum %s", id);
         forumsPager.openForum(id, page);
     }
 
@@ -564,7 +556,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void displayUserCP() {
-        displayForum(Constants.USERCP_ID, 1);
+        showForumView(Constants.USERCP_ID);
     }
 
 

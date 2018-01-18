@@ -477,14 +477,14 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         mForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
-    public void openForum(int id, int page){
-        // do nothing if we're already looking at this page
-        if(id == mForumId && page == mPage){
+    public void openForum(int id, @Nullable Integer page){
+        // do nothing if we're already looking at this page (or if no page specified)
+        if (id == mForumId && (page == null || page == mPage)) {
             return;
         }
     	closeLoaders();
     	setForumId(id);
-        setPage(page);
+        setPage(page == null ? FIRST_PAGE : page);
         updateColors();
     	mLastPage = 0;
     	lastRefresh = 0;
