@@ -100,11 +100,11 @@ public class ForumsIndexActivity extends AwfulActivity
 
         ToggleViewPager viewPager = findViewById(R.id.forum_index_pager);
         // TODO: 04/11/2017 passing activity in - do after create?
-        forumsPager = new ForumsPagerController(viewPager, mPrefs, this, this, savedInstanceState);
+        forumsPager = new ForumsPagerController(viewPager, getMPrefs(), this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
         setActionBar();
-        navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
+        navigationDrawer = new NavigationDrawer(this, mToolbar, getMPrefs());
         updateNavigationDrawer();
 
         isTablet = AwfulUtils.isTablet(this);
@@ -163,7 +163,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void setupImmersion() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
@@ -297,7 +297,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -328,7 +328,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             // When the window loses focus (e.g. the action overflow is shown),
             // cancel any pending hide action. When the window gains focus,
             // hide the system UI.
@@ -342,7 +342,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void showSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -351,7 +351,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void hideSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -363,7 +363,7 @@ public class ForumsIndexActivity extends AwfulActivity
     protected void onNewIntent(Intent intent) {
         // TODO: 15/01/2018 rework this so it performs the correct operation (e.g. display thread X page Y) without storing state here e.g. mThreadId
         super.onNewIntent(intent);
-        if (DEBUG) Log.e(TAG, "onNewIntent");
+        if (Companion.getDEBUG()) Log.e(TAG, "onNewIntent");
         setIntent(intent);
         int initialPage = parseNewIntent(intent);
         /*
@@ -377,7 +377,7 @@ public class ForumsIndexActivity extends AwfulActivity
         if (url.isThread() || url.isPost()) {
             forumsPager.openThread(url);
         } else if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0) {
-            if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
+            if (Companion.getDEBUG()) Log.e(TAG, "else: "+mThreadPost);
             forumsPager.openThread(tempThreadId, tempThreadPage, mThreadPost, true);
         }
     }
@@ -458,7 +458,7 @@ public class ForumsIndexActivity extends AwfulActivity
         }
 
         // check if this is the first run, and if so show the 'welcome' dialog
-        if (mPrefs.alertIDShown == 0) {
+        if (getMPrefs().alertIDShown == 0) {
             new AlertDialog.Builder(this).
                     setTitle(getString(R.string.alert_title_1))
                     .setMessage(getString(R.string.alert_message_1))
@@ -468,11 +468,11 @@ public class ForumsIndexActivity extends AwfulActivity
                         showSettings();
                     })
                     .show();
-            mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1);
-        } else if (mPrefs.lastVersionSeen != versionCode) {
-            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode));
+            getMPrefs().setPreference(Keys.ALERT_ID_SHOWN, 1);
+        } else if (getMPrefs().lastVersionSeen != versionCode) {
+            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", getMPrefs().lastVersionSeen, versionCode));
             ChangelogDialog.show(this);
-            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode);
+            getMPrefs().setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
     }
 
@@ -504,16 +504,16 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     @Override
-    public void setActionbarTitle(String aTitle, Object requestor) {
-        if (requestor != null && requestor instanceof AwfulFragment) {
+    public void setActionbarTitle(String aTitle, Object requester) {
+        if (requester != null && requester instanceof AwfulFragment) {
             //This will only honor the request if the requestor is the currently active view.
-            if (forumsPager.isFragmentVisible((AwfulFragment) requestor)) {
-                super.setActionbarTitle(aTitle, requestor);
+            if (forumsPager.isFragmentVisible((AwfulFragment) requester)) {
+                super.setActionbarTitle(aTitle, requester);
             } else {
-                if (DEBUG) Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requestor.toString());
+                if (Companion.getDEBUG()) Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requester.toString());
             }
         } else {
-            super.setActionbarTitle(aTitle, requestor);
+            super.setActionbarTitle(aTitle, requester);
         }
     }
 
@@ -569,7 +569,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if (DEBUG) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
+        if (Companion.getDEBUG()) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
             SyncManager.sync(this);
@@ -579,7 +579,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         AwfulFragment pagerItem = forumsPager.getCurrentFragment();
-        if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
+        if (getMPrefs().volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);
@@ -598,7 +598,7 @@ public class ForumsIndexActivity extends AwfulActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.e(TAG,"onConfigurationChanged()");
-        forumsPager.onConfigurationChange(mPrefs);
+        forumsPager.onConfigurationChange(getMPrefs());
         AwfulFragment currentFragment = forumsPager.getCurrentFragment();
         if (currentFragment != null) {
             currentFragment.onConfigurationChanged(newConfig);
