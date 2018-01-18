@@ -89,7 +89,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     open fun setTitle(title: String) {
         awfulActivity?.let {
             Timber.d("setTitle: setting for %s", this.javaClass.simpleName)
-            it.setActionbarTitle(title, this)
+            it.setActionbarTitle(title)
         }
     }
     abstract fun getTitle() : String?

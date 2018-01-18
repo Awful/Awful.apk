@@ -166,7 +166,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	
 	protected void setTitle(String title){
 		if(getActivity()!=null){
-			getAwfulActivity().setActionbarTitle(title, this);
+			getAwfulActivity().setActionbarTitle(title);
 		}
 	}
 	

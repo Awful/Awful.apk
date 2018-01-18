@@ -57,7 +57,7 @@ public class PrivateMessageActivity extends AwfulActivity implements MessageFrag
 
 		mToolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(mToolbar);
-		setActionBar();
+		setUpActionBar();
 
 		Uri data = getIntent().getData();
 		if (data != null) {

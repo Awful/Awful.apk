@@ -103,7 +103,7 @@ public class ForumsIndexActivity extends AwfulActivity
         forumsPager = new ForumsPagerController(viewPager, getMPrefs(), this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
-        setActionBar();
+        setUpActionBar();
         navigationDrawer = new NavigationDrawer(this, mToolbar, getMPrefs());
         updateNavigationDrawer();
 
@@ -497,25 +497,28 @@ public class ForumsIndexActivity extends AwfulActivity
         // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
         // where these fragment methods crash because they have no activity yet
         if (pageFragment.isAdded()) {
-            setActionbarTitle(pageFragment.getTitle(), null);
+            String title = pageFragment.getTitle();
+            setActionbarTitle(title == null ? "" : title);
             setProgress(pageFragment.getProgressPercent());
         }
     }
 
-
-    @Override
-    public void setActionbarTitle(String aTitle, Object requester) {
-        if (requester != null && requester instanceof AwfulFragment) {
-            //This will only honor the request if the requestor is the currently active view.
-            if (forumsPager.isFragmentVisible((AwfulFragment) requester)) {
-                super.setActionbarTitle(aTitle, requester);
-            } else {
-                if (Companion.getDEBUG()) Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requester.toString());
-            }
-        } else {
-            super.setActionbarTitle(aTitle, requester);
-        }
-    }
+// TODO: 18/01/2018 rework this so the title gets set when a) a fragment updates (send an event) or b) the pager changes, and the activity can decide what to do (maybe a combo title for tablet mode) - right now it's called multiple times
+    // TODO: 18/01/2018 also if you have a thread open, and you go back to Bookmarks and then select Bookmarks from the nav drawer, the title is set by the thread fragment (viewpager page doesn't change so that doesn't fire the usual update)
+    // TODO: ALSO it depends on whether the open thread is listed on the current Bookmarks page (think it's the update to the thread data triggering a thread fragment reload and pushing the title)
+//    @Override
+//    public void setActionbarTitle(@NotNull String aTitle) {
+//        if (requester != null && requester instanceof AwfulFragment) {
+//            //This will only honor the request if the requestor is the currently active view.
+//            if (forumsPager.isFragmentVisible((AwfulFragment) requester)) {
+//                super.setActionbarTitle(aTitle);
+//            } else {
+//                if (Companion.getDEBUG()) Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requester.toString());
+//            }
+//        } else {
+//            super.setActionbarTitle(aTitle);
+//        }
+//    }
 
     @Override
     public void onBackPressed() {

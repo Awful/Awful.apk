@@ -3,6 +3,7 @@ package com.ferg.awfulapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Typeface
 import android.net.http.HttpResponseCache
 import android.os.Bundle
@@ -22,18 +23,21 @@ import timber.log.Timber
 import java.io.File
 
 /**
- * Convenience class to avoid having to call a configurator's lifecycle methods everywhere. This
- * class should avoid implementing things directly; the ActivityConfigurator does that job.
+ * Created by baka kaba on 18/01/2018.
  *
- * Most Activities in this awful app should extend this guy; that will provide things like locking
- * orientation according to user preference.
+ * Base Activity class handling theming, orientation changes and access to preferences and callbacks.
  *
- * This class also provides a few helper methods for grabbing preferences and the like.
+ * This is an update of the original AwfulActivity.java, but reworked to simplify the logic and
+ * to pull in some code from other components, so it's more focused on how the app uses activities.
+ *
+ * All activities should inherit from this one, so you get free theming, preference handling and
+ * access to app navigation. Call [setUpActionBar] after setting up your Toolbar to apply the standard
+ * app style and behaviour.
  */
 abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPreferenceUpdate {
-    private var mConf: ActivityConfigurator? = null
     private var loggedIn = false
-    private var mTitleView: TextView? = null
+    private var customActivityTitle: TextView? = null
+    // TODO: this is a var but honestly why does any activity need to replace it with their own copy? It's a singleton - if they're doing it for the callbacks, just use the register method
     var mPrefs: AwfulPreferences = AwfulPreferences.getInstance()
 
     val isLoggedIn: Boolean
@@ -49,27 +53,30 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         startActivityForResult(Intent(this, AwfulLoginActivity::class.java), Constants.LOGIN_ACTIVITY_REQUEST)
     }
 
+
+    //
+    // Lifecycle
+    //
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.i("*** onCreate")
         mPrefs.registerCallback(this)
-        setCurrentTheme()
+        updateTheme()
         super.onCreate(savedInstanceState)
-        mConf = ActivityConfigurator(this)
-        mConf!!.onCreate()
     }
 
     override fun onStart() {
         Timber.i("*** onStart")
         super.onStart()
-        mConf!!.onStart()
     }
 
     override fun onResume() {
         Timber.i("*** onResume")
         super.onResume()
-        mConf!!.onResume()
+        updateOrientation()
         // check login state when coming back into use, instead of in onCreate
-        loggedIn = NetworkUtils.restoreLoginCookies(application)
+        loggedIn = false // reset for the isLoggedIn check
         when {
             isLoggedIn -> with(mPrefs) {
                 if (ignoreFormkey == null || userTitle == null) ProfileRequest(this@AwfulActivity).sendBlind()
@@ -85,53 +92,125 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     override fun onPause() {
         Timber.i("*** onPause")
         super.onPause()
-        mConf!!.onPause()
     }
 
     @SuppressLint("NewApi")
     override fun onStop() {
         Timber.i("*** onStop")
         super.onStop()
-        mConf!!.onStop()
         HttpResponseCache.getInstalled()?.flush()
     }
 
     override fun onDestroy() {
         Timber.i("*** onDestroy")
         super.onDestroy()
-        mConf!!.onDestroy()
         mPrefs.unregisterCallback(this)
     }
 
 
     override fun onActivityResult(request: Int, result: Int, intent: Intent) {
-        Timber.i(TAG, "onActivityResult: $request result: $result")
+        Timber.i("onActivityResult: $request result: $result")
         super.onActivityResult(request, result, intent)
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
             finish()
         }
     }
 
-    protected fun setActionBar() {
+
+    //
+    // Action bar
+    //
+
+    /**
+     * Initialises the Action Bar with the app's custom settings, behaviour and theming.
+     */
+    protected fun setUpActionBar() {
+        // TODO: check if this plays nicely with activities without the custom title view, and make it optional if not - having a general "theme the action bar" method would be a good idea
         supportActionBar?.apply {
             setDisplayShowTitleEnabled(false)
             setCustomView(R.layout.actionbar_title)
-            mTitleView = customView as TextView
-            mTitleView!!.movementMethod = ScrollingMovementMethod()
+            customActivityTitle = customView as TextView
+            customActivityTitle?.movementMethod = ScrollingMovementMethod()
             updateActionbarTheme()
             setDisplayShowCustomEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
     }
 
+
+    /**
+     * Set a (non-empty) title for the custom action bar.
+     */
+    fun setActionbarTitle(aTitle: String) {
+        supportActionBar?.apply { customActivityTitle = customView as TextView }
+        with(customActivityTitle) {
+            if (this == null || aTitle.isEmpty()) {
+                Timber.w("FAILED setActionbarTitle - $aTitle")
+            } else {
+                text = aTitle
+                scrollTo(0, 0)
+            }
+        }
+    }
+
+
     private fun updateActionbarTheme() {
         supportActionBar?.apply {
-            mTitleView?.let { title ->
+            customActivityTitle?.let { title ->
                 title.setTextColor(ColorProvider.ACTION_BAR_TEXT.color)
                 setPreferredFont(title, Typeface.NORMAL)
             }
         }
     }
+
+
+    //
+    // Preferences and other UI
+    //
+
+    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
+        Timber.i("Key changed: ${key!!}")
+        updateOrientation()
+        if ("theme" == key || "page_layout" == key) {
+            updateTheme()
+            afterThemeChange()
+        }
+        updateActionbarTheme()
+    }
+
+
+    private fun updateOrientation() {
+        requestedOrientation = when (mPrefs.orientation) {
+            "portrait" -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            "landscape" -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            "sensor" -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
+            else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
+
+    @JvmOverloads
+    fun setPreferredFont(view: View?, flags: Int = -1) =
+            view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
+
+    protected fun updateTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
+
+    // TODO: see if this can be rolled into updateTheme without causing issues
+    private fun afterThemeChange() = recreate()
+
+
+    //
+    // Misc
+    //
+
+    override fun getCacheDir(): File {
+        Timber.i("getCacheDir(): ${super.getCacheDir()}")
+        return super.getCacheDir()
+    }
+
+
+    //
+    // App navigation
+    //
 
     open fun displayUserCP() = displayForum(Constants.USERCP_ID, 1)
 
@@ -156,42 +235,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
     }
 
-    // TODO: this is janky with the !! everywhere, it can probably be refactored?
-    open fun setActionbarTitle(aTitle: String?, requester: Any?) {
-        supportActionBar?.apply { mTitleView = customView as TextView }
-        if (mTitleView != null && !aTitle.isNullOrEmpty()) {
-            mTitleView!!.text = aTitle
-            mTitleView!!.scrollTo(0, 0)
-        } else {
-            Timber.w("FAILED setActionbarTitle - $aTitle")
-        }
-    }
 
-    @JvmOverloads
-    fun setPreferredFont(view: View?, flags: Int = -1) =
-            view?.let { (application as AwfulApplication).setPreferredFont(view, flags) }
-
-
-    override fun onPreferenceChange(prefs: AwfulPreferences, key: String?) {
-        Timber.i("Key changed: ${key!!}")
-        if ("theme" == key || "page_layout" == key) {
-            setCurrentTheme()
-            afterThemeChange()
-        }
-        updateActionbarTheme()
-    }
-
-
-    protected fun setCurrentTheme() = setTheme(AwfulTheme.forForum(null).themeResId)
-
-    private fun afterThemeChange() = recreate()
-
-    override fun getCacheDir(): File {
-        Timber.i(TAG, "getCacheDir(): ${super.getCacheDir()}")
-        return super.getCacheDir()
-    }
-
-    var TAG = "AwfulActivity"
     companion object {
         val DEBUG = Constants.DEBUG
     }

@@ -44,8 +44,8 @@ class BasicActivity: AwfulActivity() {
                 .commit()
 
         setSupportActionBar(findViewById<View>(R.id.toolbar) as Toolbar)
-        setActionBar()
-        setActionbarTitle(intent.extras.getString(TITLE, "No title"), null)
+        setUpActionBar()
+        setActionbarTitle(intent.extras.getString(TITLE, "No title"))
     }
 
 
