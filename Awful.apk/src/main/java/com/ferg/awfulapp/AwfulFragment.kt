@@ -61,7 +61,7 @@ import timber.log.Timber
 abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any> {
     protected var TAG = "AwfulFragment"
 
-    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this)}
+    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
     protected val handler: Handler by lazy { Handler() }
     protected val alertView: AlertView by lazy { AlertView(activity) }
 
@@ -92,7 +92,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
             it.setActionbarTitle(title)
         }
     }
-    abstract fun getTitle() : String?
+
+    abstract fun getTitle(): String?
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -133,16 +134,12 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         awfulActivity?.displayForumIndex()
     }
 
-    protected fun displayForumContents(aId: Int) {
-        awfulActivity?.displayForum(aId, 1)
+    protected fun displayThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) {
+        awfulActivity?.displayThread(id, page, postJump, forceReload)
     }
 
-    protected fun displayThread(aId: Int, aPage: Int, forumId: Int, forumPage: Int, forceReload: Boolean) {
-        awfulActivity?.displayThread(aId, aPage, forumId, forumPage, forceReload)
-    }
-
-    protected fun displayForum(forumId: Long, page: Long) {
-        awfulActivity?.displayForum(forumId.toInt(), page.toInt())
+    protected fun displayForum(forumId: Int, page: Int? = null) {
+        awfulActivity?.displayForum(forumId, page)
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
@@ -207,7 +204,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         swipyLayout?.isRefreshing = false
         swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
 
-        when(error) {
+        when (error) {
             is AwfulError -> alertView.show(error)
             is VolleyError -> alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show()
         }

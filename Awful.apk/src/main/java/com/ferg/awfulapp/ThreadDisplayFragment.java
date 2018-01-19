@@ -374,7 +374,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 			AwfulURL aLink = AwfulURL.parse(aUrl);
 			switch (aLink.getType()) {
 				case FORUM:
-					displayForum(aLink.getId(), aLink.getPage());
+					displayForum((int) aLink.getId(), (int) aLink.getPage());
 					break;
 				case THREAD:
 					if (aLink.isRedirect()) {

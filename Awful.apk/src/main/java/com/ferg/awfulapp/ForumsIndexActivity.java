@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -374,8 +375,7 @@ public class ForumsIndexActivity extends AwfulActivity
             displayForum(forum.getId(), forum.getPage());
         } else if (parsed instanceof NavigationEvent.Thread) {
             NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
-            // TODO: 19/01/2018 handle postjump
-            displayThread(thread.getId(), thread.getPage(), -1, -1, true);
+            displayThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
         } else if (parsed instanceof NavigationEvent.Url) {
             NavigationEvent.Url url = (NavigationEvent.Url) parsed;
             forumsPager.openThread(url.getUrl());
@@ -476,15 +476,15 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
     @Override
-    public void displayForum(int id, int page) {
+    public void displayForum(int id, @Nullable Integer page) {
         Timber.d("displayForum %s", id);
         forumsPager.openForum(id, page);
     }
 
 
     @Override
-    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload) {
-        Log.d(TAG, "displayThread " + id + " " + forumId);
+    public void displayThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
+        Timber.d("displayThread %s", id);
         if (forumsPager != null) {
             forumsPager.openThread(id, page, "", forceReload);
         } else {

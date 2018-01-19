@@ -88,8 +88,7 @@ public class RootSettings extends SettingsFragment {
         public boolean onPreferenceClick(Preference preference) {
             AwfulActivity activity = (AwfulActivity) getActivity();
             activity.finish();
-            // TODO: 19/01/2018 after refactoring this method to remove the forum params, pass null for page
-            activity.displayThread(Constants.AWFUL_THREAD_ID, 1, 1, 1, false);
+            activity.displayThread(Constants.AWFUL_THREAD_ID, null, null, false);
             return true;
         }
     }

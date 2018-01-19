@@ -225,7 +225,7 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public void onForumClicked(@NonNull Forum forum) {
-        displayForum(forum.id, 1);
+        displayForum(forum.id, null);
     }
 
     @Override
