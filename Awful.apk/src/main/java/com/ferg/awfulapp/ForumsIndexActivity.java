@@ -59,7 +59,6 @@ import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
 import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.sync.SyncManager;
-import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
@@ -76,23 +75,16 @@ public class ForumsIndexActivity extends AwfulActivity
     protected static final String TAG = "ForumsIndexActivity";
 
     private static final int DEFAULT_HIDE_DELAY = 300;
-
     private static final int MESSAGE_HIDING = 0;
     private static final int MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1;
-
-    private boolean isTablet;
-    private AwfulURL url = new AwfulURL();
 
     private ForumsPagerController forumsPager;
     private View mDecorView;
     private Toolbar mToolbar;
     private NavigationDrawer navigationDrawer;
 
-    private static final int NO_PAGER_ITEM = -1;
-
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
-    private String mThreadPost="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,7 +92,6 @@ public class ForumsIndexActivity extends AwfulActivity
         setContentView(R.layout.forum_index_activity);
 
         ToggleViewPager viewPager = findViewById(R.id.forum_index_pager);
-        // TODO: 04/11/2017 passing activity in - do after create?
         forumsPager = new ForumsPagerController(viewPager, getMPrefs(), this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
@@ -108,11 +99,7 @@ public class ForumsIndexActivity extends AwfulActivity
         navigationDrawer = new NavigationDrawer(this, mToolbar, getMPrefs());
         updateNavigationDrawer();
 
-        isTablet = AwfulUtils.isTablet(this);
-
-        checkIntentExtras();
         setupImmersion();
-
         PmManager.registerListener(this);
         AnnouncementsManager.getInstance().registerListener(this);
     }
@@ -420,12 +407,6 @@ public class ForumsIndexActivity extends AwfulActivity
         forumsPager.onSaveInstanceState(outState);
     }
 
-
-    private void checkIntentExtras() {
-        if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-            displayUserCP();
-        }
-    }
 
 
     @Override
