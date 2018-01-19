@@ -99,9 +99,9 @@ class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val 
     private fun handleItemSelection(menuItem: MenuItem): Boolean {
         with(activity) {
             when (menuItem.itemId) {
-                R.id.sidebar_index -> displayForumIndex()
-                R.id.sidebar_forum -> showForumView(currentForumId)
-                R.id.sidebar_thread -> showThreadView(currentThreadId)
+                R.id.sidebar_index -> showForumIndex()
+                R.id.sidebar_forum -> showForum(currentForumId, null)
+                R.id.sidebar_thread -> showThread(currentThreadId, null, null, false)
                 R.id.sidebar_bookmarks -> showBookmarks()
                 R.id.sidebar_settings -> showSettings()
                 R.id.sidebar_search -> showSearch()

@@ -217,14 +217,14 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     // TODO: move the 'show post reply' intent stuff in here too, a couple of places call it
 
-    open fun displayForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
+    open fun showForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
 
-    open fun displayUserCP() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
+    open fun showBookmarks() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
 
-    open fun displayForum(id: Int, page: Int? = null) =
+    open fun showForum(id: Int, page: Int? = null) =
             startActivity(NavigationEvent.Forum(id, page).getIntent(applicationContext))
 
-    open fun displayThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) =
+    open fun showThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) =
             startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
 
 

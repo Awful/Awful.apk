@@ -221,12 +221,34 @@ public class ForumsIndexActivity extends AwfulActivity
     ///////////////////////////////////////////////////////////////////////////
 
 
-    /** Display the user's bookmarks */
+    @Override
+    public void showForum(int id, @Nullable Integer page) {
+        Timber.d("displayForum %s", id);
+        forumsPager.openForum(id, page);
+    }
+
+
+    @Override
+    public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
+        Timber.d("displayThread %s", id);
+        if (forumsPager != null) {
+            forumsPager.openThread(id, page, "", forceReload);
+        } else {
+            Timber.w("!!! no forums pager - can't open thread");
+        }
+    }
+
+
+    @Override
     public void showBookmarks() {
-        startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                .putExtra(Constants.FORUM_PAGE, ForumDisplayFragment.FIRST_PAGE));
+        showForum(Constants.USERCP_ID, null);
+    }
+
+
+    @Override
+    public void showForumIndex() {
+        // TODO: replace this with an enum call to show FORUM
+        forumsPager.setCurrentPagerItem(0);
     }
 
 
@@ -255,25 +277,6 @@ public class ForumsIndexActivity extends AwfulActivity
         startActivity(new Intent().setClass(this, SettingsActivity.class));
     }
 
-    // TODO: 17/01/2018 refactor the displayForum etc methods so they can take a null page, use them instead of these
-
-    /**
-     * Page to the thread view. If it's not currently showing the expected thread, load the first page of it.
-     *
-     * @param expectedThreadId  the page that should be shown
-     */
-    public void showThreadView(int expectedThreadId) {
-        forumsPager.openThread(expectedThreadId, null, null, false);
-    }
-
-
-    /**
-     * Page to the forum/threadlist view. If it's not currently showing the expected forum, load the first page of it.
-     * @param expectedForumId the forum that should be shown
-     */
-    public void showForumView(int expectedForumId) {
-        forumsPager.openForum(expectedForumId, null);
-    }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -354,15 +357,15 @@ public class ForumsIndexActivity extends AwfulActivity
         Timber.i("Parsed intent as %s", parsed.toString());
 
         if (parsed instanceof NavigationEvent.ForumIndex) {
-            displayForumIndex();
+            showForumIndex();
         } else if (parsed instanceof NavigationEvent.Bookmarks) {
-            displayUserCP();
+            showBookmarks();
         } else if (parsed instanceof NavigationEvent.Forum) {
             NavigationEvent.Forum forum = (NavigationEvent.Forum) parsed;
-            displayForum(forum.getId(), forum.getPage());
+            showForum(forum.getId(), forum.getPage());
         } else if (parsed instanceof NavigationEvent.Thread) {
             NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
-            displayThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
+            showThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
         } else if (parsed instanceof NavigationEvent.Url) {
             NavigationEvent.Url url = (NavigationEvent.Url) parsed;
             forumsPager.openThread(url.getUrl());
@@ -454,36 +457,6 @@ public class ForumsIndexActivity extends AwfulActivity
         }
 
         super.onBackPressed();
-    }
-
-    @Override
-    public void displayForum(int id, @Nullable Integer page) {
-        Timber.d("displayForum %s", id);
-        forumsPager.openForum(id, page);
-    }
-
-
-    @Override
-    public void displayThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
-        Timber.d("displayThread %s", id);
-        if (forumsPager != null) {
-            forumsPager.openThread(id, page, "", forceReload);
-        } else {
-            Timber.w("!!! no forums pager - can't open thread");
-        }
-    }
-
-
-    @Override
-    public void displayUserCP() {
-        showForumView(Constants.USERCP_ID);
-    }
-
-
-    @Override
-    public void displayForumIndex() {
-        // TODO: replace this with an enum call to show FORUM
-        forumsPager.setCurrentPagerItem(0);
     }
 
 

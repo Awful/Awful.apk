@@ -88,7 +88,7 @@ public class RootSettings extends SettingsFragment {
         public boolean onPreferenceClick(Preference preference) {
             AwfulActivity activity = (AwfulActivity) getActivity();
             activity.finish();
-            activity.displayThread(Constants.AWFUL_THREAD_ID, null, null, false);
+            activity.showThread(Constants.AWFUL_THREAD_ID, null, null, false);
             return true;
         }
     }

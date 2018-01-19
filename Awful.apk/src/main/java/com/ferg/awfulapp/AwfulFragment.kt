@@ -131,15 +131,15 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
     protected fun displayForumIndex() {
-        awfulActivity?.displayForumIndex()
+        awfulActivity?.showForumIndex()
     }
 
     protected fun displayThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) {
-        awfulActivity?.displayThread(id, page, postJump, forceReload)
+        awfulActivity?.showThread(id, page, postJump, forceReload)
     }
 
     protected fun displayForum(forumId: Int, page: Int? = null) {
-        awfulActivity?.displayForum(forumId, page)
+        awfulActivity?.showForum(forumId, page)
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
