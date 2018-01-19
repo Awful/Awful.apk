@@ -364,21 +364,37 @@ public class ForumsIndexActivity extends AwfulActivity
         // TODO: 15/01/2018 rework this so it performs the correct operation (e.g. display thread X page Y) without storing state here e.g. mThreadId
         super.onNewIntent(intent);
         if (Companion.getDEBUG()) Log.e(TAG, "onNewIntent");
-        setIntent(intent);
-        int initialPage = parseNewIntent(intent);
-        /*
-            see if there's a pager page in the intent - if so, set it as current
-            open the current forum at the current page (may have been set)
-            open the current url if thread/post, or
-                if there's a valid thread ID in the extras, open that
-         */
-        forumsPager.setCurrentPagerItem(initialPage);
-        forumsPager.openForum(tempForumId, tempForumPage);
-        if (url.isThread() || url.isPost()) {
-            forumsPager.openThread(url);
-        } else if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0) {
-            if (Companion.getDEBUG()) Log.e(TAG, "else: "+mThreadPost);
-            forumsPager.openThread(tempThreadId, tempThreadPage, mThreadPost, true);
+//        setIntent(intent);
+//        int initialPage = parseNewIntent(intent);
+//        /*
+//            see if there's a pager page in the intent - if so, set it as current
+//            open the current forum at the current page (may have been set)
+//            open the current url if thread/post, or
+//                if there's a valid thread ID in the extras, open that
+//         */
+//        forumsPager.setCurrentPagerItem(initialPage);
+//        forumsPager.openForum(tempForumId, tempForumPage);
+//        if (url.isThread() || url.isPost()) {
+//            forumsPager.openThread(url);
+//        } else if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0) {
+//            if (Companion.getDEBUG()) Log.e(TAG, "else: "+mThreadPost);
+//            forumsPager.openThread(tempThreadId, tempThreadPage, mThreadPost, true);
+//        }
+
+        NavigationIntent parsed = NavigationIntent.Companion.parse(intent);
+        if (parsed instanceof NavigationIntent.ForumIndex) {
+            displayForumIndex();
+        } else if (parsed instanceof NavigationIntent.Bookmarks) {
+            displayUserCP();
+        } else if (parsed instanceof NavigationIntent.Forum) {
+            NavigationIntent.Forum forum = (NavigationIntent.Forum) parsed;
+            displayForum(forum.getId(), forum.getPage());
+        } else if (parsed instanceof NavigationIntent.Thread) {
+            NavigationIntent.Thread thread = (NavigationIntent.Thread) parsed;
+            // TODO: 19/01/2018 handle postjump
+            displayThread(thread.getId(), thread.getPage(), -1, -1, true);
+        } else {
+            // TODO: 19/01/2018 handle URL
         }
     }
 
@@ -551,8 +567,7 @@ public class ForumsIndexActivity extends AwfulActivity
         if (forumsPager != null) {
             forumsPager.openThread(id, page, "", forceReload);
         } else {
-            // TODO: 23/11/2017 is this ever called? Surely the pager should always have a fragment when required
-            super.displayThread(id, page, forumId, forumPg, forceReload);
+            Timber.w("!!! no forums pager - can't open thread");
         }
     }
 

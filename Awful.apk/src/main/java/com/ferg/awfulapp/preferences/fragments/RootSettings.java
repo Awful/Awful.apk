@@ -1,7 +1,6 @@
 package com.ferg.awfulapp.preferences.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.preference.Preference;
@@ -9,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.ferg.awfulapp.ForumsIndexActivity;
+import com.ferg.awfulapp.AwfulActivity;
 import com.ferg.awfulapp.R;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
@@ -87,15 +86,10 @@ public class RootSettings extends SettingsFragment {
     private class ThreadListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            Activity activity = getActivity();
-            Intent openThread = new Intent().setClass(activity, ForumsIndexActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Constants.THREAD_ID, Constants.AWFUL_THREAD_ID)
-                    .putExtra(Constants.THREAD_PAGE, 1)
-                    .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                    .putExtra(Constants.FORUM_PAGE, 1);
+            AwfulActivity activity = (AwfulActivity) getActivity();
             activity.finish();
-            startActivity(openThread);
+            // TODO: 19/01/2018 after refactoring this method to remove the forum params, pass null for page
+            activity.displayThread(Constants.AWFUL_THREAD_ID, 1, 1, 1, false);
             return true;
         }
     }

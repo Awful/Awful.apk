@@ -2,6 +2,7 @@ package com.ferg.awfulapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Typeface
@@ -12,6 +13,7 @@ import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView
 import com.ferg.awfulapp.constants.Constants
+import com.ferg.awfulapp.constants.Constants.*
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
 import com.ferg.awfulapp.provider.AwfulTheme
@@ -50,7 +52,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     private fun reAuthenticate() {
         NetworkUtils.clearLoginCookies(this)
-        startActivityForResult(Intent(this, AwfulLoginActivity::class.java), Constants.LOGIN_ACTIVITY_REQUEST)
+        startActivityForResult(Intent(this, AwfulLoginActivity::class.java), LOGIN_ACTIVITY_REQUEST)
     }
 
 
@@ -111,7 +113,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     override fun onActivityResult(request: Int, result: Int, intent: Intent) {
         Timber.i("onActivityResult: $request result: $result")
         super.onActivityResult(request, result, intent)
-        if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
+        if (request == LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
             finish()
         }
     }
@@ -212,31 +214,72 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
-    open fun displayUserCP() = displayForum(Constants.USERCP_ID, 1)
+    open fun displayForumIndex() = startActivity(NavigationIntent.ForumIndex.getIntent(applicationContext))
 
-    open fun displayThread(id: Int, page: Int, forumId: Int, forumPage: Int, forceReload: Boolean) {
-        startActivity(Intent().setClass(this, ForumsIndexActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(Constants.THREAD_ID, id)
-                .putExtra(Constants.THREAD_PAGE, page)
-                .putExtra(Constants.FORUM_ID, forumId)
-                .putExtra(Constants.FORUM_PAGE, forumPage))
-    }
+    open fun displayUserCP() = startActivity(NavigationIntent.Bookmarks.getIntent(applicationContext))
 
-    open fun displayForum(id: Int, page: Int) {
-        startActivity(Intent().setClass(this, ForumsIndexActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(Constants.FORUM_ID, id)
-                .putExtra(Constants.FORUM_PAGE, page))
-    }
+    open fun displayForum(id: Int, page: Int) =
+            // TODO: allow null page
+            startActivity(NavigationIntent.Forum(id, page).getIntent(applicationContext))
 
-    open fun displayForumIndex() {
-        startActivity(Intent().setClass(this, ForumsIndexActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-    }
+    open fun displayThread(id: Int, page: Int, forumId: Int, forumPage: Int, forceReload: Boolean) =
+            //TODO: clean up unused params, allow nulls and postJump
+            startActivity(NavigationIntent.Thread(id, page, null).getIntent(applicationContext))
 
 
     companion object {
         val DEBUG = Constants.DEBUG
+    }
+}
+
+sealed class NavigationIntent {
+
+    object Bookmarks : NavigationIntent()
+    object ForumIndex : NavigationIntent()
+    data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) : NavigationIntent()
+    data class Forum(val id: Int, val page: Int? = null) : NavigationIntent()
+
+    // TODO: use specific type constants for each intent type - so bookmarks has an extra TYPE = BOOKMARKS, not just a forum ID that matches the bookmarks ID
+
+    fun getIntent(context: Context): Intent =
+            Intent().setClass(context, ForumsIndexActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .apply {
+                        when (this@NavigationIntent) {
+                            is Thread -> {
+                                putExtra(THREAD_ID, id)
+                                page?.let { putExtra(THREAD_PAGE, page) }
+                                postJump?.let { putExtra(THREAD_FRAGMENT, postJump) }
+                            }
+                            is Forum -> {
+                                putExtra(FORUM_ID, id)
+                                page?.let { putExtra(FORUM_PAGE, page) }
+                            }
+                            is Bookmarks -> putExtra(FORUM_ID, USERCP_ID)
+                        }
+                    }
+
+    companion object {
+
+        fun Intent.parse(): NavigationIntent {
+            return when {
+                hasExtra(THREAD_ID) ->
+                    Thread(
+                            id = getIntExtra(THREAD_ID)!!,
+                            page = getIntExtra(THREAD_PAGE),
+                            postJump = getStringExtra(THREAD_FRAGMENT)
+                    )
+                getIntExtra(FORUM_ID) == USERCP_ID ->
+                    Bookmarks
+                hasExtra(FORUM_ID) ->
+                    Forum(
+                            id = getIntExtra(FORUM_ID)!!,
+                            page = getIntExtra(FORUM_PAGE)
+                    )
+                else -> ForumIndex
+            }
+        }
+
+        private fun Intent.getIntExtra(name: String) = if (hasExtra(name)) getIntExtra(name, -12345) else null
     }
 }
