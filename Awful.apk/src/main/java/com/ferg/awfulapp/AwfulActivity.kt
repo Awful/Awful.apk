@@ -21,6 +21,7 @@ import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
 import com.ferg.awfulapp.task.FeatureRequest
 import com.ferg.awfulapp.task.ProfileRequest
+import com.ferg.awfulapp.thread.AwfulURL
 import timber.log.Timber
 import java.io.File
 
@@ -214,17 +215,17 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
-    open fun displayForumIndex() = startActivity(NavigationIntent.ForumIndex.getIntent(applicationContext))
+    open fun displayForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
 
-    open fun displayUserCP() = startActivity(NavigationIntent.Bookmarks.getIntent(applicationContext))
+    open fun displayUserCP() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
 
     open fun displayForum(id: Int, page: Int) =
             // TODO: allow null page
-            startActivity(NavigationIntent.Forum(id, page).getIntent(applicationContext))
+            startActivity(NavigationEvent.Forum(id, page).getIntent(applicationContext))
 
     open fun displayThread(id: Int, page: Int, forumId: Int, forumPage: Int, forceReload: Boolean) =
             //TODO: clean up unused params, allow nulls and postJump
-            startActivity(NavigationIntent.Thread(id, page, null).getIntent(applicationContext))
+            startActivity(NavigationEvent.Thread(id, page, null).getIntent(applicationContext))
 
 
     companion object {
@@ -232,12 +233,16 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     }
 }
 
-sealed class NavigationIntent {
+/**
+ * Represents the navigation events we handle within the app, and any associated data for each.
+ */
+sealed class NavigationEvent {
 
-    object Bookmarks : NavigationIntent()
-    object ForumIndex : NavigationIntent()
-    data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) : NavigationIntent()
-    data class Forum(val id: Int, val page: Int? = null) : NavigationIntent()
+    object Bookmarks : NavigationEvent()
+    object ForumIndex : NavigationEvent()
+    data class Thread(val id: Int, val page: Int? = null, val postJump: String? = null) : NavigationEvent()
+    data class Forum(val id: Int, val page: Int? = null) : NavigationEvent()
+    data class Url(val url: AwfulURL) : NavigationEvent()
 
     // TODO: use specific type constants for each intent type - so bookmarks has an extra TYPE = BOOKMARKS, not just a forum ID that matches the bookmarks ID
 
@@ -245,7 +250,7 @@ sealed class NavigationIntent {
             Intent().setClass(context, ForumsIndexActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .apply {
-                        when (this@NavigationIntent) {
+                        when (this@NavigationEvent) {
                             is Thread -> {
                                 putExtra(THREAD_ID, id)
                                 page?.let { putExtra(THREAD_PAGE, page) }
@@ -259,9 +264,14 @@ sealed class NavigationIntent {
                         }
                     }
 
+
     companion object {
 
-        fun Intent.parse(): NavigationIntent {
+        /**
+         * Parse an intent as one of the navigation events we handle. Defaults to [ForumIndex]
+         */
+        fun Intent.parse(): NavigationEvent {
+            parseUrl()?.let { return it }
             return when {
                 hasExtra(THREAD_ID) ->
                     Thread(
@@ -277,6 +287,35 @@ sealed class NavigationIntent {
                             page = getIntExtra(FORUM_PAGE)
                     )
                 else -> ForumIndex
+            }
+        }
+
+        /**
+         * Attempt to parse an AwfulURL from an intent, converting to a NavigationEvent.
+         *
+         * Returns null if a valid URL couldn't be found.
+         */
+        private fun Intent.parseUrl(): NavigationEvent? {
+            data?.scheme.apply {
+                if (!equals("http") && !equals("https")) return null
+            }
+            with(AwfulURL.parse(dataString)) {
+                // this mirrors the old behaviour in ForumsIndexActivity - basically we need to
+                // hand the URL over to the ThreadDisplayFragment if it's a post or a redirecting thread.
+                return when {
+                // TODO: if it's a post, we're meant to pass the actual url through TDF.openThread(url) - let's not do that and just handle it here
+                    isPost || (isThread && isRedirect) ->
+                        Url(this)
+                // TODO: can we spot null pages here? OR at least default ones?
+                    isForum ->
+                        Forum(id.toInt(), page.toInt())
+                // TODO: can we get the fragment?
+                    isThread ->
+                        Thread(id.toInt(), page.toInt())
+                    isForumIndex ->
+                        ForumIndex
+                    else -> null
+                }
             }
         }
 

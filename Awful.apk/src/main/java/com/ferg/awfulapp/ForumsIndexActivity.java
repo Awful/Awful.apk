@@ -361,106 +361,27 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-        // TODO: 15/01/2018 rework this so it performs the correct operation (e.g. display thread X page Y) without storing state here e.g. mThreadId
         super.onNewIntent(intent);
-        if (Companion.getDEBUG()) Log.e(TAG, "onNewIntent");
-//        setIntent(intent);
-//        int initialPage = parseNewIntent(intent);
-//        /*
-//            see if there's a pager page in the intent - if so, set it as current
-//            open the current forum at the current page (may have been set)
-//            open the current url if thread/post, or
-//                if there's a valid thread ID in the extras, open that
-//         */
-//        forumsPager.setCurrentPagerItem(initialPage);
-//        forumsPager.openForum(tempForumId, tempForumPage);
-//        if (url.isThread() || url.isPost()) {
-//            forumsPager.openThread(url);
-//        } else if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0) {
-//            if (Companion.getDEBUG()) Log.e(TAG, "else: "+mThreadPost);
-//            forumsPager.openThread(tempThreadId, tempThreadPage, mThreadPost, true);
-//        }
+        NavigationEvent parsed = NavigationEvent.Companion.parse(intent);
+        Timber.i("Parsed intent as %s", parsed.toString());
 
-        NavigationIntent parsed = NavigationIntent.Companion.parse(intent);
-        if (parsed instanceof NavigationIntent.ForumIndex) {
+        if (parsed instanceof NavigationEvent.ForumIndex) {
             displayForumIndex();
-        } else if (parsed instanceof NavigationIntent.Bookmarks) {
+        } else if (parsed instanceof NavigationEvent.Bookmarks) {
             displayUserCP();
-        } else if (parsed instanceof NavigationIntent.Forum) {
-            NavigationIntent.Forum forum = (NavigationIntent.Forum) parsed;
+        } else if (parsed instanceof NavigationEvent.Forum) {
+            NavigationEvent.Forum forum = (NavigationEvent.Forum) parsed;
             displayForum(forum.getId(), forum.getPage());
-        } else if (parsed instanceof NavigationIntent.Thread) {
-            NavigationIntent.Thread thread = (NavigationIntent.Thread) parsed;
+        } else if (parsed instanceof NavigationEvent.Thread) {
+            NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
             // TODO: 19/01/2018 handle postjump
             displayThread(thread.getId(), thread.getPage(), -1, -1, true);
-        } else {
-            // TODO: 19/01/2018 handle URL
+        } else if (parsed instanceof NavigationEvent.Url) {
+            NavigationEvent.Url url = (NavigationEvent.Url) parsed;
+            forumsPager.openThread(url.getUrl());
         }
     }
 
-    private volatile int tempForumId       = Constants.USERCP_ID;
-    private volatile int tempForumPage     = 1;
-    private volatile int tempThreadId      = ThreadDisplayFragment.NULL_THREAD_ID;
-    private volatile int tempThreadPage    = 1;
-
-    private int parseNewIntent(Intent intent) {
-        int focusedPagerItem = NO_PAGER_ITEM;
-        int forumId     = getIntent().getIntExtra(Constants.FORUM_ID, tempForumId);
-        int forumPage   = getIntent().getIntExtra(Constants.FORUM_PAGE, tempForumPage);
-        int threadId    = getIntent().getIntExtra(Constants.THREAD_ID, tempThreadId);
-        int threadPage  = getIntent().getIntExtra(Constants.THREAD_PAGE, tempThreadPage);
-        mThreadPost = getIntent().getStringExtra(Constants.THREAD_FRAGMENT);
-
-        if (forumId == 2) {//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
-            forumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
-        }
-
-        boolean displayIndex = false;
-        String scheme = (getIntent().getData() == null) ? null : getIntent().getData().getScheme();
-        if ("http".equals(scheme) || "https".equals(scheme)) {
-            // parse a URL
-            url = AwfulURL.parse(getIntent().getDataString());
-            switch (url.getType()) {
-                case FORUM:
-                    // forum URL - treat page and ID as forum ones
-                    forumId = (int) url.getId();
-                    forumPage = (int) url.getPage();
-                    break;
-                case THREAD:
-                    // thread URL - treat page and ID as thread ones
-                    if (!url.isRedirect()) {
-                        threadPage = (int) url.getPage();
-                        threadId = (int) url.getId();
-                    }
-                    break;
-                case POST:
-                    break;
-                case INDEX:
-                    // basically show the first pager page (this is the only thing that forces it)
-                    displayIndex = true;
-                    break;
-                default:
-            }
-        }
-
-        // TODO: 16/01/2018 removed internal state for forum/thread IDs and pages here - make sure it's handled somehow!
-
-        if (displayIndex) {
-            // literally just shows pager page 0
-            displayForumIndex();
-        }
-        // if we have a forum ID/URL, show page 1 for phones, otherwise 0
-        if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum()) {
-            focusedPagerItem = isTablet ? 0 : 1;
-        } else {
-            // something to do with not loading the forum on create if we're on a phone?
-        }
-        // oh hey ACTUALLY if we have a valid thread ID/url or a redirect, always show page 2
-        if (intent.getIntExtra(Constants.THREAD_ID, ThreadDisplayFragment.NULL_THREAD_ID) > 0 || url.isRedirect() || url.isThread()) {
-            focusedPagerItem = 2;
-        }
-        return focusedPagerItem;
-    }
 
     @Override
     protected void onResume() {
