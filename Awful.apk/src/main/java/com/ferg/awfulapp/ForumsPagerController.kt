@@ -28,7 +28,7 @@ import kotlin.properties.Delegates
  * @param width the width of this page in tablet mode, as a fraction of the screen width
  */
 enum class Pages(val width: Float) {
-    ForumList(0.4f), ThreadList(0.6f), ThreadDisplay(1f);
+    ForumIndex(0.4f), ForumDisplay(0.6f), ThreadDisplay(1f);
 
     companion object {
         operator fun get(index: Int) = values()[index]
@@ -56,12 +56,10 @@ class ForumsPagerController(
 
     private val pagerAdapter: ForumPagerAdapter
     var tabletMode: Boolean = false
-    var currentPagerItem: Int
-        get() = viewPager.currentItem
-        set(itemNum) {
-            // TODO: reject if out of range - use ENUM instead?
-            // TODO: set item
-            viewPager.currentItem = itemNum
+    var currentPagerItem: Pages
+        get() = Pages[viewPager.currentItem]
+        set(page) {
+            viewPager.currentItem = page.ordinal
         }
 
 
@@ -103,14 +101,14 @@ class ForumsPagerController(
         tabletMode = isTablet
     }
 
-    fun getForumsIndexFragment() = pagerAdapter.forumListFragment
-    fun getForumDisplayFragment() = pagerAdapter.threadListFragment
+    fun getForumIndexFragment() = pagerAdapter.forumIndexFragment
+    fun getForumDisplayFragment() = pagerAdapter.forumDisplayFragment
     fun getThreadDisplayFragment() = pagerAdapter.threadDisplayFragment
 
 
     fun openForum(forumId: Int, pageNum: Int? = null) {
-        showPage(Pages.ThreadList)
-        pagerAdapter.threadListFragment?.openForum(forumId, pageNum)
+        showPage(Pages.ForumDisplay)
+        pagerAdapter.forumDisplayFragment?.openForum(forumId, pageNum)
     }
 
     fun openThread(url: AwfulURL) {
@@ -143,8 +141,13 @@ class ForumsPagerController(
 
     fun getCurrentFragment() = pagerAdapter.currentFragment
 
-    fun goBackOnePage(): Boolean {
-        TODO()
+    fun onBackPressed(): Boolean {
+        val handledByFragment = getCurrentFragment()?.onBackPressed() ?: false
+        if (handledByFragment) return true
+        // current fragment didn't consume it, try and shift back a page
+        with (viewPager) {
+            return hasPreviousPage().also { itDoes -> if (itDoes) goToPreviousPage() }
+        }
     }
 
     // TODO: find a way to RELIABLY determine which fragments are visible in tablet mode
@@ -166,8 +169,8 @@ class ForumsPagerController(
             }
 
 
-    fun onPageChanged(pageNum: Int, pageFragment: AwfulFragment) {
-        callbacks.onPageChanged(pageNum, pageFragment)
+    fun onPageChanged(page: Pages, pageFragment: AwfulFragment) {
+        callbacks.onPageChanged(page, pageFragment)
     }
 
     private fun showPage(type: Pages) {
@@ -178,7 +181,7 @@ class ForumsPagerController(
 }
 
 interface PagerCallbacks {
-    fun onPageChanged(pageNum: Int, pageFragment: AwfulFragment)
+    fun onPageChanged(page: Pages, pageFragment: AwfulFragment)
 }
 
 
@@ -188,8 +191,8 @@ private class ForumPagerAdapter(
 ) : FragmentPagerAdapter(fm),
         ViewPager.OnPageChangeListener by ViewPager.SimpleOnPageChangeListener() {
 
-    var forumListFragment: ForumsIndexFragment? = null
-    var threadListFragment: ForumDisplayFragment? = null
+    var forumIndexFragment: ForumsIndexFragment? = null
+    var forumDisplayFragment: ForumDisplayFragment? = null
     var threadDisplayFragment: ThreadDisplayFragment? = null
     var currentFragment: AwfulFragment? = null
 
@@ -206,17 +209,17 @@ private class ForumPagerAdapter(
         currentFragment?.onPageHidden()
         val selectedPage = instantiateItem(controller.viewPager, pageNum) as AwfulFragment
         currentFragment = selectedPage
-        controller.onPageChanged(pageNum, selectedPage)
+        controller.onPageChanged(Pages[pageNum], selectedPage)
     }
 
 
 
     override fun getItem(position: Int): Fragment {
         return when (Pages[position]) {
-            Pages.ForumList -> {
+            Pages.ForumIndex -> {
                 Timber.d("Creating ForumsIndexFragment"); ForumsIndexFragment()
             }
-            Pages.ThreadList -> {
+            Pages.ForumDisplay -> {
                 Timber.d("Creating ForumsDisplayFragment"); ForumDisplayFragment.getInstance(Constants.USERCP_ID, ForumDisplayFragment.FIRST_PAGE, false)
             }
             Pages.ThreadDisplay -> {
@@ -230,10 +233,10 @@ private class ForumPagerAdapter(
             super.instantiateItem(container, position).apply {
                 when (this) {
                     is ForumsIndexFragment -> {
-                        forumListFragment = this; Timber.d("Setting ForumsIndexFragment")
+                        forumIndexFragment = this; Timber.d("Setting ForumsIndexFragment")
                     }
                     is ForumDisplayFragment -> {
-                        threadListFragment = this; Timber.d("Setting ForumDisplayFragment")
+                        forumDisplayFragment = this; Timber.d("Setting ForumDisplayFragment")
                     }
                     is ThreadDisplayFragment -> {
                         threadDisplayFragment = this; threadViewAdded = true; Timber.d("Setting ThreadDisplayFragment")

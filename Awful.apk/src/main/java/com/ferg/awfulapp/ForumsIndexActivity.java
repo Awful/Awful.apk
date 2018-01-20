@@ -254,8 +254,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public void showForumIndex() {
-        // TODO: replace this with an enum call to show FORUM
-        forumsPager.setCurrentPagerItem(0);
+        forumsPager.setCurrentPagerItem(Pages.ForumIndex);
     }
 
 
@@ -393,49 +392,26 @@ public class ForumsIndexActivity extends AwfulActivity
 
 
     @Override
-    public void onPageChanged(int pageNum, @NotNull AwfulFragment pageFragment) {
+    public void onPageChanged(@NonNull Pages page, @NotNull AwfulFragment pageFragment) {
         // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
         // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
         // where these fragment methods crash because they have no activity yet
-        Timber.d("onPageChanged: page %s fragment %s", pageNum, pageFragment);
+        Timber.d("onPageChanged: page %s fragment %s", page, pageFragment);
         updateTitle();
         if (pageFragment.isAdded()) {
             setProgress(pageFragment.getProgressPercent());
         }
     }
 
-// TODO: 18/01/2018 rework this so the title gets set when a) a fragment updates (send an event) or b) the pager changes, and the activity can decide what to do (maybe a combo title for tablet mode) - right now it's called multiple times
-    // TODO: 18/01/2018 also if you have a thread open, and you go back to Bookmarks and then select Bookmarks from the nav drawer, the title is set by the thread fragment (viewpager page doesn't change so that doesn't fire the usual update)
-    // TODO: ALSO it depends on whether the open thread is listed on the current Bookmarks page (think it's the update to the thread data triggering a thread fragment reload and pushing the title)
-//    @Override
-//    public void setActionbarTitle(@NotNull String aTitle) {
-//        if (requester != null && requester instanceof AwfulFragment) {
-//            //This will only honor the request if the requestor is the currently active view.
-//            if (forumsPager.isFragmentVisible((AwfulFragment) requester)) {
-//                super.setActionbarTitle(aTitle);
-//            } else {
-//                if (Companion.getDEBUG()) Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requester.toString());
-//            }
-//        } else {
-//            super.setActionbarTitle(aTitle);
-//        }
-//    }
 
     @Override
     public void onBackPressed() {
         // in order of precedence: close the nav drawer, tell the current fragment to go back, tell the pager to go back
         if (navigationDrawer.close()) {
             return;
-        }
-
-        AwfulFragment currentFragment = forumsPager.getCurrentFragment();
-        if (currentFragment != null && currentFragment.onBackPressed()) {
+        } else if (forumsPager.onBackPressed()) {
             return;
         }
-        if (forumsPager.goBackOnePage()) {
-            return;
-        }
-
         super.onBackPressed();
     }
 
