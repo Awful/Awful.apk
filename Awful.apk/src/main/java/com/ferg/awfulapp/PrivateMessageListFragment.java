@@ -54,7 +54,6 @@ import com.android.volley.VolleyError;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.service.AwfulCursorAdapter;
@@ -224,7 +223,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	syncPMs();
         	break;
         case R.id.settings:
-        	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            getAwfulActivity().showSettings();
         	break;
             default:
                 return super.onOptionsItemSelected(item);

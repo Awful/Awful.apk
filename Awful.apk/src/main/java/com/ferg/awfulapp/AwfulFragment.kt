@@ -143,14 +143,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
-        awfulActivity?.runOnUiThread {
-            startActivityForResult(
-                    Intent(activity, PostReplyActivity::class.java)
-                            .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                            .putExtra(Constants.EDITING, type)
-                            .putExtra(Constants.REPLY_POST_ID, postId),
-                    PostReplyFragment.REQUEST_POST)
-        }
+        awfulActivity?.apply { runOnUiThread { showPostComposer(threadId, type, postId) }}
     }
 
     protected fun setProgress(percent: Int) {

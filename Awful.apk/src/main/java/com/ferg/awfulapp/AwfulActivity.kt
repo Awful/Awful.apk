@@ -6,16 +6,21 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Typeface
+import android.net.Uri
 import android.net.http.HttpResponseCache
 import android.os.Bundle
+import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView
+import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.constants.Constants.*
+import com.ferg.awfulapp.dialog.LogOutDialog
 import com.ferg.awfulapp.network.NetworkUtils
 import com.ferg.awfulapp.preferences.AwfulPreferences
+import com.ferg.awfulapp.preferences.SettingsActivity
 import com.ferg.awfulapp.provider.AwfulTheme
 import com.ferg.awfulapp.provider.ColorProvider
 import com.ferg.awfulapp.task.AwfulRequest
@@ -62,6 +67,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     //
 
 
+    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.i("*** onCreate")
         mPrefs.registerCallback(this)
@@ -69,11 +75,13 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         super.onCreate(savedInstanceState)
     }
 
+    @CallSuper
     override fun onStart() {
         Timber.i("*** onStart")
         super.onStart()
     }
 
+    @CallSuper
     override fun onResume() {
         Timber.i("*** onResume")
         super.onResume()
@@ -92,11 +100,13 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     private fun AwfulRequest<*>.sendBlind() = NetworkUtils.queueRequest(this.build())
 
 
+    @CallSuper
     override fun onPause() {
         Timber.i("*** onPause")
         super.onPause()
     }
 
+    @CallSuper
     @SuppressLint("NewApi")
     override fun onStop() {
         Timber.i("*** onStop")
@@ -104,6 +114,8 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
         HttpResponseCache.getInstalled()?.flush()
     }
 
+
+    @CallSuper
     override fun onDestroy() {
         Timber.i("*** onDestroy")
         super.onDestroy()
@@ -111,9 +123,11 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     }
 
 
-    override fun onActivityResult(request: Int, result: Int, intent: Intent) {
+    @CallSuper
+    override fun onActivityResult(request: Int, result: Int, intent: Intent?) {
         Timber.i("onActivityResult: $request result: $result")
         super.onActivityResult(request, result, intent)
+        supportFragmentManager.fragments.forEach { it.onActivityResult(request, result, intent) }
         if (request == LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_CANCELED) {
             finish()
         }
@@ -215,8 +229,6 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     // App navigation
     //
 
-    // TODO: move the 'show post reply' intent stuff in here too, a couple of places call it
-
     open fun showForumIndex() = startActivity(NavigationEvent.ForumIndex.getIntent(applicationContext))
 
     open fun showBookmarks() = startActivity(NavigationEvent.Bookmarks.getIntent(applicationContext))
@@ -226,6 +238,48 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
 
     open fun showThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) =
             startActivity(NavigationEvent.Thread(id, page, postJump).getIntent(applicationContext))
+
+    fun showLogout() = LogOutDialog(this).show()
+
+    /** Display the announcements  */
+    fun showAnnouncements() = AnnouncementsManager.getInstance().showAnnouncements(this)
+
+    /**
+     * Display the user's PMs
+     *
+     * @param openMessageUri a Uri to a private message you want to open, parsed from a new PM link on the site
+     */
+    fun showPrivateMessages(openMessageUri: Uri? = null) =
+            // TODO: rework this so the message ID is parsed from the link, and we just pass that around internally
+            Intent().apply {
+                setClass(this@AwfulActivity, PrivateMessageActivity::class.java)
+                openMessageUri?.let(::setData)
+            }.let(::startActivity)
+
+    /** Display the forum search  */
+    fun showSearch() =
+            startActivity(BasicActivity.intentFor(SearchFragment::class.java, this, getString(R.string.search_forums_activity_title)))
+
+    /** Display the app settings  */
+    fun showSettings() =
+            startActivity(Intent().setClass(this, SettingsActivity::class.java))
+
+    /**
+     * Display the post/reply/edit composer.
+     *
+     * @param threadId the ID of the thread the post is in
+     * @param postType a post/reply/edit constant, see types in AwfulMessage
+     * @param sourcePostId if we're editing or quoting a post, this is its ID
+     */
+    fun showPostComposer(threadId: Int, postType: Int, sourcePostId: Int) {
+        // TODO: this should probably all be refactored into types like the NavigationEvents (maybe even rolled in with them) - discrete Posting events with the specific associated data for each
+        startActivityForResult(
+                Intent(this, PostReplyActivity::class.java)
+                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
+                        .putExtra(Constants.EDITING, postType)
+                        .putExtra(Constants.REPLY_POST_ID, sourcePostId),
+                PostReplyFragment.REQUEST_POST)
+    }
 
 
     companion object {

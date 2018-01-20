@@ -37,7 +37,7 @@ import java.lang.ref.WeakReference
  */
 
 /**
- * A navigation drawer for use with ForumsIndexActivity.
+ * A navigation drawer for the app's activities.
  *
  * Create this after inflating your activity's layout. You can call [open] and [close] on the drawer,
  * and [setCurrentForumAndThread] to update the hierarchy view. [drawerToggle] is exposed so the
@@ -47,7 +47,7 @@ import java.lang.ref.WeakReference
  * @param activity the Activity this navigation drawer is attached to
  * @param toolbar the Activity's action bar
  */
-class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val prefs: AwfulPreferences) {
+class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs: AwfulPreferences) {
 
     private val navigationMenu: NavigationView = activity.findViewById(R.id.navigation)
     private val drawerLayout: DrawerLayout = activity.findViewById(R.id.drawer_layout)

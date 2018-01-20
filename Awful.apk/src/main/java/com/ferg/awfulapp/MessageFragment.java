@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
-import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.provider.AwfulProvider;
 import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.reply.MessageComposer;
@@ -159,7 +157,7 @@ public class MessageFragment extends AwfulFragment implements OnClickListener {
             	newMessage();
             	return true;
             case R.id.settings:
-            	startActivity(new Intent().setClass(getActivity(), SettingsActivity.class));
+            	getAwfulActivity().showSettings();
             	return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -53,11 +53,9 @@ import android.view.View;
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
-import com.ferg.awfulapp.preferences.SettingsActivity;
 import com.ferg.awfulapp.sync.SyncManager;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
@@ -252,33 +250,6 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
 
-    public void showLogout() {
-        new LogOutDialog(this).show();
-    }
-
-    /** Display the announcements */
-    public void showAnnouncements() {
-        AnnouncementsManager.getInstance().showAnnouncements(ForumsIndexActivity.this);
-    }
-
-    /** Display the user's PMs */
-    public void showPrivateMessages() {
-        startActivity(new Intent().setClass(this, PrivateMessageActivity.class));
-    }
-
-    /** Display the forum search */
-    public void showSearch() {
-        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, this, getString(R.string.search_forums_activity_title));
-        startActivity(intent);
-    }
-
-    /** Display the app settings */
-    public void showSettings() {
-        startActivity(new Intent().setClass(this, SettingsActivity.class));
-    }
-
-
-
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
@@ -462,7 +433,6 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if (Companion.getDEBUG()) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
             SyncManager.sync(this);
