@@ -88,7 +88,6 @@ class ForumsPagerController(
 
     fun onPreferenceChange(prefs: AwfulPreferences) {
         setSwipeEnabled(!prefs.lockScrolling)
-        // TODO: the context here might need to be a WindowManager or Activity or whatever
         if (!AwfulUtils.isTablet(prefs.context) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && prefs.transformer != "Disabled") {
             viewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer())
         }
@@ -108,7 +107,6 @@ class ForumsPagerController(
     fun getForumDisplayFragment() = pagerAdapter.threadListFragment
     fun getThreadDisplayFragment() = pagerAdapter.threadDisplayFragment
 
-    // TODO: need more general functions here - show a forum (if it's open just page to it, otherwise also load page 1) and show thread (same deal, just page over if it's already open)
 
     fun openForum(forumId: Int, pageNum: Int? = null) {
         showPage(Pages.ThreadList)
@@ -132,14 +130,32 @@ class ForumsPagerController(
         // TODO: notify nav drawer
     }
 
+    fun getVisibleFragmentTitle(): String {
+        return getCurrentFragment()?.getTitle() ?: ""
+        // might be useful if we can ever get visible fragment identification working
+//        return pagerAdapter.run {
+//            listOfNotNull(forumListFragment, threadListFragment, threadDisplayFragment)
+//                    .filter(::isFragmentVisible)
+//                    .map(AwfulFragment::getTitle)
+//                    .joinToString(" / ")
+//        }
+    }
+
     fun getCurrentFragment() = pagerAdapter.currentFragment
 
     fun goBackOnePage(): Boolean {
         TODO()
     }
 
-    // TODO: better way of checking what's visible?
-    fun isFragmentVisible(frag: AwfulFragment): Boolean = frag == pagerAdapter.currentFragment
+    // TODO: find a way to RELIABLY determine which fragments are visible in tablet mode
+    /*
+        Things that haven't worked:
+        #userVisibleHint seems like a coin flip
+        #isVisible and #isResumed seem to stick on true
+        checking after #onPageScrollStateChanged fires with IDLE doesn't help, nothing seems to reflect the actual displayed state
+     */
+    private fun isFragmentVisible(frag: AwfulFragment) =
+            frag == pagerAdapter.currentFragment //|| (tabletMode && frag.userVisibleHint)
 
     fun setSwipeEnabled(enabled: Boolean) = viewPager.setSwipeEnabled(enabled)
 
@@ -189,9 +205,10 @@ private class ForumPagerAdapter(
         if (AwfulActivity.DEBUG) Timber.i("onPageSelected: $pageNum")
         currentFragment?.onPageHidden()
         val selectedPage = instantiateItem(controller.viewPager, pageNum) as AwfulFragment
-        controller.onPageChanged(pageNum, selectedPage)
         currentFragment = selectedPage
+        controller.onPageChanged(pageNum, selectedPage)
     }
+
 
 
     override fun getItem(position: Int): Fragment {

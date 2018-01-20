@@ -88,8 +88,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     @CallSuper
     open fun setTitle(title: String) {
         awfulActivity?.let {
-            Timber.d("setTitle: setting for %s", this.javaClass.simpleName)
-            it.setActionbarTitle(title)
+            Timber.d("setTitle: setting for %s - DISABLED FOR FRAGMENTS", this.javaClass.simpleName)
+//            it.setActionbarTitle(title)
         }
     }
 

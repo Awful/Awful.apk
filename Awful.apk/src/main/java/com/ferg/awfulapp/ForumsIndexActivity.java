@@ -200,6 +200,13 @@ public class ForumsIndexActivity extends AwfulActivity
         }
     }
 
+
+    private void updateTitle() {
+        if (forumsPager != null) {
+            setActionbarTitle(forumsPager.getVisibleFragmentTitle());
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Fragment events
     ///////////////////////////////////////////////////////////////////////////
@@ -207,10 +214,12 @@ public class ForumsIndexActivity extends AwfulActivity
 
     void onThreadChange() {
         updateNavigationDrawer();
+        updateTitle();
     }
 
     void onForumChange() {
         updateNavigationDrawer();
+        updateTitle();
     }
 
 
@@ -388,9 +397,9 @@ public class ForumsIndexActivity extends AwfulActivity
         // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
         // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
         // where these fragment methods crash because they have no activity yet
+        Timber.d("onPageChanged: page %s fragment %s", pageNum, pageFragment);
+        updateTitle();
         if (pageFragment.isAdded()) {
-            String title = pageFragment.getTitle();
-            setActionbarTitle(title == null ? "" : title);
             setProgress(pageFragment.getProgressPercent());
         }
     }
