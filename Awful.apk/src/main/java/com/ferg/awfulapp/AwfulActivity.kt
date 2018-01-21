@@ -158,13 +158,14 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     /**
      * Set a (non-empty) title for the custom action bar.
      */
-    open fun setActionbarTitle(aTitle: String) {
+    open fun setActionbarTitle(title: String) {
+        Timber.d("Setting action bar title: %s", title)
         supportActionBar?.apply { customActivityTitle = customView as TextView }
         with(customActivityTitle) {
-            if (this == null || aTitle.isEmpty()) {
-                Timber.w("FAILED setActionbarTitle - $aTitle")
+            if (this == null || title.isEmpty()) {
+                Timber.w("FAILED setActionbarTitle - $title")
             } else {
-                text = aTitle
+                text = title
                 scrollTo(0, 0)
             }
         }

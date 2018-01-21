@@ -290,7 +290,10 @@ public class ForumsIndexFragment extends AwfulFragment
 
     @Override
     public String getTitle() {
-        return getString(showFavourites ? R.string.favourite_forums_title : R.string.forums_title);
+        if (isAdded()) {
+            return getString(showFavourites ? R.string.favourite_forums_title : R.string.forums_title);
+        }
+        return "";
     }
 
 

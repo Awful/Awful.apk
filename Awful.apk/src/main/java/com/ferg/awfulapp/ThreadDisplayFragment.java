@@ -1161,7 +1161,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 		}
 		@JavascriptInterface
 		public void resumeSwipe() {
-			((ForumsIndexActivity)mSelf.getAwfulActivity()).reenableSwipe();
+			((ForumsIndexActivity)mSelf.getAwfulActivity()).allowSwipe();
 		}
 
 		@JavascriptInterface

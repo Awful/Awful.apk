@@ -64,7 +64,15 @@ public class ToggleViewPager extends ViewPager{
         return swipeEnabled && result;
     }
 
-    public void setSwipeEnabled(boolean swipe){
-        swipeEnabled = swipe;
+
+    /**
+     * Enable or disable swiping on this viewpager.
+     */
+    public void setSwipeEnabled(boolean enabled){
+        if (enabled) {
+            beginFakeDrag();
+            endFakeDrag();
+        }
+        swipeEnabled = enabled;
     }
 }

@@ -439,7 +439,7 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
     @Override
-    public void onPreferenceChange(AwfulPreferences prefs,String key) {
+    public void onPreferenceChange(@NonNull AwfulPreferences prefs, String key) {
         super.onPreferenceChange(prefs, key);
         forumsPager.onPreferenceChange(prefs);
         if (prefs.immersionMode && mDecorView == null) {
@@ -464,8 +464,8 @@ public class ForumsIndexActivity extends AwfulActivity
         forumsPager.setSwipeEnabled(false);
     }
 
-    public void reenableSwipe() {
-        runOnUiThread(() -> forumsPager.reenableSwipe());
+    public void allowSwipe() {
+        runOnUiThread(() -> forumsPager.setSwipeEnabled(true));
     }
 
 
