@@ -143,7 +143,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
 		restartLoader(Constants.PRIVATE_MESSAGE_THREAD, null, mPMDataCallback);
         getActivity().getContentResolver().registerContentObserver(AwfulForum.CONTENT_URI, true, mPMDataCallback);
         syncPMs();
-        setTitle(getTitle());
+        setActionBarTitle(getTitle());
     }
     
     private void syncPMs() {
@@ -218,7 +218,7 @@ public class PrivateMessageListFragment extends AwfulFragment implements SwipeRe
         	break;
         case R.id.toggle_folder:
         	currentFolder = (currentFolder==FOLDER_INBOX) ? FOLDER_SENT : FOLDER_INBOX;
-            setTitle(getTitle());
+            setActionBarTitle(getTitle());
             changeIcon(item);
         	syncPMs();
         	break;

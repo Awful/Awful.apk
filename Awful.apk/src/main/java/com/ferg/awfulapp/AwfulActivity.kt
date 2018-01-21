@@ -158,7 +158,7 @@ abstract class AwfulActivity : AppCompatActivity(), AwfulPreferences.AwfulPrefer
     /**
      * Set a (non-empty) title for the custom action bar.
      */
-    fun setActionbarTitle(aTitle: String) {
+    open fun setActionbarTitle(aTitle: String) {
         supportActionBar?.apply { customActivityTitle = customView as TextView }
         with(customActivityTitle) {
             if (this == null || aTitle.isEmpty()) {

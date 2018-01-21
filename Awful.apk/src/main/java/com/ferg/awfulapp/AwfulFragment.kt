@@ -34,7 +34,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.CallSuper
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
@@ -78,21 +77,18 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     protected val awfulApplication
         get() = awfulActivity?.application as AwfulApplication?
 
-    /** Get this fragment's display title  */
     /**
      * Set the actionbar's title.
      * @param title The text to set as the title
      */
-    // TODO: fix race condition in ForumDisplayFragment and ThreadDisplayFragment - both restart their loaders in onResume,
-    // both of those set the actionbar title - even in phone mode where only one is visible. Whichever loads last sets the actionbar text
-    @CallSuper
-    open fun setTitle(title: String) {
+    open fun setActionBarTitle(title: String) {
         awfulActivity?.let {
-            Timber.d("setTitle: setting for %s - DISABLED FOR FRAGMENTS", this.javaClass.simpleName)
-//            it.setActionbarTitle(title)
+            Timber.d("setTitle: setting for %s", this.javaClass.simpleName)
+            it.setActionbarTitle(title)
         }
     }
 
+    /** Get this fragment's display title  */
     abstract fun getTitle(): String?
 
     override fun onAttach(context: Context?) {

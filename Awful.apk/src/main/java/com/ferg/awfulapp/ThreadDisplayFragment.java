@@ -1376,7 +1376,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	private void setThreadId(int aThreadId){
 		currentThreadId = aThreadId;
 		if (getActivity() != null) {
-			((ForumsIndexActivity) getActivity()).onThreadChange();
+			((ForumsIndexActivity) getActivity()).onPageContentChanged();
 		}
 	}
 
@@ -1492,8 +1492,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					mThreadView.runJavascript(String.format("changeCSS('%s')", AwfulTheme.forForum(mParentForumId).getCssPath()));
 				}
 
-				setTitle(mTitle);
-				parentActivity.onThreadChange();
+				parentActivity.onPageContentChanged();
 
 				updateUiElements();
 				if (mUserPostNotice != null) {
@@ -1557,10 +1556,9 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 	}
 
 
-	@Override
 	public void setTitle(@NonNull String title){
 		mTitle = title;
-		super.setTitle(title);
+		parentActivity.onPageContentChanged();
 	}
 
 

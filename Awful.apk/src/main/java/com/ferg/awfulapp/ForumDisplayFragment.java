@@ -490,7 +490,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     	lastRefresh = 0;
     	loadFailed = false;
         if (getActivity() != null) {
-            ((ForumsIndexActivity) getActivity()).onForumChange();
+            ((ForumsIndexActivity) getActivity()).onPageContentChanged();
         }
         invalidateOptionsMenu();
         refreshInfo();
@@ -684,8 +684,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         	if(aData != null && !aData.isClosed() && aData.moveToFirst()){
                 mTitle = aData.getString(aData.getColumnIndex(AwfulForum.TITLE));
                 mLastPage = aData.getInt(aData.getColumnIndex(AwfulForum.PAGE_COUNT));
-                setTitle(mTitle);
-        	}
+                ForumsIndexActivity activity = ((ForumsIndexActivity) getActivity());
+                if (activity != null) {
+                    activity.onPageContentChanged();
+                }
+            }
 
 			updatePageBar();
 			refreshProbationBar();

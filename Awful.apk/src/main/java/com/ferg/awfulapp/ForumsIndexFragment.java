@@ -107,10 +107,6 @@ public class ForumsIndexFragment extends AwfulFragment
         forumListAdapter = ForumListAdapter.getInstance(context, new ArrayList<>(), this, getPrefs());
         forumRecyclerView.setAdapter(forumListAdapter);
         forumRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        // this fixes the issue where the activity is first created with this fragment visible, but
-        // doesn't set the actual titlebar text (leaves the xml default) until the viewpager triggers it
-        setTitle(getTitle());
     }
 
 
@@ -155,8 +151,8 @@ public class ForumsIndexFragment extends AwfulFragment
                 // flip the view mode and refresh everything that needs to update
                 showFavourites = !showFavourites;
                 invalidateOptionsMenu();
-                setTitle(getTitle());
                 refreshForumList();
+                ((ForumsIndexActivity) getActivity()).onPageContentChanged();
                 return true;
         }
         return super.onOptionsItemSelected(item);

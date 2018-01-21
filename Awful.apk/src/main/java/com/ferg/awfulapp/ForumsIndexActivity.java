@@ -203,21 +203,26 @@ public class ForumsIndexActivity extends AwfulActivity
 
     private void updateTitle() {
         if (forumsPager != null) {
-            setActionbarTitle(forumsPager.getVisibleFragmentTitle());
+            super.setActionbarTitle(forumsPager.getVisibleFragmentTitle());
         }
+    }
+
+    @Override
+    public void setActionbarTitle(@NonNull String title) {
+        throw new RuntimeException("Don't set this directly!");
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Fragment events
     ///////////////////////////////////////////////////////////////////////////
 
-
-    void onThreadChange() {
-        updateNavigationDrawer();
-        updateTitle();
-    }
-
-    void onForumChange() {
+    /**
+     * Notify the activity that something about a pager fragment has changed, so it can update appropriately.
+     *
+     * This could be extended by passing the fragment in if necessary, or adding methods for each
+     * page (onThreadChanged etc) - but right now this is all we need.
+     */
+    void onPageContentChanged() {
         updateNavigationDrawer();
         updateTitle();
     }
