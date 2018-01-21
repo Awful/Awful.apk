@@ -952,7 +952,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 					int threadPage = (int) result.getPage(getPrefs().postPerPage);
 					String postJump = result.getFragment().replaceAll("\\D", "");
 					if (bypassBackStack) {
-                        openThread(threadId, threadPage, postJump, false);
+                        openThread(threadId, threadPage, postJump, true);
                     } else {
                         pushThread(threadId, threadPage, postJump);
                     }
