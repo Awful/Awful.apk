@@ -34,12 +34,10 @@
     <View
         android:layout_width="1dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp"
-        android:background="#deffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/page_bar_divider"
+        app:layout_constraintBottom_toTopOf="@id/divider_bottom_guideline"
         app:layout_constraintRight_toLeftOf="@+id/page_count_text"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/divider_top_guideline"/>
 
     <TextView
         android:id="@+id/page_count_text"
@@ -51,7 +49,7 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:minWidth="120sp"
+        android:minWidth="100sp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -59,17 +57,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Page 9999/9999"/>
+        tools:text="9999 / 9999"/>
 
     <View
         android:layout_width="1dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp"
-        android:background="#deFFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/page_bar_divider"
+        app:layout_constraintBottom_toTopOf="@id/divider_bottom_guideline"
         app:layout_constraintLeft_toRightOf="@+id/page_count_text"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/divider_top_guideline"/>
 
 
     <ImageButton
@@ -95,5 +91,19 @@
         app:layout_constraintStart_toEndOf="@+id/page_count_text"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_arrow_forward"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/divider_top_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="16dp"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/divider_bottom_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="16dp"/>
 
 </android.support.constraint.ConstraintLayout>
