@@ -57,7 +57,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import timber.log.Timber
 
-abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any> {
+abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
     protected var TAG = "AwfulFragment"
 
     protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
@@ -233,8 +233,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         awfulActivity?.invalidateOptionsMenu()
     }
 
-    open fun onPageVisible() {}
-    open fun onPageHidden() {}
+    override fun setAsFocusedPage() {}
+    override fun setAsBackgroundPage() {}
 
 
     /**

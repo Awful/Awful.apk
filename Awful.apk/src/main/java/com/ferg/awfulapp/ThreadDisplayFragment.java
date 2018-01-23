@@ -197,7 +197,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
 
 
-    private String bodyHtml = "";
+    private volatile String bodyHtml = "";
 	private final HashMap<String,String> ignorePostsHtml = new HashMap<>();
     private AsyncTask<Void, Void, String> redirect = null;
 	private Uri downloadLink;
@@ -454,19 +454,15 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
 
     
 	@Override
-	public void onPageVisible() {
+	public void setAsFocusedPage() {
         if(mThreadView != null){
 			mThreadView.onResume();
         	mThreadView.setKeepScreenOn(keepScreenOn);
         }
-		// TODO: 15/01/2018 the activity should be coordinating what gets shown in the UI, and it can tell which fragments are visible - this fragment shouldn't be force-updating the nav drawer
-//        if(parentActivity != null && mParentForumId != 0){
-//			parentActivity.setNavIds(mParentForumId, getThreadId());
-//        }
 	}
 
 	@Override
-	public void onPageHidden() {
+	public void setAsBackgroundPage() {
         if(mThreadView != null){
         	mThreadView.setKeepScreenOn(false);
 			mThreadView.onPause();
@@ -1469,8 +1465,7 @@ public class ThreadDisplayFragment extends AwfulFragment implements SwipyRefresh
         }
     }
 
-	// TODO: fix race condition, see AwfulFragment#setTitle
-    
+
     private class ThreadDataCallback implements LoaderManager.LoaderCallbacks<Cursor> {
 
         public Loader<Cursor> onCreateLoader(int aId, Bundle aArgs) {

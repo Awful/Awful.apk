@@ -209,11 +209,34 @@ class ForumsPagerController(
 }
 
 
-
 interface PagerCallbacks {
+    /**
+     * Called when the current page in the forums pager has changed.
+     *
+     * This could be a change of focus (i.e. a different page), or the current page has updated
+     * (e.g. its view has been added to the pager).
+     *
+     * @param page which page is now focused in the pager
+     * @param pageFragment the fragment for this page
+     */
     fun onPageChanged(page: Pages, pageFragment: AwfulFragment)
 }
 
+
+/**
+ * Represents a page in the forums view pager.
+ */
+interface ForumsPagerPage {
+    /**
+     * Called when this page is focused, and should be actively updating.
+     */
+    fun setAsFocusedPage()
+
+    /**
+     * Called when this page is in the background, and can suspend updates.
+     */
+    fun setAsBackgroundPage()
+}
 
 
 /**
@@ -245,9 +268,10 @@ private class ForumPagerAdapter(
 
     override fun onPageSelected(pageNum: Int) {
         if (AwfulActivity.DEBUG) Timber.i("onPageSelected: $pageNum")
-        // TODO: this isn't necessarily true in tablet mode - a page might not be hidden CHECK IF THIS RELATES TO THAT VISIBILITY CIRCUS
-        fragments[currentPage]?.onPageHidden()
+        // TODO: this only allows for one 'focused' page, even though 2 might be visible in tablet mode. If we ever get a way to make #isFragmentVisible work properly, use that here
+        fragments[currentPage]?.setAsBackgroundPage()
         currentPage = Pages[pageNum]
+        fragments[currentPage]?.setAsFocusedPage()
         controller.onCurrentPageChanged()
     }
 

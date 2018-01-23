@@ -278,7 +278,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
 	@Override
-	public void onPageVisible() {
+	public void setAsFocusedPage() {
         // TODO: find out how this relates to onResume / onStart , it's the same code
         // TODO: this can be called before the fragment's views have been inflated, e.g. bookmark widget -> viewpager#onPageSelected -> (create fragment) -> onPageVisible
 		updateColors();
@@ -665,7 +665,6 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 		}
     }
 
-    // TODO: fix race condition, see AwfulFragment#setTitle
 
 	private class ForumDataCallback extends ContentObserver implements LoaderManager.LoaderCallbacks<Cursor> {
 
