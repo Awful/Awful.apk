@@ -121,7 +121,7 @@ class ForumsPagerController(
         currentPagerItem = ThreadDisplay
         threadDisplayFragment?.apply {
             Timber.i("Opening thread (old/new) ID:$threadId/$id, PAGE:$pageNumber/$page, JUMP:$postJump/$jump - force=$forceReload")
-            this.openThread(id, page, jump, false)
+            this.openThread(id, page, jump, forceReload)
         }
     }
 
