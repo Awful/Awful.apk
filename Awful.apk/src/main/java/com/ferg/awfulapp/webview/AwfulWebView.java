@@ -77,6 +77,7 @@ public class AwfulWebView extends WebView {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDefaultFontSize(prefs.postFontSizeSp);
         webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
+        webSettings.setDomStorageEnabled(true);
 
         if (AwfulUtils.isLollipop()) {
             //noinspection AndroidLintNewApi, AndroidLintInlinedApi

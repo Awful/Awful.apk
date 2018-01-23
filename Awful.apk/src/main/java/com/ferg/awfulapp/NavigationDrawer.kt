@@ -13,8 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.ImageLoader
-import com.ferg.awfulapp.ForumsIndexActivity.NULL_FORUM_ID
-import com.ferg.awfulapp.ForumsIndexActivity.NULL_THREAD_ID
+import com.ferg.awfulapp.ForumDisplayFragment.NULL_FORUM_ID
+import com.ferg.awfulapp.ThreadDisplayFragment.NULL_THREAD_ID
 import com.ferg.awfulapp.announcements.AnnouncementsManager
 import com.ferg.awfulapp.constants.Constants
 import com.ferg.awfulapp.network.NetworkUtils
@@ -37,7 +37,7 @@ import java.lang.ref.WeakReference
  */
 
 /**
- * A navigation drawer for use with ForumsIndexActivity.
+ * A navigation drawer for the app's activities.
  *
  * Create this after inflating your activity's layout. You can call [open] and [close] on the drawer,
  * and [setCurrentForumAndThread] to update the hierarchy view. [drawerToggle] is exposed so the
@@ -47,7 +47,7 @@ import java.lang.ref.WeakReference
  * @param activity the Activity this navigation drawer is attached to
  * @param toolbar the Activity's action bar
  */
-class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val prefs: AwfulPreferences) {
+class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs: AwfulPreferences) {
 
     private val navigationMenu: NavigationView = activity.findViewById(R.id.navigation)
     private val drawerLayout: DrawerLayout = activity.findViewById(R.id.drawer_layout)
@@ -99,9 +99,9 @@ class NavigationDrawer(val activity: ForumsIndexActivity, toolbar: Toolbar, val 
     private fun handleItemSelection(menuItem: MenuItem): Boolean {
         with(activity) {
             when (menuItem.itemId) {
-                R.id.sidebar_index -> displayForumIndex()
-                R.id.sidebar_forum -> showForumView(currentForumId)
-                R.id.sidebar_thread -> showThreadView(currentThreadId, currentForumId)
+                R.id.sidebar_index -> showForumIndex()
+                R.id.sidebar_forum -> showForum(currentForumId, null)
+                R.id.sidebar_thread -> showThread(currentThreadId, null, null, false)
                 R.id.sidebar_bookmarks -> showBookmarks()
                 R.id.sidebar_settings -> showSettings()
                 R.id.sidebar_search -> showSearch()

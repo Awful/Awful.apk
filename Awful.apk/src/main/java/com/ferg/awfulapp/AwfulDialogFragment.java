@@ -28,7 +28,6 @@
 package com.ferg.awfulapp;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -44,7 +43,6 @@ import android.view.ViewGroup;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.network.NetworkUtils;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.task.AwfulRequest;
@@ -105,54 +103,12 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
         }
         return alertView;
     }
-    
-    protected void displayForumIndex(){
-    	if(getActivity() != null){
-    		getAwfulActivity().displayForumIndex();
-    	}
-    }
-    
-    protected void displayForumContents(int aId) {
-    	if(getActivity() != null){
-    		getAwfulActivity().displayForum(aId, 1);
-    	}
-    }
-    
-    protected void displayThread(int aId, int aPage, int forumId, int forumPage) {
-    	if(getActivity() != null){
-    		getAwfulActivity().displayThread(aId, aPage, forumId, forumPage, false);
-    	}
-    }
-	
-	
+
+
 	public AwfulActivity getAwfulActivity(){
 		return (AwfulActivity) getActivity();
 	}
-	
-	protected void displayForum(int forumId, int page){
-		if(getAwfulActivity() != null){
-			getAwfulActivity().displayForum(forumId, page);
-		}
-	}
-	
-    public void displayPostReplyDialog(final int threadId, final int postId, final int type) {
-		if(getAwfulActivity() != null){
-			getAwfulActivity().runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-                    if(getActivity() != null){
-                        startActivityForResult(
-                                new Intent(getActivity(), PostReplyActivity.class)
-                                        .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                                        .putExtra(Constants.EDITING, type)
-                                        .putExtra(Constants.REPLY_POST_ID, postId),
-                                PostReplyFragment.REQUEST_POST);
-                    }
-				}
-			});
-		}
-    }
-	
+
 	protected void setProgress(int percent){
 		currentProgress = percent;
 		if(progressBar != null){
@@ -166,7 +122,7 @@ public abstract class AwfulDialogFragment extends DialogFragment implements Acti
 	
 	protected void setTitle(String title){
 		if(getActivity()!=null){
-			getAwfulActivity().setActionbarTitle(title, this);
+			getAwfulActivity().setActionbarTitle(title);
 		}
 	}
 	

@@ -36,135 +36,68 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.ferg.awfulapp.announcements.AnnouncementsManager;
 import com.ferg.awfulapp.constants.Constants;
 import com.ferg.awfulapp.dialog.ChangelogDialog;
-import com.ferg.awfulapp.dialog.LogOutDialog;
 import com.ferg.awfulapp.messages.PmManager;
 import com.ferg.awfulapp.preferences.AwfulPreferences;
 import com.ferg.awfulapp.preferences.Keys;
-import com.ferg.awfulapp.preferences.SettingsActivity;
-import com.ferg.awfulapp.provider.ColorProvider;
 import com.ferg.awfulapp.sync.SyncManager;
-import com.ferg.awfulapp.thread.AwfulURL;
 import com.ferg.awfulapp.util.AwfulUtils;
 import com.ferg.awfulapp.widget.ToggleViewPager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Locale;
+
+import timber.log.Timber;
 
 //import com.ToxicBakery.viewpager.transforms.*;
 
 public class ForumsIndexActivity extends AwfulActivity
-        implements PmManager.Listener, AnnouncementsManager.AnnouncementListener {
+        implements PmManager.Listener, AnnouncementsManager.AnnouncementListener, PagerCallbacks {
     protected static final String TAG = "ForumsIndexActivity";
 
     private static final int DEFAULT_HIDE_DELAY = 300;
-
     private static final int MESSAGE_HIDING = 0;
     private static final int MESSAGE_VISIBLE_CHANGE_IN_PROGRESS = 1;
-    private ForumsIndexFragment mIndexFragment = null;
 
-    private ForumDisplayFragment mForumFragment = null;
-    private ThreadDisplayFragment mThreadFragment = null;
-    private boolean skipLoad = false;
-    private boolean isTablet;
-    private AwfulURL url = new AwfulURL();
-
-    private ToggleViewPager mViewPager;
-
+    private ForumsPagerController forumsPager;
     private View mDecorView;
-    private ForumPagerAdapter pagerAdapter;
     private Toolbar mToolbar;
     private NavigationDrawer navigationDrawer;
 
-    public static final int NULL_FORUM_ID = 0;
-    public static final int NULL_THREAD_ID = 0;
-    private static final int NULL_PAGE_ID = -1;
-
-    private static final int FORUM_LIST_FRAGMENT_POSITION = 0;
-    private static final int THREAD_LIST_FRAGMENT_POSITION = 1;
-    private static final int THREAD_VIEW_FRAGMENT_POSITION = 2;
-
-    private volatile int mNavForumId    = Constants.USERCP_ID;
-    private volatile int mNavThreadId   = NULL_THREAD_ID;
-    private volatile int mForumId       = Constants.USERCP_ID;
-    private volatile int mForumPage     = 1;
-    private volatile int mThreadId      = NULL_THREAD_ID;
-    private volatile int mThreadPage    = 1;
-
     private GestureDetector mImmersionGestureDetector = null;
     private boolean mIgnoreFling;
-    private String mThreadPost="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.e(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forum_index_activity);
-        mViewPager = findViewById(R.id.forum_index_pager);
+
+        ToggleViewPager viewPager = findViewById(R.id.forum_index_pager);
+        forumsPager = new ForumsPagerController(viewPager, getMPrefs(), this, this, savedInstanceState);
         mToolbar = findViewById(R.id.awful_toolbar);
         setSupportActionBar(mToolbar);
-        setActionBar();
-        navigationDrawer = new NavigationDrawer(this, mToolbar, mPrefs);
+        setUpActionBar();
+        navigationDrawer = new NavigationDrawer(this, mToolbar, getMPrefs());
+        updateNavigationDrawer();
 
-        isTablet = AwfulUtils.isTablet(this);
-        int initialPage;
-        if (savedInstanceState != null) {
-            int forumId = savedInstanceState.getInt(Constants.FORUM_ID, mForumId);
-            int forumPage = savedInstanceState.getInt(Constants.FORUM_PAGE, mForumPage);
-            setForum(forumId, forumPage);
-
-            int threadPage = savedInstanceState.getInt(Constants.THREAD_PAGE, 1);
-            int threadId = savedInstanceState.getInt(Constants.THREAD_ID, NULL_THREAD_ID);
-            setThread(threadId, threadPage);
-
-            initialPage = savedInstanceState.getInt("viewPage", NULL_PAGE_ID);
-        } else {
-            initialPage = parseNewIntent(getIntent());
-        }
-
-
-        mViewPager.setSwipeEnabled(!mPrefs.lockScrolling);
-        if (!isTablet && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !mPrefs.transformer.equals("Disabled")) {
-            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
-        }
-        mViewPager.setOffscreenPageLimit(2);
-        if (isTablet) {
-            mViewPager.setPageMargin(1);
-            //TODO what color should it use here?
-            mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.ACTION_BAR.getColor()));
-        }
-        pagerAdapter = new ForumPagerAdapter(getSupportFragmentManager());
-        mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOnPageChangeListener(pagerAdapter);
-        if (initialPage >= 0) {
-            mViewPager.setCurrentItem(initialPage);
-        }
-
-        checkIntentExtras();
         setupImmersion();
-
         PmManager.registerListener(this);
         AnnouncementsManager.getInstance().registerListener(this);
     }
@@ -216,7 +149,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void setupImmersion() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
@@ -250,71 +183,83 @@ public class ForumsIndexActivity extends AwfulActivity
     }
 
 
+    private void updateNavigationDrawer() {
+        // TODO: 17/01/2018 what is this actually meant to display? The current thread and the forum (including Bookmarks) that it's in? Or the current state of each page?
+        if (navigationDrawer != null) {
+            // display details for the currently open thread - if there isn't one, show the current forum instead
+            ThreadDisplayFragment threadFragment = forumsPager.getThreadDisplayFragment();
+            ForumDisplayFragment forumFragment = forumsPager.getForumDisplayFragment();
+            if (threadFragment != null) {
+                int threadId = threadFragment.getThreadId();
+                int parentForumId = threadFragment.getParentForumId();
+                navigationDrawer.setCurrentForumAndThread(parentForumId, threadId);
+            } else if (forumFragment != null){
+                int forumId = forumFragment.getForumId();
+                navigationDrawer.setCurrentForumAndThread(forumId, null);
+            }
+        }
+    }
+
+
+    private void updateTitle() {
+        if (forumsPager != null) {
+            super.setActionbarTitle(forumsPager.getVisibleFragmentTitle());
+        }
+    }
+
+    @Override
+    public void setActionbarTitle(@NonNull String title) {
+        throw new RuntimeException("Don't set this directly!");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Fragment events
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Notify the activity that something about a pager fragment has changed, so it can update appropriately.
+     *
+     * This could be extended by passing the fragment in if necessary, or adding methods for each
+     * page (onThreadChanged etc) - but right now this is all we need.
+     */
+    void onPageContentChanged() {
+        updateNavigationDrawer();
+        updateTitle();
+    }
+
+
     ///////////////////////////////////////////////////////////////////////////
     // Navigation events
     ///////////////////////////////////////////////////////////////////////////
 
 
-    /** Display the user's bookmarks */
+    @Override
+    public void showForum(int id, @Nullable Integer page) {
+        Timber.d("displayForum %s", id);
+        forumsPager.openForum(id, page);
+    }
+
+
+    @Override
+    public void showThread(int id, @Nullable Integer page, @Nullable String postJump, boolean forceReload) {
+        Timber.d("displayThread %s", id);
+        if (forumsPager != null) {
+            forumsPager.openThread(id, page, "", forceReload);
+        } else {
+            Timber.w("!!! no forums pager - can't open thread");
+        }
+    }
+
+
+    @Override
     public void showBookmarks() {
-        startActivity(new Intent().setClass(this, ForumsIndexActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(Constants.FORUM_ID, Constants.USERCP_ID)
-                .putExtra(Constants.FORUM_PAGE, ForumDisplayFragment.FIRST_PAGE));
+        showForum(Constants.USERCP_ID, null);
     }
 
 
-    public void showLogout() {
-        new LogOutDialog(this).show();
-    }
-
-    /** Display the announcements */
-    public void showAnnouncements() {
-        AnnouncementsManager.getInstance().showAnnouncements(ForumsIndexActivity.this);
-    }
-
-    /** Display the user's PMs */
-    public void showPrivateMessages() {
-        startActivity(new Intent().setClass(this, PrivateMessageActivity.class));
-    }
-
-    /** Display the forum search */
-    public void showSearch() {
-        Intent intent = BasicActivity.Companion.intentFor(SearchFragment.class, this, getString(R.string.search_forums_activity_title));
-        startActivity(intent);
-    }
-
-    /** Display the app settings */
-    public void showSettings() {
-        startActivity(new Intent().setClass(this, SettingsActivity.class));
-    }
-
-
-    /**
-     * Page to the thread view. If it's not currently showing the expected thread, load the first page of it.
-     *
-     * @param expectedThreadId  the page that should be shown
-     * @param parentForumId     the ID of the thread's parent forum
-     */
-    public void showThreadView(int expectedThreadId, int parentForumId) {
-        if (mThreadFragment.getThreadId() != expectedThreadId) {
-            displayThread(expectedThreadId, ThreadDisplayFragment.FIRST_PAGE, parentForumId, ForumDisplayFragment.FIRST_PAGE, true);
-        } else {
-            mViewPager.setCurrentItem(THREAD_VIEW_FRAGMENT_POSITION);
-        }
-    }
-
-
-    /**
-     * Page to the forum/threadlist view. If it's not currently showing the expected forum, load the first page of it.
-     * @param expectedForumId the forum that should be shown
-     */
-    public void showForumView(int expectedForumId) {
-        if (mForumFragment.getForumId() != expectedForumId) {
-            displayForum(expectedForumId, ForumDisplayFragment.FIRST_PAGE);
-        } else {
-            mViewPager.setCurrentItem(THREAD_LIST_FRAGMENT_POSITION);
-        }
+    @Override
+    public void showForumIndex() {
+        forumsPager.setCurrentPagerItem(Pages.ForumIndex);
     }
 
 
@@ -327,7 +272,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -358,7 +303,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             // When the window loses focus (e.g. the action overflow is shown),
             // cancel any pending hide action. When the window gains focus,
             // hide the system UI.
@@ -372,7 +317,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void showSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -381,7 +326,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void hideSystemUi() {
-        if (AwfulUtils.isKitKat() && mPrefs.immersionMode) {
+        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -392,77 +337,25 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (DEBUG) Log.e(TAG, "onNewIntent");
-        setIntent(intent);
-        int initialPage = parseNewIntent(intent);
-        if (mViewPager != null && pagerAdapter != null && pagerAdapter.getCount() >= initialPage && initialPage >= 0) {
-            mViewPager.setCurrentItem(initialPage);
-        }
-        if (mForumFragment != null) {
-            mForumFragment.openForum(mForumId, mForumPage);
-        }
-        if (mThreadFragment != null) {
-            if (url.isThread() || url.isPost()) {
-                mThreadFragment.openThread(url);
-            } else if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0) {
-                if (DEBUG) Log.e(TAG, "else: "+mThreadPost);
-                mThreadFragment.openThread(mThreadId, mThreadPage, mThreadPost);
-            }
+        NavigationEvent parsed = NavigationEvent.Companion.parse(intent);
+        Timber.i("Parsed intent as %s", parsed.toString());
+
+        if (parsed instanceof NavigationEvent.ForumIndex) {
+            showForumIndex();
+        } else if (parsed instanceof NavigationEvent.Bookmarks) {
+            showBookmarks();
+        } else if (parsed instanceof NavigationEvent.Forum) {
+            NavigationEvent.Forum forum = (NavigationEvent.Forum) parsed;
+            showForum(forum.getId(), forum.getPage());
+        } else if (parsed instanceof NavigationEvent.Thread) {
+            NavigationEvent.Thread thread = (NavigationEvent.Thread) parsed;
+            showThread(thread.getId(), thread.getPage(), thread.getPostJump(), true);
+        } else if (parsed instanceof NavigationEvent.Url) {
+            NavigationEvent.Url url = (NavigationEvent.Url) parsed;
+            forumsPager.openThread(url.getUrl());
         }
     }
 
-    private int parseNewIntent(Intent intent) {
-        int initialPage = NULL_PAGE_ID;
-        int forumId     = getIntent().getIntExtra(Constants.FORUM_ID, mForumId);
-        int forumPage   = getIntent().getIntExtra(Constants.FORUM_PAGE, mForumPage);
-        int threadId    = getIntent().getIntExtra(Constants.THREAD_ID, mThreadId);
-        int threadPage  = getIntent().getIntExtra(Constants.THREAD_PAGE, mThreadPage);
-        mThreadPost = getIntent().getStringExtra(Constants.THREAD_FRAGMENT);
-
-        if (forumId == 2) {//workaround for old userCP ID, ugh. the old id still appears if someone created a bookmark launch shortcut prior to b23
-            forumId = Constants.USERCP_ID;//should never have used 2 as a hard-coded forum-id, what a horror.
-        }
-
-        boolean displayIndex = false;
-        String scheme = (getIntent().getData() == null) ? null : getIntent().getData().getScheme();
-        if ("http".equals(scheme) || "https".equals(scheme)) {
-            url = AwfulURL.parse(getIntent().getDataString());
-            switch (url.getType()) {
-                case FORUM:
-                    forumId = (int) url.getId();
-                    forumPage = (int) url.getPage();
-                    break;
-                case THREAD:
-                    if (!url.isRedirect()) {
-                        threadPage = (int) url.getPage();
-                        threadId = (int) url.getId();
-                    }
-                    break;
-                case POST:
-                    break;
-                case INDEX:
-                    displayIndex = true;
-                    break;
-                default:
-            }
-        }
-
-        setForum(forumId, forumPage);
-        setThread(threadId, threadPage);
-
-        if (displayIndex) {
-            displayForumIndex();
-        }
-        if (intent.getIntExtra(Constants.FORUM_ID, 0) > 1 || url.isForum()) {
-            initialPage = isTablet ? 0 : 1;
-        } else {
-            skipLoad = !isTablet;
-        }
-        if (intent.getIntExtra(Constants.THREAD_ID, NULL_THREAD_ID) > 0 || url.isRedirect() || url.isThread()) {
-            initialPage = 2;
-        }
-        return initialPage;
-    }
 
     @Override
     protected void onResume() {
@@ -476,7 +369,7 @@ public class ForumsIndexActivity extends AwfulActivity
         }
 
         // check if this is the first run, and if so show the 'welcome' dialog
-        if (mPrefs.alertIDShown == 0) {
+        if (getMPrefs().alertIDShown == 0) {
             new AlertDialog.Builder(this).
                     setTitle(getString(R.string.alert_title_1))
                     .setMessage(getString(R.string.alert_message_1))
@@ -486,283 +379,50 @@ public class ForumsIndexActivity extends AwfulActivity
                         showSettings();
                     })
                     .show();
-            mPrefs.setPreference(Keys.ALERT_ID_SHOWN, 1);
-        } else if (mPrefs.lastVersionSeen != versionCode) {
-            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", mPrefs.lastVersionSeen, versionCode));
+            getMPrefs().setPreference(Keys.ALERT_ID_SHOWN, 1);
+        } else if (getMPrefs().lastVersionSeen != versionCode) {
+            Log.i(TAG, String.format("App version changed from %d to %d - showing changelog", getMPrefs().lastVersionSeen, versionCode));
             ChangelogDialog.show(this);
-            mPrefs.setPreference(Keys.LAST_VERSION_SEEN, versionCode);
+            getMPrefs().setPreference(Keys.LAST_VERSION_SEEN, versionCode);
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mForumFragment != null) {
-            setForum(mForumFragment.getForumId(), mForumFragment.getPage());
-        }
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(Constants.FORUM_ID, mForumId);
-        outState.putInt(Constants.FORUM_PAGE, mForumPage);
-        outState.putInt(Constants.THREAD_ID, mThreadId);
-        outState.putInt(Constants.THREAD_PAGE, mThreadPage);
-        if (mViewPager != null) {
-            outState.putInt("viewPage", mViewPager.getCurrentItem());
-        }
+        forumsPager.onSaveInstanceState(outState);
     }
 
-
-    private void checkIntentExtras() {
-        if (getIntent().hasExtra(Constants.SHORTCUT)) {
-            if (getIntent().getBooleanExtra(Constants.SHORTCUT, false)) {
-                displayForum(Constants.USERCP_ID, 1);
-            }
-        }
-    }
-
-    public int getThreadId() {
-        return mThreadId;
-    }
-
-    public int getThreadPage() {
-        return mThreadPage;
-    }
-
-
-    public synchronized void setForum(int forumId, int page) {
-        mForumId = forumId;
-        mForumPage = page;
-        setNavIds(mForumId, null);
-    }
-
-
-    public synchronized void setThread(@Nullable Integer threadId, @Nullable Integer page) {
-        if (page != null) {
-            mThreadPage = page;
-        }
-        if (threadId != null) {
-            int oldThreadId = mThreadId;
-            mThreadId = threadId;
-            if ((oldThreadId < 1 || threadId < 1) && threadId != oldThreadId && pagerAdapter != null) {
-                pagerAdapter.notifyDataSetChanged();//notify pager adapter so it'll show/hide the thread view
-            }
-        }
-        setNavIds(mNavForumId, mThreadId);
-    }
-
-
-    public class ForumPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener {
-        public ForumPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        private AwfulFragment visible;
-
-
-        @Override
-        public void onPageSelected(int arg0) {
-            if (DEBUG) Log.i(TAG, "onPageSelected: " + arg0);
-            if (visible != null) {
-                visible.onPageHidden();
-            }
-            AwfulFragment apf = (AwfulFragment) instantiateItem(mViewPager, arg0);
-            // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
-            // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
-            // where these fragment methods crash because they have no activity yet
-            if (apf != null && apf.isAdded()) {
-                setActionbarTitle(apf.getTitle(), null);
-                apf.onPageVisible();
-                setProgress(apf.getProgressPercent());
-            }
-            visible = apf;
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case FORUM_LIST_FRAGMENT_POSITION:
-                    if (mIndexFragment == null) {
-                        mIndexFragment = new ForumsIndexFragment();
-                    }
-                    return mIndexFragment;
-                case THREAD_LIST_FRAGMENT_POSITION:
-                    if (mForumFragment == null) {
-                        mForumFragment = ForumDisplayFragment.getInstance(mForumId, mForumPage, skipLoad);
-                    }
-                    return mForumFragment;
-                case THREAD_VIEW_FRAGMENT_POSITION:
-                    if (mThreadFragment == null) {
-                        mThreadFragment = new ThreadDisplayFragment();
-                    }
-                    return mThreadFragment;
-            }
-            Log.e(TAG, "ERROR: asked for too many fragments in ForumPagerAdapter.getItem");
-            return null;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Object frag = super.instantiateItem(container, position);
-            switch (position) {
-                case FORUM_LIST_FRAGMENT_POSITION:
-                    mIndexFragment = (ForumsIndexFragment) frag;
-                    break;
-                case THREAD_LIST_FRAGMENT_POSITION:
-                    mForumFragment = (ForumDisplayFragment) frag;
-                    break;
-                case THREAD_VIEW_FRAGMENT_POSITION:
-                    mThreadFragment = (ThreadDisplayFragment) frag;
-                    break;
-            }
-            return frag;
-        }
-
-        @Override
-        public int getCount() {
-            if (getThreadId() < 1) {
-                return 2;
-            }
-            return 3;
-        }
-
-        @Override
-        public int getItemPosition(Object object) {
-            if (mIndexFragment != null && mIndexFragment.equals(object)) {
-                return FORUM_LIST_FRAGMENT_POSITION;
-            }
-            if (mForumFragment != null && mForumFragment.equals(object)) {
-                return THREAD_LIST_FRAGMENT_POSITION;
-            }
-            if (mThreadFragment != null && mThreadFragment.equals(object)) {
-                return THREAD_VIEW_FRAGMENT_POSITION;
-            }
-            return super.getItemPosition(object);
-        }
-
-        @Override
-        public float getPageWidth(int position) {
-            if (isTablet) {
-                switch (position) {
-                    case FORUM_LIST_FRAGMENT_POSITION:
-                        return 0.4f;
-                    case THREAD_LIST_FRAGMENT_POSITION:
-                        return 0.6f;
-                    case THREAD_VIEW_FRAGMENT_POSITION:
-                        return 1f;
-                }
-            }
-            return super.getPageWidth(position);
-        }
-    }
 
 
     @Override
-    public void setActionbarTitle(String aTitle, Object requestor) {
-        if (requestor != null && mViewPager != null) {
-            //This will only honor the request if the requestor is the currently active view.
-            if (requestor instanceof AwfulFragment &&  isFragmentVisible((AwfulFragment)requestor)) {
-                super.setActionbarTitle(aTitle, requestor);
-            } else {
-                if (DEBUG)
-                    Log.i(TAG, "Failed setActionbarTitle: " + aTitle + " - " + requestor.toString());
-            }
-        } else {
-            super.setActionbarTitle(aTitle, requestor);
+    public void onPageChanged(@NonNull Pages page, @NotNull AwfulFragment pageFragment) {
+        // I don't know if #isAdded is necessary after calling #instantiateItem (instead of #getItem
+        // which just creates a new fragment object), but I'm trying to fix a bug I can't reproduce
+        // where these fragment methods crash because they have no activity yet
+        Timber.d("onPageChanged: page %s fragment %s", page, pageFragment);
+        updateTitle();
+        if (pageFragment.isAdded()) {
+            setProgress(pageFragment.getProgressPercent());
         }
     }
+
 
     @Override
     public void onBackPressed() {
+        // in order of precedence: close the nav drawer, tell the current fragment to go back, tell the pager to go back
         if (navigationDrawer.close()) {
             return;
+        } else if (forumsPager.onBackPressed()) {
+            return;
         }
-        if (mViewPager != null && mViewPager.getCurrentItem() > 0) {
-            if (!((AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem())).onBackPressed()) {
-                mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
-            }
-        } else {
-            super.onBackPressed();
-        }
-
-    }
-
-    @Override
-    public void displayForum(int id, int page) {
-        Log.d(TAG, "displayForum " + id);
-        setForum(id, page);
-        setNavIds(id, null);
-        if (mForumFragment != null) {
-            mForumFragment.openForum(id, page);
-            if (mViewPager != null) {
-                mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mForumFragment));
-            }
-        }
-    }
-
-
-    @Override
-    public boolean isFragmentVisible(AwfulFragment awfulFragment) {
-        if (awfulFragment != null && mViewPager != null && pagerAdapter != null) {
-            if (isTablet) {
-                int itemPos = pagerAdapter.getItemPosition(awfulFragment);
-                return itemPos == mViewPager.getCurrentItem() || itemPos == mViewPager.getCurrentItem() + 1;
-            } else {
-                return pagerAdapter.getItemPosition(awfulFragment) == mViewPager.getCurrentItem();
-            }
-        }
-        return false;
-    }
-
-
-    @Override
-    public void displayThread(int id, int page, int forumId, int forumPg, boolean forceReload) {
-        Log.d(TAG, "displayThread " + id + " " + forumId);
-        if (mViewPager != null) {
-            if (mThreadFragment != null) {
-                if (!forceReload && getThreadId() == id && getThreadPage() == page) {
-                    setNavIds(mThreadFragment.getParentForumId(), mNavThreadId);
-                } else {
-                    mThreadFragment.openThread(id, page, null);
-                    mViewPager.getAdapter().notifyDataSetChanged();
-                }
-            } else {
-                setThread(id, page);
-            }
-            mViewPager.setCurrentItem(pagerAdapter.getItemPosition(mThreadFragment));
-        } else {
-            super.displayThread(id, page, forumId, forumPg, forceReload);
-        }
-    }
-
-
-    @Override
-    public void displayUserCP() {
-        displayForum(Constants.USERCP_ID, 1);
-    }
-
-
-    @Override
-    public void displayForumIndex() {
-        if (mViewPager != null) {
-            mViewPager.setCurrentItem(0);
-        }
+        super.onBackPressed();
     }
 
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if (DEBUG) Log.e(TAG, "onActivityResult: " + request + " result: " + result);
         super.onActivityResult(request, result, intent);
         if (request == Constants.LOGIN_ACTIVITY_REQUEST && result == Activity.RESULT_OK) {
             SyncManager.sync(this);
@@ -771,24 +431,19 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        AwfulFragment pagerItem = (AwfulFragment) pagerAdapter.getItem(mViewPager.getCurrentItem());
-        if (mPrefs.volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
+        AwfulFragment pagerItem = forumsPager.getCurrentFragment();
+        if (getMPrefs().volumeScroll && pagerItem != null && pagerItem.attemptVolumeScroll(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);
     }
 
     @Override
-    public void onPreferenceChange(AwfulPreferences prefs,String key) {
+    public void onPreferenceChange(@NonNull AwfulPreferences prefs, String key) {
         super.onPreferenceChange(prefs, key);
+        forumsPager.onPreferenceChange(prefs);
         if (prefs.immersionMode && mDecorView == null) {
             setupImmersion();
-        }
-        if (mViewPager != null) {
-            mViewPager.setSwipeEnabled(!prefs.lockScrolling);
-        }
-        if (!AwfulUtils.isTablet(this) && AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && !prefs.transformer.equals("Disabled")) {
-            mViewPager.setPageTransformer(true, AwfulUtils.getViewPagerTransformer());
         }
     }
 
@@ -796,47 +451,21 @@ public class ForumsIndexActivity extends AwfulActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.e(TAG,"onConfigurationChanged()");
-        boolean oldTab = isTablet;
-        isTablet = AwfulUtils.isTablet(this);
-        if (oldTab != isTablet && mViewPager != null) {
-            if (isTablet) {
-                mViewPager.setPageMargin(1);
-                //TODO what color should it use here?
-                mViewPager.setPageMarginDrawable(new ColorDrawable(ColorProvider.ACTION_BAR.getColor()));
-            } else {
-                mViewPager.setPageMargin(0);
-            }
-
-            mViewPager.setAdapter(pagerAdapter);
-        }
-        if(mViewPager != null){
-            ((ForumPagerAdapter)mViewPager.getAdapter()).getItem(mViewPager.getCurrentItem()).onConfigurationChanged(newConfig);
+        forumsPager.onConfigurationChange(getMPrefs());
+        AwfulFragment currentFragment = forumsPager.getCurrentFragment();
+        if (currentFragment != null) {
+            currentFragment.onConfigurationChanged(newConfig);
         }
         navigationDrawer.getDrawerToggle().onConfigurationChanged(newConfig);
     }
 
 
-    /**
-     * Set the IDs that the navigation view knows about?
-     * Updates the navigation menu to reflect these
-     * @param forumId   The current forum
-     * @param threadId
-     */
-    public synchronized void setNavIds(int forumId, @Nullable Integer threadId) {
-        navigationDrawer.setCurrentForumAndThread(forumId, threadId);
-    }
-
     public void preventSwipe() {
-        this.mViewPager.setSwipeEnabled(false);
+        forumsPager.setSwipeEnabled(false);
     }
 
-    public void reenableSwipe() {
-        runOnUiThread(() -> {
-            if (mViewPager.beginFakeDrag()) {
-                mViewPager.endFakeDrag();
-            }
-            mViewPager.setSwipeEnabled(true);
-        });
+    public void allowSwipe() {
+        runOnUiThread(() -> forumsPager.setSwipeEnabled(true));
     }
 
 

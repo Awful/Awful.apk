@@ -34,7 +34,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.CallSuper
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
@@ -58,10 +57,10 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutD
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection.TOP
 import timber.log.Timber
 
-abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any> {
+abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdate, AwfulRequest.ProgressListener<Any>, ForumsPagerPage {
     protected var TAG = "AwfulFragment"
 
-    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this)}
+    protected val prefs: AwfulPreferences by lazy { AwfulPreferences.getInstance(context!!, this) }
     protected val handler: Handler by lazy { Handler() }
     protected val alertView: AlertView by lazy { AlertView(activity) }
 
@@ -78,21 +77,19 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     protected val awfulApplication
         get() = awfulActivity?.application as AwfulApplication?
 
-    /** Get this fragment's display title  */
     /**
      * Set the actionbar's title.
      * @param title The text to set as the title
      */
-    // TODO: fix race condition in ForumDisplayFragment and ThreadDisplayFragment - both restart their loaders in onResume,
-    // both of those set the actionbar title - even in phone mode where only one is visible. Whichever loads last sets the actionbar text
-    @CallSuper
-    open fun setTitle(title: String) {
+    open fun setActionBarTitle(title: String) {
         awfulActivity?.let {
             Timber.d("setTitle: setting for %s", this.javaClass.simpleName)
-            it.setActionbarTitle(title, this)
+            it.setActionbarTitle(title)
         }
     }
-    abstract fun getTitle() : String?
+
+    /** Get this fragment's display title  */
+    abstract fun getTitle(): String?
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -130,30 +127,19 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
     }
 
     protected fun displayForumIndex() {
-        awfulActivity?.displayForumIndex()
+        awfulActivity?.showForumIndex()
     }
 
-    protected fun displayForumContents(aId: Int) {
-        awfulActivity?.displayForum(aId, 1)
+    protected fun displayThread(id: Int, page: Int? = null, postJump: String? = null, forceReload: Boolean) {
+        awfulActivity?.showThread(id, page, postJump, forceReload)
     }
 
-    protected fun displayThread(aId: Int, aPage: Int, forumId: Int, forumPage: Int, forceReload: Boolean) {
-        awfulActivity?.displayThread(aId, aPage, forumId, forumPage, forceReload)
-    }
-
-    protected fun displayForum(forumId: Long, page: Long) {
-        awfulActivity?.displayForum(forumId.toInt(), page.toInt())
+    protected fun displayForum(forumId: Int, page: Int? = null) {
+        awfulActivity?.showForum(forumId, page)
     }
 
     fun displayPostReplyDialog(threadId: Int, postId: Int, type: Int) {
-        awfulActivity?.runOnUiThread {
-            startActivityForResult(
-                    Intent(activity, PostReplyActivity::class.java)
-                            .putExtra(Constants.REPLY_THREAD_ID, threadId)
-                            .putExtra(Constants.EDITING, type)
-                            .putExtra(Constants.REPLY_POST_ID, postId),
-                    PostReplyFragment.REQUEST_POST)
-        }
+        awfulActivity?.apply { runOnUiThread { showPostComposer(threadId, type, postId) }}
     }
 
     protected fun setProgress(percent: Int) {
@@ -207,7 +193,7 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         swipyLayout?.isRefreshing = false
         swipyLayout?.direction = if (this is ThreadDisplayFragment) BOTH else TOP
 
-        when(error) {
+        when (error) {
             is AwfulError -> alertView.show(error)
             is VolleyError -> alertView.setTitle(R.string.loading_failed).setIcon(R.drawable.ic_error).show()
         }
@@ -247,8 +233,8 @@ abstract class AwfulFragment : Fragment(), AwfulPreferences.AwfulPreferenceUpdat
         awfulActivity?.invalidateOptionsMenu()
     }
 
-    open fun onPageVisible() {}
-    open fun onPageHidden() {}
+    override fun setAsFocusedPage() {}
+    override fun setAsBackgroundPage() {}
 
 
     /**

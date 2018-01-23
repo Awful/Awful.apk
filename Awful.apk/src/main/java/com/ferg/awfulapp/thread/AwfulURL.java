@@ -223,6 +223,10 @@ public class AwfulURL {
 		return this;
 	}
 
+	public boolean isForumIndex() {
+		return type == TYPE.INDEX;
+	}
+
 	public boolean isForum() {
 		return type == TYPE.FORUM;
 	}
