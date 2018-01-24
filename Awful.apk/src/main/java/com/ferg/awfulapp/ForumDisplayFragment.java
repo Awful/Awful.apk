@@ -37,6 +37,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -67,8 +68,6 @@ import com.ferg.awfulapp.task.ThreadListRequest;
 import com.ferg.awfulapp.thread.AwfulForum;
 import com.ferg.awfulapp.thread.AwfulPagedItem;
 import com.ferg.awfulapp.thread.AwfulThread;
-import com.ferg.awfulapp.thread.AwfulURL;
-import com.ferg.awfulapp.thread.AwfulURL.TYPE;
 import com.ferg.awfulapp.widget.MinMaxNumberPicker;
 import com.ferg.awfulapp.widget.PageBar;
 import com.ferg.awfulapp.widget.PagePicker;
@@ -92,18 +91,18 @@ import static com.ferg.awfulapp.constants.Constants.USERCP_ID;
  */
 public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshLayout.OnRefreshListener {
 
-    public static final String ARG_KEY_FORUM_ID = "forum ID";
-    public static final String ARG_KEY_PAGE_NUMBER = "page number";
-    public static final String ARG_KEY_SKIP_LOAD = "skip load";
+    public static final String KEY_FORUM_ID = "forum ID";
+    public static final String KEY_PAGE_NUMBER = "page number";
+    public static final String KEY_SKIP_LOAD = "skip load";
     public static final int NULL_FORUM_ID = 0;
     public static final int FIRST_PAGE = 1;
     private ListView mListView;
 
     private PageBar mPageBar;
 
-    private int mForumId;
-    private int mPage = 1;
-    private int mLastPage = 1;
+    private int currentForumId;
+    private int currentPage;
+    private int mLastPage = FIRST_PAGE;
     private String mTitle;
     private boolean skipLoad = false;
 
@@ -113,18 +112,12 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
     public static ForumDisplayFragment getInstance(int forumId, int pageNum, boolean skipLoad) {
         ForumDisplayFragment fragment = new ForumDisplayFragment();
-        Bundle args = new Bundle();
-        // TODO: should these use the Constants constants that saveInstanceState etc. uses?
-        args.putInt(ARG_KEY_FORUM_ID, forumId);
-        args.putInt(ARG_KEY_PAGE_NUMBER, pageNum);
-        args.putBoolean(ARG_KEY_SKIP_LOAD, skipLoad);
-        fragment.setArguments(args);
+        fragment.setForumId(forumId);
+        fragment.setPage(pageNum);
+        fragment.skipLoad = skipLoad;
         return fragment;
     }
 
-    public ForumDisplayFragment() {
-        super();
-    }
 
 	private ThreadCursorAdapter mCursorAdapter;
     private ForumContentsCallback mForumLoaderCallback = new ForumContentsCallback(getHandler());
@@ -134,24 +127,17 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-		setRetainInstance(false);
         setHasOptionsMenu(true);
-
-        Bundle args = getArguments();
-        setForumId(args.getInt(ARG_KEY_FORUM_ID));
-        setPage(args.getInt(ARG_KEY_PAGE_NUMBER));
-        skipLoad = args.getBoolean(ARG_KEY_SKIP_LOAD);
-        Timber.i("onCreate: set forumID to %d, set page to %d", mForumId, mPage);
     }
 
 
 	@Override
-    public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
+    public View onCreateView(@NonNull LayoutInflater aInflater, ViewGroup aContainer, Bundle aSavedState) {
         View result = inflateView(R.layout.forum_display, aContainer, aInflater);
-    	mListView = (ListView) result.findViewById(R.id.forum_list);
+    	mListView = result.findViewById(R.id.forum_list);
 
         // page bar
-        mPageBar = (PageBar) result.findViewById(R.id.page_bar);
+        mPageBar = result.findViewById(R.id.page_bar);
         mPageBar.setListener(new PageBar.PageBarCallbacks() {
             @Override
             public void onPageNavigation(boolean nextPage) {
@@ -177,83 +163,32 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // TODO: move P2R stuff into AwfulFragment
-        setSwipyLayout((SwipyRefreshLayout) view.findViewById(R.id.forum_swipe));
+        setSwipyLayout(view.findViewById(R.id.forum_swipe));
         getSwipyLayout().setOnRefreshListener(this);
         getSwipyLayout().setColorSchemeResources(ColorProvider.getSRLProgressColors(null));
         getSwipyLayout().setProgressBackgroundColor(ColorProvider.getSRLBackgroundColor(null));
     }
 
     @Override
-    public void onActivityCreated(Bundle aSavedState) {
-        super.onActivityCreated(aSavedState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        /*
-            What happens in here, as far as I can tell, in order of precedence
-            - Use saved instance state
-            - If current forum is 1+, do nothing (it's assuming data has been set?)
-            - IF CURRENT FORUM is < 1:
-            -  use ACTIVITY's INTENT's url data if it exists and it's for a FORUM
-            -  use BUNDLED INTENT's forum ID and page (assumed to exist)
-            -  use ACTIVITY's INTENT and get the forum ID and page from that, defaulting to Bookmarks and/or page 1 if either are missing
-         */
-
-        // TODO: clean up whatever rube goldberg initialisation is happening here
-        // I don't think any of this gets called? I can't see any saved state coming back in (it gets saved though),
-        // and the forum ID and page are already set to valid values (>0) in onCreate - fragment is NOT being retained
-
-    	if(aSavedState != null){
-            // if there's saved state, load that
-            Timber.i("Restoring savedInstanceState!");
-            setForumId(aSavedState.getInt(Constants.FORUM_ID, mForumId));
-            setPage(aSavedState.getInt(Constants.FORUM_PAGE, FIRST_PAGE));
-        }else if(mForumId < 1){
-            Timber.d("onActivityCreated: mForumId is less than 1 (" + mForumId + "), messing with intents and bundles");
-            // otherwise if forumID is uninitialised/invalid (which is never true now, it's always set and validated for values <1)
-            Intent intent = getActivity().getIntent();
-            int forumIdFromIntent = intent.getIntExtra(Constants.FORUM_ID, mForumId);
-            setForumId(forumIdFromIntent);
-            setPage(intent.getIntExtra(Constants.FORUM_PAGE, mPage));
-            Timber.d("onActivityCreated: activity's intent args - got id: %b, got page: %b",
-                    intent.hasExtra(Constants.FORUM_ID), intent.hasExtra(Constants.FORUM_PAGE));
-            // I think these are fallbacks if the following doesn't work?
-
-	        Bundle args = getArguments();
-	    	Uri urldata = intent.getData();
-
-            // if the activity has a data URI, get that and set the forum and page... again
-	        if(urldata != null){
-                Timber.d("onActivityCreated: got URL data from ACTIVITY's intent");
-                AwfulURL aurl = AwfulURL.parse(intent.getDataString());
-	        	if(aurl.getType() == TYPE.FORUM){
-                    Timber.d("onActivityCreated: URL is for a forum, that's for us");
-                    setForumId((int) aurl.getId());
-                    setPage((int) aurl.getPage());
-                } else {
-                    Timber.d("onActivityCreated: URL was not for a forum, I guess we ignore it then");
-                }
-	        }else if(args != null){
-                Timber.d("onActivityCreated: no URL data, but we have fragment arguments");
-                // default to page 1 of bookmarks if we have no data URI and we have fragment args
-                setForumId(args.getInt(Constants.FORUM_ID, USERCP_ID));
-                setPage(args.getInt(Constants.FORUM_PAGE, FIRST_PAGE));
-                Timber.d("onActivityCreated: original fragment args - got id: %b, got page: %b",
-                        args.get(Constants.FORUM_ID) != null, args.get(Constants.FORUM_PAGE) != null);
-            }
-    	} else {
-            Timber.d("onActivityCreated: got method call, but there was no savedInstanceState and forum ID was already set");
+        if (savedInstanceState != null) {
+            currentForumId = savedInstanceState.getInt(KEY_FORUM_ID);
+            currentPage = savedInstanceState.getInt(KEY_PAGE_NUMBER);
+            skipLoad = savedInstanceState.getBoolean(KEY_SKIP_LOAD);
+            Timber.i("restored state - forumID: %d, page %d, skipLoad: %b", currentForumId, currentPage, skipLoad);
         }
-
 
         mCursorAdapter = new ThreadCursorAdapter((AwfulActivity) getActivity(), null, this);
         mListView.setAdapter(mCursorAdapter);
         mListView.setOnItemClickListener(onThreadSelected);
-
+        // TODO: save and restore scroll position - probably need to do the listview trick (get top item, and scroll offset from that) and save it as a deferred value, i.e. on load if there's a scroll value pending, do it and clear it
         updateColors();
-
         registerForContextMenu(mListView);
     }
 
@@ -288,12 +223,13 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 
 
     @Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-        Timber.d("onSaveInstanceState: saving instance state - forumId: %d, page: %d", getForumId(), getPage());
-        outState.putInt(Constants.FORUM_PAGE, getPage());
-    	outState.putInt(Constants.FORUM_ID, getForumId());
-	}
+        Timber.d("onSaveInstanceState: saving instance state - forumId: %d, page: %d, skipLoad: %b", currentForumId, currentPage, skipLoad);
+        outState.putInt(KEY_FORUM_ID, currentForumId);
+        outState.putInt(KEY_PAGE_NUMBER, currentPage);
+        outState.putBoolean(KEY_SKIP_LOAD, skipLoad);
+    }
 
     @Override
     protected void cancelNetworkRequests() {
@@ -433,7 +369,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
 	}
 
 	public int getForumId(){
-		return mForumId;
+		return currentForumId;
 	}
 
 
@@ -443,11 +379,11 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
      * This will be bound to the valid range (between the first and last page).
      */
     private void setPage(int pageNumber) {
-        mPage = Math.max(FIRST_PAGE, Math.min(pageNumber, getLastPage()));
+        currentPage = Math.max(FIRST_PAGE, Math.min(pageNumber, getLastPage()));
     }
 
 	public int getPage(){
-		return mPage;
+		return currentPage;
 	}
 
     private int getLastPage() {
@@ -474,12 +410,12 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
      * @param forumId   the ID to switch to
      */
     private void setForumId(int forumId) {
-        mForumId = (forumId < 1) ? USERCP_ID : forumId;
+        currentForumId = (forumId < 1) ? USERCP_ID : forumId;
 	}
 
     public void openForum(int id, @Nullable Integer page){
         // do nothing if we're already looking at this page (or if no page specified)
-        if (id == mForumId && (page == null || page == mPage)) {
+        if (id == currentForumId && (page == null || page == currentPage)) {
             return;
         }
     	closeLoaders();
@@ -742,7 +678,7 @@ public class ForumDisplayFragment extends AwfulFragment implements SwipyRefreshL
         if (mListView == null) {
             return;
         }
-        int backgroundColor = ColorProvider.BACKGROUND.getColor(mForumId);
+        int backgroundColor = ColorProvider.BACKGROUND.getColor(currentForumId);
         mListView.setBackgroundColor(backgroundColor);
         mListView.setCacheColorHint(backgroundColor);
     }

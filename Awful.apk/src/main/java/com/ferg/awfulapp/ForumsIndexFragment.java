@@ -54,6 +54,8 @@ import static com.ferg.awfulapp.forums.ForumStructure.TWO_LEVEL;
 public class ForumsIndexFragment extends AwfulFragment
         implements ForumRepository.ForumsUpdateListener, ForumListAdapter.EventListener {
 
+    private static final String KEY_SHOW_FAVOURITES = "show_favourites";
+
     @BindView(R.id.forum_index_list)
     RecyclerView forumRecyclerView;
     @BindView(R.id.view_switcher)
@@ -82,6 +84,9 @@ public class ForumsIndexFragment extends AwfulFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            showFavourites = savedInstanceState.getBoolean(KEY_SHOW_FAVOURITES);
+        }
         setHasOptionsMenu(true);
         setRetainInstance(false);
     }
@@ -129,6 +134,11 @@ public class ForumsIndexFragment extends AwfulFragment
         super.onPause();
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_SHOW_FAVOURITES, showFavourites);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Menus
