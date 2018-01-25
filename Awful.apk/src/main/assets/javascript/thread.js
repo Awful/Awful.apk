@@ -327,12 +327,14 @@ function freezeGif(image) {
  * @param {String} users A string of users separated by commas
  */
 function updateMarkedUsers(users) {
-	document.querySelectorAll('article.marked').forEach(function each() {
-		this.classList.remove('marked');
+	document.querySelectorAll('article.marked').forEach(function each(markedPoster) {
+		markedPoster.classList.remove('marked');
 	});
 	var userArray = users.split(',');
 	userArray.forEach(function each(username) {
-		document.querySelectorAll('.postmenu[username=' + username + ']').closest('article').classList.add('marked');
+		document.querySelectorAll('.postmenu[username=' + username + ']').forEach(function each(poster){
+		    poster.closest('article').classList.add('marked');
+		});
 	});
 }
 
