@@ -336,8 +336,8 @@ function updateMarkedUsers(users) {
 	});
 	var userArray = users.split(',');
 	userArray.forEach(function each(username) {
-		document.querySelectorAll('.postmenu[username=' + username + ']').forEach(function each(poster){
-		    poster.closest('article').classList.add('marked');
+		document.querySelectorAll('.postmenu[username="' + username + '"]').forEach(function each(poster) {
+			poster.closest('article').classList.add('marked');
 		});
 	});
 }
