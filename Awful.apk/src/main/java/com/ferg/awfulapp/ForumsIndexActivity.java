@@ -149,7 +149,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void setupImmersion() {
-        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
+        if (getMPrefs().immersionMode) {
             mDecorView = getWindow().getDecorView();
 
             mDecorView.setOnSystemUiVisibilityChangeListener(
@@ -272,7 +272,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     @SuppressLint("NewApi")
     public boolean dispatchTouchEvent(MotionEvent e) {
-        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
+        if (getMPrefs().immersionMode) {
             super.dispatchTouchEvent(e);
             return mImmersionGestureDetector.onTouchEvent(e);
         }
@@ -303,7 +303,7 @@ public class ForumsIndexActivity extends AwfulActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
+        if (getMPrefs().immersionMode) {
             // When the window loses focus (e.g. the action overflow is shown),
             // cancel any pending hide action. When the window gains focus,
             // hide the system UI.
@@ -317,7 +317,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void showSystemUi() {
-        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
+        if (getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -326,7 +326,7 @@ public class ForumsIndexActivity extends AwfulActivity
 
     @SuppressLint("NewApi")
     private void hideSystemUi() {
-        if (AwfulUtils.isKitKat() && getMPrefs().immersionMode) {
+        if (getMPrefs().immersionMode) {
             mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);

@@ -32,4 +32,33 @@
 			return null;
 		};
 	}
+
+	if (typeof ElementProto.replaceWith !== 'function') {
+		ElementProto.replaceWith = function replaceWith(Ele) {
+            var parent = this.parentNode,
+                i = arguments.length,
+                firstIsNode = +(parent && typeof Ele === 'object');
+            if (!parent) return;
+
+            while (i-- > firstIsNode){
+                if (parent && typeof arguments[i] !== 'object'){
+                    arguments[i] = document.createTextNode(arguments[i]);
+                } if (!parent && arguments[i].parentNode){
+                    arguments[i].parentNode.removeChild(arguments[i]);
+                    continue;
+                }
+                parent.insertBefore(this.previousSibling, arguments[i]);
+            }
+            if (firstIsNode) parent.replaceChild(Ele, this);
+        };
+	}
 })(window.Element.prototype);
+
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+        thisArg = thisArg || window;
+        for (var i = 0; i < this.length; i++) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    };
+}

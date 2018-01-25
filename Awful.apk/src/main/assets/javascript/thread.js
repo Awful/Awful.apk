@@ -83,9 +83,9 @@ function containerInit() {
  * @returns {Element|undefined} The requested Element or undefined if the Element is not found
  */
 function findInPath(event, cssClass, returnElement) {
-	var search = event.path.filter(function filter(node) {
-		return node.classList && node.classList.contains(cssClass);
-	});
+	var search = Array.prototype.filter.call(event.path, function filter(node) {
+        return node.classList && node.classList.contains(cssClass);
+    });
 	return returnElement ? search[0] : search.length > 0;
 }
 
@@ -259,7 +259,7 @@ function showInlineImage(url) {
 		if (!link.classList.contains(FROZEN_GIF)) {
 			var image = document.createElement('img');
 			image.src = '';
-			link.append(image);
+			link.appendChild(image);
 		} else {
 			link.classList.add(LOADING);
 		}
@@ -300,7 +300,11 @@ function changeFontFace(font) {
 		fontFace.remove();
 	}
 	if (font !== 'default') {
-		document.getElementsByTagName('head')[0].append('<style id=\'font-face\' type=\'text/css\'>@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }</style>');
+	    var styleElement = document.createElement('style');
+	    styleElement.id = 'font-face';
+	    styleElement.setAttribute('type','text/css');
+	    styleElement.innerHTML = '@font-face { font-family: userselected; src: url(\'content://com.ferg.awfulapp.webprovider/' + font + '\'); }';
+		document.getElementsByTagName('head')[0].appendChild(styleElement);
 	}
 }
 

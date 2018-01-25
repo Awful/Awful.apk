@@ -48,7 +48,7 @@ function processThreadEmbeds(post) {
 				var instagramEmbedScript = new document.createElement('script');
 				instagramEmbedScript.setAttribute('src', 'https://platform.instagram.com/en_US/embeds.js');
 				instagramEmbedScript.id = 'instagramScript';
-				document.getElementsByTagName('body')[0].append(instagramEmbedScript);
+				document.getElementsByTagName('body')[0].appendChild(instagramEmbedScript);
 			}
 		}
 	}
@@ -76,7 +76,7 @@ function processThreadEmbeds(post) {
 
 			var videoWrapper = document.createElement('div');
 			videoWrapper.classList.add('videoWrapper');
-			videoWrapper.append(vimeoIframe);
+			videoWrapper.appendChild(vimeoIframe);
 			param.closest('div.bbcode_video').replaceWith(videoWrapper);
 		});
 	}

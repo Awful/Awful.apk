@@ -356,7 +356,6 @@ class ThreadPageParseTask(
                 // so if the thread IS bookmarked, check if the data has an 'unbookmarked' value (i.e. 0) and give it a bookmarked one if necessary
                 bookmarkType = 1
             }
-
             forumId = page.select(".breadcrumbs [href]")
                     .map { FORUM_ID_REGEX.matcher(it.attr("href")) }
                     .firstOrNull(Matcher::find)

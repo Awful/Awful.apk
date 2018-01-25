@@ -78,11 +78,7 @@ public class AwfulWebView extends WebView {
         webSettings.setDefaultFontSize(prefs.postFontSizeSp);
         webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
         webSettings.setDomStorageEnabled(true);
-
-        if (AwfulUtils.isLollipop()) {
-            //noinspection AndroidLintNewApi, AndroidLintInlinedApi
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         if (DEBUG) {
             //noinspection AndroidLintNewApi

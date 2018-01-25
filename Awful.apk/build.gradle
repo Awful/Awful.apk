@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ferg.awfulapp"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
         resConfigs "en"
 

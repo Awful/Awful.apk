@@ -44,14 +44,6 @@ public class AwfulUtils {
         return Build.VERSION.SDK_INT >= code;
     }
 
-    public static boolean isKitKatOnly() {
-        return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
-    }
-
-    public static boolean isLollipop() {
-        return isAtLeast(Build.VERSION_CODES.LOLLIPOP);
-    }
-
     public static boolean isMarshmallow() {
         return isAtLeast(Build.VERSION_CODES.M);
     }

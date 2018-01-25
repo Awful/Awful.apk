@@ -120,7 +120,7 @@ class NavigationDrawer(val activity: AwfulActivity, toolbar: Toolbar, val prefs:
         username.text = prefs.username
         prefs.userTitle?.let { customTitle ->
             if (customTitle.isNotBlank()) loadAvatar(customTitle, avatar) else avatar.setImageResource(R.drawable.frog_icon)
-            if (AwfulUtils.isLollipop()) avatar.clipToOutline = customTitle.isNotBlank()
+            avatar.clipToOutline = customTitle.isNotBlank()
         }
 
         // display the current forum title (or not)
