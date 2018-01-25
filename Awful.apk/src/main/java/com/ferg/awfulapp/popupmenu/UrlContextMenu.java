@@ -179,7 +179,7 @@ public class UrlContextMenu extends BasePopupMenu<UrlContextMenu.UrlMenuAction> 
         }
 
         // we have some text (empty string counts) so show the view
-        if (subheading.getVisibility() != VISIBLE || !AwfulUtils.isJellybean()) {
+        if (subheading.getVisibility() != VISIBLE) {
             // basic set-and-show for hidden subheader and old Androids that can't animate properly
             subheading.setText(subheadingText);
             subheading.setVisibility(VISIBLE);

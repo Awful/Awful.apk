@@ -315,20 +315,7 @@ public class AwfulPost {
                     String link = "http://www.youtube.com/watch?v=" + videoId;
                     String image = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
 
-                    if (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4")) {
-                        Element youtubeContainer = new Element(Tag.valueOf("div"), "");
-                        youtubeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
-                        Element youtubeLink = new Element(Tag.valueOf("a"), "");
-                        youtubeLink.attr("href", link);
-                        youtubeLink.attr("style", "position: absolute; background:url('file:///android_asset/images/ic_menu_play.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                        Element img = new Element(Tag.valueOf("img"), "");
-                        img.attr("class", "nolink videoPlayButton");
-                        img.attr("src", image);
-                        img.attr("style", "max-width: 100%;");
-                        youtubeContainer.appendChild(img);
-                        youtubeContainer.appendChild(youtubeLink);
-                        youTube.replaceWith(youtubeContainer);
-                    } else if (!inlineYouTubes) {
+                    if (!inlineYouTubes) {
                         Element youtubeLink = new Element(Tag.valueOf("a"), "");
                         youtubeLink.text(link);
                         youtubeLink.attr("href", link);
@@ -370,7 +357,6 @@ public class AwfulPost {
                 }
                 if (src != null && height != 0 && width != 0) {
                     String link = null, image = null;
-                    Matcher youtube = youtubeId_regex.matcher(src);
                     Matcher vimeo = vimeoId_regex.matcher(src);
                     if (vimeo.find()) {
                         String videoId = vimeo.group(1);
@@ -396,27 +382,11 @@ public class AwfulPost {
                         node.replaceWith(ln);
                         continue;
                     }
-
-                    if (inlineYouTubes && (AwfulUtils.isKitKatOnly() && !Build.VERSION.RELEASE.equals("4.4.4"))) {
-                        Element nodeContainer = new Element(Tag.valueOf("div"), "");
-                        nodeContainer.attr("style", "position: relative;text-align: center;background-color: transparent;");
-                        Element nodeLink = new Element(Tag.valueOf("a"), "");
-                        nodeLink.attr("href", link);
-                        nodeLink.attr("style", "position: absolute; background:url('file:///android_asset/images/ic_menu_play.png') no-repeat center center;    top: 0; right: 0; bottom: 0; left: 0;");
-                        Element img = new Element(Tag.valueOf("img"), "");
-                        img.attr("class", "nolink videoPlayButton");
-                        img.attr("src", image);
-                        img.attr("style", "max-width: 100%;");
-                        nodeContainer.appendChild(img);
-                        nodeContainer.appendChild(nodeLink);
-                        node.replaceWith(nodeContainer);
-                    } else {
-                        node.empty();
-                        Element ln = new Element(Tag.valueOf("a"), "");
-                        ln.attr("href", link);
-                        ln.text(link);
-                        node.replaceWith(ln);
-                    }
+                    node.empty();
+                    Element ln = new Element(Tag.valueOf("a"), "");
+                    ln.attr("href", link);
+                    ln.text(link);
+                    node.replaceWith(ln);
                 }
 
             } catch (Exception e) {

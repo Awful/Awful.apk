@@ -78,23 +78,19 @@ public class AwfulWebView extends WebView {
         webSettings.setDefaultFontSize(prefs.postFontSizeSp);
         webSettings.setDefaultFixedFontSize(prefs.postFixedFontSizeSp);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        if (AwfulUtils.isLollipop()) {
-            //noinspection AndroidLintNewApi, AndroidLintInlinedApi
-            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
-
-        if (DEBUG && AwfulUtils.isKitKat()) {
+        if (DEBUG) {
             //noinspection AndroidLintNewApi
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        if (AwfulUtils.isAtLeast(Build.VERSION_CODES.JELLY_BEAN_MR1) && (prefs.inlineWebm || prefs.inlineVines)) {
+        if (prefs.inlineWebm || prefs.inlineVines) {
             //noinspection AndroidLintNewApi
             webSettings.setMediaPlaybackRequiresUserGesture(false);
         }
 
-        if (prefs.inlineTweets && AwfulUtils.isJellybean()) {
+        if (prefs.inlineTweets) {
             //noinspection AndroidLintNewApi
             webSettings.setAllowUniversalAccessFromFileURLs(true);
             webSettings.setAllowFileAccess(true);

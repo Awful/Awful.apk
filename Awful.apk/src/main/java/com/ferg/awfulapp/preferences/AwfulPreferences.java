@@ -294,7 +294,7 @@ public class AwfulPreferences implements OnSharedPreferenceChangeListener {
 		pageLayout				 = getPreference(Keys.PAGE_LAYOUT, "auto");
 		coloredBookmarks		 = getPreference(Keys.COLORED_BOOKMARKS, false);
 		p2rDistance				 = getPreference(Keys.P2R_DISTANCE, 0.5f);
-		immersionMode = AwfulUtils.isKitKat() && getPreference(Keys.IMMERSION_MODE, false);
+		immersionMode			 = getPreference(Keys.IMMERSION_MODE, false);
 		hideSignatures  		 = getPreference(Keys.HIDE_SIGNATURES, false);
 		transformer  		     = getPreference(Keys.TRANSFORMER, "Default");
 		amberDefaultPos  		 = getPreference(Keys.AMBER_DEFAULT_POS, false);
