@@ -1,6 +1,5 @@
-/**
- * from https://github.com/jonathantneal/closest
- */
+'use strict';
+/* eslint-disable */
 
 (function (ElementProto) {
 	if (typeof ElementProto.matches !== 'function') {
@@ -54,11 +53,29 @@
 	}
 })(window.Element.prototype);
 
-if (window.NodeList && !NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function (callback, thisArg) {
-        thisArg = thisArg || window;
-        for (var i = 0; i < this.length; i++) {
-            callback.call(thisArg, this[i], i, this);
-        }
-    };
-}
+(function (ElementProto) {
+	if (typeof ElementProto.forEach !== 'function') {
+		ElementProto.forEach = function forEach(callback, thisArg) {
+			thisArg = thisArg || window;
+			for (var i = 0; i < this.length; i++) {
+				callback.call(thisArg, this[i], i, this);
+			}
+		};
+	}
+})(window.NodeList.prototype);
+
+(function (ElementProto) {
+	if (typeof ElementProto.endsWith !== 'function') {
+		ElementProto.endsWith = function endsWith(search, this_len) {
+			if (this_len === undefined || this_len > this.length) {
+				this_len = this.length;
+			}
+			return this.substring(this_len - search.length, this_len) === search;
+		};
+	}
+	if (typeof ElementProto.startsWith !== 'function') {
+		ElementProto.startsWith = function startsWith(search, pos) {
+			return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+		};
+	}
+})(window.String.prototype);
